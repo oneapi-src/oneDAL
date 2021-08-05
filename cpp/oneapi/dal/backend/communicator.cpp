@@ -95,7 +95,7 @@ public:
     request_t* gatherv(const byte_t* send_buf,
                        std::int64_t send_count,
                        byte_t* recv_buf,
-                       const std::int64_t* recv_count,
+                       const std::int64_t* recv_counts,
                        const std::int64_t* displs,
                        const data_type& dtype,
                        std::int64_t root) override {
@@ -105,9 +105,9 @@ public:
             return nullptr;
         }
 
-        ONEDAL_ASSERT(recv_count);
+        ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
-        ONEDAL_ASSERT(recv_count[0] == send_count);
+        ONEDAL_ASSERT(recv_counts[0] == send_count);
 
         copy_if_different_pointers(recv_buf + displs[0], send_buf, send_count, dtype);
 
@@ -119,7 +119,7 @@ public:
                        const byte_t* send_buf,
                        std::int64_t send_count,
                        byte_t* recv_buf,
-                       const std::int64_t* recv_count,
+                       const std::int64_t* recv_counts,
                        const std::int64_t* displs,
                        const data_type& dtype,
                        std::int64_t root) override {
@@ -129,9 +129,9 @@ public:
             return nullptr;
         }
 
-        ONEDAL_ASSERT(recv_count);
+        ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
-        ONEDAL_ASSERT(recv_count[0] == send_count);
+        ONEDAL_ASSERT(recv_counts[0] == send_count);
 
         copy_if_different_pointers(q, recv_buf + displs[0], send_buf, send_count, dtype);
 
