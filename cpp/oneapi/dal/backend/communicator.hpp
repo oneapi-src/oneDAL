@@ -50,16 +50,45 @@ private:
 /// collective operation overloading for internal classes such as `ndarray`.
 class communicator {
 public:
-    /// Creates communicator for one-rank system
-    communicator() : public_comm_(fake_spmd_communicator{}), is_distributed_(false) {}
-
     /// Creates communicator based on public SPMD interface
     communicator(const dal::detail::spmd_communicator& comm)
             : public_comm_(comm),
               is_distributed_(true) {}
 
+    /// Creates communicator for one-rank system
+    communicator(const fake_spmd_communicator& comm = fake_spmd_communicator{})
+            : public_comm_(comm),
+              is_distributed_(false) {}
+
     bool is_distributed() const {
         return is_distributed_;
+    }
+
+    std::int64_t get_rank() const {
+        return public_comm_.get_rank();
+    }
+
+    std::int64_t get_rank_count() const {
+        return public_comm_.get_rank_count();
+    }
+
+    std::int64_t get_default_root_rank() const {
+        return public_comm_.get_default_root_rank();
+    }
+
+    template <typename... Args>
+    bool is_root_rank(Args&&... args) const {
+        return public_comm_.is_root_rank(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto if_root_rank(Args&&... args) const {
+        return public_comm_.if_root_rank(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto if_root_rank_else(Args&&... args) const {
+        return public_comm_.if_root_rank_else(std::forward<Args>(args)...);
     }
 
     void barrier() const {
