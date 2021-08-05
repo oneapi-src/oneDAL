@@ -805,7 +805,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
     ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() >=
                   node_count * impl_const_t::node_imp_prop_count_);
     if constexpr (std::is_same_v<Task, task::classification>) {
-        ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() == node_count * ctx.class_count_);
+        ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() >= node_count * ctx.class_count_);
     }
     ONEDAL_ASSERT(node_ind_list.get_count() >= (node_ind_ofs + node_count));
     ONEDAL_ASSERT(node_list.get_count() >=
