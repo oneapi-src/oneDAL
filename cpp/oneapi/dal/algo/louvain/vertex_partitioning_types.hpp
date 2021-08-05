@@ -52,18 +52,11 @@ public:
     /// Returns the constant reference to the input graph
     const Graph &get_graph() const;
 
-    /// Sets the input graph
-    ///
-    /// @param [in] g  The input graph
-    auto &set_graph(const Graph &g);
-
     /// Returns the constant reference to the initial partition
     const table &get_initial_partition() const;
 
-    // Sets the input initial partition
-    ///
-    /// @param [in] initial_partition  The initial partition of verteces
-    auto &set_initial_partition(const table &initial_partition);
+    /// Returns is initial partition is set
+    bool get_use_initial_partition() const;
 
 private:
     dal::detail::pimpl<detail::vertex_partitioning_input_impl<Graph, Task>> impl_;
@@ -139,7 +132,12 @@ const Graph &vertex_partitioning_input<Graph, Task>::get_graph() const {
 
 template <typename Graph, typename Task>
 const table &vertex_partitioning_input<Graph, Task>::get_initial_partition() const {
-    return impl_->initial_partition_data;
+    return impl_->labels_data;
+}
+
+template <typename Graph, typename Task>
+bool vertex_partitioning_input<Graph, Task>::get_use_initial_partition() const {
+    return impl_->use_initial_partition;
 }
 
 } // namespace oneapi::dal::preview::louvain

@@ -33,7 +33,9 @@ struct vertex_partitioning_kernel_cpu {
     inline vertex_partitioning_result<Task> operator()(const dal::detail::host_policy &ctx,
                                                        const detail::descriptor_base<Task> &desc,
                                                        const Allocator &alloc,
-                                                       const Graph &g) const;
+                                                       const Graph &g,
+                                                       const table &p,
+                                                       const bool use_p) const;
 };
 
 template <typename Float, typename Task, typename Topology, typename EdgeValue, typename... Param>
@@ -54,6 +56,8 @@ struct louvain_kernel<Float,
         const dal::detail::host_policy &ctx,
         const detail::descriptor_base<task::vertex_partitioning> &desc,
         const dal::preview::detail::topology<std::int32_t> &t,
+        const std::int32_t *p,
+        const bool use_p,
         const EdgeValue *vals,
         byte_alloc_iface *alloc) const;
 };
@@ -64,16 +68,22 @@ struct vertex_partitioning_kernel_cpu<method::fast, task::vertex_partitioning, A
         const dal::detail::host_policy &ctx,
         const detail::descriptor_base<task::vertex_partitioning> &desc,
         const Allocator &alloc,
-        const Graph &g) const {
+        const Graph &g,
+        const table &p,
+        const bool use_p) const {
         using topology_type = typename graph_traits<Graph>::impl_type::topology_type;
         using value_type = edge_user_value_type<Graph>;
         const auto &t = dal::preview::detail::csr_topology_builder<Graph>()(g);
         const auto vals = dal::detail::get_impl(g).get_edge_values().get_data();
+        auto p_arr = oneapi::dal::row_accessor<const std::int32_t>(p).pull();
+        const auto p_data = p_arr.get_data();
         alloc_connector<Allocator> alloc_con(alloc);
         return louvain_kernel<float, task::vertex_partitioning, topology_type, value_type>{}(
             ctx,
             desc,
             t,
+            p_data,
+            use_p,
             vals,
             &alloc_con);
     }

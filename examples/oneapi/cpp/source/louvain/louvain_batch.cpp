@@ -49,7 +49,14 @@ int main(int argc, char** argv) {
             .set_max_iteration_count(3);
     // compute louvain
     try {
-        const auto result = dal::preview::vertex_partitioning(louvain_desc, my_graph);
+        const std::int64_t rows_count = 7;
+        const std::int64_t cols_count = 1;
+        const std::int64_t data[] = { 0, 1, 2, 3, 4, 5, 6 };
+        const auto initial_labels = dal::homogen_table::wrap(data, rows_count, cols_count);
+
+        const auto result =
+            dal::preview::vertex_partitioning(louvain_desc, my_graph, initial_labels);
+
         std::cout << "Modularity: " << result.get_modularity() << std::endl;
         std::cout << "Number of communities: " << result.get_community_count() << std::endl;
         std::cout << "Get communities' labels: " << result.get_labels() << std::endl;

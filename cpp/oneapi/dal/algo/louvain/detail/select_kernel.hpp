@@ -32,7 +32,9 @@ struct backend_base {
 
     virtual vertex_partitioning_result<task_t> operator()(const Policy &ctx,
                                                           const Descriptor &descriptor,
-                                                          const Graph &t) = 0;
+                                                          const Graph &t,
+                                                          const table &p,
+                                                          const bool use_p) = 0;
     virtual ~backend_base() = default;
 };
 
@@ -48,12 +50,16 @@ struct backend_default : public backend_base<Policy, Descriptor, Graph> {
 
     virtual vertex_partitioning_result<task_t> operator()(const Policy &ctx,
                                                           const Descriptor &descriptor,
-                                                          const Graph &t) {
+                                                          const Graph &t,
+                                                          const table &p,
+                                                          const bool use_p) {
         return vertex_partitioning_kernel_cpu<method_t, task_t, allocator_t, Graph>()(
             ctx,
             descriptor,
             descriptor.get_allocator(),
-            t);
+            t,
+            p,
+            use_p);
     }
 };
 
