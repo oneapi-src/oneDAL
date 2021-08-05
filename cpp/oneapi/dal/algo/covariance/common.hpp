@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/util/result_option_id.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/common.hpp"
 
@@ -61,12 +62,9 @@ public:
 
 namespace detail {
 
-ONEDAL_EXPORT result_option_id get_cov_matrix();
-ONEDAL_EXPORT result_option_id get_cor_matrix();
-ONEDAL_EXPORT result_option_id get_means();
-
-template <typename Task>
-ONEDAL_EXPORT result_option_id get_default_result_options();
+ONEDAL_EXPORT result_option_id get_cov_matrix_id();
+ONEDAL_EXPORT result_option_id get_cor_matrix_id();
+ONEDAL_EXPORT result_option_id get_means_id();
 
 } // namespace detail
 
@@ -74,9 +72,9 @@ ONEDAL_EXPORT result_option_id get_default_result_options();
 /// what should algorithm return
 namespace result_options {
 
-const inline result_option_id cov_matrix = detail::get_cov_matrix();
-const inline result_option_id cor_matrix = detail::get_cor_matrix();
-const inline result_option_id means = detail::get_means();
+const inline result_option_id cov_matrix = detail::get_cov_matrix_id();
+const inline result_option_id cor_matrix = detail::get_cor_matrix_id();
+const inline result_option_id means = detail::get_means_id();
 
 } // namespace result_options
 
@@ -112,6 +110,7 @@ public:
 
 protected:
     void set_result_options_impl(const result_option_id& value);
+
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
@@ -164,7 +163,6 @@ public:
         base_t::set_result_options_impl(value);
         return *this;
     }
-
 };
 
 } // namespace v1

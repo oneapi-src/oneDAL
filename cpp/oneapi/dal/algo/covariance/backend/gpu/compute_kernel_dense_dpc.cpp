@@ -14,14 +14,17 @@
 * limitations under the License.
 *******************************************************************************/
 
-
+#include "oneapi/dal/algo/covariance/common.hpp"
 #include "oneapi/dal/algo/covariance/backend/gpu/compute_kernel.hpp"
+
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/backend/transfer.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include "daal/src/algorithms/covariance/covariance_kernel_oneapi.h"
+#include "src/algorithms/kernel.h"
+#include "daal/src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
 
 namespace oneapi::dal::covariance::backend {
 
@@ -31,90 +34,86 @@ using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
 namespace daal_covariance = daal::algorithms::covariance;
-namespace daal_covariance_parameter = daal::algorithms::covariance::internal;
+namespace daal_covariance_parameter = daal::algorithms::covariance::oneapi::internal;
 namespace interop = dal::backend::interop;
 
 template <typename Float>
-using daal_covariance_kernel_t =
-    daal_covariance::oneapi::internal::CovarianceDenseBatchKernelOneAPI<Float, daal_covariance::Method::defaultDense>;
+using daal_covariance_kernel_t = daal_covariance::oneapi::internal::
+    CovarianceDenseBatchKernelOneAPI<Float, daal_covariance::Method::defaultDense>;
 
 template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
-
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
-    const int64_t row_count = data.get_row_count();
-    const std::int64_t component_count = data.get_component_count();
+
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t component_count = data.get_column_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull(queue);
+    //auto daal_data = interop::convert_to_daal_table(queue, data);
+    //auto arr_data = row_accessor<const Float>{ data }.pull(queue);
 
-    daal_covariance_parameter::Parameter daal_parameter;
+    daal::algorithms::covariance::Parameter daal_parameter;
+
     auto result = compute_result<task::compute>{}.set_result_options(desc.get_result_options());
 
     auto arr_cov_matrix = array<Float>::empty(queue, row_count * component_count);
     auto arr_cor_matrix = array<Float>::empty(queue, row_count * component_count);
     auto arr_means = array<Float>::empty(queue, 1 * component_count);
-
-    auto daal_data = 
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, component_count);
-    auto daal_cov_matrix = 
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_cov_matrix, row_count, component_count);
-    auto daal_cor_matrix =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_cor_matrix, row_count, component_count);
-    auto daal_means = 
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_means, 1, component_count);
+    const auto daal_data =
+        interop::convert_to_daal_table(queue, arr_data, row_count, component_count);
+    auto daal_cov_matrix = daal::data_management::NumericTablePtr();
+    auto daal_cor_matrix = daal::data_management::NumericTablePtr();
+    auto daal_means = daal::data_management::NumericTablePtr();
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         dal::detail::check_mul_overflow(row_count, component_count);
         arr_cov_matrix.reset(row_count * component_count);
-        daal_parameter.OutputMatrixType = daal_covariance::OutputMatrixType::covarianceMatrix;
+        daal_parameter.outputMatrixType = daal_covariance::OutputMatrixType::covarianceMatrix;
         daal_cov_matrix =
             interop::convert_to_daal_homogen_table(arr_cov_matrix, row_count, component_count);
         interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
-                                                                       daal_data.get(), 
-                                                                       daal_cov_matrix.get(),
-                                                                       daal_means.get(),
-                                                                       &daal_parameter));
-        result = result.set_cov_matrix(
-            dal::detail::homogen_table_builder{}.reset(arr_cov_matrix, row_count, component_count).build());
+            daal_covariance_kernel_t<Float>().compute(daal_data.get(),
+                                                      daal_cov_matrix.get(),
+                                                      daal_means.get(),
+                                                      &daal_parameter));
+        result = result.set_cov_matrix(dal::detail::homogen_table_builder{}
+                                           .reset(arr_cov_matrix, row_count, component_count)
+                                           .build());
     }
 
     if (desc.get_result_options().test(result_options::cor_matrix)) {
         dal::detail::check_mul_overflow(row_count, component_count);
         arr_cor_matrix.reset(row_count * component_count);
-        daal_parameter.OutputMatrixType = daal_covariance::OutputMatrixType::correlationMatrix;
+        daal_parameter.outputMatrixType = daal_covariance::OutputMatrixType::correlationMatrix;
         daal_cor_matrix =
             interop::convert_to_daal_homogen_table(arr_cor_matrix, row_count, component_count);
         interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
-                                                                       daal_data.get(), 
-                                                                       daal_cor_matrix.get(),
-                                                                       daal_means.get(),
-                                                                       &daal_parameter));
-        result = result.set_cor_matrix(
-            dal::detail::homogen_table_builder{}.reset(arr_cor_matrix, row_count, component_count).build());
+            daal_covariance_kernel_t<Float>().compute(daal_data.get(),
+                                                      daal_cor_matrix.get(),
+                                                      daal_means.get(),
+                                                      &daal_parameter));
+        result = result.set_cor_matrix(dal::detail::homogen_table_builder{}
+                                           .reset(arr_cor_matrix, row_count, component_count)
+                                           .build());
     }
 
     if (desc.get_result_options().test(result_options::means)) {
         arr_means.reset(1 * component_count);
-        daal_parameter.OutputMatrixType = daal_covariance::OutputMatrixType::covarianceMatrix;
-        daal_means =
-            interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
+        daal_parameter.outputMatrixType = daal_covariance::OutputMatrixType::covarianceMatrix;
+        daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
         interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
-                                                                       daal_data.get(), 
-                                                                       daal_cov_matrix.get(),
-                                                                       daal_means.get(),
-                                                                       &daal_parameter));
+            daal_covariance_kernel_t<Float>().compute(daal_data.get(),
+                                                      daal_cov_matrix.get(),
+                                                      daal_means.get(),
+                                                      &daal_parameter));
         result = result.set_means(
             dal::detail::homogen_table_builder{}.reset(arr_means, 1, component_count).build());
     }
     return result;
 }
-
 
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {

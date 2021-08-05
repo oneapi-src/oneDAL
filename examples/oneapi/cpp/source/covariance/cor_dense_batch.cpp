@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/algo/covariance.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -25,12 +24,12 @@ namespace dal = oneapi::dal;
 int main(int argc, char const *argv[]) {
     const auto input_file_name = get_data_path("covcormoments_dense.csv");
     const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
-    
-    auto cov_desc = cov::descriptor<float>
-        .set_result_options(covariance::result_options::means);
 
-    auto result = dal::compute(cov_desc, input);
-    auto means = result.get_means();
+    const auto cov_desc =
+        dal::covariance::descriptor{}.set_result_options(dal::covariance::result_options::cor_matrix);
 
+    const auto result = dal::compute(cov_desc, input);
+    auto cor_matrix = result.get_cor_matrix();
+    std::cout << "Cor:\n" << cor_matrix << std::endl;
     return 0;
 }

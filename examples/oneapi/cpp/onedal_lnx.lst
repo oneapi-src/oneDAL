@@ -19,6 +19,9 @@
 ##******************************************************************************
 
 ONEDAL = column_accessor_homogen             \
+         cor_dense_batch                     \
+         cov_dense_batch                     \
+         means_dense_batch                   \
          df_cls_dense_batch                  \
          df_reg_dense_batch                  \
          directed_graph                      \

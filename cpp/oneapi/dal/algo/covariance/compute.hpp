@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/algo/covariance/common.hpp"
 #include "oneapi/dal/algo/covariance/compute_types.hpp"
 #include "oneapi/dal/algo/covariance/detail/compute_ops.hpp"
 #include "oneapi/dal/compute.hpp"

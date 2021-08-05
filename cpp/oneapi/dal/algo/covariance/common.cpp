@@ -18,17 +18,16 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::covariance::detail {
-namespace v1 {
 
-result_option_id get_cov_matrix() {
+result_option_id get_cov_matrix_id() {
     return result_option_id{ result_option_id::make_by_index(0) };
 }
 
-result_option_id get_cor_matrix() {
+result_option_id get_cor_matrix_id() {
     return result_option_id{ result_option_id::make_by_index(1) };
 }
 
-result_option_id get_means() {
+result_option_id get_means_id() {
     return result_option_id{ result_option_id::make_by_index(2) };
 }
 
@@ -39,8 +38,10 @@ result_option_id get_default_result_options() {
 
 template <>
 result_option_id get_default_result_options<task::compute>() {
-    return get_cov_matrix();
+    return get_cov_matrix_id();
 }
+
+namespace v1 {
 
 template <typename Task>
 class descriptor_impl : public base {

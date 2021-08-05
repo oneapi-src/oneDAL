@@ -102,7 +102,7 @@ public:
         set_means_impl(value);
         return *this;
     }
-    
+
     /// Result options that indicates availability of the properties
     /// @remark default = default_result_options<Task>
     const result_option_id& get_result_options() const;

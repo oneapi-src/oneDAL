@@ -33,7 +33,7 @@ public:
     table cov_matrix;
     table cor_matrix;
     table means;
-    result_option_id options = get_default_result_options<Task>();
+    result_option_id options;
 };
 
 using detail::v1::compute_input_impl;
@@ -42,8 +42,7 @@ using detail::v1::compute_result_impl;
 namespace v1 {
 
 template <typename Task>
-compute_input<Task>::compute_input(const table& data)
-        : impl_(new compute_input_impl<Task>(data)) {}
+compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
 
 template <typename Task>
 const table& compute_input<Task>::get_data() const {
@@ -61,7 +60,7 @@ compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) 
 template <typename Task>
 const table& compute_result<Task>::get_cov_matrix() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options().test(result_options::cov_matrix))) {
+    if (!get_result_options().test(result_options::cov_matrix)) {
         throw domain_error(msg::result_option_have_not_been_computed());
     }
     return impl_->cov_matrix;
@@ -74,7 +73,7 @@ void compute_result<Task>::set_cov_matrix_impl(const table& value) {
 template <typename Task>
 const table& compute_result<Task>::get_cor_matrix() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options().test(result_options::cor_matrix))) {
+    if (!get_result_options().test(result_options::cor_matrix)) {
         throw domain_error(msg::result_option_have_not_been_computed());
     }
     return impl_->cor_matrix;
@@ -88,7 +87,7 @@ void compute_result<Task>::set_cor_matrix_impl(const table& value) {
 template <typename Task>
 const table& compute_result<Task>::get_means() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options().test(result_options::means))) {
+    if (!get_result_options().test(result_options::means)) {
         throw domain_error(msg::result_option_have_not_been_computed());
     }
     return impl_->means;

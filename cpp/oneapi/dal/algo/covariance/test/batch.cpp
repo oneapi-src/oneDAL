@@ -15,7 +15,11 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/covariance/compute.hpp"
+#include "oneapi/dal/algo/covariance/compute_types.hpp"
+#include "oneapi/dal/algo/covariance/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
+
+#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
@@ -125,13 +129,13 @@ public:
         for (std::int64_t i = 0; i < column_count_data; i++) {
             for (std::int64_t j = 0; j < column_count_data; j++) {
                 for (std::int64_t k = 0; j < row_count_data; j++) {
-                        elem = (data_matrix.get(k, i) - reference_means.get(0, i)) * (data_matrix.get(k, j) - reference_means(0, j));
+                        elem = (data_matrix.get(k, i) - reference_means.get(0, i)) * (data_matrix.get(k, j) - reference_means.get(0, j));
                     }
                     reference_cov.set(i, j) = elem * (1/row_count_data - 1);
                     elem = 0;
                 }
             }
-        
+
         return reference_cov;
     }
     void check_cor_matrix_values(const table& data,
@@ -150,11 +154,11 @@ public:
         auto reference_cor = la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
         for (std::int64_t i = 0; i < column_count_data; i++) {
             for (std::int64_t j = 0; j < column_count_data; j++) {
-                    double cor_elem = reference_cov.get(i, j) / std::sqrt(reference_cov.get(i, i) * reference_cov.get(j, j))
+                    double cor_elem = reference_cov.get(i, j) / std::sqrt(reference_cov.get(i, i) * reference_cov.get(j, j));
                     reference_cor.set(i, j) = cor_elem;
                 }
             }
-        
+
         return reference_cor;
     }
 };

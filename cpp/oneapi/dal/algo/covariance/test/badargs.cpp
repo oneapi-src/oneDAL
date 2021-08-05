@@ -38,17 +38,16 @@ public:
     }
 
     table get_input_data(std::int64_t override_row_count = row_count,
-                     std::int64_t override_component_count = component_count) const {
+                         std::int64_t override_component_count = component_count) const {
         ONEDAL_ASSERT(override_row_count * override_componentn_count <= element_count);
         return homogen_table::wrap(data_.data(), override_row_count, override_component_count);
     }
 
 private:
     static constexpr std::array<float, element_count> data_ = { 1.0,  1.0,  2.0,  2.0,  1.0,
-                                                                  2.0,  2.0,  1.0,  -1.0, -1.0,
-                                                                  -1.0, -2.0, -2.0, -1.0, -2.0,
-                                                                  -2.0, -1.0, -2.0, 1.0,  2.0 };
-
+                                                                2.0,  2.0,  1.0,  -1.0, -1.0,
+                                                                -1.0, -2.0, -2.0, -1.0, -2.0,
+                                                                -2.0, -1.0, -2.0, 1.0,  2.0 };
 };
 
 #define COVARIANCE_BADARG_TEST(name) \
@@ -57,8 +56,7 @@ private:
 COVARIANCE_BADARG_TEST("throws if input data is empty") {
     const auto covariance_desc = this->get_descriptor();
 
-    REQUIRE_THROWS_AS(this->compute(covariance_desc, homogen_table{}),
-                      domain_error);
+    REQUIRE_THROWS_AS(this->compute(covariance_desc, homogen_table{}), domain_error);
 }
 
 } // namespace oneapi::dal::covariance::test
