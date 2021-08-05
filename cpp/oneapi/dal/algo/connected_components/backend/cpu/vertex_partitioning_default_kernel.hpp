@@ -40,11 +40,11 @@ inline bool compare_and_swap(T &x, const T &old_val, const T &new_val) {
     return false;
 }
 
-inline void link(std::int32_t u, std::int32_t v, vector<int32_t> &D) {
-    std::int32_t p1;
-    std::int32_t p2;
-    std::int32_t h;
-    std::int32_t l;
+inline void link(std::int64_t u, std::int64_t v, vector<int64_t> &D) {
+    std::int64_t p1;
+    std::int64_t p2;
+    std::int64_t h;
+    std::int64_t l;
     p1 = D[u];
     p2 = D[v];
     while (p1 != p2) {
@@ -56,7 +56,7 @@ inline void link(std::int32_t u, std::int32_t v, vector<int32_t> &D) {
             h = p2;
             l = p1;
         }
-        if (compare_and_swap<std::int32_t>(D[h], h, l)) {
+        if (compare_and_swap<std::int64_t>(D[h], h, l)) {
             break;
         }
         p1 = D[D[h]];
@@ -64,16 +64,16 @@ inline void link(std::int32_t u, std::int32_t v, vector<int32_t> &D) {
     }
 }
 
-inline void compress(std::int32_t u, std::vector<std::int32_t> &D) {
+inline void compress(std::int64_t u, std::vector<std::int64_t> &D) {
     while (D[D[u]] != D[u]) {
         D[u] = D[D[u]];
     }
 }
 
 inline void order_component_ids(const std::int64_t &vertex_count,
-                                std::int32_t &component_count,
-                                std::vector<std::int32_t> &D) {
-    std::int32_t ordered_comp_id = 0;
+                                std::int64_t &component_count,
+                                std::vector<std::int64_t> &D) {
+    std::int64_t ordered_comp_id = 0;
     component_count = 0;
 
     for (auto i = 0; i < vertex_count; ++i) {
@@ -88,19 +88,19 @@ inline void order_component_ids(const std::int64_t &vertex_count,
     }
 }
 
-inline bool compare_sample_counts(std::unordered_map<std::int32_t, std::int32_t>::value_type &a,
-                               std::unordered_map<std::int32_t, std::int32_t>::value_type &b) {
+inline bool compare_sample_counts(std::unordered_map<std::int64_t, std::int64_t>::value_type &a,
+                               std::unordered_map<std::int64_t, std::int64_t>::value_type &b) {
     return (a.second < b.second);
 }
 
-inline std::int32_t most_frequent_element(vector<int32_t> &D, std::int32_t samples_num = 10) {
+inline std::int32_t most_frequent_element(vector<int64_t> &D, std::int32_t samples_num = 10) {
     std::default_random_engine generator;
-    std::uniform_int_distribution<std::int32_t> distribution(0, D.size() - 1);
+    std::uniform_int_distribution<std::int64_t> distribution(0, D.size() - 1);
 
-    std::unordered_map<std::int32_t, std::int32_t> sample_counts;
+    std::unordered_map<std::int64_t, std::int64_t> sample_counts;
 
-    for (int i = 0; i < samples_num; ++i) {
-        std::int32_t vertex = distribution(generator);
+    for (std::int32_t i = 0; i < samples_num; ++i) {
+        std::int64_t vertex = distribution(generator);
         sample_counts[D[vertex]]++;
     }
     auto sample_component =
@@ -116,17 +116,16 @@ struct afforest {
         const dal::preview::detail::topology<std::int32_t> &t) {
         {
             using value_type = std::int32_t;
-            using vertex_type = std::int32_t;
             const auto vertex_count = t.get_vertex_count();
 
-            std::vector<std::int32_t> D;
-            for (std::int32_t i = 0; i < vertex_count; ++i) {
+            std::vector<std::int64_t> D;
+            for (std::int64_t i = 0; i < vertex_count; ++i) {
                 D.push_back(i);
             }
 
             std::int32_t neighbors_round = 2;
 
-            for (size_t i = 0; i < vertex_count; ++i) {
+            for (std::int64_t i = 0; i < vertex_count; ++i) {
                 std::int32_t neighbors_count = t.get_vertex_degree(i);
                 for (std::int32_t j = 0; (j < neighbors_count) && (j < neighbors_round); ++j) {
                     link(i, t.get_vertex_neighbors_begin(i)[j], D);
@@ -136,7 +135,7 @@ struct afforest {
             std::int32_t samples_num = 10;
             std::int32_t sample_comp = most_frequent_element(D, samples_num);
 
-            for (size_t i = 0; i < vertex_count; ++i) {
+            for (std::int64_t i = 0; i < vertex_count; ++i) {
                 if (D[i] != sample_comp) {
                     if (t.get_vertex_degree(i) >= neighbors_round) {
                         for (auto j = t.get_vertex_neighbors_begin(i);
@@ -148,11 +147,11 @@ struct afforest {
                 }
             }
 
-            for (std::int32_t i = 0; i < vertex_count; ++i) {
+            for (std::int64_t i = 0; i < vertex_count; ++i) {
                 compress(i, D);
             }
 
-            std::int32_t component_count = 0;
+            std::int64_t component_count = 0;
             order_component_ids(vertex_count, component_count, D);
 
             auto label_arr = array<value_type>::empty(vertex_count);
