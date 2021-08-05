@@ -23,6 +23,7 @@
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_topology_builder.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::preview::louvain::detail {
 
