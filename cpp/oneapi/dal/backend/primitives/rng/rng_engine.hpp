@@ -103,7 +103,7 @@ public:
               engine_(daal::algorithms::engines::mt2203::Batch<>::create()),
               params_(count),
               technique_(daal::algorithms::engines::internal::family),
-              engine_list_(count) {}
+              daal_engine_list_(count) {}
 
     template <typename Op>
     std::vector<engine> operator()(Op&& op) {
@@ -116,19 +116,19 @@ public:
             engine_,
             technique_,
             params_,
-            engine_list_,
+            daal_engine_list_,
             &status);
         if (!status) {
             dal::backend::interop::status_to_exception(status);
         }
 
-        std::vector<engine> arr_data(count_);
+        std::vector<engine> engine_list(count_);
         for (Size i = 0; i < count_; ++i) {
-            arr_data[i] = engine_list_[i];
+            engine_list[i] = daal_engine_list_[i];
         }
 
         //copy elision
-        return arr_data;
+        return engine_list;
     }
 
 private:
@@ -159,7 +159,8 @@ private:
     daal::algorithms::engines::EnginePtr engine_;
     daal::algorithms::engines::internal::Params<daal::sse2> params_;
     daal::algorithms::engines::internal::ParallelizationTechnique technique_;
-    daal::services::internal::TArray<daal::algorithms::engines::EnginePtr, daal::sse2> engine_list_;
+    daal::services::internal::TArray<daal::algorithms::engines::EnginePtr, daal::sse2>
+        daal_engine_list_;
 };
 
 } // namespace oneapi::dal::backend::primitives
