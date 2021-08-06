@@ -24,7 +24,7 @@ six==1.16.0
 snowballstemmer==2.1.0
 soupsieve==2.2.1
 Sphinx==3.5.4
-sphinx-book-theme==0.1.1
+sphinx-book-theme==0.1.2
 sphinx-prompt==1.4.0
 Sphinx-Substitution-Extensions==2020.9.30.0
 sphinx-tabs==3.2.0
