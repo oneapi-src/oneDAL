@@ -53,7 +53,6 @@ template <typename Object, typename Allocator>
 struct read_ops<Object, data_source, Allocator> {
     using input_t = dal::preview::csv::read_args<Object, Allocator>;
     using result_t = Object;
-    using allocator_t = Allocator;
 
     void check_preconditions(const data_source_base& ds, const input_t& args) const {}
 

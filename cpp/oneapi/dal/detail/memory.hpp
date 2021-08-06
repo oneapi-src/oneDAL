@@ -71,6 +71,7 @@ using namespace std;
 
 struct byte_alloc_iface {
     using byte_t = char;
+    virtual ~byte_alloc_iface() = default;
     virtual byte_t* allocate(std::int64_t n) = 0;
     virtual void deallocate(byte_t* ptr, std::int64_t n) = 0;
 };
