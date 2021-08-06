@@ -105,6 +105,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                               const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
+        auto& comm = ctx.get_communicator();
 
         const auto data = input.get_data();
         const int64_t row_count = data.get_row_count();
@@ -144,10 +145,9 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         std::int64_t iter;
         sycl::event centroids_event;
 
-        auto updater = cluster_updater<Float>{}
+        auto updater = cluster_updater<Float>{ queue, comm }
                            .set_cluster_count(cluster_count)
                            .set_part_count(part_count)
-                           .set_queue(queue)
                            .set_data(arr_data);
         updater.allocate_buffers();
 

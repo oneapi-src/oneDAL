@@ -48,12 +48,6 @@ template <typename T>
 struct set_indices {};
 
 template <typename T>
-struct find_candidates_kernel {};
-
-template <typename T>
-struct fill_empty_cluster_kernel {};
-
-template <typename T>
 struct centroid_reduction {};
 
 template <typename T>
@@ -179,7 +173,6 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
                                                pr::ndview<Float, 2>& closest_distances,
                                                const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
-    ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
     ONEDAL_ASSERT(responses.get_dimension(0) >= data.get_dimension(0));
     ONEDAL_ASSERT(responses.get_dimension(1) == 1);
     ONEDAL_ASSERT(closest_distances.get_dimension(0) >= data.get_dimension(0));
@@ -215,108 +208,6 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
                                  { distance_event });
     }
     return selection_event;
-}
-
-template <typename Float>
-std::tuple<Float, bk::event_vector> kernels_fp<Float>::fill_empty_clusters(
-    sycl::queue& queue,
-    const pr::ndview<Float, 2>& data,
-    const pr::ndarray<std::int32_t, 1>& counters,
-    const pr::ndarray<std::int32_t, 1>& candidate_indices,
-    const pr::ndarray<Float, 1>& candidate_distances,
-    pr::ndview<Float, 2>& centroids,
-    pr::ndarray<std::int32_t, 2>& responses,
-    Float objective_function,
-    const bk::event_vector& deps) {
-    ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
-    ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
-    ONEDAL_ASSERT(counters.get_dimension(0) == centroids.get_dimension(0));
-    ONEDAL_ASSERT(candidate_indices.get_dimension(0) <= centroids.get_dimension(0));
-    ONEDAL_ASSERT(candidate_distances.get_dimension(0) <= centroids.get_dimension(0));
-    ONEDAL_ASSERT(responses.get_dimension(0) >= data.get_dimension(0));
-    ONEDAL_ASSERT(responses.get_dimension(1) == 1);
-
-    const auto cluster_count = centroids.get_dimension(0);
-
-    bk::event_vector events;
-    const auto column_count = data.get_dimension(1);
-    [[maybe_unused]] const auto candidate_count = candidate_indices.get_dimension(0);
-    sycl::event::wait(deps);
-    auto host_counters = counters.to_host(queue);
-    auto counters_ptr = host_counters.get_data();
-
-    auto host_responses = responses.to_host(queue);
-    auto responses_ptr = host_responses.get_mutable_data();
-
-    auto centroids_ptr = centroids.get_mutable_data();
-    auto data_ptr = data.get_data();
-
-    auto host_candidate_distances = candidate_distances.to_host(queue);
-    auto candidate_distances_ptr = host_candidate_distances.get_data();
-
-    auto host_candidate_indices = candidate_indices.to_host(queue);
-    auto candidate_indices_ptr = host_candidate_indices.get_data();
-    std::int64_t cpos = 0;
-
-    for (std::int64_t ic = 0; ic < cluster_count; ic++) {
-        if (counters_ptr[ic] > 0)
-            continue;
-        ONEDAL_ASSERT(cpos < candidate_count);
-        auto index = candidate_indices_ptr[cpos];
-        auto value = candidate_distances_ptr[cpos];
-        responses_ptr[index] = ic;
-        objective_function -= value;
-        auto copy_event = queue.submit([&](sycl::handler& cgh) {
-            cgh.parallel_for<fill_empty_cluster_kernel<Float>>(
-                sycl::range<1>(column_count),
-                [=](sycl::id<1> idx) {
-                    centroids_ptr[idx + ic * column_count] = data_ptr[idx + index * column_count];
-                });
-        });
-        events.push_back(copy_event);
-        cpos++;
-    }
-    return std::make_tuple(objective_function, events);
-}
-
-template <typename Float>
-sycl::event kernels_fp<Float>::find_candidates(sycl::queue& queue,
-                                               pr::ndview<Float, 2>& closest_distances,
-                                               std::int64_t candidate_count,
-                                               pr::ndview<std::int32_t, 1>& candidate_indices,
-                                               pr::ndview<Float, 1>& candidate_distances,
-                                               const bk::event_vector& deps) {
-    ONEDAL_ASSERT(candidate_count > 0);
-    ONEDAL_ASSERT(closest_distances.get_dimension(0) > candidate_count);
-    ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
-    ONEDAL_ASSERT(candidate_indices.get_dimension(0) == candidate_indices.get_dimension(0));
-    ONEDAL_ASSERT(candidate_indices.get_dimension(0) >= candidate_count);
-    const auto elem_count = closest_distances.get_dimension(0);
-    auto indices =
-        pr::ndarray<std::int32_t, 1>::empty(queue, { elem_count }, sycl::usm::alloc::device);
-    auto values = pr::ndview<Float, 1>::wrap(closest_distances.get_mutable_data(), { elem_count });
-    auto values_ptr = values.get_mutable_data();
-    std::int32_t* indices_ptr = indices.get_mutable_data();
-    auto fill_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for<set_indices<Float>>(sycl::range<1>(elem_count), [=](sycl::id<1> idx) {
-            indices_ptr[idx] = idx;
-            values_ptr[idx] *= -1.0;
-        });
-    });
-    pr::radix_sort_indices_inplace<Float, std::int32_t>{ queue }(values, indices, { fill_event })
-        .wait_and_throw();
-    auto candidate_indices_ptr = candidate_indices.get_mutable_data();
-    auto candidate_distances_ptr = candidate_distances.get_mutable_data();
-    auto copy_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for<find_candidates_kernel<Float>>(
-            sycl::range<1>(candidate_count),
-            [=](sycl::id<1> idx) {
-                candidate_distances_ptr[idx] = -1.0 * values_ptr[idx];
-                candidate_indices_ptr[idx] = indices_ptr[idx];
-            });
-    });
-    copy_event.wait_and_throw();
-    return copy_event;
 }
 
 template <typename Float>
@@ -451,6 +342,7 @@ sycl::event kernels_fp<Float>::compute_objective_function(
             });
     });
 }
+
 #endif
 
 } // namespace oneapi::dal::kmeans::backend

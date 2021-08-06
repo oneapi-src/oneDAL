@@ -333,6 +333,7 @@ public:
                      byte_t* send_buf,
                      std::int64_t count,
                      const data_type& dtype,
+                     const std::vector<sycl::event>& deps,
                      std::int64_t root) override;
 #endif
 
@@ -350,6 +351,7 @@ public:
                       byte_t* recv_buf,
                       std::int64_t recv_count,
                       const data_type& dtype,
+                      const std::vector<sycl::event>& deps,
                       std::int64_t root) override;
 #endif
 
@@ -369,6 +371,7 @@ public:
                        const std::int64_t* recv_counts_host,
                        const std::int64_t* displs_host,
                        const data_type& dtype,
+                       const std::vector<sycl::event>& deps,
                        std::int64_t root) override;
 #endif
 
@@ -384,7 +387,8 @@ public:
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const dal::detail::spmd_reduce_op& op) override;
+                         const dal::detail::spmd_reduce_op& op,
+                         const std::vector<sycl::event>& deps) override;
 #endif
 
     request_t* allgather(const byte_t* send_buf,
@@ -399,7 +403,8 @@ public:
                          std::int64_t send_count,
                          byte_t* recv_buf,
                          std::int64_t recv_count,
-                         const data_type& dtype) override;
+                         const data_type& dtype,
+                         const std::vector<sycl::event>& deps) override;
 #endif
 
 private:

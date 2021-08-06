@@ -372,6 +372,7 @@ auto thread_communicator_impl::bcast(sycl::queue& q,
                                      byte_t* send_buf,
                                      std::int64_t count,
                                      const data_type& dtype,
+                                     const std::vector<sycl::event>& deps,
                                      std::int64_t root) -> request_t* {
     ONEDAL_ASSERT(root >= 0);
 
@@ -383,6 +384,7 @@ auto thread_communicator_impl::bcast(sycl::queue& q,
     ONEDAL_ASSERT(count > 0);
 
     check_if_pointer_matches_queue(q, send_buf);
+    sycl::event::wait_and_throw(deps);
 
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
     const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
@@ -419,6 +421,7 @@ auto thread_communicator_impl::gather(sycl::queue& q,
                                       byte_t* recv_buf,
                                       std::int64_t recv_count,
                                       const data_type& dtype,
+                                      const std::vector<sycl::event>& deps,
                                       std::int64_t root) -> request_t* {
     ONEDAL_ASSERT(root >= 0);
 
@@ -436,6 +439,7 @@ auto thread_communicator_impl::gather(sycl::queue& q,
 
     check_if_pointer_matches_queue(q, send_buf);
     check_if_pointer_matches_queue(q, recv_buf);
+    sycl::event::wait_and_throw(deps);
 
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
     const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
@@ -482,6 +486,7 @@ auto thread_communicator_impl::gatherv(sycl::queue& q,
                                        const std::int64_t* recv_counts_host,
                                        const std::int64_t* displs_host,
                                        const data_type& dtype,
+                                       const std::vector<sycl::event>& deps,
                                        std::int64_t root) -> request_t* {
     ONEDAL_ASSERT(root >= 0);
 
@@ -500,6 +505,7 @@ auto thread_communicator_impl::gatherv(sycl::queue& q,
 
     check_if_pointer_matches_queue(q, send_buf);
     check_if_pointer_matches_queue(q, recv_buf);
+    sycl::event::wait_and_throw(deps);
 
     const std::int64_t rank_count = get_rank_count();
     std::int64_t total_recv_count = 0;
@@ -580,7 +586,8 @@ auto thread_communicator_impl::allreduce(sycl::queue& q,
                                          byte_t* recv_buf,
                                          std::int64_t count,
                                          const data_type& dtype,
-                                         const dal::detail::spmd_reduce_op& op) -> request_t* {
+                                         const dal::detail::spmd_reduce_op& op,
+                                         const std::vector<sycl::event>& deps) -> request_t* {
     if (count == 0) {
         return nullptr;
     }
@@ -591,6 +598,7 @@ auto thread_communicator_impl::allreduce(sycl::queue& q,
 
     check_if_pointer_matches_queue(q, send_buf);
     check_if_pointer_matches_queue(q, recv_buf);
+    sycl::event::wait_and_throw(deps);
 
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
     const std::int64_t byte_count = dal::detail::check_mul_overflow(dtype_size, count);
@@ -622,7 +630,8 @@ auto thread_communicator_impl::allgather(sycl::queue& q,
                                          std::int64_t send_count,
                                          byte_t* recv_buf,
                                          std::int64_t recv_count,
-                                         const data_type& dtype) -> request_t* {
+                                         const data_type& dtype,
+                                         const std::vector<sycl::event>& deps) -> request_t* {
     if (send_count == 0) {
         return nullptr;
     }
@@ -634,6 +643,7 @@ auto thread_communicator_impl::allgather(sycl::queue& q,
 
     check_if_pointer_matches_queue(q, send_buf);
     check_if_pointer_matches_queue(q, recv_buf);
+    sycl::event::wait_and_throw(deps);
 
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
     const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
