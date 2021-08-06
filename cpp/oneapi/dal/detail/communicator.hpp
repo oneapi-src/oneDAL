@@ -561,7 +561,7 @@ public:
 #endif
 
     template <typename T, enable_if_primitive_t<T>* = nullptr>
-    spmd_request allgather(const array<T>& send, const array<T>& recv) {
+    spmd_request allgather(const array<T>& send, const array<T>& recv) const {
 #ifdef ONEDAL_ENABLE_ASSERT
         check_if_same_send_count(send.get_count(), get_default_root_rank());
 
