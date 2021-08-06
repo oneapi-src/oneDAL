@@ -23,7 +23,6 @@
 #include "oneapi/dal/io/load_graph.hpp"
 
 namespace dal = oneapi::dal;
-using namespace dal::preview::connected_components;
 
 int main(int argc, char** argv) {
     const auto filename = get_data_path("graph.csv");
@@ -35,8 +34,7 @@ int main(int argc, char** argv) {
     std::allocator<char> alloc;
 
     // set algorithm parameters
-    const auto cc_desc =
-        descriptor<float, method::afforest, task::vertex_partitioning, std::allocator<char>>(alloc);
+    const auto cc_desc = dal::preview::connected_components::descriptor<>(alloc);
 
     try {
         // compute connected_components
@@ -44,8 +42,8 @@ int main(int argc, char** argv) {
             dal::preview::vertex_partitioning(cc_desc, my_graph);
 
         // extract the result
-        std::cout << "Components' labels: " << result_connected_components.get_labels()
-                  << std::endl;
+        std::cout << "Components' labels:\n"
+                  << result_connected_components.get_labels() << std::endl;
         std::cout << "Number of connected components: "
                   << result_connected_components.get_component_count() << std::endl;
     }

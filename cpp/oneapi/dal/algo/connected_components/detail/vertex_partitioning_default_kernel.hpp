@@ -62,10 +62,7 @@ struct vertex_partitioning_kernel_cpu<method::afforest,
         const Allocator& alloc,
         const Graph& g) const {
         using topology_type = typename graph_traits<Graph>::impl_type::topology_type;
-        //using value_type = edge_user_value_type<Graph>;
         const auto& t = dal::preview::detail::csr_topology_builder<Graph>()(g);
-        //const auto vals = dal::detail::get_impl(g).get_edge_values().get_data();
-        //alloc_connector<Allocator> alloc_con(alloc);
 
         return afforest<float, task::vertex_partitioning, topology_type>{}(ctx, desc, t);
     }
