@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,18 +14,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/detail/spmd_policy.hpp"
 
-#include "oneapi/dal/algo/sigmoid_kernel/compute_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+namespace oneapi::dal::detail {
+namespace v1 {
 
-namespace oneapi::dal::sigmoid_kernel::backend {
-
-template <typename Float, typename Method, typename Task>
-struct compute_kernel_gpu {
-    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                    const detail::descriptor_base<Task>& params,
-                                    const compute_input<Task>& input) const;
+class spmd_policy_impl {
+public:
+    explicit spmd_policy_impl(const spmd_communicator& comm) : comm(comm) {}
+    spmd_communicator comm;
 };
 
-} // namespace oneapi::dal::sigmoid_kernel::backend
+spmd_policy_base::spmd_policy_base(const spmd_communicator& comm)
+        : impl_(new spmd_policy_impl{ comm }) {}
+
+const spmd_communicator& spmd_policy_base::get_communicator() const {
+    return impl_->comm;
+}
+
+} // namespace v1
+} // namespace oneapi::dal::detail
