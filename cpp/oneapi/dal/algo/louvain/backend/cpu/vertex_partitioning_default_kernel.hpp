@@ -240,7 +240,6 @@ inline double move_nodes(std::vector<std::int64_t>& rows,
 
             // move vertex to the best community with the best modularity gain
             modularity += delta_modularity;
-            double k_inew = k_vertex_to[move_community];
             tot[move_community] += k[vertex];
             n2c[vertex] = move_community;
             if (move_community != c_old) {
