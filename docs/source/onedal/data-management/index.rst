@@ -236,6 +236,57 @@ Once a table object is created, it can be used as an input in computations or as
 a parameter of some algorithm. The data in the table can be accessed via its own
 interface or via read-only accessor as shown on the diagram.
 
+.. _graph:
+
+Graph
+-----
+
+A graph G is a pair of two sets V and E, where V is a (finite) set of elements
+called, and E is a set of pairs, each pair consisting of elements from V. We
+write G = (V, E);  an element in the set V is called a vertex (plural vertices)
+and an element in set E is called an edge. The elements of Emay be ordered pairs
+or unordered pairs, which we define in the following way.  Given two vertices u
+and v, with u != v, (u,v) != (v,u) for an ordered pair, whereas (u,v) = (v,u) for
+an unordered pair. A graph whose edges are ordered is called a directed graph
+(sometimes, digraph); a graph whose edges are unordered is called an undirected
+graph.  We denote the number of vertices in V by `|V|`` and the number of edges in
+E by `|E|`.  Finally, vertices and edges often have various kinds of properties
+associated with them, stemming from what the graph is actually attempting to
+represent, and which may be used by algorithms during their execution. It is
+used at the data preparation and data processing stages to:
+
+- Be an in-memory representation of a :txtref:`dataset`.
+
+- Store graph data in sparse
+  :capterm:`data formats <data format>`.
+
+- Avoid unnecessary data copies during conversion from external data
+  representations.
+
+- Transfer memory ownership of the data from user application to the graph,
+  or share it between them.
+
+- Connect with the :txtref:`data-source` to convert data from an
+  out-of-memory into an in-memory representation.
+
+- Support streaming of the data to the algorithm.
+
+.. note::
+  For thread-safety reasons and better integration with external entities, a
+  graph provides a read-only access to the data within it, thus, graph object
+  is :capterm:`immutable <immutability>`.
+
+This concept has different logical organization and physical :capterm:`format of
+the data <data format>`:
+
+- Logically, a graph contains V vertices and E edges.
+  Every vertex index, edge index, vertex value, edge value, graph value may have
+  its own type of data values and a set of allowed operations.
+
+- Physically, a graph can be organized in :capterm:`CSR format <CSR data>`.
+
+For details, see :txtref:`dm_graphs` section.
+
 Details
 =======
 
@@ -248,3 +299,4 @@ This section includes the detailed descriptions of all data management objects i
    accessors.rst
    data-sources.rst
    tables.rst
+   graphs.rst

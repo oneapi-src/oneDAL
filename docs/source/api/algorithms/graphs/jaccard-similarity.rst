@@ -14,13 +14,32 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-======
-Graphs
-======
+.. default-domain:: cpp
 
-This chapter describes programming interfaces of the graph algorithms implemented in |short_name|:
+.. _api_jaccard_similarity:
 
-.. toctree::
-   :titlesonly:
+===================================
+Jaccard Similarity
+===================================
 
-   jaccard-similarity.rst
+.. /use the algorithm name/
+.. include:: ../../../includes/graphs/graph-algorithm-introduction.rst
+
+------------------------
+Mathematical formulation
+------------------------
+
+Refer to :ref:`Developer Guide: Jaccard Similarity <alg_jaccard_similarity>`.
+
+---------------------
+Programming Interface
+---------------------
+
+.. /refer to other algorithms to see the structure of this section/
+
+--------
+Examples
+--------
+
+.. /use the algorithm name/
+.. include:: ../../../includes/graphs/graph-algorithm-examples.rst

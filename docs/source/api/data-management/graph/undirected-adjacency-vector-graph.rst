@@ -14,13 +14,18 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-======
-Graphs
-======
+.. _api_undirected_adjacency_vector_graph:
 
-This chapter describes programming interfaces of the graph algorithms implemented in |short_name|:
+=================================
+Undirected adjacency vector graph
+=================================
 
-.. toctree::
-   :titlesonly:
+Refer to :ref:`Developer Guide: Undirected adjacency vector graph <undirected_adjacency_vector_graph>`.
 
-   jaccard-similarity.rst
+---------------------
+Programming interface
+---------------------
+
+All types and functions in this section are declared in the
+``oneapi::dal::preview`` namespace and be available via inclusion of the
+``oneapi/dal/graph/undirected_adjacency_vector_graph.hpp`` header file.

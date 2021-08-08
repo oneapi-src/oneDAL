@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,13 +14,20 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-======
-Graphs
-======
+.. _directed_adjacency_vector_graph:
 
-This chapter describes programming interfaces of the graph algorithms implemented in |short_name|:
+===============================
+Directed adjacency vector graph
+===============================
 
-.. toctree::
-   :titlesonly:
+Class ``directed_adjacency_vector_graph`` is the implementation of directed weighted sparse graph with adjacency matrix underneath 
+for which the following is true:
 
-   jaccard-similarity.rst
+- The data within the graph are sparse and stored in :capterm:`CSR <CSR data>`.
+- The specific :ref:`graph traits <graph_traits>` are defined for this class.
+
+---------------------
+Programming interface
+---------------------
+
+Refer to :ref:`API Reference: Directed Adjacency Vector Graph <api_directed_adjacency_vector_graph>`.

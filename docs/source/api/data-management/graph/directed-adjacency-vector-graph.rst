@@ -14,13 +14,18 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-======
-Graphs
-======
+.. _api_directed_adjacency_vector_graph:
 
-This chapter describes programming interfaces of the graph algorithms implemented in |short_name|:
+===============================
+Directed adjacency vector graph
+===============================
 
-.. toctree::
-   :titlesonly:
+Refer to :ref:`Developer Guide: Directed adjacency vector graph <directed_adjacency_vector_graph>`.
 
-   jaccard-similarity.rst
+---------------------
+Programming interface
+---------------------
+
+All types and functions in this section are declared in the
+``oneapi::dal::preview`` namespace and be available via inclusion of the
+``oneapi/dal/graph/directed_adjacency_vector_graph.hpp`` header file.

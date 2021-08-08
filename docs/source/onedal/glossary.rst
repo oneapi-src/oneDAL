@@ -215,6 +215,11 @@ Machine learning terms
     Contiguous data
         Data that are stored as one contiguous memory block. One of the
         characteristics of a :capterm:`data format`.
+    
+    CSR data
+        A compressed sparse row (csr) data is the sparse matrix representation. Data with values of single :capterm:`data type` and the same set of
+        available operations defined on them. One of the characteristics of a
+        :capterm:`data format`.
 
     Data format
         Representation of the internal structure of the data.
@@ -267,6 +272,7 @@ Machine learning terms
         **Example:** A :capterm:`dataset` with 100
         :capterm:`observations <Observation>` of three  :capterm:`interval features <Interval
         feature>`, each of type float32
+
 
     Immutability
         The object is immutable if it is not possible to change its state after

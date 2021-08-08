@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,36 +14,20 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. highlight:: cpp
-.. default-domain:: cpp
+.. _undirected_adjacency_vector_graph:
 
-.. /use the algorithm name/
-.. _api_graph_algorithm:
+=================================
+Undirected adjacency vector graph
+=================================
 
-.. /use the algorithm name/
-===================================
-Graph Algorithm
-===================================
+Class ``undirected_adjacency_vector_graph`` is the implementation of undirected weighted sparse graph with adjacency matrix underneath 
+for which the following is true:
 
-.. /use the algorithm name/
-.. include:: ../../../includes/graphs/graph-algorithm-introduction.rst
-
-------------------------
-Mathematical formulation
-------------------------
-
-.. /use the algorithm name/
-Refer to :ref:`Developer Guide: Graph Algorithm <alg_graph_algorithm>`.
+- The data within the graph are sparse and stored in :capterm:`CSR <CSR data>`.
+- The specific :ref:`graph traits <graph_traits>` are defined for this class.
 
 ---------------------
-Programming Interface
+Programming interface
 ---------------------
 
-.. /refer to other algorithms to see the structure of this section/
-
---------
-Examples
---------
-
-.. /use the algorithm name/
-.. include:: ../../../includes/graphs/graph-algorithm-examples.rst
+Refer to :ref:`API Reference: Undirected Adjacency Vector Graph <api_undirected_adjacency_vector_graph>`.
