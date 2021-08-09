@@ -14,88 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
 #include <cstdint>
 
 #include "oneapi/dal/backend/primitives/common.hpp"
+#include "oneapi/dal/backend/primitives/super_accumulator/detail_flt.hpp"
+#include "oneapi/dal/backend/primitives/super_accumulator/detail_dbl.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-namespace detail::float32 {
-
-union duality32 {
-    float floatingpoint;
-    std::uint32_t integer;
-    constexpr duality32(const std::uint32_t& val) : integer(val) {}
-    constexpr duality32(const float& val) : floatingpoint(val) {}
-};
-
-constexpr static int nbins = 64;
-constexpr static int pbias = 127;
-constexpr static int maxbins = 256;
-constexpr static int binratio = maxbins / nbins;
-constexpr static duality32 mpowf{ 0x34000000u };
-
-inline std::int32_t sign(const duality32& val) {
-    constexpr int shift = 31;
-    return (val.integer >> shift) ? -1 : 1;
-}
-
-inline std::int32_t expn(const duality32& val) {
-    constexpr int shift = 23;
-    constexpr std::uint32_t mask = 0x7f800000;
-    return (val.integer & mask) >> shift;
-}
-
-inline std::int32_t mant(const duality32& val, const std::int32_t& expn) {
-    constexpr std::uint32_t mask = 0x7fffff;
-    constexpr std::uint32_t comp = 0x800000;
-    const std::uint32_t valbits = val.integer & mask;
-    // Fixes normalized mantis
-    return expn ? (valbits | comp) : (valbits << 1);
-}
-
-inline std::int32_t mant(const duality32& val) {
-    return mant(val, expn(val));
-}
-
-struct float_u {
-    float_u(const duality32& arg) : sign_{ sign(arg) }, expn_{ expn(arg) }, mant_{ mant(arg) } {}
-
-    const std::int32_t sign_;
-    const std::int32_t expn_;
-    const std::int32_t mant_;
-};
-
-inline std::int32_t bin_idx(const std::int32_t& expn) {
-    return expn / binratio;
-}
-
-inline std::int32_t exp_dif(const std::int32_t& expn) {
-    return expn % binratio;
-}
-
-inline std::int64_t new_mant(const std::int32_t& mant, const std::int32_t& expn) {
-    return std::int64_t(mant) << exp_dif(expn);
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-
-template <typename T>
-inline T atomic_global_add(T* ptr, T operand) {
-    using address = cl::sycl::access::address_space;
-    return cl::sycl::atomic_fetch_add<T, address::global_space>(
-        { cl::sycl::multi_ptr<T, address::global_space>{ ptr } },
-        operand);
-}
-
-#endif
-
-} // namespace detail::float32
-
 template <typename Float, bool synchronous = true>
 class super_accumulators {
-    static_assert(std::is_same_v<Float, float>,
-                  "Only float type is supported for super accumulation for now");
+    static_assert(std::is_same_v<Float, float> || std::is_same_v<Float, double>,
+                  "Only float & double type is supported for super accumulation for now");
 };
 
 template <bool synchronous>
@@ -105,6 +37,7 @@ public:
     constexpr static inline int min_buffer_size = nbins;
 
     super_accumulators(std::int64_t* const bins) : all_bins{ bins } {}
+
     void add(const float& arg, int idx = 0) const {
         using namespace detail::float32;
         auto* const bins = all_bins + idx * nbins;
@@ -123,14 +56,60 @@ public:
 #endif
         }
     }
+
     float finalize(int idx = 0) const {
         using namespace detail::float32;
         constexpr int shift = 23;
-        const auto* const bins = all_bins + nbins * idx;
+        const auto* const bins = all_bins + idx * nbins;
         float acc = 0.f;
         for (int i = 0; i < nbins; ++i) {
             const auto epow = std::uint32_t(i * binratio) << shift;
             acc += (float(bins[i]) * mpowf.floatingpoint * duality32{ epow }.floatingpoint);
+        }
+        return acc;
+    }
+
+private:
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    static inline T atomic_global_add(T* ptr, T operand) {
+        using address = cl::sycl::access::address_space;
+        return cl::sycl::atomic_fetch_add<T, address::global_space>(
+            { cl::sycl::multi_ptr<T, address::global_space>{ ptr } },
+            operand);
+    }
+#endif
+    std::int64_t* const all_bins;
+};
+
+template <bool synchronous>
+class super_accumulators<double, synchronous> {
+public:
+    constexpr static inline int nbins = detail::float64::nbins;
+    constexpr static inline int binsize = detail::float64::binsize;
+    constexpr static inline int min_buffer_size = binsize * nbins;
+
+    super_accumulators(std::int64_t* const bins) : all_bins{ bins } {}
+
+    void add(const float& arg, int idx = 0) const {
+        using namespace detail::float64;
+        const double_u flt{ duality64{ arg } };
+        auto* const bins = all_bins + binsize * nbins * idx;
+        int128_ptr bin(bins + binsize * bin_idx(flt.expn_));
+        const int128_raw mant = new_mant(flt.mant_, flt.expn_);
+        bin.template add<int128_raw, !synchronous>(flt.sign_ ? mant : -mant);
+    }
+
+    double finalize(int idx = 0) const {
+        using namespace detail::float64;
+        auto* const bins = all_bins + binsize * nbins * idx;
+        constexpr int shift = 52;
+        double acc = 0;
+        for(int i = 0; i < nbins; ++i) {
+            const auto epow = std::uint64_t(i * binratio) << shift;
+            const int128_ptr binval(bins + binsize * i);
+            acc += (double(binval) * mpowd.floatingpoint *
+                                    duality64{ epow }.floatingpoint);
         }
         return acc;
     }
