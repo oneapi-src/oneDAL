@@ -33,8 +33,9 @@ class super_accumulators {
 template <bool synchronous>
 class super_accumulators<float, synchronous> {
 public:
-    constexpr static inline int nbins = detail::float32::nbins;
-    constexpr static inline int min_buffer_size = nbins;
+    constexpr static inline int nbins = detail::float64::nbins;
+    constexpr static inline int binsize = detail::float64::binsize;
+    constexpr static inline int min_buffer_size = binsize * nbins;
 
     super_accumulators(std::int64_t* const bins) : all_bins{ bins } {}
 

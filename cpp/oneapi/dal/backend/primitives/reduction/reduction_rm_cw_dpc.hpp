@@ -100,9 +100,6 @@ private:
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw_super_accum_wide {
-    static_assert(std::is_same_v<Float, float>);
-    static_assert(std::is_same_v<BinaryOp, sum<float>>);
-
 public:
     constexpr static inline int max_folding = 32;
     constexpr static inline int block_size = 32;
@@ -147,7 +144,6 @@ private:
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw {
     constexpr static bool is_sum = std::is_same_v<BinaryOp, sum<Float>>;
-    constexpr static bool is_flt = std::is_same_v<Float, float>;
 
 public:
     using naive_t = reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>;

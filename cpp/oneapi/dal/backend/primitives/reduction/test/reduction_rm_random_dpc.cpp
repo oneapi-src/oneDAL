@@ -52,6 +52,8 @@ public:
     using binary_t = std::tuple_element_t<1, Param>;
     using unary_t = std::tuple_element_t<2, Param>;
 
+    constexpr static bool is_sum = std::is_same_v<binary_t, sum<float_t>>;
+
     void generate() {
         width_ = GENERATE(7, 707, 5);
         stride_ = GENERATE(707, 812, 1024);
@@ -224,8 +226,26 @@ public:
         check_output_cw(out_array);
     }
 
+    void test_raw_cw_reduce_super_accumulator_wide() {
+        if constexpr (is_sum) {
+            using reduction_t = reduction_rm_cw_super_accum_wide<float_t, binary_t, unary_t>;
+            const auto input_array =
+                row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
+            auto [out_array, out_event] = output(width_);
+
+            const float_t* inp_ptr = input_array.get_data();
+            float_t* out_ptr = out_array.get_mutable_data();
+
+            reduction_t reducer(this->get_queue());
+            reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_, unary_, { out_event })
+                .wait_and_throw();
+
+            check_output_cw(out_array);
+        }
+    }
+
     void test_raw_cw_reduce_wrapper() {
-        using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
+        using reduction_t = reduction_rm_cw<float_t, binary_t, unary_t>;
         const auto input_array =
             row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
         auto [out_array, out_event] = output(width_);
@@ -271,6 +291,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
     this->test_raw_cw_reduce_naive();
     this->test_raw_cw_reduce_naive_local();
     this->test_raw_cw_reduce_wrapper();
+    this->test_raw_cw_reduce_super_accumulator_wide();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

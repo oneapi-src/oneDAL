@@ -27,7 +27,7 @@ auto reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t widt
                                                                std::int64_t height) const
     -> reduction_method {
     const auto wg = device_max_wg_size(q_);
-    if constexpr (is_sum && is_flt) {
+    if constexpr (is_sum) {
         constexpr int sacc_wide_folding = sacc_wide_t::max_folding;
         if (((wg * sacc_wide_folding) >= width) && (width >= wg)) {
             return reduction_method::super_accum_wide;
@@ -58,7 +58,7 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
         const naive_local_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
-    if constexpr (is_sum && is_flt) {
+    if constexpr (is_sum) {
         if (method == reduction_method::super_accum_wide) {
             const sacc_wide_t kernel{ q_ };
             return kernel(input, output, width, height, stride, binary, unary, deps);
