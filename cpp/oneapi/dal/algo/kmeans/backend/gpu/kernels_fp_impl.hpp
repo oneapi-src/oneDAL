@@ -103,26 +103,26 @@ std::int64_t kernels_fp<Float>::get_part_count_for_partial_centroids(sycl::queue
 
 template <typename Float>
 sycl::event kernels_fp<Float>::select(sycl::queue& queue,
-                                      const pr::ndview<Float, 2>& distaces,
+                                      const pr::ndview<Float, 2>& distances,
                                       const pr::ndview<Float, 1>& centroid_squares,
                                       pr::ndview<Float, 2>& selection,
                                       pr::ndview<std::int32_t, 2>& indices,
                                       const bk::event_vector& deps) {
-    ONEDAL_ASSERT(indices.get_dimension(0) == distaces.get_dimension(0));
+    ONEDAL_ASSERT(indices.get_dimension(0) == distances.get_dimension(0));
     ONEDAL_ASSERT(indices.get_dimension(1) == 1);
-    ONEDAL_ASSERT(selection.get_dimension(0) == distaces.get_dimension(0));
+    ONEDAL_ASSERT(selection.get_dimension(0) == distances.get_dimension(0));
     ONEDAL_ASSERT(selection.get_dimension(1) == 1);
-    ONEDAL_ASSERT(centroid_squares.get_dimension(1) == 1);
+    ONEDAL_ASSERT(centroid_squares.get_dimension(0) == distances.get_dimension(1));
 
-    const std::int64_t cluster_count = distaces.get_dimension(1);
-    const std::int64_t row_count = distaces.get_dimension(0);
-    const std::int64_t stride = distaces.get_dimension(1);
+    const std::int64_t cluster_count = distances.get_dimension(1);
+    const std::int64_t row_count = distances.get_dimension(0);
+    const std::int64_t stride = distances.get_dimension(1);
 
     const std::int64_t preffered_wg_size = 128;
     const std::int64_t wg_size =
         bk::get_scaled_wg_size_per_row(queue, cluster_count, preffered_wg_size);
 
-    const Float* distaces_ptr = distaces.get_data();
+    const Float* distances_ptr = distances.get_data();
     const Float* centroid_squares_ptr = centroid_squares.get_data();
     Float* selection_ptr = selection.get_mutable_data();
     std::int32_t* indices_ptr = indices.get_mutable_data();
@@ -149,7 +149,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                 std::int32_t index = -1;
                 Float value = fp_max;
                 for (std::uint32_t i = local_id; i < cluster_count; i += local_range) {
-                    const Float cur_val = distaces_ptr[in_offset + i] + centroid_squares_ptr[i];
+                    const Float cur_val = distances_ptr[in_offset + i] + centroid_squares_ptr[i];
                     if (cur_val < value) {
                         index = i;
                         value = cur_val;
@@ -194,9 +194,7 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
     ONEDAL_ASSERT(distances.get_dimension(0) >= block_size_in_rows);
     ONEDAL_ASSERT(distances.get_dimension(1) >= centroids.get_dimension(0));
-    ONEDAL_ASSERT(centroid_squares.get_dimension(1) == 1);
     ONEDAL_ASSERT(centroid_squares.get_dimension(0) == centroids.get_dimension(0));
-    ONEDAL_ASSERT(data_squares.get_dimension(1) == 1);
     ONEDAL_ASSERT(data_squares.get_dimension(0) == data.get_dimension(0));
     sycl::event selection_event;
     const auto row_count = data.get_dimension(0);
@@ -477,7 +475,6 @@ sycl::event kernels_fp<Float>::compute_squares(sycl::queue& queue,
                                                pr::ndview<Float, 1>& squares,
                                                const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_dimension(0) == squares.get_dimension(0));
-    ONEDAL_ASSERT(squares.get_dimension(1) == 1);
     const Float* data_ptr = data.get_data();
     Float* squares_ptr = squares.get_mutable_data();
 
