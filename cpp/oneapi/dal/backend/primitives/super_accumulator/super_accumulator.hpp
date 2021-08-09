@@ -75,7 +75,9 @@ private:
     static inline T atomic_global_add(T* ptr, T operand) {
         using address = cl::sycl::access::address_space;
         return cl::sycl::atomic_fetch_add<T, address::global_space>(
-            { cl::sycl::multi_ptr<T, address::global_space>{ ptr } },
+            { cl::sycl::multi_ptr<T, address::global_space> {
+                ptr
+            } },
             operand);
     }
 #endif
@@ -105,11 +107,10 @@ public:
         auto* const bins = all_bins + binsize * nbins * idx;
         constexpr int shift = 52;
         double acc = 0;
-        for(int i = 0; i < nbins; ++i) {
+        for (int i = 0; i < nbins; ++i) {
             const auto epow = std::uint64_t(i * binratio) << shift;
             const int128_ptr binval(bins + binsize * i);
-            acc += (double(binval) * mpowd.floatingpoint *
-                                    duality64{ epow }.floatingpoint);
+            acc += (double(binval) * mpowd.floatingpoint * duality64{ epow }.floatingpoint);
         }
         return acc;
     }

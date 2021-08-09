@@ -44,8 +44,7 @@ inline std::int32_t expn(const duality64& val) {
     return (val.integer & mask) >> shift;
 }
 
-inline std::int64_t mant(const duality64& val,
-                         const std::int32_t& expn) {
+inline std::int64_t mant(const duality64& val, const std::int32_t& expn) {
     constexpr std::uint64_t mask = 0x000FFFFFFFFFFFFFul;
     constexpr std::uint64_t comp = 0x0010000000000000ul;
     const std::uint64_t valbits = val.integer & mask;
@@ -58,16 +57,12 @@ inline std::int64_t mant(const duality64& val) {
 }
 
 struct double_u {
-    double_u(const duality64& arg) :
-        sign_{ sign(arg) },
-        expn_{ expn(arg) },
-        mant_{ mant(arg) } {}
+    double_u(const duality64& arg) : sign_{ sign(arg) }, expn_{ expn(arg) }, mant_{ mant(arg) } {}
 
     const bool sign_;
     const std::int32_t expn_;
     const std::int64_t mant_;
 };
-
 
 inline std::int32_t bin_idx(const std::int32_t& expn) {
     return expn / binratio;
@@ -77,11 +72,10 @@ inline std::int32_t exp_dif(const std::int32_t& expn) {
     return expn % binratio;
 }
 
-inline int128_raw new_mant(const std::int64_t& mant,
-                           const std::int32_t& expn) {
+inline int128_raw new_mant(const std::int64_t& mant, const std::int32_t& expn) {
     return int128_raw::make(0l, mant) << exp_dif(expn);
 }
 
-} // namespace detail::float32
+} // namespace detail::float64
 
 } // namespace oneapi::dal::backend::primitives
