@@ -40,7 +40,8 @@ dal_global_header_test(
         "jaccard",
         "triangle_counting",
         "shortest_paths",
-        "subgraph_isomorphism"
+        "subgraph_isomorphism",
+        "connected_components"
     ],
     dal_deps = [
         ":dal_header",

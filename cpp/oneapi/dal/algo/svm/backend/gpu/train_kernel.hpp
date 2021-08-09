@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/svm/train_types.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::svm::backend {
 
