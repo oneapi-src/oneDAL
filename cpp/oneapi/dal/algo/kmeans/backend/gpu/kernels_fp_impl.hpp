@@ -211,8 +211,13 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
             pr::ndview<Float, 2>::wrap(distances.get_mutable_data(), { cur_rows, centroid_count });
         auto data_block = pr::ndview<Float, 2>::wrap(data.get_data() + row_offset * column_count,
                                                      { cur_rows, column_count });
-        auto distance_event = 
-            pr::gemm(queue, data_block, centroids.t(), distance_block, Float(-2.0), Float(0.0), { selection_event });
+        auto distance_event = pr::gemm(queue,
+                                       data_block,
+                                       centroids.t(),
+                                       distance_block,
+                                       Float(-2.0),
+                                       Float(0.0),
+                                       { selection_event });
         auto response_block =
             pr::ndview<int32_t, 2>::wrap(responses.get_mutable_data() + row_offset,
                                          { cur_rows, 1 });
@@ -226,7 +231,8 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
                                  response_block,
                                  { distance_event });
     }
-    auto completion_event = complete_closest_distances(queue, data_squares, closest_distances, {selection_event});
+    auto completion_event =
+        complete_closest_distances(queue, data_squares, closest_distances, { selection_event });
     return completion_event;
 }
 
@@ -431,10 +437,11 @@ sycl::event kernels_fp<Float>::partial_reduce_centroids(
 }
 
 template <typename Float>
-sycl::event kernels_fp<Float>::compute_objective_function(sycl::queue& queue,
-                                                            const pr::ndview<Float, 2>& closest_distances,
-                                                            pr::ndview<Float, 1>& objective_function,
-                                                            const bk::event_vector& deps) {
+sycl::event kernels_fp<Float>::compute_objective_function(
+    sycl::queue& queue,
+    const pr::ndview<Float, 2>& closest_distances,
+    pr::ndview<Float, 1>& objective_function,
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
     ONEDAL_ASSERT(objective_function.get_dimension(0) == 1);
     const Float* distance_ptr = closest_distances.get_data();
@@ -466,9 +473,9 @@ sycl::event kernels_fp<Float>::compute_objective_function(sycl::queue& queue,
 
 template <typename Float>
 sycl::event kernels_fp<Float>::compute_squares(sycl::queue& queue,
-                                                  const pr::ndview<Float, 2>& data,
-                                                  pr::ndview<Float, 1>& squares,
-                                                  const bk::event_vector& deps) {
+                                               const pr::ndview<Float, 2>& data,
+                                               pr::ndview<Float, 1>& squares,
+                                               const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_dimension(0) == squares.get_dimension(0));
     ONEDAL_ASSERT(squares.get_dimension(1) == 1);
     const Float* data_ptr = data.get_data();
@@ -480,38 +487,36 @@ sycl::event kernels_fp<Float>::compute_squares(sycl::queue& queue,
 
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(
-            bk::make_multiple_nd_range_2d({ wg_size, row_count },
-                                          { wg_size, 1 }),
-            [=](sycl::nd_item<2> item) {
-                auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
-                if(sg_id > 0)
-                    return;
-                const std::uint64_t sg_local_id = sg.get_local_id()[0];
-                const std::uint32_t sg_local_range = sg.get_local_range()[0];
-                const std::uint64_t wg_id = item.get_global_id(1);
-                const std::uint64_t offset = wg_id * column_count;
+        cgh.parallel_for(bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
+                         [=](sycl::nd_item<2> item) {
+                             auto sg = item.get_sub_group();
+                             const std::uint32_t sg_id = sg.get_group_id()[0];
+                             if (sg_id > 0)
+                                 return;
+                             const std::uint64_t sg_local_id = sg.get_local_id()[0];
+                             const std::uint32_t sg_local_range = sg.get_local_range()[0];
+                             const std::uint64_t wg_id = item.get_global_id(1);
+                             const std::uint64_t offset = wg_id * column_count;
 
-                Float sum = Float(0);
-                for (std::int64_t i = sg_local_id; i < column_count; i += sg_local_range) {
-                    const Float value = data_ptr[offset + i];
-                    sum += value * value;
-                }
-                sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
-                if(sg_local_id == 0) {
-                    squares_ptr[wg_id] = sum;
-                }
-            });
+                             Float sum = Float(0);
+                             for (std::int64_t i = sg_local_id; i < column_count;
+                                  i += sg_local_range) {
+                                 const Float value = data_ptr[offset + i];
+                                 sum += value * value;
+                             }
+                             sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
+                             if (sg_local_id == 0) {
+                                 squares_ptr[wg_id] = sum;
+                             }
+                         });
     });
 }
 
 template <typename Float>
-sycl::event kernels_fp<Float>::complete_closest_distances(
-                sycl::queue& queue,
-                const pr::ndview<Float, 1>& data_squares,
-                pr::ndview<Float, 2>& closest_distances,
-                const bk::event_vector& deps) {
+sycl::event kernels_fp<Float>::complete_closest_distances(sycl::queue& queue,
+                                                          const pr::ndview<Float, 1>& data_squares,
+                                                          pr::ndview<Float, 2>& closest_distances,
+                                                          const bk::event_vector& deps) {
     ONEDAL_ASSERT(data_squares.get_dimension(0) == closest_distances.get_dimension(0));
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
 
@@ -520,9 +525,10 @@ sycl::event kernels_fp<Float>::complete_closest_distances(
     auto squares_ptr = data_squares.get_mutable_data();
 
     auto complete_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for<complete_distances<Float>>(sycl::range<1>(elem_count), [=](sycl::id<1> idx) {
-            values_ptr[idx] += squares_ptr[idx];
-        });
+        cgh.parallel_for<complete_distances<Float>>(sycl::range<1>(elem_count),
+                                                    [=](sycl::id<1> idx) {
+                                                        values_ptr[idx] += squares_ptr[idx];
+                                                    });
     });
     return complete_event;
 }

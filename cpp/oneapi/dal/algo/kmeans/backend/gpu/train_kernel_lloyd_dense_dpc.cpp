@@ -123,10 +123,11 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                                       column_count,
                                                                       cluster_count);
         auto arr_centroid_squares =
-            pr::ndarray<Float, 1>::empty(queue,  cluster_count, sycl::usm::alloc::device);
+            pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
-            pr::ndarray<Float, 1>::empty(queue,  row_count, sycl::usm::alloc::device);
-        auto data_squares_event = kernels_fp<Float>::compute_squares(queue, arr_data, arr_data_squares);
+            pr::ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
+        auto data_squares_event =
+            kernels_fp<Float>::compute_squares(queue, arr_data, arr_data_squares);
         auto arr_distance_block =
             pr::ndarray<Float, 2>::empty(queue,
                                          { block_size_in_rows, cluster_count },
@@ -154,8 +155,10 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         updater.allocate_buffers();
 
         for (iter = 0; iter < max_iteration_count; iter++) {
-            auto centroid_squares_event = 
-                kernels_fp<Float>::compute_squares(queue, iter == 0 ? arr_initial : arr_centroids, arr_centroid_squares);
+            auto centroid_squares_event =
+                kernels_fp<Float>::compute_squares(queue,
+                                                   iter == 0 ? arr_initial : arr_centroids,
+                                                   arr_centroid_squares);
             updater.set_initial_centroids(iter == 0 ? arr_initial : arr_centroids);
             updater.set_centroid_squares(arr_centroid_squares);
             auto [objective_function, update_clusters_event] =
@@ -164,7 +167,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                arr_closest_distances,
                                arr_objective_function,
                                arr_responses,
-                               { centroids_event, data_squares_event, centroid_squares_event});
+                               { centroids_event, data_squares_event, centroid_squares_event });
             centroids_event = update_clusters_event;
             if (accuracy_threshold > 0 &&
                 objective_function + accuracy_threshold > prev_objective_function) {
@@ -173,24 +176,25 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             }
             prev_objective_function = objective_function;
         }
-        auto centroid_squares_event = 
-                kernels_fp<Float>::compute_squares(queue, arr_centroids, arr_centroid_squares, {centroids_event});
-        auto assign_event =
-            kernels_fp<Float>::assign_clusters(
-                queue,
-                arr_data,
-                arr_centroids,
-                arr_data_squares,
-                arr_centroid_squares,
-                block_size_in_rows,
-                arr_responses,
-                arr_distance_block,
-                arr_closest_distances,
-                { centroid_squares_event });
+        auto centroid_squares_event = kernels_fp<Float>::compute_squares(queue,
+                                                                         arr_centroids,
+                                                                         arr_centroid_squares,
+                                                                         { centroids_event });
+        auto assign_event = kernels_fp<Float>::assign_clusters(queue,
+                                                               arr_data,
+                                                               arr_centroids,
+                                                               arr_data_squares,
+                                                               arr_centroid_squares,
+                                                               block_size_in_rows,
+                                                               arr_responses,
+                                                               arr_distance_block,
+                                                               arr_closest_distances,
+                                                               { centroid_squares_event });
         kernels_fp<Float>::compute_objective_function(queue,
                                                       arr_closest_distances,
                                                       arr_objective_function,
-                                                      { assign_event }).wait_and_throw();
+                                                      { assign_event })
+            .wait_and_throw();
         model<task::clustering> model;
         model.set_centroids(
             dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));

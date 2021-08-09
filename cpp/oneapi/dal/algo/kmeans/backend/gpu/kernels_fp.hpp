@@ -83,13 +83,13 @@ struct kernels_fp {
                                                   pr::ndview<Float, 1>& objective_function,
                                                   const bk::event_vector& deps = {});
     static sycl::event compute_squares(sycl::queue& queue,
-                                                  const pr::ndview<Float, 2>& data,
-                                                  pr::ndview<Float, 1>& squares,
-                                                  const bk::event_vector& deps = {});
-    static sycl::event complete_closest_distances(sycl::queue& queue,
-                                                  const pr::ndview<Float, 1>& data_squares,  
-                                       pr::ndview<Float, 2>& closest_distances,
+                                       const pr::ndview<Float, 2>& data,
+                                       pr::ndview<Float, 1>& squares,
                                        const bk::event_vector& deps = {});
+    static sycl::event complete_closest_distances(sycl::queue& queue,
+                                                  const pr::ndview<Float, 1>& data_squares,
+                                                  pr::ndview<Float, 2>& closest_distances,
+                                                  const bk::event_vector& deps = {});
 };
 #endif
 
