@@ -32,6 +32,8 @@ union duality32 {
 };
 
 constexpr inline int nbins = 64;
+constexpr inline int binsize = 1;
+constexpr inline int binalloc = nbins * binsize;
 constexpr inline int pbias = 127;
 constexpr inline int maxbins = 256;
 constexpr inline int binratio = maxbins / nbins;
