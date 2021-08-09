@@ -28,7 +28,7 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using accuracy_types = std::tuple<float>;
+using accuracy_types = std::tuple<float, double>;
 
 template <typename Float>
 class accuracy_test_random : public te::float_algo_fixture<Float> {
