@@ -476,7 +476,7 @@ private:
     }
 };
 
-using kmeans_types = COMBINE_TYPES((float/*, double*/), (kmeans::method::lloyd_dense));
+using kmeans_types = COMBINE_TYPES((float /*, double*/), (kmeans::method::lloyd_dense));
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans degenerated test",
@@ -616,7 +616,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                        max_iteration_count,
                        obj_function);
 }
-
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans partial centroids stress test",
