@@ -14,19 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-/// @file
-/// Contains the definition of the main processing function for vertex partitioning algorithms
+#include "oneapi/dal/algo/louvain/backend/cpu/vertex_partitioning_default_kernel.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
-#pragma once
+namespace oneapi::dal::preview::louvain::backend {
 
-#include "oneapi/dal/detail/vertex_partitioning_ops.hpp"
+  template struct louvain_kernel<__CPU_TAG__, std::int32_t>;
 
-namespace oneapi::dal::preview {
+  template struct louvain_kernel<__CPU_TAG__, double>;
 
-/// The main processing function for vertex partitioning algorithms
-template <typename... Args>
-auto vertex_partitioning(Args &&... args) {
-    return detail::vertex_partitioning_dispatch(std::forward<Args>(args)...);
-}
-
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::louvain::backend

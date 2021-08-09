@@ -213,6 +213,9 @@ public:
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
 
+    /* Louvain */
+    MSG(louvain_algorithm_is_not_implemented);
+
     /* Minkowski distance */
     MSG(invalid_minkowski_degree);
 

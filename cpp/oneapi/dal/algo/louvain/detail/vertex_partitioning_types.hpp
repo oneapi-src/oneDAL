@@ -15,18 +15,26 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the main processing function for vertex partitioning algorithms
+/// Contains the definition of the input and output for Louvain
+/// algorithm
 
 #pragma once
 
-#include "oneapi/dal/detail/vertex_partitioning_ops.hpp"
+#include "oneapi/dal/algo/louvain/common.hpp"
 
-namespace oneapi::dal::preview {
+namespace oneapi::dal::preview::louvain::detail {
 
-/// The main processing function for vertex partitioning algorithms
-template <typename... Args>
-auto vertex_partitioning(Args &&... args) {
-    return detail::vertex_partitioning_dispatch(std::forward<Args>(args)...);
-}
+  class vertex_partitioning_result_impl;
 
-} // namespace oneapi::dal::preview
+  template <typename Graph, typename Task>
+  class vertex_partitioning_input_impl : public base {
+  public:
+    vertex_partitioning_input_impl(const Graph &g) : graph_data(g) {}
+    vertex_partitioning_input_impl(const Graph &g, const table &labels)
+        : graph_data(g), labels_data(labels) {}
+
+    const Graph &graph_data;
+    table labels_data;
+  };
+
+} // namespace oneapi::dal::preview::louvain::detail

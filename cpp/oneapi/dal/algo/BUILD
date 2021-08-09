@@ -15,6 +15,7 @@ ALGOS = [
     "kmeans_init",
     "knn",
     "linear_kernel",
+    "louvain",
     "minkowski_distance",
     "pca",
     "polynomial_kernel",
