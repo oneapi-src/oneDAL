@@ -476,8 +476,8 @@ private:
     }
 };
 
-using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
-/*
+using kmeans_types = COMBINE_TYPES((float/*, double*/), (kmeans::method::lloyd_dense));
+
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans degenerated test",
                      "[kmeans][batch]",
@@ -523,7 +523,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
                                        expected_obj_function,
                                        false);
 }
-*/
+
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans empty clusters test",
                      "[kmeans][batch]",
@@ -585,7 +585,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     using Float = std::tuple_element_t<0, TestType>;
 
     constexpr std::int64_t row_count = 1024 * 1024;
-    constexpr std::int64_t column_count = 1024 * 2 / sizeof(Float);
+    constexpr std::int64_t column_count = 1024 / sizeof(Float);
     constexpr std::int64_t cluster_count = 1;
     constexpr std::int64_t max_iteration_count = 1;
 
@@ -616,6 +616,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                        max_iteration_count,
                        obj_function);
 }
+
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans partial centroids stress test",

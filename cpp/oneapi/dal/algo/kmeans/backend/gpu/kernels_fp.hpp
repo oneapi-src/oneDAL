@@ -42,6 +42,7 @@ struct kernels_fp {
     static sycl::event assign_clusters(sycl::queue& queue,
                                        const pr::ndview<Float, 2>& data,
                                        const pr::ndview<Float, 2>& centroids,
+                                       const pr::ndview<Float, 1>& data_squares,
                                        const pr::ndview<Float, 1>& centroid_squares,
                                        std::int64_t block_size_in_rows,
                                        pr::ndview<std::int32_t, 2>& responses,
@@ -79,13 +80,16 @@ struct kernels_fp {
                                                 const bk::event_vector& deps = {});
     static sycl::event compute_objective_function(sycl::queue& queue,
                                                   const pr::ndview<Float, 2>& closest_distances,
-                                                  const pr::ndview<Float, 1>& data_squares,
                                                   pr::ndview<Float, 1>& objective_function,
                                                   const bk::event_vector& deps = {});
     static sycl::event compute_squares(sycl::queue& queue,
                                                   const pr::ndview<Float, 2>& data,
                                                   pr::ndview<Float, 1>& squares,
                                                   const bk::event_vector& deps = {});
+    static sycl::event complete_closest_distances(sycl::queue& queue,
+                                                  const pr::ndview<Float, 1>& data_squares,  
+                                       pr::ndview<Float, 2>& closest_distances,
+                                       const bk::event_vector& deps = {});
 };
 #endif
 

@@ -102,6 +102,7 @@ public:
                 queue_,
                 data_,
                 initial_centroids_,
+                data_squares_,
                 centroid_squares_,
                 block_size_in_rows,
                 responses,
@@ -110,10 +111,10 @@ public:
                 deps);
         auto count_event =
             count_clusters(queue_, responses, cluster_count_, counters_, { assign_event });
+
         auto objective_function_event =
             kernels_fp<Float>::compute_objective_function(queue_,
                                                           closest_distances,
-                                                          data_squares_,
                                                           objective_function,
                                                           { assign_event });
         auto reset_event = partial_centroids_.fill(queue_, 0.0);
@@ -132,13 +133,13 @@ public:
                                                       part_count_,
                                                       centroids,
                                                       { count_event, centroids_event });
-        count_empty_clusters(queue_,
+        auto count_empty_clusters_event = count_empty_clusters(queue_,
                              cluster_count_,
                              counters_,
                              empty_cluster_count_,
                              { count_event });
 
-        std::int64_t candidate_count = empty_cluster_count_.to_host(queue_).get_data()[0];
+        std::int64_t candidate_count = empty_cluster_count_.to_host(queue_, {count_empty_clusters_event}).get_data()[0];
         sycl::event find_candidates_event;
         if (candidate_count > 0) {
             find_candidates_event = kernels_fp<Float>::find_candidates(queue_,
@@ -147,7 +148,7 @@ public:
                                                                        candidate_indices_,
                                                                        candidate_distances_);
         }
-        Float objective_function_value = objective_function.to_host(queue_).get_data()[0];
+        Float objective_function_value = objective_function.to_host(queue_, {find_candidates_event, objective_function_event}).get_data()[0];
         bk::event_vector candidate_events;
         if (candidate_count > 0) {
             auto [updated_objective_function_value, copy_events] =
@@ -159,7 +160,7 @@ public:
                                                        centroids,
                                                        responses,
                                                        objective_function_value,
-                                                       { find_candidates_event });
+                                                       {find_candidates_event, objective_function_event});
             sycl::event::wait(copy_events);
             objective_function_value = updated_objective_function_value;
         }

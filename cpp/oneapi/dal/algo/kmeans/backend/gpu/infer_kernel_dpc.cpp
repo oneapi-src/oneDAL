@@ -70,6 +70,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                 queue,
                 arr_data,
                 arr_centroids,
+                arr_data_squares,
                 arr_centroid_squares,
                 block_size_in_rows,
                 arr_responses,
@@ -78,7 +79,6 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                 {data_squares_event, centroid_squares_event});
         kernels_fp<Float>::compute_objective_function(queue,
                                                       arr_closest_distances,
-                                                      arr_data_squares,
                                                       arr_objective_function,
                                                       { assign_event })
             .wait_and_throw();
