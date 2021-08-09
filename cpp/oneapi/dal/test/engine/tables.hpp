@@ -95,4 +95,75 @@ inline void check_if_tables_equal_approx(const table& actual,
     check_if_table_content_equal_approx<Float>(actual, reference, tolerance);
 }
 
+template <typename T>
+inline array<T> get_table_block(host_test_policy&, const table& t, const range& row_range) {
+    return row_accessor<const T>{ t }.pull(row_range);
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename T>
+inline array<T> get_table_block(device_test_policy& p, const table& t, const range& row_range) {
+    return row_accessor<const T>{ t }.pull(p.get_queue(), row_range, sycl::usm::alloc::device);
+}
+#endif
+
+template <typename Float, typename TestPolicy>
+inline std::vector<table> split_table_by_rows(TestPolicy& policy,
+                                              const table& t,
+                                              std::int64_t split_count) {
+    ONEDAL_ASSERT(split_count > 0);
+    ONEDAL_ASSERT(split_count <= t.get_row_count());
+
+    const std::int64_t row_count = t.get_row_count();
+    const std::int64_t column_count = t.get_column_count();
+    const std::int64_t block_size_regular = row_count / split_count;
+    const std::int64_t block_size_tail = row_count % split_count;
+
+    std::vector<table> result(split_count);
+
+    std::int64_t row_offset = 0;
+    for (std::int64_t i = 0; i < split_count; i++) {
+        const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
+        const std::int64_t block_size = block_size_regular + tail;
+
+        const auto row_range = range{ row_offset, row_offset + block_size };
+        const auto block = get_table_block<Float>(policy, t, row_range);
+        result[i] = homogen_table::wrap(block, block_size, column_count);
+        row_offset += block_size;
+    }
+
+    return result;
+}
+
+template <typename Float>
+inline table stack_tables_by_rows(const std::vector<table>& tables) {
+    if (tables.empty()) {
+        return table{};
+    }
+
+    std::int64_t total_row_count = 0;
+    std::int64_t total_column_count = tables[0].get_column_count();
+    for (const auto& t : tables) {
+        ONEDAL_ASSERT(t.has_data());
+        ONEDAL_ASSERT(t.get_column_count() == total_column_count);
+        total_row_count += t.get_row_count();
+    }
+
+    const auto stacked_table_memory = dal::array<Float>::empty(
+        dal::detail::check_mul_overflow(total_row_count, total_column_count));
+
+    std::int64_t offset = 0;
+    for (const auto& t : tables) {
+        const auto t_ary = row_accessor<const Float>{ t }.pull();
+        Float* dst_ptr = stacked_table_memory.get_mutable_data() + offset;
+        dal::detail::memcpy(dal::detail::default_host_policy{},
+                            dst_ptr,
+                            t_ary.get_data(),
+                            t_ary.get_size());
+        offset += t_ary.get_count();
+    }
+
+    return homogen_table::wrap(stacked_table_memory, total_row_count, total_column_count);
+}
+
 } // namespace oneapi::dal::test::engine

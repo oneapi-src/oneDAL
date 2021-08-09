@@ -118,6 +118,13 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         auto data_ptr =
             row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
         auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
+
+        // TODO: Use truly-distributed algorithm for computing initial centroids.
+        // The current implementation of distributed algorithm initializes centroids
+        // independently on each rank using the data available. This may result in
+        // inconsistent results between single-rank and distributed runs. To fix
+        // this issue the correct distributed implementation of K-Means++ should be
+        // called underneath.
         auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
 
         std::int64_t block_size_in_rows =
