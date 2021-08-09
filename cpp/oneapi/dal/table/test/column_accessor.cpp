@@ -187,7 +187,7 @@ TEST(column_accessor_dpc_test, can_get_second_column_from_homogen_table_with_con
     });
 
     homogen_table t{ q, data, 4, 2, detail::make_default_delete<const float>(q), { event } };
-    column_accessor<const double> acc{ t };
+    column_accessor<const std::int32_t> acc{ t };
     auto col = acc.pull(q, 1);
 
     ASSERT_EQ(col.get_count(), t.get_row_count());
@@ -195,7 +195,7 @@ TEST(column_accessor_dpc_test, can_get_second_column_from_homogen_table_with_con
     ASSERT_EQ(sycl::get_pointer_type(col.get_data(), q.get_context()), sycl::usm::alloc::shared);
 
     for (std::int64_t i = 0; i < col.get_count(); i++) {
-        ASSERT_DOUBLE_EQ(col[i], i * 2 + 2);
+        ASSERT_EQ(col[i], i * 2 + 2);
     }
 }
 
@@ -229,7 +229,7 @@ TEST(column_accessor_dpc_test, can_get_columns_from_homogen_table_builder) {
     detail::homogen_table_builder b;
     b.reset(array<float>::zeros(q, 3 * 2), 3, 2);
     {
-        column_accessor<double> acc{ b };
+        column_accessor<std::int32_t> acc{ b };
         for (std::int64_t col_idx = 0; col_idx < 2; col_idx++) {
             auto col = acc.pull(q, col_idx);
 
@@ -240,7 +240,7 @@ TEST(column_accessor_dpc_test, can_get_columns_from_homogen_table_builder) {
             col.need_mutable_data();
             auto col_data = col.get_mutable_data();
             for (std::int64_t i = 0; i < col.get_count(); i++) {
-                ASSERT_DOUBLE_EQ(col_data[i], 0.0);
+                ASSERT_EQ(col_data[i], 0);
                 col_data[i] = col_idx + 1;
             }
 

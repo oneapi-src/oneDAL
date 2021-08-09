@@ -26,6 +26,9 @@ namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
+MSG(algorithm_is_not_implemented_for_this_device,
+    "Algorithm is not implemented for this device. "
+    "Consider running on it on the other device.")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
 MSG(incompatible_array_reinterpret_cast_types,
     "Cannot reinterpret array to provided type, "
@@ -39,6 +42,11 @@ MSG(unsupported_data_layout, "Unsupported data layout")
 MSG(unsupported_data_type, "Requested data type is not supported")
 MSG(unsupported_device_type, "Requested device type is not supported")
 MSG(small_data_block, "Data block size is smaller than expected")
+MSG(spmd_version_of_algorithm_is_not_implemented,
+    "SPMD version of the algorithm is not implemented")
+MSG(spmd_version_of_algorithm_is_not_implemented_for_this_device,
+    "SPMD version of the algorithm is not implemented for this device. "
+    "Consider running on it on the other device.")
 MSG(invalid_data_block_size, "Invalid data block size")
 MSG(method_not_implemented, "Method is not implemented")
 MSG(unsupported_feature_type, "Feature type is not supported")
@@ -49,11 +57,14 @@ MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 MSG(page_size_leq_zero, "Page size is lower than or equal to zero")
 MSG(invalid_key, "Cannot find the given key")
 MSG(capacity_leq_zero, "Capacity is lower than or equal to zero")
+MSG(empty_set_of_result_options, "Empty set of result options")
+MSG(this_result_is_not_enabled_via_result_options, "This result is not enabled via result options")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
 MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
 MSG(failed_to_compute_eigenvectors, "Failed to compute eigenvectors")
+MSG(failed_to_generate_random_numbers, "Failed to generate random numbers")
 
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,
@@ -164,6 +175,8 @@ MSG(unknown_distance_type,
 MSG(distance_is_not_supported_for_gpu, "Only Euclidean distances for k-NN is supported for GPU")
 MSG(incompatible_knn_model,
     "The provided model is incompatible with the selected k-NN task or method")
+MSG(invalid_set_of_result_options_to_search,
+    "Provided results options are incompatible with the search task. Search task cannot compute responses.")
 
 /* Minkowski distance */
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
