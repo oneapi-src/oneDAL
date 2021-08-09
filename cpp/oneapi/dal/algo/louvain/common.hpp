@@ -120,8 +120,6 @@ public:
     }
 
     /// Sets resolution parameter in the modularity formula
-    /// Higher resolutions lead to more communities, while lower resolutions
-    /// lead to fewer communities
     ///
     /// @param [in] resolution  Resolution parameter in the modularity formula
     /// @invariant :expr:`resolution >= 0`

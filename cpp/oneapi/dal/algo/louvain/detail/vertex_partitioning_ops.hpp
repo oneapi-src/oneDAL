@@ -33,11 +33,7 @@ struct vertex_partitioning_ops_dispatcher {
         const Descriptor &descriptor,
         vertex_partitioning_input<Graph, task_t> &input) const {
         static auto impl = get_backend<Policy, Descriptor>(descriptor, input.get_graph());
-        return (*impl)(policy,
-                       descriptor,
-                       input.get_graph(),
-                       input.get_initial_partition(),
-                       input.get_use_initial_partition());
+        return (*impl)(policy, descriptor, input.get_graph(), input.get_initial_partition());
     }
 };
 

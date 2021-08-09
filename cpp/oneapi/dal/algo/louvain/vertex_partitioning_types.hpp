@@ -135,9 +135,4 @@ const table &vertex_partitioning_input<Graph, Task>::get_initial_partition() con
     return impl_->labels_data;
 }
 
-template <typename Graph, typename Task>
-bool vertex_partitioning_input<Graph, Task>::get_use_initial_partition() const {
-    return impl_->use_initial_partition;
-}
-
 } // namespace oneapi::dal::preview::louvain

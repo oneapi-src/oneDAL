@@ -28,15 +28,13 @@ vertex_partitioning_result<task::vertex_partitioning> louvain_kernel<
     EdgeValue>::operator()(const dal::detail::host_policy &policy,
                            const detail::descriptor_base<task::vertex_partitioning> &desc,
                            const dal::preview::detail::topology<std::int32_t> &t,
-                           const std::int32_t *p,
-                           const bool use_p,
+                           const std::int32_t *init_partition,
                            const EdgeValue *vals,
                            byte_alloc_iface *alloc_ptr) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::louvain_kernel<decltype(cpu), EdgeValue>{}(desc,
                                                                    t,
-                                                                   p,
-                                                                   use_p,
+                                                                   init_partition,
                                                                    vals,
                                                                    alloc_ptr);
     });

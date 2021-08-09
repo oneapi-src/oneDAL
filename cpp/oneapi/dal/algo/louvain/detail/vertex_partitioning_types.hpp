@@ -29,15 +29,12 @@ class vertex_partitioning_result_impl;
 template <typename Graph, typename Task>
 class vertex_partitioning_input_impl : public base {
 public:
-    vertex_partitioning_input_impl(const Graph &g) : graph_data(g), use_initial_partition(false) {}
-    vertex_partitioning_input_impl(const Graph &g, const table &labels)
+    vertex_partitioning_input_impl(const Graph &g, const table &labels = table{})
             : graph_data(g),
-              labels_data(labels),
-              use_initial_partition(true) {}
+              labels_data(labels) {}
 
     const Graph &graph_data;
     table labels_data;
-    bool use_initial_partition;
 };
 
 } // namespace oneapi::dal::preview::louvain::detail
