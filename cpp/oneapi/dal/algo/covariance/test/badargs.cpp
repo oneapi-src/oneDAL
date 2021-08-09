@@ -39,7 +39,7 @@ public:
 
     table get_input_data(std::int64_t override_row_count = row_count,
                          std::int64_t override_component_count = component_count) const {
-        ONEDAL_ASSERT(override_row_count * override_componentn_count <= element_count);
+        ONEDAL_ASSERT(override_row_count * override_component_count <= element_count);
         return homogen_table::wrap(data_.data(), override_row_count, override_component_count);
     }
 
