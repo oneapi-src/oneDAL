@@ -35,19 +35,14 @@ class vertex_partitioning_input : public base {
 
 public:
     using task_t = Task;
-    // static_assert(detail::is_valid_graph<Graph>,
-    //               "Only undirected_adjacency_vector_graph is supported.");
-    /// Constructs the algorithm input initialized with the graph
-    ///
-    /// @param [in]   g  The input graph
-    vertex_partitioning_input(const Graph &g);
+    static_assert(detail::is_valid_graph<Graph>);
 
     /// Constructs the algorithm input initialized with the graph
     /// and the initial partition
     ///
     /// @param [in]   g                 The input graph
     /// @param [in]   initial_partition The initial partition of verteces
-    vertex_partitioning_input(const Graph &g, const table &initial_partition);
+    vertex_partitioning_input(const Graph &g, const table &initial_partition = table{});
 
     /// Returns the constant reference to the input graph
     const Graph &get_graph() const;
@@ -55,8 +50,8 @@ public:
     /// Returns the constant reference to the initial partition
     const table &get_initial_partition() const;
 
-    /// Returns is initial partition is set
-    bool get_use_initial_partition() const;
+    /// Set the initial partition
+    auto &set_initial_partition(const table &labels);
 
 private:
     dal::detail::pimpl<detail::vertex_partitioning_input_impl<Graph, Task>> impl_;
@@ -117,10 +112,6 @@ private:
 };
 
 template <typename Graph, typename Task>
-vertex_partitioning_input<Graph, Task>::vertex_partitioning_input(const Graph &g)
-        : impl_(new detail::vertex_partitioning_input_impl<Graph, Task>(g)) {}
-
-template <typename Graph, typename Task>
 vertex_partitioning_input<Graph, Task>::vertex_partitioning_input(const Graph &g,
                                                                   const table &initial_partition)
         : impl_(new detail::vertex_partitioning_input_impl<Graph, Task>(g, initial_partition)) {}
@@ -133,6 +124,12 @@ const Graph &vertex_partitioning_input<Graph, Task>::get_graph() const {
 template <typename Graph, typename Task>
 const table &vertex_partitioning_input<Graph, Task>::get_initial_partition() const {
     return impl_->labels_data;
+}
+
+template <typename Graph, typename Task>
+auto &vertex_partitioning_input<Graph, Task>::set_initial_partition(const table &labels) {
+    impl_->labels_data = labels;
+    return *this;
 }
 
 } // namespace oneapi::dal::preview::louvain
