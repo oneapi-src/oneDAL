@@ -60,16 +60,22 @@ public:
         _mask = context.allocate(TypeIds::id<uint32_t>(), _nVectors, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_CHECK_STATUS(status, Helper::computeDualCoeffs(_yBuff, _coeffBuff, _nVectors));
-
         return status;
     }
 
-    services::Status setResultsToModel(const NumericTablePtr & xTable, Model & model) const
+    services::Status setResultsToModel(const NumericTablePtr & xTable, Model & model)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(setResultsToModel);
 
         services::Status status;
+
+        /* Calculate bias and write it into model */
+        algorithmFPType bias;
+        DAAL_CHECK_STATUS(status, calculateBias(_C, bias));
+        model.setBias(double(bias));
+
+        DAAL_CHECK_STATUS(status, Helper::computeDualCoeffs(_yBuff, _coeffBuff, _nVectors));
+
         model.setNFeatures(xTable->getNumberOfColumns());
 
         size_t nSV;
@@ -85,10 +91,6 @@ public:
             DAAL_CHECK_STATUS(status, setSVDense(model, xTable, nSV));
         }
 
-        /* Calculate bias and write it into model */
-        algorithmFPType bias;
-        DAAL_CHECK_STATUS(status, calculateBias(_C, bias));
-        model.setBias(double(bias));
         return status;
     }
 
