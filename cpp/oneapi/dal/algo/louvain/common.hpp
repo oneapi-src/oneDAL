@@ -137,7 +137,7 @@ public:
     /// Returns the maximum number of iterations of the Louvain algorithm
     ///
     /// @remark default = 10
-    std::int64_t get_max_iteration_count() const{
+    std::int64_t get_max_iteration_count() const {
         return base_t::get_max_iteration_count();
     }
 
