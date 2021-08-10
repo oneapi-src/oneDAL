@@ -98,15 +98,16 @@ public:
         _alloc = allocator;
     }
 
-    /// Returns minimum modularity increase inside iteration
+    /// Returns the threshold for the stop condition of the local moving
+    /// phase of the algorithm
     double get_accuracy_threshold() const {
         return base_t::get_accuracy_threshold();
     }
 
-    /// Sets the minimum modularity increase indide iteration
+    /// Sets the threshold for the stop condition of the local moving
+    /// phase of the algorithm
     ///
-    /// @param [in] accuracy_threshold  Minimum modularity increase indide
-    /// iteration
+    /// @param [in] accuracy_threshold  modularity threshold value
     /// @invariant :expr:`accuracy_threshold >= 0`
     /// @remark default = 0.0001
     auto &set_accuracy_threshold(double accuracy_threshold) {
