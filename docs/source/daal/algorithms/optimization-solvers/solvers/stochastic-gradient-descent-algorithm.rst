@@ -175,8 +175,8 @@ method parameter method:
      - The numeric table of size :math:`1 \times \text{nIterations}` or :math:`1 \times 1`. The contents of the
        table depend on its size:
 
-        - size = :math:`1 \times \text{nIterations}`: values of the conservative coefficient sequence :math:`\gamma^k` for :math:`k = 1, \ldots, \text{nIterations}`.
-        - size = :math:`1 \times 1` the value of conservative coefficient at each iteration :math:`\gamma^1 = \ldots = \gamma^\text{nIterations}`.
+       - size = :math:`1 \times \text{nIterations}`: values of the conservative coefficient sequence :math:`\gamma^k` for :math:`k = 1, \ldots, \text{nIterations}`.
+       - size = :math:`1 \times 1` the value of conservative coefficient at each iteration :math:`\gamma^1 = \ldots = \gamma^\text{nIterations}`.
 
        .. include: ../../../includes/parameter_numeric_table
 
@@ -190,8 +190,8 @@ method parameter method:
      - The numeric table of size :math:`1 \times \text{nIterations}` or :math:`1 \times 1`. The contents of the
        table depend on its size:
 
-        - size = :math:`1 \times \text{nIterations}`: values of the learning rate sequence :math:`\eta^k` for :math:`k = 1, \ldots, \text{nIterations}`.
-        - size = :math:`1 \times 1`: the value of learning rate at each iteration :math:`\eta^1 = \ldots = \eta^\text{nIterations}`.
+       - size = :math:`1 \times \text{nIterations}`: values of the learning rate sequence :math:`\eta^k` for :math:`k = 1, \ldots, \text{nIterations}`.
+       - size = :math:`1 \times 1`: the value of learning rate at each iteration :math:`\eta^1 = \ldots = \eta^\text{nIterations}`.
 
        .. include: ../../../includes/parameter_numeric_table
 

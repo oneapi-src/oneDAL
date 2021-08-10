@@ -17,10 +17,6 @@
 Batch Processing
 ****************
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Input
 ---------------
 The PCA algorithm accepts the input described below. Pass the

@@ -143,14 +143,14 @@ Training Stage
 To get the best overall performance at the Naïve Bayes classifier
 training stage:
 
--  If input data is homogeneous:
+- If input data is homogeneous:
 
-    -  For the training data set, use a homogeneous numeric table
-       of the same type as specified in the algorithmFPType class
-       template parameter.
-    -  For class labels, use a homogeneous numeric table of type int.
+  -  For the training data set, use a homogeneous numeric table
+     of the same type as specified in the algorithmFPType class
+     template parameter.
+  -  For class labels, use a homogeneous numeric table of type int.
 
--  If input data is non-homogeneous, use AOS layout rather than SOA layout.
+- If input data is non-homogeneous, use AOS layout rather than SOA layout.
 
 The training stage of the Naïve Bayes classifier algorithm is
 memory access bound in most cases. Therefore, use efficient data

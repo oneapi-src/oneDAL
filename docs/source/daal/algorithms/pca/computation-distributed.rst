@@ -23,10 +23,6 @@ This mode assumes that data set is split in nblocks blocks across computation no
 
 PCA computation in the distributed processing mode follows the general schema described in Algorithms.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Parameters
 --------------------
 

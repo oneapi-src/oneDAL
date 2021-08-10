@@ -19,10 +19,6 @@ Distributed Processing
 
 This mode assumes that the data set is split into ``nblocks`` blocks across computation nodes.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Parameters
 ++++++++++++++++++++
 

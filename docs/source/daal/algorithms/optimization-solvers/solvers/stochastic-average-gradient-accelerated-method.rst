@@ -24,10 +24,6 @@ The Stochastic Average Gradient Accelerated (SAGA) [Defazio2014]_ follows
 
 The default method (``defaultDense``) of SAGA algorithm is a particular case of the iterative solver method with the batch size :math:`b = 1`.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Details
 *******
 
@@ -78,10 +74,6 @@ Computation
 
 The stochastic average gradient (SAGA) algorithm is a special case of an iterative solver.
 For parameters, input, and output of iterative solvers, see :ref:`Iterative Solver > Computation <iterative_solver>`.
-
-.. contents::
-    :local:
-    :depth: 1
 
 Algorithm Input
 ---------------

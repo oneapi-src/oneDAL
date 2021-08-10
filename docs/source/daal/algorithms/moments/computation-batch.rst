@@ -19,10 +19,6 @@
 Batch Processing
 ================
 
-- `Algorithm Input`_
-- `Algorithm Parameters`_
-- `Algorithm Output`_
-
 Algorithm Input
 ***************
 
@@ -87,9 +83,9 @@ The low order moments algorithm has the following parameters:
      - ``estimatesAll``
      - Estimates to be computed by the algorithm:
 
-        - ``estimatesAll`` - all supported moments
-        - ``estimatesMinMax`` - minimum and maximum
-        - ``estimatesMeanVariance`` - mean and variance
+       - ``estimatesAll`` - all supported moments
+       - ``estimatesMinMax`` - minimum and maximum
+       - ``estimatesMeanVariance`` - mean and variance
 
 Algorithm Output
 ****************

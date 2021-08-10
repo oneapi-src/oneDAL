@@ -22,10 +22,6 @@ Logistic Loss
 Logistic loss is an objective function being minimized in the process of
 logistic regression training when a dependent variable takes only one of two values, :math:`0` and :math:`1`.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Details
 *******
 
@@ -86,10 +82,6 @@ For more details, see [Hastie2009]_.
 
 Computation
 ***********
-
-.. contents::
-    :local:
-    :depth: 1
 
 Algorithm Input
 ---------------

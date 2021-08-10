@@ -19,10 +19,6 @@ Distributed Processing
 
 The distributed processing mode assumes that the data set R is split in ``nblocks`` blocks across computation nodes.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Parameters
 **********
 

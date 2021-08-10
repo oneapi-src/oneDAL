@@ -112,30 +112,25 @@ for :math:`i = 1, \ldots, n` and :math:`j=1, \ldots, k`.
 
 #. Maximization step: in the :math:`j`-th step, for all :math:`r=1, \ldots, k` compute:
 
-	a.
+	 a.
 	   The mixture weights :math:`{\alpha }_{r}^{\left(j+1\right)}=\frac{{n}_{r}}{n}`, where :math:`{n}_{r}=\sum _{i=1}^{n}{w}_{ir}`
 	   is the "amount" of the feature vectors that are assigned
 	   to the :math:`r`-th mixture component
 
-	b. Mean estimates :math:`{m}_{r}^{\left(j+1\right)}=\frac{1}{{n}_{r}}\sum _{i=1}^{n}{w}_{ir}{x}_{i}`
+	 b. Mean estimates :math:`{m}_{r}^{\left(j+1\right)}=\frac{1}{{n}_{r}}\sum _{i=1}^{n}{w}_{ir}{x}_{i}`
 
-
-	c.
+	 c.
 	   Covariance estimate :math:`\sum _{r}^{(j+1)}=({\sigma }_{r,hg}^{(j+1)})`
 	   of size :math:`p \times p` with :math:`\sigma_{r,hg}^{(j+1)}=\frac{1}{n_r}\sum_{l=1}^{n}{w}_{lr}(x_{lh}-m_{r,h}^{(j+1)})(x_{lg}-m_{r,g}^{(j+1)})`
 
 
-#.
-
-  Repeat steps 2 and 3 until any of these conditions is met:
+#. Repeat steps 2 and 3 until any of these conditions is met:
 
    - :math:`|\log({\theta }^{(j+1)}-{\theta }^{(j)})|<\epsilon`, where the likelihood function is: 
    
      :math:`\log(\theta)=\sum_{i=1}^{n}\log(\sum _{j=1}^{k}{pd(x}_{i}|{z}_{j},{\theta }_{j}){\alpha }_{j})`
 
-
    - The number of iterations exceeds the predefined level.
-
 
 Initialization
 ++++++++++++++
@@ -147,23 +142,15 @@ weights, vectors of means, and variance-covariance
 The EM initialization algorithm for GMM includes the following
 steps:
 
-#.
+#. Perform nTrials starts of the EM algorithm with nIterations
+   iterations and start values:
 
- Perform nTrials starts of the EM algorithm with nIterations
- iterations and start values:
+	 - Initial means - :math:`k` different random observations from the input data set
+	 - Initial weights - the values of :math:`1/k`
+	 - Initial covariance matrices - the covariance of the input data
 
-	- Initial means - :math:`k` different random observations from the input data set
-
-	- Initial weights - the values of :math:`1/k`
-
-	- Initial covariance matrices - the covariance of the input data
-
-#.
-
- Regard the result of the best EM algorithm in terms of the
- likelihood function values as the result of initialization
-
-
+#. Regard the result of the best EM algorithm in terms of the
+   likelihood function values as the result of initialization
 
 Initialization
 ==============
@@ -318,8 +305,8 @@ Pass the ``Input ID`` as a parameter to the methods that provide input for your 
      - Pointer to the ``DataCollection`` object that contains :math:`k` numeric tables,
        each with the :math:`p \times p` variance-covariance matrix for the :math:`i`-th mixture component of size:
 
-        + :math:`p \times p` - for the full covariance matrix storage scheme
-        + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
+       + :math:`p \times p` - for the full covariance matrix storage scheme
+       + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
 
        The collection can contain objects of any class derived from NumericTable.
 
@@ -373,11 +360,11 @@ The EM for GMM algorithm has the following parameters:
      - ``full``
      - Covariance matrix storage scheme in the Gaussian Mixture Model:
 
-        + ``full`` - covariance matrices are stored as numeric tables of size :math:`p \times p`.
-          All elements of the matrix are updated during the processing.
+       + ``full`` - covariance matrices are stored as numeric tables of size :math:`p \times p`.
+         All elements of the matrix are updated during the processing.
 
-        + ``diagonal`` - covariance matrices are stored as numeric tables of size :math:`1 \times p`.
-          Only diagonal elements of the matrix are updated during the processing, and the rest are assumed to be zero.
+       + ``diagonal`` - covariance matrices are stored as numeric tables of size :math:`1 \times p`.
+         Only diagonal elements of the matrix are updated during the processing, and the rest are assumed to be zero.
 
 
 Algorithm Output
@@ -416,8 +403,8 @@ of your algorithm.
      - Pointer to the DataCollection object that contains :math:`k` numeric tables,
        each with the :math:`p \times p` variance-covariance matrix for the :math:`i`-th mixture component of size:
 
-        + :math:`p \times p` - for the full covariance matrix storage scheme
-        + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
+       + :math:`p \times p` - for the full covariance matrix storage scheme
+       + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
 
 
        .. note::

@@ -81,7 +81,7 @@ Applications on Windows* OS
         - onedal_core_dll.lib
         - onedal_core_dll.lib
 
-   You may also add debug versions of the libraries based on the treading mode and linking method: 
+   You may also add debug versions of the libraries based on the threading mode and linking method: 
 
    .. list-table:: |short_name| debug libraries for Windows
       :widths: 15 25 25

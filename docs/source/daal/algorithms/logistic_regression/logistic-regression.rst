@@ -42,8 +42,8 @@ train a logistic regression model.
 
 The logistic regression model is the set of vectors :math:`\beta =\left\{ {\beta }_{0}=\left({\beta }_{00}\dots {\beta }_{0p}\right), {..\beta }_{K-1}=\left({\beta }_{K-10}\dots {\beta }_{K-1p}\right)\right\}` that gives the posterior probability
 
-	.. math::
-		 {P\left\{y=k|x\right\}= p}_{k}\left(x, \beta \right)=\mathrm{ }\frac{{e}^{{f}_{k}\left(x, \beta \right)}}{\sum _{i=0}^{K-1}{e}^{{f}_{i}\left(x, \beta \right)}}, \text{where} {f}_{k}\left(x, \beta \right)= {\beta }_{k0}+ \sum _{j=1}^{p}{\beta }_{kj}*{x}_{j}
+.. math::
+   {P\left\{y=k|x\right\}= p}_{k}\left(x, \beta \right)=\mathrm{ }\frac{{e}^{{f}_{k}\left(x, \beta \right)}}{\sum _{i=0}^{K-1}{e}^{{f}_{i}\left(x, \beta \right)}}, \text{where} {f}_{k}\left(x, \beta \right)= {\beta }_{k0}+ \sum _{j=1}^{p}{\beta }_{kj}*{x}_{j}
 
 for a given feature vector :math:`x = (x_1, \ldots, x_p)` and class
 label :math:`y \in \{0, 1, \ldots, K - 1\}` for each :math:`k = 0, \ldots, K-1`. See [Hastie2009]_.

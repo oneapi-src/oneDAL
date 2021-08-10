@@ -163,28 +163,28 @@ the results of your algorithm.
        the table equals the number of items in the large item sets. Each row
        contains two integers:
 
-        + ID of the large item set, the number between 0 and nLargeItemsets -1.
-        + ID of the item, the number between 0 and :math:`nUniqueItems-1`.
+       + ID of the large item set, the number between 0 and nLargeItemsets -1.
+       + ID of the item, the number between 0 and :math:`nUniqueItems-1`.
 
    * - ``largeItemsetsSupport``
      - Pointer to the :math:`nLargeItemsets \times 2` numeric table of support values. Each row contains two integers:
 
-        + ID of the large item set, the number between 0 and nLargeItemsets-1.
-        + The support value, the number of times the item set is met in the array of transactions.
+       + ID of the large item set, the number between 0 and nLargeItemsets-1.
+       + The support value, the number of times the item set is met in the array of transactions.
 
    * - ``antecedentItemsets``
      - Pointer to the :math:`nAntecedentItems \times 2` numeric table that contains the
        left-hand-side (X) part of the association rules. Each row contains two integers:
 
-        + Rule ID, the number between 0 and :math:`nAntecedentItems-1`.
-        + Item ID, the number between 0 and :math:`nUniqueItems-1`.
+       + Rule ID, the number between 0 and :math:`nAntecedentItems-1`.
+       + Item ID, the number between 0 and :math:`nUniqueItems-1`.
 
    * - ``conseqentItemsets``
      - Pointer to the :math:`nConsequentItems \times 2` numeric table that contains the
        right-hand-side (Y) part of the association rules. Each row contains two integers:
 
-        + Rule ID, the number between 0 and :math:`nConsequentItems-1`.
-        + Item ID, the number between 0 and :math:`nUniqueItems-1`.
+       + Rule ID, the number between 0 and :math:`nConsequentItems-1`.
+       + Item ID, the number between 0 and :math:`nUniqueItems-1`.
 
    * - ``confidence``
      - Pointer to the :math:`nRules \times 1` numeric table that contains confidence values

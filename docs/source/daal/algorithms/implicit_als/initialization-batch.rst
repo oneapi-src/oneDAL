@@ -17,10 +17,6 @@
 Batch Processing
 ================
 
-.. contents::
-    :local:
-    :depth: 1
-
 Input
 *****
 

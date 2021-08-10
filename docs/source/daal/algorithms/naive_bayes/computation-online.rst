@@ -60,8 +60,8 @@ Naïve Bayes classifier in the online processing mode has the following paramete
      - ``defaultDense``
      - Available computation methods for the Naïve Bayes classifier:
 
-         - ``defaultDense`` - default performance-oriented method
-         - ``fastCSR`` - performance-oriented method for CSR numeric tables
+       - ``defaultDense`` - default performance-oriented method
+       - ``fastCSR`` - performance-oriented method for CSR numeric tables
 
    * - ``nClasses``
      - Not applicable

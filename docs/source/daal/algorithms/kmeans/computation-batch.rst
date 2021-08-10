@@ -19,11 +19,6 @@
 Batch Processing
 ****************
 
-.. contents::
-    :local:
-    :depth: 1
-
-
 Algorithm Input
 +++++++++++++++
 
@@ -68,12 +63,12 @@ The K-Means clustering algorithm has the following parameters:
 
        For CPU:
 
-        -  ``defaultDense`` - implementation of Lloyd's algorithm
-        -  ``lloydCSR`` - implementation of Lloyd's algorithm for CSR numeric tables
+       - ``defaultDense`` - implementation of Lloyd's algorithm
+       - ``lloydCSR`` - implementation of Lloyd's algorithm for CSR numeric tables
 
        For GPU:
 
-        -  ``defaultDense`` - implementation of Lloyd's algorithm
+       - ``defaultDense`` - implementation of Lloyd's algorithm
 
    * - ``nClusters``
      - Not applicable

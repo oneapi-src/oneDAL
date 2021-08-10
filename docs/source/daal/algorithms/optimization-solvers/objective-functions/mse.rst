@@ -21,10 +21,6 @@ Mean Squared Error Algorithm
 
 .. note:: Mean Squared Error Algorithm is not supported on GPU.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Details
 *******
 
@@ -73,10 +69,6 @@ where
 
 Computation
 ***********
-
-.. contents::
-    :local:
-    :depth: 1
 
 Algorithm Input
 ---------------

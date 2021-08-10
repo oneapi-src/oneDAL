@@ -17,10 +17,6 @@
 Batch Processing
 ================
 
-- `Algorithm Parameters`_
-- `Algorithm Input`_
-- `Algorithm Output`_
-
 Algorithm Parameters
 ********************
 

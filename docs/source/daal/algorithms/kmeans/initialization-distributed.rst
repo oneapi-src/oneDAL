@@ -19,10 +19,6 @@ Distributed Processing
 
 This mode assumes that the data set is split into ``nblocks`` blocks across computation nodes.
 
-.. contents::
-   :local:
-   :depth: 1
-
 Parameters
 ++++++++++
 
@@ -264,8 +260,8 @@ For more details, see :ref:`algorithms`.
        - ``plusPlus`` method: :math:`m = 1`
        - ``parallelPlus`` method:
        
-          - :math:`m = 1` for the first iteration of the Step 2 - Step 4 loop
-          - :math:`m = L = \mathrm{nClusters} * \mathrm{oversamplingFactor}` for other iterations
+         - :math:`m = 1` for the first iteration of the Step 2 - Step 4 loop
+         - :math:`m = L = \mathrm{nClusters} * \mathrm{oversamplingFactor}` for other iterations
 
        This input can be an object of any class derived from ``NumericTable``,
        except ``CSRNumericTable``, ``PackedTriangularMatrix``, and ``PackedSymmetricMatrix``.

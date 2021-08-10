@@ -23,10 +23,6 @@ Online processing computation mode assumes that data arrives in blocks :math:`i 
 
 PCA computation in the online processing mode follows the general computation schema for online processing described in :ref:`algorithms`.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Input
 ---------------
 

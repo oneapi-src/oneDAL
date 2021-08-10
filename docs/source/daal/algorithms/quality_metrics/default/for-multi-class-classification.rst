@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _quality_metrics_for_multi_class_classification:
+
 Quality Metrics for Multi-class Classification Algorithms
 =========================================================
 

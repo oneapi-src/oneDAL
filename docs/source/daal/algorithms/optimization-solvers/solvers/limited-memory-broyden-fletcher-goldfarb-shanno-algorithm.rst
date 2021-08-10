@@ -118,9 +118,9 @@ For a given set of correction pairs :math:`(s_j, y_j)`, :math:`j = k - min(k, m)
 
 #. Iterate :math:`j` from :math:`k - min (k, m) + 1` until :math:`k`:
 
-    a. :math:`{\rho }_{j}=1/{y}_{j}^{T}{y}_{j}`
+   a. :math:`{\rho }_{j}=1/{y}_{j}^{T}{y}_{j}`
 
-    b. :math:`H:=\left(I-{\rho }_{j}{s}_{j}{y}_{j}^{T}\right)H\left(I-{\rho }_{j}{y}_{j}{s}_{j}^{T}\right)+{\rho }_{j}{s}_{j}{s}_{j}^{T}.`
+   b. :math:`H:=\left(I-{\rho }_{j}{s}_{j}{y}_{j}^{T}\right)H\left(I-{\rho }_{j}{y}_{j}{s}_{j}^{T}\right)+{\rho }_{j}{s}_{j}{s}_{j}^{T}.`
 
 #. Return :math:`H`
 

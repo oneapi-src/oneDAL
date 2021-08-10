@@ -50,8 +50,8 @@ At the training stage, Naïve Bayes classifier in the distributed processing mod
      - ``defaultDense``
      - Available computation methods for the Naïve Bayes classifier:
 
-         - ``defaultDense`` - default performance-oriented method
-         - ``fastCSR`` - performance-oriented method for CSR numeric tables
+       - ``defaultDense`` - default performance-oriented method
+       - ``fastCSR`` - performance-oriented method for CSR numeric tables
 
    * - ``nClasses``
      - Not applicable

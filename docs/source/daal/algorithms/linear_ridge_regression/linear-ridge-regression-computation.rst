@@ -17,11 +17,6 @@
 Linear and Ridge Regressions Computation
 ****************************************
 
-- `Batch Processing`_
-- `Online Processing`_
-- `Distributed Processing`_
-- `Examples`_
-
 Batch Processing
 ================
 

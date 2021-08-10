@@ -47,26 +47,26 @@ The correlation and variance-covariance matrices algorithm in the distributed pr
      - ``defaultDense``
      - Available methods for computation of low order moments:
 
-        defaultDense
-            default performance-oriented method
+       defaultDense
+           default performance-oriented method
 
-        singlePassDense
-            implementation of the single-pass algorithm proposed by D.H.D. West
+       singlePassDense
+           implementation of the single-pass algorithm proposed by D.H.D. West
 
-        sumDense
-            implementation of the algorithm in the cases where the basic statistics associated with
-            the numeric table are pre-computed sums; returns an error if pre-computed sums are not defined
+       sumDense
+           implementation of the algorithm in the cases where the basic statistics associated with
+           the numeric table are pre-computed sums; returns an error if pre-computed sums are not defined
 
-        fastCSR
-            performance-oriented method for CSR numeric tables
+       fastCSR
+           performance-oriented method for CSR numeric tables
 
-        singlePassCSR
-            implementation of the single-pass algorithm proposed by D.H.D. West; optimized for CSR numeric tables
+       singlePassCSR
+           implementation of the single-pass algorithm proposed by D.H.D. West; optimized for CSR numeric tables
 
-        sumCSR
-            implementation of the algorithm in the cases where the basic statistics associated with
-            the numeric table are pre-computed sums; optimized for CSR numeric tables;
-            returns an error if pre-computed sums are not defined
+       sumCSR
+           implementation of the algorithm in the cases where the basic statistics associated with
+           the numeric table are pre-computed sums; optimized for CSR numeric tables;
+           returns an error if pre-computed sums are not defined
 
    * - ``outputMatrixType``
      - ``covarianceMatrix``

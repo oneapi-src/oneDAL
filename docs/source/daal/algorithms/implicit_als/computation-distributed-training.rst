@@ -21,10 +21,6 @@ Distributed Processing: Training
 
 The distributed processing mode assumes that the data set is split in ``nblocks`` blocks across computation nodes.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Parameters
 ********************
 

@@ -18,7 +18,7 @@ Correlation Distance Matrix
 ===========================
 
 Given :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots x_n = (x_{n1}, \ldots, x_{np})`
-of dimension Lmath:`p`, 
+of dimension :math:`p`, 
 the problem is to compute the symmetric :math:`n \times n` matrix :math:`D_{\text{cor}} = (d_{ij})`
 of distances between feature vectors, where
 

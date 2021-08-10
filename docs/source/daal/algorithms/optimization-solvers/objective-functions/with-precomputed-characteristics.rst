@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _objective_function_precomputed_characteristics:
+
 Objective Function with Precomputed Characteristics Algorithm
 =============================================================
 

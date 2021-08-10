@@ -35,11 +35,11 @@ Details
 Given the matrix :math:`X` of size :math:`n \times p`, the problem is to compute the
 Singular Value Decomposition (SVD) :math:`X = U \Sigma V^t`, where:
 
-   -  :math:`U` is an orthogonal matrix of size :math:`n \times n`
+- :math:`U` is an orthogonal matrix of size :math:`n \times n`
 
-   -  :math:`\Sigma` is a rectangular diagonal matrix of size :math:`n \times p` with non-negative values on the diagonal, called singular values
+- :math:`\Sigma` is a rectangular diagonal matrix of size :math:`n \times p` with non-negative values on the diagonal, called singular values
 
-   -  :math:`V_t` is an orthogonal matrix of size :math:`p \times p`
+- :math:`V_t` is an orthogonal matrix of size :math:`p \times p`
 
 Columns of the matrices :math:`U` and :math:`V` are called left and right singular vectors, respectively.
 

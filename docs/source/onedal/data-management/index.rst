@@ -27,24 +27,24 @@ between different stages of the :txtref:`data analytics pipeline
 contains three main steps of data acquisition, preparation, and computation (see
 :txtref:`the picture below <typical_data_management_flow>`):
 
-1. Raw data acquisition
+#. Raw data acquisition
 
-  - Transfer out-of-memory data from various sources (databases, files, remote
-    storage) into an in-memory representation.
+   - Transfer out-of-memory data from various sources (databases, files, remote
+     storage) into an in-memory representation.
 
-2. Data preparation
+#. Data preparation
 
-  - Support different in-memory :capterm:`data formats <data format>`.
-  - Compress and decompress the data.
-  - Convert the data into numeric representation.
-  - Recover missing values.
-  - Filter the data and perform data normalization.
-  - Compute various statistical metrics for numerical data, such as mean, variance,
-    and covariance.
+   - Support different in-memory :capterm:`data formats <data format>`.
+   - Compress and decompress the data.
+   - Convert the data into numeric representation.
+   - Recover missing values.
+   - Filter the data and perform data normalization.
+   - Compute various statistical metrics for numerical data, such as mean, variance,
+     and covariance.
 
-3. Algorithm computation
+#. Algorithm computation
 
-  - Stream in-memory numerical data to the algorithm.
+   - Stream in-memory numerical data to the algorithm.
 
 In complex usage scenarios, data flow goes through these three stages back and
 forth. For example, when the data are not fully available at the start of the
@@ -82,13 +82,13 @@ The main data-related concept that |short_name| works with is a
 The dataset is used across all stages of the data analytics pipeline. For
 example:
 
-1. At the acquisition stage, it is downloaded into the
+#. At the acquisition stage, it is downloaded into the
    local memory.
 
-2. At the preparation stage, it is converted into a numerical
+#. At the preparation stage, it is converted into a numerical
    representation.
 
-3. At the computation stage, it is used as one of the inputs or
+#. At the computation stage, it is used as one of the inputs or
    results of an algorithm or a descriptor properties.
 
 .. _data-source:
@@ -174,9 +174,9 @@ Table metadata
 Table metadata concept provides an additional information about data in the
 table:
 
-1. The :capterm:`data types <Data type>` of the columns.
+#. The :capterm:`data types <Data type>` of the columns.
 
-2. The logical types of data in the columns:
+#. The logical types of data in the columns:
    :capterm:`nominal <Nominal feature>`, :capterm:`ordinal <Ordinal feature>`,
    :capterm:`interval <Interval feature>`, or :capterm:`ratio <Ratio feature>`.
 

@@ -74,16 +74,16 @@ based on split criteria Gini index [Breiman84]_ and Information gain [Quinlan86]
 #. Information gain
 
 
- .. math::
-	 \text{Δ}{I}_{Gini}\left(D, \text{τ}\right)={I}_{Gini}\left(D\right)-\frac{|{D}_{true}|}{|D|}{I}_{Gini}\left({D}_{true}\right)-\frac{|{D}_{false}|}{|D|}{I}_{Gini}\left({D}_{false}\right)
+   .. math::
+      \text{Δ}{I}_{Gini}\left(D, \text{τ}\right)={I}_{Gini}\left(D\right)-\frac{|{D}_{true}|}{|D|}{I}_{Gini}\left({D}_{true}\right)-\frac{|{D}_{false}|}{|D|}{I}_{Gini}\left({D}_{false}\right)
 
 
- where
+   where
 
- -  :math:`O(\tau)`, :math:`D`, :math:`D_v` are defined above
- -  :math:`{I}_{Entropy}\left(D\right)=-\sum _{i=0}^{C-1}{p}_{i}\mathrm{log}{p}_{i}`, with :math:`p_i` defined above in Gini index.
+   - :math:`O(\tau)`, :math:`D`, :math:`D_v` are defined above
+   - :math:`{I}_{Entropy}\left(D\right)=-\sum _{i=0}^{C-1}{p}_{i}\mathrm{log}{p}_{i}`, with :math:`p_i` defined above in Gini index.
 
-	Similarly to Gini index, the test to be used in the node is selected as :math:`\underset{\tau }{\text{argmax}}InfoGain\left(D,\tau \right)`. For binary decision tree with 'true' and 'false' branches, :math:`\text{Δ}{I}_{Gini}\left(D, \text{τ}\right)={I}_{Gini}\left(D\right)-\frac{|{D}_{true}|}{|D|}{I}_{Gini}\left({D}_{true}\right)-\frac{|{D}_{false}|}{|D|}{I}_{Gini}\left({D}_{false}\right)`
+	 Similarly to Gini index, the test to be used in the node is selected as :math:`\underset{\tau }{\text{argmax}}InfoGain\left(D,\tau \right)`. For binary decision tree with 'true' and 'false' branches, :math:`\text{Δ}{I}_{Gini}\left(D, \text{τ}\right)={I}_{Gini}\left(D\right)-\frac{|{D}_{true}|}{|D|}{I}_{Gini}\left({D}_{true}\right)-\frac{|{D}_{false}|}{|D|}{I}_{Gini}\left({D}_{false}\right)`
 
 Training Stage
 --------------

@@ -52,15 +52,15 @@ Requirements on table types
 
 Each implementation of :txtref:`table` concept:
 
-1. Follows the definition of the :txtref:`table` concept and its restrictions
+#. Follows the definition of the :txtref:`table` concept and its restrictions
    (e.g., :capterm:`immutability`).
 
-2. Is derived from the :cpp:expr:`oneapi::dal::table` class. The behavior of this class can be
+#. Is derived from the :cpp:expr:`oneapi::dal::table` class. The behavior of this class can be
    extended, but cannot be weaken.
 
-3. Is :term:`reference-counted <Reference-counted object>`.
+#. Is :term:`reference-counted <Reference-counted object>`.
 
-4. Every new :cpp:expr:`oneapi::dal::table` sub-type defines a unique id number - the "kind"
+#. Every new :cpp:expr:`oneapi::dal::table` sub-type defines a unique id number - the "kind"
    that represents objects of that type in runtime.
 
 The following listing provides an example of table API to illustrate table kinds

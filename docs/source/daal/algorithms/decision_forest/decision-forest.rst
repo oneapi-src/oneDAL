@@ -219,38 +219,38 @@ Variable Importance
 
 There are two main types of variable importance measures:
 
--  *Mean Decrease Impurity* importance (MDI).
+- *Mean Decrease Impurity* importance (MDI).
 
- Importance of the :math:`j`-th variable for predicting :math:`Y` is the sum of
- weighted impurity decreases :math:`p(t) \Delta i(s_t, t)` for all nodes
- :math:`t` that use :math:`x_j`, averaged over all :math:`B` trees in the
- forest:
+  Importance of the :math:`j`-th variable for predicting :math:`Y` is the sum of
+  weighted impurity decreases :math:`p(t) \Delta i(s_t, t)` for all nodes
+  :math:`t` that use :math:`x_j`, averaged over all :math:`B` trees in the
+  forest:
 
- .. math::
-	MDI\left(j\right)=\frac{1}{B}\sum _{b=1}^{B} \sum _{t\in {T}_{b}:v\left({s}_{t}\right)=j}p\left(t\right)\Delta i\left({s}_{t},t\right),
+  .. math::
+    MDI\left(j\right)=\frac{1}{B}\sum _{b=1}^{B} \sum _{t\in {T}_{b}:v\left({s}_{t}\right)=j}p\left(t\right)\Delta i\left({s}_{t},t\right),
 
- where :math:`p\left(t\right)=\frac{|{D}_{t}|}{|D|}` is the fraction of observations reaching node :math:`t`
- in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
- variable used in split :math:`s_t` .
+  where :math:`p\left(t\right)=\frac{|{D}_{t}|}{|D|}` is the fraction of observations reaching node :math:`t`
+  in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
+  variable used in split :math:`s_t` .
 
--  *Mean Decrease Accuracy* (MDA).
+- *Mean Decrease Accuracy* (MDA).
 
- Importance of the :math:`j`-th variable for predicting :math:`Y` is the average
- increase in the OOB error over all trees in the forest when the
- values of the :math:`j`-th variable are randomly permuted in the OOB
- set. For that reason, this latter measure is also known as
- *permutation importance*.
+  Importance of the :math:`j`-th variable for predicting :math:`Y` is the average
+  increase in the OOB error over all trees in the forest when the
+  values of the :math:`j`-th variable are randomly permuted in the OOB
+  set. For that reason, this latter measure is also known as
+  *permutation importance*.
 
- In more details, the library calculates MDA importance as
- follows:
+  In more details, the library calculates MDA importance as
+  follows:
 
- -  Let :math:`\pi (X,j)` be the set of feature vectors where the :math:`j`-th variable is randomly permuted over all vectors in the set.
- -  Let :math:`E_b` be the OOB error calculated for :math:`T_b:` on its out-of-bag dataset :math:`\overline{D_b}`.
- -  Let :math:`E_{b,j}` be the OOB error calculated for :math:`T_b:` using :math:`\pi \left(\overline{{X}_{b}},j\right)`, and its out-of-bag dataset :math:`\overline{D_b}` is permuted on the :math:`j`-th variable. Then
+  - Let :math:`\pi (X,j)` be the set of feature vectors where the :math:`j`-th variable is randomly permuted over all vectors in the set.
+  - Let :math:`E_b` be the OOB error calculated for :math:`T_b:` on its out-of-bag dataset :math:`\overline{D_b}`.
+  - Let :math:`E_{b,j}` be the OOB error calculated for :math:`T_b:` using :math:`\pi \left(\overline{{X}_{b}},j\right)`, and its out-of-bag dataset :math:`\overline{D_b}` is permuted on the :math:`j`-th variable. Then
 
-	* :math:`{\delta }_{b,j}={E}_{b}-{E}_{b,j}` is the OOB error increase for the tree :math:`T_b`.
-	* :math:`Raw MDA\left(j\right)=\frac{1}{B}\sum _{b=1}^{B}{\delta }_{b,j}` is MDA importance.
-	* :math:`Scaled MDA\left(j\right)=\frac{Raw MDA\left({x}_{j}\right)}{\frac{{\sigma }_{j}}{\sqrt{B}}}`, where :math:`{\sigma }_{j}^{2}` is the variance of :math:`D_{b,j}`
+    * :math:`{\delta }_{b,j}={E}_{b}-{E}_{b,j}` is the OOB error increase for the tree :math:`T_b`.
+    * :math:`Raw MDA\left(j\right)=\frac{1}{B}\sum _{b=1}^{B}{\delta }_{b,j}` is MDA importance.
+    * :math:`Scaled MDA\left(j\right)=\frac{Raw MDA\left({x}_{j}\right)}{\frac{{\sigma }_{j}}{\sqrt{B}}}`, where :math:`{\sigma }_{j}^{2}` is the variance of :math:`D_{b,j}`
 
 .. _df_batch:
 
@@ -328,8 +328,8 @@ At the training stage, decision forest regression has the following parameters:
        request a single characteristic or use bitwise OR to request a
        combination of the characteristics:
 
-        + ``computeOutOfBagError``
-        + ``computeOutOfBagErrorPerObservation``
+       + ``computeOutOfBagError``
+       + ``computeOutOfBagErrorPerObservation``
    * - ``bootstrap``
      - ``true``
      - If true, the training set for a tree is a bootstrap of the whole training set.

@@ -19,10 +19,6 @@
 Batch Processing
 ================
 
-.. contents::
-    :local:
-    :depth: 1
-
 Training
 ********
 

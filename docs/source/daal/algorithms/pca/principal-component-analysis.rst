@@ -62,19 +62,19 @@ Eigenvectors computed by PCA are not uniquely defined due to sign
 ambiguity. PCA supports fast ad-hoc "sign flip" technique described
 in the paper [Bro07]_. It modifies the signs of eigenvectors shown below:
 
-   .. math::
-	\hat{T_i} = T_i \cdot sgn(\max_{1 \leq j \leq p } |{T}_{i,j}|), i=1, \ldots ,p_r
+.. math::
+   \hat{T_i} = T_i \cdot sgn(\max_{1 \leq j \leq p } |{T}_{i,j}|), i=1, \ldots ,p_r
 
 where :math:`T`-transformation matrix is computed by PCA, :math:`T_i` - :math:`i`-th
 row in the matrix, :math:`j` - column number, :math:`sgn` - signum function:
 
-   .. math::
-	   sgn(x) = 
-     \begin{cases}
-        -1, & x < 0,\\
-		    0, & x = 0, \\
-        1, & x > 0
-     \end{cases}
+.. math::
+   sgn(x) = 
+   \begin{cases}
+      -1, & x < 0,\\
+         0, & x = 0, \\
+      1, & x > 0
+   \end{cases}
 
 You can provide these types of input data to the PCA algorithms of
 the library:

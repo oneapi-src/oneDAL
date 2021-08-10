@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _quality_metrics_for_binary_classification:
+
 Quality Metrics for Binary Classification Algorithms
 ====================================================
 

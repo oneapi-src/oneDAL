@@ -21,10 +21,6 @@ Cross-entropy Loss
 
 Cross-entropy loss is an objective function minimized in the process of logistic regression training when a dependent variable takes more than two values.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Details
 *******
 
@@ -130,10 +126,6 @@ For more details, see [Hastie2009]_.
 
 Computation
 ***********
-
-.. contents::
-    :local:
-    :depth: 1
 
 Algorithm Input
 ---------------
