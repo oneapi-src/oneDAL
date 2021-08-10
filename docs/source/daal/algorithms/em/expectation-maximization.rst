@@ -112,16 +112,16 @@ for :math:`i = 1, \ldots, n` and :math:`j=1, \ldots, k`.
 
 #. Maximization step: in the :math:`j`-th step, for all :math:`r=1, \ldots, k` compute:
 
-	 a.
-	   The mixture weights :math:`{\alpha }_{r}^{\left(j+1\right)}=\frac{{n}_{r}}{n}`, where :math:`{n}_{r}=\sum _{i=1}^{n}{w}_{ir}`
-	   is the "amount" of the feature vectors that are assigned
-	   to the :math:`r`-th mixture component
+   a.
+     The mixture weights :math:`{\alpha }_{r}^{\left(j+1\right)}=\frac{{n}_{r}}{n}`, where :math:`{n}_{r}=\sum _{i=1}^{n}{w}_{ir}`
+     is the "amount" of the feature vectors that are assigned
+     to the :math:`r`-th mixture component
 
-	 b. Mean estimates :math:`{m}_{r}^{\left(j+1\right)}=\frac{1}{{n}_{r}}\sum _{i=1}^{n}{w}_{ir}{x}_{i}`
+   b. Mean estimates :math:`{m}_{r}^{\left(j+1\right)}=\frac{1}{{n}_{r}}\sum _{i=1}^{n}{w}_{ir}{x}_{i}`
 
-	 c.
-	   Covariance estimate :math:`\sum _{r}^{(j+1)}=({\sigma }_{r,hg}^{(j+1)})`
-	   of size :math:`p \times p` with :math:`\sigma_{r,hg}^{(j+1)}=\frac{1}{n_r}\sum_{l=1}^{n}{w}_{lr}(x_{lh}-m_{r,h}^{(j+1)})(x_{lg}-m_{r,g}^{(j+1)})`
+   c.
+     Covariance estimate :math:`\sum _{r}^{(j+1)}=({\sigma }_{r,hg}^{(j+1)})`
+     of size :math:`p \times p` with :math:`\sigma_{r,hg}^{(j+1)}=\frac{1}{n_r}\sum_{l=1}^{n}{w}_{lr}(x_{lh}-m_{r,h}^{(j+1)})(x_{lg}-m_{r,g}^{(j+1)})`
 
 
 #. Repeat steps 2 and 3 until any of these conditions is met:
@@ -145,9 +145,9 @@ steps:
 #. Perform nTrials starts of the EM algorithm with nIterations
    iterations and start values:
 
-	 - Initial means - :math:`k` different random observations from the input data set
-	 - Initial weights - the values of :math:`1/k`
-	 - Initial covariance matrices - the covariance of the input data
+   - Initial means - :math:`k` different random observations from the input data set
+   - Initial weights - the values of :math:`1/k`
+   - Initial covariance matrices - the covariance of the input data
 
 #. Regard the result of the best EM algorithm in terms of the
    likelihood function values as the result of initialization
@@ -263,8 +263,8 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
        each with the :math:`p \times p` variance-covariance matrix for the :math:`i`-th mixture
        component of size:
 
-        + :math:`p \times p` - for the full covariance matrix storage scheme
-        + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
+       + :math:`p \times p` - for the full covariance matrix storage scheme
+       + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
 
        .. note::
        

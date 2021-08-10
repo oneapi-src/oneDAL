@@ -199,9 +199,9 @@ following parameters:
      - A parameter to enable/disable use of the input data set in the kNN
        model. Possible values:
 
-        + ``doNotUse`` - the algorithm does not include the input data and labels
-          in the trained kNN model but creates a copy of the input data set.
-        + ``doUse`` - the algorithm includes the input data and labels in the trained kNN model.
+       + ``doNotUse`` - the algorithm does not include the input data and labels
+         in the trained kNN model but creates a copy of the input data set.
+       + ``doUse`` - the algorithm includes the input data and labels in the trained kNN model.
 
        K-D tree based kNN reorders feature vectors and corresponding labels in the
        input data set or its copy to improve performance at the prediction stage.

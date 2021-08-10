@@ -94,8 +94,8 @@ The algorithm for growing the tree:
 
   - Find the best split that maximizes the gain:
 
-  .. math::
-     \frac{{G}_{L}^{2}}{{H}_{L}+\lambda }+ \frac{{G}_{R}^{2}}{{H}_{R}+\lambda }- \frac{{({G}_{L}+{G}_{R})}^{2}}{{H}_{L}+ {H}_{R}+\lambda }- \gamma  
+    .. math::
+       \frac{{G}_{L}^{2}}{{H}_{L}+\lambda }+ \frac{{G}_{R}^{2}}{{H}_{R}+\lambda }- \frac{{({G}_{L}+{G}_{R})}^{2}}{{H}_{L}+ {H}_{R}+\lambda }- \gamma  
 
 	- Stop when a termination criterion is met.
 
