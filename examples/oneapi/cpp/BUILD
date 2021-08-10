@@ -80,6 +80,7 @@ dal_example_suite(
 
 dal_algo_example_suite(
     algos = [
+        "connected_components",
         "covariance",
         "decision_forest",
         "kmeans",

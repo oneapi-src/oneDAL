@@ -20,6 +20,7 @@
 ##******************************************************************************
 
 ONEDAL = column_accessor_homogen             \
+         connected_components_batch          \
          cor_dense_batch                     \
          cov_dense_batch                     \
          directed_graph                      \

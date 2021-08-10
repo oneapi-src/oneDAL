@@ -23,7 +23,7 @@ CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdi
                 kernel_function sorting normalization optimization_solver objective_function decision_tree             \
                 dtrees/gbt dtrees/forest linear_regression ridge_regression naivebayes stump adaboost brownboost       \
                 logitboost svm multiclassclassifier k_nearest_neighbors logistic_regression implicit_als               \
-                coordinate_descent jaccard triangle_counting shortest_paths subgraph_isomorphism
+                coordinate_descent jaccard triangle_counting shortest_paths subgraph_isomorphism connected_components
 
 classifier += classifier/inner
 low_order_moments +=
@@ -233,7 +233,8 @@ ONEAPI.ALGOS :=          \
     jaccard              \
     triangle_counting    \
     shortest_paths       \
-    subgraph_isomorphism
+    subgraph_isomorphism \
+    connected_components
 
 
 ONEAPI.IO :=     \
