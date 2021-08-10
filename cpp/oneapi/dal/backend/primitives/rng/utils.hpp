@@ -26,32 +26,34 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Type = std::size_t, typename... Args>
-inline void uniform_by_cpu(Args&&... args) {
-    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        int res =
-            daal::internal::
-                RNGs<Type, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                    .uniform(std::forward<Args>(args)...);
-        if (res) {
-            using msg = dal::detail::error_messages;
-            throw internal_error(msg::failed_to_generate_random_numbers());
-        }
-    });
-}
+struct uniform_dispatcher {
+    template <typename Type = std::size_t, typename... Args>
+    static void uniform_by_cpu(Args&&... args) {
+        dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
+            int res = daal::internal::RNGs<
+                          Type,
+                          oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
+                          .uniform(std::forward<Args>(args)...);
+            if (res) {
+                using msg = dal::detail::error_messages;
+                throw internal_error(msg::failed_to_generate_random_numbers());
+            }
+        });
+    }
 
-template <typename Type = std::size_t, typename... Args>
-inline void uniform_without_replacement_by_cpu(Args&&... args) {
-    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        int res =
-            daal::internal::
-                RNGs<Type, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                    .uniformWithoutReplacement(std::forward<Args>(args)...);
-        if (res) {
-            using msg = dal::detail::error_messages;
-            throw internal_error(msg::failed_to_generate_random_numbers());
-        }
-    });
-}
+    template <typename Type = std::size_t, typename... Args>
+    static void uniform_without_replacement_by_cpu(Args&&... args) {
+        dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
+            int res = daal::internal::RNGs<
+                          Type,
+                          oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
+                          .uniformWithoutReplacement(std::forward<Args>(args)...);
+            if (res) {
+                using msg = dal::detail::error_messages;
+                throw internal_error(msg::failed_to_generate_random_numbers());
+            }
+        });
+    }
+};
 
 } // namespace oneapi::dal::backend::primitives

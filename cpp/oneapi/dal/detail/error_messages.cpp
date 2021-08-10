@@ -26,6 +26,9 @@ namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
+MSG(algorithm_is_not_implemented_for_this_device,
+    "Algorithm is not implemented for this device. "
+    "Consider running on it on the other device.")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
 MSG(incompatible_array_reinterpret_cast_types,
     "Cannot reinterpret array to provided type, "
@@ -39,6 +42,11 @@ MSG(unsupported_data_layout, "Unsupported data layout")
 MSG(unsupported_data_type, "Requested data type is not supported")
 MSG(unsupported_device_type, "Requested device type is not supported")
 MSG(small_data_block, "Data block size is smaller than expected")
+MSG(spmd_version_of_algorithm_is_not_implemented,
+    "SPMD version of the algorithm is not implemented")
+MSG(spmd_version_of_algorithm_is_not_implemented_for_this_device,
+    "SPMD version of the algorithm is not implemented for this device. "
+    "Consider running on it on the other device.")
 MSG(invalid_data_block_size, "Invalid data block size")
 MSG(method_not_implemented, "Method is not implemented")
 MSG(unsupported_feature_type, "Feature type is not supported")

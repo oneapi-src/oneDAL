@@ -42,7 +42,7 @@ void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::in
     std::int64_t k = 0;
     std::size_t value = 0;
     for (std::size_t i = 0; i < casted_count; i++) {
-        uniform_by_cpu(1, &value, engine_impl->getState(), i, casted_top);
+        uniform_dispatcher::uniform_by_cpu(1, &value, engine_impl->getState(), i, casted_top);
         for (std::size_t j = i; j > 0; j--) {
             if (value == dal::detail::integral_cast<std::size_t>(indices_ptr[j - 1])) {
                 value = j - 1;

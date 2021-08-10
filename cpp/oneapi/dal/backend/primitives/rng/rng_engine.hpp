@@ -29,7 +29,7 @@ public:
     ~rng() = default;
 
     void uniform(Size count, Type* dst, void* state, Type a, Type b) {
-        uniform_by_cpu<Type>(count, dst, state, a, b);
+        uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
     }
 
     void uniform_without_replacement(Size count,
@@ -38,7 +38,12 @@ public:
                                      void* state,
                                      Type a,
                                      Type b) {
-        uniform_without_replacement_by_cpu<Type>(count, dst, buffer, state, a, b);
+        uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count,
+                                                                     dst,
+                                                                     buffer,
+                                                                     state,
+                                                                     a,
+                                                                     b);
     }
 
     template <typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
@@ -46,7 +51,7 @@ public:
         Type idx[2];
 
         for (Size i = 0; i < count; ++i) {
-            uniform_by_cpu<Type>(2, idx, state, 0, count);
+            uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
             std::swap(dst[idx[0]], dst[idx[1]]);
         }
 
