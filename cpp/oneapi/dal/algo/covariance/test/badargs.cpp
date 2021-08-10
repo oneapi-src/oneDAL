@@ -29,8 +29,8 @@ namespace te = dal::test::engine;
 template <typename Method>
 class covariance_badarg_test : public te::algo_fixture {
 public:
-    static constexpr std::int64_t row_count = 5;
-    static constexpr std::int64_t component_count = 4;
+    static constexpr std::int64_t row_count = 4;
+    static constexpr std::int64_t component_count = 5;
     static constexpr std::int64_t element_count = row_count * component_count;
 
     auto get_descriptor() const {

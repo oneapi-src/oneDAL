@@ -153,9 +153,8 @@ public:
             la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
         for (std::int64_t i = 0; i < column_count_data; i++) {
             for (std::int64_t j = 0; j < column_count_data; j++) {
-                double cor_elem = reference_cov.get(i, j) /
+                reference_cor.set(i, j) = reference_cov.get(i, j) /
                                   std::sqrt(reference_cov.get(i, i) * reference_cov.get(j, j));
-                reference_cor.set(i, j) = cor_elem;
             }
         }
 
@@ -175,7 +174,7 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
         GENERATE_DATAFRAME(te::dataframe_builder{ 4, 4 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 250, 250 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 2, 2 }.fill_normal(0, 1, 7777));
+                           te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
