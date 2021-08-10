@@ -231,7 +231,7 @@ public:
 
     void check_on_large_data_with_one_cluster() {
         constexpr std::int64_t row_count = 1024 * 1024;
-        constexpr std::int64_t column_count = 1024 * 2 / sizeof(float_t);
+        constexpr std::int64_t column_count = 1024 / sizeof(float_t);
         constexpr std::int64_t cluster_count = 1;
         constexpr std::int64_t max_iteration_count = 1;
 

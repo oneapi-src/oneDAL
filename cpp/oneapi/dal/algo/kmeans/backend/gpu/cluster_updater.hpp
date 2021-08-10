@@ -125,6 +125,7 @@ public:
         // Counters are needed in the `merge_reduce_centroids` function,
         // we wait until cross-rank reduction is finished
         count_reduce_request.wait();
+
         centroids_event = kernels_fp_t::merge_reduce_centroids( //
             queue_,
             counters_,

@@ -22,9 +22,9 @@
 namespace oneapi::dal::kmeans::test {
 
 template <typename TestType>
-class kmeans_distr_test : public kmeans_test<TestType, kmeans_distr_test<TestType>> {
+class kmeans_spmd_test : public kmeans_test<TestType, kmeans_spmd_test<TestType>> {
 public:
-    using base_t = kmeans_test<TestType, kmeans_distr_test<TestType>>;
+    using base_t = kmeans_test<TestType, kmeans_spmd_test<TestType>>;
     using float_t = typename base_t::float_t;
     using train_input_t = typename base_t::train_input_t;
     using train_result_t = typename base_t::train_result_t;
@@ -81,9 +81,9 @@ private:
     std::int64_t rank_count_ = 1;
 };
 
-TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      "distributed kmeans empty clusters test",
-                     "[distr][smoke]",
+                     "[spmd][smoke]",
                      kmeans_types) {
     // SPMD mode is not implemented for CPU. The following `SKIP_IF` should be
     // removed once it's supported for CPU. The same for the rest of tests cases.
@@ -94,9 +94,9 @@ TEMPLATE_LIST_TEST_M(kmeans_distr_test,
     this->check_empty_clusters();
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      "distributed kmeans smoke train/infer test",
-                     "[distr][smoke]",
+                     "[spmd][smoke]",
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
@@ -105,9 +105,9 @@ TEMPLATE_LIST_TEST_M(kmeans_distr_test,
     this->check_on_smoke_data();
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      "distributed kmeans train/infer on gold data",
-                     "[distr][smoke]",
+                     "[spmd][smoke]",
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
@@ -116,23 +116,20 @@ TEMPLATE_LIST_TEST_M(kmeans_distr_test,
     this->check_on_gold_data();
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      "distributed kmeans block test",
-                     "[distr][block][nightly]",
+                     "[spmd][block][nightly]",
                      kmeans_types) {
-    // This test is not stable on both CPU and GPU
-    // TODO: Remove the following `SKIP_IF` once stability problem is resolved
-    SKIP_IF(true);
-
+    SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
     this->set_rank_count(GENERATE(1, 8));
     this->check_on_large_data_with_one_cluster();
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      "distributed higgs: samples=1M, iters=3",
-                     "[kmeans][distr][higgs][external-dataset]",
+                     "[kmeans][spmd][higgs][external-dataset]",
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
@@ -154,9 +151,9 @@ TEMPLATE_LIST_TEST_M(kmeans_distr_test,
     }
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      "distributed susy: samples=0.5M, iters=10",
-                     "[kmeans][nightly][distr][susy][external-dataset]",
+                     "[kmeans][nightly][spmd][susy][external-dataset]",
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
@@ -178,9 +175,9 @@ TEMPLATE_LIST_TEST_M(kmeans_distr_test,
     }
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      "distributed epsilon: samples=80K, iters=2",
-                     "[kmeans][nightly][distr][epsilon][external-dataset]",
+                     "[kmeans][nightly][spmd][epsilon][external-dataset]",
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
