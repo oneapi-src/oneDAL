@@ -83,7 +83,7 @@ private:
 
 TEMPLATE_LIST_TEST_M(kmeans_distr_test,
                      "distributed kmeans empty clusters test",
-                     "[distr]",
+                     "[distr][smoke]",
                      kmeans_types) {
     // SPMD mode is not implemented for CPU. The following `SKIP_IF` should be
     // removed once it's supported for CPU. The same for the rest of tests cases.
@@ -96,7 +96,7 @@ TEMPLATE_LIST_TEST_M(kmeans_distr_test,
 
 TEMPLATE_LIST_TEST_M(kmeans_distr_test,
                      "distributed kmeans smoke train/infer test",
-                     "[distr]",
+                     "[distr][smoke]",
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
@@ -107,7 +107,7 @@ TEMPLATE_LIST_TEST_M(kmeans_distr_test,
 
 TEMPLATE_LIST_TEST_M(kmeans_distr_test,
                      "distributed kmeans train/infer on gold data",
-                     "[distr]",
+                     "[distr][smoke]",
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
@@ -120,7 +120,10 @@ TEMPLATE_LIST_TEST_M(kmeans_distr_test,
                      "distributed kmeans block test",
                      "[distr][block][nightly]",
                      kmeans_types) {
-    SKIP_IF(this->get_policy().is_cpu());
+    // This test is not stable on both CPU and GPU
+    // TODO: Remove the following `SKIP_IF` once stability problem is resolved
+    SKIP_IF(true);
+
     SKIP_IF(this->not_float64_friendly());
 
     this->set_rank_count(GENERATE(1, 8));

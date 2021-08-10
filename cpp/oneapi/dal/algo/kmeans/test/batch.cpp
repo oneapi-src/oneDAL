@@ -97,6 +97,10 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans block test",
                      "[kmeans][batch][nightly][block]",
                      kmeans_types) {
+    // This test is not stable on both CPU and GPU
+    // TODO: Remove the following `SKIP_IF` once stability problem is resolved
+    SKIP_IF(true);
+
     SKIP_IF(this->not_float64_friendly());
     this->check_on_large_data_with_one_cluster();
 }
@@ -109,49 +113,49 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     this->partial_centroids_stress_test();
 }
 
-// TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-//                      "higgs: samples=1M, iters=3",
-//                      "[kmeans][batch][external-dataset]",
-//                      kmeans_types) {
-//     SKIP_IF(this->not_float64_friendly());
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "higgs: samples=1M, iters=3",
+                     "[kmeans][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
 
-//     const std::int64_t iters = 3;
-//     const std::string higgs_path = "workloads/higgs/dataset/higgs_1m_test.csv";
+    const std::int64_t iters = 3;
+    const std::string higgs_path = "workloads/higgs/dataset/higgs_1m_test.csv";
 
-//     SECTION("clusters=10") {
-//         this->test_on_dataset(higgs_path, 10, iters, 3.1997724684, 14717484.0);
-//     }
+    SECTION("clusters=10") {
+        this->test_on_dataset(higgs_path, 10, iters, 3.1997724684, 14717484.0);
+    }
 
-//     SECTION("clusters=100") {
-//         this->test_on_dataset(higgs_path, 100, iters, 2.7450205195, 10704352.0);
-//     }
+    SECTION("clusters=100") {
+        this->test_on_dataset(higgs_path, 100, iters, 2.7450205195, 10704352.0);
+    }
 
-//     SECTION("cluster=250") {
-//         this->test_on_dataset(higgs_path, 250, iters, 2.5923397174, 9335216.0);
-//     }
-// }
+    SECTION("cluster=250") {
+        this->test_on_dataset(higgs_path, 250, iters, 2.5923397174, 9335216.0);
+    }
+}
 
-// TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-//                      "susy: samples=0.5M, iters=10",
-//                      "[kmeans][nightly][batch][external-dataset]",
-//                      kmeans_types) {
-//     SKIP_IF(this->not_float64_friendly());
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "susy: samples=0.5M, iters=10",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
 
-//     const std::int64_t iters = 10;
-//     const std::string susy_path = "workloads/susy/dataset/susy_test.csv";
+    const std::int64_t iters = 10;
+    const std::string susy_path = "workloads/susy/dataset/susy_test.csv";
 
-//     SECTION("clusters=10") {
-//         this->test_on_dataset(susy_path, 10, iters, 1.7730860782, 3183696.0);
-//     }
+    SECTION("clusters=10") {
+        this->test_on_dataset(susy_path, 10, iters, 1.7730860782, 3183696.0);
+    }
 
-//     SECTION("clusters=100") {
-//         this->test_on_dataset(susy_path, 100, iters, 1.9384844916, 1757022.625);
-//     }
+    SECTION("clusters=100") {
+        this->test_on_dataset(susy_path, 100, iters, 1.9384844916, 1757022.625);
+    }
 
-//     SECTION("cluster=250") {
-//         this->test_on_dataset(susy_path, 250, iters, 1.8950113604, 1400958.5);
-//     }
-// }
+    SECTION("cluster=250") {
+        this->test_on_dataset(susy_path, 250, iters, 1.8950113604, 1400958.5);
+    }
+}
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "epsilon: samples=80K, iters=2",
