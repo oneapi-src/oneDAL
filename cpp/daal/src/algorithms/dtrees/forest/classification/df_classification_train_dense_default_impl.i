@@ -974,7 +974,7 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
         if (res)
         {
             nPredicted.inc();
-            if (maxIdx != classLabel) nError.inc();
+            if (maxIdx == classLabel) nError.inc();
         }
         if (resPerObs) resPerObs[i] = algorithmFPType(maxIdx != classLabel);
     });

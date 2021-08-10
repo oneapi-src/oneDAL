@@ -791,23 +791,35 @@ public:
         ReadRows<algorithmFPType, cpu> y(const_cast<NumericTable *>(resp), 0, nSamples);
         DAAL_CHECK_BLOCK_STATUS(y);
         const algorithmFPType * py         = y.get();
-        size_t nPredicted                  = 0.;
         algorithmFPType _res               = 0;
+        algorithmFPType yMean              = 0;
+        algorithmFPType sumDiff            = 0;
+        algorithmFPType sumMeanDiff        = 0;
         RegErr<algorithmFPType, cpu> * ptr = (RegErr<algorithmFPType, cpu> *)this->oobBuf;
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < nSamples; ++i)
+        {
+            yMean += py[i];
+        }
+        yMean /= nSamples;
+
         for (size_t i = 0; i < nSamples; ++i)
         {
             if (ptr[i].count)
             {
                 ptr[i].value /= algorithmFPType(ptr[i].count);
-                const algorithmFPType oobForObs = (ptr[i].value - py[i]) * (ptr[i].value - py[i]);
-                if (resPerObs) resPerObs[i] = oobForObs;
-                _res += oobForObs;
-                ++nPredicted;
+                if (resPerObs) resPerObs[i] = ptr[i].value;
+                sumDiff += (py[i] - ptr[i].value) * (py[i] - ptr[i].value);
+                sumMeanDiff += (py[i] - yMean) * (py[i] - yMean);
             }
             else if (resPerObs)
-                resPerObs[i] = algorithmFPType(-1); //was not in OOB set of any tree and hence not predicted
+            {
+                resPerObs[i] = algorithmFPType(0); //was not in OOB set of any tree and hence not predicted
+            }
         }
-        if (res) *res = _res / algorithmFPType(nPredicted);
+        if (res) *res = 1 - sumDiff / sumMeanDiff;
         return Status();
     }
 };
