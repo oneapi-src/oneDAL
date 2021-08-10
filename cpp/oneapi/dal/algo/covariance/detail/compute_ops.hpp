@@ -49,7 +49,6 @@ struct compute_ops {
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        std::cout << "Postconditions" << std::endl;
         if (result.get_result_options().test(result_options::means)) {
             ONEDAL_ASSERT(result.get_means().has_data());
             ONEDAL_ASSERT(result.get_means().get_column_count() ==
@@ -58,8 +57,6 @@ struct compute_ops {
         }
 
         if (result.get_result_options().test(result_options::cov_matrix)) {
-            std::cout << "Cov M: " << result.get_cov_matrix().get_row_count() << 'x'
-                      << result.get_cov_matrix().get_column_count() << std::endl;
             ONEDAL_ASSERT(result.get_cov_matrix().has_data());
             ONEDAL_ASSERT(result.get_cov_matrix().get_column_count() ==
                           input.get_data().get_column_count());

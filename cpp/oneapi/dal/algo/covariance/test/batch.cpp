@@ -49,7 +49,6 @@ public:
     }
     void general_checks(const te::dataframe& input, const te::table_id& input_table_id) {
         const table data = input.get_table(this->get_policy(), input_table_id);
-
         INFO("create descriptor")
         const auto cov_desc = get_descriptor();
         INFO("run compute");
@@ -115,31 +114,6 @@ public:
     void check_cov_matrix_values(const table& data, const table& cov_matrix) {
         const auto reference_cov = compute_reference_cov(data);
         const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
-        std::cout << "data" << std::endl;
-        const auto correct_data = la::matrix<double>::wrap(data);
-        for (int i = 0; i < correct_data.get_row_count(); ++i) {
-            for (int j = 0; j < correct_data.get_column_count(); ++j) {
-                std::cout << correct_data.get(i, j) << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << "correct" << std::endl;
-        const auto correct_cov = la::matrix<double>::wrap(cov_matrix);
-        for (int i = 0; i < correct_cov.get_row_count(); ++i) {
-            for (int j = 0; j < correct_cov.get_column_count(); ++j) {
-                std::cout << correct_cov.get(i, j) << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << "my matrix" << std::endl;
-        auto print_cov = reference_cov;
-
-        for (int i = 0; i < print_cov.get_row_count(); ++i) {
-            for (int j = 0; j < print_cov.get_column_count(); ++j) {
-                std::cout << print_cov.get(i, j) << " ";
-            }
-            std::cout << std::endl;
-        }
         const double diff = te::abs_error(reference_cov, cov_matrix);
         CHECK(diff < tol);
     }
@@ -164,9 +138,9 @@ public:
         return reference_cov;
     }
     void check_cor_matrix_values(const table& data, const table& cor_matrix) {
-        const auto reference = compute_reference_cov(data);
+        const auto reference_cor = compute_reference_cor(data);
         const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
-        const double diff = te::abs_error(reference, cor_matrix);
+        const double diff = te::abs_error(reference_cor, cor_matrix);
         CHECK(diff < tol);
     }
 
@@ -198,29 +172,28 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe input =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 4, 2 }.fill_normal(0, 1, 7777));
-    //te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
-    //te::dataframe_builder{ 250, 250 }.fill_normal(0, 1, 7777),
-    //te::dataframe_builder{ 2, 2 }.fill_normal(0, 1, 7777));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 4, 4 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 250, 250 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 2, 2 }.fill_normal(0, 1, 7777));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
     this->general_checks(input, input_data_table_id);
 }
 
-// TEMPLATE_LIST_TEST_M(covariance_batch_test,
-//                      "covariance compute one element matrix",
-//                      "[covariance][integration][batch]",
-//                      covariance_types) {
-//     SKIP_IF(this->not_float64_friendly());
+TEMPLATE_LIST_TEST_M(covariance_batch_test,
+                     "covariance compute one element matrix",
+                     "[covariance][integration][batch]",
+                     covariance_types) {
+    SKIP_IF(this->not_float64_friendly());
 
-//     const te::dataframe input =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
+    const te::dataframe input =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
 
-//     // Homogen floating point type is the same as algorithm's floating point type
-//     const auto input_data_table_id = this->get_homogen_table_id();
-//     std::cout<<"before general checks 2"<<std::endl;
-//     this->general_checks(input, input_data_table_id);
-// }
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto input_data_table_id = this->get_homogen_table_id();
+    this->general_checks(input, input_data_table_id);
+}
 
 } // namespace oneapi::dal::covariance::test

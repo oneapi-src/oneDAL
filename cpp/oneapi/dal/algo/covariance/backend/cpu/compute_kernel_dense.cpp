@@ -41,35 +41,40 @@ template <typename Float, daal::CpuType Cpu>
 using daal_covariance_kernel_t = daal_covariance::internal::
     CovarianceDenseBatchKernel<Float, daal_covariance::Method::defaultDense, Cpu>;
 
-template <typename Float>
-static result_t call_daal_kernel(const context_cpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& data) {
-    //const std::int64_t row_count = data.get_row_count();
+template <typename Float, typename Task>
+static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                             const descriptor_t& desc,
+                                             const table& data) {
     const std::int64_t component_count = data.get_column_count();
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
-
     daal_covariance::Parameter daal_parameter;
-    auto result = compute_result<task::compute>{}.set_result_options(desc.get_result_options());
+    daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
-    auto arr_cov_matrix = array<Float>{};
-    auto arr_cor_matrix = array<Float>{};
-    auto arr_means = array<Float>{};
+    auto arr_cov_matrix = array<Float>::empty(component_count * component_count);
+    auto arr_cor_matrix = array<Float>::empty(component_count * component_count);
+    auto arr_means = array<Float>::empty(component_count);
 
-    auto daal_cov_matrix = daal::data_management::NumericTablePtr();
-    auto daal_cor_matrix = daal::data_management::NumericTablePtr();
-    auto daal_means = daal::data_management::NumericTablePtr();
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
+    const auto daal_cov_matrix =
+        interop::convert_to_daal_homogen_table(arr_cov_matrix, component_count, component_count);
+    const auto daal_cor_matrix =
+        interop::convert_to_daal_homogen_table(arr_cor_matrix, component_count, component_count);
+
+    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
+
+    if (desc.get_result_options().test(result_options::means)) {
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
+                                                                       daal_data.get(),
+                                                                       daal_cov_matrix.get(),
+                                                                       daal_means.get(),
+                                                                       &daal_parameter));
+        result.set_means(
+            dal::detail::homogen_table_builder{}.reset(arr_means, 1, component_count).build());
+    }
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        arr_cov_matrix.reset(component_count * component_count);
-        daal_cov_matrix = interop::convert_to_daal_homogen_table(arr_cov_matrix,
-                                                                 component_count,
-                                                                 component_count);
-        arr_means.reset(1 * component_count);
-        daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
-        daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
-
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
                                                                        daal_data.get(),
@@ -81,12 +86,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                   .build());
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
-        arr_cor_matrix.reset(component_count * component_count);
-        daal_cor_matrix = interop::convert_to_daal_homogen_table(arr_cor_matrix,
-                                                                 component_count,
-                                                                 component_count);
-        arr_means.reset(1 * component_count);
-        daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
         daal_parameter.outputMatrixType = daal_covariance::correlationMatrix;
 
         interop::status_to_exception(
@@ -99,34 +98,22 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                   .reset(arr_cor_matrix, component_count, component_count)
                                   .build());
     }
-
-    if (desc.get_result_options().test(result_options::means)) {
-        arr_means.reset(1 * component_count);
-        daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
-        //daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
-                                                                       daal_data.get(),
-                                                                       daal_cov_matrix.get(),
-                                                                       daal_means.get(),
-                                                                       &daal_parameter));
-        result.set_means(
-            dal::detail::homogen_table_builder{}.reset(arr_means, 1, component_count).build());
-    }
     return result;
 }
 
-template <typename Float>
-static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+template <typename Float, typename Task>
+static compute_result<Task> compute(const context_cpu& ctx,
+                                    const descriptor_t& desc,
+                                    const compute_input<Task>& input) {
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data());
 }
 
 template <typename Float>
-struct compute_kernel_cpu<Float, method::dense, task::compute> {
-    result_t operator()(const context_cpu& ctx,
-                        const descriptor_t& desc,
-                        const input_t& input) const {
-        return compute<Float>(ctx, desc, input);
+struct compute_kernel_cpu<Float, method::by_default, task::compute> {
+    compute_result<task::compute> operator()(const context_cpu& ctx,
+                                             const descriptor_t& desc,
+                                             const compute_input<task::compute>& input) const {
+        return compute<Float, task::compute>(ctx, desc, input);
     }
 };
 
