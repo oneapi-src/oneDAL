@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/common_base.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 
 namespace oneapi::dal::test::engine {
@@ -27,7 +27,7 @@ public:
         return policy_;
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL 
     sycl::queue& get_queue() {
         return policy_.get_queue();
     }

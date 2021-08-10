@@ -4,11 +4,13 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_test_module(
-    name = "common",
+    name = "common_base",
     auto = True,
     auto_exclude = [
         "gtest_main.cpp",
         "catch_main.cpp",
+        "gbench_main.cpp",
+        "common.hpp",
     ],
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
@@ -20,8 +22,24 @@ dal_test_module(
         "@onedal//cpp/oneapi/dal/test/engine/metrics",
     ],
     extra_deps = [
-        "@catch2//:catch2",
+        
         "@fmt//:fmt",
+    ],
+)
+
+dal_test_module(
+    name = "common",
+    #auto = True,
+    #auto_exclude = [
+    #    "gtest_main.cpp",
+    #    "catch_main.cpp",
+    #    "gbench_main.cpp",
+    #],
+    hdrs = [
+        "common.hpp",
+    ],
+    dal_test_deps = [
+        ":common_base",
     ],
 )
 
@@ -45,6 +63,7 @@ dal_test_module(
         "gbench_main.cpp",
     ],
     dal_test_deps = [
+        ":common_base",
     ],
     extra_deps = [
        # "@gtest//:gtest",

@@ -17,7 +17,9 @@
 #include "oneapi/dal/test/engine/config.hpp"
 
 #include <stdexcept>
-#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/common_base.hpp"
+
+#include <iostream>
 
 namespace oneapi::dal::test::engine {
 

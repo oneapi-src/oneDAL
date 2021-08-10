@@ -1,25 +1,26 @@
 #include <benchmark/benchmark.h>
-
+#include "oneapi/dal/test/engine/config.hpp"
 #include <iostream>
 
-extern int empty();
+//BENCHMARK_MAIN();
 
-static void BM_StringCreation(benchmark::State& state) {
-  std::cout << "!!!" << std::endl;
-  for (auto _ : state) {
-    [[maybe_unused]] volatile int r = empty();
-  }
+//initialize queue/device selector/queue provider?? whatever here?
+
+int main(int argc, char** argv) {
+    using oneapi::dal::test::engine::global_config;
+
+    global_config config;
+
+    config.device_selector = "cpu";
+
+    oneapi::dal::test::engine::global_setup(config);
+
+    ::benchmark::Initialize(&argc, argv);
+    if (::benchmark::ReportUnrecognizedArguments(argc, argv)) {
+        return 1;
+    }
+    ::benchmark::RunSpecifiedBenchmarks();
+    oneapi::dal::test::engine::global_cleanup();
+
+    return 0;
 }
-// Register the function as a benchmark
-BENCHMARK(BM_StringCreation);
-
-// Define another benchmark
-static void BM_StringCopy(benchmark::State& state) {
-  std::string x = "hello";
-  for (auto _ : state)
-    std::string copy(x);
-}
-
-BENCHMARK(BM_StringCopy);
-
-BENCHMARK_MAIN();

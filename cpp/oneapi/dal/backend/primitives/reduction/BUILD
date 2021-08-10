@@ -13,16 +13,20 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "perf_tests",
-    framework = "catch2",
+    name = "perf_gbench",
+    framework = "gbench",
     compile_as = [ "dpc++" ],
     private = True,
     srcs = glob([
-        "test/*perf_dpc.cpp",
+        "test/*gbench*.cpp",
     ]),
     dal_deps = [
         ":reduction",
+        "@onedal//cpp/oneapi/dal/test/engine:common",
     ],
+    #dal_test_deps = [
+    #    "@onedal//cpp/oneapi/dal/test/engine:common",
+    #],
 )
 
 dal_test_suite(
@@ -34,6 +38,7 @@ dal_test_suite(
         "test/*_dpc.cpp",
     ], exclude=[
         "test/*perf*.cpp",
+        "test/*gbench*.cpp",
     ]),
     dal_deps = [
         ":reduction",

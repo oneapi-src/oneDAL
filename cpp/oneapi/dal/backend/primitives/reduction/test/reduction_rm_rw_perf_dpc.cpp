@@ -146,7 +146,7 @@ public:
                            unary_desc(),
                            binary_desc());
     }
-
+ 
     template <typename reduction_t>
     void test_raw_rw_reduce(const std::string& name) {
         auto [inp_array, inp_event] = input();
@@ -212,5 +212,5 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     this->test_raw_rw_reduce_narrow();
     this->test_raw_rw_reduce_wrapper();
 }
-
+//TODO
 } // namespace oneapi::dal::backend::primitives::test

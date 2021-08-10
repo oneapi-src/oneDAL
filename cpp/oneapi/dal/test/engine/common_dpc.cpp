@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/common_base.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -46,11 +46,11 @@ static bool check_if_env_knob_is_enabled(const char* env_var) {
            check_if_env_knob_is_enabled("IGC_ForceDPEmulation");
 }
 
-bool device_test_policy::has_native_float64() const {
+bool device_test_policy::has_native_float64() {
 #ifdef ONEDAL_DISABLE_FP64_TESTS
     return false;
 #else
-    const auto device = queue_.get_device();
+    const auto device = get_queue().get_device();
     const auto fp_config = device.get_info<sycl::info::device::double_fp_config>();
     const bool float64_support = !fp_config.empty();
     const bool emulated = check_if_env_overrides_fp64_settings() && //

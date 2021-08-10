@@ -24,7 +24,7 @@
 
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/common_base.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
 namespace oneapi::dal::test::engine {
