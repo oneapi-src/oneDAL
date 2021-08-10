@@ -137,7 +137,7 @@ MSG(max_iteration_count_leq_zero, "Max iteration count lower than or equal to ze
 MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
 
 /* Covariance */
-MSG(result_option_have_not_been_computed, "no result option")
+MSG(result_option_have_not_been_computed, "No result option")
 
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")

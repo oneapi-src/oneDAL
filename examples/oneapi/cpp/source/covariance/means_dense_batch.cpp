@@ -25,10 +25,12 @@ int main(int argc, char const *argv[]) {
     const auto input_file_name = get_data_path("covcormoments_dense.csv");
     const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
 
-    auto cov_desc = cov::descriptor<float>.set_result_options(covariance::result_options::means);
+    auto cov_desc =
+        dal::covariance::descriptor{}.set_result_options(dal::covariance::result_options::means);
 
     auto result = dal::compute(cov_desc, input);
     auto means = result.get_means();
+    std::cout << "Means:\n" << means << std::endl;
 
     return 0;
 }

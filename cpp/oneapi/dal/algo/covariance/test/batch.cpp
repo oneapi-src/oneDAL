@@ -153,8 +153,9 @@ public:
             la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
         for (std::int64_t i = 0; i < column_count_data; i++) {
             for (std::int64_t j = 0; j < column_count_data; j++) {
-                reference_cor.set(i, j) = reference_cov.get(i, j) /
-                                  std::sqrt(reference_cov.get(i, i) * reference_cov.get(j, j));
+                reference_cor.set(i, j) =
+                    reference_cov.get(i, j) /
+                    std::sqrt(reference_cov.get(i, i) * reference_cov.get(j, j));
             }
         }
 
