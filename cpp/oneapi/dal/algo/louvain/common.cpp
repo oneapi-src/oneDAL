@@ -23,8 +23,8 @@ template <typename Task>
 class descriptor_impl : public base {
 public:
     double accuracy_threshold = 0.0001;
-    double resolution = 1;
-    std::int64_t max_iteration_count = 0;
+    double resolution = 1.0;
+    std::int64_t max_iteration_count = 10;
 };
 
 template <typename Task>

@@ -100,6 +100,8 @@ public:
 
     /// Returns the threshold for the stop condition of the local moving
     /// phase of the algorithm
+    ///
+    /// @remark default = 0.0001
     double get_accuracy_threshold() const {
         return base_t::get_accuracy_threshold();
     }
@@ -115,7 +117,9 @@ public:
         return *this;
     }
 
-    /// Returns resolution parameter in the modularity formula.
+    /// Returns resolution parameter in the modularity formula
+    ///
+    /// @remark default = 1.0
     double get_resolution() const {
         return base_t::get_resolution();
     }
@@ -124,23 +128,25 @@ public:
     ///
     /// @param [in] resolution  Resolution parameter in the modularity formula
     /// @invariant :expr:`resolution >= 0`
-    /// @remark default = 1
+    /// @remark default = 1.0
     auto &set_resolution(double resolution) {
         base_t::set_resolution(resolution);
         return *this;
     }
 
     /// Returns the maximum number of iterations of the Louvain algorithm
-    std::int64_t get_max_iteration_count() {
+    ///
+    /// @remark default = 10
+    std::int64_t get_max_iteration_count() const{
         return base_t::get_max_iteration_count();
     }
 
     /// Sets the maximum number of iterations of the Louvain algorithm
     ///
     /// @param [in] max_iteration_count  Maximum number of iterations of the
-    /// Louvain algorithm
+    ///                                  Louvain algorithm
     /// @invariant :expr:`max_iteration_count >= 0`
-    /// @remark default = 0
+    /// @remark default = 10
     auto &set_max_iteration_count(std::int64_t max_iteration_count) {
         base_t::set_max_iteration_count(max_iteration_count);
         return *this;
