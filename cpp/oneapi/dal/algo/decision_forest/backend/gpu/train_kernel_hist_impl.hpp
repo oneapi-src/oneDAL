@@ -74,6 +74,9 @@ private:
     std::int64_t get_part_hist_required_mem_size(Index selected_ftr_count,
                                                  Index max_bin_count_among_ftrs,
                                                  Index class_count) const;
+    std::int64_t get_part_hist_elem_count(Index selected_ftr_count,
+                                          Index max_bin_count_among_ftrs,
+                                          Index class_count) const;
 
     sycl::event allreduce_ndarray_inplace(pr::ndarray<Index, 1>& src_dst,
                                           const bk::event_vector& deps = {});
@@ -85,8 +88,6 @@ private:
                                        rng_engine_list_t& rng_engine_list,
                                        pr::ndarray<Index, 1>& node_list,
                                        pr::ndarray<Index, 1>& tree_order_level,
-                                       pr::ndarray<Index, 1>& selected_row_global_host,
-                                       pr::ndarray<Index, 1>& selected_row_host,
                                        Index engine_offset,
                                        Index node_count);
 

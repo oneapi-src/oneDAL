@@ -28,7 +28,16 @@
 
 namespace oneapi::dal::decision_forest::backend {
 
+namespace de = dal::detail;
+
 #ifdef ONEDAL_DATA_PARALLEL
+
+#define _P(...)              \
+    do {                     \
+        printf(__VA_ARGS__); \
+        printf("\n");        \
+        fflush(0);           \
+    } while (0)
 
 template <typename Task>
 struct daal_types_map;
@@ -137,114 +146,18 @@ private:
 };
 
 template <typename Float, typename Index, typename Task = task::by_default>
-class train_model_manager {
-    using context_t = train_context<Float, Index, Task>;
-    using model_t = model<Task>;
-    using model_impl_t = detail::model_impl<Task>;
-    using model_interop_impl_t =
-        model_interop_impl<typename daal_types_map<Task>::daal_model_ptr_t>;
-    using daal_model_impl_t = typename daal_types_map<Task>::daal_model_impl_t;
-    using daal_model_ptr_t = typename daal_types_map<Task>::daal_model_ptr_t;
+class daal_node_manager {
+    using train_context_t = train_context<Float, Index, Task>;
     using TreeType = typename daal_types_map<Task>::daal_tree_impl_t;
     using NodeType = typename TreeType::NodeType;
 
 public:
-    explicit train_model_manager(Index tree_count, Index column_count, const context_t& ctx)
+    explicit daal_node_manager(const train_context_t& ctx)
             : allocator_(allocator_node_count_hint_),
-              daal_model_ptr_(new daal_model_impl_t(column_count)),
-              daal_model_interface_ptr_(daal_model_ptr_),
-              tree_list_(tree_count),
-              ctx_(ctx) {
-        daal_model_ptr_->resize(tree_count);
-    }
+              ctx_(ctx) {}
 
-    ~train_model_manager() = default;
+    ~daal_node_manager() = default;
 
-    void add_tree_block(std::vector<tree_level_record<Float, Index, Task>>& tree_level_list,
-                        std::vector<dal::backend::primitives::ndarray<Float, 1>>& bin_value_list,
-                        Index tree_count) {
-        typedef std::vector<typename NodeType::Base*> df_tree_node_list_t;
-        typedef dal::detail::shared<df_tree_node_list_t> df_tree_node_list_ptr_t;
-
-        df_tree_node_list_ptr_t df_tree_level_node_list_prev;
-        bool unord_ftr_used = false;
-
-        Index level = tree_level_list.size();
-        ONEDAL_ASSERT(level);
-
-        do {
-            level--;
-            tree_level_record<Float, Index, Task>& record = tree_level_list[level];
-
-            df_tree_node_list_ptr_t df_tree_level_node_list(
-                new df_tree_node_list_t(record.get_node_count()));
-
-            Index split_count = 0;
-            // split_count is used to calculate index of child nodes on next level
-            for (Index node_idx = 0; node_idx < record.get_node_count(); node_idx++) {
-                if (record.is_leaf(node_idx)) {
-                    (*df_tree_level_node_list)[node_idx] = make_leaf(record, node_idx);
-                }
-                else {
-                    ONEDAL_ASSERT(df_tree_level_node_list_prev.get());
-                    (*df_tree_level_node_list)[node_idx] =
-                        make_split(record,
-                                   bin_value_list,
-                                   node_idx,
-                                   (*df_tree_level_node_list_prev)[split_count * 2],
-                                   (*df_tree_level_node_list_prev)[split_count * 2 + 1]);
-                    split_count++;
-                }
-            }
-
-            df_tree_level_node_list_prev = df_tree_level_node_list;
-        } while (level > 0);
-
-        ONEDAL_ASSERT(static_cast<size_t>(last_tree_pos_ + tree_count) <= tree_list_.size());
-
-        for (Index tree_idx = 0; tree_idx < tree_count; tree_idx++) {
-            tree_list_[last_tree_pos_ + tree_idx].reset((*df_tree_level_node_list_prev)[tree_idx],
-                                                        unord_ftr_used);
-            Index class_count = 0;
-            if constexpr (std::is_same_v<task::classification, Task>) {
-                class_count = ctx_.class_count_;
-            }
-
-            daal_model_ptr_->add(tree_list_[last_tree_pos_ + tree_idx],
-                                 class_count,
-                                 last_tree_pos_ + tree_idx);
-        }
-        last_tree_pos_ += tree_count;
-    }
-
-    Float get_tree_response(Index tree_idx, const Float* x) const {
-        ONEDAL_ASSERT(static_cast<size_t>(tree_idx) < tree_list_.size());
-        const typename NodeType::Base* node_ptr =
-            daal::algorithms::dtrees::prediction::internal::findNode<Float, TreeType, daal::sse2>(
-                tree_list_[tree_idx],
-                x);
-        ONEDAL_ASSERT(node_ptr);
-        if constexpr (std::is_same_v<task::classification, Task>) {
-            return NodeType::castLeaf(node_ptr)->response.value;
-        }
-        else {
-            return NodeType::castLeaf(node_ptr)->response;
-        }
-    }
-
-    model_t get_model() {
-        const auto model_impl =
-            std::make_shared<model_impl_t>(new model_interop_impl_t{ daal_model_interface_ptr_ });
-        model_impl->tree_count = daal_model_ptr_->getNumberOfTrees();
-
-        if constexpr (std::is_same_v<task::classification, Task>) {
-            model_impl->class_count = daal_model_ptr_->getNumberOfClasses();
-        }
-
-        return dal::detail::make_private<model_t>(model_impl);
-    }
-
-private:
     typename NodeType::Leaf* make_leaf(tree_level_record<Float, Index, Task>& record,
                                        Index node_idx) {
         DAAL_ASSERT(record.get_row_count(node_idx) > 0);
@@ -295,13 +208,129 @@ private:
     //number of nodes as a hint for allocator to grow by
     constexpr static Index allocator_node_count_hint_ = 512;
     typename TreeType::Allocator allocator_;
+    const train_context_t& ctx_;
+};
+
+template <typename Float, typename Index, typename Task = task::by_default>
+class train_model_manager {
+    using train_context_t = train_context<Float, Index, Task>;
+    using model_t = model<Task>;
+    using model_impl_t = detail::model_impl<Task>;
+    using model_interop_impl_t =
+        model_interop_impl<typename daal_types_map<Task>::daal_model_ptr_t>;
+    using daal_model_impl_t = typename daal_types_map<Task>::daal_model_impl_t;
+    using daal_model_ptr_t = typename daal_types_map<Task>::daal_model_ptr_t;
+    using daal_node_manager_t = daal_node_manager<Float, Index, Task>;
+    using TreeType = typename daal_types_map<Task>::daal_tree_impl_t;
+    using NodeType = typename TreeType::NodeType;
+    using tree_list_t = std::vector<TreeType>;
+
+public:
+    explicit train_model_manager(const train_context_t& ctx, Index tree_count, Index column_count)
+            : daal_model_ptr_(new daal_model_impl_t(column_count)),
+              daal_model_interface_ptr_(daal_model_ptr_),
+              ctx_(ctx) {
+        daal_model_ptr_->resize(tree_count);
+    }
+
+    ~train_model_manager() = default;
+
+    void add_tree_block(std::vector<tree_level_record<Float, Index, Task>>& tree_level_list,
+                        std::vector<dal::backend::primitives::ndarray<Float, 1>>& bin_value_list,
+                        Index tree_count) {
+        if (tree_list_.get()) {
+            tree_list_offset_ += tree_list_->size();
+        }
+        // to minimize occopied memory only last added tree block is stored in tree_list for results calculation
+        tree_list_ = std::make_shared<tree_list_t>(tree_count);
+        daal_node_manager_t allocator(ctx_);
+        typedef std::vector<typename NodeType::Base*> df_tree_node_list_t;
+        typedef de::shared<df_tree_node_list_t> df_tree_node_list_ptr_t;
+
+        df_tree_node_list_ptr_t df_tree_level_node_list_prev;
+        bool unord_ftr_used = false;
+
+        Index level = tree_level_list.size();
+        ONEDAL_ASSERT(level);
+
+        do {
+            level--;
+            tree_level_record<Float, Index, Task>& record = tree_level_list[level];
+
+            df_tree_node_list_ptr_t df_tree_level_node_list(
+                new df_tree_node_list_t(record.get_node_count()));
+
+            Index split_count = 0;
+            // split_count is used to calculate index of child nodes on next level
+            for (Index node_idx = 0; node_idx < record.get_node_count(); node_idx++) {
+                if (record.is_leaf(node_idx)) {
+                    (*df_tree_level_node_list)[node_idx] = allocator.make_leaf(record, node_idx);
+                }
+                else {
+                    ONEDAL_ASSERT(df_tree_level_node_list_prev.get());
+                    (*df_tree_level_node_list)[node_idx] =
+                        allocator.make_split(record,
+                                             bin_value_list,
+                                             node_idx,
+                                             (*df_tree_level_node_list_prev)[split_count * 2],
+                                             (*df_tree_level_node_list_prev)[split_count * 2 + 1]);
+                    split_count++;
+                }
+            }
+
+            df_tree_level_node_list_prev = df_tree_level_node_list;
+        } while (level > 0);
+
+        for (Index tree_idx = 0; tree_idx < tree_count; tree_idx++) {
+            (*tree_list_)[tree_idx].reset((*df_tree_level_node_list_prev)[tree_idx],
+                                          unord_ftr_used);
+            Index class_count = 0;
+            if constexpr (std::is_same_v<task::classification, Task>) {
+                class_count = ctx_.class_count_;
+            }
+
+            daal_model_ptr_->add((*tree_list_)[tree_idx],
+                                 class_count,
+                                 tree_list_offset_ + tree_idx);
+        }
+    }
+
+    Float get_tree_response(Index tree_idx, const Float* x) const {
+        ONEDAL_ASSERT(static_cast<size_t>(tree_idx - tree_list_offset_) < tree_list_->size());
+
+        const typename NodeType::Base* node_ptr =
+            daal::algorithms::dtrees::prediction::internal::findNode<Float, TreeType, daal::sse2>(
+                (*tree_list_)[tree_idx - tree_list_offset_],
+                x);
+        ONEDAL_ASSERT(node_ptr);
+        if constexpr (std::is_same_v<task::classification, Task>) {
+            return NodeType::castLeaf(node_ptr)->response.value;
+        }
+        else {
+            return NodeType::castLeaf(node_ptr)->response;
+        }
+    }
+
+    model_t get_model() {
+        const auto model_impl =
+            std::make_shared<model_impl_t>(new model_interop_impl_t{ daal_model_interface_ptr_ });
+        model_impl->tree_count = daal_model_ptr_->getNumberOfTrees();
+
+        if constexpr (std::is_same_v<task::classification, Task>) {
+            model_impl->class_count = daal_model_ptr_->getNumberOfClasses();
+        }
+
+        return dal::detail::make_private<model_t>(model_impl);
+    }
+
+private:
     daal_model_impl_t* daal_model_ptr_;
     daal_model_ptr_t daal_model_interface_ptr_;
 
-    Index last_tree_pos_ = 0;
+    Index tree_list_offset_ = 0;
 
-    std::vector<TreeType> tree_list_;
-    const context_t& ctx_;
+    de::shared<tree_list_t> tree_list_;
+    const train_context_t& ctx_;
 };
 
 #endif
