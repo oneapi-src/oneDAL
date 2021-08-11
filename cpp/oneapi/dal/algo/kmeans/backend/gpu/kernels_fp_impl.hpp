@@ -519,9 +519,10 @@ sycl::event kernels_fp<Float>::complete_closest_distances(sycl::queue& queue,
 
     const auto elem_count = closest_distances.get_dimension(0);
     auto values_ptr = closest_distances.get_mutable_data();
-    auto squares_ptr = data_squares.get_mutable_data();
+    const auto squares_ptr = data_squares.get_data();
 
     auto complete_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
         cgh.parallel_for<complete_distances<Float>>(sycl::range<1>(elem_count),
                                                     [=](sycl::id<1> idx) {
                                                         values_ptr[idx] += squares_ptr[idx];
