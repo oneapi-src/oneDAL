@@ -115,7 +115,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "higgs: samples=1M, iters=3",
-                     "[kmeans][batch][external-dataset]",
+                     "[kmeans][batch][external-dataset][higgs]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
 
@@ -137,7 +137,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "susy: samples=0.5M, iters=10",
-                     "[kmeans][nightly][batch][external-dataset]",
+                     "[kmeans][nightly][batch][external-dataset][susy]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
 
@@ -159,7 +159,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "epsilon: samples=80K, iters=2",
-                     "[kmeans][nightly][batch][external-dataset]",
+                     "[kmeans][nightly][batch][external-dataset][epsilon]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
 
