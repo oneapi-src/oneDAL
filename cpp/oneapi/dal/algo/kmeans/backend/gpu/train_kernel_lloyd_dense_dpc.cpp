@@ -114,6 +114,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         const int64_t max_iteration_count = params.get_max_iteration_count();
         const double accuracy_threshold = params.get_accuracy_threshold();
         dal::detail::check_mul_overflow(cluster_count, column_count);
+
         auto data_ptr =
             row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
         auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
@@ -125,12 +126,14 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         // this issue the correct distributed implementation of K-Means++ should be
         // called underneath.
         auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
+
         std::int64_t block_size_in_rows =
             std::min(row_count, kernels_fp<float_t>::get_block_size_in_rows(queue, column_count));
         std::int64_t part_count =
             kernels_fp<float_t>::get_part_count_for_partial_centroids(queue,
                                                                       column_count,
                                                                       cluster_count);
+
         auto arr_centroid_squares =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
@@ -188,18 +191,16 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                                          arr_centroids,
                                                                          arr_centroid_squares,
                                                                          { centroids_event });
-        auto assign_event =
-            kernels_fp<Float>::assign_clusters(
-                queue,
-                arr_data,
-                arr_centroids,
-                arr_data_squares,
-                arr_centroid_squares,
-                block_size_in_rows,
-                arr_responses,
-                arr_distance_block,
-                arr_closest_distances,
-                { centroid_squares_event });
+        auto assign_event = kernels_fp<Float>::assign_clusters(queue,
+                                                               arr_data,
+                                                               arr_centroids,
+                                                               arr_data_squares,
+                                                               arr_centroid_squares,
+                                                               block_size_in_rows,
+                                                               arr_responses,
+                                                               arr_distance_block,
+                                                               arr_closest_distances,
+                                                               { centroid_squares_event });
 
         auto objective_event = kernels_fp<Float>::compute_objective_function( //
             queue,

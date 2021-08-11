@@ -250,7 +250,6 @@ static auto reduce_candidates(sycl::queue& queue,
     {
         ONEDAL_ASSERT(candidate_count <= all_candidate_count);
         std::int32_t* host_all_indices_ptr = host_all_indices.get();
-
         const Float* host_all_distances_ptr = host_all_distances.get_data();
 
         std::partial_sort(host_all_indices_ptr,
@@ -363,6 +362,7 @@ auto find_candidates(sycl::queue& queue,
                                              candidate_indices,
                                              candidate_distances,
                                              deps);
+
     auto fill_empty_cluster_indices_event =
         fill_empty_cluster_indices(queue,
                                    candidate_count,

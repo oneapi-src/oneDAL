@@ -178,7 +178,7 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
                                                std::int64_t block_size_in_rows,
                                                pr::ndview<std::int32_t, 2>& responses,
                                                pr::ndview<Float, 2>& distances,
-                                               pr::ndarray<Float, 2>& closest_distances,
+                                               pr::ndview<Float, 2>& closest_distances,
                                                const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
     ONEDAL_ASSERT(responses.get_dimension(0) >= data.get_dimension(0));
