@@ -57,3 +57,4 @@
 #include "oneapi/dal/algo/shortest_paths.hpp"
 #include "oneapi/dal/algo/svm.hpp"
 #include "oneapi/dal/algo/triangle_counting.hpp"
+#include "oneapi/dal/algo/basic_statistics.hpp"

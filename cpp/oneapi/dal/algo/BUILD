@@ -24,6 +24,7 @@ ALGOS = [
     "subgraph_isomorphism",
     "svm",
     "triangle_counting",
+    "basic_statistics",
 ]
 
 dal_collect_modules(
