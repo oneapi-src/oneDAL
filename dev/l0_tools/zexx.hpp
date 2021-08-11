@@ -278,10 +278,6 @@ public:
         return domains;
     }
 
-    void query_frequency() const {
-        // zesDeviceEnumFrequencyDomains()
-    }
-
 private:
     zes_device_handle_t get_zes_handle() const {
         return static_cast<zes_device_handle_t>(get_handle());
