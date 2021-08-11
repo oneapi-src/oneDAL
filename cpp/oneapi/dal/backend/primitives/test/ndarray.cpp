@@ -651,6 +651,48 @@ TEST_M(ndarray_test, "can be flattened with device usm", "[ndarray]") {
     }
 }
 
+TEST_M(ndarray_test, "can copy array rm-rm", "[ndarray]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& queue = policy.get_queue();
+
+    constexpr std::int64_t m = 5;
+    constexpr std::int64_t n = 4;
+
+    auto [src, src_event] = ndarray<float, 2, ndorder::c>::ones(queue, { m, n });
+    auto [dst, dst_event] = ndarray<float, 2, ndorder::c>::zeros(queue, { m, n });
+
+    copy_by_value(queue, dst, src, { dst_event, src_event }).wait_and_throw();
+
+    for(std::int64_t r = 0; r < m; ++r) {
+        for(std::int64_t c = 0; c < n; ++c) {
+            const float gtr_val = src.at(r, c);
+            const float res_val = dst.at(r, c);
+            REQUIRE(gtr_val == res_val);
+        }
+    }
+}
+
+TEST_M(ndarray_test, "can copy array rm-cm", "[ndarray]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& queue = policy.get_queue();
+
+    constexpr std::int64_t m = 5;
+    constexpr std::int64_t n = 4;
+
+    auto [src, src_event] = ndarray<float, 2, ndorder::c>::ones(queue, { m, n });
+    auto [dst, dst_event] = ndarray<float, 2, ndorder::f>::zeros(queue, { m, n });
+
+    copy_by_value(queue, dst, src, { dst_event, src_event }).wait_and_throw();
+
+    for(std::int64_t r = 0; r < m; ++r) {
+        for(std::int64_t c = 0; c < n; ++c) {
+            const float gtr_val = src.at(r, c);
+            const float res_val = dst.at(r, c);
+            REQUIRE(gtr_val == res_val);
+        }
+    }
+}
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives::test

@@ -75,7 +75,7 @@ public:
     explicit ndarray_base(const ndshape<axis_count>& shape)
             : ndarray_base(shape, get_default_strides(shape)) {}
 
-    ndorder get_order() const {
+    constexpr ndorder get_order() const {
         return order;
     }
 
@@ -222,15 +222,15 @@ public:
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
     const T& at(std::int64_t id) const {
         ONEDAL_ASSERT(has_data());
-        ONEDAL_ASSERT((get_dimension(0) >= id) && (id >= 0));
+        ONEDAL_ASSERT((this->get_dimension(0) >= id) && (id >= 0));
         return *(get_data() + id);
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
     const T& at(std::int64_t id0, std::int64_t id1) const {
         ONEDAL_ASSERT(has_data());
-        ONEDAL_ASSERT((get_dimension(0) >= id0) && (id0 >= 0));
-        ONEDAL_ASSERT((get_dimension(1) >= id1) && (id1 >= 0));
+        ONEDAL_ASSERT((this->get_dimension(0) >= id0) && (id0 >= 0));
+        ONEDAL_ASSERT((this->get_dimension(1) >= id1) && (id1 >= 0));
         if constexpr (order == ndorder::c) {
             const auto* row = get_data() + id0 * this->get_stride(0);
             return *(row +  id1);
@@ -254,7 +254,7 @@ public:
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
-    auto get_row_slice(std::int64_t from_row, std::int64_t to_row) const {
+    this_t get_row_slice(std::int64_t from_row, std::int64_t to_row) const {
         ONEDAL_ASSERT((this->get_dimension(0) >= from_row) && (from_row >= 0));
         ONEDAL_ASSERT((this->get_dimension(0) >= to_row) && (to_row >= from_row));
         ONEDAL_ASSERT(this->has_data());
@@ -321,6 +321,44 @@ private:
     const T* data_;
     bool data_is_mutable_;
 };
+
+#ifdef ONEDAL_DATA_PARALLEL
+template<typename T1, ndorder ord1, typename T2, ndorder ord2>
+sycl::event copy_by_value(sycl::queue& q,
+                          ndview<T1, 2, ord1>& dst,
+                          const ndview<T2, 2, ord2>& src,
+                          const event_vector& deps = {}) {
+    ndshape<2> dst_shape = dst.get_shape();
+    ONEDAL_ASSERT(dst_shape == src.get_shape());
+    ONEDAL_ASSERT(dst.has_mutable_data() && src.has_data());
+    const sycl::range<2> cp_range(dst_shape[0], dst_shape[1]);
+    if constexpr (ord1 == ndorder::c) {
+        T1* const dst_ptr = dst.get_mutable_data();
+        const T2* const  src_ptr = src.get_data();
+        const auto dst_stride = dst.get_leading_stride();
+        const auto src_stride = src.get_leading_stride();
+        return q.submit([&](sycl::handler& h) {
+            h.depends_on(deps);
+            h.parallel_for(cp_range, [=](sycl::id<2> idx) {
+                T1& dst_ref = *(dst_ptr + idx[0] * dst_stride + idx[1]);
+                if constexpr (ord2 == ndorder::c) {
+                    dst_ref = T1(*(src_ptr + idx[0] * src_stride + idx[1]));
+                }
+                else {
+                    dst_ref = T1(*(src_ptr + idx[1] * src_stride + idx[0]));
+                }
+            });
+        });
+    }
+    else {
+        auto new_dst = dst.t();
+        const auto new_src = src.t();
+        return copy_by_value(q, new_dst, new_src, deps);
+    }
+    ONEDAL_ASSERT(false);
+    return sycl::event();
+}
+#endif
 
 template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
 class ndarray : public ndview<T, axis_count, order> {

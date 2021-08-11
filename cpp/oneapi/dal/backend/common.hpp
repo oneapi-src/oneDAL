@@ -154,6 +154,27 @@ private:
 
 using event_vector = std::vector<sycl::event>;
 
+inline event_vector operator+(const event_vector& lhs, const event_vector& rhs) {
+    const auto res_size = rhs.size() + lhs.size();
+    event_vector result(res_size);
+    auto iter = result.begin();
+    auto copy = [](const auto& vec, auto& oit) -> void {
+        for(auto iit = vec.cbegin(); iit < vec.cend(); ++iit) {
+            *(oit++) = *(iit);
+        }
+    };
+    copy(lhs, iter), copy(rhs, iter);
+    return result;
+}
+
+inline event_vector operator+(const event_vector& lhs, const sycl::event& rhs) {
+    return lhs + event_vector{ rhs };
+}
+
+inline event_vector operator+(const sycl::event& lhs, const sycl::event& rhs) {
+    return event_vector{ lhs } + rhs;
+}
+
 template <typename T>
 class object_store_entry : public base {
 public:
