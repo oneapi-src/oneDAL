@@ -31,19 +31,19 @@ int main(int argc, char **argv) {
     using my_graph_type = dal::preview::undirected_adjacency_vector_graph<>;
     const dal::preview::load_graph::descriptor<dal::preview::edge_list<int32_t>, my_graph_type>
         desc;
-    const auto my_graph = dal::preview::load_graph::load(desc, ds);
-    std::cout << "Number of vertices: " << dal::preview::get_vertex_count(my_graph) << std::endl;
-    std::cout << "Number of edges: " << dal::preview::get_edge_count(my_graph) << std::endl;
+    const auto graph = dal::preview::load_graph::load(desc, ds);
+    std::cout << "Number of vertices: " << dal::preview::get_vertex_count(graph) << std::endl;
+    std::cout << "Number of edges: " << dal::preview::get_edge_count(graph) << std::endl;
 
     dal::preview::vertex_edge_size_type<my_graph_type> vertex_id = 0;
     std::cout << "Degree of " << vertex_id << ": "
-              << dal::preview::get_vertex_degree(my_graph, vertex_id) << std::endl;
+              << dal::preview::get_vertex_degree(graph, vertex_id) << std::endl;
 
     for (dal::preview::vertex_edge_size_type<my_graph_type> j = 0;
-         j < dal::preview::get_vertex_count(my_graph);
+         j < dal::preview::get_vertex_count(graph);
          ++j) {
         std::cout << "Neighbors of " << j << ": ";
-        const auto neigh = dal::preview::get_vertex_neighbors(my_graph, j);
+        const auto neigh = dal::preview::get_vertex_neighbors(graph, j);
         for (auto i = neigh.first; i != neigh.second; ++i) {
             std::cout << *i << " ";
         }

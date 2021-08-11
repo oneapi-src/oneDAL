@@ -31,15 +31,12 @@ int main(int argc, char** argv) {
     // read the graph
     const dal::preview::graph_csv_data_source ds(filename);
     const dal::preview::load_graph::descriptor<> d;
-    const auto my_graph = dal::preview::load_graph::load(d, ds);
-    std::allocator<char> alloc;
+    const auto graph = dal::preview::load_graph::load(d, ds);
     // set algorithm parameters
-    const auto tc_desc =
-        descriptor<float, method::ordered_count, task::local_and_global, std::allocator<char>>(
-            alloc);
+    const auto tc_desc = descriptor<float, method::ordered_count, task::local_and_global>();
 
     // compute local and global triangles
-    const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, my_graph);
+    const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
 
     // extract the result
     std::cout << "Global triangles: " << result_vertex_ranking.get_global_rank() << std::endl;
