@@ -27,6 +27,8 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace bs = oneapi::dal::basic_statistics;
 
+constexpr inline std::uint64_t mask_full = 0xffffffffffffffff;
+
 template <typename TestType>
 class basic_statistics_batch_test : public te::algo_fixture {
 public:
@@ -185,7 +187,7 @@ public:
 private:
     bs::result_option_id res_min_max = result_options::min | result_options::max;
     bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    bs::result_option_id res_all(result_option_id_base(0xffffffffffffffff));
+    bs::result_option_id res_all = bs::result_option_id(dal::result_option_id_base(mask_full));
 };
 
 using basic_statistics_types = COMBINE_TYPES((float, double), (basic_statistics::method::dense));
@@ -206,7 +208,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
 
     bs::result_option_id res_min_max = result_options::min | result_options::max;
     bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    bs::result_option_id res_all(result_option_id_base(0xffffffffffffffff));
+    bs::result_option_id res_all = bs::result_option_id(dal::result_option_id_base(mask_full));
 
     const bs::result_option_id compute_mode = GENERATE_COPY(res_min_max, res_mean_varc, res_all);
 
