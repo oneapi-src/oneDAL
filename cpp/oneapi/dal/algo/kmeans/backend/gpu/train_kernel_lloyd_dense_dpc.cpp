@@ -105,6 +105,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                               const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
+        auto& comm = ctx.get_communicator();
 
         const auto data = input.get_data();
         const int64_t row_count = data.get_row_count();
@@ -117,6 +118,13 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         auto data_ptr =
             row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
         auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
+
+        // TODO: Use truly-distributed algorithm for computing initial centroids.
+        // The current implementation of distributed algorithm initializes centroids
+        // independently on each rank using the data available. This may result in
+        // inconsistent results between single-rank and distributed runs. To fix
+        // this issue the correct distributed implementation of K-Means++ should be
+        // called underneath.
         auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
 
         std::int64_t block_size_in_rows =
@@ -144,10 +152,9 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         std::int64_t iter;
         sycl::event centroids_event;
 
-        auto updater = cluster_updater<Float>{}
+        auto updater = cluster_updater<Float>{ queue, comm }
                            .set_cluster_count(cluster_count)
                            .set_part_count(part_count)
-                           .set_queue(queue)
                            .set_data(arr_data);
         updater.allocate_buffers();
 
@@ -178,17 +185,24 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                 arr_distance_block,
                 arr_closest_distances,
                 { centroids_event });
-        kernels_fp<Float>::compute_objective_function(queue,
-                                                      arr_closest_distances,
-                                                      arr_objective_function,
-                                                      { assign_event });
+
+        auto objective_event = kernels_fp<Float>::compute_objective_function( //
+            queue,
+            arr_closest_distances,
+            arr_objective_function,
+            { assign_event });
+
+        Float final_objective_function =
+            arr_objective_function.to_host(queue, { objective_event }).get_data()[0];
+        comm.allreduce(final_objective_function).wait();
+
         model<task::clustering> model;
         model.set_centroids(
             dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
         return train_result<task::clustering>()
             .set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1))
             .set_iteration_count(iter)
-            .set_objective_function_value(arr_objective_function.to_host(queue).get_data()[0])
+            .set_objective_function_value(final_objective_function)
             .set_model(model);
     }
 };
