@@ -31,6 +31,5 @@ int main(int argc, char const *argv[]) {
     auto result = dal::compute(cov_desc, input);
     auto cov_matrix = result.get_cov_matrix();
     std::cout << "Cov:\n" << cov_matrix << std::endl;
-
     return 0;
 }

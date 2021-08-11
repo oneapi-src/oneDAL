@@ -20,7 +20,7 @@
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::preview::connected_components {
+namespace oneapi::dal::preview::louvain {
 
 namespace task {
 struct vertex_partitioning {};
@@ -28,8 +28,8 @@ using by_default = vertex_partitioning;
 } // namespace task
 
 namespace method {
-struct afforest {};
-using by_default = afforest;
+struct fast {};
+using by_default = fast;
 } // namespace method
 
 namespace detail {
@@ -38,16 +38,13 @@ struct descriptor_tag {};
 template <typename Task>
 class descriptor_impl;
 
-template <typename M>
-using enable_if_afforest_t = std::enable_if_t<dal::detail::is_one_of_v<M, method::afforest>>;
-
 template <typename Method>
-constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::afforest>;
+constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::fast>;
 
 template <typename Task>
 constexpr bool is_valid_task = dal::detail::is_one_of_v<Task, task::vertex_partitioning>;
 
-/// The base class for the Connected Components algorithm descriptor
+/// The base class for the Louvain algorithm descriptor
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task<Task>);
@@ -60,18 +57,27 @@ public:
 
     descriptor_base();
 
+    double get_accuracy_threshold() const;
+    double get_resolution() const;
+    std::int64_t get_max_iteration_count() const;
+
 protected:
+    void set_accuracy_threshold(double value);
+    void set_resolution(double value);
+    void set_max_iteration_count(std::int64_t value);
+
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
 } // namespace detail
 
-/// Class for the Connected Components algorithm descriptor
+/// Class for the Louvain algorithm descriptor
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
 /// @tparam Task   The task to solve by the algorithm
-/// @tparam Allocator   Custom allocator for all memory management inside the algorithm
+/// @tparam Allocator   Custom allocator for all memory management inside the
+/// algorithm
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -88,8 +94,62 @@ public:
     using task_t = Task;
     using allocator_t = Allocator;
 
-    explicit descriptor(Allocator allocator = std::allocator<char>()) {
+    descriptor(Allocator allocator = std::allocator<char>()) {
         _alloc = allocator;
+    }
+
+    /// Returns the threshold for the stop condition of the local moving
+    /// phase of the algorithm
+    ///
+    /// @remark default = 0.0001
+    double get_accuracy_threshold() const {
+        return base_t::get_accuracy_threshold();
+    }
+
+    /// Sets the threshold for the stop condition of the local moving
+    /// phase of the algorithm
+    ///
+    /// @param [in] accuracy_threshold  modularity threshold value
+    /// @invariant :expr:`accuracy_threshold >= 0`
+    /// @remark default = 0.0001
+    auto &set_accuracy_threshold(double accuracy_threshold) {
+        base_t::set_accuracy_threshold(accuracy_threshold);
+        return *this;
+    }
+
+    /// Returns resolution parameter in the modularity formula
+    ///
+    /// @remark default = 1.0
+    double get_resolution() const {
+        return base_t::get_resolution();
+    }
+
+    /// Sets resolution parameter in the modularity formula
+    ///
+    /// @param [in] resolution  Resolution parameter in the modularity formula
+    /// @invariant :expr:`resolution >= 0`
+    /// @remark default = 1.0
+    auto &set_resolution(double resolution) {
+        base_t::set_resolution(resolution);
+        return *this;
+    }
+
+    /// Returns the maximum number of iterations of the Louvain algorithm
+    ///
+    /// @remark default = 10
+    std::int64_t get_max_iteration_count() const {
+        return base_t::get_max_iteration_count();
+    }
+
+    /// Sets the maximum number of iterations of the Louvain algorithm
+    ///
+    /// @param [in] max_iteration_count  Maximum number of iterations of the
+    ///                                  Louvain algorithm
+    /// @invariant :expr:`max_iteration_count >= 0`
+    /// @remark default = 10
+    auto &set_max_iteration_count(std::int64_t max_iteration_count) {
+        base_t::set_max_iteration_count(max_iteration_count);
+        return *this;
     }
 
     Allocator get_allocator() const {
@@ -101,6 +161,7 @@ private:
 };
 
 namespace detail {
+
 template <typename Graph>
 constexpr bool is_valid_graph =
     dal::detail::is_one_of_v<Graph,
@@ -111,4 +172,4 @@ constexpr bool is_valid_graph =
                                                                graph_allocator<Graph>>>;
 
 } // namespace detail
-} // namespace oneapi::dal::preview::connected_components
+} // namespace oneapi::dal::preview::louvain

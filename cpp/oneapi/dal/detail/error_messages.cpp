@@ -144,9 +144,6 @@ MSG(iteration_count_lt_zero, "Iteration count is lower than zero")
 MSG(max_iteration_count_leq_zero, "Max iteration count lower than or equal to zero")
 MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
 
-/* Covariance */
-MSG(result_option_have_not_been_computed, "No result option")
-
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")
 MSG(cluster_count_exceeds_data_row_count, "Cluster count exceeds data row count")
@@ -276,6 +273,9 @@ MSG(input_model_is_not_initialized, "Input model is not initialized")
 MSG(invalid_number_of_trees, "Invalid number of trees in model")
 MSG(invalid_number_of_classes, "Invalid number of classes")
 MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
+
+/* Louvain */
+MSG(louvain_algorithm_is_not_implemented, "Louvain algorithm is not implemented")
 
 } // namespace v1
 } // namespace oneapi::dal::detail

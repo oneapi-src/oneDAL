@@ -156,9 +156,6 @@ public:
     MSG(max_iteration_count_leq_zero);
     MSG(max_iteration_count_lt_zero);
 
-    /* Covariance */
-    MSG(result_option_have_not_been_computed);
-
     /* Decision Forest */
     MSG(bootstrap_is_incompatible_with_error_metric);
     MSG(bootstrap_is_incompatible_with_variable_importance_mode);
@@ -215,6 +212,9 @@ public:
     MSG(input_x_cc_neq_y_cc);
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
+
+    /* Louvain */
+    MSG(louvain_algorithm_is_not_implemented);
 
     /* Minkowski distance */
     MSG(invalid_minkowski_degree);

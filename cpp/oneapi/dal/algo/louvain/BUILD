@@ -5,14 +5,20 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "connected_components",
+    name = "louvain",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-    ]
+    ],
 )
 
 dal_test_suite(
     name = "tests",
-    tests = [],
+    framework = "catch2",
+    srcs = glob([
+        "test/*.cpp",
+    ]),
+    dal_deps = [
+        ":louvain",
+    ],
 )
