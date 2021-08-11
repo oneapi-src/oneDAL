@@ -24,6 +24,7 @@
 #ifndef __LOW_ORDER_MOMENTS_KERNEL_H__
 #define __LOW_ORDER_MOMENTS_KERNEL_H__
 
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/moments/low_order_moments_types.h"
