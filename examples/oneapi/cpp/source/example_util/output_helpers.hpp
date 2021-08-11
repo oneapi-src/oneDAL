@@ -24,6 +24,9 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 std::ostream &operator<<(std::ostream &stream, const oneapi::dal::table &table) {
+    if (!table.has_data())
+        return stream;
+
     auto arr = oneapi::dal::row_accessor<const float>(table).pull();
     const auto x = arr.get_data();
     const std::int32_t precision =
