@@ -95,6 +95,16 @@ public:
     }
 
     template <typename... Args>
+    auto split_train_input(Args&&... args) {
+        return derived().split_train_input_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto merge_train_result(Args&&... args) {
+        return derived().merge_train_result_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
     auto train_override(Args&&... args) {
         return base_t::train(std::forward<Args>(args)...);
     }
@@ -109,15 +119,25 @@ public:
         return base_t::compute(std::forward<Args>(args)...);
     }
 
+    template <typename... Args>
+    auto split_train_input_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
+    template <typename... Args>
+    auto merge_train_result_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
     template <typename Descriptor, typename... Args>
-    auto spmd_train_via_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
+    auto train_via_spmd_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
         ONEDAL_ASSERT(thread_count > 0);
 
         CAPTURE(thread_count);
         thread_communicator comm{ thread_count };
 
         const auto input_per_rank =
-            derived().split_train_input_override(thread_count, { std::forward<Args>(args)... });
+            this->split_train_input(thread_count, std::forward<Args>(args)...);
         ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
 
         const auto results = comm.map([&](std::int64_t rank) {
@@ -128,17 +148,19 @@ public:
         });
         ONEDAL_ASSERT(results.size() == std::size_t(thread_count));
 
-        return derived().merge_train_result_override(results);
+        return results;
     }
 
-    template <typename... Args>
-    auto split_train_input_override(Args&&... args) {
-        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
-    }
+    template <typename Descriptor, typename... Args>
+    auto train_via_spmd_threads_and_merge(std::int64_t thread_count,
+                                          const Descriptor& desc,
+                                          Args&&... args) {
+        const auto results = this->train_via_spmd_threads( //
+            thread_count,
+            desc,
+            std::forward<Args>(args)...);
 
-    template <typename... Args>
-    auto merge_train_result_override(Args&&... args) {
-        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+        return this->merge_train_result(results);
     }
 
 private:

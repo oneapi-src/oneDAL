@@ -185,17 +185,24 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                 arr_distance_block,
                 arr_closest_distances,
                 { centroids_event });
-        kernels_fp<Float>::compute_objective_function(queue,
-                                                      arr_closest_distances,
-                                                      arr_objective_function,
-                                                      { assign_event });
+
+        auto objective_event = kernels_fp<Float>::compute_objective_function( //
+            queue,
+            arr_closest_distances,
+            arr_objective_function,
+            { assign_event });
+
+        Float final_objective_function =
+            arr_objective_function.to_host(queue, { objective_event }).get_data()[0];
+        comm.allreduce(final_objective_function).wait();
+
         model<task::clustering> model;
         model.set_centroids(
             dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
         return train_result<task::clustering>()
             .set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1))
             .set_iteration_count(iter)
-            .set_objective_function_value(arr_objective_function.to_host(queue).get_data()[0])
+            .set_objective_function_value(final_objective_function)
             .set_model(model);
     }
 };

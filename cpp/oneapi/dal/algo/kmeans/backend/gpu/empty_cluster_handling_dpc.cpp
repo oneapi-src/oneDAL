@@ -226,15 +226,15 @@ static auto reduce_candidates(sycl::queue& queue,
     auto host_all_candidates = pr::ndarray<Float, 3>::empty({ comm.get_rank_count(), //
                                                               candidate_count,
                                                               column_count });
-    auto candidates_request = comm.allgather(host_candidates.flatten(), //
-                                             host_all_candidates.flatten());
+    auto candidates_reduce_event = comm.allgather(host_candidates.flatten(), //
+                                                  host_all_candidates.flatten());
 
     // Allgather distances
     const auto host_distances = distances.to_host(queue);
     auto host_all_distances = pr::ndarray<Float, 2>::empty({ comm.get_rank_count(), //
                                                              candidate_count });
-    auto distances_request = comm.allgather(host_distances.flatten(), //
-                                            host_all_distances.flatten());
+    auto distances_reduce_event = comm.allgather(host_distances.flatten(), //
+                                                 host_all_distances.flatten());
 
     auto host_all_indices = bk::make_unique_host<std::int32_t>(all_candidate_count);
     {
@@ -244,8 +244,8 @@ static auto reduce_candidates(sycl::queue& queue,
         }
     }
 
-    candidates_request.wait();
-    distances_request.wait();
+    candidates_reduce_event.wait();
+    distances_reduce_event.wait();
 
     {
         ONEDAL_ASSERT(candidate_count <= all_candidate_count);

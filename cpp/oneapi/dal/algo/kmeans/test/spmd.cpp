@@ -35,13 +35,15 @@ public:
 
     template <typename... Args>
     train_result_t train_override(Args&&... args) {
-        return this->spmd_train_via_threads(rank_count_, std::forward<Args>(args)...);
+        return this->train_via_spmd_threads_and_merge(rank_count_, std::forward<Args>(args)...);
     }
 
+    template <typename... Args>
     std::vector<train_input_t> split_train_input_override(std::int64_t split_count,
-                                                          const train_input_t& input) {
+                                                          Args&&... args) {
         // Data table is distributed across the ranks, but
         // initial centroids are common for all the ranks
+        const train_input_t input{ std::forward<Args>(args)... };
 
         const auto split_data =
             te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
@@ -77,16 +79,70 @@ public:
             .set_objective_function_value(results[0].get_objective_function_value());
     }
 
+    void check_if_results_same_on_all_ranks() {
+        const auto table_id = this->get_homogen_table_id();
+        const auto data = gold_dataset::get_data().get_table(table_id);
+        const auto initial_centroids = gold_dataset::get_initial_centroids().get_table(table_id);
+
+        const std::int64_t cluster_count = gold_dataset::get_cluster_count();
+        const std::int64_t max_iteration_count = 100;
+        const float_t accuracy_threshold = 0.0;
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            this->get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+
+        INFO("run training");
+        const auto train_results =
+            this->train_via_spmd_threads(rank_count_, kmeans_desc, data, initial_centroids);
+
+        INFO("check if all results bitwise equal on all ranks") {
+            ONEDAL_ASSERT(train_results.size() > 0);
+            const auto front_centroids = train_results.front().get_model().get_centroids();
+            const auto front_iteration_count = train_results.front().get_iteration_count();
+            const auto front_objective = train_results.front().get_objective_function_value();
+
+            for (const auto& result : train_results) {
+                // We do not check responses as they are expected
+                // to be different on each ranks
+
+                INFO("check centroids") {
+                    const auto centroids = result.get_model().get_centroids();
+                    te::check_if_tables_equal<float_t>(centroids, front_centroids);
+                }
+
+                INFO("check iterations") {
+                    REQUIRE(result.get_iteration_count() == front_iteration_count);
+                }
+
+                INFO("check objective function") {
+                    REQUIRE(result.get_objective_function_value() == front_objective);
+                }
+            }
+        }
+    }
+
 private:
     std::int64_t rank_count_ = 1;
 };
 
 TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
-                     "distributed kmeans empty clusters test",
+                     "make sure results are the same on all ranks",
                      "[spmd][smoke]",
                      kmeans_types) {
     // SPMD mode is not implemented for CPU. The following `SKIP_IF` should be
     // removed once it's supported for CPU. The same for the rest of tests cases.
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+
+    this->set_rank_count(GENERATE(2, 4));
+    this->check_if_results_same_on_all_ranks();
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
+                     "distributed kmeans empty clusters test",
+                     "[spmd][smoke]",
+                     kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 

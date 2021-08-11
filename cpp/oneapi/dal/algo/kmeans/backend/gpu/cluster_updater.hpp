@@ -100,7 +100,7 @@ public:
 
         auto count_event =
             count_clusters(queue_, responses, cluster_count_, counters_, { assign_event });
-        auto count_reduce_request = comm_.allreduce(counters_.flatten(queue_, { count_event }));
+        auto count_reduce_event = comm_.allreduce(counters_.flatten(queue_, { count_event }));
 
         auto objective_function_event = kernels_fp_t::compute_objective_function( //
             queue_,
@@ -120,11 +120,11 @@ public:
 
         objective_function_event.wait_and_throw();
         Float objective_function_value = objective_function.to_host(queue_).get_data()[0];
-        auto objective_function_request = comm_.allreduce(objective_function_value);
+        auto objective_reduce_event = comm_.allreduce(objective_function_value);
 
         // Counters are needed in the `merge_reduce_centroids` function,
         // we wait until cross-rank reduction is finished
-        count_reduce_request.wait();
+        count_reduce_event.wait();
 
         centroids_event = kernels_fp_t::merge_reduce_centroids( //
             queue_,
@@ -134,7 +134,7 @@ public:
             centroids,
             { count_event, centroids_event });
 
-        auto centroids_reduce_request =
+        auto centroids_reduce_event =
             comm_.allreduce(centroids.flatten(queue_, { centroids_event }));
 
         const std::int64_t empty_cluster_count =
@@ -142,8 +142,8 @@ public:
 
         // Centroids and objective function are needed in the `handle_empty_clusters`,
         // we wait until cross-rank reduction is finished
-        centroids_reduce_request.wait();
-        objective_function_request.wait();
+        centroids_reduce_event.wait();
+        objective_reduce_event.wait();
 
         if (empty_cluster_count > 0) {
             auto [correction, event] = handle_empty_clusters( //

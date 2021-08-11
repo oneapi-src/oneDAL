@@ -132,7 +132,7 @@ public:
     }
 
     void check_on_gold_data() {
-        const auto table_id = te::table_id::homogen<float_t>();
+        const auto table_id = this->get_homogen_table_id();
         const auto data = gold_dataset::get_data().get_table(table_id);
         const auto initial_centroids = gold_dataset::get_initial_centroids().get_table(table_id);
         const auto expected_centroids = gold_dataset::get_expected_centroids().get_table(table_id);
