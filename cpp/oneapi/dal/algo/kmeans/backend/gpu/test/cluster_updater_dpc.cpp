@@ -101,7 +101,7 @@ public:
             CAPTURE(sum, ref_sum);
             REQUIRE(std::fabs(sum - ref_sum) / std::max(std::fabs(sum), std::fabs(ref_sum)) < tol);
         }
-    }    
+    }
 
     void run_obj_func_check(const pr::ndarray<float_t, 2>& closest_distances,
                             float_t tol = 1.0e-5) {
@@ -259,24 +259,25 @@ public:
             { block_rows, cluster_count },
             sycl::usm::alloc::device);
         auto centroid_squares = pr::ndarray<float_t, 1>::empty( //
-            this->get_queue(), cluster_count);
+            this->get_queue(),
+            cluster_count);
         kernels_fp<float_t>::compute_squares(this->get_queue(), centroids, centroid_squares)
             .wait_and_throw();
         auto data_squares = pr::ndarray<float_t, 1>::empty( //
-            this->get_queue(), row_count);
+            this->get_queue(),
+            row_count);
         kernels_fp<float_t>::compute_squares(this->get_queue(), data, data_squares)
             .wait_and_throw();
 
-        kernels_fp<float_t>::assign_clusters(
-            this->get_queue(),
-            data,
-            centroids,
-            data_squares,
-            centroid_squares,
-            block_rows,
-            responses,
-            distances,
-            closest_distances)
+        kernels_fp<float_t>::assign_clusters(this->get_queue(),
+                                             data,
+                                             centroids,
+                                             data_squares,
+                                             centroid_squares,
+                                             block_rows,
+                                             responses,
+                                             distances,
+                                             closest_distances)
             .wait_and_throw();
 
         check_assignments(data, centroids, responses, closest_distances, tol);
