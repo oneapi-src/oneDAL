@@ -28,6 +28,30 @@ inline void copy(T* dest, const T* src, std::int64_t count) {
     return memcpy(dest, src, sizeof(T) * count);
 }
 
+template <typename T>
+class host_deleter {
+public:
+    void operator()(T* ptr) const {
+        dal::detail::free(dal::detail::default_host_policy{}, reinterpret_cast<void*>(ptr));
+    }
+};
+
+template <typename T>
+using unique_host_ptr = std::unique_ptr<T, host_deleter<T>>;
+
+inline unique_host_ptr<void> make_unique_host(std::int64_t size_in_bytes) {
+    return unique_host_ptr<void>{ dal::detail::malloc(dal::detail::default_host_policy{},
+                                                      size_in_bytes),
+                                  host_deleter<void>{} };
+}
+
+template <typename T>
+inline unique_host_ptr<T> make_unique_host(std::int64_t size_in_bytes) {
+    return unique_host_ptr<T>{ dal::detail::malloc<T>(dal::detail::default_host_policy{},
+                                                      size_in_bytes),
+                               host_deleter<T>{} };
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 inline bool is_device_usm(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());

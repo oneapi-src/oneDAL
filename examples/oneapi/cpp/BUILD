@@ -85,6 +85,7 @@ dal_algo_example_suite(
         "kmeans",
         "knn",
         "linear_kernel",
+        "louvain",
         "pca",
         "polynomial_kernel",
         "rbf_kernel",

@@ -50,6 +50,7 @@
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/algo/knn.hpp"
 #include "oneapi/dal/algo/linear_kernel.hpp"
+#include "oneapi/dal/algo/louvain.hpp"
 #include "oneapi/dal/algo/pca.hpp"
 #include "oneapi/dal/algo/polynomial_kernel.hpp"
 #include "oneapi/dal/algo/sigmoid_kernel.hpp"

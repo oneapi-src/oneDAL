@@ -17,7 +17,9 @@
 #pragma once
 
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/spmd.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/test/engine/thread_communicator.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -67,6 +69,103 @@ public:
 
     table_id get_homogen_table_id() const {
         return table_id::homogen<Float>();
+    }
+};
+
+template <typename TestType, typename Derived>
+class crtp_algo_fixture : public float_algo_fixture<std::tuple_element_t<0, TestType>> {
+public:
+    using base_t = float_algo_fixture<std::tuple_element_t<0, TestType>>;
+    using float_t = std::tuple_element_t<0, TestType>;
+    using derived_t = Derived;
+
+    template <typename... Args>
+    auto train(Args&&... args) {
+        return derived().train_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto infer(Args&&... args) {
+        return derived().infer_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto compute(Args&&... args) {
+        return derived().compute_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto split_train_input(Args&&... args) {
+        return derived().split_train_input_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto merge_train_result(Args&&... args) {
+        return derived().merge_train_result_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto train_override(Args&&... args) {
+        return base_t::train(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto infer_override(Args&&... args) {
+        return base_t::infer(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto compute_override(Args&&... args) {
+        return base_t::compute(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto split_train_input_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
+    template <typename... Args>
+    auto merge_train_result_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto train_via_spmd_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
+        ONEDAL_ASSERT(thread_count > 0);
+
+        CAPTURE(thread_count);
+        thread_communicator comm{ thread_count };
+
+        const auto input_per_rank =
+            this->split_train_input(thread_count, std::forward<Args>(args)...);
+        ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
+
+        const auto results = comm.map([&](std::int64_t rank) {
+            return dal::test::engine::spmd_train(this->get_policy(),
+                                                 comm,
+                                                 desc,
+                                                 input_per_rank[rank]);
+        });
+        ONEDAL_ASSERT(results.size() == std::size_t(thread_count));
+
+        return results;
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto train_via_spmd_threads_and_merge(std::int64_t thread_count,
+                                          const Descriptor& desc,
+                                          Args&&... args) {
+        const auto results = this->train_via_spmd_threads( //
+            thread_count,
+            desc,
+            std::forward<Args>(args)...);
+
+        return this->merge_train_result(results);
+    }
+
+private:
+    Derived& derived() {
+        return *(static_cast<Derived*>(this));
     }
 };
 

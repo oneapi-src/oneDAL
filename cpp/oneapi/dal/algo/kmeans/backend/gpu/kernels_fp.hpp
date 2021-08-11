@@ -47,7 +47,7 @@ struct kernels_fp {
                                        std::int64_t block_size_in_rows,
                                        pr::ndview<std::int32_t, 2>& responses,
                                        pr::ndview<Float, 2>& distances,
-                                       pr::ndview<Float, 2>& closest_distances,
+                                       pr::ndarray<Float, 2>& closest_distances,
                                        const bk::event_vector& deps = {});
     static std::tuple<Float, bk::event_vector> fill_empty_clusters(
         sycl::queue& queue,

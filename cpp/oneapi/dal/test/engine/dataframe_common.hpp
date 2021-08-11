@@ -143,6 +143,11 @@ private:
 
 class dataframe {
 public:
+    explicit dataframe(const float* data, std::int64_t row_count, std::int64_t column_count)
+            : dataframe(new dataframe_impl{ array<float>::wrap(data, row_count * column_count),
+                                            row_count,
+                                            column_count }) {}
+
     explicit dataframe(const array<float>& data, std::int64_t row_count, std::int64_t column_count)
             : dataframe(new dataframe_impl{ data, row_count, column_count }) {}
 
