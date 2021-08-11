@@ -38,6 +38,7 @@ dal_global_header_test(
     algo_exclude = [],
     algo_preview = [
         "jaccard",
+        "louvain",
         "triangle_counting",
         "shortest_paths",
         "subgraph_isomorphism",
