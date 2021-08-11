@@ -133,7 +133,7 @@ def _static(owner, name, actions, cc_toolchain,
 
 def _link(owner, name, actions, cc_toolchain,
           feature_configuration, linking_contexts,
-          def_file=None, is_executable=False):
+          def_file=None, is_executable=False, user_link_flags=[]):
     unpacked_linking_context = onedal_cc_common.unpack_linking_contexts(linking_contexts)
     if not is_executable and unpacked_linking_context.objects:
         fail("Dynamic library {} contains non-PIC object files: {}".format(
@@ -144,14 +144,14 @@ def _link(owner, name, actions, cc_toolchain,
         objects = all_objects,
         pic_objects = all_objects,
     )
-    user_link_flags = _filter_user_link_flags(
+    unpacked_user_link_flags = _filter_user_link_flags(
         feature_configuration,
         unpacked_linking_context.user_link_flags
     )
     linker_input = cc_common.create_linker_input(
         owner = owner,
         libraries = depset(unpacked_linking_context.libraries_to_link),
-        user_link_flags = depset(user_link_flags),
+        user_link_flags = depset(unpacked_user_link_flags),
     )
     # TODO: Pass compilations outputs via linking contexts
     #       Individual linking context for each library tag
@@ -168,7 +168,10 @@ def _link(owner, name, actions, cc_toolchain,
         linking_contexts = [linking_context],
         output_type = "executable" if is_executable else "dynamic_library",
         link_deps_statically = True,
-        user_link_flags = ["@" + def_file.path] if def_file else [],
+        user_link_flags = (
+            (["@" + def_file.path] if def_file else []) +
+            user_link_flags
+        ),
         additional_inputs = [def_file] if def_file else [],
     )
     return unpacked_linking_context, linking_outputs
@@ -205,11 +208,13 @@ def _dynamic(owner, name, actions, cc_toolchain,
     return linking_context, dynamic_lib
 
 def _executable(owner, name, actions, cc_toolchain,
-                feature_configuration, linking_contexts):
+                feature_configuration, linking_contexts,
+                user_link_flags=[]):
     _, linking_outputs = _link(
         owner, name, actions, cc_toolchain,
         feature_configuration, linking_contexts,
         is_executable = True,
+        user_link_flags = user_link_flags,
     )
     if not linking_outputs.executable:
         return utils.warn("'{}' executable does not contain any " +
