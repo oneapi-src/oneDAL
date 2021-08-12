@@ -194,7 +194,7 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
     const auto column_count = data.get_dimension(1);
     const auto centroid_count = centroids.get_dimension(0);
     auto block_count =
-        row_count / block_size_in_rows + std::int64_t(row_count % block_size_in_rows > 0);
+        row_count / block_size_in_rows + bool(row_count % block_size_in_rows);
     for (std::int64_t iblock = 0; iblock < block_count; iblock++) {
         const auto row_offset = block_size_in_rows * iblock;
         auto cur_rows = std::min(block_size_in_rows, row_count - row_offset);
