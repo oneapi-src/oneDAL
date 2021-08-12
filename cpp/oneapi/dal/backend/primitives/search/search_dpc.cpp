@@ -44,8 +44,8 @@ public:
                              std::int64_t select_block)
         : k_{k},
           distances_{ndarray<Float, 2>::empty(q, {query_block, train_block})},
-          out_indices_(ndarray<std::int64_t, 2>::empty(q, {query_block, k})),
-          out_distances_(ndarray<Float, 2>::empty(q, {query_block, k}))
+          out_indices_(ndarray<std::int32_t, 2>::empty(q, {query_block, k})),
+          out_distances_(ndarray<Float, 2>::empty(q, {query_block, k})),
           part_indices_(ndarray<std::int32_t, 2>::empty(q, {query_block, k * (select_block + 1)})),
           part_distances_(ndarray<Float, 2>::empty(q, {query_block, k * (select_block + 1)})) {};
 
@@ -89,7 +89,6 @@ private:
     const std::int64_t k_;
     ndarray<Float, 2> distances_;
     ndarray<std::int32_t, 2> out_indices_;
-    ndarray<Float, 2> out_distances_;
     ndarray<Float, 2> out_distances_;
     ndarray<std::int32_t, 2> part_indices_;
     ndarray<Float, 2> part_distances_;
@@ -142,8 +141,9 @@ const Distance& search_engine<Float, Distance>::get_distance_impl() const {
 template <typename Float, typename Distance>
 sycl::event search_engine<Float, Distance>::distance(const ndview<Float, 2>& query,
                                                      const ndview<Float, 2>& train,
+                                                     ndview<Float, 2>& dists,
                                                      const event_vector& deps) const {
-    return get_distance_impl()(query, train, deps);
+    return get_distance_impl()(query, train, dists, deps);
 }
 
 template <typename Float, typename Distance>
@@ -166,11 +166,11 @@ ndview<Float, 2> search_engine<Float, Distance>::get_train_block(std::int64_t i)
 template <typename Float, typename Distance>
 auto search_engine<Float, Distance>::create_temporary_objects(
         const uniform_blocking& query_blocking, std::int64_t k_neighbors) const -> temp_t {
-    return search_temp_objects(get_queue(),
-                               k_neighbors,
-                               query_blocking.get_block(),
-                               get_train_blocking().get_block(),
-                               selection_sub_blocks);
+    return temp_t(get_queue(),
+                  k_neighbors,
+                  query_blocking.get_block(),
+                  get_train_blocking().get_block(),
+                  selection_sub_blocks);
 }
 
 template <typename Float, typename Distance>
@@ -232,7 +232,7 @@ template <typename Float, typename Distance>
 sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& query,
                                                       std::int64_t k_neighbors,
                                                       temp_t& temp_objs,
-                                                      selc_t& selct,
+                                                      selc_t& select,
                                                       const event_vector& deps) const {
     sycl::event last_event = reset(temp_objs, deps);
     const auto query_block_size = query.get_dimension(0);
@@ -255,7 +255,8 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
             const auto rel_idx = tb_id - start_tb;
             auto part_inds = temp_objs.get_part_indices_block(rel_idx + 1);
             auto part_dsts = temp_objs.get_part_distances_block(rel_idx + 1);
-            auto selt_event = select(dists,
+            auto selt_event = select(get_queue(),
+                                     dists,
                                      k_neighbors,
                                      part_dsts,
                                      part_inds,
@@ -267,14 +268,15 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
 
         const std::int64_t cols = k_neighbors * (end_tb - start_tb);
         auto dists = temp_objs.get_part_distances().get_col_slice(0, cols);
-        auto selt_event = select(dists,
+        auto selt_event = select(get_queue(),
+                                 dists,
                                  k_neighbors,
-                                 temp_objs.get_out_indices(),
                                  temp_objs.get_out_distances(),
+                                 temp_objs.get_out_indices(),
                                  { last_event });
 
         auto inds_event = select_indexed(temp_objs.get_part_indices(),
-                                         temp_objs.get_out_indices()
+                                         temp_objs.get_out_indices(),
                                          { selt_event });
 
 
@@ -291,9 +293,9 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
 template std::int64_t propose_train_block<F>(const sycl::queue&, std::int64_t); \
 template std::int64_t propose_query_block<F>(const sycl::queue&, std::int64_t); \
 template class search_temp_objects<F, distance<F, lp_metric<F>>>;               \
-template class search_temp_objects<F, distance<F, squared_l2_metric<F>>;       \
+template class search_temp_objects<F, distance<F, squared_l2_metric<F>>>;       \
 template class search_engine<F, distance<F, lp_metric<F>>>;                            \
-template class search_engine<F, distance<F, squared_l2_metric<F>>;
+template class search_engine<F, distance<F, squared_l2_metric<F>>>;
 
 INSTANTIATE(float);
 INSTANTIATE(double);
