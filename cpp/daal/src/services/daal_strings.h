@@ -183,6 +183,8 @@
     DECLARE_DAAL_STRING_CONST(observationsPerTreeFraction)       \
     DECLARE_DAAL_STRING_CONST(outOfBagError)                     \
     DECLARE_DAAL_STRING_CONST(outOfBagErrorPerObservation)       \
+    DECLARE_DAAL_STRING_CONST(outOfBagErrorDecisionFunction)     \
+    DECLARE_DAAL_STRING_CONST(outOfBagErrorPrediction)           \
     DECLARE_DAAL_STRING_CONST(outputOfStep1ForStep2)             \
     DECLARE_DAAL_STRING_CONST(outputOfStep1ForStep3)             \
     DECLARE_DAAL_STRING_CONST(outputOfStep2ForStep3)             \

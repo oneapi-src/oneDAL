@@ -764,7 +764,7 @@ public:
     {
         DAAL_CHECK_STATUS_VAR(super::init(par, x));
         using namespace decision_forest::training;
-        if (par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation))
+        if (par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorPrediction))
         {
             size_t sz    = sizeof(RegErr<algorithmFPType, cpu>) * x->getNumberOfRows();
             this->oobBuf = service_calloc<byte, cpu>(sz);
@@ -784,7 +784,8 @@ public:
         }
     }
 
-    Status finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs) const
+    Status finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs, algorithmFPType * resDecisionFunction,
+                            algorithmFPType * resPrediction) const
     {
         DAAL_ASSERT(this->oobBuf);
         const size_t nSamples = resp->getNumberOfRows();
@@ -810,8 +811,10 @@ public:
             if (ptr[i].count)
             {
                 ptr[i].value /= algorithmFPType(ptr[i].count);
-                if (resPerObs) resPerObs[i] = ptr[i].value;
-                sumDiff += (py[i] - ptr[i].value) * (py[i] - ptr[i].value);
+                const algorithmFPType oobForObs = (py[i] - ptr[i].value) * (py[i] - ptr[i].value);
+                if (resPerObs) resPerObs[i] = oobForObs;
+                if (resPrediction) resPrediction[i] = ptr[i].value;
+                sumDiff += oobForObs;
                 sumMeanDiff += (py[i] - yMean) * (py[i] - yMean);
             }
             else if (resPerObs)
@@ -857,7 +860,8 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
                                                                                    decision_forest::regression::Model & m, Result & res,
                                                                                    const Parameter & par)
 {
-    ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get());
+    ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(), nullptr,
+                  res.get(outOfBagErrorPrediction).get());
     services::Status s;
     dtrees::internal::FeatureTypes featTypes;
     DAAL_CHECK(featTypes.init(*x), ErrorMemoryAllocationFailed);

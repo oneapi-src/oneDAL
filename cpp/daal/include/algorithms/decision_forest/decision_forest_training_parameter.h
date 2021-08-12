@@ -78,8 +78,10 @@ enum VariableImportanceMode
  */
 enum ResultToComputeId
 {
-    computeOutOfBagError               = 0x00000001ULL,
-    computeOutOfBagErrorPerObservation = 0x00000002ULL
+    computeOutOfBagError                 = 0x00000001ULL,
+    computeOutOfBagErrorPerObservation   = 0x00000002ULL,
+    computeOutOfBagErrorDecisionFunction = 0x00000004ULL,
+    computeOutOfBagErrorPrediction       = 0x00000008ULL
 };
 
 /**

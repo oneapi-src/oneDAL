@@ -70,7 +70,8 @@ enum ResultNumericTableId
                                                            Computed when parameter.varImportance != none */
     outOfBagErrorPerObservation,                     /*!< %Numeric table 1x(number of observations) containing out-of-bag error value computed.
                                                            Computed when computeOutOfBagErrorPerObservation option is on */
-    lastResultId = outOfBagErrorPerObservation
+    outOfBagErrorDecisionFunction,
+    lastResultId = outOfBagErrorDecisionFunction
 };
 
 /**

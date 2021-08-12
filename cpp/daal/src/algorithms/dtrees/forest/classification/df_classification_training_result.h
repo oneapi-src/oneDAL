@@ -27,6 +27,7 @@
 #include "algorithms/decision_forest/decision_forest_classification_training_types.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -70,6 +71,15 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
             const size_t nObs = inp->get(classifier::training::data)->getNumberOfRows();
             set(outOfBagErrorPerObservation, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
                                                  1, nObs, data_management::NumericTable::doAllocate, status)));
+        }
+        if (parameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorDecisionFunction)
+        {
+            const decision_forest::classification::training::Parameter * parameter3 =
+                dynamic_cast<const decision_forest::classification::training::Parameter *>(prm);
+            const size_t nClasses = parameter3->nClasses;
+            const size_t nObs     = inp->get(classifier::training::data)->getNumberOfRows();
+            set(outOfBagErrorDecisionFunction, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                                   nClasses, nObs, data_management::NumericTable::doAllocate, status)));
         }
         if (parameter2->varImportance != decision_forest::training::none)
         {
