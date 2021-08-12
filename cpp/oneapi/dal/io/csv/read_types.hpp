@@ -59,24 +59,24 @@ namespace oneapi::dal::preview::csv {
 namespace detail {
 
 template <typename Allocator>
-detail::shared<preview::detail::byte_alloc_iface> dal::detail::make_allocator(Allocator& alloc) {
-    return detail::shared<preview::detail::alloc_connector<std::decay_t<Allocator>>>(
+dal::detail::shared<preview::detail::byte_alloc_iface> make_allocator(Allocator&& alloc) {
+    return std::make_shared<preview::detail::alloc_connector<typename std::decay<Allocator>::type>>(
         std::forward<Allocator>(alloc));
 }
 // using allocator_ptr = detail::shared<byte_alloc_iface>;
 
 class read_args_graph_impl : public base {
 public:
-    template <typename Allocator>
-    read_args_graph_impl(Allocator alloc, oneapi::dal::preview::read_mode mode)
-            : allocator(make_allocator(alloc)),
+    explicit read_args_graph_impl(dal::detail::shared<preview::detail::byte_alloc_iface> alloc,
+                                  oneapi::dal::preview::read_mode mode)
+            : allocator(alloc),
               mode(mode) {
         if (mode != oneapi::dal::preview::read_mode::edge_list &&
             mode != oneapi::dal::preview::read_mode::weighted_edge_list)
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     }
 
-    detail::shared<preview::detai::byte_alloc_iface> allocator;
+    dal::detail::shared<preview::detail::byte_alloc_iface> allocator;
     oneapi::dal::preview::read_mode mode;
 };
 } // namespace detail
@@ -89,13 +89,15 @@ public:
     using object_t = Object;
     using tag_t = read_args_tag;
     read_args(const read_args& args) = default;
-    read_args(oneapi::dal::preview::read_mode mode)
-            : impl_(new detail::read_args_graph_impl(std::allocator<short int>{}, mode)) {}
+    read_args(oneapi::dal::preview::read_mode mode = oneapi::dal::preview::read_mode::edge_list)
+            : impl_(new detail::read_args_graph_impl(detail::make_allocator(std::allocator<int>{}),
+                                                     mode)) {}
     template <typename Allocator>
-    read_args(const Allocator& allocator = std::allocator<char>{},
-              oneapi::dal::preview::read_mode mode = oneapi::dal::preview::read_mode::edge_list)
-            : impl_(new detail::read_args_graph_impl(allocator, mode)) {}
-    detail::shared<byte_alloc_iface> get_allocator() const {
+    explicit read_args(
+        Allocator&& allocator,
+        oneapi::dal::preview::read_mode mode = oneapi::dal::preview::read_mode::edge_list)
+            : impl_(new detail::read_args_graph_impl(detail::make_allocator(allocator), mode)) {}
+    dal::detail::shared<preview::detail::byte_alloc_iface> get_allocator() const {
         return impl_->allocator;
     }
 
@@ -115,7 +117,7 @@ protected:
     }
 
 private:
-    dal::detail::pimpl<detail::read_args_graph_impl<Allocator>> impl_;
+    dal::detail::pimpl<detail::read_args_graph_impl> impl_;
 };
 
 } // namespace oneapi::dal::preview::csv

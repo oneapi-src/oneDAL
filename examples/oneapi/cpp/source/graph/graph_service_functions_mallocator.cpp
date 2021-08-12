@@ -106,19 +106,13 @@ int main(int argc, char **argv) {
     Mallocator<char> mallocator;
 
     {
-        auto graph = read<graph_t,
-                          csv::data_source,
-                          dal::preview::csv::read_args<graph_t, Mallocator<char>>>(
-            csv::data_source{ filename },
-            mallocator);
+        auto graph = read<graph_t>(csv::data_source{ filename }, mallocator);
         print_graph_info(graph);
     }
 
     {
-        auto read_args = dal::preview::csv::read_args<graph_t, Mallocator<char>>{
-            mallocator,
-            preview::read_mode::edge_list
-        };
+        auto read_args =
+            dal::preview::csv::read_args<graph_t>{ mallocator, preview::read_mode::edge_list };
         auto graph = read<graph_t>(csv::data_source{ filename }, std::move(read_args));
         print_graph_info(graph);
     }
@@ -126,28 +120,25 @@ int main(int argc, char **argv) {
     {
         // auto read_args = dal::preview::csv::read_args<graph_t>(mallocator); // - partial deduction doesn't work
         // sof: 45528865 trailing-class-template-arguments-not-deduced
-        auto read_args = dal::preview::csv::read_args<graph_t, Mallocator<char>>(mallocator);
+        auto read_args = dal::preview::csv::read_args<graph_t>(mallocator);
         auto graph = read<graph_t>(csv::data_source{ filename }, std::move(read_args));
         print_graph_info(graph);
     }
 
     {
-        auto read_args =
-            dal::preview::csv::read_args<graph_t, Mallocator<char>>{ mallocator }.set_read_mode(
-                preview::read_mode::edge_list);
-        auto graph = read<graph_t,
-                          csv::data_source,
-                          dal::preview::csv::read_args<graph_t, Mallocator<char>>>(
+        auto read_args = dal::preview::csv::read_args<graph_t>{ mallocator }.set_read_mode(
+            preview::read_mode::edge_list);
+        auto graph = read<graph_t, csv::data_source, dal::preview::csv::read_args<graph_t>>(
             csv::data_source{ filename },
             std::move(read_args));
         print_graph_info(graph);
     }
 
     {
-        auto graph = read<graph_t>(
-            csv::data_source{ filename },
-            dal::preview::csv::read_args<graph_t, Mallocator<char>>{ mallocator }.set_read_mode(
-                preview::read_mode::edge_list));
+        auto graph =
+            read<graph_t>(csv::data_source{ filename },
+                          dal::preview::csv::read_args<graph_t>{ mallocator }.set_read_mode(
+                              preview::read_mode::edge_list));
         print_graph_info(graph);
     }
 }

@@ -81,7 +81,8 @@ struct alloc_connector : public byte_alloc_iface {
     using byte_t = char;
     using t_allocator_traits =
         typename std::allocator_traits<Alloc>::template rebind_traits<byte_t>;
-    alloc_connector(Alloc alloc) : _alloc(alloc) {}
+    using t_byte_allocator = typename std::allocator_traits<Alloc>::template rebind_alloc<byte_t>;
+    alloc_connector(Alloc alloc) {}
     byte_t* allocate(std::int64_t count) override {
         typename t_allocator_traits::pointer ptr = t_allocator_traits::allocate(_alloc, count);
         if (ptr == nullptr) {
@@ -97,7 +98,7 @@ struct alloc_connector : public byte_alloc_iface {
     };
 
 private:
-    Alloc _alloc;
+    t_byte_allocator _alloc;
 };
 
 } // namespace oneapi::dal::preview::detail

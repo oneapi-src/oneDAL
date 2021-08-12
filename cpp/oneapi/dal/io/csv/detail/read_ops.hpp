@@ -27,14 +27,14 @@ namespace v1 {
 template <typename Object, typename Policy, typename... Options>
 struct read_ops_dispatcher;
 
-template <typename Object, typename Allocator>
-struct read_ops_dispatcher<Object, dal::detail::host_policy, Allocator> {
+template <typename Object>
+struct read_ops_dispatcher<Object, dal::detail::host_policy> {
     Object operator()(const dal::detail::host_policy& policy,
                       const data_source_base& ds,
-                      const dal::preview::csv::read_args<Object, Allocator>& args) const {
+                      const dal::preview::csv::read_args<Object>& args) const {
         static auto impl = get_backend<dal::detail::host_policy,
                                        data_source_base,
-                                       dal::preview::csv::read_args<Object, Allocator>>(ds, args);
+                                       dal::preview::csv::read_args<Object>>(ds, args);
         return (*impl)(policy, ds, args);
     }
 };
@@ -46,32 +46,12 @@ struct read_ops_dispatcher<table, dal::detail::host_policy> {
                      const read_args<table>& args) const;
 };
 
-template <typename Object, typename DataSource, typename... Allocator>
+template <typename Object, typename DataSource>
 struct read_ops;
-
-template <typename Object, typename Allocator>
-struct read_ops<Object, data_source, Allocator> {
-    using input_t = dal::preview::csv::read_args<Object, Allocator>;
-    using result_t = Object;
-
-    void check_preconditions(const data_source_base& ds, const input_t& args) const {}
-
-    void check_postconditions(const data_source_base& ds,
-                              const input_t& args,
-                              const result_t& result) const {}
-
-    template <typename Policy>
-    auto operator()(const Policy& ctx, const data_source_base& ds, const input_t& args) const {
-        check_preconditions(ds, args);
-        auto result = read_ops_dispatcher<Object, Policy, Allocator>()(ctx, ds, args);
-        check_postconditions(ds, args, result);
-        return result;
-    }
-};
 
 template <typename Object>
 struct read_ops<Object, data_source> {
-    using input_t = dal::preview::csv::read_args<Object, std::allocator<float>>;
+    using input_t = dal::preview::csv::read_args<Object>;
     using result_t = Object;
 
     void check_preconditions(const data_source_base& ds, const input_t& args) const {}
@@ -83,7 +63,7 @@ struct read_ops<Object, data_source> {
     template <typename Policy>
     auto operator()(const Policy& ctx, const data_source_base& ds, const input_t& args) const {
         check_preconditions(ds, args);
-        auto result = read_ops_dispatcher<Object, Policy, std::allocator<float>>()(ctx, ds, args);
+        auto result = read_ops_dispatcher<Object, Policy>()(ctx, ds, args);
         check_postconditions(ds, args, result);
         return result;
     }
