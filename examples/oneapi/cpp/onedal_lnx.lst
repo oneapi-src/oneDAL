@@ -18,7 +18,8 @@
 ##     oneAPI Data Analytics Library examples list
 ##******************************************************************************
 
-ONEDAL = column_accessor_homogen             \
+ONEDAL = basic_statistics                    \
+         column_accessor_homogen             \
          connected_components_batch          \
          df_cls_dense_batch                  \
          df_reg_dense_batch                  \

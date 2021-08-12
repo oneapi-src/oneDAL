@@ -5,6 +5,7 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 ALGOS = [
+    "basic_statistics",
     "chebyshev_distance",
     "connected_components",
     "cosine_distance",
@@ -24,7 +25,6 @@ ALGOS = [
     "subgraph_isomorphism",
     "svm",
     "triangle_counting",
-    "basic_statistics",
 ]
 
 dal_collect_modules(

@@ -56,6 +56,7 @@ public:
         const auto compute_result = this->compute(bs_desc, data);
 
         check_compute_result(compute_mode, data, compute_result);
+        check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
     void check_compute_result(bs::result_option_id compute_mode,
@@ -149,6 +150,8 @@ public:
         if (compute_mode.test(result_options::min)) {
             check_arr_vs_ref(ref_min, la::matrix<double>::wrap(result.get_min()), "Min");
         }
+        else {
+        }
         if (compute_mode.test(result_options::max)) {
             check_arr_vs_ref(ref_max, la::matrix<double>::wrap(result.get_max()), "Max");
         }
@@ -181,6 +184,40 @@ public:
         }
         if (compute_mode.test(result_options::variation)) {
             check_arr_vs_ref(ref_vart, la::matrix<double>::wrap(result.get_variation()), "Vart");
+        }
+    }
+
+    void check_for_exception_for_non_requested_results(bs::result_option_id compute_mode,
+                                                       const result_t& result) {
+        if (!compute_mode.test(result_options::min)) {
+            REQUIRE_THROWS_AS(result.get_min(), domain_error);
+        }
+        if (!compute_mode.test(result_options::max)) {
+            REQUIRE_THROWS_AS(result.get_max(), domain_error);
+        }
+        if (!compute_mode.test(result_options::sum)) {
+            REQUIRE_THROWS_AS(result.get_sum(), domain_error);
+        }
+        if (!compute_mode.test(result_options::sum_squares)) {
+            REQUIRE_THROWS_AS(result.get_sum_squares(), domain_error);
+        }
+        if (!compute_mode.test(result_options::sum_squares_centered)) {
+            REQUIRE_THROWS_AS(result.get_sum_squares_centered(), domain_error);
+        }
+        if (!compute_mode.test(result_options::mean)) {
+            REQUIRE_THROWS_AS(result.get_mean(), domain_error);
+        }
+        if (!compute_mode.test(result_options::second_order_raw_moment)) {
+            REQUIRE_THROWS_AS(result.get_second_order_raw_moment(), domain_error);
+        }
+        if (!compute_mode.test(result_options::variance)) {
+            REQUIRE_THROWS_AS(result.get_variance(), domain_error);
+        }
+        if (!compute_mode.test(result_options::standard_deviation)) {
+            REQUIRE_THROWS_AS(result.get_standard_deviation(), domain_error);
+        }
+        if (!compute_mode.test(result_options::variation)) {
+            REQUIRE_THROWS_AS(result.get_variation(), domain_error);
         }
     }
 
