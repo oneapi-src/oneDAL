@@ -37,7 +37,7 @@ public:
     using Method = std::tuple_element_t<1, TestType>;
 
     auto get_descriptor(Float epsilon, std::int64_t min_observations) const {
-        return dbscan::descriptor<Float, Method>(epsilon, min_observations);
+        return dbscan::descriptor<Float, Method>(epsilon, min_observations).set_mem_save_mode(true);
     }
 
     void run_checks(const table& data,
@@ -103,7 +103,7 @@ public:
     }    
 };
 
-using dbscan_types = COMBINE_TYPES((float/*, double*/), (dbscan::method::brute_force));
+using dbscan_types = COMBINE_TYPES((float, double), (dbscan::method::brute_force));
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "dbscan degenerated test",

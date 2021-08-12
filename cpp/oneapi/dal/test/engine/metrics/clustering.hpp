@@ -48,13 +48,13 @@ Float davies_bouldin_index(const table& data, const table& centroids, const tabl
         linalg::matrix<Float>::wrap(row_accessor<const Float>(centroids).pull({ 0, -1 }),
                                     { cluster_count, feature_count });
 
-    std::cout << "Part of centroids" << std::endl;
+/*    std::cout << "Part of centroids" << std::endl;
     for (std::int64_t i = 0; i < 9; ++i) {
         for (std::int64_t j = 0; j < 2; ++j) {
             std::cout << centroid_matrix.get(i, j) << " ";
         }
         std::cout << std::endl;
-    }
+    }*/
 
     const auto cluster_ids = row_accessor<const std::int32_t>(assignments).pull({ 0, -1 });
 
@@ -63,6 +63,9 @@ Float davies_bouldin_index(const table& data, const table& centroids, const tabl
         if(cluster_id < 0) {
             continue;
         }
+        if(cluster_id >= cluster_count)
+            std::cout << "Too big cluster id" << std::endl;
+//        std::cout << "clid: " << cluster_id << std::endl;
         counter_ptr[cluster_id]++;
         Float distance_sq = 0.0;
         for (std::int64_t j = 0; j < feature_count; ++j) {
