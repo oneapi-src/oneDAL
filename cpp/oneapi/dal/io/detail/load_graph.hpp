@@ -180,6 +180,18 @@ struct fill_unfiltered_neighs<Graph, /* IsDirected = */ false> {
             unfiltered_neighs[++rows_vec_atomic[edges[u].second] - 1] = edges[u].first;
         });
     }
+
+    template <typename Vertex, typename Weight, typename AtomicEdge>
+    auto operator()(const weighted_edge_list<Vertex, Weight> &edges,
+                    AtomicEdge *rows_vec_atomic,
+                    std::pair<Vertex, Weight> *unfiltered_neighs_vals) {
+        dal::detail::threader_for_int64(edges.size(), [&](std::int64_t u) {
+            unfiltered_neighs_vals[++rows_vec_atomic[std::get<0>(edges[u])] - 1] =
+                std::make_pair(std::get<1>(edges[u]), std::get<2>(edges[u]));
+            unfiltered_neighs_vals[++rows_vec_atomic[std::get<1>(edges[u])] - 1] =
+                std::make_pair(std::get<0>(edges[u]), std::get<2>(edges[u]));
+        });
+    }
 };
 
 template <typename Graph>

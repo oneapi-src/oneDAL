@@ -555,7 +555,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::updateGrad(algorit
             const algorithmFPType * kernelBlockI = kernelWS[i];
             algorithmFPType deltaalphai          = deltaalpha[i];
 
-            if (startRowGrad + nRowsInBlockGrad > nVectors)
+            if (startRowGrad < nVectors && startRowGrad + nRowsInBlockGrad > nVectors)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
@@ -566,7 +566,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::updateGrad(algorit
             }
             else
             {
-                Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&nRowsInBlockGrad, &deltaalphai, kernelBlockI + startRowGrad, &incX, gradi, &incY);
+                const size_t kernelSrartRow = (startRowGrad < nVectors) ? startRowGrad : startRowGrad - nVectors;
+                Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&nRowsInBlockGrad, &deltaalphai, kernelBlockI + kernelSrartRow, &incX, gradi, &incY);
             }
         }
     });
