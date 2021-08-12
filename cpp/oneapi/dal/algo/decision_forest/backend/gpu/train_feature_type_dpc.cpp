@@ -22,8 +22,6 @@
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
-
 namespace oneapi::dal::decision_forest::backend {
 
 namespace de = dal::detail;

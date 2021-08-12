@@ -17,12 +17,6 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#ifdef ONEDAL_DATA_PARALLEL
-
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
-
-#endif
-
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {

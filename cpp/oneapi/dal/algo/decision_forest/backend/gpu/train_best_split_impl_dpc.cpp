@@ -20,8 +20,6 @@
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
-
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {

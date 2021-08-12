@@ -23,8 +23,6 @@
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
 
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
-
 namespace oneapi::dal::decision_forest::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
