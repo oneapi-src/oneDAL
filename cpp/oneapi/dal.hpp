@@ -41,6 +41,7 @@
 #include "oneapi/dal/io/csv.hpp"
 
 /* Algos */
+#include "oneapi/dal/algo/connected_components.hpp"
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism.hpp"

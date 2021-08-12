@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/kmeans_init/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/kmeans_init/detail/compute_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::kmeans_init::detail {
 namespace v1 {
@@ -29,9 +29,9 @@ struct compute_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
     compute_result<Task> operator()(const data_parallel_policy& ctx,
                                     const descriptor_base<Task>& params,
                                     const compute_input<Task>& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method, Task>,
-                                            backend::compute_kernel_gpu<Float, Method, Task>>;
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
+            KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>),
+            KERNEL_SINGLE_NODE_GPU(backend::compute_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };

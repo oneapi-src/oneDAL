@@ -18,6 +18,7 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
@@ -56,7 +57,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     model_ptr->impl()->setData<Float>(daal_data, false);
 
     auto daal_responses = daal::data_management::NumericTablePtr();
-    if constexpr (!std::is_same_v<Task, task::search>) {
+    if (desc.get_result_options().test(result_options::responses)) {
         daal_responses = interop::convert_to_daal_table<Float>(responses);
         model_ptr->impl()->setLabels<Float>(daal_responses, false);
     }
