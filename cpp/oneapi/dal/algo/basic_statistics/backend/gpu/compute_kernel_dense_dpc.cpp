@@ -41,9 +41,7 @@ using daal_lom_kernel_t =
 
 template <typename Method>
 constexpr daal_lom::Method get_daal_method() {
-    daal_lom::Method m = daal_lom::defaultDense;
-
-    return m;
+    return daal_lom::defaultDense;
 }
 
 template <typename Float>
@@ -66,8 +64,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     interop::status_to_exception(
         daal_lom_kernel_t<Float>().compute(daal_data.get(), &daal_result, &daal_parameter));
 
-    auto result = get_result<Float, task_t>(daal_result);
-    result.set_result_options(desc.get_result_options());
+    auto result =
+        get_result<Float, task_t>(daal_result).set_result_options(desc.get_result_options());
 
     return result;
 }

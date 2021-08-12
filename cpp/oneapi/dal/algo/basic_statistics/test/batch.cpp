@@ -83,9 +83,8 @@ public:
             REQUIRE(result.get_variance().get_column_count() == data.get_column_count());
         }
 
-        if ((compute_mode.test(res_min_max) && compute_mode.get_mask() ^ res_min_max.get_mask()) ||
-            (compute_mode.test(res_mean_varc) &&
-             compute_mode.get_mask() ^ res_mean_varc.get_mask())) {
+        if ((compute_mode.test(res_min_max) && compute_mode.test(~res_min_max)) ||
+            (compute_mode.test(res_mean_varc) && compute_mode.test(~res_mean_varc))) {
             REQUIRE(result.get_sum().get_column_count() == data.get_column_count());
             REQUIRE(result.get_sum_squares().get_column_count() == data.get_column_count());
             REQUIRE(result.get_sum_squares_centered().get_column_count() ==
@@ -147,30 +146,40 @@ public:
             }
         }
 
-        if (compute_mode.test(res_min_max)) {
+        if (compute_mode.test(result_options::min)) {
             check_arr_vs_ref(ref_min, la::matrix<double>::wrap(result.get_min()), "Min");
+        }
+        if (compute_mode.test(result_options::max)) {
             check_arr_vs_ref(ref_max, la::matrix<double>::wrap(result.get_max()), "Max");
         }
-
-        if (compute_mode.test(res_mean_varc)) {
-            check_arr_vs_ref(ref_mean, la::matrix<double>::wrap(result.get_mean()), "Mean");
-            check_arr_vs_ref(ref_varc, la::matrix<double>::wrap(result.get_variance()), "Varc");
-        }
-
-        if ((compute_mode.test(res_min_max) && compute_mode.get_mask() ^ res_min_max.get_mask()) ||
-            (compute_mode.test(res_mean_varc) &&
-             compute_mode.get_mask() ^ res_mean_varc.get_mask())) {
+        if (compute_mode.test(result_options::sum)) {
             check_arr_vs_ref(ref_sum, la::matrix<double>::wrap(result.get_sum()), "Sum");
+        }
+        if (compute_mode.test(result_options::sum_squares)) {
             check_arr_vs_ref(ref_sum2, la::matrix<double>::wrap(result.get_sum_squares()), "Sum2");
+        }
+        if (compute_mode.test(result_options::sum_squares_centered)) {
             check_arr_vs_ref(ref_sum2cent,
                              la::matrix<double>::wrap(result.get_sum_squares_centered()),
                              "Sum2Cent");
+        }
+        if (compute_mode.test(result_options::mean)) {
+            check_arr_vs_ref(ref_mean, la::matrix<double>::wrap(result.get_mean()), "Mean");
+        }
+        if (compute_mode.test(result_options::second_order_raw_moment)) {
             check_arr_vs_ref(ref_sorm,
                              la::matrix<double>::wrap(result.get_second_order_raw_moment()),
                              "SORM");
+        }
+        if (compute_mode.test(result_options::variance)) {
+            check_arr_vs_ref(ref_varc, la::matrix<double>::wrap(result.get_variance()), "Varc");
+        }
+        if (compute_mode.test(result_options::standard_deviation)) {
             check_arr_vs_ref(ref_stdev,
                              la::matrix<double>::wrap(result.get_standard_deviation()),
                              "StDev");
+        }
+        if (compute_mode.test(result_options::variation)) {
             check_arr_vs_ref(ref_vart, la::matrix<double>::wrap(result.get_variation()), "Vart");
         }
     }

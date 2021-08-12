@@ -35,8 +35,8 @@ inline auto get_daal_estimates_to_compute(const descriptor_t& desc) {
     const auto res_min_max = result_options::min | result_options::max;
     const auto res_mean_varc = result_options::mean | result_options::variance;
 
-    if ((res_op.test(res_min_max) && res_op.get_mask() ^ res_min_max.get_mask()) ||
-        (res_op.test(res_mean_varc) && res_op.get_mask() ^ res_mean_varc.get_mask())) {
+    if ((res_op.test(res_min_max) && res_op.test(~res_min_max)) ||
+        (res_op.test(res_mean_varc) && res_op.test(~res_mean_varc))) {
         return daal_lom::estimatesAll;
     }
     else if (res_op.test(res_min_max)) {
