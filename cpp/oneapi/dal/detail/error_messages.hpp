@@ -63,6 +63,7 @@ public:
 
     /* Common */
     MSG(array_does_not_contain_mutable_data);
+    MSG(algorithm_is_not_implemented_for_this_device);
     MSG(feature_index_is_out_of_range);
     MSG(incompatible_array_reinterpret_cast_types);
     MSG(invalid_data_block_size);
@@ -72,6 +73,8 @@ public:
     MSG(overflow_found_in_sum_of_two_values);
     MSG(queues_in_different_contexts);
     MSG(small_data_block);
+    MSG(spmd_version_of_algorithm_is_not_implemented);
+    MSG(spmd_version_of_algorithm_is_not_implemented_for_this_device);
     MSG(unknown_memcpy_error);
     MSG(unknown_status_code);
     MSG(unknown_usm_pointer_type);
@@ -209,6 +212,9 @@ public:
     MSG(input_x_cc_neq_y_cc);
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
+
+    /* Louvain */
+    MSG(louvain_algorithm_is_not_implemented);
 
     /* Minkowski distance */
     MSG(invalid_minkowski_degree);

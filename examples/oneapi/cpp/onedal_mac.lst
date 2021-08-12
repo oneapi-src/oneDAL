@@ -20,6 +20,7 @@
 ##******************************************************************************
 
 ONEDAL = column_accessor_homogen             \
+         connected_components_batch          \
          directed_graph                      \
          df_cls_dense_batch                  \
          df_reg_dense_batch                  \
@@ -32,6 +33,7 @@ ONEDAL = column_accessor_homogen             \
          knn_search_brute_force_dense_batch  \
          linear_kernel_dense_batch           \
          load_graph                          \
+         louvain_batch                       \
          pca_dense_batch                     \
          polynomial_kernel_dense_batch       \
          sigmoid_kernel_dense_batch          \

@@ -36,12 +36,6 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
                                               const float * grad, const char * I, const float GMin, const float Kii, const float tau, int & Bj,
                                               float & GMax, float & GMax2, float & delta, SignNuType signNuType)
 {
-    if (signNuType != SignNuType::none)
-    {
-        WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, signNuType);
-        return;
-    }
-
     float fpMax      = MaxVal<float>::get();
     float GMax2Local = -fpMax; // store min(grad[i]) or max(y[i]*grad[i]), y[i]*grad[i] = -GMin2
     float GMaxLocal  = -fpMax; // store min(-b^2/a) or max(b^2/a), b^2/a = -GMin
@@ -49,6 +43,8 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
 
     float zero(0.0);
     float two(2.0);
+
+    const char sign = getSign(signNuType);
 
     // generally, we find max(grad[i]).
     // for performance considerations, it is better to find max(grad[i]) instead.
@@ -67,10 +63,11 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
 
     // some constants used during optimization
     // enum SVMVectorStatus low = 0x2
-    __m128i vecAllLow = _mm_set1_epi8(low);  // vector of masks
-    __m512 two_vec    = _mm512_set1_ps(two); // vector of 2's
-    __m512 Kii_vec    = _mm512_set1_ps(Kii); // vector of Kii's
-    __m512 tau_vec    = _mm512_set1_ps(tau); // vector of tau's
+    __m128i vecSignLow =
+        (signNuType == SignNuType::none) ? _mm_set1_epi8(low) : _mm_or_si128(_mm_set1_epi8(low), _mm_set1_epi8(sign)); // vector of masks
+    __m512 two_vec = _mm512_set1_ps(two);                                                                              // vector of 2's
+    __m512 Kii_vec = _mm512_set1_ps(Kii);                                                                              // vector of Kii's
+    __m512 tau_vec = _mm512_set1_ps(tau);                                                                              // vector of tau's
 
     // mask_1: condition _I[j] is in I_low
     // mask_2: condition grad = grad[i] < (GE) GMin.
@@ -83,8 +80,8 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
         DAAL_ASSERT(j_cur <= services::internal::MaxVal<int>::get())
         __m128i vec_I = _mm_loadu_si128((__m128i *)(&I[j_cur]));
 
-        // if ((_I[j] & low) != low) { continue; }
-        __mmask16 mask1_ = _mm_cmpeq_epi8_mask(_mm_and_si128(vec_I, vecAllLow), vecAllLow);
+        // if (!(I[j] & sign) || (_I[j] & low) != low) { continue; }
+        __mmask16 mask1_ = _mm_cmpeq_epi8_mask(_mm_and_si128(vec_I, vecSignLow), vecSignLow);
 
         __m512i Bj_vec_cur = _mm512_set1_epi32((int)(j_cur));
         // vector grad[jcur:jcur+16] = _grad[jcur:jcur+16]
@@ -163,8 +160,8 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
     delta = -delta;
     if (j_cur < jEnd) // we have tail
     {
-        int Bj_local = -1;
-        float GMax_local, GMax2_local, delta_local;
+        int Bj_local     = -1;
+        float GMax_local = -fpMax, GMax2_local = -fpMax, delta_local;
         WSSjLocalBaseline(j_cur, jEnd, (KiBlock + j_cur - jStart), kernelDiag, grad, I, GMin, Kii, tau, Bj_local, GMax_local, GMax2_local,
                           delta_local, signNuType);
         if (GMax_local > GMax)
@@ -185,18 +182,14 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
                                                const double * grad, const char * I, const double GMin, const double Kii, const double tau, int & Bj,
                                                double & GMax, double & GMax2, double & delta, SignNuType signNuType)
 {
-    if (signNuType != SignNuType::none)
-    {
-        WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, signNuType);
-        return;
-    }
-
     double fpMax      = MaxVal<double>::get();
     double GMax2Local = -fpMax; // store min(-y[i]*grad[i]) or max(y[i]*grad[i]), y[i]*grad[i] = -GMin2
     double GMaxLocal  = -fpMax; // store min(-b^2/a) or max(b^2/a), b^2/a = -GMin
 
     double zero(0.0);
     double two(2.0);
+
+    const char sign = getSign(signNuType);
 
     // generally, we find min(grad[i]).
     // for performance considerations, it is better to find max(y[i]*grad[i]) instead.
@@ -215,10 +208,11 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
 
     // some constants used during optimization
     // enum SVMVectorStatus low = 0x2
-    __m128i vecAllLow = _mm_set1_epi8(low);  // vector of masks
-    __m512d two_vec   = _mm512_set1_pd(two); // vector of 2's
-    __m512d Kii_vec   = _mm512_set1_pd(Kii); // vector of Kii's
-    __m512d tau_vec   = _mm512_set1_pd(tau); // vector of tau's
+    __m128i vecSignLow =
+        (signNuType == SignNuType::none) ? _mm_set1_epi8(low) : _mm_or_si128(_mm_set1_epi8(low), _mm_set1_epi8(sign)); // vector of masks
+    __m512d two_vec = _mm512_set1_pd(two);                                                                             // vector of 2's
+    __m512d Kii_vec = _mm512_set1_pd(Kii);                                                                             // vector of Kii's
+    __m512d tau_vec = _mm512_set1_pd(tau);                                                                             // vector of tau's
 
     // mask_1: condition _I[j] is in I_low
     // mask_2: condition -ygrad = y[i]*grad[i] >= (GE) -GMax.
@@ -246,8 +240,8 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
         // vector grad[jcur:jcur+16] = _grad[jcur:jcur+16]
         __m512d valGrad = _mm512_load_pd(&grad[j_cur]);
 
-        // if ((_I[j] & low) != low) { continue; }
-        __mmask16 mask1_tmp_ = _mm_mask_cmpeq_epi8_mask(mask_cmp, _mm_and_si128(vec_I, vecAllLow), vecAllLow);
+        // if (!(I[j] & sign) || (_I[j] & low) != low) { continue; }
+        __mmask16 mask1_tmp_ = _mm_mask_cmpeq_epi8_mask(mask_cmp, _mm_and_si128(vec_I, vecSignLow), vecSignLow);
         __mmask8 mask1_      = *((__mmask8 *)&mask1_tmp_); // take first half of mask
 
         // find max(y[j]*grad[j]) instead - here's where we find vector of max's.
@@ -323,8 +317,8 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
     delta = -delta;
     if (j_cur < jEnd) // we have tail
     {
-        int Bj_local = -1;
-        double GMax_local, GMax2_local, delta_local;
+        int Bj_local      = -1;
+        double GMax_local = -fpMax, GMax2_local = -fpMax, delta_local;
         WSSjLocalBaseline(j_cur, jEnd, (KiBlock + j_cur - jStart), kernelDiag, grad, I, GMin, Kii, tau, Bj_local, GMax_local, GMax2_local,
                           delta_local, signNuType);
         if (GMax_local > GMax)

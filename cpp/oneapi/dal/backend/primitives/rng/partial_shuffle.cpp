@@ -26,19 +26,21 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename... Args>
-inline void uniform_by_cpu(Args&&... args) {
-    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        int res = daal::internal::RNGs<
-                      std::size_t,
-                      oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                      .uniform(std::forward<Args>(args)...);
-        if (res) {
-            using msg = dal::detail::error_messages;
-            throw internal_error(msg::failed_to_generate_random_numbers());
-        }
-    });
-}
+struct uniform_dispatcher {
+    template <typename... Args>
+    static void uniform_by_cpu(Args&&... args) {
+        dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
+            int res = daal::internal::RNGs<
+                          std::size_t,
+                          oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
+                          .uniform(std::forward<Args>(args)...);
+            if (res) {
+                using msg = dal::detail::error_messages;
+                throw internal_error(msg::failed_to_generate_random_numbers());
+            }
+        });
+    }
+};
 
 void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::int64_t top) {
     using msg = dal::detail::error_messages;
@@ -61,7 +63,7 @@ void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::in
     std::int64_t k = 0;
     std::size_t value = 0;
     for (std::size_t i = 0; i < casted_count; i++) {
-        uniform_by_cpu(1, &value, engine_impl->getState(), i, casted_top);
+        uniform_dispatcher::uniform_by_cpu(1, &value, engine_impl->getState(), i, casted_top);
         for (std::size_t j = i; j > 0; j--) {
             if (value == dal::detail::integral_cast<std::size_t>(indices_ptr[j - 1])) {
                 value = j - 1;
