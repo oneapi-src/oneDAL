@@ -41,8 +41,8 @@ struct search_temp_objects {
                         std::int64_t select_block)
         : k_{k},
           distances_{ndarray<Float, 2>::empty(q, {query_block, train_block})},
-          out_indices_(ndarray<std::int64_t, 2>::empty(q, {query_block, select_block})),
-          out_distances_(ndarray<Float, 2>::empty(q, {query_block, k * select_block}))
+          out_indices_(ndarray<std::int64_t, 2>::empty(q, {query_block, k})),
+          out_distances_(ndarray<Float, 2>::empty(q, {query_block, k}))
           part_indices_(ndarray<std::int32_t, 2>::empty(q, {query_block, k * select_block})),
           part_distances_(ndarray<Float, 2>::empty(q, {query_block, k * select_block})) {};
 
@@ -91,7 +91,7 @@ struct search_temp_objects {
 private:
     const std::int64_t k_;
     ndarray<Float, 2> distances_;
-    ndarray<std::int64_t, 2> out_indices_;
+    ndarray<std::int32_t, 2> out_indices_;
     ndarray<Float, 2> out_distances_;
     ndarray<Float, 2> out_distances_;
     ndarray<std::int32_t, 2> part_indices_;
@@ -151,12 +151,47 @@ static ndview<Float, 2> search_engine<Float, Distance>::get_out_distances(temp_t
 }
 
 template <typename Float, typename Distance>
+ndview<Float, 2> search_engine<Float, Distance>::get_train_block(std::int64_t) const {
+    return get_train_);
+}
+
+template <typename Float, typename Distance>
+sycl::event search_engine<Float, Distance>::reset(temp_t& tmp_objs, const event_vector& deps) {
+    constexpr Float default_dst_value = detail::limits<Float>::max();
+    constexpr std::int32_t default_idx_value = -1;
+    auto out_dsts = fill_with_value(get_queue(), tmp_objs.get_out_distances(), default_dst_value, deps);
+    auto out_idcs = fill_with_value(get_queue(), tmp_objs.get_out_indices(), default_idx_value, deps);
+    auto part_dsts = fill_with_value(get_queue(), tmp_objs.get_part_distances(), default_dst_value, deps);
+    auto part_idcs = fill_with_value(get_queue(), tmp_objs.get_part_indices(), default_idx_value, deps);
+    const auto fill_events = out_dsts + out_idcs + part_dsts + part_idcs;
+    return fill_with_value(get_queue(), tmp_objs.get_distances(), default_dst_value, fill_events);
+}
+
+template <typename Float, typename Distance>
+sycl::event search_engine<Float, Distance>::treat_indices(ndview<std::int32_t, 2>& indices,
+                                                          std::int64_t start_index,
+                                                          const event_vector& deps) {
+    ONEDAL_ASSERT(indices.has_mutable_data());
+    auto* const ids_ptr = indices.get_mutable_data();
+    const auto ids_str = indices.get_leading_stride();
+    const ndshape<2> ids_shape = indices.get_shape();
+    const auto tr_range = make_range_2d(dst_shape[0], dst_shape[1]);
+    return get_queue().submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+        h.parallel_for(tr_range, [=](sycl::id<2> idx) {
+            *(ids_ptr + ids_str * idx[0] + idx[1]) += start_index;
+        });
+    });
+}
+
+template <typename Float, typename Distance>
 sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& query,
                                                       std::int64_t k_neighbors,
                                                       temp_t& temp_objs,
-                                                      k_select_by_rows
+                                                      k_select_by_rows<Float>& selct,
                                                       event_vector& deps) {
     sycl::event last_event = reset(temp_objs, deps);
+    const auto query_block_size = query.get_dimension(0);
     //Iterations over larger blocks
     for(std::int64_t sb_id = 0; sb_id < get_train_blocking().get_block_count(); ++sb_id) {
         const std::int64_t start_tb = get_train_blocking().get_block_start_index(sb_id);
@@ -164,21 +199,34 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
         //Iterations over smaller blocks
         for(std::int64_t tb_id = start_tb; tb_id < end_tb; ++tb_id) {
             const auto train = get_train_block(tb_id);
+            const auto train_block_size = get_train_blocking()
+                                        .get_train_block_length(tb_id);
+            auto dists = temp_bjs.get_distances()
+                        .get_row_slice(0, train_block_size)
+                        .get_col_slice(0, query_block_size);
             auto dist_event = distance(query,
                                        train,
-                                       temp_objs.get_distances(),
+                                       dists,
                                        { last_event });
             const auto rel_idx = tb_id - start_tb;
-            auto part_inds = temp_objs.get_out_indices_block(rel_idx);
-            auto part_dsts = temp_objs.get_out_distances_block(rel_idx);
-            last_event = select(temp_objs.get_distances(),
-                                k_neighbors,
-                                part_dsts,
-                                part_inds,
-                                { dist_event });
+            auto part_inds = temp_objs.get_part_indices_block(rel_idx);
+            auto part_dsts = temp_objs.get_part_distances_block(rel_idx);
+            auto selt_event = select(dists,
+                                     k_neighbors,
+                                     part_dsts,
+                                     part_inds,
+                                     { dist_event });
+            const auto st_idx = get_train_blocking().get_start_index(tb_id);
+            last_event = treat_indices(part_inds, st_idx, { selt_event });
         }
+
+        auto selt_event = select(temp_objs.get_part_distances(),
+                                 k_neighbors,
+                                 temp_objs.get_out_indices(),
+                                 temp_objs.get_out_distances());
+
         auto merge_event = merge(temp_objs, { last_event });
-        const std::int64_t  = get_train_blocking().get_start_index(start_tb);
+
         last_event = treat_indices(temp_objs, { merge_event });
         last_event = back_copy(temp_objs, { last_event })
     }

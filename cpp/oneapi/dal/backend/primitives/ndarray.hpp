@@ -235,7 +235,27 @@ public:
             const auto* row = get_data() + id0 * this->get_stride(0);
             return *(row +  id1);
         }
-        const auto* col = get_data() + id1 * this->get_stride(1);
+        const auto* const col = get_data() + id1 * this->get_stride(1);
+        return *(col +  id0);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    T& at(std::int64_t id) {
+        ONEDAL_ASSERT(has_mutable_data());
+        ONEDAL_ASSERT((this->get_dimension(0) >= id) && (id >= 0));
+        return *(get_mutable_data() + id);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    T& at(std::int64_t id0, std::int64_t id1) {
+        ONEDAL_ASSERT(has_mutable_data());
+        ONEDAL_ASSERT((this->get_dimension(0) >= id0) && (id0 >= 0));
+        ONEDAL_ASSERT((this->get_dimension(1) >= id1) && (id1 >= 0));
+        if constexpr (order == ndorder::c) {
+            auto* const row = get_mutable_data() + id0 * this->get_stride(0);
+            return *(row +  id1);
+        }
+        auto* const col = get_mutable_data() + id1 * this->get_stride(1);
         return *(col +  id0);
     }
 
@@ -331,7 +351,7 @@ sycl::event copy_by_value(sycl::queue& q,
     ndshape<2> dst_shape = dst.get_shape();
     ONEDAL_ASSERT(dst_shape == src.get_shape());
     ONEDAL_ASSERT(dst.has_mutable_data() && src.has_data());
-    const sycl::range<2> cp_range(dst_shape[0], dst_shape[1]);
+    const auto cp_range = make_range_2d(dst_shape[0], dst_shape[1]);
     if constexpr (ord1 == ndorder::c) {
         T1* const dst_ptr = dst.get_mutable_data();
         const T2* const  src_ptr = src.get_data();
@@ -342,10 +362,10 @@ sycl::event copy_by_value(sycl::queue& q,
             h.parallel_for(cp_range, [=](sycl::id<2> idx) {
                 T1& dst_ref = *(dst_ptr + idx[0] * dst_stride + idx[1]);
                 if constexpr (ord2 == ndorder::c) {
-                    dst_ref = T1(*(src_ptr + idx[0] * src_stride + idx[1]));
+                    dst_ref = static_cast<T1>(*(src_ptr + idx[0] * src_stride + idx[1]));
                 }
                 else {
-                    dst_ref = T1(*(src_ptr + idx[1] * src_stride + idx[0]));
+                    dst_ref = static_cast<T2>(*(src_ptr + idx[1] * src_stride + idx[0]));
                 }
             });
         });
@@ -354,6 +374,41 @@ sycl::event copy_by_value(sycl::queue& q,
         auto new_dst = dst.t();
         const auto new_src = src.t();
         return copy_by_value(q, new_dst, new_src, deps);
+    }
+    ONEDAL_ASSERT(false);
+    return sycl::event();
+}
+
+template<typename T>
+sycl::event fill_with_value(sycl::queue& q,
+                            ndview<T, 1>& dst,
+                            const T& value = T{},
+                            const event_vector& deps = {}) {
+    ONEDAL_ASSERT(dst.has_mutable_data());
+    return q.fill(dst.get_mutable_data(), value, dst.get_count(), deps);
+}
+
+template<typename T, ndorder ord1>
+sycl::event fill_with_value(sycl::queue& q,
+                            ndview<T, 2, ord1>& dst,
+                            const T& value = T{},
+                            const event_vector& deps = {}) {
+    ONEDAL_ASSERT(dst.has_mutable_data());
+    const ndshape<2> dst_shape = dst.get_shape();
+    const auto cp_range = make_range_2d(dst_shape[0], dst_shape[1]);
+    if constexpr (ord1 == ndorder::c) {
+        T* const dst_ptr = dst.get_mutable_data();
+        const auto dst_stride = dst.get_leading_stride();
+        return q.submit([&](sycl::handler& h) {
+            h.depends_on(deps);
+            h.parallel_for(cp_range, [=](sycl::id<2> idx) {
+                *(dst_ptr + idx[0] * dst_stride + idx[1]) = value;
+            });
+        });
+    }
+    else {
+        auto new_dst = dst.t();
+        return fill_with_value(q, new_dst, value, deps);
     }
     ONEDAL_ASSERT(false);
     return sycl::event();
@@ -556,10 +611,7 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event fill(sycl::queue& q, T value, const event_vector& deps = {}) {
-        return q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.fill(this->get_mutable_data(), value, this->get_count());
-        });
+        return fill_with_value(q, *this, value, deps);
     }
 #endif
 

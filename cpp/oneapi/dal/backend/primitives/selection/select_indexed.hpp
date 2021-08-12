@@ -16,17 +16,19 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename Float>
-class select_indexed {
-
-};
+template<typename Type, typename Index>
+sycl::event select_indexed(sycl::queue& q,
+                           const ndview<Index, 2>& ids,
+                           const ndview<Type, 2>& src,
+                           ndview<Type, 2>& dst,
+                           const event_vector& deps = {});
 
 #endif
 

@@ -145,6 +145,10 @@ public:
         return std::min((i + 1l) * get_block(), get_length());
     }
 
+    std::int64_t get_block_length(std::int64_t i) const {
+        return get_block_end_index(i) - get_block_start_index(i);
+    }
+
 private:
     const std::int64_t range_length_;
     const std::int64_t block_length_;
