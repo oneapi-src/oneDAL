@@ -112,9 +112,13 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     const std::int64_t row_count = distances.get_dimension(0);
     const std::int64_t stride = distances.get_dimension(1);
 
-    const std::int64_t preffered_wg_size = 128;
+    const std::int64_t cluster_count_as_int32 =
+        dal::detail::integral_cast<std::int32_t>(cluster_count);
+
+    const std::int64_t preffered_wg_size = bk::device_max_wg_size(queue);
     const std::int64_t wg_size =
         bk::get_scaled_wg_size_per_row(queue, cluster_count, preffered_wg_size);
+    dal::detail::check_mul_overflow(wg_size, stride);
 
     const Float* distances_ptr = distances.get_data();
     const Float* centroid_squares_ptr = centroid_squares.get_data();
@@ -128,24 +132,24 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
             bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
-                const std::uint32_t wg_id = item.get_global_id(1);
-                const std::uint32_t sg_num = sg.get_group_range()[0];
-                const std::uint32_t sg_global_id = wg_id * sg_num + sg_id;
+                const std::int64_t sg_id = sg.get_group_id()[0];
+                const std::int64_t wg_id = item.get_global_id(1);
+                const std::int64_t sg_num = sg.get_group_range()[0];
+                const std::int64_t sg_global_id = wg_id * sg_num + sg_id;
                 if (sg_global_id >= row_count)
                     return;
-                const std::uint32_t in_offset = sg_global_id * stride;
-                const std::uint32_t out_offset = sg_global_id;
+                const std::int64_t in_offset = sg_global_id * stride;
+                const std::int64_t out_offset = sg_global_id;
 
-                const std::uint32_t local_id = sg.get_local_id()[0];
-                const std::uint32_t local_range = sg.get_local_range()[0];
+                const std::int64_t local_id = sg.get_local_id()[0];
+                const std::int64_t local_range = sg.get_local_range()[0];
 
                 std::int32_t index = -1;
                 Float value = fp_max;
-                for (std::uint32_t i = local_id; i < cluster_count; i += local_range) {
+                for (std::int64_t i = local_id; i < cluster_count_as_int32; i += local_range) {
                     const Float cur_val = distances_ptr[in_offset + i] + centroid_squares_ptr[i];
                     if (cur_val < value) {
-                        index = i;
+                        index = static_cast<std::int32_t>(i);
                         value = cur_val;
                     }
                 }
