@@ -93,6 +93,10 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
         {
             DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1));
         }
+        if (algParameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorR2)
+        {
+            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagErrorR2).get(), outOfBagErrorR2Str(), 0, 0, 1, 1));
+        }
         if (algParameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
         {
             const auto nObs = algInput->get(decision_forest::regression::training::data)->getNumberOfRows();

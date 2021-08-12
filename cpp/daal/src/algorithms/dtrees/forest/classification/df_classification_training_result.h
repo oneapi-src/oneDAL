@@ -66,6 +66,11 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
             set(outOfBagError, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
                                    1, 1, data_management::NumericTable::doAllocate, status)));
         }
+        if (parameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorAccuracy)
+        {
+            set(outOfBagErrorAccuracy, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                           1, 1, data_management::NumericTable::doAllocate, status)));
+        }
         if (parameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
         {
             const size_t nObs = inp->get(classifier::training::data)->getNumberOfRows();

@@ -122,17 +122,22 @@ struct ResultData
 {
 public:
     ResultData(const Parameter & par, NumericTable * _varImp, NumericTable * _oobError, NumericTable * _oobErrorPerObs,
-               NumericTable * _oobErrorDecisionFunction, NumericTable * _oobErrorPrediction)
+               NumericTable * _oobErrorAccuracy, NumericTable * _oobErrorR2, NumericTable * _oobErrorDecisionFunction,
+               NumericTable * _oobErrorPrediction)
     {
         if (par.varImportance != decision_forest::training::none) varImp = _varImp;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagError) oobError = _oobError;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorAccuracy) oobErrorAccuracy = _oobErrorAccuracy;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorR2) oobErrorR2 = _oobErrorR2;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation) oobErrorPerObs = _oobErrorPerObs;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorDecisionFunction)
             oobErrorDecisionFunction = _oobErrorDecisionFunction;
-        if (par.resultsToCompute & decision_forest::training::computeOutOfBagError) oobErrorPrediction = _oobErrorPrediction;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPrediction) oobErrorPrediction = _oobErrorPrediction;
     }
     NumericTable * varImp                   = nullptr; //if needed then allocated outside kernel
     NumericTable * oobError                 = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorAccuracy         = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorR2               = nullptr; //if needed then allocated outside kernel
     NumericTable * oobErrorPerObs           = nullptr; //if needed then allocated outside kernel
     NumericTable * oobErrorDecisionFunction = nullptr; //if needed then allocated outside kernel
     NumericTable * oobErrorPrediction       = nullptr; //if needed then allocated outside kernel
@@ -452,10 +457,17 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
 
     //OOB error
     if (par.resultsToCompute
-        & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction))
+        & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+           | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction))
     {
         WriteOnlyRows<algorithmFPType, cpu> oobErr(res.oobError, 0, 1);
         if (par.resultsToCompute & computeOutOfBagError) DAAL_CHECK_BLOCK_STATUS(oobErr);
+
+        WriteOnlyRows<algorithmFPType, cpu> oobErrAccuracy(res.oobErrorAccuracy, 0, 1);
+        if (par.resultsToCompute & computeOutOfBagErrorAccuracy) DAAL_CHECK_BLOCK_STATUS(oobErrAccuracy);
+
+        WriteOnlyRows<algorithmFPType, cpu> oobErrR2(res.oobErrorR2, 0, 1);
+        if (par.resultsToCompute & computeOutOfBagErrorR2) DAAL_CHECK_BLOCK_STATUS(oobErrR2);
 
         WriteOnlyRows<algorithmFPType, cpu> oobErrPerObs(res.oobErrorPerObs, 0, nRows);
         if (par.resultsToCompute & computeOutOfBagErrorPerObservation) DAAL_CHECK_BLOCK_STATUS(oobErrPerObs);
@@ -466,7 +478,8 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
         WriteOnlyRows<algorithmFPType, cpu> oobErrPrediction(res.oobErrorPrediction, 0, nRows);
         if (par.resultsToCompute & computeOutOfBagErrorPrediction) DAAL_CHECK_BLOCK_STATUS(oobErrPrediction);
 
-        s = mainCtx.finalizeOOBError(y, oobErr.get(), oobErrPerObs.get(), oobErrDecisionFunction.get(), oobErrPrediction.get());
+        s = mainCtx.finalizeOOBError(y, oobErr.get(), oobErrPerObs.get(), oobErrAccuracy.get(), oobErrR2.get(), oobErrDecisionFunction.get(),
+                                     oobErrPrediction.get());
     }
     return s;
 }
@@ -750,7 +763,8 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
 
     if (s
         && ((_par.resultsToCompute
-             & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction))
+             & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+                | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction))
             || (_par.varImportance > MDI)))
         s = computeResults(_tree);
     if (s) pTree = &_tree;
@@ -1222,7 +1236,8 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     _helper.getOOBIndices(oobIndices.get());
     const bool bMDA(_par.varImportance == training::MDA_Raw || _par.varImportance == training::MDA_Scaled);
     if (_par.resultsToCompute
-            & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction)
+            & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+               | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction)
         || bMDA)
     {
         const algorithmFPType oobError = computeOOBError(t, nOOB, oobIndices.get());
