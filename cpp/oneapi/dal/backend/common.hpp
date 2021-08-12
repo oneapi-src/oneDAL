@@ -123,11 +123,11 @@ public:
         ONEDAL_ASSERT(block > 0);
     }
 
-    const std::int64_t& get_block() const {
+    std::int64_t get_block() const {
         return block_length_;
     }
 
-    const std::int64_t& get_length() const {
+    std::int64_t get_length() const {
         return range_length_;
     }
 

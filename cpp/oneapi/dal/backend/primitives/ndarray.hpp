@@ -288,9 +288,8 @@ public:
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
-    auto get_col_slice(std::int64_t from_col, std::int64_t to_col) const {
-        const auto transposed = this->t();
-        return this->get_row_slice(transposed, from_col, to_col).t();
+    this_t get_col_slice(std::int64_t from_col, std::int64_t to_col) const {
+        return this->t().get_row_slice(from_col, to_col).t();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL

@@ -70,8 +70,10 @@ dal_collect_test_suites(
     name = "tests",
     modules = [
         "blas",
+        "distance",
         "lapack",
         "reduction",
+        "search",
         "selection",
         "sort",
         "stat",
