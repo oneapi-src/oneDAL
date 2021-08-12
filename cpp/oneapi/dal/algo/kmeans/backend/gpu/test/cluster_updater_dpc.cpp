@@ -534,6 +534,7 @@ TEMPLATE_LIST_TEST_M(cluster_updater_test, "centroid reduction", "[reduction]", 
 
 TEMPLATE_LIST_TEST_M(cluster_updater_test, "cluster assignment", "[assignments]", kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
 
     using config_t = std::tuple<std::int64_t, //
                                 std::int64_t, //
