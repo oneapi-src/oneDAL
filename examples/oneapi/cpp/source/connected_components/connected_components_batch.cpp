@@ -30,16 +30,13 @@ int main(int argc, char** argv) {
     // read the graph
     const dal::preview::graph_csv_data_source ds(filename);
     const dal::preview::load_graph::descriptor<> d;
-    const auto my_graph = dal::preview::load_graph::load(d, ds);
-    std::allocator<char> alloc;
-
-    // set algorithm parameters
-    const auto cc_desc = dal::preview::connected_components::descriptor<>(alloc);
+    const auto graph = dal::preview::load_graph::load(d, ds);
 
     try {
         // compute connected_components
         const auto result_connected_components =
-            dal::preview::vertex_partitioning(cc_desc, my_graph);
+            dal::preview::vertex_partitioning(dal::preview::connected_components::descriptor<>{},
+                                              graph);
 
         // extract the result
         std::cout << "Components' labels:\n"
