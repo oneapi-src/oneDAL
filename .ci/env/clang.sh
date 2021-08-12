@@ -17,13 +17,13 @@
 
 UBUNTU_DISTRO="$(grep CODENAME /etc/lsb-release | sed 's/.*=//g')"
 
-sudo add-apt-repository "deb http://apt.llvm.org/${UBUNTU_DISTRO}/ llvm-toolchain-${UBUNTU_DISTRO}-9 main"
-sudo add-apt-repository "deb-src http://apt.llvm.org/${UBUNTU_DISTRO}/ llvm-toolchain-${UBUNTU_DISTRO}-9 main"
-sudo apt update && sudo apt install -y clang-9 lldb-9 lld-9 clang-format-9
+sudo add-apt-repository "deb http://apt.llvm.org/${UBUNTU_DISTRO}/ llvm-toolchain-${UBUNTU_DISTRO}-13 main"
+sudo add-apt-repository "deb-src http://apt.llvm.org/${UBUNTU_DISTRO}/ llvm-toolchain-${UBUNTU_DISTRO}-13 main"
+sudo apt update && sudo apt install -y clang-13 lldb-13 lld-13 clang-format-13
 
-sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-9 100
-sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-9 100
-sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-9 100
-sudo update-alternatives --set clang /usr/bin/clang-9
-sudo update-alternatives --set clang++ /usr/bin/clang++-9
-sudo update-alternatives --set clang-format /usr/bin/clang-format-9
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-13 100
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-13 100
+sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-13 100
+sudo update-alternatives --set clang /usr/bin/clang-13
+sudo update-alternatives --set clang++ /usr/bin/clang++-13
+sudo update-alternatives --set clang-format /usr/bin/clang-format-13
