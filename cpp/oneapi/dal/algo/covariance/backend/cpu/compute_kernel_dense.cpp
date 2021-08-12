@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/algorithms/kernel.h"
 #include "daal/src/algorithms/covariance/covariance_kernel.h"
 
 #include "oneapi/dal/algo/covariance/backend/cpu/compute_kernel.hpp"
