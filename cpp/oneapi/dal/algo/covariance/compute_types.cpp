@@ -68,6 +68,10 @@ const table& compute_result<Task>::get_cov_matrix() const {
 
 template <typename Task>
 void compute_result<Task>::set_cov_matrix_impl(const table& value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::cov_matrix)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->cov_matrix = value;
 }
 template <typename Task>
@@ -81,6 +85,10 @@ const table& compute_result<Task>::get_cor_matrix() const {
 
 template <typename Task>
 void compute_result<Task>::set_cor_matrix_impl(const table& value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::cor_matrix)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->cor_matrix = value;
 }
 
@@ -95,6 +103,10 @@ const table& compute_result<Task>::get_means() const {
 
 template <typename Task>
 void compute_result<Task>::set_means_impl(const table& value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::means)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->means = value;
 }
 

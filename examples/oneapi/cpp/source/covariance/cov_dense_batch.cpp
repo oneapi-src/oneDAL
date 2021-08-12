@@ -29,7 +29,10 @@ int main(int argc, char const *argv[]) {
         dal::covariance::result_options::cov_matrix);
 
     auto result = dal::compute(cov_desc, input);
+
     auto cov_matrix = result.get_cov_matrix();
+
     std::cout << "Cov:\n" << cov_matrix << std::endl;
+
     return 0;
 }

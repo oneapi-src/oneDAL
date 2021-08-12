@@ -36,7 +36,6 @@ ONEDAL = column_accessor_homogen             \
          linear_kernel_dense_batch           \
          load_graph                          \
          louvain_batch                       \
-         means_dense_batch                   \
          pca_dense_batch                     \
          polynomial_kernel_dense_batch       \
          sigmoid_kernel_dense_batch          \
