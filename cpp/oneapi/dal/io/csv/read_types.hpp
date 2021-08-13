@@ -63,7 +63,6 @@ dal::detail::shared<preview::detail::byte_alloc_iface> make_allocator(Allocator&
     return std::make_shared<preview::detail::alloc_connector<typename std::decay<Allocator>::type>>(
         std::forward<Allocator>(alloc));
 }
-// using allocator_ptr = detail::shared<byte_alloc_iface>;
 
 class read_args_graph_impl : public base {
 public:
