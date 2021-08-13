@@ -180,6 +180,7 @@ auto search_engine<Float, Distance>::create_temporary_objects(
 template <typename Float, typename Distance>
 sycl::event search_engine<Float, Distance>::dispose_temporary_objects(temp_ptr_t temp, const event_vector& deps) const {
     sycl::event::wait_and_throw(deps);
+    delete temp;
     return sycl::event();
 }
 
@@ -187,7 +188,7 @@ template <typename Float, typename Distance>
 auto search_engine<Float, Distance>::create_selection_objects(
         std::int64_t query_block, std::int64_t k_neighbors) const -> selc_t {
     const auto train_block = get_train_blocking().get_block();
-    const auto width = std::min<std::int64_t>(k_neighbors * (selection_sub_blocks + 1), train_block);
+    const auto width = std::max<std::int64_t>(k_neighbors * (selection_sub_blocks + 1), train_block);
     const ndshape<2> typical_blocking(query_block, width);
     return selc_t(get_queue(), typical_blocking, k_neighbors);
 }

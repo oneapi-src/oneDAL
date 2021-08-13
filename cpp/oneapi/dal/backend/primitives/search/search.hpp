@@ -100,7 +100,7 @@ public:
             auto search_event = do_search(query_slice, k_neighbors, tmp_objs, selection, deps + last_event);
             last_event = callback(qb_id, get_indices(tmp_objs), get_distances(tmp_objs), { search_event });
         }
-        return dispose_temporary_objects(std::move(tmp_objs), { last_event });
+        return dispose_temporary_objects(tmp_objs, { last_event });
     }
 
     sycl::event do_search(const ndview<Float, 2>& query,
