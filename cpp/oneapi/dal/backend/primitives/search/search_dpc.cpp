@@ -143,6 +143,10 @@ sycl::event search_engine<Float, Distance>::distance(const ndview<Float, 2>& que
                                                      const ndview<Float, 2>& train,
                                                      ndview<Float, 2>& dists,
                                                      const event_vector& deps) const {
+    ONEDAL_ASSERT(query.get_dimension(1) == train.get_dimension(1));
+    ONEDAL_ASSERT(train.get_dimension(0) == dists.get_dimension(1));
+    ONEDAL_ASSERT(query.get_dimension(0) == dists.get_dimension(0));
+    ONEDAL_ASSERT(query.has_data() && train.has_data() && dists.has_mutable_data());
     return get_distance_impl()(query, train, dists, deps);
 }
 
@@ -159,7 +163,7 @@ const uniform_blocking& search_engine<Float, Distance>::get_selection_blocking()
 template <typename Float, typename Distance>
 ndview<Float, 2> search_engine<Float, Distance>::get_train_block(std::int64_t i) const {
     const auto from = get_train_blocking().get_block_start_index(i);
-    const auto to = get_train_blocking().get_block_start_index(i);
+    const auto to = get_train_blocking().get_block_end_index(i);
     return train_data_.get_row_slice(from, to);
 }
 
@@ -253,9 +257,11 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
         for(std::int64_t tb_id = start_tb; tb_id < end_tb; ++tb_id) {
             const auto train = get_train_block(tb_id);
             const auto train_block_size = get_train_blocking().get_block_length(tb_id);
+            ONEDAL_ASSERT(train.get_dimension(0) == train_block_size);
+            //last_event.wait_and_throw();
             auto dists = temp_objs->get_distances()
-                        .get_row_slice(0, train_block_size)
-                        .get_col_slice(0, query_block_size);
+                        .get_col_slice(0, train_block_size)
+                        .get_row_slice(0, query_block_size);
             auto dist_event = distance(query,
                                        train,
                                        dists,

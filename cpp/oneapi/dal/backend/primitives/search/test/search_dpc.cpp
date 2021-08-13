@@ -40,7 +40,8 @@ namespace la = te::linalg;
 template <typename Float>
 class search_test : public te::float_algo_fixture<Float> {
     using idx_t = ndview<std::int32_t, 2>;
-    using search_t = search_engine<Float, squared_l2_distance<Float>>;
+    //using search_t = search_engine<Float, squared_l2_distance<Float>>;
+    using search_t = search_engine<Float, lp_distance<Float>>;
 
 public:
     void generate() {
@@ -58,6 +59,16 @@ public:
         const auto query_df = GENERATE_DATAFRAME(
             te::dataframe_builder{ n_, d_ }.fill_uniform(-0.5, 1.0));
         this->query_ = query_df.get_table(this->get_homogen_table_id());
+    }
+
+    bool is_initialized() const {
+        return m_ > 0 && n_ > 0 && k_ > 0 && d_ > 0;
+    }
+
+    void check_if_initialized() {
+        if (!is_initialized()) {
+            throw std::runtime_error{ "reduce test is not initialized" };
+        }
     }
 
     auto get_train_view() {
@@ -101,6 +112,8 @@ public:
     }
 
     void test_correctness() {
+        check_if_initialized();
+
         const auto train = get_train_view();
         const auto query = get_query_view();
         auto indices = get_temp_indices();
