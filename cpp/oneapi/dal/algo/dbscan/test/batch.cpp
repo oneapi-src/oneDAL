@@ -81,26 +81,25 @@ public:
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data);
 
         const auto cluster_count = compute_result.get_cluster_count();
-        std::cout << "cluster_count: " << cluster_count << std::endl;
-        if(cluster_count == 0) return;
+        if (cluster_count == 0)
+            return;
 
         const auto responses = compute_result.get_responses();
 
         const auto centroids = te::centers_of_mass(data, responses, cluster_count);
 
-        auto dbi =
-            te::davies_bouldin_index<Float>(data, centroids, responses);
+        auto dbi = te::davies_bouldin_index(data, centroids, responses);
         CAPTURE(dbi, ref_dbi);
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
     }
-    
+
     bool check_value_with_ref_tol(Float val, Float ref_val, Float ref_tol) {
         Float max_abs = std::max(fabs(val), fabs(ref_val));
         if (max_abs == 0.0)
             return true;
         CAPTURE(val, ref_val, fabs(val - ref_val) / max_abs, ref_tol);
         return fabs(val - ref_val) / max_abs < ref_tol;
-    }    
+    }
 };
 
 using dbscan_types = COMBINE_TYPES((float, double), (dbscan::method::brute_force));
@@ -293,19 +292,16 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
     SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
-    const te::dataframe data = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" });
+    const te::dataframe data =
+        te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" }.build();
+
     const table x = data.get_table(this->get_homogen_table_id());
 
     const double epsilon = 1.7e3;
     const std::int64_t min_observations = 3;
     constexpr Float ref_dbi = 1.584515;
 
-    this->dbi_determenistic_checks(x,
-                                   epsilon,
-                                   min_observations,
-                                   ref_dbi,
-                                   1.0e-3);
+    this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
 }
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
@@ -323,11 +319,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
     const std::int64_t min_observations = 3;
     constexpr Float ref_dbi = 0.78373;
 
-    this->dbi_determenistic_checks(x,
-                                   epsilon,
-                                   min_observations,
-                                   ref_dbi,
-                                   1.0e-3);
+    this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
 }
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
@@ -345,11 +337,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
     const std::int64_t min_observations = 220;
     constexpr Float ref_dbi = 0.00036f;
 
-    this->dbi_determenistic_checks(x,
-                                   epsilon,
-                                   min_observations,
-                                   ref_dbi,
-                                   1.0e-1);
+    this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-1);
 }
 
 } // namespace oneapi::dal::dbscan::test
