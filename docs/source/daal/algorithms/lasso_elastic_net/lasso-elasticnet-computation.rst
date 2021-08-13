@@ -30,10 +30,13 @@ For a description of common input and output parameters, refer to
 :ref:`regression_usage_model`.
 Both LASSO and Elastic Net algorithms have the following input parameters in addition to the common input parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for LASSO and Elastic Net (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -61,10 +64,13 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
 
   .. group-tab:: LASSO
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+    .. list-table:: Training Parameters for LASSO (Batch Processing)
       :widths: 10 20 30
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -112,10 +118,13 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
 
   .. group-tab:: Elastic Net
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+    .. list-table:: Training Parameters for Elastic Net (Batch Processing)
       :widths: 10 20 30
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -193,7 +202,9 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
 
 In addition, both LASSO and Elastic Net algorithms have the following optional results:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for LASSO and Elastic Net (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -211,10 +222,13 @@ For a description of the input and output, refer to
 
 At the prediction stage, LASSO and Elastic Net algorithms have the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for LASSO and Elastic Net (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

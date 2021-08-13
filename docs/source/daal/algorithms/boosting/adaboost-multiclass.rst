@@ -128,10 +128,13 @@ Training
 For a description of the input and output, refer to :ref:`classification_usage_model`.
 At the training stage, an AdaBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for AdaBoost Multiclass Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -172,11 +175,13 @@ At the training stage, an AdaBoost classifier has the following parameters:
 Output
 ------
 
-In addition to classifier output, AdaBoostcalculates the result described below.
+In addition to classifier output, AdaBoost calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for AdaBoost Multiclass Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -197,10 +202,13 @@ Prediction
 For a description of the input and output, refer to :ref:`classification_usage_model`.
 At the prediction stage, an AdaBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for AdaBoost Multiclass Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

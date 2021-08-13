@@ -24,7 +24,9 @@ The objective function accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Objective Function Computaion
    :widths: 10 60
    :align: left
 
@@ -38,9 +40,12 @@ Parameters
 
 The objective function has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Parameters for Objective Function Computaion
    :widths: 15 15 70
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default value
@@ -82,9 +87,12 @@ The objective function calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Objective Function Computaion
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

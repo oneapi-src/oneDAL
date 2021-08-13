@@ -46,10 +46,13 @@ If sample weights are provided as input, the library uses a weighted version of 
 
 MSE is an impurity metric (:math:`D` is a set of observations that reach the node), calculated as follows:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Decision Forest Regression: impurity calculations
    :widths: 10 10
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Without sample weights
      - With sample weights
@@ -108,10 +111,13 @@ For the description of the input and output, refer to :ref:`regression_usage_mod
 In addition to the decision forest parameters described in :ref:`df_batch`, 
 the training algorithm for decision forest regression has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Decision Forest Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -148,10 +154,13 @@ For the description of the input and output, refer to :ref:`regression_usage_mod
 In addition to the parameters of regression, decision forest
 regression has the following parameters at the prediction stage:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Decision Forest Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

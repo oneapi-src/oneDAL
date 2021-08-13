@@ -113,10 +113,13 @@ In addition to parameters of the gradient boosted trees described in :ref:`gb_tr
 the gradient boosted trees regression training algorithm has the
 following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Gradient Boosted Trees Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -137,10 +140,13 @@ Prediction
 In addition to the common regression parameters, the gradient boosted
 trees regression has the following parameters at the prediction stage:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Gradient Boosted Trees Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

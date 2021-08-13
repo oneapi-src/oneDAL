@@ -114,10 +114,13 @@ gradient descent algorithm has the following parameters. Some of
 them are required only for specific values of the computation
 method parameter method:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
+
+.. list-table:: Algorithm Parameters for Stochastic Gradient Descent Algorithm Computaion
    :widths: 10 10 10 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - method

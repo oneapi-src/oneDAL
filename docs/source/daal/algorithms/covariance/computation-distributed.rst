@@ -26,9 +26,12 @@ Algorithm Parameters
 
 The correlation and variance-covariance matrices algorithm in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Correlation and Variance-Covariance Matrices Algorithm (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -85,7 +88,9 @@ In this step, the correlation and variance-covariance matrices algorithm accepts
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Step 1: Algorithm Input for Correlation and Variance-Covariance Matrices Algorithm (Distributed Processing) 
    :widths: 10 60
    :header-rows: 1
 
@@ -102,9 +107,12 @@ In this step, the correlation and variance-covariance matrices algorithm calcula
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Step 1: Algorithm Output for Correlation and Variance-Covariance Matrices Algorithm (Distributed Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
@@ -141,7 +149,9 @@ In this step, the correlation and variance-covariance matrices algorithm accepts
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Step 2: Algorithm Input for Correlation and Variance-Covariance Matrices Algorithm (Distributed Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -159,9 +169,12 @@ In this step, the correlation and variance-covariance matrices algorithm calcula
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Step 2: Algorithm Output for for Correlation and Variance-Covariance Matrices Algorithm (Distributed Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result

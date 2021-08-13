@@ -27,7 +27,9 @@ Engines accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Engines
    :widths: 10 60
    :header-rows: 1
 
@@ -46,7 +48,9 @@ Engines calculate the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Engines
    :widths: 10 60
    :header-rows: 1
 

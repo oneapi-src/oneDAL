@@ -24,9 +24,12 @@ Algorithm Parameters
 
 The low order moments algorithm in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Low Order Moments (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -85,7 +88,9 @@ In this step, the low order moments algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Low Order Moments (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -102,7 +107,9 @@ In this step, the low order moments algorithm calculates the results described b
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Low Order Moments (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -118,9 +125,12 @@ Partial characteristics computed so far on the local node, each in a :math:`1 \t
 By default, each table is an object of the ``HomogenNumericTable`` class, but you can define the tables as objects
 of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Characteristics for Low Order Moments (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
@@ -144,7 +154,9 @@ In this step, the low order moments algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Low Order Moments (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -165,9 +177,12 @@ For more details, see :ref:`algorithms`.
     but you can define each table as an object of any class derived from ``NumericTable``
     except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Low Order Moments (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Characteristic

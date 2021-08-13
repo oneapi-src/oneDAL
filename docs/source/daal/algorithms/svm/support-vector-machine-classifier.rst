@@ -151,10 +151,13 @@ Training and Prediction.
 
 At the training stage, SVM classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Support Vector Machine Classifier (Batch Processing)
    :header-rows: 1
    :widths: 20 30 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -212,10 +215,13 @@ Training and Prediction.
 
 At the prediction stage, SVM classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for Support Vector Machine Classifier (Batch Processing)
    :header-rows: 1
    :widths: 20 30 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

@@ -26,11 +26,13 @@ The K-Means clustering algorithm accepts the input described
 below. Pass the ``Input ID`` as a parameter to the methods that
 provide input for your algorithm.
 
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table::
+.. list-table:: Algorithm Input for K-Means Computaion (Batch Processing)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -46,10 +48,13 @@ Algorithm Parameters
 
 The K-Means clustering algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for K-Means Computaion (Batch Processing)
    :header-rows: 1
    :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -109,10 +114,13 @@ The K-Means clustering algorithm calculates the result described
 below. Pass the ``Result ID`` as a parameter to the methods that access
 the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for K-Means Computaion (Batch Processing)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

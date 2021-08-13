@@ -77,9 +77,12 @@ The mean squared error algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for MSE Computaion
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -97,9 +100,12 @@ The mean squared error algorithm accepts the optional input described below.
 Pass the Optional ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Optional Algorithm Input for MSE Computaion
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -124,9 +130,12 @@ Algorithm Parameters
 The mean squared error algorithm has the following parameters.
 Some of them are required only for specific values of the computation method parameter method:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for MSE Computaion
    :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default value

@@ -107,11 +107,14 @@ the subset :math:`D_t` in the node :math:`t`.
    
    - :math:`D` is a set of observations that reach the node;
    - :math:`p_i` is specified in the table below:
+
+   .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
    
-   .. list-table::
+   .. list-table:: Decision Forest Split Criteria Calculation
       :widths: 10 10
       :header-rows: 1
       :align: left
+      :class: longtable
    
       * - Without sample weights
         - With sample weights
@@ -125,11 +128,14 @@ the subset :math:`D_t` in the node :math:`t`.
   .. group-tab:: Regression
 
    *MSE* is an impurity metric for regression, calculated as follows:
+
+   .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
    
-   .. list-table::
+   .. list-table:: MSE Impurity Metric
       :widths: 10 10
       :header-rows: 1
       :align: left
+      :class: longtable
    
       * - Without sample weights
         - With sample weights

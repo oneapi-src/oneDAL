@@ -28,10 +28,13 @@ The iterative solver algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see Algorithms.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Iterative Solver Computaion
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -48,10 +51,13 @@ Algorithm Parameters
 
 The iterative solver algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Iterative Solver Computaion
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -78,10 +84,13 @@ The iterative solver algorithm calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see Algorithms.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Iterative Solver Computaion
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

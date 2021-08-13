@@ -24,10 +24,13 @@ Parameters
 
 In the distributed processing mode, initialization of item factors for the implicit ALS algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Parameters for Implicit Alternating Least Squares Initialization (Distributed Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -75,7 +78,9 @@ In the distributed processing mode, initialization of item factors for the impli
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Initialization (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -107,9 +112,12 @@ that contains the value of the starting offset of the user factors stored on the
 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Initialization (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Partial Result ID
      - Result
@@ -138,7 +146,9 @@ Input
 
 This step uses the results of the previous step.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Initialization (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
 
@@ -169,9 +179,12 @@ that contains the value of the starting offset of the item factors stored on the
 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Initialization (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Partial Result ID
      - Result

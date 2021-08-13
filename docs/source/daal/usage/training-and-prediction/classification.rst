@@ -36,9 +36,12 @@ At the training stage, classification algorithms accept the input described belo
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Classification Algorithms
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -59,7 +62,9 @@ At the training stage, classification algorithms calculate the result described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Classification Algorithms
    :widths: 10 60
    :header-rows: 1
 
@@ -78,9 +83,12 @@ At the prediction stage, classification algorithms accept the input described be
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Input for Classification Algorithms
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -95,9 +103,12 @@ At the prediction stage, classification algorithms calculate the result describe
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Output for Classification Algorithms
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result

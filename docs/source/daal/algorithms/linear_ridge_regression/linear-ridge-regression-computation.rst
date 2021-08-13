@@ -37,10 +37,13 @@ algorithm.
 
   .. group-tab:: Linear Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+    .. list-table:: Training Parameters for Linear Regression (Batch Processing)
       :widths: 10 10 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -61,10 +64,13 @@ algorithm.
 
   .. group-tab:: Ridge Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.25}|\Y{0.3}|\Y{0.45}|
+
+    .. list-table:: Training Parameters for Ridge Regression (Batch Processing)
       :widths: 20 30 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -103,10 +109,13 @@ For a description of the input and output, refer to :ref:`regression_usage_model
 
 At the prediction stage, linear and ridge regressions have the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Linear and Ridge Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -135,9 +144,12 @@ Linear and ridge regression training in the online processing mode accepts the i
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Linear and Ridge Regression (Online Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -154,10 +166,13 @@ The following table lists parameters of linear and ridge regressions at the trai
 
   .. group-tab:: Linear Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+    .. list-table:: Training Parameters for Linear Regression (Online Processing)
       :widths: 10 10 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -178,10 +193,13 @@ The following table lists parameters of linear and ridge regressions at the trai
 
   .. group-tab:: Ridge Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.25}|\Y{0.3}|\Y{0.45}|
+
+    .. list-table:: Training Parameters for Ridge Regression (Online Processing)
       :widths: 20 30 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -237,10 +255,13 @@ The following table lists parameters of linear and ridge regressions at the trai
 
   .. group-tab:: Linear Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+    .. list-table:: Training Parameters for Linear Regression (Distributed Processing)
       :widths: 10 10 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -268,10 +289,13 @@ The following table lists parameters of linear and ridge regressions at the trai
 
   .. group-tab:: Ridge Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.25}|\Y{0.3}|\Y{0.45}|
+
+    .. list-table:: Training Parameters for Ridge Regression (Distributed Processing)
       :widths: 20 30 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -319,9 +343,12 @@ In this step, linear and ridge regression training accepts the input described b
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Linear and Ridge Regression (Distributed Processing, Step 1)
   :widths: 10 60
   :header-rows: 1
+  :class: longtable
 
   * - Input ID
     - Input
@@ -336,7 +363,9 @@ In this step, linear and ridge regression training calculates the result describ
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Linear and Ridge Regression (Distributed Processing, Step 1)
   :widths: 10 60
   :header-rows: 1
 
@@ -359,7 +388,9 @@ In this step, linear and ridge regression training accepts the input described b
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Linear and Ridge Regression (Distributed Processing, Step 2)
   :widths: 10 60
   :header-rows: 1
 
@@ -374,7 +405,9 @@ In this step, linear and ridge regression training calculates the result describ
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Linear and Ridge Regression (Distributed Processing, Step 2)
   :widths: 10 60
   :header-rows: 1
 

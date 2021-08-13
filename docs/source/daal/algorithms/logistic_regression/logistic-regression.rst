@@ -142,10 +142,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 In addition to the parameters of classifier described in :ref:`classification_usage_model`,
 the logistic regression batch training algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Logistic Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -188,10 +191,13 @@ For a description of the input, refer to :ref:`classification_usage_model`.
 
 At the prediction stage logistic regression batch algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Logistic Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -225,10 +231,13 @@ Output
 In addition to classifier output, logistic regression prediction calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Output for Logistic Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

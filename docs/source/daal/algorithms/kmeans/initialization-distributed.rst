@@ -24,9 +24,12 @@ Parameters
 
 Centroid initialization for K-Means clustering in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
+
+.. list-table:: Algorithm Parameters for K-Means Initialization (Distributed Processing)
    :widths: 10 10 10 30
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Method
@@ -136,7 +139,9 @@ In this step, centroid initialization for K-Means clustering accepts the input d
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Initialization (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -157,7 +162,9 @@ In this step, centroid initialization for K-Means clustering calculates the resu
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Initialization (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -183,7 +190,9 @@ Centroid initialization for K-Means clustering accepts the input from each local
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Initialization (Distributed Processing, Step 2 on Master Node)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -198,7 +207,9 @@ In this step, centroid initialization for K-Means clustering calculates the resu
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Initialization (Distributed Processing, Step 2 on Master Node)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -234,10 +245,13 @@ Centroid initialization for K-Means clustering accepts the input from each local
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Initialization (Distributed Processing, Step 1 on Local Nodes)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -277,10 +291,13 @@ In this step, centroid initialization for K-Means clustering calculates the resu
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Initialization (Distributed Processing, Step 2 on Local Nodes)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
@@ -319,7 +336,9 @@ Centroid initialization for K-Means clustering accepts the input from each local
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Initialization (Distributed Processing, Step 3)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -334,10 +353,13 @@ In this step, centroid initialization for K-Means clustering calculates the resu
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Initialization (Distributed Processing, Step 3)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
@@ -375,10 +397,13 @@ Centroid initialization for K-Means clustering accepts the input from each local
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Initialization (Distributed Processing, Step 4)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -414,7 +439,9 @@ In this step, centroid initialization for K-Means clustering calculates the resu
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Initialization (Distributed Processing, Step 4)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -444,10 +471,13 @@ Centroid initialization for K-Means clustering accepts the input from each local
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Initialization (Distributed Processing, Step 5)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -476,7 +506,9 @@ In this step, centroid initialization for K-Means clustering calculates the resu
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Initialization (Distributed Processing, Step 5)
    :header-rows: 1
    :widths: 10 60
    :align: left

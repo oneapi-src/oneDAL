@@ -62,10 +62,13 @@ The linear kernel function accepts the input described below. Pass
 the ``Input ID`` as a parameter to the methods that provide input for
 your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Linear Kernel (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 60
+   :class: longtable
 
    * - Input ID
      - Input
@@ -79,10 +82,13 @@ Algorithm Parameters
 
 The linear kernel function has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Linear Kernel (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 10 60
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -135,8 +141,9 @@ Algorithm Output
 The linear kernel function calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table::
+.. list-table:: Algorithm Output for Linear Kernel (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 60
@@ -219,10 +226,13 @@ The RBF kernel accepts the input described below. Pass the Input
 ID as a parameter to the methods that provide input for your
 algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Radial Basis Function Kernel (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 60
+   :class: longtable
 
    * - Input ID
      - Input
@@ -236,10 +246,13 @@ Algorithm Parameters
 
 The RBF kernel has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Radial Basis Function Kernel (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 10 60
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -290,7 +303,9 @@ The RBF kernel calculates the results described below. Pass the
 Result ID as a parameter to the methods that access the results of
 your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Radial Basis Function Kernel (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 60

@@ -22,9 +22,12 @@ Algorithm Parameters
 
 The DBSCAN clustering algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for DBSCAN (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -71,9 +74,12 @@ The DBSCAN algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for DBSCAN (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -103,9 +109,12 @@ The DBSCAN algorithms calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for DBSCAN (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result

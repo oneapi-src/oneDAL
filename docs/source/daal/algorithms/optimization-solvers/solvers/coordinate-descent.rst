@@ -72,15 +72,18 @@ Computation
 Coordinate Descent algorithm is a special case of an iterative solver.
 For parameters, input, and output of iterative solvers, see :ref:`Iterative Solver > Computation <iterative_solver_computation>`.
 
-Algorithm parameters
+Algorithm Parameters
 --------------------
 
 In addition to the input of a iterative solver, Coordinate Descent algorithm accepts the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Coordinate Descent Computaion
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

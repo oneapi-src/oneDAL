@@ -24,7 +24,9 @@ The correlation and variance-covariance matrices algorithm accepts
 the input described below. Pass the ``Input ID`` as a parameter to the
 methods that provide input for your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Correlation and Variance-Covariance Matrices Algorithm (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 60
@@ -44,10 +46,13 @@ Algorithm Parameters
 The correlation and variance-covariance matrices algorithm has the
 following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for Correlation and Variance-Covariance Matrices Algorithm (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 20 30
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -91,10 +96,13 @@ The correlation and variance-covariance matrices algorithm calculates
 the result described below. Pass the ``Result ID`` as a parameter to the
 methods that access the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Correlation and Variance-Covariance Matrices Algorithm (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 60
+   :class: longtable
 
    * - Result ID
      - Result

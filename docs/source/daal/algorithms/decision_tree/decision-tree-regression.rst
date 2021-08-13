@@ -85,10 +85,13 @@ Training
 At the training stage, decision tree regression has the following
 parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Decision Forest Regression (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -130,10 +133,13 @@ Prediction
 At the prediction stage, decision tree regression has the following
 parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Decision Forest Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

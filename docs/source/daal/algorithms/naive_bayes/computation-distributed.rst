@@ -29,9 +29,12 @@ Algorithm Parameters
 
 At the training stage, Naïve Bayes classifier in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Naïve Bayes Classifier (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -77,9 +80,12 @@ In this step, Naïve Bayes classifier training accepts the input described below
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Naïve Bayes Classifier (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -94,7 +100,9 @@ In this step, Naïve Bayes classifier training calculates the result described b
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Naïve Bayes Classifier (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -117,7 +125,9 @@ In this step, Naïve Bayes classifier training accepts the input described below
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Naïve Bayes Classifier (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -132,7 +142,9 @@ In this step, Naïve Bayes classifier training calculates the result described b
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Naïve Bayes Classifier (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 

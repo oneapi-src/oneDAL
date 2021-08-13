@@ -39,10 +39,13 @@ Given a set :math:`X` of :math:`n` feature vectors
 :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of dimension :math:`p`, 
 the problem is to compute the following sample characteristics for each feature in the data set:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Moments of Low Order
    :widths: 20 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Statistic
      - Definition

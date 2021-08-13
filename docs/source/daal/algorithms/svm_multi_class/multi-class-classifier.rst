@@ -129,10 +129,13 @@ Training
 At the training stage, a multi-class classifier has the following
 parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.25}|\Y{0.3}|\Y{0.45}|
+
+.. list-table:: Training Parameters for  Multi-class Classifier (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -157,10 +160,13 @@ Prediction
 
 At the prediction stage, a multi-class classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
+
+.. list-table:: Prediction Parameters for  Multi-class Classifier (Batch Processing)
    :widths: 10 10 10 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Method
@@ -217,7 +223,9 @@ In addition to classifier output, multiclass classifier calculates the result de
 Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for  Multi-class Classifier (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left

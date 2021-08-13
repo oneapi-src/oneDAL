@@ -51,9 +51,12 @@ The multivariate outlier detection algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Multivariate Outlier Detection (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -75,8 +78,11 @@ For more details, see :ref:`algorithms`.
     If you do not provide at least one of the ``location``, ``scatter``, ``threshold`` inputs,
     the library will initialize all of them with the following default values:
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+    .. list-table:: Default Values for Algorithm Input of Multivariate Outlier Detection (Batch Processing)
         :widths: 10 20
+        :class: longtable
         
         * - ``location``
           - A set of :math:`0.0`
@@ -90,10 +96,13 @@ Algorithm Parameters
 
 The multivariate outlier detection algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Multivariate Outlier Detection (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -112,7 +121,9 @@ The multivariate outlier detection algorithm calculates the result described bel
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Multivariate Outlier Detection (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 

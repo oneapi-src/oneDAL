@@ -35,9 +35,12 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the training stage, a classification decision stump has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Classification Stump (Batch Processing)
    :widths: 20 20 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -72,9 +75,12 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the prediction stage, a classification stump has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Classification Stump (Batch Processing)
    :widths: 20 20 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Value

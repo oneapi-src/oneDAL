@@ -64,9 +64,12 @@ specific way of obtaining data from the :txtref:`table`.
 
 All accessor classes in |short_name| are listed below:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.25}|\Y{0.5}|\Y{0.25}|
+
+.. list-table:: Accessor Types
    :header-rows: 1
    :widths: 25 50 25
+   :class: longtable
 
    * - Accessor type
      - Description

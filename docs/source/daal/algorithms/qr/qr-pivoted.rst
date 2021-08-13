@@ -42,7 +42,9 @@ Pivoted QR decomposition accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Pivoted QR Decomposition (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -57,10 +59,13 @@ Algorithm Parameters
 
 Pivoted QR decomposition has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Pivoted QR Decomposition (Batch Processing)
    :header-rows: 1
    :widths: 10 10 60   
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -94,9 +99,12 @@ Pivoted QR decomposition calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Pivoted QR Decomposition (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result

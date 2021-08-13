@@ -36,10 +36,13 @@ The seed can be either an integer scalar or a vector of :math:`p` integer elemen
 
 MCG59 engine has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for mcg58 engine (Batch Processing)
    :header-rows: 1
    :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

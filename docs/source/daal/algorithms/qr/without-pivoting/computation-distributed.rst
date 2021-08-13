@@ -24,9 +24,12 @@ Algorithm Parameters
 
 QR decomposition in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for QR Decomposition without Pivoting (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -60,7 +63,9 @@ In this step, QR decomposition accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for QR Decomposition without Pivoting (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -76,9 +81,12 @@ In this step, QR decomposition calculates the results described below.
 Pass the ``Partial Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for QR Decomposition without Pivoting (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Partial Result ID
      - Result
@@ -111,9 +119,12 @@ In this step, QR decomposition accepts the input from each local node described 
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for QR Decomposition without Pivoting (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -133,7 +144,9 @@ In this step, QR decomposition calculates the results described below.
 Pass the ``Result ID`` or ``Partial Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for QR Decomposition without Pivoting (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -148,7 +161,9 @@ For more details, see :ref:`algorithms`.
           but you can define them as objects of any class derived from ``NumericTable``
           except the ``PackedSymmetricMatrix`` class, ``CSRNumericTable`` class, and ``PackedTriangularMatrix`` class with the ``lowerPackedTriangularMatrix`` layout.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for QR Decomposition without Pivoting (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -175,9 +190,12 @@ In this step, QR decomposition accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for QR Decomposition without Pivoting (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -200,7 +218,9 @@ In this step, QR decomposition calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for QR Decomposition without Pivoting (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
 

@@ -62,10 +62,13 @@ Applications on Windows* OS
 
 #. Add the appropriate libraries to your project based on |short_name| threading mode and linking method:
 
+   .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
+
    .. list-table:: |short_name| libraries for Windows
       :widths: 15 25 25
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * -
         - Single-threaded (non-threaded)
@@ -83,10 +86,13 @@ Applications on Windows* OS
 
    You may also add debug versions of the libraries based on the threading mode and linking method: 
 
+   .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
+
    .. list-table:: |short_name| debug libraries for Windows
       :widths: 15 25 25
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * -
         - Single-threaded (non-threaded)
@@ -153,10 +159,13 @@ Applications on Linux* OS
 
    - Add |short_name| libraries. Choose the appropriate |short_name| libraries based on |short_name| threading mode and linking method:
 
+     .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
+
      .. list-table:: |short_name| libraries for Linux
           :widths: 15 25 25
           :header-rows: 1
           :align: left
+          :class: longtable
 
           * -
             - Single-threaded (non-threaded) 

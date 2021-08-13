@@ -90,10 +90,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the training stage, a LogitBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for LogitBoost Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 20 30  
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -141,10 +144,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the prediction stage, a LogitBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for LogitBoost Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 20 30  
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

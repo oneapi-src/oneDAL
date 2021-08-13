@@ -176,10 +176,13 @@ For a description of the input and output, refer to Usage Model: Training and Pr
 At the training stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for k-Nearest Neighbors Classifier (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -221,10 +224,13 @@ For a description of the input and output, refer to Usage Model: Training and Pr
 At the prediction stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for k-Nearest Neighbors Classifier (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -264,10 +270,13 @@ Output
 In addition to classifier output, kNN calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for k-Nearest Neighbors Classifier (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

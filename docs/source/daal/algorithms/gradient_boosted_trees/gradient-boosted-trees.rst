@@ -154,10 +154,13 @@ For description of the input and output, refer to .
 At the training stage, the gradient boosted trees batch algorithm
 has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Gradient Boosted Trees (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

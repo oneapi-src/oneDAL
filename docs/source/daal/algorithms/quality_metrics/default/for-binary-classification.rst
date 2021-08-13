@@ -31,8 +31,11 @@ Details
 
 Further definitions use the following notations:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Notations for Quality Metrics for Binary Classification Algorithms
    :widths: 10 10 30
+   :class: longtable
 
    * - :math:`\text{tp}`
      - true positive
@@ -49,9 +52,12 @@ Further definitions use the following notations:
 
 The library uses the following quality metrics for binary classifiers:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Definitions of Quality Metrics for Binary Classification Algorithms
    :widths: 10 10
    :header-rows: 1
+   :class: longtable
 
    * - Quality Metric
      - Definition
@@ -72,7 +78,9 @@ For more details of these metrics, including the evaluation focus, refer to [Sok
 
 The confusion matrix is defined as follows:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.5}|\Y{0.5}|
+
+.. list-table:: Confusion Matrix for Binary Classification Algorithms
     :header-rows: 1
     :stub-columns: 1
 
@@ -96,9 +104,12 @@ The quality metric algorithm for binary classifiers accepts the input described 
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Quality Metrics for Binary Classification (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -116,10 +127,13 @@ Algorithm Parameters
 
 The quality metric algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Quality Metrics for Binary Classification (Batch Processing)
    :header-rows: 1
    :widths: 10 10 60   
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -141,9 +155,12 @@ The quality metric algorithm calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Quality Metrics for Binary Classification (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result

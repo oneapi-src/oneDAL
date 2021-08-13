@@ -170,7 +170,9 @@ The EM for GMM initialization algorithm accepts the input
 described below. Pass the ``Input ID`` as a parameter to the methods
 that provide input for your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Expectation-Maximization Initialization (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -187,10 +189,13 @@ Algorithm Parameters
 
 The EM for GMM initialization algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for Expectation-Maximization Initialization (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -233,10 +238,13 @@ Algorithm Output
 The EM for GMM initialization algorithm calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Expectation-Maximization Initialization (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
@@ -284,10 +292,13 @@ Algorithm Input
 The EM for GMM algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Expectation-Maximization Computaion (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -322,10 +333,13 @@ Algorithm Parameters
 
 The EM for GMM algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for Expectation-Maximization Computaion (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -374,10 +388,13 @@ The EM for GMM algorithm calculates the results described below. Pass
 the ``Result ID`` as a parameter to the methods that access the results
 of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Expectation-Maximization Computaion (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

@@ -129,10 +129,13 @@ In addition to parameters of the gradient boosted trees described
 in :ref:`gb_trees_batch`, the gradient boosted trees classification training algorithm has
 the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Gradient Boosted Trees Classification (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -157,10 +160,13 @@ Prediction
 In addition to the parameters of a classifier, the gradient boosted
 trees classifier has the following parameters at the prediction stage:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Gradient Boosted Trees Classification (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

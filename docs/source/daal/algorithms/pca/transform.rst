@@ -36,9 +36,12 @@ The PCA Transform algorithm accepts the input described below.
 Pass the ```Input ID``` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Principal Components Analysis Transform (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -75,10 +78,13 @@ Algorithm Parameters
 
 The PCA Transform algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
+
+.. list-table:: Algorithm Parameters for Principal Components Analysis Transform (Batch Processing)
    :header-rows: 1
    :widths: 10 10 10 60   
    :align: left
+   :class: longtable
 
    * - Parameter
      - method
@@ -100,7 +106,9 @@ Algorithm Output
 The PCA Transform algorithm calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Principal Components Analysis Transform (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 

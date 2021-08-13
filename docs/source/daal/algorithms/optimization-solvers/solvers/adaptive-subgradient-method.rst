@@ -56,7 +56,9 @@ Algorithm Input
 In addition to the :ref:`input of the iterative solver <iterative_solver_computation_input>`,
 the AdaGrad method accepts the following optional input:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Adaptive Subgradient Method Computaion
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -73,10 +75,13 @@ Algorithm Parameters
 In addition to :ref:`parameters of the iterative solver <iterative_solver_computation_parameters>`,
 the AdaGrad method has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for Adaptive Subgradient Method Computaion
    :header-rows: 1
    :align: left
    :widths: 10 10 30
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -120,7 +125,9 @@ Algorithm Output
 In addition to the :ref:`output of the iterative solver <iterative_solver_computation_output>`,
 the AdaGrad method calculates the following optional result:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Adaptive Subgradient Method Computaion
    :header-rows: 1
    :widths: 10 60
    :align: left

@@ -112,10 +112,13 @@ Training
 In addition to common input for a classifier, decision trees can accept the following
 inputs that are used for post-pruning:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Decision Tree Classification (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 60
+   :class: longtable
 
    * - Input ID
      - Input
@@ -130,10 +133,13 @@ inputs that are used for post-pruning:
 
 At the training stage, decision tree classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Decision Tree Classification (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -176,10 +182,13 @@ Prediction
 At the prediction stage, decision tree classifier has the following
 parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Decision Tree Classification (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

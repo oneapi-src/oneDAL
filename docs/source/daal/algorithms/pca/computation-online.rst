@@ -30,7 +30,9 @@ The PCA algorithm in the online processing mode accepts the input described belo
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Principal Component Analysis (Online Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -45,10 +47,13 @@ Algorithm Parameters
 
 The PCA algorithm in the online processing mode has the following parameters, depending on the computation method parameter method:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
+
+.. list-table:: Algorithm Parameters for Principal Component Analysis (Online Processing)
    :widths: 10 10 10 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Method
@@ -93,9 +98,12 @@ For more details, see :ref:`algorithms`.
 
     .. tab:: Correlation method (``defaultDense``)
 
-        .. list-table::
+        .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+        .. list-table:: Partial Results for Principal Component Analysis using Correlation method (Online Processing)
             :widths: 10 60
             :header-rows: 1
+            :class: longtable
 
             * - Result ID
               - Result
@@ -126,9 +134,12 @@ For more details, see :ref:`algorithms`.
 
     .. tab:: SVD method (``svdDense``)
 
-        .. list-table::
+        .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+        .. list-table:: Partial Results for Principal Component Analysis using SVD method (Online Processing)
             :widths: 10 60
             :header-rows: 1
+            :class: longtable
 
             * - Result ID
               - Result
@@ -163,9 +174,12 @@ The PCA algorithm in the online processing mode calculates the results described
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Principal Component Analysis (Online Processing)
     :widths: 10 60
     :header-rows: 1
+    :class: longtable
 
     * - Result ID
       - Result

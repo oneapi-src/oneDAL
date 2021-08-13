@@ -49,9 +49,12 @@ Testing Insignificance of a Single Beta
 
 The library uses the following quality metrics:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Quality Metrics for Testing Insignificance of a Single Beta
    :widths: 10 10
    :header-rows: 1
+   :class: longtable
 
    * - Quality Metric
      - Definition
@@ -78,9 +81,12 @@ Testing Insignificance of a Group of Betas
 
 The library uses the following quality metrics:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Quality Metrics for Testing Insignificance of a Group of Betas
    :widths: 10 10
    :header-rows: 1
+   :class: longtable
 
    * - Quality Metric
      - Definition
@@ -119,9 +125,12 @@ The quality metric algorithm for linear regression accepts the input described b
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Testing Insignificance of a Single Beta in Linear Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -142,10 +151,13 @@ For more details, see :ref:`algorithms`.
 
 The quality metric algorithm for linear regression has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Testing Insignificance of a Single Beta in Linear Regression (Batch Processing)
    :header-rows: 1
    :widths: 10 10 60   
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -170,9 +182,12 @@ The quality metric algorithm for linear regression calculates the result describ
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Testing Insignificance of a Single Beta in Linear Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
@@ -235,9 +250,12 @@ The quality metric algorithm for linear regression accepts the input described b
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Testing Insignificance of a Group of Betas in Linear Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -259,10 +277,13 @@ For more details, see :ref:`algorithms`.
 
 The quality metric algorithm for linear regression has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Testing Insignificance of a Group of Betas in Linear Regression (Batch Processing)
    :header-rows: 1
    :widths: 10 10 60   
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -287,9 +308,12 @@ The quality metric algorithm for linear regression calculates the result describ
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Testing Insignificance of a Group of Betas in Linear Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result

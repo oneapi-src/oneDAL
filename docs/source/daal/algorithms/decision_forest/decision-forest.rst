@@ -265,10 +265,13 @@ Training
 
 At the training stage, decision forest regression has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Decision Forest (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -366,10 +369,13 @@ In addition to regression or classifier output, decision forest
 calculates the result described below. Pass the ``Result ID`` as a
 parameter to the methods that access the result of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Decision Forest (Batch Processing) 
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

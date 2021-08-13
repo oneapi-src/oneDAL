@@ -27,10 +27,13 @@ Algorithm Parameters
 
 At the prediction stage, implicit ALS recommender in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Implicit Alternating Least Squares Computaion (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -69,9 +72,12 @@ In this step, implicit ALS recommender-based prediction accepts the input descri
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -86,7 +92,9 @@ In this step, implicit ALS recommender-based prediction calculates the result de
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
    :align: left

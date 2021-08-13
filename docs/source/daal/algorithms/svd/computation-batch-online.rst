@@ -25,7 +25,9 @@ Algorithm Input
 The SVD algorithm accepts the input described below. 
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Singular Value Decomposition (Batch and Online Processing)
    :header-rows: 1
    :align: left
    :widths: 10 60
@@ -47,10 +49,13 @@ Algorithm Parameters
 
 The SVD algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for Singular Value Decomposition (Batch and Online Processing)
    :header-rows: 1
    :align: left
    :widths: 10 20 30
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -81,10 +86,13 @@ Algorithm Output
 The SVD algorithm calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Singular Value Decomposition (Batch and Online Processing)
    :header-rows: 1
    :align: left
    :widths: 10 60
+   :class: longtable
 
    * - Result ID
      - Result

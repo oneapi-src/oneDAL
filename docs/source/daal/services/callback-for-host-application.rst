@@ -28,10 +28,13 @@ pointer to an instance of Algorithm class.
 
 Following methods of the Algorithm class are used:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Algorithm class methods
    :widths: 20 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Name
      - Description
@@ -43,7 +46,9 @@ Following methods of the Algorithm class are used:
 
 HostAppIface class includes following methods:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: HostAppIface class Methods
    :widths: 20 60
    :header-rows: 1
    :align: left

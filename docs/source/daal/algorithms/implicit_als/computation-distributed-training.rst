@@ -26,10 +26,13 @@ Algorithm Parameters
 
 At the training stage, implicit ALS recommender in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Implicit Alternating Least Squares Computaion (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -108,7 +111,9 @@ In this step, implicit ALS recommender training accepts the input described belo
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -121,7 +126,9 @@ In this step, implicit ALS recommender training calculates the result described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -147,7 +154,9 @@ In this step, implicit ALS recommender training accepts the input described belo
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -164,7 +173,9 @@ In this step, implicit ALS recommender training calculates the result described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -203,9 +214,12 @@ In this step, implicit ALS recommender training accepts the input described belo
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -219,7 +233,9 @@ In this step, implicit ALS recommender training calculates the result described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -250,9 +266,12 @@ In this step, implicit ALS recommender training accepts the input described belo
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 4)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -269,10 +288,13 @@ In this step, implicit ALS recommender training calculates the result described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 4)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

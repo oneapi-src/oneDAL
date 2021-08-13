@@ -34,7 +34,9 @@ The sorting algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Sorting (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -51,10 +53,13 @@ Algorithm Parameters
 
 The sorting algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Sorting (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 10 60
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -74,7 +79,9 @@ The sorting algorithm function calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Sorting (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 

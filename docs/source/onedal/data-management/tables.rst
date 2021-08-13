@@ -24,9 +24,12 @@ Tables
 
 This section describes the types related to the :txtref:`table` concept.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Table Types
    :header-rows: 1
    :widths: 10 70
+   :class: longtable
 
    * - Type
      - Description
@@ -94,7 +97,9 @@ Table types
 |short_name| defines a set of classes that implement the
 :txtref:`table` concept for a specific data format:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Table Types for specific data formats
    :header-rows: 1
    :widths: 30 70
 

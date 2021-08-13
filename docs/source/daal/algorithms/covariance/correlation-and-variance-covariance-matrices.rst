@@ -44,9 +44,12 @@ Given a set :math:`X` of :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots,
 dimension :math:`p`, the problem is to compute the sample means and
 variance-covariance matrix or correlation matrix:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Correlation and Variance-Covariance Matrices
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Statistic
      - Definition

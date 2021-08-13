@@ -137,10 +137,13 @@ Algorithm Input
 In addition to the input of the iterative solver,
 the limited-memory BFGS algorithm accepts the following optional input:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Computaion
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - OptionalDataID
      - Input
@@ -165,10 +168,13 @@ Algorithm Parameters
 In addition to parameters of the iterative solver,
 the limited-memory BFGS algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Computaion
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -258,10 +264,13 @@ Algorithm Output
 In addition to the output of the iterative solver, the limited-memory
 BFGS algorithm calculates the following optional results:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Computaion
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - OptionalDataID
      - Output

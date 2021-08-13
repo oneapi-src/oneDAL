@@ -63,7 +63,9 @@ Z-score normalization algorithm accepts an input as described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Z-score (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -80,10 +82,13 @@ Algorithm Parameters
 Z-score normalization algorithm has the following parameters. 
 Some of them are required only for specific values of the computation method parameter ``method``:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
+
+.. list-table:: Algorithm Parameters for Z-score (Batch Processing)
   :header-rows: 1
   :widths: 10 10 10 60   
   :align: left
+  :class: longtable
 
   * - Parameter
     - method
@@ -133,9 +138,12 @@ Z-score normalization algorithm calculates the result as described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Z-score (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result

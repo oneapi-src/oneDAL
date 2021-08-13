@@ -31,7 +31,9 @@ The correlation and variance-covariance matrices algorithm in the online process
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Correlation and Variance-Covariance Matrices Algorithm (Online Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -49,9 +51,12 @@ Algorithm Parameters
 
 The correlation and variance-covariance matrices algorithm has the following parameters in the online processing mode:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for for Correlation and Variance-Covariance Matrices Algorithm (Online Processing)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -103,9 +108,12 @@ The correlation and variance-covariance matrices algorithm in the online process
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for Correlation and Variance-Covariance Matrices Algorithm (Online Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
@@ -141,9 +149,12 @@ The correlation and variance-covariance matrices algorithm calculates the result
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Correlation and Variance-Covariance Matrices Algorithm (Online Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result

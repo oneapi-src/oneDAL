@@ -57,7 +57,9 @@ where
 - :math:`D` is a set of observations that reach the node;
 - :math:`p_i` is specified in the table below:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Decision Forest Classification: impurity calculations
    :widths: 10 10
    :header-rows: 1
    :align: left
@@ -180,11 +182,13 @@ In addition to the parameters of a classifier (see :ref:`classification_usage_mo
 described in :ref:`df_batch`, the training algorithm for decision forest classification has the
 following parameters:
 
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table::
+.. list-table:: Training Parameters for Decision Forest Classification (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -223,10 +227,13 @@ For the description of the input and output, refer to :ref:`classification_usage
 In addition to the parameters of a classifier, decision forest
 classification has the following parameters at the prediction stage:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Decision Forest Classification (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

@@ -32,8 +32,11 @@ Details
 
 Further definitions use the following notations:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Notations for Quality Metrics for Multi-class Classification Algorithms
    :widths: 10 10 30
+   :class: longtable
 
    * - :math:`\text{tp}_i`
      - true positive
@@ -50,9 +53,12 @@ Further definitions use the following notations:
 
 The library uses the following quality metrics for multi-class classifiers:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Definitions of Quality Metrics for Multi-class Classification Algorithms
    :widths: 10 10
    :header-rows: 1
+   :class: longtable
 
    * - Quality Metric
      - Definition
@@ -77,7 +83,7 @@ For more details of these metrics, including the evaluation focus, refer to [Sok
 
 The following is the confusion matrix:
 
-.. list-table::
+.. list-table:: Confusion Matrix for Multi-class Classification Algorithms
     :header-rows: 1
     :stub-columns: 1
 
@@ -142,9 +148,12 @@ The quality metric algorithm for multi-class classifiers accepts the input descr
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Quality Metrics for Multi-class Classification Algorithms (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -162,10 +171,13 @@ Algorithm Parameters
 
 The quality metric algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Quality Metrics for Multi-class Classification Algorithms (Batch Processing)
    :header-rows: 1
    :widths: 10 10 60   
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -191,9 +203,12 @@ Algorithm Output
 
 The quality metric algorithm calculates the result described below. Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. For more details, see Algorithms.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Quality Metrics for Multi-class Classification Algorithms (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result

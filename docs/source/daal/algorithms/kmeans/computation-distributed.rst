@@ -24,10 +24,13 @@ Algorithm Parameters
 
 The K-Means clustering algorithm in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for K-Means Computaion (Distributed Processing)
    :header-rows: 1
    :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -76,10 +79,13 @@ In this step, the K-Means clustering algorithm accepts the input described below
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Computaion (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -94,10 +100,13 @@ In this step, the K-Means clustering algorithm calculates the partial results an
 Pass the ``Partial Result ID`` or ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for K-Means Computaion (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Partial Result ID
      - Result
@@ -140,7 +149,9 @@ For more details, see :ref:`algorithms`.
             but you can define this result as an object of any class derived from ``NumericTable``
             except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, ``CSRNumericTable``.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Computaion (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -168,7 +179,9 @@ In this step, the K-Means clustering algorithm accepts the input from each local
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Computaion (Distributed Processing, Step 2)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -182,10 +195,13 @@ In this step, the K-Means clustering algorithm calculates the results described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Computaion (Distributed Processing, Step 2)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

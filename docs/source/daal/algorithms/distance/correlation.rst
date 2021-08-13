@@ -52,7 +52,9 @@ The correlation distance matrix algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Correlation Distance Matrix (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -68,10 +70,13 @@ Algorithm Parameters
 
 The correlation distance matrix algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Correlation Distance Matrix (Batch Processing)
    :header-rows: 1
    :widths: 10 10 60  
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -90,7 +95,9 @@ The correlation distance matrix algorithm calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Correlation Distance Matrix (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
