@@ -55,8 +55,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     par.memorySavingMode = desc.get_mem_save_mode();
     par.resultsToCompute = daal_dbscan::computeCoreIndices | daal_dbscan::computeCoreObservations;
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
+    const auto daal_weights = interop::convert_to_daal_table(queue, weights);
 
     array<int> arr_responses = array<int>::empty(queue, row_count * 1, sycl::usm::alloc::device);
     array<int> arr_cluster_count = array<int>::empty(queue, 1, sycl::usm::alloc::device);
