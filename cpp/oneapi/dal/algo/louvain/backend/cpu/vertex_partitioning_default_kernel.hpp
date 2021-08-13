@@ -24,8 +24,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
-#include <unordered_map>
-
 namespace oneapi::dal::preview::louvain::backend {
 using namespace oneapi::dal::preview::detail;
 using namespace oneapi::dal::preview::backend;
@@ -71,44 +69,77 @@ inline void compress_graph(vertex_size_type* rows,
                            value_allocator_type& value_allocator,
                            vertex_allocator_type& vertex_allocator,
                            byte_alloc_iface* alloc_ptr) {
-    std::vector<std::unordered_map<vertex_type, EdgeValue>> weights(community_count);
+    vertex_type* c_neighbors = allocate(vertex_allocator, community_count);
+    EdgeValue* weights = allocate(value_allocator, community_count);
     EdgeValue* c_self_loops = allocate(value_allocator, community_count);
+    vertex_type* c_rows = allocate(vertex_allocator, community_count + 1);
+    c_rows[0] = 0;
     for (std::int64_t c = 0; c < community_count; ++c) {
         c_self_loops[c] = 0;
+        weights[c] = 0;
     }
-    for (std::int64_t v = 0; v < vertex_count; ++v) {
-        vertex_type c = partition[v];
-        c_self_loops[c] += self_loops[v];
-        for (std::int64_t index = rows[v]; index < rows[v + 1]; ++index) {
-            vertex_type to = cols[index];
-            EdgeValue v_w = vals[index];
-            vertex_type to_c = partition[to];
-            if (c == to_c) {
-                if (v < to) {
-                    c_self_loops[c] += v_w;
+    using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
+    using ev1v_t = vector_container<EdgeValue, value_allocator_type>;
+    using v1a_t = inner_alloc<v1v_t>;
+    using v2v_t = vector_container<v1v_t, v1a_t>;
+
+    v1a_t v1a(alloc_ptr);
+    v2v_t c2v(community_count, v1a);
+    v1v_t c_cols(vertex_allocator);
+    ev1v_t c_vals(value_allocator);
+
+    for (int64_t v = 0; v < vertex_count; ++v) {
+        std::int32_t c = partition[v];
+        c2v[c].push_back(v);
+    }
+
+    std::int64_t neighbor_count = 0;
+    for (std::int64_t c = 0; c < community_count; ++c) {
+        for (std::int32_t v : c2v[c]) {
+            c_self_loops[c] += self_loops[v];
+            for (std::int64_t index = rows[v]; index < rows[v + 1]; ++index) {
+                std::int32_t v_to = cols[index];
+                std::int32_t c_to = partition[v_to];
+                EdgeValue v_w = vals[index];
+                if (c == c_to) {
+                    if (v < v_to) {
+                        c_self_loops[c] += v_w;
+                    }
+                }
+                else {
+                    if (weights[c_to] == 0) {
+                        c_neighbors[neighbor_count++] = c_to;
+                    }
+                    weights[c_to] += v_w;
                 }
             }
-            else {
-                weights[c][to_c] += v_w;
-            }
         }
-    }
-    std::int64_t cols_size = 0;
-    for (std::int64_t index = 0; index < community_count; ++index) {
-        rows[index + 1] = rows[index] + weights[index].size();
-        cols_size += weights[index].size();
-    }
-    for (std::int64_t index = 0, c = 0; c < community_count; ++c) {
-        for (const auto& edge : weights[c]) {
-            cols[index] = edge.first;
-            vals[index++] = edge.second;
+        c_rows[c + 1] = c_rows[c] + neighbor_count;
+        c_cols.resize(c_rows[c + 1]);
+        c_vals.resize(c_rows[c + 1]);
+        for (std::int64_t index = 0, c_index = c_rows[c]; index < neighbor_count;
+             ++index, ++c_index) {
+            std::int32_t c_neigh = c_neighbors[index];
+            c_cols[c_index] = c_neigh;
+            c_vals[c_index] = weights[c_neigh];
+            weights[c_neigh] = 0;
         }
+        neighbor_count = 0;
     }
 
     for (std::int64_t c = 0; c < community_count; ++c) {
         self_loops[c] = c_self_loops[c];
+        rows[c + 1] = c_rows[c + 1];
     }
+    for (std::int64_t index = 0; index < c_cols.size(); ++index) {
+        cols[index] = c_cols[index];
+        vals[index] = c_vals[index];
+    }
+
     deallocate(value_allocator, c_self_loops, community_count);
+    deallocate(value_allocator, weights, community_count);
+    deallocate(vertex_allocator, c_neighbors, community_count);
+    deallocate(vertex_allocator, c_rows, community_count + 1);
 }
 
 template <typename vertex_type,
@@ -390,19 +421,13 @@ struct louvain_kernel {
                                         vertex_size_allocator,
                                         vertex_allocator);
 
-                std::int64_t community_count =
-                    reindex_communities(labels, vertex_count, vertex_allocator);
                 if (!changed) {
-                    if (communities.empty()) {
-                        labels_size.push_back(community_count);
-                        vertex_size.push_back(vertex_count);
-                        communities.push_back(labels);
-                    }
-                    else {
-                        deallocate(vertex_allocator, labels, vertex_count);
-                    }
+                    deallocate(vertex_allocator, labels, vertex_count);
                     break;
                 }
+                std::int64_t community_count =
+                    reindex_communities(labels, vertex_count, vertex_allocator);
+
                 compress_graph(rows,
                                cols,
                                weights,
@@ -418,8 +443,9 @@ struct louvain_kernel {
                 communities.push_back(labels);
                 vertex_count = community_count;
             }
+
+            // flat the communities from the next iteration
             for (std::int64_t iteration = communities.size() - 2; iteration >= 0; --iteration) {
-                // flat the communities from the next iteration
                 for (std::int64_t v = 0; v < vertex_size[iteration]; ++v) {
                     communities[iteration][v] =
                         communities[iteration + 1][communities[iteration][v]];
@@ -428,8 +454,20 @@ struct louvain_kernel {
 
             auto labels_arr = array<vertex_type>::empty(t.get_vertex_count());
             vertex_type* labels_ = labels_arr.get_mutable_data();
-            for (std::int64_t v = 0; v < t.get_vertex_count(); ++v) {
-                labels_[v] = communities[0][v];
+            if (!communities.empty()) {
+                for (std::int64_t v = 0; v < t.get_vertex_count(); ++v) {
+                    labels_[v] = communities[0][v];
+                }
+            }
+            else if (init_partition == nullptr) {
+                for (std::int64_t v = 0; v < t.get_vertex_count(); ++v) {
+                    labels_[v] = v;
+                }
+            }
+            else {
+                for (std::int64_t v = 0; v < t.get_vertex_count(); ++v) {
+                    labels_[v] = init_partition[v];
+                }
             }
 
             deallocate(vertex_size_allocator, rows, t.get_vertex_count() + 1);
