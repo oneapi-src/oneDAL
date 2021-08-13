@@ -1,6 +1,5 @@
-/* file: covariance_dense_default_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,31 +14,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of Covariance kernel.
-//--
-*/
+#include "oneapi/dal/algo/covariance.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
-#include "src/algorithms/covariance/covariance_container.h"
-#include "src/algorithms/covariance/covariance_dense_batch_impl.i"
+#include "example_util/utils.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace covariance
-{
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+namespace dal = oneapi::dal;
+
+int main(int argc, char const *argv[]) {
+    const auto input_file_name = get_data_path("covcormoments_dense.csv");
+
+    const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
+    auto cov_desc = dal::covariance::descriptor{}.set_result_options(
+        dal::covariance::result_options::cov_matrix);
+
+    auto result = dal::compute(cov_desc, input);
+
+    std::cout << "Cov:\n" << result.get_cov_matrix() << std::endl;
+
+    return 0;
 }
-
-namespace internal
-{
-template class DAAL_EXPORT CovarianceDenseBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-
-} // namespace covariance
-} // namespace algorithms
-} // namespace daal
