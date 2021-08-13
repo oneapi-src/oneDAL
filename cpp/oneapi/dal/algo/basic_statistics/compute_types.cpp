@@ -153,51 +153,81 @@ const result_option_id& compute_result<Task>::get_result_options() const {
 
 template <typename Task>
 void compute_result<Task>::set_min_impl(const table& value) {
+    if (!get_result_options().test(result_options::min)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->min = value;
 }
 
 template <typename Task>
 void compute_result<Task>::set_max_impl(const table& value) {
+    if (!get_result_options().test(result_options::max)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->max = value;
 }
 
 template <typename Task>
 void compute_result<Task>::set_sum_impl(const table& value) {
+    if (!get_result_options().test(result_options::sum)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->sum = value;
 }
 
 template <typename Task>
 void compute_result<Task>::set_sum_squares_impl(const table& value) {
+    if (!get_result_options().test(result_options::sum_squares)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->sum2 = value;
 }
 
 template <typename Task>
 void compute_result<Task>::set_sum_squares_centered_impl(const table& value) {
+    if (!get_result_options().test(result_options::sum_squares_centered)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->sum2cent = value;
 }
 
 template <typename Task>
 void compute_result<Task>::set_mean_impl(const table& value) {
+    if (!get_result_options().test(result_options::mean)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->mean = value;
 }
 
 template <typename Task>
 void compute_result<Task>::set_second_order_raw_moment_impl(const table& value) {
+    if (!get_result_options().test(result_options::second_order_raw_moment)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->sorm = value;
 }
 
 template <typename Task>
 void compute_result<Task>::set_variance_impl(const table& value) {
+    if (!get_result_options().test(result_options::variance)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->varc = value;
 }
 
 template <typename Task>
 void compute_result<Task>::set_standard_deviation_impl(const table& value) {
+    if (!get_result_options().test(result_options::standard_deviation)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->stdev = value;
 }
 
 template <typename Task>
 void compute_result<Task>::set_variation_impl(const table& value) {
+    if (!get_result_options().test(result_options::variation)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->vart = value;
 }
 

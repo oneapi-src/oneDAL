@@ -150,8 +150,6 @@ public:
         if (compute_mode.test(result_options::min)) {
             check_arr_vs_ref(ref_min, la::matrix<double>::wrap(result.get_min()), "Min");
         }
-        else {
-        }
         if (compute_mode.test(result_options::max)) {
             check_arr_vs_ref(ref_max, la::matrix<double>::wrap(result.get_max()), "Max");
         }

@@ -50,29 +50,52 @@ inline auto get_daal_estimates_to_compute(const descriptor_t& desc) {
 }
 
 template <typename Float, typename Task>
-inline auto get_result(const daal_lom::Result& daal_result) {
+inline auto get_result(const descriptor_t& desc, const daal_lom::Result& daal_result) {
     compute_result<Task> res;
 
-    res.set_min(interop::convert_from_daal_homogen_table<Float>(
-        daal_result.get(daal_lom::ResultId::minimum)));
-    res.set_max(interop::convert_from_daal_homogen_table<Float>(
-        daal_result.get(daal_lom::ResultId::maximum)));
-    res.set_sum(
-        interop::convert_from_daal_homogen_table<Float>(daal_result.get(daal_lom::ResultId::sum)));
-    res.set_sum_squares(interop::convert_from_daal_homogen_table<Float>(
-        daal_result.get(daal_lom::ResultId::sumSquares)));
-    res.set_sum_squares_centered(interop::convert_from_daal_homogen_table<Float>(
-        daal_result.get(daal_lom::ResultId::sumSquaresCentered)));
-    res.set_mean(
-        interop::convert_from_daal_homogen_table<Float>(daal_result.get(daal_lom::ResultId::mean)));
-    res.set_second_order_raw_moment(interop::convert_from_daal_homogen_table<Float>(
-        daal_result.get(daal_lom::ResultId::secondOrderRawMoment)));
-    res.set_variance(interop::convert_from_daal_homogen_table<Float>(
-        daal_result.get(daal_lom::ResultId::variance)));
-    res.set_standard_deviation(interop::convert_from_daal_homogen_table<Float>(
-        daal_result.get(daal_lom::ResultId::standardDeviation)));
-    res.set_variation(interop::convert_from_daal_homogen_table<Float>(
-        daal_result.get(daal_lom::ResultId::variation)));
+    const auto res_op = desc.get_result_options();
+    res.set_result_options(desc.get_result_options());
+
+    if (res_op.test(result_options::min)) {
+        res.set_min(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::minimum)));
+    }
+    if (res_op.test(result_options::max)) {
+        res.set_max(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::maximum)));
+    }
+    if (res_op.test(result_options::sum)) {
+        res.set_sum(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::sum)));
+    }
+    if (res_op.test(result_options::sum_squares)) {
+        res.set_sum_squares(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::sumSquares)));
+    }
+    if (res_op.test(result_options::sum_squares_centered)) {
+        res.set_sum_squares_centered(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::sumSquaresCentered)));
+    }
+    if (res_op.test(result_options::mean)) {
+        res.set_mean(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::mean)));
+    }
+    if (res_op.test(result_options::second_order_raw_moment)) {
+        res.set_second_order_raw_moment(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::secondOrderRawMoment)));
+    }
+    if (res_op.test(result_options::variance)) {
+        res.set_variance(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::variance)));
+    }
+    if (res_op.test(result_options::standard_deviation)) {
+        res.set_standard_deviation(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::standardDeviation)));
+    }
+    if (res_op.test(result_options::variation)) {
+        res.set_variation(interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_lom::ResultId::variation)));
+    }
 
     return res;
 }
