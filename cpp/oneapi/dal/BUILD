@@ -112,6 +112,9 @@ dal_test_suite(
     dal_deps = [ ":common" ],
 )
 
+# We don't want unconditional dependenciy on MPI in
+# the build or test process, so this target should not
+# be included in dependencies of non MPI-specific targets.
 dal_test_suite(
     name = "mpi_tests",
     framework = "catch2",
@@ -138,7 +141,6 @@ dal_collect_test_suites(
     ],
     tests = [
         ":common_tests",
-        ":mpi_tests",
         # TODO: Temporary disabled due to
         #       unexpectedly high build time
         # "@onedal//cpp/oneapi:dal_hpp_test",
