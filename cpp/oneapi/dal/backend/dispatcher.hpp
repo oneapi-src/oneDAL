@@ -148,6 +148,19 @@ struct kernel_spec {};
 template <typename... KernelSpecs>
 struct kernel_dispatcher {};
 
+template <typename Context, typename Kernel, typename... Args>
+struct kernel_return_type {
+    using type = decltype(std::declval<Kernel>()(std::declval<Context>(), std::declval<Args>()...));
+};
+
+template <typename... Args>
+using cpu_kernel_return_t = typename kernel_return_type<context_cpu, Args...>::type;
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename... Args>
+using gpu_kernel_return_t = typename kernel_return_type<context_gpu, Args...>::type;
+#endif
+
 /// Dispatcher for the case of only CPU and single-node algorithm
 template <typename CpuKernel>
 struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
@@ -157,7 +170,10 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
     }
 
     template <typename... Args>
-    auto operator()(const detail::spmd_host_policy& policy, Args&&... args) const {
+    auto operator()(const detail::spmd_host_policy& policy, Args&&... args) const
+        -> cpu_kernel_return_t<CpuKernel, Args...> {
+        // We have to specify return type for this function as compiler cannot
+        // infer it from a body that consist of single `throw` expression
         using msg = detail::error_messages;
         throw unimplemented{ msg::spmd_version_of_algorithm_is_not_implemented() };
     }
@@ -170,7 +186,9 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
             [&]() {
                 return CpuKernel{}(context_cpu{}, std::forward<Args>(args)...);
             },
-            [&]() {
+            [&]() -> cpu_kernel_return_t<CpuKernel, Args...> {
+                // We have to specify return type for this lambda as compiler cannot
+                // infer it from a body that consist of single `throw` expression
                 using msg = detail::error_messages;
                 throw unimplemented{ msg::algorithm_is_not_implemented_for_this_device() };
             });
@@ -179,7 +197,10 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename... Args>
-    auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const {
+    auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const
+        -> cpu_kernel_return_t<CpuKernel, Args...> {
+        // We have to specify return type for this function as compiler cannot
+        // infer it from a body that consist of single `throw` expression
         using msg = detail::error_messages;
         throw unimplemented{ msg::spmd_version_of_algorithm_is_not_implemented() };
     }
@@ -204,7 +225,10 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
     }
 
     template <typename... Args>
-    auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const {
+    auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const
+        -> cpu_kernel_return_t<CpuKernel, Args...> {
+        // We have to specify return type for this function as compiler cannot
+        // infer it from a body that consist of single `throw` expression
         using msg = detail::error_messages;
         throw unimplemented{ msg::spmd_version_of_algorithm_is_not_implemented() };
     }
@@ -233,7 +257,9 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
     auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const {
         return dispatch_by_device(
             policy.get_local(),
-            [&]() {
+            [&]() -> gpu_kernel_return_t<GpuKernel, Args...> {
+                // We have to specify return type for this lambda as compiler cannot
+                // infer it from a body that consist of single `throw` expression
                 using msg = detail::error_messages;
                 throw unimplemented{
                     msg::spmd_version_of_algorithm_is_not_implemented_for_this_device()

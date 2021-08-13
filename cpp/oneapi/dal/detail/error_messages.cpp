@@ -274,5 +274,8 @@ MSG(invalid_number_of_trees, "Invalid number of trees in model")
 MSG(invalid_number_of_classes, "Invalid number of classes")
 MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
 
+/* Louvain */
+MSG(louvain_algorithm_is_not_implemented, "Louvain algorithm is not implemented")
+
 } // namespace v1
 } // namespace oneapi::dal::detail

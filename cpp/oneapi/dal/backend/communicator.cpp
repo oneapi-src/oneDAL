@@ -54,8 +54,10 @@ public:
                      byte_t* send_buf,
                      std::int64_t count,
                      const data_type& dtype,
+                     const event_vector& deps,
                      std::int64_t root) override {
         ONEDAL_ASSERT(root == root_rank);
+        sycl::event::wait_and_throw(deps);
         return nullptr;
     }
 #endif
@@ -81,10 +83,12 @@ public:
                       byte_t* recv_buf,
                       std::int64_t recv_count,
                       const data_type& dtype,
+                      const event_vector& deps,
                       std::int64_t root) override {
         ONEDAL_ASSERT(root == root_rank);
         ONEDAL_ASSERT(send_count == recv_count);
 
+        sycl::event::wait_and_throw(deps);
         copy_if_different_pointers(q, recv_buf, send_buf, send_count, dtype);
 
         return nullptr;
@@ -122,6 +126,7 @@ public:
                        const std::int64_t* recv_counts,
                        const std::int64_t* displs,
                        const data_type& dtype,
+                       const event_vector& deps,
                        std::int64_t root) override {
         ONEDAL_ASSERT(root == root_rank);
 
@@ -133,6 +138,7 @@ public:
         ONEDAL_ASSERT(displs);
         ONEDAL_ASSERT(recv_counts[0] == send_count);
 
+        sycl::event::wait_and_throw(deps);
         copy_if_different_pointers(q, recv_buf + displs[0], send_buf, send_count, dtype);
 
         return nullptr;
@@ -157,9 +163,11 @@ public:
                          std::int64_t send_count,
                          byte_t* recv_buf,
                          std::int64_t recv_count,
-                         const data_type& dtype) override {
+                         const data_type& dtype,
+                         const event_vector& deps) override {
         ONEDAL_ASSERT(send_count == recv_count);
 
+        sycl::event::wait_and_throw(deps);
         copy_if_different_pointers(q, recv_buf, send_buf, send_count, dtype);
 
         return nullptr;
@@ -181,7 +189,9 @@ public:
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const dal::detail::spmd_reduce_op& op) override {
+                         const dal::detail::spmd_reduce_op& op,
+                         const event_vector& deps) override {
+        sycl::event::wait_and_throw(deps);
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
         return nullptr;
     }

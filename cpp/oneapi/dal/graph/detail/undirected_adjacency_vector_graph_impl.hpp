@@ -129,6 +129,14 @@ public:
         _topology.set_topology(std::forward<Args>(args)...);
     }
 
+    inline void set_edge_values(EdgeValue* values, int64_t values_count) {
+        _edge_values = edge_values<EdgeValue>::wrap(values, values_count);
+    }
+
+    inline void set_edge_values(const EdgeValue* values, int64_t values_count) {
+        _edge_values = edge_values<EdgeValue>::wrap(values, values_count);
+    }
+
     inline topology<IndexType>& get_topology() {
         return _topology;
     }
