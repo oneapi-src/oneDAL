@@ -22,19 +22,16 @@ namespace oneapi::dal::csv::detail {
 namespace v1 {
 
 using dal::detail::host_policy;
-
-template <typename Object>
-struct read_ops_dispatcher<Object, host_policy> {
-    Object operator()(const host_policy& policy,
-                      const data_source_base& ds,
-                      const read_args<Object>& args) const {
+template <>
+struct read_ops_dispatcher<table, dal::detail::host_policy> {
+    table operator()(const dal::detail::host_policy& policy,
+                     const data_source_base& ds,
+                     const dal::preview::csv::read_args<table>& args) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
-            KERNEL_SINGLE_NODE_CPU(backend::read_kernel_cpu<Object>)>;
+            KERNEL_SINGLE_NODE_CPU(backend::read_kernel_cpu<table>)>;
         return kernel_dispatcher_t()(policy, ds, args);
     }
 };
-
-template struct ONEDAL_EXPORT read_ops_dispatcher<table, host_policy>;
 
 } // namespace v1
 } // namespace oneapi::dal::csv::detail

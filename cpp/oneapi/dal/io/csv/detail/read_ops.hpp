@@ -39,13 +39,6 @@ struct read_ops_dispatcher<Object, dal::detail::host_policy> {
     }
 };
 
-template <>
-struct read_ops_dispatcher<table, dal::detail::host_policy> {
-    table operator()(const dal::detail::host_policy& policy,
-                     const data_source_base& ds,
-                     const read_args<table>& args) const;
-};
-
 template <typename Object, typename DataSource>
 struct read_ops;
 
@@ -63,7 +56,7 @@ struct read_ops<Object, data_source> {
     template <typename Policy>
     auto operator()(const Policy& ctx, const data_source_base& ds, const input_t& args) const {
         check_preconditions(ds, args);
-        auto result = read_ops_dispatcher<Object, Policy>()(ctx, ds, args);
+        const auto result = read_ops_dispatcher<Object, Policy>()(ctx, ds, args);
         check_postconditions(ds, args, result);
         return result;
     }
