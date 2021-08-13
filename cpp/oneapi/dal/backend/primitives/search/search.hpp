@@ -31,6 +31,23 @@ std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width);
 template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width);
 
+template<typename Float, typename Impl>
+class callback_base {
+public:
+    using float_t = Float;
+    using derived_t = Impl;
+
+    sycl::event operator() (std::int64_t qb_id,
+                            const ndview<Float, 2>& indices,
+                            const ndview<Float, 2>& distances,
+                            const event_vector& deps = {}) {
+        return static_cast<const Impl*>(this)->run(qb_id,
+                                                   indices,
+                                                   distances,
+                                                   deps);
+    }
+};
+
 template<typename Float, typename Distance>
 class search_temp_objects;
 
@@ -38,6 +55,8 @@ template <typename Float, typename Distance>
 class search_engine {
     using temp_t = search_temp_objects<Float, Distance>;
     using selc_t = kselect_by_rows<Float>;
+    template<typename CallbackImpl>
+    using call_t = callback_base<Float, CallbackImpl>;
 
     constexpr static inline std::int64_t selection_sub_blocks = 16;
 
@@ -54,25 +73,23 @@ public:
                   std::int64_t train_block,
                   const Distance& distance_instance);
 
-    template <typename Callback>
+    template <typename CallbackImpl>
     sycl::event operator()(const ndview<Float, 2>& query_data,
-                           Callback& callback,
+                           call_t<CallbackImpl>& callback,
                            std::int64_t k_neighbors = 1,
                            const event_vector& deps = {}) const {
         const auto query_block = propose_query_block<Float>(queue_, query_data.get_dimension(1));
         return this->operator()(query_data.callback, k_neighbors, query_block, deps);
     }
 
-    template <typename Callback>
+    template <typename CallbackImpl>
     sycl::event operator()(const ndview<Float, 2>& query_data,
-                           Callback& callback,
+                           call_t<CallbackImpl>& callback,
                            std::int64_t query_block,
                            std::int64_t k_neighbors = 1,
                            const event_vector& deps = {}) const {
+        selc_t selection = create_selection_objects(query_block, k_neighbors);
         const uniform_blocking query_blocking(query_data.get_dimension(0), query_block);
-        const ndshape<2> typical_blocking{
-            query_blocking.get_block(),get_train_blocking().get_block()};
-        selc_t selection(get_queue(), typical_blocking, k_neighbors);
         auto tmp_objs = create_temporary_objects(query_blocking, k_neighbors);
         sycl::event last_event;
         for(std::int64_t qb_id = 0; qb_id < query_blocking.get_block_count(); ++qb_id) {
@@ -91,16 +108,19 @@ public:
                           selc_t& select,
                           const event_vector& deps) const;
 
+    selc_t create_selection_objects(
+        std::int64_t query_block, std::int64_t k_neighbors) const;
+    temp_t create_temporary_objects(
+        const uniform_blocking& query_blocking, std::int64_t k_neighbors) const;
+    sycl::event dispose_temporary_objects(
+        temp_t&& tmp_objs, const event_vector& deps) const;
+
 protected:
     sycl::queue& get_queue() const;
     const Distance& get_distance_impl() const;
     const uniform_blocking& get_train_blocking() const;
     const uniform_blocking& get_selection_blocking() const;
     ndview<Float, 2> get_train_block(std::int64_t idx) const;
-    temp_t create_temporary_objects(
-        const uniform_blocking& query_blocking, std::int64_t k_neighbors) const;
-    sycl::event dispose_temporary_objects(
-        temp_t&& tmp_objs, const event_vector& deps) const;
     static ndview<Float, 2> get_distances(temp_t& tmp_objs);
     static ndview<std::int32_t, 2> get_indices(temp_t& tmp_objs);
     sycl::event reset(temp_t& temp_obj, const event_vector& deps) const;

@@ -180,6 +180,15 @@ sycl::event search_engine<Float, Distance>::dispose_temporary_objects(temp_t&& t
 }
 
 template <typename Float, typename Distance>
+auto search_engine<Float, Distance>::create_selection_objects(
+        std::int64_t query_block, std::int64_t k_neighbors) const -> selc_t {
+    const auto train_block = get_train_blocking().get_block();
+    const auto width = std::min<std::int64_t>(k_neighbors * (selection_sub_blocks + 1), train_block);
+    const ndshape<2> typical_blocking(query_block, width);
+    return selc_t(get_queue(), typical_blocking, k_neighbors);
+}
+
+template <typename Float, typename Distance>
 ndview<std::int32_t, 2> search_engine<Float, Distance>::get_indices(temp_t& tmp_objs) {
     return tmp_objs.get_out_indices();
 }

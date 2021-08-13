@@ -17,3 +17,4 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/search/search.hpp"
+#include "oneapi/dal/backend/primitives/search/copy_search_callback.hpp"

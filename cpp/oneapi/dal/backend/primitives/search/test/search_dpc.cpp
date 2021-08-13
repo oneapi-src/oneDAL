@@ -40,13 +40,14 @@ namespace la = te::linalg;
 template <typename Float>
 class search_test : public te::float_algo_fixture<Float> {
     using idx_t = ndview<std::int32_t, 2>;
+    using search_t = search_engine<Float, squared_l2_distance<Float>>;
 
 public:
     void generate() {
-        m_ = GENERATE(1, 15, 17, 32, 1025);
-        n_ = GENERATE(1, 15, 17, 32, 1026);
-        k_ = GENERATE(1, 15, 32, 96, 1027);
-        d_ = GENERATE(2, 16, 28, 41, 1029);
+        m_ = GENERATE(1, 17, 32, 1025);
+        n_ = GENERATE(1, 17, 32, 1026);
+        k_ = GENERATE(1, 32, 96, 1027);
+        d_ = GENERATE(2, 28, 41, 1029);
         generate_data();
     }
 
@@ -60,14 +61,19 @@ public:
     }
 
     auto get_train_view() {
-        const auto acc = row_accessor<const Float>(train_).pull({ 0, n_ });
+        const auto acc = row_accessor<const Float>(train_).pull({ 0, m_ });
         return ndview<Float, 2>::wrap(acc.get_data(), {m_, d_});
     }
 
     auto get_query_view() {
         const auto acc = row_accessor<const Float>(query_).pull({ 0, n_ });
-        return ndview<Float, 2>::wrap(acc.get_data(), {m_, d_});
+        return ndview<Float, 2>::wrap(acc.get_data(), {n_, d_});
     }
+
+    auto get_temp_indices() {
+        return ndarray<Float, 2>::empty(this->get_queue(), {n_, k_});
+    }
+
 
     void exact_nearest_indices_check(const table& train_data,
                                      const table& infer_data,
@@ -91,6 +97,22 @@ public:
                 REQUIRE(gtr_val == res_val);
             }
         }
+    }
+
+    void check_correctness() {
+        const auto train = get_train_view();
+        const auto query = get_query_view();
+        auto indices = get_temp_indices();
+
+        constexpr std::int64_t qblock = 5;
+        constexpr std::int64_t tblock = 3;
+
+        const search_t engine(this->get_queue(), train, tblock);
+        copy_callback<Float, true, false> callbk(this->get_queue(), qblock, indices);
+
+        engine(query, callbk, k_).wait_and_throw();
+
+        exact_nearest_indices_check(train_, query_, indices);
     }
 
     static auto naive_knn_search(const table& train_data, const table& infer_data) {
@@ -163,7 +185,7 @@ TEMPLATE_LIST_TEST_M(search_test,
                      search_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
-    //this->test_l1_distance();
+    this->test_l1_distance();
 }
 
 } // namespace oneapi::dal::backend::primitives::test
