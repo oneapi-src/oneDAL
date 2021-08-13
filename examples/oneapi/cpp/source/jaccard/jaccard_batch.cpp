@@ -49,7 +49,12 @@ int main(int argc, char **argv) {
     preview::jaccard::caching_builder builder;
 
     // compute Jaccard similarity coefficients
+<<<<<<< HEAD
     const auto result_vertex_similarity = preview::vertex_similarity(jaccard_desc, graph, builder);
+=======
+    const auto result_vertex_similarity =
+        dal::preview::vertex_similarity(jaccard_desc, graph, builder);
+>>>>>>> origin/master
 
     // extract the result
     const auto jaccard_coeffs = result_vertex_similarity.get_coeffs();

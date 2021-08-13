@@ -31,23 +31,22 @@ int main(int argc, char** argv) {
     using weight_type = double;
     using graph_t = dal::preview::directed_adjacency_vector_graph<vertex_type, weight_type>;
 
-    const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
+    auto graph = dal::read<graph_t>(dal::csv::data_source{ filename },
+                                    dal::preview::read_mode::weighted_edge_list);
 
-    std::allocator<char> alloc;
     // set algorithm parameters
-    const auto shortest_paths_desc =
-        descriptor<float, method::delta_stepping, task::one_to_all, std::allocator<char>>(
-            0,
-            0.85,
-            optional_results::distances | optional_results::predecessors,
-            alloc);
+    const auto shortest_paths_desc = descriptor<float, method::delta_stepping, task::one_to_all>(
+        0,
+        0.85,
+        optional_results::distances | optional_results::predecessors);
     // compute shortest paths
     const auto result_shortest_paths = dal::preview::traverse(shortest_paths_desc, graph);
 
     // extract the result
-    std::cout << "Distances:" << std::endl << result_shortest_paths.get_distances() << std::endl;
-    std::cout << "Predecessors:" << std::endl
-              << result_shortest_paths.get_predecessors() << std::endl;
+    std::cout << "Distances: " << std::endl;
+    std::cout << result_shortest_paths.get_distances() << std::endl;
+    std::cout << "Predecessors: " << std::endl;
+    std::cout << result_shortest_paths.get_predecessors() << std::endl;
 
     return 0;
 }

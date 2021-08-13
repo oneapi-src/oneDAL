@@ -23,7 +23,8 @@ CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdi
                 kernel_function sorting normalization optimization_solver objective_function decision_tree             \
                 dtrees/gbt dtrees/forest linear_regression ridge_regression naivebayes stump adaboost brownboost       \
                 logitboost svm multiclassclassifier k_nearest_neighbors logistic_regression implicit_als               \
-                coordinate_descent jaccard triangle_counting shortest_paths subgraph_isomorphism connected_components
+                coordinate_descent jaccard triangle_counting shortest_paths subgraph_isomorphism connected_components  \
+                louvain
 
 classifier += classifier/inner
 low_order_moments +=
@@ -200,6 +201,7 @@ CORE.SERVICES       := compression            \
                        data_management
 
 # Dependencies between oneAPI and core (CPU-only) algorithms
+ONEAPI.ALGOS.covariance    := CORE.covariance
 ONEAPI.ALGOS.decision_forest := CORE.decision_forest decision_tree
 ONEAPI.ALGOS.kmeans := CORE.kmeans
 ONEAPI.ALGOS.kmeans_init := CORE.kmeans
@@ -216,12 +218,14 @@ ONEAPI.ALGOS.svm           := CORE.svm
 ONEAPI.ALGOS :=          \
     chebyshev_distance   \
     cosine_distance      \
+    covariance           \
     decision_forest      \
     decision_tree        \
     kmeans               \
     kmeans_init          \
     knn                  \
     linear_kernel        \
+    louvain              \
     minkowski_distance   \
     pca                  \
     polynomial_kernel    \

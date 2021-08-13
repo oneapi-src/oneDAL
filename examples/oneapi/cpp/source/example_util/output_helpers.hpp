@@ -24,14 +24,19 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 std::ostream &operator<<(std::ostream &stream, const oneapi::dal::table &table) {
+    if (!table.has_data())
+        return stream;
+
     auto arr = oneapi::dal::row_accessor<const float>(table).pull();
     const auto x = arr.get_data();
+    const std::int32_t precision =
+        oneapi::dal::detail::is_floating_point(table.get_metadata().get_data_type(0)) ? 3 : 0;
 
     if (table.get_row_count() <= 10) {
         for (std::int64_t i = 0; i < table.get_row_count(); i++) {
             for (std::int64_t j = 0; j < table.get_column_count(); j++) {
                 std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
-                          << std::setprecision(3) << x[i * table.get_column_count() + j];
+                          << std::setprecision(precision) << x[i * table.get_column_count() + j];
             }
             std::cout << std::endl;
         }
@@ -40,7 +45,7 @@ std::ostream &operator<<(std::ostream &stream, const oneapi::dal::table &table) 
         for (std::int64_t i = 0; i < 5; i++) {
             for (std::int64_t j = 0; j < table.get_column_count(); j++) {
                 std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
-                          << std::setprecision(3) << x[i * table.get_column_count() + j];
+                          << std::setprecision(precision) << x[i * table.get_column_count() + j];
             }
             std::cout << std::endl;
         }
@@ -48,7 +53,7 @@ std::ostream &operator<<(std::ostream &stream, const oneapi::dal::table &table) 
         for (std::int64_t i = table.get_row_count() - 5; i < table.get_row_count(); i++) {
             for (std::int64_t j = 0; j < table.get_column_count(); j++) {
                 std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
-                          << std::setprecision(3) << x[i * table.get_column_count() + j];
+                          << std::setprecision(precision) << x[i * table.get_column_count() + j];
             }
             std::cout << std::endl;
         }

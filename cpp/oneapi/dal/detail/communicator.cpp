@@ -65,8 +65,10 @@ spmd_request spmd_communicator::bcast(sycl::queue& q,
                                       byte_t* send_buf,
                                       std::int64_t count,
                                       const data_type& dtype,
+                                      const std::vector<sycl::event>& deps,
                                       std::int64_t root) const {
-    return make_private<spmd_request>(impl_->bcast(q, send_buf, count, dtype, fix_root_rank(root)));
+    return make_private<spmd_request>(
+        impl_->bcast(q, send_buf, count, dtype, deps, fix_root_rank(root)));
 }
 #endif
 
@@ -87,9 +89,16 @@ spmd_request spmd_communicator::gather(sycl::queue& q,
                                        byte_t* recv_buf,
                                        std::int64_t recv_count,
                                        const data_type& dtype,
+                                       const std::vector<sycl::event>& deps,
                                        std::int64_t root) const {
-    return make_private<spmd_request>(
-        impl_->gather(q, send_buf, send_count, recv_buf, recv_count, dtype, fix_root_rank(root)));
+    return make_private<spmd_request>(impl_->gather(q,
+                                                    send_buf,
+                                                    send_count,
+                                                    recv_buf,
+                                                    recv_count,
+                                                    dtype,
+                                                    deps,
+                                                    fix_root_rank(root)));
 }
 #endif
 
@@ -117,6 +126,7 @@ spmd_request spmd_communicator::gatherv(sycl::queue& q,
                                         const std::int64_t* recv_counts,
                                         const std::int64_t* displs,
                                         const data_type& dtype,
+                                        const std::vector<sycl::event>& deps,
                                         std::int64_t root) const {
     return make_private<spmd_request>(impl_->gatherv(q,
                                                      send_buf,
@@ -125,6 +135,7 @@ spmd_request spmd_communicator::gatherv(sycl::queue& q,
                                                      recv_counts,
                                                      displs,
                                                      dtype,
+                                                     deps,
                                                      fix_root_rank(root)));
 }
 #endif
@@ -143,8 +154,10 @@ spmd_request spmd_communicator::allreduce(sycl::queue& q,
                                           byte_t* recv_buf,
                                           std::int64_t count,
                                           const data_type& dtype,
-                                          const spmd_reduce_op& op) const {
-    return make_private<spmd_request>(impl_->allreduce(q, send_buf, recv_buf, count, dtype, op));
+                                          const spmd_reduce_op& op,
+                                          const std::vector<sycl::event>& deps) const {
+    return make_private<spmd_request>(
+        impl_->allreduce(q, send_buf, recv_buf, count, dtype, op, deps));
 }
 #endif
 
@@ -163,9 +176,10 @@ spmd_request spmd_communicator::allgather(sycl::queue& q,
                                           std::int64_t send_count,
                                           byte_t* recv_buf,
                                           std::int64_t recv_count,
-                                          const data_type& dtype) const {
+                                          const data_type& dtype,
+                                          const std::vector<sycl::event>& deps) const {
     return make_private<spmd_request>(
-        impl_->allgather(q, send_buf, send_count, recv_buf, recv_count, dtype));
+        impl_->allgather(q, send_buf, send_count, recv_buf, recv_count, dtype, deps));
 }
 #endif
 

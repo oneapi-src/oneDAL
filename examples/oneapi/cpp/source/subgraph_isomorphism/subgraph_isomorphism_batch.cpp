@@ -36,10 +36,9 @@ int main(int argc, char **argv) {
     const auto target_graph = dal::read<graph_t>(dal::csv::data_source{ target_filename });
     const auto pattern_graph = dal::read<graph_t>(dal::csv::data_source{ pattern_filename });
 
-    std::allocator<char> alloc;
     // set algorithm parameters
     const auto subgraph_isomorphism_desc =
-        dal::preview::subgraph_isomorphism::descriptor<>(alloc)
+        dal::preview::subgraph_isomorphism::descriptor<>()
             .set_kind(dal::preview::subgraph_isomorphism::kind::non_induced)
             .set_semantic_match(false)
             .set_max_match_count(10);

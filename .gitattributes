@@ -5,9 +5,11 @@
 # to native line endings on checkout.
 *.c text
 *.h text
+*.i text
+*.hpp text
 *.cpp text
 *.def text
-*.i text
+*.cl text
 *.java text
 *.csv text
 *.py text
@@ -20,6 +22,7 @@
 *.html text
 *.htm text
 *.xml text
+*.pom text
 *.r text
 *.yml text
 *.yaml text
@@ -28,6 +31,14 @@
 *.tmpl text
 *.md text
 *.ver text
+*.nuspec text
+*.tpl text
+*.bzl text
+*.BUILD text
+*.rst text
+*.clang-format text
+*.cmake text
+*.in text
 
 # Declare files that will always have LF line endings on checkout.
 *.sh text eol=lf
@@ -48,6 +59,7 @@
 *.vcxproj text eol=crlf
 *.vcxproj.filters text eol=crlf
 *.vcxproj.user text eol=crlf
+*.targets text eol=crlf
 
 # Denote all files that are truly binary and should not be modified.
 *.png binary
@@ -71,3 +83,4 @@
 *.ppt binary
 *.pptx binary
 *.vsdx binary
+*.parquet binary
