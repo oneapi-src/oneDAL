@@ -23,19 +23,15 @@ namespace dal = oneapi::dal;
 
 int main(int argc, char const *argv[]) {
     const auto input_file_name = get_data_path("covcormoments_dense.csv");
-    const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
 
+    const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
 
     const auto result = dal::compute(cov_desc, input);
 
-    auto cor_matrix = result.get_cor_matrix();
-    auto means = result.get_means();
-
-    std::cout << "Means:\n" << means << std::endl;
-
-    std::cout << "Cor:\n" << cor_matrix << std::endl;
+    std::cout << "Means:\n" << result.get_means() << std::endl;
+    std::cout << "Cor:\n" << result.get_cor_matrix() << std::endl;
 
     return 0;
 }
