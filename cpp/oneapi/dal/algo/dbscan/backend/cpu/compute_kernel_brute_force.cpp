@@ -24,7 +24,10 @@
 namespace oneapi::dal::dbscan::backend {
 
 using dal::backend::context_cpu;
+
 using descriptor_t = detail::descriptor_base<task::clustering>;
+using result_t = compute_result<task::clustering>;
+using input_t = compute_input<task::clustering>;
 
 namespace daal_dbscan = daal::algorithms::dbscan;
 namespace interop = dal::backend::interop;
@@ -49,11 +52,11 @@ public:
     }
 };
 
-template <typename Float, typename Task>
-static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
-                                             const descriptor_t& desc,
-                                             const table& data,
-                                             const table& weights) {
+template <typename Float>
+static result_t call_daal_kernel(const context_cpu& ctx,
+                                 const descriptor_t& desc,
+                                 const table& data,
+                                 const table& weights) {
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
@@ -91,7 +94,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
         interop::convert_from_daal_homogen_table<Float>(daal_core_observations);
     auto arr_core_flags = fill_core_flags(core_observation_indices, row_count);
 
-    return compute_result<Task>()
+    return result_t()
         .set_responses(dal::homogen_table::wrap(arr_responses, row_count, 1))
         .set_core_flags(dal::homogen_table::wrap(arr_core_flags, row_count, 1))
         .set_core_observation_indices(core_observation_indices)
@@ -99,21 +102,18 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
         .set_cluster_count(static_cast<std::int64_t>(arr_cluster_count[0]));
 }
 
-template <typename Float, typename Task>
-static compute_result<Task> compute(const context_cpu& ctx,
-                                    const descriptor_t& desc,
-                                    const compute_input<Task>& input) {
-    auto ret = call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_weights());
+template <typename Float>
+static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
+    auto ret = call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_weights());
     return ret;
 }
 
 template <typename Float>
 struct compute_kernel_cpu<Float, method::brute_force, task::clustering> {
-    compute_result<task::clustering> operator()(
-        const context_cpu& ctx,
-        const descriptor_t& desc,
-        const compute_input<task::clustering>& input) const {
-        return compute<Float, task::clustering>(ctx, desc, input);
+    result_t operator()(const context_cpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return compute<Float>(ctx, desc, input);
     }
 };
 

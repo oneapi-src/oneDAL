@@ -275,7 +275,8 @@ MSG(invalid_number_of_classes, "Invalid number of classes")
 MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
 
 /* DBSCAN */
-MSG(weight_dimension_doesnt_match_data_dimension, "Weights dimensions doesn't match data dimensions")
+MSG(weight_dimension_doesnt_match_data_dimension,
+    "Weights dimensions doesn't match data dimensions")
 MSG(weights_column_count_ne_1, "Weights is not a single-column table")
 
 /* Louvain */
