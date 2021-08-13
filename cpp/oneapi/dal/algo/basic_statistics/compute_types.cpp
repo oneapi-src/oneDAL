@@ -61,8 +61,6 @@ void compute_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-template class ONEDAL_EXPORT compute_input<task::compute>;
-
 using msg = dal::detail::error_messages;
 
 template <typename Task>
@@ -208,6 +206,7 @@ void compute_result<Task>::set_result_options_impl(const result_option_id& value
     impl_->options = value;
 }
 
+template class ONEDAL_EXPORT compute_input<task::compute>;
 template class ONEDAL_EXPORT compute_result<task::compute>;
 
 } // namespace v1
