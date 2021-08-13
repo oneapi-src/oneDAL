@@ -38,13 +38,13 @@ public:
     using derived_t = Impl;
 
     sycl::event operator() (std::int64_t qb_id,
-                            const ndview<Float, 2>& indices,
+                            const ndview<std::int32_t, 2>& indices,
                             const ndview<Float, 2>& distances,
                             const event_vector& deps = {}) {
-        return static_cast<const Impl*>(this)->run(qb_id,
-                                                   indices,
-                                                   distances,
-                                                   deps);
+        return static_cast<Impl*>(this)->run(qb_id,
+                                             indices,
+                                             distances,
+                                             deps);
     }
 };
 
@@ -54,11 +54,12 @@ class search_temp_objects;
 template <typename Float, typename Distance>
 class search_engine {
     using temp_t = search_temp_objects<Float, Distance>;
+    using temp_ptr_t = temp_t* const;
     using selc_t = kselect_by_rows<Float>;
     template<typename CallbackImpl>
     using call_t = callback_base<Float, CallbackImpl>;
 
-    constexpr static inline std::int64_t selection_sub_blocks = 16;
+    constexpr static inline std::int64_t selection_sub_blocks = 4;
 
 public:
     search_engine(sycl::queue& queue,
@@ -104,16 +105,16 @@ public:
 
     sycl::event do_search(const ndview<Float, 2>& query,
                           std::int64_t k_neighbors,
-                          temp_t& temp_objs,
+                          temp_ptr_t temp_objs,
                           selc_t& select,
                           const event_vector& deps) const;
 
     selc_t create_selection_objects(
         std::int64_t query_block, std::int64_t k_neighbors) const;
-    temp_t create_temporary_objects(
+    temp_ptr_t create_temporary_objects(
         const uniform_blocking& query_blocking, std::int64_t k_neighbors) const;
     sycl::event dispose_temporary_objects(
-        temp_t&& tmp_objs, const event_vector& deps) const;
+        temp_ptr_t tmp_objs, const event_vector& deps) const;
 
 protected:
     sycl::queue& get_queue() const;
@@ -121,9 +122,9 @@ protected:
     const uniform_blocking& get_train_blocking() const;
     const uniform_blocking& get_selection_blocking() const;
     ndview<Float, 2> get_train_block(std::int64_t idx) const;
-    static ndview<Float, 2> get_distances(temp_t& tmp_objs);
-    static ndview<std::int32_t, 2> get_indices(temp_t& tmp_objs);
-    sycl::event reset(temp_t& temp_obj, const event_vector& deps) const;
+    static ndview<Float, 2> get_distances(temp_ptr_t tmp_objs);
+    static ndview<std::int32_t, 2> get_indices(temp_ptr_t tmp_objs);
+    sycl::event reset(temp_ptr_t temp_obj, const event_vector& deps) const;
     sycl::event distance(const ndview<Float, 2>& query,
                          const ndview<Float, 2>& train,
                          ndview<Float, 2>& distances,

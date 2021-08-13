@@ -71,7 +71,7 @@ public:
     }
 
     auto get_temp_indices() {
-        return ndarray<Float, 2>::empty(this->get_queue(), {n_, k_});
+        return ndarray<std::int32_t, 2>::empty(this->get_queue(), {n_, k_});
     }
 
 
@@ -86,12 +86,13 @@ public:
         REQUIRE(train_data.get_row_count() == gtruth.get_column_count());
         REQUIRE(infer_data.get_row_count() == gtruth.get_row_count());
 
-        const auto indices = naive_knn_search(train_data, infer_data);
-        const auto ind_arr = idx_t::wrap(indices.get_data(), {n_, m_});
+        auto indices = naive_knn_search(train_data, infer_data);
+        auto ind_arr = row_accessor<const std::int32_t>(indices).pull({ 0, n_ });
+        const auto ind_ndarr = idx_t::wrap(ind_arr.get_data(), {n_, m_});
 
         for(std::int64_t j = 0; j < n_; ++j) {
             for(std::int64_t i = 0; i < k_; ++i) {
-                const auto gtr_val = ind_arr.at(j, i);
+                const auto gtr_val = ind_ndarr.at(j, i);
                 const auto res_val = result_arr.at(j, i);
                 CAPTURE(i, j, m_, n_, k_, d_, gtr_val, res_val);
                 REQUIRE(gtr_val == res_val);
@@ -99,7 +100,7 @@ public:
         }
     }
 
-    void check_correctness() {
+    void test_correctness() {
         const auto train = get_train_view();
         const auto query = get_query_view();
         auto indices = get_temp_indices();
@@ -110,7 +111,7 @@ public:
         const search_t engine(this->get_queue(), train, tblock);
         copy_callback<Float, true, false> callbk(this->get_queue(), qblock, indices);
 
-        engine(query, callbk, k_).wait_and_throw();
+        engine(query, callbk, qblock, k_).wait_and_throw();
 
         exact_nearest_indices_check(train_, query_, indices);
     }
@@ -185,7 +186,7 @@ TEMPLATE_LIST_TEST_M(search_test,
                      search_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
-    this->test_l1_distance();
+    this->test_correctness();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

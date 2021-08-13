@@ -40,7 +40,7 @@ public:
 
 protected:
     sycl::event run(std::int64_t qb_id,
-                    const ndview<Float, 2>& inp_indices,
+                    const ndview<std::int32_t, 2>& inp_indices,
                     const ndview<Float, 2>& inp_distances,
                     const event_vector& deps = {});
 

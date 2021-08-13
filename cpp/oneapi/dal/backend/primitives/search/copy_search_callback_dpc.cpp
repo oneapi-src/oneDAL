@@ -22,7 +22,7 @@ template<typename F, bool i, bool d>
 std::int64_t get_length(const ndview<F, 2>& dsts,
                         ndview<std::int32_t, 2>& inds) {
     static_assert(i || d);
-    ONEDAL_ASSERT((i && d) && (dsts.get_shape() == inds.get_shape()));
+    //ONEDAL_ASSERT((i && d) && (dsts.get_shape() == inds.get_shape()));
     return i ? inds.get_dimension(0) : dsts.get_dimension(0);
 }
 
@@ -38,7 +38,7 @@ copy_callback<Float, indices, distances>::copy_callback(sycl::queue& queue,
 
 template<typename Float, bool indices, bool distances>
 sycl::event copy_callback<Float, indices, distances>::run(std::int64_t qb_id,
-                                                          const ndview<Float, 2>& inp_indices,
+                                                          const ndview<std::int32_t, 2>& inp_indices,
                                                           const ndview<Float, 2>& inp_distances,
                                                           const event_vector& deps) {
     sycl::event ind_event, dst_event;

@@ -165,16 +165,16 @@ ndview<Float, 2> search_engine<Float, Distance>::get_train_block(std::int64_t i)
 
 template <typename Float, typename Distance>
 auto search_engine<Float, Distance>::create_temporary_objects(
-        const uniform_blocking& query_blocking, std::int64_t k_neighbors) const -> temp_t {
-    return temp_t(get_queue(),
-                  k_neighbors,
-                  query_blocking.get_block(),
-                  get_train_blocking().get_block(),
-                  selection_sub_blocks);
+        const uniform_blocking& query_blocking, std::int64_t k_neighbors) const -> temp_ptr_t {
+    return new temp_t(get_queue(),
+                      k_neighbors,
+                      query_blocking.get_block(),
+                      get_train_blocking().get_block(),
+                      selection_sub_blocks);
 }
 
 template <typename Float, typename Distance>
-sycl::event search_engine<Float, Distance>::dispose_temporary_objects(temp_t&& tmp_objs, const event_vector& deps) const {
+sycl::event search_engine<Float, Distance>::dispose_temporary_objects(temp_ptr_t temp, const event_vector& deps) const {
     sycl::event::wait_and_throw(deps);
     return sycl::event();
 }
@@ -189,25 +189,25 @@ auto search_engine<Float, Distance>::create_selection_objects(
 }
 
 template <typename Float, typename Distance>
-ndview<std::int32_t, 2> search_engine<Float, Distance>::get_indices(temp_t& tmp_objs) {
-    return tmp_objs.get_out_indices();
+ndview<std::int32_t, 2> search_engine<Float, Distance>::get_indices(temp_ptr_t tmp_objs) {
+    return tmp_objs->get_out_indices();
 }
 
 template <typename Float, typename Distance>
-ndview<Float, 2> search_engine<Float, Distance>::get_distances(temp_t& tmp_objs) {
-    return tmp_objs.get_out_distances();
+ndview<Float, 2> search_engine<Float, Distance>::get_distances(temp_ptr_t tmp_objs) {
+    return tmp_objs->get_out_distances();
 }
 
 template <typename Float, typename Distance>
-sycl::event search_engine<Float, Distance>::reset(temp_t& tmp_objs, const event_vector& deps) const {
+sycl::event search_engine<Float, Distance>::reset(temp_ptr_t tmp_objs, const event_vector& deps) const {
     constexpr Float default_dst_value = detail::limits<Float>::max();
     constexpr std::int32_t default_idx_value = -1;
-    auto out_dsts = fill_with_value(get_queue(), tmp_objs.get_out_distances(), default_dst_value, deps);
-    auto out_idcs = fill_with_value(get_queue(), tmp_objs.get_out_indices(), default_idx_value, deps);
-    auto part_dsts = fill_with_value(get_queue(), tmp_objs.get_part_distances(), default_dst_value, deps);
-    auto part_idcs = fill_with_value(get_queue(), tmp_objs.get_part_indices(), default_idx_value, deps);
+    auto out_dsts = fill_with_value(get_queue(), tmp_objs->get_out_distances(), default_dst_value, deps);
+    auto out_idcs = fill_with_value(get_queue(), tmp_objs->get_out_indices(), default_idx_value, deps);
+    auto part_dsts = fill_with_value(get_queue(), tmp_objs->get_part_distances(), default_dst_value, deps);
+    auto part_idcs = fill_with_value(get_queue(), tmp_objs->get_part_indices(), default_idx_value, deps);
     const auto fill_events = out_dsts + out_idcs + part_dsts + part_idcs;
-    return fill_with_value(get_queue(), tmp_objs.get_distances(), default_dst_value, fill_events);
+    return fill_with_value(get_queue(), tmp_objs->get_distances(), default_dst_value, fill_events);
 }
 
 template <typename Float, typename Distance>
@@ -240,7 +240,7 @@ sycl::event search_engine<Float, Distance>::select_indexed(const ndview<std::int
 template <typename Float, typename Distance>
 sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& query,
                                                       std::int64_t k_neighbors,
-                                                      temp_t& temp_objs,
+                                                      temp_ptr_t temp_objs,
                                                       selc_t& select,
                                                       const event_vector& deps) const {
     sycl::event last_event = reset(temp_objs, deps);
@@ -253,7 +253,7 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
         for(std::int64_t tb_id = start_tb; tb_id < end_tb; ++tb_id) {
             const auto train = get_train_block(tb_id);
             const auto train_block_size = get_train_blocking().get_block_length(tb_id);
-            auto dists = temp_objs.get_distances()
+            auto dists = temp_objs->get_distances()
                         .get_row_slice(0, train_block_size)
                         .get_col_slice(0, query_block_size);
             auto dist_event = distance(query,
@@ -262,8 +262,8 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
                                        { last_event });
 
             const auto rel_idx = tb_id - start_tb;
-            auto part_inds = temp_objs.get_part_indices_block(rel_idx + 1);
-            auto part_dsts = temp_objs.get_part_distances_block(rel_idx + 1);
+            auto part_inds = temp_objs->get_part_indices_block(rel_idx + 1);
+            auto part_dsts = temp_objs->get_part_distances_block(rel_idx + 1);
             auto selt_event = select(get_queue(),
                                      dists,
                                      k_neighbors,
@@ -276,23 +276,23 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
         }
 
         const std::int64_t cols = k_neighbors * (end_tb - start_tb);
-        auto dists = temp_objs.get_part_distances().get_col_slice(0, cols);
+        auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
         auto selt_event = select(get_queue(),
                                  dists,
                                  k_neighbors,
-                                 temp_objs.get_out_distances(),
-                                 temp_objs.get_out_indices(),
+                                 temp_objs->get_out_distances(),
+                                 temp_objs->get_out_indices(),
                                  { last_event });
 
-        auto inds_event = select_indexed(temp_objs.get_part_indices(),
-                                         temp_objs.get_out_indices(),
+        auto inds_event = select_indexed(temp_objs->get_part_indices(),
+                                         temp_objs->get_out_indices(),
                                          { selt_event });
 
 
-        auto part_indcs = temp_objs.get_part_indices_block(0);
+        auto part_indcs = temp_objs->get_part_indices_block(0);
         last_event = copy_by_value(get_queue(),
                                    part_indcs,
-                                   temp_objs.get_out_indices(),
+                                   temp_objs->get_out_indices(),
                                    { inds_event });
     }
     return last_event;
