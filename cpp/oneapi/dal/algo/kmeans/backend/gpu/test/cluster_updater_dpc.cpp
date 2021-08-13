@@ -72,6 +72,37 @@ public:
         return val.to_device(this->get_queue());
     }
 
+    void run_squares_check(const pr::ndview<float_t, 2>& data, float_t tol = 1.0e-7) {
+        const auto row_count = data.get_dimension(0);
+        auto squares = pr::ndarray<float_t, 1>::empty(this->get_queue(), row_count);
+        kernels_fp<float_t>::compute_squares(this->get_queue(), data, squares).wait_and_throw();
+        check_squares(data, squares, tol);
+    }
+
+    void check_squares(const pr::ndview<float_t, 2>& data,
+                       const pr::ndview<float_t, 1>& squares,
+                       float_t tol) {
+        auto row_count = data.get_dimension(0);
+        auto column_count = data.get_dimension(1);
+        auto data_ptr = data.get_data();
+        auto squares_ptr = squares.get_data();
+        ONEDAL_ASSERT(row_count = squares.get_dimension(0));
+        for (std::int64_t i = 0; i < row_count; i++) {
+            float_t sum = 0.0;
+            for (std::int64_t j = 0; j < column_count; j++) {
+                float_t val = data_ptr[i * column_count + j];
+                sum += val * val;
+            }
+            float_t ref_sum = squares_ptr[i];
+            if (ref_sum == float_t(0)) {
+                REQUIRE(sum == float_t(0));
+                continue;
+            }
+            CAPTURE(sum, ref_sum);
+            REQUIRE(std::fabs(sum - ref_sum) / std::max(std::fabs(sum), std::fabs(ref_sum)) < tol);
+        }
+    }
+
     void run_obj_func_check(const pr::ndarray<float_t, 2>& closest_distances,
                             float_t tol = 1.0e-5) {
         auto obj_func = pr::ndarray<float_t, 1>::empty( //
@@ -227,15 +258,26 @@ public:
             this->get_queue(),
             { block_rows, cluster_count },
             sycl::usm::alloc::device);
-
-        kernels_fp<float_t>::template assign_clusters<pr::squared_l2_metric<float_t>>(
+        auto centroid_squares = pr::ndarray<float_t, 1>::empty( //
             this->get_queue(),
-            data,
-            centroids,
-            block_rows,
-            responses,
-            distances,
-            closest_distances)
+            cluster_count);
+        kernels_fp<float_t>::compute_squares(this->get_queue(), centroids, centroid_squares)
+            .wait_and_throw();
+        auto data_squares = pr::ndarray<float_t, 1>::empty( //
+            this->get_queue(),
+            row_count);
+        kernels_fp<float_t>::compute_squares(this->get_queue(), data, data_squares)
+            .wait_and_throw();
+
+        kernels_fp<float_t>::assign_clusters(this->get_queue(),
+                                             data,
+                                             centroids,
+                                             data_squares,
+                                             centroid_squares,
+                                             block_rows,
+                                             responses,
+                                             distances,
+                                             closest_distances)
             .wait_and_throw();
 
         check_assignments(data, centroids, responses, closest_distances, tol);
@@ -422,6 +464,20 @@ public:
 
 using kmeans_types = std::tuple<float, double>;
 
+TEMPLATE_LIST_TEST_M(cluster_updater_test,
+                     "compute squares unit test",
+                     "[kmeans][weekly][unit]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    std::int64_t row_count = 17;
+    std::int64_t column_count = 1001;
+
+    const auto data = //
+        this->template make_uniform<2>({ row_count, column_count }, 0.0, 0.5);
+
+    this->run_squares_check(data);
+}
+
 TEMPLATE_LIST_TEST_M(cluster_updater_test, "objective function", "[objective]", kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
     const std::int64_t row_count = 100001;
@@ -478,6 +534,7 @@ TEMPLATE_LIST_TEST_M(cluster_updater_test, "centroid reduction", "[reduction]", 
 
 TEMPLATE_LIST_TEST_M(cluster_updater_test, "cluster assignment", "[assignments]", kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
 
     using config_t = std::tuple<std::int64_t, //
                                 std::int64_t, //

@@ -9,6 +9,7 @@ ALGOS = [
     "chebyshev_distance",
     "connected_components",
     "cosine_distance",
+    "covariance",
     "decision_forest",
     "decision_tree",
     "jaccard",

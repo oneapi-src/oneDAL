@@ -411,6 +411,7 @@ using kmeans_types = std::tuple<float, double>;
 
 TEMPLATE_LIST_TEST_M(empty_cluster_handling_test, "find candidates", "[candidates]", kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
 
     using config_t = std::tuple<std::int64_t, std::int64_t>;
 
@@ -429,6 +430,7 @@ TEMPLATE_LIST_TEST_M(empty_cluster_handling_test,
                      "[fill]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
 
     const std::int64_t row_count = 56;
     const std::int64_t column_count = 5;
@@ -447,6 +449,7 @@ TEMPLATE_LIST_TEST_M(empty_cluster_handling_test,
                      kmeans_types) {
     using float_t = TestType;
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
 
     const std::int64_t thread_count = 2;
 

@@ -1,6 +1,5 @@
-/* file: covariance_dense_default_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,31 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of Covariance kernel.
-//--
-*/
+#pragma once
 
-#include "src/algorithms/covariance/covariance_container.h"
-#include "src/algorithms/covariance/covariance_dense_batch_impl.i"
+#include "oneapi/dal/algo/covariance/compute_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace covariance
-{
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
+namespace oneapi::dal::covariance::backend {
 
-namespace internal
-{
-template class DAAL_EXPORT CovarianceDenseBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
+template <typename Float, typename Method, typename Task>
+struct compute_kernel_cpu {
+    compute_result<Task> operator()(const dal::backend::context_cpu& ctx,
+                                    const detail::descriptor_base<Task>& params,
+                                    const compute_input<Task>& input) const;
+};
 
-} // namespace covariance
-} // namespace algorithms
-} // namespace daal
+} // namespace oneapi::dal::covariance::backend
