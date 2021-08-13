@@ -68,16 +68,15 @@ dal::detail::shared<preview::detail::byte_alloc_iface> make_allocator(Allocator&
 class read_args_graph_impl : public base {
 public:
     explicit read_args_graph_impl(dal::detail::shared<preview::detail::byte_alloc_iface> alloc,
-                                  oneapi::dal::preview::read_mode mode)
+                                  read_mode mode)
             : allocator(alloc),
               mode(mode) {
-        if (mode != oneapi::dal::preview::read_mode::edge_list &&
-            mode != oneapi::dal::preview::read_mode::weighted_edge_list)
+        if (mode != read_mode::edge_list && mode != read_mode::weighted_edge_list)
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     }
 
     dal::detail::shared<preview::detail::byte_alloc_iface> allocator;
-    oneapi::dal::preview::read_mode mode;
+    read_mode mode;
 };
 } // namespace detail
 
@@ -89,29 +88,27 @@ public:
     using object_t = Object;
     using tag_t = read_args_tag;
     read_args(const read_args& args) = default;
-    read_args(oneapi::dal::preview::read_mode mode = oneapi::dal::preview::read_mode::edge_list)
+    read_args(read_mode mode = read_mode::edge_list)
             : impl_(new detail::read_args_graph_impl(detail::make_allocator(std::allocator<int>{}),
                                                      mode)) {}
     template <typename Allocator>
-    explicit read_args(
-        Allocator&& allocator,
-        oneapi::dal::preview::read_mode mode = oneapi::dal::preview::read_mode::edge_list)
+    explicit read_args(Allocator&& allocator, read_mode mode = read_mode::edge_list)
             : impl_(new detail::read_args_graph_impl(detail::make_allocator(allocator), mode)) {}
     dal::detail::shared<preview::detail::byte_alloc_iface> get_allocator() const {
         return impl_->allocator;
     }
 
-    auto& set_read_mode(oneapi::dal::preview::read_mode mode) {
+    auto& set_read_mode(read_mode mode) {
         set_read_mode_impl(mode);
         return *this;
     }
-    oneapi::dal::preview::read_mode get_read_mode() const {
+    read_mode get_read_mode() const {
         return impl_->mode;
     }
 
 protected:
-    void set_read_mode_impl(oneapi::dal::preview::read_mode mode) {
-        if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
+    void set_read_mode_impl(read_mode mode) {
+        if (mode != read_mode::edge_list && mode != read_mode::weighted_edge_list)
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
         impl_->mode = mode;
     }
