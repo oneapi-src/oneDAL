@@ -54,6 +54,15 @@ tbb_repo(
     strip_prefix = "oneapi-tbb-2021.2.0",
 )
 
+load("@onedal//dev/bazel/deps:mpi.bzl", "mpi_repo")
+mpi_repo(
+    name = "mpi",
+    root_env_var = "MPIROOT",
+    url = "https://files.pythonhosted.org/packages/13/9b/9122cd616c62f50aeb1c9aa6b118043764bf1468940726e284a81c6013bc/impi_rt-2021.2.0-py2.py3-none-manylinux1_x86_64.whl",
+    sha256 = "b52d4dcc8f4bea30c8373676180723ad146a6d80fe92f228c45e1a8d1fe66091",
+    strip_prefix = "impi_rt-2021.2.0.data/data",
+)
+
 load("@onedal//dev/bazel/deps:mkl.bzl", "mkl_repo")
 mkl_repo(
     name = "mkl",
