@@ -126,7 +126,9 @@ public:
                                byte_t* recv_buf,
                                std::int64_t recv_count,
                                const data_type& dtype,
-                               std::int64_t root) override {}
+                               std::int64_t root) override {
+        return nullptr;
+    }
 
     spmd_request_iface* gatherv(const byte_t* send_buf,
                                 std::int64_t send_count,
@@ -134,19 +136,25 @@ public:
                                 const std::int64_t* recv_counts,
                                 const std::int64_t* displs,
                                 const data_type& dtype,
-                                std::int64_t root) override {}
+                                std::int64_t root) override {
+        return nullptr;
+    }
 
     spmd_request_iface* allgather(const byte_t* send_buf,
                                   std::int64_t send_count,
                                   byte_t* recv_buf,
                                   std::int64_t recv_count,
-                                  const data_type& dtype) override {}
+                                  const data_type& dtype) override {
+        return nullptr;
+    }
 
     spmd_request_iface* allreduce(const byte_t* send_buf,
                                   byte_t* recv_buf,
                                   std::int64_t count,
                                   const data_type& dtype,
-                                  const spmd_reduce_op& op) override {}
+                                  const spmd_reduce_op& op) override {
+        return nullptr;
+    }
 
 private:
     MPI_Comm mpi_comm_;

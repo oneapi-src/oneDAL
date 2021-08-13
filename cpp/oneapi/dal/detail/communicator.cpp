@@ -29,11 +29,13 @@ static void check_if_pointer_matches_queue(const sycl::queue& q, const void* ptr
 }
 #endif
 
+#ifdef ONEDAL_DATA_PARALLEL
 static void wait_request(spmd_request_iface* request) {
     if (request) {
         request->wait();
     }
 }
+#endif
 
 const char* communication_error::what() const noexcept {
     return std::runtime_error::what();
