@@ -77,43 +77,43 @@ public:
     /// Creates a new instance of the class with the default property values.
     compute_result();
 
-    /// A $n1 \\times n2$ table with the minimum result.
+    /// A $1 \\times p$ table, where element $j$ is the minimum result for feature $j$.
     /// @remark default = table{}
     const table& get_min() const;
 
-    /// A $n1 \\times n2$ table with the maximum result.
+    /// A $1 \\times p$ table, where element $j$ is the maximum result for feature $j$.
     /// @remark default = table{}
     const table& get_max() const;
 
-    /// A $n1 \\times n2$ table with the sum result.
+    /// A $1 \\times p$ table, where element $j$ is the sum result for feature $j$.
     /// @remark default = table{}
     const table& get_sum() const;
 
-    /// A $n1 \\times n2$ table with the sum_squares result.
+    /// A $1 \\times p$ table, where element $j$ is the sum_squares result for feature $j$.
     /// @remark default = table{}
     const table& get_sum_squares() const;
 
-    /// A $n1 \\times n2$ table with the sum_squares_centered result.
+    /// A $1 \\times p$ table, where element $j$ is the sum_squares_centered result for feature $j$.
     /// @remark default = table{}
     const table& get_sum_squares_centered() const;
 
-    /// A $n1 \\times n2$ table with the mean result.
+    /// A $1 \\times p$ table, where element $j$ is the mean result for feature $j$.
     /// @remark default = table{}
     const table& get_mean() const;
 
-    /// A $n1 \\times n2$ table with the second_order_raw_moment result.
+    /// A $1 \\times p$ table, where element $j$ is the second_order_raw_moment result for feature $j$.
     /// @remark default = table{}
     const table& get_second_order_raw_moment() const;
 
-    /// A $n1 \\times n2$ table with the variance result.
+    /// A $1 \\times p$ table, where element $j$ is the variance result for feature $j$.
     /// @remark default = table{}
     const table& get_variance() const;
 
-    /// A $n1 \\times n2$ table with the standard_deviation result.
+    /// A $1 \\times p$ table, where element $j$ is the standard_deviation result for feature $j$.
     /// @remark default = table{}
     const table& get_standard_deviation() const;
 
-    /// A $n1 \\times n2$ table with the variation result.
+    /// A $1 \\times p$ table, where element $j$ is the variation result for feature $j$.
     /// @remark default = table{}
     const table& get_variation() const;
 
@@ -168,7 +168,7 @@ public:
     }
 
     /// Result options that indicates availability of the properties
-    /// @remark default = default_result_options<Task>
+    /// @remark default = full set of result_options
     const result_option_id& get_result_options() const;
 
     auto& set_result_options(const result_option_id& value) {
