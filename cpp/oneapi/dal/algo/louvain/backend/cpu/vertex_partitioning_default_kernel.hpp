@@ -334,6 +334,35 @@ inline double move_nodes(vertex_size_type* rows,
     return modularity;
 }
 
+template <typename vertex_type, typename community_vector_type, typename size_vector_type>
+inline void set_result_labels(community_vector_type& communities,
+                              size_vector_type& vertex_size,
+                              const vertex_type* init_partition,
+                              std::int64_t vertex_count,
+                              vertex_type* result_labels) {
+    if (!communities.empty()) {
+        // flat the communities from the next iteration
+        for (std::int64_t iteration = communities.size() - 2; iteration >= 0; --iteration) {
+            for (std::int64_t v = 0; v < vertex_size[iteration]; ++v) {
+                communities[iteration][v] = communities[iteration + 1][communities[iteration][v]];
+            }
+        }
+        for (std::int64_t v = 0; v < vertex_count; ++v) {
+            result_labels[v] = communities[0][v];
+        }
+    }
+    else if (init_partition == nullptr) {
+        for (std::int64_t v = 0; v < vertex_count; ++v) {
+            result_labels[v] = v;
+        }
+    }
+    else {
+        for (std::int64_t v = 0; v < vertex_count; ++v) {
+            result_labels[v] = init_partition[v];
+        }
+    }
+}
+
 template <typename Cpu, typename EdgeValue>
 struct louvain_kernel {
     vertex_partitioning_result<task::vertex_partitioning> operator()(
@@ -444,31 +473,13 @@ struct louvain_kernel {
                 vertex_count = community_count;
             }
 
-            // flat the communities from the next iteration
-            for (std::int64_t iteration = communities.size() - 2; iteration >= 0; --iteration) {
-                for (std::int64_t v = 0; v < vertex_size[iteration]; ++v) {
-                    communities[iteration][v] =
-                        communities[iteration + 1][communities[iteration][v]];
-                }
-            }
-
             auto labels_arr = array<vertex_type>::empty(t.get_vertex_count());
             vertex_type* labels_ = labels_arr.get_mutable_data();
-            if (!communities.empty()) {
-                for (std::int64_t v = 0; v < t.get_vertex_count(); ++v) {
-                    labels_[v] = communities[0][v];
-                }
-            }
-            else if (init_partition == nullptr) {
-                for (std::int64_t v = 0; v < t.get_vertex_count(); ++v) {
-                    labels_[v] = v;
-                }
-            }
-            else {
-                for (std::int64_t v = 0; v < t.get_vertex_count(); ++v) {
-                    labels_[v] = init_partition[v];
-                }
-            }
+            set_result_labels(communities,
+                              vertex_size,
+                              init_partition,
+                              t.get_vertex_count(),
+                              labels_);
 
             deallocate(vertex_size_allocator, rows, t.get_vertex_count() + 1);
             deallocate(vertex_allocator, cols, edge_count * 2);
