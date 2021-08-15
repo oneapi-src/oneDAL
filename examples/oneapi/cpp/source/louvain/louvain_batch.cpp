@@ -53,8 +53,7 @@ int main(int argc, char** argv) {
     const std::int64_t data[] = { 0, 1, 2, 3, 4, 5, 6 };
     const auto initial_labels = dal::homogen_table::wrap(data, rows_count, cols_count);
 
-    const auto result =
-        dal::preview::vertex_partitioning(louvain_desc, my_graph, initial_labels);
+    const auto result = dal::preview::vertex_partitioning(louvain_desc, my_graph, initial_labels);
 
     std::cout << "Modularity: " << result.get_modularity() << std::endl;
     std::cout << "Number of communities: " << result.get_community_count() << std::endl;
