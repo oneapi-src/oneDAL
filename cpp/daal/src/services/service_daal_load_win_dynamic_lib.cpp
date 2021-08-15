@@ -159,7 +159,7 @@ static HMODULE WINAPI _DAALLoadLibrary(LPTSTR filename)
 
 DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPTSTR filename)
 {
-    return DAAL_LOAD_DLL(LPTSTR filename);
+    return DAAL_LOAD_DLL(filename);
 }
 
 #endif // defined(_WIN32) || defined(_WIN64)
