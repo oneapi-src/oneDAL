@@ -27,6 +27,7 @@
 #if defined(_WIN32) || defined(_WIN64)
 
     #include <windows.h>
+    #include "services/daal_defines.h"
 
 extern "C"
 {

@@ -23,19 +23,20 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 
+    #include "services/daal_defines.h"
     #include <windows.h>
 
     #if !defined(DAAL_CHECK_DLL_SIG)
-        #define ONEDAL_LOAD_DLL(name) LoadLibrary(name)
+        #define DAAL_LOAD_DLL(name) LoadLibrary(name)
     #else
-        #define ONEDAL_LOAD_DLL(name) _OneDALLoadLibrary(name)
+        #define DAAL_LOAD_DLL(name) _DAALLoadLibrary(name)
 
         #include <stdio.h>
         #include <Softpub.h>
         #include <wincrypt.h>
         #include <wintrust.h>
 
-static HMODULE WINAPI _OneDALLoadLibrary(LPTSTR filename)
+static HMODULE WINAPI _DAALLoadLibrary(LPTSTR filename)
 {
     TCHAR PathBuf[MAX_PATH];
     DWORD rv;
@@ -158,7 +159,7 @@ static HMODULE WINAPI _OneDALLoadLibrary(LPTSTR filename)
 
 DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPTSTR filename)
 {
-    return ONEDAL_LOAD_DLL(LPTSTR filename);
+    return DAAL_LOAD_DLL(LPTSTR filename);
 }
 
 #endif // defined(_WIN32) || defined(_WIN64)
