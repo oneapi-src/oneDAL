@@ -275,7 +275,14 @@ MSG(invalid_number_of_classes, "Invalid number of classes")
 MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
 
 /* Louvain */
-MSG(louvain_algorithm_is_not_implemented, "Louvain algorithm is not implemented")
+MSG(negative_resolution, "Resolution parameter is lower than zero")
+MSG(input_initial_partition_table_rc_neq_vertex_count,
+    "Input initial partition table row count is not equal to vertex count")
+MSG(input_initial_partition_table_has_wrong_cc_expect_one,
+    "Input initial partition table has wrong column count, one column is expected")
+MSG(negatitive_initial_partition_label, "Input initial partition label is lower than zero")
+MSG(initial_partition_label_gte_vertex_count,
+    "Input initial partition label is greater than or equal to vertex count")
 
 } // namespace v1
 } // namespace oneapi::dal::detail
