@@ -36,7 +36,7 @@
         #include <wincrypt.h>
         #include <wintrust.h>
 
-static HMODULE WINAPI _DAALLoadLibrary(LPTSTR filename)
+static HMODULE WINAPI _DAALLoadLibrary(LPCTSTR filename)
 {
     TCHAR PathBuf[MAX_PATH];
     DWORD rv;
@@ -157,7 +157,7 @@ static HMODULE WINAPI _DAALLoadLibrary(LPTSTR filename)
 }
     #endif
 
-DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPTSTR filename)
+DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPCTSTR filename)
 {
     return DAAL_LOAD_DLL(filename);
 }

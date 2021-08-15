@@ -31,7 +31,7 @@
 
 extern "C"
 {
-    DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPTSTR filename);
+    DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPCTSTR filename);
 }
 
 #endif // defined(_WIN32) || defined(_WIN64)
