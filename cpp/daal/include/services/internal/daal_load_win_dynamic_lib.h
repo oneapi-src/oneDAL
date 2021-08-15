@@ -1,4 +1,4 @@
-/* file: daal_load_dll.h */
+/* file: daal_load_win_dynamic_lib.h */
 /*******************************************************************************
 * Copyright 2021 Intel Corporation
 *
