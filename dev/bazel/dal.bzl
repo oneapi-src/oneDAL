@@ -190,13 +190,18 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         _test_device_args() +
         args
     )
+    # Tests need to be marked as manual to prevent inclusion of all tests to
+    # `empty_test` suites, more detail:
+    # https://docs.bazel.build/versions/4.1.0/be/general.html#test_suite_args
+    common_tags = [ "manual" ]
+
     tests_for_test_suite = []
     if "c++" in compile_as:
         cc_test(
             name = name + "_host",
             deps = [ ":" + module_name ],
             data = data,
-            tags = tags + ["host", iface_access_tag],
+            tags = common_tags + tags + ["host", iface_access_tag],
             args = test_args,
         )
         tests_for_test_suite.append(name + "_host")
@@ -210,7 +215,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
                 "@opencl//:opencl_binary",
             ],
             data = data,
-            tags = tags + ["dpc", iface_access_tag],
+            tags = common_tags + tags + ["dpc", iface_access_tag],
             args = test_args,
         )
         tests_for_test_suite.append(name + "_dpc")
@@ -247,10 +252,10 @@ def dal_test_suite(name, srcs=[], tests=[],
         tests = tests + targets,
     )
 
-def dal_collect_test_suites(name, root, modules, tests=[], **kwargs):
+def dal_collect_test_suites(name, root, modules, target="tests", tests=[], **kwargs):
     test_deps = []
     for module_name in modules:
-        test_label = "{0}/{1}:tests".format(root, module_name)
+        test_label = "{0}/{1}:{2}".format(root, module_name, target)
         test_deps.append(test_label)
     dal_test_suite(
         name = name,

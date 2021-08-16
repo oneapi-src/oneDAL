@@ -112,11 +112,8 @@ dal_test_suite(
     dal_deps = [ ":common" ],
 )
 
-# We don't want unconditional dependenciy on MPI in
-# the build or test process, so this target should not
-# be included in dependencies of non MPI-specific targets.
 dal_test_suite(
-    name = "mpi_tests",
+    name = "mpi_communicator_test",
     framework = "catch2",
     srcs = glob([
         "test/mpi_*.cpp"
@@ -124,6 +121,18 @@ dal_test_suite(
     dal_deps = [
         ":common",
         "@onedal//cpp/oneapi/dal/detail/mpi",
+    ],
+)
+
+dal_collect_test_suites(
+    name = "mpi_tests",
+    root = "@onedal//cpp/oneapi/dal",
+    modules = [
+        "algo",
+    ],
+    target = "mpi_tests",
+    tests = [
+        ":mpi_communicator_test",
     ],
 )
 

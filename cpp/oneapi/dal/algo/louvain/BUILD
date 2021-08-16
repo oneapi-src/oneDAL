@@ -22,3 +22,7 @@ dal_test_suite(
         ":louvain",
     ],
 )
+
+dal_test_suite(
+    name = "mpi_tests",
+)
