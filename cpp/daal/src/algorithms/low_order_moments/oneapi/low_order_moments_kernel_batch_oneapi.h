@@ -24,6 +24,7 @@
 #ifndef __LOW_ORDER_MOMENTS_KERNEL_BATCH_ONEAPI_H__
 #define __LOW_ORDER_MOMENTS_KERNEL_BATCH_ONEAPI_H__
 
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/moments/low_order_moments_types.h"
@@ -105,19 +106,19 @@ template <typename algorithmFPType, low_order_moments::Method method>
 class LowOrderMomentsBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(NumericTable * dataTable, Result * result, const Parameter * parameter);
+    services::Status compute(data_management::NumericTable * dataTable, Result * result, const Parameter * parameter);
 };
 
 template <typename algorithmFPType, EstimatesToCompute scope>
 class LowOrderMomentsBatchTaskOneAPI : public TaskInfoBatch<algorithmFPType, scope>
 {
 public:
-    LowOrderMomentsBatchTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, NumericTable * dataTable, Result * result,
-                                   services::Status & status);
+    LowOrderMomentsBatchTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, data_management::NumericTable * dataTable,
+                                   Result * result, services::Status & status);
     LowOrderMomentsBatchTaskOneAPI(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     LowOrderMomentsBatchTaskOneAPI & operator=(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsBatchTaskOneAPI();
-    Status compute();
+    services::Status compute();
 
 private:
     static constexpr size_t _uint32max = static_cast<size_t>(services::internal::MaxVal<uint32_t>::get());
@@ -132,15 +133,15 @@ private:
     uint32_t nColsBlocks;
     uint32_t workItemsPerGroup;
 
-    NumericTable * dataTable;
-    BlockDescriptor<algorithmFPType> dataBD;
+    data_management::NumericTable * dataTable;
+    data_management::BlockDescriptor<algorithmFPType> dataBD;
 
     services::internal::sycl::UniversalBuffer bNVec; // contains info about num of vectors in block
 
-    NumericTablePtr resultTable[TaskInfoBatch<algorithmFPType, scope>::nResults];
+    data_management::NumericTablePtr resultTable[TaskInfoBatch<algorithmFPType, scope>::nResults];
     services::internal::sycl::UniversalBuffer bAuxBuffers[TaskInfoBatch<algorithmFPType, scope>::nBuffers];
 
-    BlockDescriptor<algorithmFPType> resultBD[TaskInfoBatch<algorithmFPType, scope>::nResults];
+    data_management::BlockDescriptor<algorithmFPType> resultBD[TaskInfoBatch<algorithmFPType, scope>::nResults];
 };
 
 } // namespace internal

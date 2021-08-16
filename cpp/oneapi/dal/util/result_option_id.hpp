@@ -79,6 +79,11 @@ constexpr inline ResultOptionIdType operator&(const ResultOptionIdType& lhs,
 }
 
 template <typename ResultOptionIdType, typename = enable_if_result_option_id_t<ResultOptionIdType>>
+constexpr inline ResultOptionIdType operator~(const ResultOptionIdType& hs) {
+    return ResultOptionIdType{ result_option_id_base{ ~(hs.get_mask()) } };
+}
+
+template <typename ResultOptionIdType, typename = enable_if_result_option_id_t<ResultOptionIdType>>
 constexpr inline bool operator==(const ResultOptionIdType& lhs, const ResultOptionIdType& rhs) {
     return lhs.get_mask() == rhs.get_mask();
 }
