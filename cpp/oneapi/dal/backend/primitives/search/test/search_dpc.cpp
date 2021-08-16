@@ -41,12 +41,12 @@ template <typename Float>
 class search_test : public te::float_algo_fixture<Float> {
     using idx_t = ndview<std::int32_t, 2>;
     using dst_t = ndview<Float, 2>;
-    //using search_t = search_engine<Float, squared_l2_distance<Float>>;
-    using search_t = search_engine<Float, lp_distance<Float>>;
+    using search_t = search_engine<Float, squared_l2_distance<Float>>;
+    //using search_t = search_engine<Float, lp_distance<Float>>;
 
 public:
     void generate() {
-        m_ = GENERATE(9/*, 17, 32, 1025*/);
+        m_ = GENERATE(11/*, 17, 32, 1025*/);
         n_ = GENERATE(9/*, 17, 32, 1026*/);
         k_ = GENERATE(1, 3/*, 5, 7, 9*/);
         d_ = GENERATE(2/*, 28, 41, 1029*/);
@@ -56,10 +56,10 @@ public:
     void generate_data() {
         const auto train_df = GENERATE_DATAFRAME(
             te::dataframe_builder{ m_, d_ }.fill_uniform(-0.2, 0.5));
-        this->train_ = train_df.get_table(this->get_homogen_table_id());
+        this->train_ = train_df.get_table(this->get_policy(), this->get_homogen_table_id());
         const auto query_df = GENERATE_DATAFRAME(
             te::dataframe_builder{ n_, d_ }.fill_uniform(-0.5, 1.0));
-        this->query_ = query_df.get_table(this->get_homogen_table_id());
+        this->query_ = query_df.get_table(this->get_policy(), this->get_homogen_table_id());
     }
 
     bool is_initialized() const {
@@ -108,7 +108,7 @@ public:
         auto ind_arr = row_accessor<const std::int32_t>(indices).pull({ 0, n_ });
         const auto ind_ndarr = idx_t::wrap(ind_arr.get_data(), {n_, m_});
 
-        std::cout << m_ << ' ' << n_ << ' ' << k_ << ' ' << d_ << std::endl;
+        //std::cout << m_ << ' ' << n_ << ' ' << k_ << ' ' << d_ << std::endl;
 
         for(std::int64_t j = 0; j < n_; ++j) {
             for(std::int64_t i = 0; i < k_; ++i) {
@@ -127,11 +127,14 @@ public:
 
         const auto train = get_train_view();
         const auto query = get_query_view();
+        std::cout << "Train: " << train << std::endl;
+        std::cout << "Query: " << query << std::endl;
+
         auto indices = get_temp_indices();
         auto distances = get_temp_distances();
 
-        constexpr std::int64_t qblock = 2;
-        constexpr std::int64_t tblock = 3;
+        constexpr std::int64_t qblock = 3;
+        constexpr std::int64_t tblock = 4;
 
         const search_t engine(this->get_queue(), train, tblock);
         copy_callback<Float, true, true> callbk(this->get_queue(), qblock, indices, distances);
@@ -164,10 +167,9 @@ public:
                     const auto diff = queue_row[s] - train_row[s];
                     distances_ptr[j * m + i] += diff * diff;
                 }
-                distances_ptr[j * n + i] = std::sqrt(distances_ptr[j * n + i]);
-                std::cout << "j: " << j << " i: " << i << " d: " << distances_ptr[j * m + i] << std::endl;
             }
         }
+        std::cout << "GTD: " << ndview<Float, 2>::wrap(distances_ptr, {n, m});
         return de::homogen_table_builder{}.reset(distances_arr, n, m).build();
     }
 
@@ -205,7 +207,7 @@ private:
     std::int64_t m_, n_, k_, d_;
 };
 
-using search_types = std::tuple<float, double>;
+using search_types = std::tuple<float/*, double*/>;
 
 TEMPLATE_LIST_TEST_M(search_test,
                      "Randomly filled L2-distance search",

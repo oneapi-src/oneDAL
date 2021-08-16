@@ -97,6 +97,7 @@ public:
             const auto query_slice = query_data.get_row_slice(
                                                    query_blocking.get_block_start_index(qb_id),
                                                    query_blocking.get_block_end_index(qb_id));
+            std::cout << "QS: " << query_slice << std::endl;
             auto search_event = do_search(query_slice, k_neighbors, tmp_objs, selection, deps + last_event);
             auto out_indices = get_indices(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
             auto out_distances = get_distances(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
