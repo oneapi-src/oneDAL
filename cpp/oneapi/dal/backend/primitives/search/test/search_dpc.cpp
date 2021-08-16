@@ -46,10 +46,10 @@ class search_test : public te::float_algo_fixture<Float> {
 
 public:
     void generate() {
-        m_ = GENERATE(11/*, 17, 32, 1025*/);
-        n_ = GENERATE(10/*, 17, 32, 1026*/);
-        k_ = GENERATE(1, 3/*, 5, 7, 9*/);
-        d_ = GENERATE(2/*, 28, 41, 1029*/);
+        m_ = GENERATE(2, 11, 17, 32, 127);
+        n_ = GENERATE(3, 10, 17, 32, 129);
+        k_ = GENERATE(1, 3, 5, 7, 9);
+        d_ = GENERATE(2, 28, 41, 131);
         generate_data();
     }
 
@@ -121,24 +121,23 @@ public:
 
     void test_correctness() {
         check_if_initialized();
+        if(m_ > k_) {
+            const auto train = get_train_view();
+            const auto query = get_query_view();
 
-        const auto train = get_train_view();
-        const auto query = get_query_view();
-        std::cout << "Train: " << train << std::endl;
-        std::cout << "Query: " << query << std::endl;
+            auto indices = get_temp_indices();
+            auto distances = get_temp_distances();
 
-        auto indices = get_temp_indices();
-        auto distances = get_temp_distances();
+            constexpr std::int64_t qblock = 32;
+            constexpr std::int64_t tblock = 64;
 
-        constexpr std::int64_t qblock = 3;
-        constexpr std::int64_t tblock = 4;
+            const search_t engine(this->get_queue(), train, tblock);
+            copy_callback<Float, true, true> callbk(this->get_queue(), qblock, indices, distances);
 
-        const search_t engine(this->get_queue(), train, tblock);
-        copy_callback<Float, true, true> callbk(this->get_queue(), qblock, indices, distances);
+            engine(query, callbk, qblock, k_).wait_and_throw();
 
-        engine(query, callbk, qblock, k_).wait_and_throw();
-
-        exact_nearest_indices_check(train_, query_, indices, distances);
+            exact_nearest_indices_check(train_, query_, indices, distances);
+        }
     }
 
     static auto naive_knn_search(const table& train_data, const table& infer_data) {
@@ -166,7 +165,6 @@ public:
                 }
             }
         }
-        std::cout << "GTD: " << ndview<Float, 2>::wrap(distances_ptr, {n, m});
         return de::homogen_table_builder{}.reset(distances_arr, n, m).build();
     }
 
