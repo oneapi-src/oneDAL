@@ -40,15 +40,16 @@ namespace la = te::linalg;
 template <typename Float>
 class search_test : public te::float_algo_fixture<Float> {
     using idx_t = ndview<std::int32_t, 2>;
+    using dst_t = ndview<Float, 2>;
     //using search_t = search_engine<Float, squared_l2_distance<Float>>;
     using search_t = search_engine<Float, lp_distance<Float>>;
 
 public:
     void generate() {
-        m_ = GENERATE(1, 17, 32, 1025);
-        n_ = GENERATE(1, 17, 32, 1026);
-        k_ = GENERATE(1, 32, 96, 1027);
-        d_ = GENERATE(2, 28, 41, 1029);
+        m_ = GENERATE(9/*, 17, 32, 1025*/);
+        n_ = GENERATE(9/*, 17, 32, 1026*/);
+        k_ = GENERATE(1, 3/*, 5, 7, 9*/);
+        d_ = GENERATE(2/*, 28, 41, 1029*/);
         generate_data();
     }
 
@@ -72,12 +73,14 @@ public:
     }
 
     auto get_train_view() {
-        const auto acc = row_accessor<const Float>(train_).pull({ 0, m_ });
+        const auto acc = row_accessor<const Float>(train_)
+                .pull(this->get_queue(), { 0, m_ });
         return ndview<Float, 2>::wrap(acc.get_data(), {m_, d_});
     }
 
     auto get_query_view() {
-        const auto acc = row_accessor<const Float>(query_).pull({ 0, n_ });
+        const auto acc = row_accessor<const Float>(query_)
+                .pull(this->get_queue(), { 0, n_ });
         return ndview<Float, 2>::wrap(acc.get_data(), {n_, d_});
     }
 
@@ -85,10 +88,14 @@ public:
         return ndarray<std::int32_t, 2>::empty(this->get_queue(), {n_, k_});
     }
 
+    auto get_temp_distances() {
+        return ndarray<Float, 2>::empty(this->get_queue(), {n_, k_});
+    }
 
     void exact_nearest_indices_check(const table& train_data,
                                      const table& infer_data,
-                                     const idx_t& result_arr) {
+                                     const idx_t& result_ids,
+                                     const dst_t& result_dst) {
 
         const auto gtruth = naive_knn_search(train_data, infer_data);
 
@@ -101,12 +108,16 @@ public:
         auto ind_arr = row_accessor<const std::int32_t>(indices).pull({ 0, n_ });
         const auto ind_ndarr = idx_t::wrap(ind_arr.get_data(), {n_, m_});
 
+        std::cout << m_ << ' ' << n_ << ' ' << k_ << ' ' << d_ << std::endl;
+
         for(std::int64_t j = 0; j < n_; ++j) {
             for(std::int64_t i = 0; i < k_; ++i) {
                 const auto gtr_val = ind_ndarr.at(j, i);
-                const auto res_val = result_arr.at(j, i);
-                CAPTURE(i, j, m_, n_, k_, d_, gtr_val, res_val);
-                REQUIRE(gtr_val == res_val);
+                const auto res_val = result_ids.at(j, i);
+                [[maybe_unused]] const auto res_dst = result_dst.at(j, i);
+                CAPTURE(i, j, m_, n_, k_, d_, gtr_val, res_val, res_dst);
+                std::cout << '\t' << i << ' ' << j << ' ' << gtr_val << ' ' << res_val  << ' ' << res_dst << std::endl;
+                //REQUIRE(gtr_val == res_val);
             }
         }
     }
@@ -117,16 +128,17 @@ public:
         const auto train = get_train_view();
         const auto query = get_query_view();
         auto indices = get_temp_indices();
+        auto distances = get_temp_distances();
 
-        constexpr std::int64_t qblock = 5;
+        constexpr std::int64_t qblock = 2;
         constexpr std::int64_t tblock = 3;
 
         const search_t engine(this->get_queue(), train, tblock);
-        copy_callback<Float, true, false> callbk(this->get_queue(), qblock, indices);
+        copy_callback<Float, true, true> callbk(this->get_queue(), qblock, indices, distances);
 
         engine(query, callbk, qblock, k_).wait_and_throw();
 
-        exact_nearest_indices_check(train_, query_, indices);
+        exact_nearest_indices_check(train_, query_, indices, distances);
     }
 
     static auto naive_knn_search(const table& train_data, const table& infer_data) {
@@ -152,6 +164,8 @@ public:
                     const auto diff = queue_row[s] - train_row[s];
                     distances_ptr[j * m + i] += diff * diff;
                 }
+                distances_ptr[j * n + i] = std::sqrt(distances_ptr[j * n + i]);
+                std::cout << "j: " << j << " i: " << i << " d: " << distances_ptr[j * m + i] << std::endl;
             }
         }
         return de::homogen_table_builder{}.reset(distances_arr, n, m).build();

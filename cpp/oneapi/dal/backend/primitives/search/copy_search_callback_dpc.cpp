@@ -48,6 +48,7 @@ sycl::event copy_callback<Float, indices, distances>::run(std::int64_t qb_id,
 
     if constexpr (indices) {
         auto out_block = out_indices_.get_row_slice(from, to);
+        std::cout << "I0: " << inp_indices.at(0, 0) << std::endl;
         ind_event = copy_by_value(queue_,
                                   out_block,
                                   inp_indices,
@@ -55,6 +56,7 @@ sycl::event copy_callback<Float, indices, distances>::run(std::int64_t qb_id,
     }
 
     if constexpr (distances) {
+        std::cout << "D0: " << inp_distances.at(0, 0) << std::endl;
         auto out_block = out_distances_.get_row_slice(from, to);
         dst_event = copy_by_value(queue_,
                                   out_block,

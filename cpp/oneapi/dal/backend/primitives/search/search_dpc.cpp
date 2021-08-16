@@ -42,7 +42,7 @@ public:
                              std::int64_t query_block,
                              std::int64_t train_block,
                              std::int64_t select_block)
-        : k_{k},
+        : k_{k}, qblock_{query_block}, sblock_{select_block},
           distances_{ndarray<Float, 2>::empty(q, {query_block, train_block})},
           out_indices_(ndarray<std::int32_t, 2>::empty(q, {query_block, k})),
           out_distances_(ndarray<Float, 2>::empty(q, {query_block, k})),
@@ -51,6 +51,14 @@ public:
 
     std::int64_t get_k() const {
         return k_;
+    }
+
+    std::int64_t get_query_block() const {
+        return qblock_;
+    }
+
+    std::int64_t get_select_block() const {
+        return sblock_;
     }
 
     ndview<Float, 2>& get_distances() {
@@ -86,7 +94,7 @@ public:
     }
 
 private:
-    const std::int64_t k_;
+    const std::int64_t k_, qblock_, sblock_;
     ndarray<Float, 2> distances_;
     ndarray<std::int32_t, 2> out_indices_;
     ndarray<Float, 2> out_distances_;
@@ -143,10 +151,12 @@ sycl::event search_engine<Float, Distance>::distance(const ndview<Float, 2>& que
                                                      const ndview<Float, 2>& train,
                                                      ndview<Float, 2>& dists,
                                                      const event_vector& deps) const {
+    ONEDAL_ASSERT(query.has_data());
+    ONEDAL_ASSERT(train.has_data());
+    ONEDAL_ASSERT(dists.has_mutable_data());
     ONEDAL_ASSERT(query.get_dimension(1) == train.get_dimension(1));
     ONEDAL_ASSERT(train.get_dimension(0) == dists.get_dimension(1));
     ONEDAL_ASSERT(query.get_dimension(0) == dists.get_dimension(0));
-    ONEDAL_ASSERT(query.has_data() && train.has_data() && dists.has_mutable_data());
     return get_distance_impl()(query, train, dists, deps);
 }
 
@@ -220,6 +230,8 @@ sycl::event search_engine<Float, Distance>::treat_indices(ndview<std::int32_t, 2
                                                           std::int64_t start_index,
                                                           const event_vector& deps) const {
     ONEDAL_ASSERT(indices.has_mutable_data());
+    sycl::event::wait_and_throw(deps);
+    std::cout << "1/4\t\t" << *(indices.get_data()) << ' ' << start_index << std::endl;
     auto* const ids_ptr = indices.get_mutable_data();
     const auto ids_str = indices.get_leading_stride();
     const ndshape<2> ids_shape = indices.get_shape();
@@ -248,18 +260,23 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
                                                       temp_ptr_t temp_objs,
                                                       selc_t& select,
                                                       const event_vector& deps) const {
+    ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
+    ONEDAL_ASSERT(temp_objs->get_select_block() == selection_sub_blocks);
+    ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
     sycl::event last_event = reset(temp_objs, deps);
     const auto query_block_size = query.get_dimension(0);
     //Iterations over larger blocks
     for(std::int64_t sb_id = 0; sb_id < get_selection_blocking().get_block_count(); ++sb_id) {
+        sycl::event::wait_and_throw({last_event});
         const std::int64_t start_tb = get_train_blocking().get_block_start_index(sb_id);
         const std::int64_t end_tb = get_train_blocking().get_block_end_index(sb_id);
+        std::cout << "SI: " << start_tb << std::endl;
+        std::cout << "EI: " << end_tb << std::endl;
         //Iterations over smaller blocks
         for(std::int64_t tb_id = start_tb; tb_id < end_tb; ++tb_id) {
             const auto train = get_train_block(tb_id);
             const auto train_block_size = get_train_blocking().get_block_length(tb_id);
             ONEDAL_ASSERT(train.get_dimension(0) == train_block_size);
-            //last_event.wait_and_throw();
             auto dists = temp_objs->get_distances()
                         .get_col_slice(0, train_block_size)
                         .get_row_slice(0, query_block_size);
@@ -267,19 +284,26 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
                                        train,
                                        dists,
                                        { last_event });
-
-            const auto rel_idx = tb_id - start_tb;
-            auto part_inds = temp_objs->get_part_indices_block(rel_idx + 1);
-            auto part_dsts = temp_objs->get_part_distances_block(rel_idx + 1);
+            sycl::event::wait_and_throw({dist_event});
+            std::cout << "-1\t\t" << *(dists.get_data()) << std::endl;
+            const auto rel_idx = tb_id - start_tb;\
+            std::cout << "RI: " << rel_idx << std::endl;
+            auto part_inds = temp_objs->get_part_indices_block(rel_idx + 1)
+                                            .get_row_slice(0, query_block_size);
+            auto part_dsts = temp_objs->get_part_distances_block(rel_idx + 1)
+                                            .get_row_slice(0, query_block_size);
             auto selt_event = select(get_queue(),
                                      dists,
                                      k_neighbors,
                                      part_dsts,
                                      part_inds,
                                      { dist_event });
-
+            sycl::event::wait_and_throw({selt_event});
+            std::cout << "0\t\t" << *(part_inds.get_data()) << std::endl;
             const auto st_idx = get_train_blocking().get_block_start_index(tb_id);
             last_event = treat_indices(part_inds, st_idx, { selt_event });
+            sycl::event::wait_and_throw({last_event});
+            std::cout << "1\t\t" << *(part_inds.get_data()) << std::endl;
         }
 
         const std::int64_t cols = k_neighbors * (end_tb - start_tb);
@@ -290,11 +314,13 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
                                  temp_objs->get_out_distances(),
                                  temp_objs->get_out_indices(),
                                  { last_event });
-
+        sycl::event::wait_and_throw({selt_event});
+        std::cout << "3\t\t" << *(temp_objs->get_out_indices().get_data()) << std::endl;
         auto inds_event = select_indexed(temp_objs->get_part_indices(),
                                          temp_objs->get_out_indices(),
                                          { selt_event });
-
+        sycl::event::wait_and_throw({inds_event});
+        std::cout << "4\t\t" << *(temp_objs->get_out_indices().get_data()) << std::endl;
 
         auto part_indcs = temp_objs->get_part_indices_block(0);
         last_event = copy_by_value(get_queue(),
