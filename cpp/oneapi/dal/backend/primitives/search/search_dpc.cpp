@@ -308,14 +308,16 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
             std::cout << "PDS: " << part_dsts << std::endl;
             //std::cout << "0\t\t" << *(part_inds.get_data()) << std::endl;
             const auto st_idx = get_train_blocking().get_block_start_index(tb_id);
-            std::cout << "TBSIDX: " << st_idx << std::endl;
             last_event = treat_indices(part_inds, st_idx, { selt_event });
             sycl::event::wait_and_throw({last_event});
+            std::cout << "PTS: " << part_inds << std::endl;
             //std::cout << "1\t\t" << *(part_inds.get_data()) << std::endl;
         }
 
-        const std::int64_t cols = k_neighbors * (end_tb - start_tb);
+        const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
         auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
+        std::cout << "WDS: " << temp_objs->get_part_distances() << std::endl;
+        std::cout << "WIS: " << temp_objs->get_part_indices() << std::endl;
         auto selt_event = select(get_queue(),
                                  dists,
                                  k_neighbors,

@@ -47,7 +47,7 @@ class search_test : public te::float_algo_fixture<Float> {
 public:
     void generate() {
         m_ = GENERATE(11/*, 17, 32, 1025*/);
-        n_ = GENERATE(9/*, 17, 32, 1026*/);
+        n_ = GENERATE(10/*, 17, 32, 1026*/);
         k_ = GENERATE(1, 3/*, 5, 7, 9*/);
         d_ = GENERATE(2/*, 28, 41, 1029*/);
         generate_data();
@@ -108,16 +108,13 @@ public:
         auto ind_arr = row_accessor<const std::int32_t>(indices).pull({ 0, n_ });
         const auto ind_ndarr = idx_t::wrap(ind_arr.get_data(), {n_, m_});
 
-        //std::cout << m_ << ' ' << n_ << ' ' << k_ << ' ' << d_ << std::endl;
-
         for(std::int64_t j = 0; j < n_; ++j) {
             for(std::int64_t i = 0; i < k_; ++i) {
                 const auto gtr_val = ind_ndarr.at(j, i);
                 const auto res_val = result_ids.at(j, i);
                 [[maybe_unused]] const auto res_dst = result_dst.at(j, i);
                 CAPTURE(i, j, m_, n_, k_, d_, gtr_val, res_val, res_dst);
-                std::cout << '\t' << i << ' ' << j << ' ' << gtr_val << ' ' << res_val  << ' ' << res_dst << std::endl;
-                //REQUIRE(gtr_val == res_val);
+                REQUIRE(gtr_val == res_val);
             }
         }
     }
