@@ -23,6 +23,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/algo/louvain/backend/cpu/graph.hpp"
 
 namespace oneapi::dal::preview::louvain::backend {
 using namespace oneapi::dal::preview::detail;
@@ -54,25 +55,18 @@ inline std::int64_t reindex_communities(vertex_type* data,
     return count;
 }
 
-template <typename vertex_type,
-          typename vertex_size_type,
-          typename EdgeValue,
-          typename value_allocator_type,
-          typename vertex_allocator_type>
-inline void compress_graph(vertex_size_type* rows,
-                           vertex_type* cols,
-                           EdgeValue* vals,
-                           EdgeValue* self_loops,
-                           std::int64_t vertex_count,
+template <typename vertex_type, typename EdgeValue>
+inline void compress_graph(graph<vertex_type, EdgeValue>& g,
                            std::int64_t community_count,
-                           vertex_type* partition,
-                           value_allocator_type& value_allocator,
-                           vertex_allocator_type& vertex_allocator,
-                           byte_alloc_iface* alloc_ptr) {
-    vertex_type* c_neighbors = allocate(vertex_allocator, community_count);
-    EdgeValue* weights = allocate(value_allocator, community_count);
-    EdgeValue* c_self_loops = allocate(value_allocator, community_count);
-    vertex_type* c_rows = allocate(vertex_allocator, community_count + 1);
+                           vertex_type* partition) {
+    using value_type = EdgeValue;
+    using value_allocator_type = inner_alloc<value_type>;
+    using vertex_allocator_type = inner_alloc<vertex_type>;
+
+    vertex_type* c_neighbors = allocate(g.vertex_allocator, community_count);
+    EdgeValue* weights = allocate(g.value_allocator, community_count);
+    EdgeValue* c_self_loops = allocate(g.value_allocator, community_count);
+    vertex_type* c_rows = allocate(g.vertex_allocator, community_count + 1);
     c_rows[0] = 0;
     for (std::int64_t c = 0; c < community_count; ++c) {
         c_self_loops[c] = 0;
@@ -83,24 +77,25 @@ inline void compress_graph(vertex_size_type* rows,
     using v1a_t = inner_alloc<v1v_t>;
     using v2v_t = vector_container<v1v_t, v1a_t>;
 
-    v1a_t v1a(alloc_ptr);
+    v1a_t v1a(g.alloc_ptr);
     v2v_t c2v(community_count, v1a);
-    v1v_t c_cols(vertex_allocator);
-    ev1v_t c_vals(value_allocator);
+    v1v_t c_cols(g.vertex_allocator);
+    ev1v_t c_vals(g.value_allocator);
 
-    for (int64_t v = 0; v < vertex_count; ++v) {
-        std::int32_t c = partition[v];
+    for (int64_t v = 0; v < g.vertex_count; ++v) {
+        vertex_type c = partition[v];
         c2v[c].push_back(v);
     }
 
     std::int64_t neighbor_count = 0;
     for (std::int64_t c = 0; c < community_count; ++c) {
-        for (std::int32_t v : c2v[c]) {
-            c_self_loops[c] += self_loops[v];
-            for (std::int64_t index = rows[v]; index < rows[v + 1]; ++index) {
-                std::int32_t v_to = cols[index];
+        for (std::int64_t v_index = 0; v_index < c2v[c].size(); ++v_index) {
+            std::int32_t v = c2v[c][v_index];
+            c_self_loops[c] += g.self_loops[v];
+            for (std::int64_t index = g.rows[v]; index < g.rows[v + 1]; ++index) {
+                std::int32_t v_to = g.cols[index];
                 std::int32_t c_to = partition[v_to];
-                EdgeValue v_w = vals[index];
+                EdgeValue v_w = g.vals[index];
                 if (c == c_to) {
                     if (v < v_to) {
                         c_self_loops[c] += v_w;
@@ -128,59 +123,51 @@ inline void compress_graph(vertex_size_type* rows,
     }
 
     for (std::int64_t c = 0; c < community_count; ++c) {
-        self_loops[c] = c_self_loops[c];
-        rows[c + 1] = c_rows[c + 1];
+        g.self_loops[c] = c_self_loops[c];
+        g.rows[c + 1] = c_rows[c + 1];
     }
     for (std::int64_t index = 0; index < c_cols.size(); ++index) {
-        cols[index] = c_cols[index];
-        vals[index] = c_vals[index];
+        g.cols[index] = c_cols[index];
+        g.vals[index] = c_vals[index];
     }
 
-    deallocate(value_allocator, c_self_loops, community_count);
-    deallocate(value_allocator, weights, community_count);
-    deallocate(vertex_allocator, c_neighbors, community_count);
-    deallocate(vertex_allocator, c_rows, community_count + 1);
+    deallocate(g.value_allocator, c_self_loops, community_count);
+    deallocate(g.value_allocator, weights, community_count);
+    deallocate(g.vertex_allocator, c_neighbors, community_count);
+    deallocate(g.vertex_allocator, c_rows, community_count + 1);
 }
 
-template <typename vertex_type,
-          typename vertex_size_type,
-          typename EdgeValue,
-          typename value_allocator_type>
-inline double init_step(vertex_size_type* rows,
-                        vertex_type* cols,
-                        EdgeValue* vals,
-                        EdgeValue* self_loops,
-                        std::int64_t vertex_count,
+template <typename vertex_type, typename EdgeValue>
+inline double init_step(graph<vertex_type, EdgeValue>& g,
                         vertex_type* labels,
                         double resolution,
                         EdgeValue* k,
                         EdgeValue* tot,
                         EdgeValue& m,
-                        vertex_size_type* community_size,
-                        value_allocator_type& value_allocator) {
+                        std::int64_t* community_size) {
     std::int32_t community_count = 0;
-    for (std::int64_t v = 0; v < vertex_count; ++v) {
+    for (std::int64_t v = 0; v < g.vertex_count; ++v) {
         ++community_size[labels[v]];
         community_count = std::max(community_count, labels[v]);
     }
     ++community_count;
-    EdgeValue* k_c = allocate(value_allocator, community_count);
-    EdgeValue* local_self_loops = allocate(value_allocator, community_count);
+    EdgeValue* k_c = allocate(g.value_allocator, community_count);
+    EdgeValue* local_self_loops = allocate(g.value_allocator, community_count);
     for (std::int32_t c = 0; c < community_count; ++c) {
         k_c[c] = 0;
         local_self_loops[c] = 0;
     }
     m = 0;
-    for (std::int64_t v = 0; v < vertex_count; ++v) {
+    for (std::int64_t v = 0; v < g.vertex_count; ++v) {
         std::int32_t c = labels[v];
-        local_self_loops[c] += self_loops[v];
-        k_c[c] += self_loops[v] * 2;
-        k[v] += self_loops[v] * 2;
-        tot[c] += self_loops[v] * 2;
-        m += self_loops[v];
-        for (std::int64_t index = rows[v]; index < rows[v + 1]; ++index) {
-            std::int32_t to = cols[index];
-            EdgeValue v_w = vals[index];
+        local_self_loops[c] += g.self_loops[v];
+        k_c[c] += g.self_loops[v] * 2;
+        k[v] += g.self_loops[v] * 2;
+        tot[c] += g.self_loops[v] * 2;
+        m += g.self_loops[v];
+        for (std::int64_t index = g.rows[v]; index < g.rows[v + 1]; ++index) {
+            std::int32_t to = g.cols[index];
+            EdgeValue v_w = g.vals[index];
             std::int32_t to_c = labels[to];
             k_c[c] += v_w;
             k[v] += v_w;
@@ -199,36 +186,27 @@ inline double init_step(vertex_size_type* rows,
         modularity +=
             1.0 / 2 / m * (local_self_loops[c] * 2 - resolution * k_c[c] * k_c[c] / (2.0 * m));
     }
-    deallocate(value_allocator, k_c, community_count);
-    deallocate(value_allocator, local_self_loops, community_count);
+    deallocate(g.value_allocator, k_c, community_count);
+    deallocate(g.value_allocator, local_self_loops, community_count);
     return modularity;
 }
 
-template <typename vertex_type,
-          typename vertex_size_type,
-          typename EdgeValue,
-          typename value_allocator_type,
-          typename vertex_size_allocator_type,
-          typename vertex_allocator_type>
-inline double move_nodes(vertex_size_type* rows,
-                         vertex_type* cols,
-                         EdgeValue* vals,
-                         EdgeValue* self_loops,
-                         std::int64_t vertex_count,
+template <typename vertex_type, typename EdgeValue>
+inline double move_nodes(graph<vertex_type, EdgeValue>& g,
                          vertex_type* n2c,
                          bool& changed,
                          double resolution,
-                         double accuracy_threshold,
-                         value_allocator_type& value_allocator,
-                         vertex_size_allocator_type& vertex_size_allocator,
-                         vertex_allocator_type& vertex_allocator) {
+                         double accuracy_threshold) {
+    using vertex_size_type = std::int64_t;
+    ;
+
     EdgeValue m = 0;
-    EdgeValue* k = allocate(value_allocator, vertex_count);
-    EdgeValue* tot = allocate(value_allocator, vertex_count);
-    vertex_size_type* community_size = allocate(vertex_size_allocator, vertex_count);
-    EdgeValue* k_vertex_to = allocate(value_allocator, vertex_count);
-    EdgeValue* neighboring_communities = allocate(value_allocator, vertex_count);
-    for (std::int64_t v = 0; v < vertex_count; ++v) {
+    EdgeValue* k = allocate(g.value_allocator, g.vertex_count);
+    EdgeValue* tot = allocate(g.value_allocator, g.vertex_count);
+    vertex_size_type* community_size = allocate(g.vertex_size_allocator, g.vertex_count);
+    EdgeValue* k_vertex_to = allocate(g.value_allocator, g.vertex_count);
+    EdgeValue* neighboring_communities = allocate(g.value_allocator, g.vertex_count);
+    for (std::int64_t v = 0; v < g.vertex_count; ++v) {
         k[v] = 0;
         tot[v] = 0;
         community_size[v] = 0;
@@ -237,40 +215,29 @@ inline double move_nodes(vertex_size_type* rows,
     }
 
     // calc initial data
-    double modularity = init_step(rows,
-                                  cols,
-                                  vals,
-                                  self_loops,
-                                  vertex_count,
-                                  n2c,
-                                  resolution,
-                                  k,
-                                  tot,
-                                  m,
-                                  community_size,
-                                  value_allocator);
+    double modularity = init_step(g, n2c, resolution, k, tot, m, community_size);
 
     // interate over all vertices
     double old_modularity = modularity;
-    vertex_type* random_order = allocate(vertex_allocator, vertex_count);
-    for (std::int64_t index = 0; index < vertex_count; ++index) {
+    vertex_type* random_order = allocate(g.vertex_allocator, g.vertex_count);
+    for (std::int64_t index = 0; index < g.vertex_count; ++index) {
         random_order[index] = index;
     }
     //std::random_shuffle(random_order.begin(), random_order.end());
-    vertex_type* empty_community = allocate(vertex_allocator, vertex_count);
-    std::int32_t empty_count = 0;
+    vertex_type* empty_community = allocate(g.vertex_allocator, g.vertex_count);
+    std::int64_t empty_count = 0;
     do {
         old_modularity = modularity;
-        for (std::int32_t order_index = 0; order_index < vertex_count; ++order_index) {
+        for (std::int64_t order_index = 0; order_index < g.vertex_count; ++order_index) {
             std::int32_t v = random_order[order_index];
             std::int32_t c_old = n2c[v];
 
             // calculate sum of weights of edges between vertex and community to move into
-            std::int32_t community_count = 0;
-            for (std::int64_t index = rows[v]; index < rows[v + 1]; ++index) {
-                std::int32_t to = cols[index];
+            std::int64_t community_count = 0;
+            for (std::int64_t index = g.rows[v]; index < g.rows[v + 1]; ++index) {
+                std::int32_t to = g.cols[index];
                 std::int32_t c = n2c[to];
-                EdgeValue v_w = vals[index];
+                EdgeValue v_w = g.vals[index];
                 if (k_vertex_to[c] == 0) {
                     neighboring_communities[community_count++] = c;
                 }
@@ -323,13 +290,13 @@ inline double move_nodes(vertex_size_type* rows,
         }
     } while (modularity - old_modularity > accuracy_threshold);
 
-    deallocate(value_allocator, k, vertex_count);
-    deallocate(value_allocator, tot, vertex_count);
-    deallocate(vertex_size_allocator, community_size, vertex_count);
-    deallocate(value_allocator, k_vertex_to, vertex_count);
-    deallocate(value_allocator, neighboring_communities, vertex_count);
-    deallocate(vertex_allocator, random_order, vertex_count);
-    deallocate(vertex_allocator, empty_community, vertex_count);
+    deallocate(g.value_allocator, k, g.vertex_count);
+    deallocate(g.value_allocator, tot, g.vertex_count);
+    deallocate(g.vertex_size_allocator, community_size, g.vertex_count);
+    deallocate(g.value_allocator, k_vertex_to, g.vertex_count);
+    deallocate(g.value_allocator, neighboring_communities, g.vertex_count);
+    deallocate(g.vertex_allocator, random_order, g.vertex_count);
+    deallocate(g.vertex_allocator, empty_community, g.vertex_count);
 
     return modularity;
 }
@@ -379,35 +346,15 @@ struct louvain_kernel {
             using vertex_allocator_type = inner_alloc<vertex_type>;
             using vertex_size_allocator_type = inner_alloc<vertex_size_type>;
 
-            value_allocator_type value_allocator(alloc_ptr);
-            vertex_allocator_type vertex_allocator(alloc_ptr);
-            vertex_size_allocator_type vertex_size_allocator(alloc_ptr);
-
             double resolution = desc.get_resolution();
             double accuracy_threshold = desc.get_accuracy_threshold();
             std::int64_t max_iteration_count = desc.get_max_iteration_count();
 
             auto vertex_count = t.get_vertex_count();
-            auto edge_count = t.get_edge_count();
-
-            vertex_size_type* rows = allocate(vertex_size_allocator, vertex_count + 1);
-            vertex_type* cols = allocate(vertex_allocator, edge_count * 2);
-            value_type* weights = allocate(value_allocator, edge_count * 2);
-            value_type* self_loops = allocate(value_allocator, vertex_count);
-
-            for (std::int64_t index = 0; index <= vertex_count; ++index) {
-                rows[index] = t._rows_ptr[index];
-            }
-            for (std::int64_t index = 0; index < edge_count * 2; ++index) {
-                cols[index] = t._cols_ptr[index];
-                weights[index] = vals[index];
-            }
-            for (std::int64_t index = 0; index < vertex_count; ++index) {
-                self_loops[index] = 0;
-            }
+            graph<std::int32_t, EdgeValue> g(t, vals, alloc_ptr);
 
             double modularity = std::numeric_limits<double>::min();
-            vertex_type* labels = allocate(vertex_allocator, vertex_count);
+            vertex_type* labels = allocate(g.vertex_allocator, vertex_count);
             if (init_partition != nullptr) {
                 for (std::int64_t v = 0; v < vertex_count; ++v) {
                     labels[v] = init_partition[v];
@@ -424,53 +371,33 @@ struct louvain_kernel {
 
             vertex_p_allocator_type vp_a(alloc_ptr);
             vp_t communities(vp_a);
-            vs_t labels_size(vertex_size_allocator);
-            vs_t vertex_size(vertex_size_allocator);
+            vs_t labels_size(g.vertex_size_allocator);
+            vs_t vertex_size(g.vertex_size_allocator);
 
             bool allocate_labels = false;
             for (std::int64_t iteration = 0;
                  iteration < max_iteration_count || !max_iteration_count;
                  ++iteration) {
                 if (allocate_labels) {
-                    labels = allocate(vertex_allocator, vertex_count);
+                    labels = allocate(g.vertex_allocator, vertex_count);
                     singleton_partition(labels, vertex_count);
                 }
                 allocate_labels = true;
                 bool changed = false;
-                modularity = move_nodes(rows,
-                                        cols,
-                                        weights,
-                                        self_loops,
-                                        vertex_count,
-                                        labels,
-                                        changed,
-                                        resolution,
-                                        accuracy_threshold,
-                                        value_allocator,
-                                        vertex_size_allocator,
-                                        vertex_allocator);
+                modularity = move_nodes(g, labels, changed, resolution, accuracy_threshold);
 
                 if (!changed) {
-                    deallocate(vertex_allocator, labels, vertex_count);
+                    deallocate(g.vertex_allocator, labels, vertex_count);
                     break;
                 }
                 std::int64_t community_count =
-                    reindex_communities(labels, vertex_count, vertex_allocator);
+                    reindex_communities(labels, g.vertex_count, g.vertex_allocator);
 
-                compress_graph(rows,
-                               cols,
-                               weights,
-                               self_loops,
-                               vertex_count,
-                               community_count,
-                               labels,
-                               value_allocator,
-                               vertex_allocator,
-                               alloc_ptr);
+                compress_graph(g, community_count, labels);
                 labels_size.push_back(community_count);
-                vertex_size.push_back(vertex_count);
+                vertex_size.push_back(g.vertex_count);
                 communities.push_back(labels);
-                vertex_count = community_count;
+                g.vertex_count = community_count;
             }
 
             auto labels_arr = array<vertex_type>::empty(t.get_vertex_count());
@@ -481,12 +408,8 @@ struct louvain_kernel {
                               t.get_vertex_count(),
                               labels_);
 
-            deallocate(vertex_size_allocator, rows, t.get_vertex_count() + 1);
-            deallocate(vertex_allocator, cols, edge_count * 2);
-            deallocate(value_allocator, weights, edge_count * 2);
-            deallocate(value_allocator, self_loops, t.get_vertex_count());
             for (int64_t iteration = 0; iteration < communities.size(); ++iteration) {
-                deallocate(vertex_allocator, communities[iteration], labels_size[iteration]);
+                deallocate(g.vertex_allocator, communities[iteration], labels_size[iteration]);
             }
 
             return vertex_partitioning_result<task::vertex_partitioning>()
@@ -494,7 +417,7 @@ struct louvain_kernel {
                                 .reset(labels_arr, t.get_vertex_count(), 1)
                                 .build())
                 .set_modularity(modularity)
-                .set_community_count(vertex_count);
+                .set_community_count(g.vertex_count);
         }
     }
 };
