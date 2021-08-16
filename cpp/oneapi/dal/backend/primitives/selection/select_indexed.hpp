@@ -30,6 +30,13 @@ sycl::event select_indexed(sycl::queue& q,
                            ndview<Type, 2>& dst,
                            const event_vector& deps = {});
 
+template<typename Type, typename Index>
+sycl::event select_indexed(sycl::queue& q,
+                           const ndview<Index, 2>& ids,
+                           const ndview<Type, 1>& src,
+                           ndview<Type, 2>& dst,
+                           const event_vector& deps = {});
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives

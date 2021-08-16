@@ -48,7 +48,7 @@ public:
     void generate() {
         m_ = GENERATE(2, 11, 17, 32, 127);
         n_ = GENERATE(3, 10, 17, 32, 129);
-        k_ = GENERATE(1, 3, 5, 7, 9);
+        k_ = GENERATE(1, 3, 5, 7, 9, 31);
         d_ = GENERATE(2, 28, 41, 131);
         generate_data();
     }

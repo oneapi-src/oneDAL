@@ -47,10 +47,41 @@ sycl::event select_indexed(sycl::queue& q,
     });
 }
 
+template<typename Type, typename Index>
+sycl::event select_indexed(sycl::queue& q,
+                           const ndview<Index, 2>& ids,
+                           const ndview<Type, 1>& src,
+                           ndview<Type, 2>& dst,
+                           const event_vector& deps) {
+    ONEDAL_ASSERT(ids.has_data());
+    ONEDAL_ASSERT(src.has_data());
+    ONEDAL_ASSERT(dst.has_mutable_data());
+    ONEDAL_ASSERT(ids.get_shape() == dst.get_shape());
+    const ndshape<2> shape = ids.get_shape();
+    const auto range = make_range_2d(shape[0], shape[1]);
+    const auto* const ids_ptr = ids.get_data();
+    const auto* const src_ptr = src.get_data();
+    auto* const dst_ptr = dst.get_mutable_data();
+    const auto ids_str = ids.get_leading_stride();
+    const auto dst_str = dst.get_leading_stride();
+    return q.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+        h.parallel_for(range, [=](sycl::id<2> idx) {
+            const auto& index = *(ids_ptr + ids_str * idx[0] + idx[1]);
+            *(dst_ptr + dst_str * idx[0] + idx[1]) = *(src_ptr + index);
+        });
+    });
+}
+
 #define INSTANTIATE(TYPE, INDEX)                            \
 template sycl::event select_indexed(sycl::queue&,           \
                                     const ndview<INDEX, 2>&,\
                                     const ndview<TYPE, 2>&, \
+                                    ndview<TYPE, 2>&,       \
+                                    const event_vector&);   \
+template sycl::event select_indexed(sycl::queue&,           \
+                                    const ndview<INDEX, 2>&,\
+                                    const ndview<TYPE, 1>&, \
                                     ndview<TYPE, 2>&,       \
                                     const event_vector&);
 

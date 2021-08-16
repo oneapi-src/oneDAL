@@ -45,17 +45,41 @@ public:
         k_ = GENERATE(1, 19, 137);
     }
 
-    void test_selection() {
+    void test_selection_1d() {
         auto [dst, dst_event] = destination();
         auto ids = indices();
-        auto src = source();
+        auto src = source_1d();
 
         select_indexed(this->get_queue(), ids, src, dst, { dst_event }).wait_and_throw();
 
-        check_selection(ids, src, dst);
+        check_selection_1d(ids, src, dst);
     }
 
-    void check_selection(   const ndview<std::int32_t, 2>& ids,
+    void test_selection_2d() {
+        auto [dst, dst_event] = destination();
+        auto ids = indices();
+        auto src = source_2d();
+
+        select_indexed(this->get_queue(), ids, src, dst, { dst_event }).wait_and_throw();
+
+        check_selection_2d(ids, src, dst);
+    }
+
+    void check_selection_1d(const ndview<std::int32_t, 2>& ids,
+                            const ndview<TestType, 1>& src,
+                            const ndview<TestType, 2>& dst) {
+        for(std::int64_t j = 0; j < m_; ++j) {
+            for(std::int64_t i = 0; i < n_; ++i) {
+                const std::int64_t idx = (i + j) % k_;
+                const std::int64_t val = k_ - idx;
+                CAPTURE(i, j, idx, val);
+                CAPTURE(ids.at(j, i), dst.at(j, i));
+                REQUIRE(TestType(val) == dst.at(j, i));
+            }
+        }
+    }
+
+    void check_selection_2d(const ndview<std::int32_t, 2>& ids,
                             const ndview<TestType, 2>& src,
                             const ndview<TestType, 2>& dst) {
         for(std::int64_t j = 0; j < m_; ++j) {
@@ -63,7 +87,7 @@ public:
                 const std::int64_t idx = (i + j) % k_;
                 const std::int64_t val = j + idx;
                 CAPTURE(i, j, idx, val);
-                //CAPTURE(ids.at(i, j), src.at(idx, j), dst.at(i, j));
+                CAPTURE(ids.at(j, i), dst.at(j, i));
                 REQUIRE(TestType(val) == dst.at(j, i));
             }
         }
@@ -83,11 +107,19 @@ public:
         return res;
     }
 
-    auto source() {
+    auto source_1d() {
+        auto res = ndarray<TestType, 1>::empty(this->get_queue(), { k_ });
+        for(std::int64_t i = 0; i < k_; ++i) {
+            *(res.get_mutable_data() + i) = TestType(k_ - i);
+        }
+        return res;
+    }
+
+    auto source_2d() {
         auto res = ndarray<TestType, 2>::empty(this->get_queue(), { m_, k_ });
         for(std::int64_t j = 0; j < m_; ++j) {
             for(std::int64_t i = 0; i < k_; ++i) {
-                res.at(j, i) = i + j;
+                res.at(j, i) = TestType(i + j);
             }
         }
         return res;
@@ -100,12 +132,21 @@ private:
 using selection_types = std::tuple<float, double>;
 
 TEMPLATE_LIST_TEST_M(selection_by_rows_test,
-                     "selection indexed",
+                     "selection indexed 1D",
                      "[block select][small]",
                      selection_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
-    this->test_selection();
+    this->test_selection_1d();
+}
+
+TEMPLATE_LIST_TEST_M(selection_by_rows_test,
+                     "selection indexed 2D",
+                     "[block select][small]",
+                     selection_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->generate();
+    this->test_selection_2d();
 }
 
 } // namespace oneapi::dal::backend::primitives::test
