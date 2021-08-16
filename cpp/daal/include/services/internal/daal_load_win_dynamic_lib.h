@@ -29,10 +29,8 @@
     #include <windows.h>
     #include "services/daal_defines.h"
 
-extern "C"
-{
-    DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPCTSTR filename);
-}
+DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPCTSTR filename);
 
 #endif // defined(_WIN32) || defined(_WIN64)
+
 #endif // __DAAL_LOAD_WIN_DYNAMIC_LIB_H__
