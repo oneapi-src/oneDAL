@@ -18,6 +18,7 @@
 #include <random>
 #include <unordered_map>
 #include <algorithm>
+#include <iostream>
 
 #include "oneapi/dal/algo/connected_components/common.hpp"
 #include "oneapi/dal/algo/connected_components/vertex_partitioning_types.hpp"
@@ -26,6 +27,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/backend/primitives/rng/rnd_seq.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
 using namespace oneapi::dal::preview::detail;
@@ -40,7 +42,7 @@ inline bool compare_and_swap(T &x, const T &old_val, const T &new_val) {
     return false;
 }
 
-inline void link(std::int64_t u, std::int64_t v, vector<int64_t> &D) {
+inline void link(std::int64_t u, std::int64_t v, std::int64_t* D) {
     std::int64_t p1;
     std::int64_t p2;
     std::int64_t h;
@@ -64,7 +66,7 @@ inline void link(std::int64_t u, std::int64_t v, vector<int64_t> &D) {
     }
 }
 
-inline void compress(std::int64_t u, std::vector<std::int64_t> &D) {
+inline void compress(std::int64_t u, std::int64_t* D) {
     while (D[D[u]] != D[u]) {
         D[u] = D[D[u]];
     }
@@ -72,7 +74,7 @@ inline void compress(std::int64_t u, std::vector<std::int64_t> &D) {
 
 inline void order_component_ids(const std::int64_t &vertex_count,
                                 std::int64_t &component_count,
-                                std::vector<std::int64_t> &D) {
+                                std::int64_t* D) {
     std::int64_t ordered_comp_id = 0;
     component_count = 0;
 
@@ -93,9 +95,9 @@ inline bool compare_sample_counts(std::unordered_map<std::int64_t, std::int64_t>
     return (a.second < b.second);
 }
 
-inline std::int32_t most_frequent_element(vector<int64_t> &D, std::int32_t samples_num = 10) {
+inline std::int32_t most_frequent_element(std::int64_t* D, std::int64_t vertex_count, std::int32_t samples_num = 10) {
     std::default_random_engine generator;
-    std::uniform_int_distribution<std::int64_t> distribution(0, D.size() - 1);
+    std::uniform_int_distribution<std::int64_t> distribution(0, vertex_count - 1);
 
     std::unordered_map<std::int64_t, std::int64_t> sample_counts;
 
@@ -105,22 +107,27 @@ inline std::int32_t most_frequent_element(vector<int64_t> &D, std::int32_t sampl
     }
     auto sample_component =
         std::max_element(sample_counts.begin(), sample_counts.end(), compare_sample_counts);
-
-    return sample_component->first;
+    return sample_component->first;  
 }
 
 template <typename Cpu>
 struct afforest {
     vertex_partitioning_result<task::vertex_partitioning> operator()(
         const detail::descriptor_base<task::vertex_partitioning> &desc,
-        const dal::preview::detail::topology<std::int32_t> &t) {
+        const dal::preview::detail::topology<std::int32_t> &t,
+        byte_alloc_iface* alloc_ptr) {
         {
-            using value_type = std::int32_t;
+
+            using vertex_type = std::int64_t;
+            using vertex_allocator_type = inner_alloc<vertex_type>;
+
+            vertex_allocator_type vertex_allocator(alloc_ptr);
+
             const auto vertex_count = t.get_vertex_count();
 
-            std::vector<std::int64_t> D;
+            vertex_type* D = allocate(vertex_allocator, vertex_count);
             for (std::int64_t i = 0; i < vertex_count; ++i) {
-                D.push_back(i);
+                D[i] = i;
             }
 
             std::int32_t neighbors_round = 2;
@@ -133,7 +140,7 @@ struct afforest {
             }
 
             std::int32_t samples_num = 10;
-            std::int32_t sample_comp = most_frequent_element(D, samples_num);
+            std::int32_t sample_comp = most_frequent_element(D, vertex_count, samples_num);
 
             for (std::int64_t i = 0; i < vertex_count; ++i) {
                 if (D[i] != sample_comp) {
@@ -154,11 +161,12 @@ struct afforest {
             std::int64_t component_count = 0;
             order_component_ids(vertex_count, component_count, D);
 
-            auto label_arr = array<value_type>::empty(vertex_count);
-            value_type *label_ = label_arr.get_mutable_data();
+            auto label_arr = array<vertex_type>::empty(vertex_count);
+            vertex_type *label_ = label_arr.get_mutable_data();
             for (std::int64_t i = 0; i < vertex_count; ++i) {
                 label_[i] = D[i];
             }
+            deallocate(vertex_allocator, D, vertex_count);
 
             return vertex_partitioning_result<task::vertex_partitioning>()
                 .set_labels(dal::detail::homogen_table_builder{}
