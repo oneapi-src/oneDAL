@@ -58,17 +58,17 @@ namespace oneapi::dal::preview::csv {
 
 namespace detail {
 
+using byte_alloc_ptr = dal::detail::shared<preview::detail::byte_alloc_iface>;
+
 template <typename Allocator>
-dal::detail::shared<preview::detail::byte_alloc_iface> make_allocator(Allocator&& alloc) {
+byte_alloc_ptr make_allocator(Allocator&& alloc) {
     return std::make_shared<preview::detail::alloc_connector<std::decay_t<Allocator>>>(
         std::forward<Allocator>(alloc));
 }
 
 class read_args_graph_impl : public base {
 public:
-    explicit read_args_graph_impl(
-        const dal::detail::shared<preview::detail::byte_alloc_iface>& alloc,
-        read_mode mode)
+    explicit read_args_graph_impl(const byte_alloc_ptr& alloc, read_mode mode)
             : allocator(alloc),
               mode(mode) {
         if (mode != read_mode::edge_list && mode != read_mode::weighted_edge_list) {
@@ -76,13 +76,13 @@ public:
         }
     }
 
-    dal::detail::shared<preview::detail::byte_alloc_iface> get_allocator() const {
+    byte_alloc_ptr get_allocator() const {
         return allocator;
     }
     read_mode get_read_mode() const {
         return mode;
     }
-    dal::detail::shared<preview::detail::byte_alloc_iface> allocator;
+    byte_alloc_ptr allocator;
     read_mode mode;
 };
 } // namespace detail
@@ -103,7 +103,7 @@ public:
                   detail::make_allocator(std::forward<Allocator>(allocator)),
                   mode)) {}
 
-    dal::detail::shared<preview::detail::byte_alloc_iface> get_allocator() const {
+    detail::byte_alloc_ptr get_allocator() const {
         return impl_->get_allocator();
     }
 
