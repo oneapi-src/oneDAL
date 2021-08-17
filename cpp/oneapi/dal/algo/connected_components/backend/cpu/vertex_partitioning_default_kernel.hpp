@@ -85,11 +85,6 @@ inline void order_component_ids(const std::int64_t &vertex_count,
     }
 }
 
-inline bool compare_sample_counts(std::unordered_map<std::int64_t, std::int64_t>::value_type &a,
-                                  std::unordered_map<std::int64_t, std::int64_t>::value_type &b) {
-    return (a.second < b.second);
-}
-
 template <typename Cpu>
 inline std::int32_t most_frequent_element(std::int64_t *D,
                                           std::int64_t vertex_count,
