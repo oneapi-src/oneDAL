@@ -18,29 +18,30 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename F, bool i, bool d>
-std::int64_t get_length(const ndview<F, 2>& dsts,
-                        ndview<std::int32_t, 2>& inds) {
+template <typename F, bool i, bool d>
+std::int64_t get_length(const ndview<F, 2>& dsts, ndview<std::int32_t, 2>& inds) {
     static_assert(i || d);
     //ONEDAL_ASSERT((i && d) && (dsts.get_shape() == inds.get_shape()));
     return i ? inds.get_dimension(0) : dsts.get_dimension(0);
 }
 
-template<typename Float, bool indices, bool distances>
+template <typename Float, bool indices, bool distances>
 copy_callback<Float, indices, distances>::copy_callback(sycl::queue& queue,
                                                         std::int64_t qblock,
                                                         ndview<std::int32_t, 2> out_indices,
                                                         ndview<Float, 2> out_distances)
-    : queue_(queue),
-      out_distances_(out_distances),
-      out_indices_(out_indices),
-      query_blocking_(get_length<Float, indices, distances>(out_distances, out_indices), qblock) {}
+        : queue_(queue),
+          out_distances_(out_distances),
+          out_indices_(out_indices),
+          query_blocking_(get_length<Float, indices, distances>(out_distances, out_indices),
+                          qblock) {}
 
-template<typename Float, bool indices, bool distances>
-sycl::event copy_callback<Float, indices, distances>::run(std::int64_t qb_id,
-                                                          const ndview<std::int32_t, 2>& inp_indices,
-                                                          const ndview<Float, 2>& inp_distances,
-                                                          const event_vector& deps) {
+template <typename Float, bool indices, bool distances>
+sycl::event copy_callback<Float, indices, distances>::run(
+    std::int64_t qb_id,
+    const ndview<std::int32_t, 2>& inp_indices,
+    const ndview<Float, 2>& inp_distances,
+    const event_vector& deps) {
     sycl::event ind_event, dst_event;
 
     const std::int64_t from = query_blocking_.get_block_start_index(qb_id);
@@ -48,29 +49,22 @@ sycl::event copy_callback<Float, indices, distances>::run(std::int64_t qb_id,
 
     if constexpr (indices) {
         auto out_block = out_indices_.get_row_slice(from, to);
-        ind_event = copy_by_value(queue_,
-                                  out_block,
-                                  inp_indices,
-                                  deps);
+        ind_event = copy_by_value(queue_, out_block, inp_indices, deps);
     }
 
     if constexpr (distances) {
         auto out_block = out_distances_.get_row_slice(from, to);
-        dst_event = copy_by_value(queue_,
-                                  out_block,
-                                  inp_distances,
-                                  deps);
+        dst_event = copy_by_value(queue_, out_block, inp_distances, deps);
     }
 
     sycl::event::wait_and_throw(deps + ind_event + dst_event);
     return sycl::event();
-
 }
 
-#define INSTANTIATE_FLOAT(F)                 \
-template class copy_callback<F, true, true>; \
-template class copy_callback<F, true, false>;\
-template class copy_callback<F, false, true>;
+#define INSTANTIATE_FLOAT(F)                      \
+    template class copy_callback<F, true, true>;  \
+    template class copy_callback<F, true, false>; \
+    template class copy_callback<F, false, true>;
 
 INSTANTIATE_FLOAT(float);
 INSTANTIATE_FLOAT(double);

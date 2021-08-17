@@ -31,24 +31,21 @@ std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width);
 template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width);
 
-template<typename Float, typename Impl>
+template <typename Float, typename Impl>
 class callback_base {
 public:
     using float_t = Float;
     using derived_t = Impl;
 
-    sycl::event operator() (std::int64_t qb_id,
-                            const ndview<std::int32_t, 2>& indices,
-                            const ndview<Float, 2>& distances,
-                            const event_vector& deps = {}) {
-        return static_cast<Impl*>(this)->run(qb_id,
-                                             indices,
-                                             distances,
-                                             deps);
+    sycl::event operator()(std::int64_t qb_id,
+                           const ndview<std::int32_t, 2>& indices,
+                           const ndview<Float, 2>& distances,
+                           const event_vector& deps = {}) {
+        return static_cast<Impl*>(this)->run(qb_id, indices, distances, deps);
     }
 };
 
-template<typename Float, typename Distance>
+template <typename Float, typename Distance>
 class search_temp_objects;
 
 template <typename Float, typename Distance>
@@ -56,18 +53,15 @@ class search_engine {
     using temp_t = search_temp_objects<Float, Distance>;
     using temp_ptr_t = temp_t* const;
     using selc_t = kselect_by_rows<Float>;
-    template<typename CallbackImpl>
+    template <typename CallbackImpl>
     using call_t = callback_base<Float, CallbackImpl>;
 
     constexpr static inline std::int64_t selection_sub_blocks = 4;
 
 public:
-    search_engine(sycl::queue& queue,
-                  const ndview<Float, 2>& train_data);
+    search_engine(sycl::queue& queue, const ndview<Float, 2>& train_data);
 
-    search_engine(sycl::queue& queue,
-                  const ndview<Float, 2>& train_data,
-                  std::int64_t train_block);
+    search_engine(sycl::queue& queue, const ndview<Float, 2>& train_data, std::int64_t train_block);
 
     search_engine(sycl::queue& queue,
                   const ndview<Float, 2>& train_data,
@@ -93,13 +87,16 @@ public:
         const uniform_blocking query_blocking(query_data.get_dimension(0), query_block);
         auto tmp_objs = create_temporary_objects(query_blocking, k_neighbors);
         sycl::event last_event;
-        for(std::int64_t qb_id = 0; qb_id < query_blocking.get_block_count(); ++qb_id) {
-            const auto query_slice = query_data.get_row_slice(
-                                                   query_blocking.get_block_start_index(qb_id),
-                                                   query_blocking.get_block_end_index(qb_id));
-            auto search_event = do_search(query_slice, k_neighbors, tmp_objs, selection, deps + last_event);
-            auto out_indices = get_indices(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
-            auto out_distances = get_distances(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
+        for (std::int64_t qb_id = 0; qb_id < query_blocking.get_block_count(); ++qb_id) {
+            const auto query_slice =
+                query_data.get_row_slice(query_blocking.get_block_start_index(qb_id),
+                                         query_blocking.get_block_end_index(qb_id));
+            auto search_event =
+                do_search(query_slice, k_neighbors, tmp_objs, selection, deps + last_event);
+            auto out_indices =
+                get_indices(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
+            auto out_distances =
+                get_distances(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
             last_event = callback(qb_id, out_indices, out_distances, { search_event });
         }
         return dispose_temporary_objects(tmp_objs, { last_event });
@@ -111,12 +108,10 @@ public:
                           selc_t& select,
                           const event_vector& deps) const;
 
-    selc_t create_selection_objects(
-        std::int64_t query_block, std::int64_t k_neighbors) const;
-    temp_ptr_t create_temporary_objects(
-        const uniform_blocking& query_blocking, std::int64_t k_neighbors) const;
-    sycl::event dispose_temporary_objects(
-        temp_ptr_t tmp_objs, const event_vector& deps) const;
+    selc_t create_selection_objects(std::int64_t query_block, std::int64_t k_neighbors) const;
+    temp_ptr_t create_temporary_objects(const uniform_blocking& query_blocking,
+                                        std::int64_t k_neighbors) const;
+    sycl::event dispose_temporary_objects(temp_ptr_t tmp_objs, const event_vector& deps) const;
 
 protected:
     sycl::queue& get_queue() const;

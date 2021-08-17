@@ -23,7 +23,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename Float, bool indices = true, bool distances = true>
+template <typename Float, bool indices = true, bool distances = true>
 class copy_callback : public callback_base<Float, copy_callback<Float, indices, distances>> {
     using this_t = copy_callback<Float, indices, distances>;
     friend class callback_base<Float, this_t>;
