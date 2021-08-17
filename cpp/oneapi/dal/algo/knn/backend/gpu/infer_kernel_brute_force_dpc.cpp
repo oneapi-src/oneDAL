@@ -49,19 +49,19 @@ sycl::event sqrt(sycl::queue& q,
                  const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_mutable_data());
     const auto length = data.get_count();
-    const auto range = make_range_1d(length);
+    const auto range = bk::make_range_1d(length);
     auto* const data_ptr = data.get_mutable_data();
     return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         h.parallel_for(range, [=](sycl::id<1> idx) {
-            data_ptr[idx] = sycl::sqrt(data[idx]);
+            data_ptr[idx] = sycl::sqrt(data_ptr[idx]);
         });
     });
 }
 
 template<typename Float>
 class knn_callback {
-    using voting_t = std::unique_ptr<pr::uniform_voting<std::int32_t>>>;
+    using voting_t = std::unique_ptr<pr::uniform_voting<std::int32_t>>;
 
 public:
     knn_callback(sycl::queue& q,
@@ -72,52 +72,49 @@ public:
         : queue_(q),
           result_options_(results),
           query_block_(query_block),
-          query_length_(query_length_),
-          k_neighbors_(k_neighbors_),
+          query_length_(query_length),
+          k_neighbors_(k_neighbors),
           temp_resp_(result_options_.test(result_options::responses)
                         ? pr::ndarray<std::int32_t, 2>::empty(q, {query_block, k_neighbors})
                         : pr::ndarray<std::int32_t, 2>{} ),
           voting_(pr::make_uniform_voting(q, query_block, k_neighbors)) {}
 
     auto& set_inp_responses(array<std::int32_t> inp_responses) {
-        ONEDAL_ASSERT(!result_options_.test(result_options::responses) || responses.get_count() == query_length_);
-        this->inp_responses_ = pr::ndarray<std::int32_t, 1>::wrap(responses, { query_length_ });
+        this->inp_responses_ = pr::ndarray<std::int32_t, 1>::wrap(inp_responses.get_data(), { inp_responses.get_count() });
         return *this;
     }
 
     auto& set_responses(array<std::int32_t> responses) {
         ONEDAL_ASSERT(!result_options_.test(result_options::responses) || responses.get_count() == query_length_);
-        this->responses_ = pr::ndarray<std::int32_t, 1>::wrap(responses, { query_length_ });
+        this->responses_ = pr::ndarray<std::int32_t, 1>::wrap(responses.get_data(), { query_length_ });
         return *this;
     }
 
     auto& set_indices(array<std::int32_t> indices) {
-        ONEDAL_ASSERT(!result_options_.test(result_options::indices) || indices.get_dimension(0) == query_length_);
-        ONEDAL_ASSERT(!result_options_.test(result_options::indices) || indices.get_dimension(1) == k_neighbors_);
-        this->indices_ = pr::ndarray<std::int32_t, 1>::wrap(indices, { query_length_ , k_neighbors_ });
+        ONEDAL_ASSERT(!result_options_.test(result_options::indices) || indices.get_count() == (query_length_ * k_neighbors_));
+        this->indices_ = pr::ndarray<std::int32_t, 2>::wrap(indices.get_data(), { query_length_ , k_neighbors_ });
         return *this;
     }
 
-    auto& set_distsnces(array<Float> indices) {
-        ONEDAL_ASSERT(!result_options_.test(result_options::distances) || distances.get_dimension(0) == query_length_);
-        ONEDAL_ASSERT(!result_options_.test(result_options::distances) || distances.get_dimension(1) == k_neighbors_);
-        this->indices_ = pr::ndarray<Float, 1>::wrap(distances, { query_length_ , k_neighbors_ });
+    auto& set_distances(array<Float> distances) {
+        ONEDAL_ASSERT(!result_options_.test(result_options::distances) || distances.get_count() == (query_length_ * k_neighbors_));
+        this->distances_ = pr::ndarray<Float, 2>::wrap(distances.get_data(), { query_length_ , k_neighbors_ });
         return *this;
     }
 
     auto get_blocking() const {
-        return uniform_blocking(query_length_, query_block_);
+        return bk::uniform_blocking(query_length_, query_block_);
     }
 
     sycl::event operator() (std::int64_t qb_id,
-                            const ndview<std::int32_t, 2>& inp_indices,
-                            const ndview<Float, 2>& inp_distances,
+                            const pr::ndview<std::int32_t, 2>& inp_indices,
+                            const pr::ndview<Float, 2>& inp_distances,
                             const bk::event_vector& deps = {}) {
         sycl::event copy_indices, copy_distances, comp_responses;
         const auto blocking = this->get_blocking();
 
-        const auto from = blocking.gat_block_start_index(qb_id);
-        const auto to = blocking.gat_block_end_index(qb_id);
+        const auto from = blocking.get_block_start_index(qb_id);
+        const auto to = blocking.get_block_end_index(qb_id);
 
         if (result_options_.test(result_options::indices)) {
             auto out_block = indices_.get_row_slice(from, to);
@@ -135,21 +132,22 @@ public:
                                            deps);
         }
 
-        if (result_options_.test(result_options::responses)) {
+        if (result_options_.test(result_options::responses)) {\
+            using namespace bk;
             auto out_block = responses_.get_slice(from, to);
             const auto ndeps = deps + copy_indices + copy_distances;
             auto temp_resp = temp_resp_.get_row_slice(from, to);
             auto s_event = select_indexed(queue_,
-                                          inp_responses,
                                           inp_indices,
+                                          inp_responses_,
                                           temp_resp,
                                           ndeps);
-            comp_respoonses = voting_(temp_resp,
-                                      out_block,
-                                      { s_event });
+            comp_responses = voting_->operator()(temp_resp,
+                                                 out_block,
+                                                 { s_event });
         }
 
-        sycl::event::wait_and_throw({copy_indices, copy_distances, comp_response});
+        sycl::event::wait_and_throw({copy_indices, copy_distances, comp_responses});
         return sycl::event();
     }
 
@@ -179,14 +177,14 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     }
 
     auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
+    bk::interop::execution_context_guard guard(queue);
 
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
     const auto train = trained_model->get_data();
-    const auto train = trained_model->get_data();
+    const auto resps = trained_model->get_responses();
 
-    ONEDAL_ASSERT(train.get_col_count() == infer.get_col_count());
-    const std::int64_t feature_count = train.get_col_count()
+    ONEDAL_ASSERT(train.get_column_count() == infer.get_column_count());
+    const std::int64_t feature_count = train.get_column_count();
     const std::int64_t train_row_count = train.get_row_count();
     const std::int64_t infer_row_count = infer.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
@@ -201,17 +199,16 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     if(desc.get_result_options().test(result_options::indices))
         arr_indices = array<std::int32_t>::empty(queue, infer_row_count * neighbor_count);
 
-    auto resp_arr = row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    auto resp_data = desc.get_result_options().test(result_options::responses) ? pr::ndview<Float, 2>::wrap(resp_arr, { train_row_count }) : pr::ndview<Float, 2>{};
-    auto train_arr = row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    auto train_data = pr::ndview<Float, 2>::wrap(train_arr, {train_row_count, feature_count});
-    auto query_arr = row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    auto query_data = pr::ndview<Float, 2>::wrap(query_arr, {query_row_count, feature_count});
+    auto resp_arr = row_accessor<const std::int32_t>(resps).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+    auto train_arr = row_accessor<const Float>(train).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+    auto train_data = pr::ndview<Float, 2>::wrap(train_arr.get_data(), {train_row_count, feature_count});
+    auto query_arr = row_accessor<const Float>(infer).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+    auto query_data = pr::ndview<Float, 2>::wrap(query_arr.get_data(), {infer_row_count, feature_count});
 
-    const auto infer_block = pr::propose_query_block<Float>(queue, feature_count);
+    const std::int64_t infer_block = pr::propose_query_block<Float>(queue, feature_count);
 
     knn_callback<Float> callback(queue, desc.get_result_options(), infer_block, infer_row_count, neighbor_count);
-    callback.set_inp_responses();
+    callback.set_inp_responses(resp_arr);
     callback.set_responses(arr_responses);
     callback.set_distances(arr_distances);
     callback.set_indices(arr_indices);
@@ -222,9 +219,9 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
 
         const dst_t dist{ queue };
         const search_t search{ queue, train_data};
-        auto last_event = search(query_data, callback, neighbor_count);
+        auto last_event = search(query_data, callback, infer_block, neighbor_count);
         if(desc.get_result_options().test(result_options::distances)) {
-            last_event = sqrt(query, arr_distances, { last_event });
+            last_event = sqrt<Float>(queue, arr_distances, { last_event });
         }
         last_event.wait_and_throw();
     }
@@ -234,23 +231,23 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
 
         const dst_t dist{ queue };
         const search_t search{ queue, train_data};
-        search(query_data, callback, neighbor_count).wait_and_throw();
+        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
     }
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 
     if (desc.get_result_options().test(result_options::responses)) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            result = result.set_responses(homogen_table::wrap(arr_responses, row_count, 1));
+            result = result.set_responses(homogen_table::wrap(arr_responses, infer_row_count, 1));
         }
     }
 
     if (desc.get_result_options().test(result_options::indices)) {
-        result = result.set_indices(homogen_table::wrap(arr_indices, row_count, neighbor_count));
+        result = result.set_indices(homogen_table::wrap(arr_indices, infer_row_count, neighbor_count));
     }
 
     if (desc.get_result_options().test(result_options::distances)) {
-        result = result.set_distances(homogen_table::wrap(arr_distances, row_count, neighbor_count));
+        result = result.set_distances(homogen_table::wrap(arr_distances, infer_row_count, neighbor_count));
     }
 
     return result;
