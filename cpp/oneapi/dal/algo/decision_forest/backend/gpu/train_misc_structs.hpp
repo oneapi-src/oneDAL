@@ -131,6 +131,8 @@ struct train_context {
     bool oob_err_required_ = false;
     bool oob_err_obs_required_ = false;
     bool bootstrap_ = false;
+    bool use_private_mem_buf_ = true; // valuable for classification only
+        // for switching between private mem and other buffers(local, global) for storing class hist
 
     Index total_bin_count_ = 0;
     Index max_bin_count_among_ftrs_ = 0;

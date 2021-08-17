@@ -35,7 +35,8 @@ namespace pr = bk::primitives;
 template <typename Float,
           typename Bin = std::uint32_t,
           typename Index = std::int32_t,
-          typename Task = task::by_default>
+          typename Task = task::by_default,
+          bool use_private_mem = true>
 class train_best_split_impl {
     using result_t = train_result<Task>;
     using impl_const_t = impl_const<Index, Task>;
@@ -46,41 +47,42 @@ class train_best_split_impl {
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
 
 public:
-    train_best_split_impl(sycl::queue& q) : queue_(q) {}
+    train_best_split_impl() = default;
     ~train_best_split_impl() = default;
 
-    sycl::event compute_best_split_by_histogram(const context_t& ctx,
-                                                const pr::ndarray<hist_type_t, 1>& node_hist_list,
-                                                const pr::ndarray<Index, 1>& selected_ftr_list,
-                                                const pr::ndarray<Index, 1>& bin_offset_list,
-                                                const imp_data_t& imp_data_list,
-                                                const pr::ndarray<Index, 1>& nodeIndices,
-                                                Index node_ind_ofs,
-                                                pr::ndarray<Index, 1>& node_list,
-                                                imp_data_t& left_child_imp_data_list,
-                                                pr::ndarray<Float, 1>& node_imp_dec_list,
-                                                bool update_imp_dec_required,
-                                                Index node_count,
-                                                const bk::event_vector& deps = {});
+    static sycl::event compute_best_split_by_histogram(
+        sycl::queue& queue,
+        const context_t& ctx,
+        const pr::ndarray<hist_type_t, 1>& node_hist_list,
+        const pr::ndarray<Index, 1>& selected_ftr_list,
+        const pr::ndarray<Index, 1>& bin_offset_list,
+        const imp_data_t& imp_data_list,
+        const pr::ndarray<Index, 1>& nodeIndices,
+        Index node_ind_ofs,
+        pr::ndarray<Index, 1>& node_list,
+        imp_data_t& left_child_imp_data_list,
+        pr::ndarray<Float, 1>& node_imp_dec_list,
+        bool update_imp_dec_required,
+        Index node_count,
+        const bk::event_vector& deps = {});
 
-    sycl::event compute_best_split_single_pass(const context_t& ctx,
-                                               const pr::ndarray<Bin, 2>& data,
-                                               const pr::ndview<Float, 1>& response,
-                                               const pr::ndarray<Index, 1>& tree_order,
-                                               const pr::ndarray<Index, 1>& selected_ftr_list,
-                                               const pr::ndarray<Index, 1>& bin_offset_list,
-                                               const imp_data_t& imp_data_list,
-                                               const pr::ndarray<Index, 1>& node_ind_list,
-                                               Index node_ind_ofs,
-                                               pr::ndarray<Index, 1>& node_list,
-                                               imp_data_t& left_child_imp_data_list,
-                                               pr::ndarray<Float, 1>& node_imp_dec_list,
-                                               bool update_imp_dec_required,
-                                               Index node_count,
-                                               const bk::event_vector& deps = {});
-
-private:
-    sycl::queue queue_;
+    static sycl::event compute_best_split_single_pass(
+        sycl::queue& queue,
+        const context_t& ctx,
+        const pr::ndarray<Bin, 2>& data,
+        const pr::ndview<Float, 1>& response,
+        const pr::ndarray<Index, 1>& tree_order,
+        const pr::ndarray<Index, 1>& selected_ftr_list,
+        const pr::ndarray<Index, 1>& bin_offset_list,
+        const imp_data_t& imp_data_list,
+        const pr::ndarray<Index, 1>& node_ind_list,
+        Index node_ind_ofs,
+        pr::ndarray<Index, 1>& node_list,
+        imp_data_t& left_child_imp_data_list,
+        pr::ndarray<Float, 1>& node_imp_dec_list,
+        bool update_imp_dec_required,
+        Index node_count,
+        const bk::event_vector& deps = {});
 };
 
 #endif

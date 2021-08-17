@@ -49,7 +49,6 @@ template <typename Float,
 class train_kernel_hist_impl {
     using result_t = train_result<Task>;
     using train_service_kernels_t = train_service_kernels<Float, Bin, Index, Task>;
-    using bs_kernels_t = train_best_split_impl<Float, Bin, Index, Task>;
     using impl_const_t = impl_const<Index, Task>;
     using descriptor_t = detail::descriptor_base<Task>;
     using model_manager_t = train_model_manager<Float, Index, Task>;
@@ -65,7 +64,7 @@ class train_kernel_hist_impl {
 public:
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
 
-    train_kernel_hist_impl(sycl::queue& q) : queue_(q), train_service_kernels_(q), bs_kernels_(q) {}
+    train_kernel_hist_impl(sycl::queue& q) : queue_(q), train_service_kernels_(q) {}
     ~train_kernel_hist_impl() = default;
 
     result_t operator()(const descriptor_t& desc, const table& data, const table& labels);
@@ -332,7 +331,6 @@ private:
 #endif
 
     train_service_kernels_t train_service_kernels_;
-    bs_kernels_t bs_kernels_;
 
     // algo buffers which are allocated one time at the beggining
     pr::ndarray<Bin, 2> full_data_nd_;

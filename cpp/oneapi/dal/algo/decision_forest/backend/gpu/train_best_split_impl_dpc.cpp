@@ -43,6 +43,10 @@ constexpr inline std::int32_t bin_block_count =
     4; // number of elements in bin_map_t array which is used for trackin already processed bins
 constexpr inline std::int32_t bin_in_block_count = sizeof(bin_map_t) * 8;
 
+template <typename Data>
+using local_accessor_rw_t =
+    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+
 template <typename T>
 using enable_if_float_t = std::enable_if_t<detail::is_valid_float_v<T>>;
 
@@ -58,6 +62,14 @@ template <>
 struct float_accuracy<double> {
     static constexpr double val = double(1e-10);
 };
+
+template <typename T, typename Index = size_t>
+inline T* fill_zero(T* dst, Index elem_count) {
+    for (Index i = 0; i < elem_count; ++i) {
+        dst[i] = T(0);
+    }
+    return dst;
+}
 
 template <typename Float, typename Index>
 inline void add_val_to_hist(
@@ -528,8 +540,10 @@ struct split_smp {
     }
 };
 
-template <typename Float, typename Bin, typename Index, typename Task>
-sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_by_histogram(
+template <typename Float, typename Bin, typename Index, typename Task, bool use_private_mem>
+sycl::event
+train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_split_by_histogram(
+    sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<hist_type_t, 1>& node_hist_list,
     const pr::ndarray<Index, 1>& selected_ftr_list,
@@ -544,7 +558,6 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
     Index node_count,
     const bk::event_vector& deps) {
     using split_smp_t = split_smp<Float, Index, Task>;
-    using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
 
     Index hist_prop_count = 0;
     if constexpr (std::is_same_v<std::decay_t<Task>, task::classification>) {
@@ -609,15 +622,24 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
     const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
     Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
 
-    auto local_size = bk::device_max_sg_size(queue_);
+    auto local_size = bk::device_max_sg_size(queue);
+
+    std::size_t local_hist_buf_size = 0;
+    if constexpr (use_private_mem) {
+        local_hist_buf_size = 1; // just some non zero value
+    }
+    else {
+        local_hist_buf_size = (2 * local_size) * hist_prop_count; // x2 - for each item 2 hists
+    }
 
     const sycl::nd_range<2> nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
 
     sycl::event last_event;
 
-    last_event = queue_.submit([&](cl::sycl::handler& cgh) {
+    last_event = queue.submit([&](cl::sycl::handler& cgh) {
         cgh.depends_on(deps);
+        local_accessor_rw_t<hist_type_t> local_hist_buf(local_hist_buf_size, cgh);
         cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
@@ -635,7 +657,20 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
             Index bs_ftr_bin = impl_const_t::leaf_mark_;
             Index bs_ftr_id = impl_const_t::leaf_mark_;
             Index bs_left_count = 0;
-            hist_type_t bs_left_hist[buff_size] = { hist_type_t(0) };
+
+            hist_type_t* local_hist_buf_ptr = local_hist_buf.get_pointer().get();
+
+            hist_type_t* bs_left_hist = nullptr;
+
+            hist_type_t prv_bs_left_hist[buff_size] = { hist_type_t(0) };
+            if constexpr (use_private_mem) {
+                bs_left_hist = &prv_bs_left_hist[0];
+            }
+            else {
+                bs_left_hist =
+                    fill_zero(local_hist_buf_ptr + (sub_group_local_id * 2 + 0) * class_count,
+                              class_count);
+            }
 
             Float bs_left_imp = Float(0);
             Float bs_imp_dec = min_imp_dec;
@@ -655,7 +690,17 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
 
                 Index ts_left_count = 0;
                 Index ts_right_count = 0;
-                hist_type_t ts_left_hist[buff_size] = { 0 };
+
+                hist_type_t* ts_left_hist = nullptr;
+                hist_type_t prv_ts_left_hist[buff_size] = { hist_type_t(0) };
+                if constexpr (use_private_mem) {
+                    ts_left_hist = &prv_ts_left_hist[0];
+                }
+                else {
+                    ts_left_hist =
+                        fill_zero(local_hist_buf_ptr + (sub_group_local_id * 2 + 1) * class_count,
+                                  class_count);
+                }
 
                 Float ts_left_imp = Float(0);
                 Float ts_right_imp = Float(0);
@@ -666,12 +711,12 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
 
                     if constexpr (std::is_same_v<Task, task::classification>) {
                         sp_hlp.merge_bin_hist(ts_left_count,
-                                              &ts_left_hist[0],
+                                              ts_left_hist,
                                               ftr_hist_ptr + bin_ofs,
                                               hist_prop_count);
                     }
                     else {
-                        sp_hlp.merge_bin_hist(&ts_left_hist[0],
+                        sp_hlp.merge_bin_hist(ts_left_hist,
                                               ftr_hist_ptr + bin_ofs,
                                               hist_prop_count);
                     }
@@ -685,7 +730,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
                                             node_ptr,
                                             node_imp_list_ptr,
                                             class_hist_list_ptr,
-                                            &ts_left_hist[0],
+                                            ts_left_hist,
                                             class_count,
                                             node_id);
 
@@ -694,14 +739,14 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
                                                  bs_left_count,
                                                  bs_left_imp,
                                                  bs_imp_dec,
-                                                 &bs_left_hist[0],
+                                                 bs_left_hist,
                                                  ts_ftr_id,
                                                  ts_ftr_bin,
                                                  ts_left_count,
                                                  ts_right_count,
                                                  ts_left_imp,
                                                  ts_imp_dec,
-                                                 &ts_left_hist[0],
+                                                 ts_left_hist,
                                                  node_imp_list_ptr,
                                                  class_count,
                                                  node_id,
@@ -714,20 +759,20 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
                                             ts_imp_dec,
                                             node_ptr,
                                             node_imp_list_ptr,
-                                            &ts_left_hist[0],
+                                            ts_left_hist,
                                             node_id);
 
                         sp_hlp.choose_best_split(bs_ftr_id,
                                                  bs_ftr_bin,
                                                  bs_left_count,
                                                  bs_imp_dec,
-                                                 &bs_left_hist[0],
+                                                 bs_left_hist,
                                                  ts_ftr_id,
                                                  ts_ftr_bin,
                                                  ts_left_count,
                                                  ts_right_count,
                                                  ts_imp_dec,
-                                                 &ts_left_hist[0],
+                                                 ts_left_hist,
                                                  node_imp_list_ptr,
                                                  buff_size,
                                                  node_id,
@@ -744,7 +789,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
                                                  bs_left_count,
                                                  bs_left_imp,
                                                  bs_imp_dec,
-                                                 &bs_left_hist[0],
+                                                 bs_left_hist,
                                                  node_ptr,
                                                  node_imp_decr_list_ptr,
                                                  left_child_imp_list_ptr,
@@ -760,7 +805,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
                                                  bs_ftr_bin,
                                                  bs_left_count,
                                                  bs_imp_dec,
-                                                 &bs_left_hist[0],
+                                                 bs_left_hist,
                                                  node_ptr,
                                                  node_imp_decr_list_ptr,
                                                  left_child_imp_list_ptr,
@@ -776,8 +821,10 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
     return last_event;
 }
 
-template <typename Float, typename Bin, typename Index, typename Task>
-sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_single_pass(
+template <typename Float, typename Bin, typename Index, typename Task, bool use_private_mem>
+sycl::event
+train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_split_single_pass(
+    sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
     const pr::ndview<Float, 1>& response,
@@ -794,6 +841,14 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
     Index node_count,
     const bk::event_vector& deps) {
     using split_smp_t = split_smp<Float, Index, Task>;
+
+    Index hist_prop_count = 0;
+    if constexpr (std::is_same_v<std::decay_t<Task>, task::classification>) {
+        hist_prop_count = ctx.class_count_;
+    }
+    else {
+        hist_prop_count = impl_const<Index, task::regression>::hist_prop_count_;
+    }
 
     ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
@@ -840,7 +895,15 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
 
     const Index index_max = ctx.index_max_;
 
-    auto local_size = bk::device_max_sg_size(queue_);
+    auto local_size = bk::device_max_sg_size(queue);
+
+    std::size_t local_hist_buf_size = 0;
+    if constexpr (use_private_mem) {
+        local_hist_buf_size = 1; // just some non zero value
+    }
+    else {
+        local_hist_buf_size = (2 * local_size) * hist_prop_count; // x2 - for each item 2 hists
+    }
 
     const sycl::nd_range<2> nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
@@ -862,8 +925,9 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
 
     constexpr Index buff_size = impl_const_t::private_hist_buff_size;
 
-    last_event = queue_.submit([&](cl::sycl::handler& cgh) {
+    last_event = queue.submit([&](cl::sycl::handler& cgh) {
         cgh.depends_on(deps);
+        local_accessor_rw_t<hist_type_t> local_hist_buf(local_hist_buf_size, cgh);
         cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
@@ -884,7 +948,19 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
             Index bs_ftr_bin = impl_const_t::leaf_mark_;
             Index bs_ftr_id = impl_const_t::leaf_mark_;
             Index bs_left_count = 0;
-            hist_type_t bs_left_hist[buff_size] = { hist_type_t(0) };
+
+            hist_type_t* local_hist_buf_ptr = local_hist_buf.get_pointer().get();
+
+            hist_type_t* bs_left_hist = nullptr;
+            hist_type_t prv_bs_left_hist[buff_size] = { hist_type_t(0) };
+            if constexpr (use_private_mem) {
+                bs_left_hist = &prv_bs_left_hist[0];
+            }
+            else {
+                bs_left_hist =
+                    fill_zero(local_hist_buf_ptr + (sub_group_local_id * 2 + 0) * class_count,
+                              class_count);
+            }
 
             Float bs_left_imp = Float(0);
             Float bs_imp_dec = min_imp_dec;
@@ -905,25 +981,35 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                     if (bin_not_processed) {
                         Index ts_left_count = 0;
                         Index ts_right_count = 0;
-                        hist_type_t ts_left_hist[buff_size] = { 0 };
+
+                        hist_type_t* ts_left_hist = nullptr;
+                        hist_type_t prv_ts_left_hist[buff_size] = { hist_type_t(0) };
+                        if constexpr (use_private_mem) {
+                            ts_left_hist = &prv_ts_left_hist[0];
+                        }
+                        else {
+                            ts_left_hist = fill_zero(
+                                local_hist_buf_ptr + (sub_group_local_id * 2 + 1) * class_count,
+                                class_count);
+                        }
 
                         Float ts_left_imp = Float(0);
                         Float ts_right_imp = Float(0);
                         Float ts_imp_dec = Float(0);
 
-                        for (std::int32_t row_idx = 0; row_idx < row_count; ++row_idx) {
+                        for (Index row_idx = 0; row_idx < row_count; ++row_idx) {
                             Index id = tree_order_ptr[row_ofs + row_idx];
                             Index bin = data_ptr[id * column_count + ts_ftr_id];
 
                             if constexpr (std::is_same_v<Task, task::classification>) {
                                 sp_hlp.add_val(ts_left_count,
-                                               &ts_left_hist[0],
+                                               ts_left_hist,
                                                ts_ftr_bin,
                                                bin,
                                                response_ptr[id]);
                             }
                             else {
-                                sp_hlp.add_val(&ts_left_hist[0], ts_ftr_bin, bin, response_ptr[id]);
+                                sp_hlp.add_val(ts_left_hist, ts_ftr_bin, bin, response_ptr[id]);
                             }
                         }
 
@@ -938,7 +1024,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                                                 node_ptr,
                                                 node_imp_list_ptr,
                                                 class_hist_list_ptr,
-                                                &ts_left_hist[0],
+                                                ts_left_hist,
                                                 class_count,
                                                 node_id);
 
@@ -947,14 +1033,14 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                                                      bs_left_count,
                                                      bs_left_imp,
                                                      bs_imp_dec,
-                                                     &bs_left_hist[0],
+                                                     bs_left_hist,
                                                      ts_ftr_id,
                                                      ts_ftr_bin,
                                                      ts_left_count,
                                                      ts_right_count,
                                                      ts_left_imp,
                                                      ts_imp_dec,
-                                                     &ts_left_hist[0],
+                                                     ts_left_hist,
                                                      node_imp_list_ptr,
                                                      class_count,
                                                      node_id,
@@ -967,20 +1053,20 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                                                 ts_imp_dec,
                                                 node_ptr,
                                                 node_imp_list_ptr,
-                                                &ts_left_hist[0],
+                                                ts_left_hist,
                                                 node_id);
 
                             sp_hlp.choose_best_split(bs_ftr_id,
                                                      bs_ftr_bin,
                                                      bs_left_count,
                                                      bs_imp_dec,
-                                                     &bs_left_hist[0],
+                                                     bs_left_hist,
                                                      ts_ftr_id,
                                                      ts_ftr_bin,
                                                      ts_left_count,
                                                      ts_right_count,
                                                      ts_imp_dec,
-                                                     &ts_left_hist[0],
+                                                     ts_left_hist,
                                                      node_imp_list_ptr,
                                                      buff_size,
                                                      node_id,
@@ -998,7 +1084,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                                                  bs_left_count,
                                                  bs_left_imp,
                                                  bs_imp_dec,
-                                                 &bs_left_hist[0],
+                                                 bs_left_hist,
                                                  node_ptr,
                                                  node_imp_decr_list_ptr,
                                                  left_child_imp_list_ptr,
@@ -1014,7 +1100,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                                                  bs_ftr_bin,
                                                  bs_left_count,
                                                  bs_imp_dec,
-                                                 &bs_left_hist[0],
+                                                 bs_left_hist,
                                                  node_ptr,
                                                  node_imp_decr_list_ptr,
                                                  left_child_imp_list_ptr,
@@ -1030,13 +1116,17 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
     return last_event;
 }
 
-#define INSTANTIATE(F, B, I, T) template class train_best_split_impl<F, B, I, T>;
+#define INSTANTIATE(F, B, I, T, M) template class train_best_split_impl<F, B, I, T, M>;
 
-INSTANTIATE(float, std::uint32_t, std::int32_t, task::classification);
-INSTANTIATE(float, std::uint32_t, std::int32_t, task::regression);
+INSTANTIATE(float, std::uint32_t, std::int32_t, task::classification, true);
+INSTANTIATE(float, std::uint32_t, std::int32_t, task::classification, false);
+INSTANTIATE(float, std::uint32_t, std::int32_t, task::regression, true);
+INSTANTIATE(float, std::uint32_t, std::int32_t, task::regression, false);
 
-INSTANTIATE(double, std::uint32_t, std::int32_t, task::classification);
-INSTANTIATE(double, std::uint32_t, std::int32_t, task::regression);
+INSTANTIATE(double, std::uint32_t, std::int32_t, task::classification, true);
+INSTANTIATE(double, std::uint32_t, std::int32_t, task::classification, false);
+INSTANTIATE(double, std::uint32_t, std::int32_t, task::regression, true);
+INSTANTIATE(double, std::uint32_t, std::int32_t, task::regression, false);
 
 } // namespace oneapi::dal::decision_forest::backend
 
