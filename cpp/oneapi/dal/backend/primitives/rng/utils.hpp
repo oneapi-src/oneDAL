@@ -26,33 +26,67 @@
 
 namespace oneapi::dal::backend::primitives {
 
+enum class rng_method {
+    uniform,
+    uniform_bits_32,
+    bernoulli,
+    gaussian,
+    uniform_without_replacement
+};
+
+template <typename U, rng_method M, typename... Args>
+struct uniform_functor {
+    void operator()(Args... args) {
+        std::int32_t res = 0;
+
+        if constexpr (M == rng_method::uniform) {
+            res = U{}.uniform(std::forward<Args>(args)...);
+        }
+        else if constexpr (M == rng_method::uniform_bits_32) {
+            res = U{}.uniformBits32(std::forward<Args>(args)...);
+        }
+        else if constexpr (M == rng_method::bernoulli) {
+            res = U{}.bernoulli(std::forward<Args>(args)...);
+        }
+        else if constexpr (M == rng_method::gaussian) {
+            res = U{}.gaussian(std::forward<Args>(args)...);
+        }
+        else if constexpr (M == rng_method::uniform_without_replacement) {
+            res = U{}.uniformWithoutReplacement(std::forward<Args>(args)...);
+        }
+
+        if (res) {
+            using msg = dal::detail::error_messages;
+            throw internal_error(msg::failed_to_generate_random_numbers());
+        }
+    }
+};
+
+template <typename Type = std::size_t, rng_method M = rng_method::uniform, typename... Args>
+struct internal_dispatcher {
+    explicit internal_dispatcher(Args&&... args) : args_(std::forward<Args>(args)...) {}
+    template <typename CPU>
+    void operator()(CPU cpu) {
+        using uniform_type = daal::internal::
+            RNGs<Type, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>;
+        uniform_functor<uniform_type, M, Args...> f;
+        std::apply(f, args_);
+    }
+    std::tuple<Args...> args_;
+};
+
 struct uniform_dispatcher {
     template <typename Type = std::size_t, typename... Args>
     static void uniform_by_cpu(Args&&... args) {
-        dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-            int res = daal::internal::RNGs<
-                          Type,
-                          oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                          .uniform(std::forward<Args>(args)...);
-            if (res) {
-                using msg = dal::detail::error_messages;
-                throw internal_error(msg::failed_to_generate_random_numbers());
-            }
-        });
+        internal_dispatcher<Type, rng_method::uniform, Args...> disp(std::forward<Args>(args)...);
+        dispatch_by_cpu(context_cpu{}, disp);
     }
 
     template <typename Type = std::size_t, typename... Args>
     static void uniform_without_replacement_by_cpu(Args&&... args) {
-        dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-            int res = daal::internal::RNGs<
-                          Type,
-                          oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                          .uniformWithoutReplacement(std::forward<Args>(args)...);
-            if (res) {
-                using msg = dal::detail::error_messages;
-                throw internal_error(msg::failed_to_generate_random_numbers());
-            }
-        });
+        internal_dispatcher<Type, rng_method::uniform_without_replacement, Args...> disp(
+            std::forward<Args>(args)...);
+        dispatch_by_cpu(context_cpu{}, disp);
     }
 };
 
