@@ -22,30 +22,28 @@
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 struct byte_alloc_iface {
-    using byte_t = char;
     virtual byte_t* allocate(std::int64_t n) = 0;
     virtual void deallocate(byte_t* ptr, std::int64_t n) = 0;
 };
 
 template <typename Alloc>
 struct alloc_connector : public byte_alloc_iface {
-    using byte_t = char;
-    using t_allocator_traits =
+    using allocator_traits_t =
         typename std::allocator_traits<Alloc>::template rebind_traits<byte_t>;
-    alloc_connector(Alloc alloc) : _alloc(alloc) {}
+    alloc_connector(Alloc alloc) : alloc_(alloc) {}
     byte_t* allocate(std::int64_t count) override {
-        typename t_allocator_traits::pointer ptr = t_allocator_traits::allocate(_alloc, count);
+        typename allocator_traits_t::pointer ptr = allocator_traits_t::allocate(alloc_, count);
         return ptr;
     };
 
     void deallocate(byte_t* ptr, std::int64_t count) override {
         if (ptr != nullptr) {
-            t_allocator_traits::deallocate(_alloc, ptr, count);
+            allocator_traits_t::deallocate(alloc_, ptr, count);
         }
     };
 
 private:
-    Alloc _alloc;
+    Alloc alloc_;
 };
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

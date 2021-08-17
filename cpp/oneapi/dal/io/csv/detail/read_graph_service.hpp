@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::preview::read_graph::detail {
+namespace oneapi::dal::preview::csv::detail {
 
 ONEDAL_EXPORT std::int32_t daal_string_to_int(const char *nptr, char **endptr);
 
@@ -37,4 +37,4 @@ inline double daal_string_to(const char *nptr, char **endptr) {
     return daal_string_to_double(nptr, endptr);
 }
 
-} // namespace oneapi::dal::preview::read_graph::detail
+} // namespace oneapi::dal::preview::csv::detail

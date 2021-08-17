@@ -20,20 +20,20 @@
 #include "oneapi/dal/io/csv/detail/read_graph_kernel_impl.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::csv::detail {
+namespace oneapi::dal::preview::csv::detail {
 
 template <typename Descriptor>
-inline typename Descriptor::object_t read_graph_default_kernel(const dal::detail::host_policy& ctx,
-                                                               const detail::data_source_base& ds,
-                                                               const Descriptor& desc) {
+inline typename Descriptor::object_t read_graph_default_kernel(
+    const dal::detail::host_policy& ctx,
+    const dal::csv::detail::data_source_base& ds,
+    const Descriptor& desc) {
     using graph_t = typename Descriptor::object_t;
     using weight_t = typename dal::preview::edge_user_value_type<graph_t>;
     constexpr bool is_edge_weighted =
         !oneapi::dal::detail::is_one_of_v<weight_t, oneapi::dal::preview::empty_value>;
-    using read_impl_t = preview::read_graph::detail::
-        read_impl<is_edge_weighted, Descriptor, detail::data_source_base>;
+    using read_impl_t = read_impl<is_edge_weighted, Descriptor, dal::csv::detail::data_source_base>;
     graph_t graph;
     read_impl_t{}(ds, desc, graph);
     return graph;
 }
-} // namespace oneapi::dal::csv::detail
+} // namespace oneapi::dal::preview::csv::detail

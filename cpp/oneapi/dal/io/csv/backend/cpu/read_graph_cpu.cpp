@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/io/csv/backend/cpu/read_graph.hpp"
 
-namespace oneapi::dal::preview::read_graph::backend {
+namespace oneapi::dal::preview::csv::backend {
 
 template std::int64_t get_vertex_count_from_edge_list<__CPU_TAG__>(
     const edge_list<std::int32_t> &edges);
@@ -37,4 +37,4 @@ template void filter_neighbors_and_fill_new_degrees<__CPU_TAG__>(std::int32_t *u
                                                                  std::int32_t *new_degrees,
                                                                  std::int64_t vertex_count);
 
-} // namespace oneapi::dal::preview::read_graph::backend
+} // namespace oneapi::dal::preview::csv::backend

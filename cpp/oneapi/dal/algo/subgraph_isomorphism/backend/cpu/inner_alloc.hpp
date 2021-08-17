@@ -26,8 +26,6 @@ struct byte_alloc_iface;
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 struct inner_alloc {
-    using byte_t = char;
-
     inner_alloc(detail::byte_alloc_iface* byte_allocator) : byte_allocator_(byte_allocator) {}
     inner_alloc(const detail::byte_alloc_iface* byte_allocator)
             : byte_allocator_(const_cast<detail::byte_alloc_iface*>(byte_allocator)) {}

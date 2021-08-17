@@ -32,9 +32,10 @@ struct read_ops_dispatcher<Object, dal::detail::host_policy> {
     Object operator()(const dal::detail::host_policy& policy,
                       const data_source_base& ds,
                       const dal::preview::csv::read_args<Object>& args) const {
-        static auto impl = get_backend<dal::detail::host_policy,
-                                       data_source_base,
-                                       dal::preview::csv::read_args<Object>>(ds, args);
+        static auto impl =
+            dal::preview::csv::detail::get_backend<dal::detail::host_policy,
+                                                   data_source_base,
+                                                   dal::preview::csv::read_args<Object>>(ds, args);
         return (*impl)(policy, ds, args);
     }
 };

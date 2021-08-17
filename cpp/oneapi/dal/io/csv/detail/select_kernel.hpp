@@ -19,7 +19,7 @@
 #include "oneapi/dal/io/csv/common.hpp"
 #include "oneapi/dal/io/csv/detail/read_graph_kernel.hpp"
 
-namespace oneapi::dal::csv::detail {
+namespace oneapi::dal::preview::csv::detail {
 
 template <typename Policy, typename DataSource, typename Descriptor>
 struct backend_base {
@@ -48,4 +48,4 @@ dal::detail::shared<backend_base<Policy, DataSource, Descriptor>> get_backend(
     return std::make_shared<backend_default<Policy, DataSource, Descriptor>>();
 }
 
-} // namespace oneapi::dal::csv::detail
+} // namespace oneapi::dal::preview::csv::detail

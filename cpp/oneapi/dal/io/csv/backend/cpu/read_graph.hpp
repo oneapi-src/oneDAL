@@ -23,7 +23,7 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/io/csv/detail/graph_service.hpp"
 
-namespace oneapi::dal::preview::read_graph::backend {
+namespace oneapi::dal::preview::csv::backend {
 
 template <typename Cpu>
 std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edges) {
@@ -81,4 +81,4 @@ void filter_neighbors_and_fill_new_degrees(std::int32_t *unfiltered_neighs,
     });
 }
 
-} // namespace oneapi::dal::preview::read_graph::backend
+} // namespace oneapi::dal::preview::csv::backend

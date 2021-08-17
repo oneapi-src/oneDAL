@@ -28,7 +28,7 @@
 #include "oneapi/dal/io/csv/detail/read_graph_service.hpp"
 #include "oneapi/dal/io/csv/detail/graph_service.hpp"
 
-namespace oneapi::dal::preview::read_graph::detail {
+namespace oneapi::dal::preview::csv::detail {
 
 template <typename EdgeList>
 inline void read_edge_list(const std::string &name, EdgeList &elist);
@@ -575,7 +575,7 @@ void read_from_edgelist(EdgeListType &elist,
                         const DataSource &ds,
                         const Descriptor &desc,
                         typename Descriptor::object_t &graph) {
-    //using allocator_t = typename Descriptor::allocator_t;
+    auto alloc = desc.get_allocator();
     read_edge_list(ds.get_file_name(), elist);
     convert_to_csr_impl(elist, graph);
     return;
@@ -616,4 +616,4 @@ public:
     }
 };
 
-} // namespace oneapi::dal::preview::read_graph::detail
+} // namespace oneapi::dal::preview::csv::detail

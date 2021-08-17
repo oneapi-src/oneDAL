@@ -89,15 +89,15 @@ public:
     using allocator_t = Allocator;
 
     explicit descriptor(Allocator allocator = std::allocator<char>()) {
-        _alloc = allocator;
+        alloc_ = allocator;
     }
 
     Allocator get_allocator() const {
-        return _alloc;
+        return alloc_;
     }
 
 private:
-    Allocator _alloc;
+    Allocator alloc_;
 };
 
 namespace detail {

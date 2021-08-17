@@ -12,8 +12,6 @@ dal_collect_modules(
     name = "io",
     root = "@onedal//cpp/oneapi/dal/io",
     modules = IOS,
-    dal_deps = [
-    ],
 )
 
 dal_test_suite(

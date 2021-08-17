@@ -74,6 +74,12 @@ public:
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     }
 
+    dal::detail::shared<preview::detail::byte_alloc_iface> get_allocator() const {
+        return allocator;
+    }
+    read_mode get_read_mode() const {
+        return mode;
+    }
     dal::detail::shared<preview::detail::byte_alloc_iface> allocator;
     read_mode mode;
 };
@@ -93,8 +99,9 @@ public:
     template <typename Allocator>
     explicit read_args(Allocator&& allocator, read_mode mode = read_mode::edge_list)
             : impl_(new detail::read_args_graph_impl(detail::make_allocator(allocator), mode)) {}
+
     dal::detail::shared<preview::detail::byte_alloc_iface> get_allocator() const {
-        return impl_->allocator;
+        return impl_->get_allocator();
     }
 
     auto& set_read_mode(read_mode mode) {
@@ -102,7 +109,7 @@ public:
         return *this;
     }
     read_mode get_read_mode() const {
-        return impl_->mode;
+        return impl_->get_read_mode();
     }
 
 protected:
