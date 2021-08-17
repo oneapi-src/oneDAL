@@ -147,14 +147,14 @@ inline void compress_graph(graph<vertex_type, EdgeValue>& g,
     deallocate(g.vertex_allocator, c_rows, community_count + 1);
 }
 
-template <typename vertex_type, typename EdgeValue>
-inline double init_step(graph<vertex_type, EdgeValue>& g,
-                        vertex_type* labels,
-                        double resolution,
-                        EdgeValue* k,
-                        EdgeValue* tot,
-                        EdgeValue& m,
-                        std::int64_t* community_size) {
+template <typename Float, typename vertex_type, typename EdgeValue>
+inline Float init_step(graph<vertex_type, EdgeValue>& g,
+                       vertex_type* labels,
+                       double resolution,
+                       EdgeValue* k,
+                       EdgeValue* tot,
+                       EdgeValue& m,
+                       std::int64_t* community_size) {
     std::int32_t community_count = 0;
     for (std::int64_t v = 0; v < g.vertex_count; ++v) {
         ++community_size[labels[v]];
@@ -192,7 +192,7 @@ inline double init_step(graph<vertex_type, EdgeValue>& g,
     }
     ONEDAL_ASSERT(m > 0);
 
-    double modularity = 0;
+    Float modularity = 0;
     for (std::int32_t c = 0; c < community_count; ++c) {
         modularity +=
             1.0 / 2 / m * (local_self_loops[c] * 2 - resolution * k_c[c] * k_c[c] / (2.0 * m));
@@ -202,12 +202,12 @@ inline double init_step(graph<vertex_type, EdgeValue>& g,
     return modularity;
 }
 
-template <typename Cpu, typename vertex_type, typename EdgeValue>
-inline double move_nodes(graph<vertex_type, EdgeValue>& g,
-                         vertex_type* n2c,
-                         bool& changed,
-                         double resolution,
-                         double accuracy_threshold) {
+template <typename Cpu, typename Float, typename vertex_type, typename EdgeValue>
+inline Float move_nodes(graph<vertex_type, EdgeValue>& g,
+                        vertex_type* n2c,
+                        bool& changed,
+                        double resolution,
+                        double accuracy_threshold) {
     using vertex_size_type = std::int64_t;
 
     EdgeValue m = 0;
@@ -225,15 +225,15 @@ inline double move_nodes(graph<vertex_type, EdgeValue>& g,
     }
 
     // calc initial data
-    double modularity = init_step(g, n2c, resolution, k, tot, m, community_size);
+    Float modularity = init_step<Float>(g, n2c, resolution, k, tot, m, community_size);
 
     // interate over all vertices
-    double old_modularity = modularity;
+    Float old_modularity = modularity;
     vertex_type* random_order = allocate(g.vertex_allocator, g.vertex_count);
     for (std::int64_t index = 0; index < g.vertex_count; ++index) {
         random_order[index] = index;
     }
-    random_shuffle<Cpu, vertex_type>(random_order, g.vertex_count);
+    random_shuffle<Cpu>(random_order, g.vertex_count);
     vertex_type* empty_community = allocate(g.vertex_allocator, g.vertex_count);
     std::int64_t empty_count = 0;
     do {
@@ -257,8 +257,8 @@ inline double move_nodes(graph<vertex_type, EdgeValue>& g,
             // remove vertex from the current community
             EdgeValue k_iold = k_vertex_to[c_old];
             tot[c_old] -= k[v];
-            double delta_modularity =
-                static_cast<double>(k_iold) / m - resolution * tot[c_old] * k[v] / (2.0 * m * m);
+            Float delta_modularity =
+                static_cast<Float>(k_iold) / m - resolution * tot[c_old] * k[v] / (2.0 * m * m);
             modularity -= delta_modularity;
             std::int32_t move_community = n2c[v];
             --community_size[c_old];
@@ -276,8 +276,8 @@ inline double move_nodes(graph<vertex_type, EdgeValue>& g,
 
                 // try to move vertex to the community
                 EdgeValue k_ic = k_vertex_to[c];
-                double delta =
-                    static_cast<double>(k_ic) / m - resolution * tot[c] * k[v] / (2.0 * m * m);
+                Float delta =
+                    static_cast<Float>(k_ic) / m - resolution * tot[c] * k[v] / (2.0 * m * m);
                 if (delta_modularity < delta) {
                     delta_modularity = delta;
                     move_community = c;
@@ -340,7 +340,7 @@ inline void set_result_labels(community_vector_type& communities,
     }
 }
 
-template <typename Cpu, typename EdgeValue>
+template <typename Cpu, typename Float, typename EdgeValue>
 struct louvain_kernel {
     vertex_partitioning_result<task::vertex_partitioning> operator()(
         const detail::descriptor_base<task::vertex_partitioning>& desc,
@@ -361,7 +361,7 @@ struct louvain_kernel {
             const std::int64_t vertex_count = t.get_vertex_count();
             graph<vertex_type, value_type> g(t, vals, alloc_ptr);
 
-            double modularity = std::numeric_limits<double>::min();
+            Float modularity = std::numeric_limits<Float>::min();
             vertex_type* labels = allocate(g.vertex_allocator, vertex_count);
             if (init_partition != nullptr) {
                 for (std::int64_t v = 0; v < vertex_count; ++v) {
@@ -392,11 +392,8 @@ struct louvain_kernel {
                 }
                 allocate_labels = true;
                 bool changed = false;
-                modularity = move_nodes<Cpu, vertex_type, value_type>(g,
-                                                                      labels,
-                                                                      changed,
-                                                                      resolution,
-                                                                      accuracy_threshold);
+                modularity =
+                    move_nodes<Cpu, Float>(g, labels, changed, resolution, accuracy_threshold);
 
                 if (!changed) {
                     deallocate(g.vertex_allocator, labels, vertex_count);

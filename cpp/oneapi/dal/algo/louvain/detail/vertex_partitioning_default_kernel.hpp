@@ -29,7 +29,7 @@ namespace oneapi::dal::preview::louvain::detail {
 
 using namespace dal::preview::detail;
 
-template <typename Method, typename Task, typename Allocator, typename Graph>
+template <typename Float, typename Method, typename Task, typename Allocator, typename Graph>
 struct vertex_partitioning_kernel_cpu {
     inline vertex_partitioning_result<Task> operator()(const dal::detail::host_policy &ctx,
                                                        const detail::descriptor_base<Task> &desc,
@@ -61,8 +61,12 @@ struct louvain_kernel<Float,
         byte_alloc_iface *alloc) const;
 };
 
-template <typename Allocator, typename Graph>
-struct vertex_partitioning_kernel_cpu<method::fast, task::vertex_partitioning, Allocator, Graph> {
+template <typename Float, typename Allocator, typename Graph>
+struct vertex_partitioning_kernel_cpu<Float,
+                                      method::fast,
+                                      task::vertex_partitioning,
+                                      Allocator,
+                                      Graph> {
     inline vertex_partitioning_result<task::vertex_partitioning> operator()(
         const dal::detail::host_policy &ctx,
         const detail::descriptor_base<task::vertex_partitioning> &desc,
@@ -77,7 +81,7 @@ struct vertex_partitioning_kernel_cpu<method::fast, task::vertex_partitioning, A
             oneapi::dal::row_accessor<const std::int32_t>(init_partition).pull();
         const auto init_partition_data = init_partition_arr.get_data();
         alloc_connector<Allocator> alloc_con(alloc);
-        return louvain_kernel<float, task::vertex_partitioning, topology_type, value_type>{}(
+        return louvain_kernel<Float, task::vertex_partitioning, topology_type, value_type>{}(
             ctx,
             desc,
             t,
