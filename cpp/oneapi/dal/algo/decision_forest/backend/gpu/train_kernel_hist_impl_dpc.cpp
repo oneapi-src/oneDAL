@@ -209,14 +209,13 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     ctx.distr_mode_ = (comm_.get_rank_count() > 1);
 #endif
 
+    ctx.use_private_mem_buf_ = true;
+
     if constexpr (std::is_same_v<Task, task::classification>) {
         ctx.class_count_ = de::integral_cast<Index>(desc.get_class_count());
-
-        if (ctx.class_count_ > impl_const_t::max_private_class_hist_buff_size) {
-            ctx.use_private_mem_buf_ = false;
-        }
-        ctx.use_private_mem_buf_ = true;
+        ctx.use_private_mem_buf_ = false;
     }
+
     ctx.row_count_ = de::integral_cast<Index>(data.get_row_count());
     ctx.row_total_count_ = get_row_total_count(ctx.distr_mode_, ctx.row_count_);
 
