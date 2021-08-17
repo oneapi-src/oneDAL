@@ -14,14 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp_impl.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp_defines.hpp"
+#pragma once
 
-namespace oneapi::dal::kmeans::backend {
+#include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
+#include "oneapi/dal/algo/basic_statistics/detail/compute_ops.hpp"
+#include "oneapi/dal/compute.hpp"
 
-#ifdef ONEDAL_DATA_PARALLEL
-template struct kernels_fp<float>;
-INSTANTIATE_WITH_METRIC(float, pr::squared_l2_metric)
-#endif
+namespace oneapi::dal::detail {
+namespace v1 {
 
-} // namespace oneapi::dal::kmeans::backend
+template <typename Descriptor>
+struct compute_ops<Descriptor, dal::basic_statistics::detail::descriptor_tag>
+        : dal::basic_statistics::detail::compute_ops<Descriptor> {};
+
+} // namespace v1
+} // namespace oneapi::dal::detail
