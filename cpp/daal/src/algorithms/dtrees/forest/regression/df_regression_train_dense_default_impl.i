@@ -796,7 +796,6 @@ public:
         size_t nPredicted                  = 0;
         algorithmFPType _res               = 0;
         algorithmFPType yMean              = 0;
-        algorithmFPType sumDiff            = 0;
         algorithmFPType sumMeanDiff        = 0;
         RegErr<algorithmFPType, cpu> * ptr = (RegErr<algorithmFPType, cpu> *)this->oobBuf;
 
@@ -813,14 +812,13 @@ public:
             if (ptr[i].count)
             {
                 ptr[i].value /= algorithmFPType(ptr[i].count);
-                const algorithmFPType oobForObs = (py[i] - ptr[i].value) * (py[i] - ptr[i].value);
+                const algorithmFPType oobForObs = (ptr[i].value - py[i]) * (ptr[i].value - py[i]);
 
                 if (resPerObs) resPerObs[i] = oobForObs;
                 _res += oobForObs;
                 ++nPredicted;
 
                 if (resPrediction) resPrediction[i] = ptr[i].value;
-                sumDiff += oobForObs;
                 sumMeanDiff += (py[i] - yMean) * (py[i] - yMean);
             }
             else if (resPerObs)
@@ -833,7 +831,7 @@ public:
             }
         }
         if (res) *res = _res / algorithmFPType(nPredicted);
-        if (resR2) *resR2 = 1 - sumDiff / sumMeanDiff;
+        if (resR2) *resR2 = 1 - _res / sumMeanDiff;
         return Status();
     }
 };
