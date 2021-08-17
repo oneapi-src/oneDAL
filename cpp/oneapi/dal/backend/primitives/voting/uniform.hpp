@@ -24,12 +24,12 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename ClassType = std::int32_t>
+template <typename ClassType = std::int32_t>
 class uniform_voting {
 public:
-    virtual sycl::event operator() (const ndview<ClassType, 2>& responses,
-                                    ndview<ClassType, 1>& results,
-                                    const event_vector& deps = {}) = 0;
+    virtual sycl::event operator()(const ndview<ClassType, 2>& responses,
+                                   ndview<ClassType, 1>& results,
+                                   const event_vector& deps = {}) = 0;
     virtual ~uniform_voting();
 
 protected:
@@ -42,27 +42,27 @@ private:
 
 /// TODO: Fix small_k_voting implemenmtation
 
-template<typename ClassType = std::int32_t>
+template <typename ClassType = std::int32_t>
 class large_k_uniform_voting : public uniform_voting<ClassType> {
     using base_t = uniform_voting<ClassType>;
+
 public:
-    large_k_uniform_voting(sycl::queue& queue,
-        std::int64_t max_block, std::int64_t k_response);
-    sycl::event operator() (const ndview<ClassType, 2>& responses,
-                            ndview<ClassType, 1>& results,
-                            const event_vector& deps = {}) final;
+    large_k_uniform_voting(sycl::queue& queue, std::int64_t max_block, std::int64_t k_response);
+    sycl::event operator()(const ndview<ClassType, 2>& responses,
+                           ndview<ClassType, 1>& results,
+                           const event_vector& deps = {}) final;
 
 private:
-    sycl::event select_winner(ndview<ClassType, 1>& results,
-                              const event_vector& deps) const;
+    sycl::event select_winner(ndview<ClassType, 1>& results, const event_vector& deps) const;
 
     ndarray<ClassType, 2> swp_, out_;
     radix_sort<ClassType> sorting_;
 };
 
-template<typename ClassType = std::int32_t>
-std::unique_ptr<uniform_voting<ClassType>> make_uniform_voting(
-        sycl::queue& queue, std::int64_t max_block, std::int64_t k_response);
+template <typename ClassType = std::int32_t>
+std::unique_ptr<uniform_voting<ClassType>> make_uniform_voting(sycl::queue& queue,
+                                                               std::int64_t max_block,
+                                                               std::int64_t k_response);
 
 #endif
 

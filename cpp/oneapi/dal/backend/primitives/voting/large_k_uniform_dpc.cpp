@@ -23,18 +23,18 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename ClassType>
+template <typename ClassType>
 large_k_uniform_voting<ClassType>::large_k_uniform_voting(sycl::queue& q,
-        std::int64_t max_block, std::int64_t k_response)
-    : base_t{ q },
-      swp_(ndarray<ClassType, 2>::empty(q, {max_block, k_response})),
-      out_(ndarray<ClassType, 2>::empty(q, {max_block, k_response})),
-      sorting_{ q } {}
+                                                          std::int64_t max_block,
+                                                          std::int64_t k_response)
+        : base_t{ q },
+          swp_(ndarray<ClassType, 2>::empty(q, { max_block, k_response })),
+          out_(ndarray<ClassType, 2>::empty(q, { max_block, k_response })),
+          sorting_{ q } {}
 
-template<typename ClassType>
-sycl::event large_k_uniform_voting<ClassType>::select_winner (
-        ndview<ClassType, 1>& results,
-        const event_vector& deps) const {
+template <typename ClassType>
+sycl::event large_k_uniform_voting<ClassType>::select_winner(ndview<ClassType, 1>& results,
+                                                             const event_vector& deps) const {
     const auto inp_str = out_.get_leading_stride();
     const auto inp_wdt = out_.get_dimension(1);
     const auto* const inp_ptr = out_.get_data();
@@ -47,15 +47,16 @@ sycl::event large_k_uniform_voting<ClassType>::select_winner (
             const auto* const row = inp_ptr + idx * inp_str;
             ClassType last = -1, winner = -1;
             std::int32_t last_span = -1, winner_span = -1;
-            for(std::int32_t i = 0; i < inp_wdt; ++i) {
+            for (std::int32_t i = 0; i < inp_wdt; ++i) {
                 const ClassType& cur = *(row + i);
-                if(cur == last) {
+                if (cur == last) {
                     ++last_span;
-                } else {
+                }
+                else {
                     last = cur;
                     last_span = 1;
                 }
-                if(last_span > winner_span) {
+                if (last_span > winner_span) {
                     winner = last;
                     winner_span = last_span;
                 }
@@ -65,11 +66,10 @@ sycl::event large_k_uniform_voting<ClassType>::select_winner (
     });
 }
 
-template<typename ClassType>
-sycl::event large_k_uniform_voting<ClassType>::operator() (
-        const ndview<ClassType, 2>& responses,
-        ndview<ClassType, 1>& results,
-        const event_vector& deps) {
+template <typename ClassType>
+sycl::event large_k_uniform_voting<ClassType>::operator()(const ndview<ClassType, 2>& responses,
+                                                          ndview<ClassType, 1>& results,
+                                                          const event_vector& deps) {
     const auto n = responses.get_dimension(0);
     ONEDAL_ASSERT(n <= swp_.get_dimension(0));
     ONEDAL_ASSERT(n <= out_.get_dimension(0));
@@ -78,19 +78,12 @@ sycl::event large_k_uniform_voting<ClassType>::operator() (
     ONEDAL_ASSERT(r == out_.get_dimension(1));
     auto swp_slice = swp_.get_row_slice(0, n);
     auto out_slice = out_.get_row_slice(0, n);
-    auto cpy_event = copy_by_value(this->get_queue(),
-                                   swp_slice,
-                                   responses,
-                                   deps);
-    auto srt_event = sorting_(swp_slice,
-                              out_slice,
-                              {cpy_event});
-    return select_winner(results, {srt_event});
+    auto cpy_event = copy_by_value(this->get_queue(), swp_slice, responses, deps);
+    auto srt_event = sorting_(swp_slice, out_slice, { cpy_event });
+    return select_winner(results, { srt_event });
 }
 
-
-#define INSTANTIATE(CLASS)                  \
-template class large_k_uniform_voting<CLASS>;
+#define INSTANTIATE(CLASS) template class large_k_uniform_voting<CLASS>;
 
 INSTANTIATE(std::int32_t);
 INSTANTIATE(std::int64_t);

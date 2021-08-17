@@ -39,24 +39,25 @@ public:
     auto compute_results(const ndview<cls_t, 2>& responses) {
         const auto r = responses.get_dimension(0);
         const auto k = responses.get_dimension(1);
-        auto tmp = ndarray<cls_t, 2>::empty(this->get_queue(), {r, k});
-        auto res = ndarray<cls_t, 1>::empty(this->get_queue(), {r});
+        auto tmp = ndarray<cls_t, 2>::empty(this->get_queue(), { r, k });
+        auto res = ndarray<cls_t, 1>::empty(this->get_queue(), { r });
         copy_by_value(this->get_queue(), tmp, responses).wait_and_throw();
-        for(int j = 0; j < r; ++j) {
+        for (int j = 0; j < r; ++j) {
             auto* const from = tmp.get_mutable_data() + j * k;
             auto* const to = tmp.get_mutable_data() + (j + 1) * k;
             std::sort(from, to);
             cls_t last = -1, winner = -1;
             int last_span = 0, winner_span = 0;
-            for(int i = 0; i < k; ++i) {
+            for (int i = 0; i < k; ++i) {
                 const cls_t& cur = *(from + i);
-                if(cur == last) {
+                if (cur == last) {
                     ++last_span;
-                } else {
+                }
+                else {
                     last = cur;
                     last_span = 0;
                 }
-                if(last_span > winner_span) {
+                if (last_span > winner_span) {
                     winner = last;
                     winner_span = last_span;
                 }
@@ -66,11 +67,10 @@ public:
         return res;
     }
 
-    void test_correctness(const ndview<cls_t, 2>& responses,
-                          const ndview<cls_t, 1>& results) {
+    void test_correctness(const ndview<cls_t, 2>& responses, const ndview<cls_t, 1>& results) {
         const auto own_res = compute_results(responses);
         const auto r = results.get_dimension(0);
-        for(int i = 0; i < r; ++i) {
+        for (int i = 0; i < r; ++i) {
             const auto val = *(results.get_data() + i);
             const auto gtr = *(own_res.get_data() + i);
             CAPTURE(i, val, gtr);
@@ -81,9 +81,9 @@ public:
     auto generate_input(int m, int n) {
         auto x = ndarray<std::int32_t, 2>::empty(this->get_queue(), { m, n });
 
-        for(int j = 0; j < m; ++j) {
-            for(int i = 0; i < n; ++i) {
-                if(i < (j + 1)) {
+        for (int j = 0; j < m; ++j) {
+            for (int i = 0; i < n; ++i) {
+                if (i < (j + 1)) {
                     x.at(j, i) = i;
                 }
                 else {
@@ -123,7 +123,5 @@ TEST_M(uniform_test, "uniform voting - large k", "[ndarray]") {
     this->generate();
     this->test_pipeline();
 }
-
-
 
 } // namespace oneapi::dal::backend::primitives::test
