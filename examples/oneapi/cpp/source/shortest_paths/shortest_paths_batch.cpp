@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
     using weight_type = double;
     using graph_t = dal::preview::directed_adjacency_vector_graph<vertex_type, weight_type>;
 
-    auto graph = dal::read<graph_t>(dal::csv::data_source{ filename },
-                                    dal::preview::read_mode::weighted_edge_list);
+    const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename },
+                                          dal::preview::read_mode::weighted_edge_list);
 
     // set algorithm parameters
     const auto shortest_paths_desc = descriptor<float, method::delta_stepping, task::one_to_all>(

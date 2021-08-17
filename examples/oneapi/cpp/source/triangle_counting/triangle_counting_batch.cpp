@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 
     // read the graph
     using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
-    auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
+    const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
     // set algorithm parameters
     const auto tc_desc = descriptor<float, method::ordered_count, task::local_and_global>();
 

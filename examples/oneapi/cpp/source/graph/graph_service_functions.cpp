@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     const auto filename = get_data_path("graph.csv");
 
     using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
-    auto graph = read<graph_t>(csv::data_source{ filename });
+    const auto graph = read<graph_t>(csv::data_source{ filename });
     std::cout << "Number of vertices: " << dal::preview::get_vertex_count(graph) << std::endl;
     std::cout << "Number of edges: " << dal::preview::get_edge_count(graph) << std::endl;
 
