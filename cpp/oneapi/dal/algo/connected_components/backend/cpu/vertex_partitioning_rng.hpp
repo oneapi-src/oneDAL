@@ -18,7 +18,7 @@
 
 #include <daal/src/externals/service_rng.h>
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
-#include <daal/include/algorithms/engines/mcg59/mcg59.h>
+//s#include <daal/include/algorithms/engines/mcg59/mcg59.h>
 #include <daal/src/algorithms/engines/engine_batch_impl.h>
 #include "oneapi/dal/backend/interop/common.hpp"
 
@@ -75,6 +75,6 @@ private:
     array<Type> seq_;
 };
 
-void generate_uniformly(size_t* result_array, std::int64_t count, size_t a, size_t b);
+//void generate_uniformly(size_t* result_array, std::int64_t count, size_t a, size_t b);
 
 } // namespace oneapi::dal::preview::connected_components::backend
