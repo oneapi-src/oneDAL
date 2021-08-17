@@ -114,13 +114,16 @@ dal_test_suite(
 
 dal_test_suite(
     name = "mpi_communicator_test",
+    mpi = True,
     framework = "catch2",
     srcs = glob([
         "test/mpi_*.cpp"
     ]),
     dal_deps = [
         ":common",
-        "@onedal//cpp/oneapi/dal/detail/mpi",
+    ],
+    dal_test_deps = [
+        "@onedal//cpp/oneapi/dal/test/engine:mpi",
     ],
 )
 

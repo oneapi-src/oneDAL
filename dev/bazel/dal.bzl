@@ -21,6 +21,9 @@ load("@onedal//dev/bazel:cc.bzl",
     "cc_test",
     "ModuleInfo",
 )
+load("@onedal//dev/bazel/deps:mpi.bzl",
+    "mpi_test",
+)
 load("@onedal//dev/bazel:release.bzl",
     "headers_filter",
 )
@@ -151,7 +154,8 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
 def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
              extra_deps=[], host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[], compile_as=[ "c++", "dpc++" ],
-             framework="gtest", data=[], tags=[], private=False, args=[], **kwargs):
+             framework="gtest", data=[], tags=[], private=False,
+             mpi=False, args=[], **kwargs):
     # TODO: Check `compile_as` parameter
     # TODO: Refactor this rule once decision on the tests structure is made
     if not framework in ["gtest", "catch2", "none"]:
@@ -204,7 +208,15 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
             tags = common_tags + tags + ["host", iface_access_tag],
             args = test_args,
         )
-        tests_for_test_suite.append(name + "_host")
+        if mpi:
+            mpi_test(
+                name = name + "_host_mpi",
+                src = name + "_host",
+                fi = "@mpi//:fi",
+            )
+            tests_for_test_suite.append(name + "_host_mpi")
+        else:
+            tests_for_test_suite.append(name + "_host")
     if "dpc++" in compile_as:
         cc_test(
             name = name + "_dpc",

@@ -14,14 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/engine/mpi.hpp"
+#pragma once
 
-namespace oneapi::dal::test {
+#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/detail/communicator.hpp"
 
-namespace te = dal::test::engine;
+namespace oneapi::dal::test::engine {
 
-TEST("bcast") {
-    const auto mpi_comm = te::get_global_mpi_communicator();
-}
+dal::detail::spmd_communicator get_global_mpi_communicator();
 
-} // namespace oneapi::dal::test
+} // namespace oneapi::dal::test::engine

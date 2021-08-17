@@ -282,4 +282,7 @@ public:
 };
 
 } // namespace v1
+
+using v1::mpi_communicator;
+
 } // namespace oneapi::dal::detail

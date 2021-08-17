@@ -20,6 +20,20 @@ cc_library(
     ],
 )
 
+filegroup(
+    name = "fi",
+    srcs = [
+        "libfabric/lib/prov/libefa-fi.so",
+        "libfabric/lib/prov/libmlx-fi.so",
+        "libfabric/lib/prov/libpsmx2-fi.so",
+        "libfabric/lib/prov/librxm-fi.so",
+        "libfabric/lib/prov/libshm-fi.so",
+        "libfabric/lib/prov/libsockets-fi.so",
+        "libfabric/lib/prov/libtcp-fi.so",
+        "libfabric/lib/prov/libverbs-fi.so",
+    ],
+)
+
 cc_library(
     name = "mpi",
     deps = [
