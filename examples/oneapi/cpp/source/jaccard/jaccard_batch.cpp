@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 
     // read the graph
     using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
-    const auto graph = read<graph_t>(csv::data_source{ filename });
+    const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
 
     // set blocks ranges
     const std::int64_t row_range_begin = 0;

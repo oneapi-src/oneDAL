@@ -19,31 +19,25 @@
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/louvain.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 namespace dal = oneapi::dal;
-using namespace dal::preview::louvain;
 
 int main(int argc, char** argv) {
     const auto filename = get_data_path("weighted_edge_list.csv");
 
-    // read the graph
-    const dal::preview::graph_csv_data_source ds(filename);
-
-    using vertex_type = int32_t;
-    using weight_type = double;
-    using graph_t = dal::preview::undirected_adjacency_vector_graph<vertex_type, weight_type>;
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
 
     const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename },
                                           dal::preview::read_mode::weighted_edge_list);
 
     // set algorithm parameters
     const auto louvain_desc =
-        descriptor<float, method::fast, task::vertex_partitioning, std::allocator<char>>()
-            .set_resolution(1)
-            .set_accuracy_threshold(0.0001)
-            .set_max_iteration_count(3);
+        dal::preview::louvain::
+            descriptor<float, method::fast, task::vertex_partitioning, std::allocator<char>>()
+                .set_resolution(1)
+                .set_accuracy_threshold(0.0001)
+                .set_max_iteration_count(3);
     // compute louvain
     try {
         const std::int64_t rows_count = 7;

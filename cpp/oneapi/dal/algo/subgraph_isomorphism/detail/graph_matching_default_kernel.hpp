@@ -89,10 +89,10 @@ struct call_subgraph_isomorphism_kernel_cpu {
                                                  t_vertex_attribute,
                                                  p_vertex_attribute);
         if (t_vertex_attribute)
-            alloc_ptr->deallocate(reinterpret_cast<byte_alloc_iface::byte_t*>(t_vertex_attribute),
+            alloc_ptr->deallocate(reinterpret_cast<byte_t*>(t_vertex_attribute),
                                   t_vertex_count * sizeof(std::int64_t));
         if (p_vertex_attribute)
-            alloc_ptr->deallocate(reinterpret_cast<byte_alloc_iface::byte_t*>(p_vertex_attribute),
+            alloc_ptr->deallocate(reinterpret_cast<byte_t*>(p_vertex_attribute),
                                   p_vertex_count * sizeof(std::int64_t));
         return result;
     }

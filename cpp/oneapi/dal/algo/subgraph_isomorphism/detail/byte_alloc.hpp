@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 

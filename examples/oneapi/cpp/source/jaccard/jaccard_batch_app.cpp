@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     const auto filename = get_data_path("graph.csv");
 
     using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
-    const auto graph = read<graph_t>(csv::data_source{ filename });
+    const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
 
     // set the block sizes for Jaccard similarity block processing
     const std::int32_t block_row_count = 2;

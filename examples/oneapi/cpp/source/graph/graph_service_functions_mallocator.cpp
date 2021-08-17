@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
     }
 
     // { Doesn't work - we've decided on meeting that it's OK
-    //     const auto graph = read<graph_t, csv::data_source>(csv::data_source{ filename }, mallocator);
+    //     const auto graph = dal::read<graph_t, csv::data_source>(dal::csv::data_source{ filename }, mallocator);
     //     print_graph_info(graph);
     // }
 
