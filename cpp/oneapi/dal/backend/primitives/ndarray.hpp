@@ -754,19 +754,4 @@ private:
     shared_t data_;
 };
 
-template<typename Float, ndorder order>
-inline std::ostream& operator<<(std::ostream& out, const ndview<Float, 2, order>& arr) {
-    const auto n = arr.get_dimension(0), m = arr.get_dimension(1);
-    const auto ord = (order == ndorder::c) ? 'c' : 'f';
-    out << ord << "-order array with shape [nxm]=[" << n << 'x' << m << ']' << std::endl;
-    for(std::int64_t j = 0; j < n; ++j) {
-        out << '\t';
-        for(std::int64_t i = 0; i < m; ++i) {
-            out << arr.at(j, i) << '\t';
-        }
-        out << std::endl;
-    }
-    return out;
-}
-
 } // namespace oneapi::dal::backend::primitives
