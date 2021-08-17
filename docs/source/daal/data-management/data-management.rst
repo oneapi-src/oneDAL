@@ -60,6 +60,7 @@ represent features.
 
 .. figure:: ./images/data-set.png
   :width: 400
+  :alt: Dataset
 
 An observation corresponds to a particular measurement of an observed
 object, and therefore when measurements are done, at distinct moments

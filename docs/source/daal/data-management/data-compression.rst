@@ -36,6 +36,9 @@ flow at a high level:
 
 .. figure:: ./images/compression-flow.png
   :width: 600
+  :alt: 
+
+  Data Compression and Decompression Flow
 
 To define compression or decompression methods and related
 parameters, provide Compressor or Decompressor objects as

@@ -99,6 +99,9 @@ structure and you want to use continuous indexing, do the following:
 
 .. figure:: ./images/data-source.png
   :width: 600
+  :alt: 
+
+  Reading from a Data Source
 
 |short_name| implements classes for some popular types of data
 sources. Each of these classes takes a feature manager class as the
@@ -227,6 +230,9 @@ has 3 output features.
 
 .. figure:: ./images/data-source-2.png
   :width: 600
+  :alt: 
+
+  Feature Modifiers
    
 The |short_name| has several predefined feature modifiers available
 for CSV and SQL feature managers.

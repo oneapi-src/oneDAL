@@ -32,6 +32,9 @@ Training Stage
 
 .. figure:: images/training-stage-recommendation-systems.png
     :width: 600
+    :alt: 
+
+    Recommendation Systems Usage Model: Training Stage
 
 At the training stage, recommender algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -75,6 +78,9 @@ Prediction Stage
 
 .. figure:: images/prediction-stage-recommendation-systems.png
     :width: 600
+    :alt: 
+
+    Recommendation Systems Usage Model: Prediction Stage
 
 At the prediction stage, recommender algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.

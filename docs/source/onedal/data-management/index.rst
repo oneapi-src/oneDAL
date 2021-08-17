@@ -58,6 +58,8 @@ and prepared.
   :width: 800
   :alt: Typical data management flow
 
+  Data Management Flow in oneDAL
+
 Key concepts
 ============
 
@@ -224,6 +226,8 @@ of these concepts, which are highlighted by colors:
 .. figure:: _static/table_accessor_usage_example.png
   :width: 800
   :alt: Sequence diagram of accessor-builder-table relations
+
+  Sequence diagram of accessor-builder-table relations
 
 To perform computations on a dataset, you have to create a :txtref:`table` object
 first. It can be done either using a :txtref:`data-source` or directly from

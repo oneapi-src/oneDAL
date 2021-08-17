@@ -61,6 +61,9 @@ To initialize the implicit ALS algorithm in the distributed processing mode, use
 .. figure:: images/implicit-als-distributed-init-general-scheme.png
     :width: 600
     :align: center
+    :alt: 
+
+    Implicit Alternating Least Squares Initialization: General Schema of Distributed Processing
 
 .. _implicit_als_distributed_init_step_1:
 
@@ -70,6 +73,10 @@ Step 1 - on Local Nodes
 .. figure:: images/implicit-als-distributed-init-step-1.png
     :width: 600
     :align: center
+    :alt: 
+
+    Implicit Alternating Least Squares Initialization: Distributed Processing, Step 1 - on Local Nodes
+
 
 Input
 -----
@@ -140,6 +147,10 @@ Step 2 - on Local Nodes
 .. figure:: images/implicit-als-distributed-init-step-2.png
     :width: 600
     :align: center
+    :alt: 
+
+    Implicit Alternating Least Squares Initialization: Distributed Processing, Step 2 - on Local Nodes
+    
 
 Input
 -----

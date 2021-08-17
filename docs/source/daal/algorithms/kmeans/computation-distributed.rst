@@ -74,6 +74,9 @@ Step 1 - on Local Nodes
 
 .. figure:: images/kmeans-distributed-computation-step-1.png
     :width: 1000
+    :alt: 
+
+    K-Means Computaion: Distributed Processing, Step 1 - on Local Nodes
 
 In this step, the K-Means clustering algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -174,6 +177,9 @@ Step 2 - on Master Node
 
 .. figure:: images/kmeans-distributed-computation-step-2.png
     :width: 1000
+    :alt: 
+    
+    K-Means Computaion: Distributed Processing, Step 2 - on Master Node
 
 In this step, the K-Means clustering algorithm accepts the input from each local node described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.

@@ -31,6 +31,9 @@ Training Stage
 
 .. figure:: images/training-stage-classification.png
     :width: 600
+    :alt: 
+
+    Classification Usage Model: Training Stage
 
 At the training stage, classification algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -78,6 +81,9 @@ Prediction Stage
 
 .. figure:: images/prediction-stage-classification.png
     :width: 600
+    :alt: 
+
+    Classification Usage Model: Prediction Stage
 
 At the prediction stage, classification algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.

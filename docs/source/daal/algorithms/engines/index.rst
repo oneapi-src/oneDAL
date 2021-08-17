@@ -76,6 +76,9 @@ Family
 
     .. figure:: images/englines-family-method-example.jpg
         :width: 300
+        :alt: Generating two sequences independently with two engines
+
+        Family method of random sequence generation
 
 SkipAhead
     This method skips ``nskip`` elements of the original random sequence.
@@ -85,6 +88,9 @@ SkipAhead
 
     .. figure:: images/englines-skipahead-method-example.jpg
         :width: 300
+        :alt: Generating a subsequence by skipping nSkip elements
+
+        SkipAhead method of random sequence generation
 
 LeapFrog
     This method generates random numbers with a stride of ``nThreads``. 
@@ -94,6 +100,9 @@ LeapFrog
 
     .. figure:: images/englines-leapfrog-method-example.jpg
         :width: 300
+        :alt: Generating a subsequence with stride=2
+
+        LeapFrog method of random sequence generation
 
 These methods are represented with member functions of classes that represent functionality described in the Engines section. See API References for details.
 

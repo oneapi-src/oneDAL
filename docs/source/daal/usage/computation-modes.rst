@@ -53,9 +53,11 @@ The following diagram illustrates the computation schema for online processing:
 
 .. figure:: ./images/online-1.png
   :width: 600
+  :alt: 
 
 .. figure:: ./images/online-2.png
   :width: 600
+  :alt: 
 
 .. note::
 
@@ -64,9 +66,11 @@ The following diagram illustrates the computation schema for online processing:
 
 .. figure:: ./images/online-3.png
   :width: 600
+  :alt: 
 
 .. figure:: ./images/online-4.png
   :width: 600
+  :alt: 
 
 .. _distributed_mode:
 
@@ -89,9 +93,11 @@ The computation schema is algorithm-specific. The following diagram illustrates 
 
 .. figure:: ./images/distributed-1.png
   :width: 600
+  :alt: 
 
 .. figure:: ./images/distributed-2.png
   :width: 600
+  :alt: 
 
 For the algorithm-specific computation schema, refer to the Distributed Processing section in the description of an appropriate algorithm.
 

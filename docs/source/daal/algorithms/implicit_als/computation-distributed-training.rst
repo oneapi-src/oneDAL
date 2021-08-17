@@ -86,10 +86,16 @@ The main loop of the implicit ALS training stage is executed on the master node.
 .. figure:: images/implicit-als-distributed-computation-training-general-scheme-1.png
     :width: 600
     :align: center
+    :alt: 
+
+    Implicit Alternating Least Squares Computaion: Part 1
 
 .. figure:: images/implicit-als-distributed-computation-training-general-scheme-2.png
     :width: 600
     :align: center
+    :alt: 
+
+    Implicit Alternating Least Squares Computaion: Part 2
 
 .. _implicit_als_distributed_training_step_1:
 
@@ -106,6 +112,9 @@ Parts of this matrix are used as input partial models.
 .. figure:: images/implicit-als-distributed-computation-training-step-1.png
     :width: 600
     :align: center
+    :alt: 
+
+    Training with Implicit Alternating Least Squares: Distributed Processing, Step 1 - on Local Nodes
 
 In this step, implicit ALS recommender training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -149,6 +158,9 @@ This step uses local partial results from :ref:`Step 1 <implicit_als_distributed
 .. figure:: images/implicit-als-distributed-computation-training-step-2.png
     :width: 600
     :align: center
+    :alt: 
+
+    Training with Implicit Alternating Least Squares: Distributed Processing, Step 2 - on Master Node
 
 In this step, implicit ALS recommender training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -209,6 +221,9 @@ The Input Of Step 3 From Init is a key-value data collection that refers to the 
 .. figure:: images/implicit-als-distributed-computation-training-step-3.png
     :width: 600
     :align: center
+    :alt: 
+    
+    Training with Implicit Alternating Least Squares: Distributed Processing, Step 3 - on Local Nodes
 
 In this step, implicit ALS recommender training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -261,6 +276,9 @@ The results of the step are the re-computed parts of this matrix.
 .. figure:: images/implicit-als-distributed-computation-training-step-4.png
     :width: 600
     :align: center
+    :alt: 
+
+    Training with Implicit Alternating Least Squares: Distributed Processing, Step 4 - on Local Nodes
 
 In this step, implicit ALS recommender training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.

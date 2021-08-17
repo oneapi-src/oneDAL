@@ -39,6 +39,9 @@ the figure below, where:
 
 .. figure:: images/decision-tree-structure.png
   :width: 600
+  :alt: 
+
+  Decision Tree Structure
 
 The test is a rule for partitioning of the feature space. The test
 depends on feature values. Each outcome of the test represents an

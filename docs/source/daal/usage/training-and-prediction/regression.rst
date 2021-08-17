@@ -32,6 +32,9 @@ Training Stage
 
 .. figure:: images/training-stage-regression.png
     :width: 600
+    :alt: 
+
+    Regression Usage Model: Training Stage
 
 At the training stage, regression algorithms accept the input described below. 
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -77,6 +80,9 @@ Prediction Stage
 
 .. figure:: images/prediction-stage-regression.png
     :width: 600
+    :alt: 
+
+    Regression Usage Model: Prediction Stage
 
 At the prediction stage, regression algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.

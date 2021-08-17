@@ -58,6 +58,9 @@ Step 1 - on Local Nodes
 
 .. figure:: images/qr-without-pivoting-distributed-step-1.png
     :width: 800
+    :alt: 
+
+    QR Decomposition without Pivoting: Distributed Processing, Step 1 - on Local Nodes
 
 In this step, QR decomposition accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -114,6 +117,9 @@ Step 2 - on Master Node
 
 .. figure:: images/qr-without-pivoting-distributed-step-2.png
     :width: 800
+    :alt: 
+
+    QR Decomposition without Pivoting: Distributed Processing, Step 2 - on Master Node
 
 In this step, QR decomposition accepts the input from each local node described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -185,6 +191,9 @@ Step 3 - on Local Nodes
 
 .. figure:: images/qr-without-pivoting-distributed-step-3.png
     :width: 800
+    :alt: 
+
+    QR Decomposition without Pivoting: Distributed Processing, Step 3 - on Local Nodes
 
 In this step, QR decomposition accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.

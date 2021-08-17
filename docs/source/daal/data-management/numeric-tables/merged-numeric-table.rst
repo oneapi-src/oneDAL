@@ -35,6 +35,9 @@ rows in the i-th matrix, :math:`i = 1, 2, 3, \ldots, m`.
 
 .. figure:: ./images/merged-numeric-table.png
   :width: 400
+  :alt: 
+
+  Merged Numeric Table
 
 Examples
 ********
