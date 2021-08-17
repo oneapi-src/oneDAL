@@ -28,23 +28,27 @@ uniform_voting<ClassType>::uniform_voting(sycl::queue& q)
     : queue_{ q } {}
 
 template<typename ClassType>
+uniform_voting<ClassType>::~uniform_voting() {
+    get_queue().wait_and_throw();
+}
+
+template<typename ClassType>
 sycl::queue& uniform_voting<ClassType>::get_queue() const {
     return this->queue_;
 }
 
 template<typename ClassType>
-std::unique_ptr<uniform_voting<ClassType>> make_uniform_votiung(
+std::unique_ptr<uniform_voting<ClassType>> make_uniform_voting(
         sycl::queue& queue, std::int64_t max_block, std::int64_t k_response) {
-    using small_k = small_k_uniform_voting<ClassType>;
     using large_k = large_k_uniform_voting<ClassType>;
-    //if(k_response < small_k::k_max) {
-    //
-    //}
-    return large_k(queue, max_block, k_response);
+
+    return std::make_unique<large_k>(queue, max_block, k_response);
 }
 
-#define INSTANTIATE(CLASS)          \
-template class uniform_voting<CLASS>;
+#define INSTANTIATE(CLASS)                                                      \
+template class uniform_voting<CLASS>;                                           \
+template std::unique_ptr<uniform_voting<CLASS>> make_uniform_voting<CLASS>(    \
+        sycl::queue&, std::int64_t, std::int64_t);
 
 INSTANTIATE(std::int32_t);
 INSTANTIATE(std::int64_t);

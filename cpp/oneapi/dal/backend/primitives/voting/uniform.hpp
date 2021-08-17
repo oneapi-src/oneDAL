@@ -30,6 +30,7 @@ public:
     virtual sycl::event operator() (const ndview<ClassType, 2>& responses,
                                     ndview<ClassType, 1>& results,
                                     const event_vector& deps = {}) = 0;
+    virtual ~uniform_voting();
 
 protected:
     uniform_voting(sycl::queue& q);
@@ -39,17 +40,7 @@ private:
     sycl::queue& queue_;
 };
 
-
-template<typename ClassType = std::int32_t, std::int32_t kmax = 32>
-class small_k_uniform_voting : public uniform_voting<ClassType> {
-    using base_t = uniform_voting<ClassType>;
-public:
-    constexpr static inline std::int32_t k_max = kmax;
-    small_k_uniform_voting(sycl::queue& queue);
-    sycl::event operator() (const ndview<ClassType, 2>& responses,
-                            ndview<ClassType, 1>& results,
-                            const event_vector& deps = {}) final;
-};
+/// TODO: Fix small_k_voting implemenmtation
 
 template<typename ClassType = std::int32_t>
 class large_k_uniform_voting : public uniform_voting<ClassType> {
@@ -70,7 +61,7 @@ private:
 };
 
 template<typename ClassType = std::int32_t>
-std::unique_ptr<uniform_voting<ClassType>> make_uniform_votiung(
+std::unique_ptr<uniform_voting<ClassType>> make_uniform_voting(
         sycl::queue& queue, std::int64_t max_block, std::int64_t k_response);
 
 #endif

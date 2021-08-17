@@ -37,7 +37,6 @@ public:
     using cls_t = std::int32_t;
 
     auto compute_results(const ndview<cls_t, 2>& responses) {
-        std::cout << "RP: " << responses << std::endl;
         const auto r = responses.get_dimension(0);
         const auto k = responses.get_dimension(1);
         auto tmp = ndarray<cls_t, 2>::empty(this->get_queue(), {r, k});
@@ -75,12 +74,11 @@ public:
             const auto val = *(results.get_data() + i);
             const auto gtr = *(own_res.get_data() + i);
             CAPTURE(i, val, gtr);
-            std::cout << "C " << i << ' ' << val << ' ' << gtr << std::endl;
-            //REQUIRE(val == gtr);
+            REQUIRE(val == gtr);
         }
     }
 
-    auto generate(int m, int n) {
+    auto generate_input(int m, int n) {
         auto x = ndarray<std::int32_t, 2>::empty(this->get_queue(), { m, n });
 
         for(int j = 0; j < m; ++j) {
@@ -96,34 +94,34 @@ public:
 
         return x;
     }
+
+    auto generate_input() {
+        return generate_input(m_, n_);
+    }
+
+    void generate() {
+        this->m_ = GENERATE(1, 16, 128, 1024);
+        this->n_ = GENERATE(1, 16, 128, 1024);
+    }
+
+    void test_pipeline() {
+        auto x = this->generate_input();
+        auto y = ndarray<std::int32_t, 1>::empty(this->get_queue(), { m_ });
+
+        auto voting = make_uniform_voting<std::int32_t>(this->get_queue(), m_, n_);
+
+        voting->operator()(x, y).wait_and_throw();
+
+        test_correctness(x, y);
+    }
+
+private:
+    std::int64_t m_, n_;
 };
 
-TEST_M(uniform_test, "uniform voting - small k", "[ndarray]") {
-    constexpr int m = 5;
-    constexpr int n = 7;
-
-    auto x = this->generate(m, n);
-    auto y = ndarray<std::int32_t, 1>::empty(this->get_queue(), { m });
-
-    small_k_uniform_voting<std::int32_t> voting(this->get_queue());
-
-    voting(x, y).wait_and_throw();
-
-    //test_correctness(x, y);
-}
-
 TEST_M(uniform_test, "uniform voting - large k", "[ndarray]") {
-    constexpr int m = 5;
-    constexpr int n = 7;
-
-    auto x = this->generate(m, n);
-    auto y = ndarray<std::int32_t, 1>::empty(this->get_queue(), { m });
-
-    large_k_uniform_voting<std::int32_t> voting(this->get_queue(), m, n);
-
-    voting(x, y).wait_and_throw();
-
-    test_correctness(x, y);
+    this->generate();
+    this->test_pipeline();
 }
 
 
