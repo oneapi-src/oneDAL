@@ -24,10 +24,20 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/algo/louvain/backend/cpu/graph.hpp"
+#include "oneapi/dal/algo/louvain/backend/cpu/vertex_partitioning_rng.hpp"
 
 namespace oneapi::dal::preview::louvain::backend {
 using namespace oneapi::dal::preview::detail;
 using namespace oneapi::dal::preview::backend;
+
+template <typename Cpu, typename Type>
+inline void random_shuffle(Type* data, std::int64_t n) {
+    rnd_seq<Cpu, std::int64_t> gen(n, 0, n - 1);
+    auto uniform_values = gen.get_data();
+    for (std::int64_t index = 0; index < n; ++index) {
+        std::swap(data[index], data[uniform_values[index]]);
+    }
+}
 
 template <typename vertex_type>
 inline void singleton_partition(vertex_type* labels, std::int64_t vertex_count) {
@@ -192,7 +202,7 @@ inline double init_step(graph<vertex_type, EdgeValue>& g,
     return modularity;
 }
 
-template <typename vertex_type, typename EdgeValue>
+template <typename Cpu, typename vertex_type, typename EdgeValue>
 inline double move_nodes(graph<vertex_type, EdgeValue>& g,
                          vertex_type* n2c,
                          bool& changed,
@@ -223,7 +233,7 @@ inline double move_nodes(graph<vertex_type, EdgeValue>& g,
     for (std::int64_t index = 0; index < g.vertex_count; ++index) {
         random_order[index] = index;
     }
-    //std::random_shuffle(random_order.begin(), random_order.end());
+    random_shuffle<Cpu, vertex_type>(random_order, g.vertex_count);
     vertex_type* empty_community = allocate(g.vertex_allocator, g.vertex_count);
     std::int64_t empty_count = 0;
     do {
@@ -382,7 +392,11 @@ struct louvain_kernel {
                 }
                 allocate_labels = true;
                 bool changed = false;
-                modularity = move_nodes(g, labels, changed, resolution, accuracy_threshold);
+                modularity = move_nodes<Cpu, vertex_type, value_type>(g,
+                                                                     labels,
+                                                                     changed,
+                                                                     resolution,
+                                                                     accuracy_threshold);
 
                 if (!changed) {
                     deallocate(g.vertex_allocator, labels, vertex_count);
