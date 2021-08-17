@@ -9,6 +9,7 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
+        "@onedal//cpp/oneapi/dal/backend/primitives:sort",
     ],
 )
 
@@ -21,7 +22,7 @@ dal_test_suite(
         "test/*perf_dpc.cpp",
     ]),
     dal_deps = [
-        ":search",
+        ":voting",
     ],
 )
 
@@ -36,6 +37,6 @@ dal_test_suite(
         "test/*perf*.cpp",
     ]),
     dal_deps = [
-        ":search",
+        ":voting",
     ],
 )

@@ -33,6 +33,7 @@ dal_collect_modules(
         "selection",
         "sort",
         "stat",
+        "voting",
     ],
     root = "@onedal//cpp/oneapi/dal/backend/primitives",
 )
@@ -77,6 +78,7 @@ dal_collect_test_suites(
         "selection",
         "sort",
         "stat",
+        "voting",
     ],
     root = "@onedal//cpp/oneapi/dal/backend/primitives",
     tests = [

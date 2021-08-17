@@ -18,18 +18,61 @@
 
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/sort.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-/*#ifdef ONEDAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 template<typename ClassType = std::int32_t>
 class uniform_voting {
-
 public:
+    virtual sycl::event operator() (const ndview<ClassType, 2>& responses,
+                                    ndview<ClassType, 1>& results,
+                                    const event_vector& deps = {}) = 0;
 
+protected:
+    uniform_voting(sycl::queue& q);
+    sycl::queue& get_queue() const;
+
+private:
+    sycl::queue& queue_;
 };
 
-#endif*/
+
+template<typename ClassType = std::int32_t, std::int32_t kmax = 32>
+class small_k_uniform_voting : public uniform_voting<ClassType> {
+    using base_t = uniform_voting<ClassType>;
+public:
+    constexpr static inline std::int32_t k_max = kmax;
+    small_k_uniform_voting(sycl::queue& queue);
+    sycl::event operator() (const ndview<ClassType, 2>& responses,
+                            ndview<ClassType, 1>& results,
+                            const event_vector& deps = {}) final;
+};
+
+template<typename ClassType = std::int32_t>
+class large_k_uniform_voting : public uniform_voting<ClassType> {
+    using base_t = uniform_voting<ClassType>;
+public:
+    large_k_uniform_voting(sycl::queue& queue,
+        std::int64_t max_block, std::int64_t k_response);
+    sycl::event operator() (const ndview<ClassType, 2>& responses,
+                            ndview<ClassType, 1>& results,
+                            const event_vector& deps = {}) final;
+
+private:
+    sycl::event select_winner(ndview<ClassType, 1>& results,
+                              const event_vector& deps) const;
+
+    ndarray<ClassType, 2> swp_, out_;
+    radix_sort<ClassType> sorting_;
+};
+
+template<typename ClassType = std::int32_t>
+std::unique_ptr<uniform_voting<ClassType>> make_uniform_votiung(
+        sycl::queue& queue, std::int64_t max_block, std::int64_t k_response);
+
+#endif
 
 } // namespace oneapi::dal::backend::primitives
