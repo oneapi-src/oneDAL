@@ -292,6 +292,16 @@ public:
         return this->t().get_row_slice(from_col, to_col).t();
     }
 
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    this_t get_slice(std::int64_t from, std::int64_t to) const {
+        ONEDAL_ASSERT((this->get_dimension(0) >= from) && (from >= 0));
+        ONEDAL_ASSERT((this->get_dimension(0) >= to) && (to >= from));
+        ONEDAL_ASSERT(this->has_data());
+        const ndshape<1> new_shape{ to - from };
+        const T* new_start_point = this->get_data() + from;
+        return this_t(new_start_point, new_shape, this->get_strides(), this->is_data_mutable());
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event prefetch(sycl::queue& queue) const {
         return queue.prefetch(data_, this->get_count());
