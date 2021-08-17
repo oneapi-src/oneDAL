@@ -26,18 +26,17 @@ namespace dal = oneapi::dal;
 int main(int argc, char** argv) {
     const auto filename = get_data_path("weighted_edge_list.csv");
 
-    using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
-
+    using vertex_type = int32_t;
+    using weight_type = double;
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<vertex_type, weight_type>;
     const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename },
                                           dal::preview::read_mode::weighted_edge_list);
 
     // set algorithm parameters
-    const auto louvain_desc =
-        dal::preview::louvain::
-            descriptor<float, method::fast, task::vertex_partitioning, std::allocator<char>>()
-                .set_resolution(1)
-                .set_accuracy_threshold(0.0001)
-                .set_max_iteration_count(3);
+    const auto louvain_desc = dal::preview::louvain::descriptor<>()
+                                  .set_resolution(1)
+                                  .set_accuracy_threshold(0.0001)
+                                  .set_max_iteration_count(3);
     // compute louvain
     try {
         const std::int64_t rows_count = 7;
