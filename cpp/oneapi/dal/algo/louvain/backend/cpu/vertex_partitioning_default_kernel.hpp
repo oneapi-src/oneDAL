@@ -180,6 +180,7 @@ inline double init_step(graph<vertex_type, EdgeValue>& g,
             }
         }
     }
+    ONEDAL_ASSERT(m > 0);
 
     double modularity = 0;
     for (std::int32_t c = 0; c < community_count; ++c) {
@@ -198,7 +199,6 @@ inline double move_nodes(graph<vertex_type, EdgeValue>& g,
                          double resolution,
                          double accuracy_threshold) {
     using vertex_size_type = std::int64_t;
-    ;
 
     EdgeValue m = 0;
     EdgeValue* k = allocate(g.value_allocator, g.vertex_count);
@@ -342,16 +342,14 @@ struct louvain_kernel {
             using value_type = EdgeValue;
             using vertex_type = std::int32_t;
             using vertex_size_type = std::int64_t;
-            using value_allocator_type = inner_alloc<value_type>;
-            using vertex_allocator_type = inner_alloc<vertex_type>;
             using vertex_size_allocator_type = inner_alloc<vertex_size_type>;
 
             double resolution = desc.get_resolution();
             double accuracy_threshold = desc.get_accuracy_threshold();
             std::int64_t max_iteration_count = desc.get_max_iteration_count();
 
-            auto vertex_count = t.get_vertex_count();
-            graph<std::int32_t, EdgeValue> g(t, vals, alloc_ptr);
+            const std::int64_t vertex_count = t.get_vertex_count();
+            graph<vertex_type, value_type> g(t, vals, alloc_ptr);
 
             double modularity = std::numeric_limits<double>::min();
             vertex_type* labels = allocate(g.vertex_allocator, vertex_count);
