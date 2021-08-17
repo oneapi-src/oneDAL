@@ -393,10 +393,10 @@ struct louvain_kernel {
                 allocate_labels = true;
                 bool changed = false;
                 modularity = move_nodes<Cpu, vertex_type, value_type>(g,
-                                                                     labels,
-                                                                     changed,
-                                                                     resolution,
-                                                                     accuracy_threshold);
+                                                                      labels,
+                                                                      changed,
+                                                                      resolution,
+                                                                      accuracy_threshold);
 
                 if (!changed) {
                     deallocate(g.vertex_allocator, labels, vertex_count);
