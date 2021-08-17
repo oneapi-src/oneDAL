@@ -33,11 +33,10 @@ int main(int argc, char** argv) {
 
     using vertex_type = int32_t;
     using weight_type = double;
-    using graph_type = dal::preview::undirected_adjacency_vector_graph<vertex_type, weight_type>;
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<vertex_type, weight_type>;
 
     auto graph = dal::read<graph_t>(dal::csv::data_source{ filename },
                                     dal::preview::read_mode::weighted_edge_list);
-    const auto graph = dal::preview::load_graph::load(d, ds);
 
     // set algorithm parameters
     const auto louvain_desc =

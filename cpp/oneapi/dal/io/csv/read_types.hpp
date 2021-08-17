@@ -60,18 +60,20 @@ namespace detail {
 
 template <typename Allocator>
 dal::detail::shared<preview::detail::byte_alloc_iface> make_allocator(Allocator&& alloc) {
-    return std::make_shared<preview::detail::alloc_connector<typename std::decay<Allocator>::type>>(
+    return std::make_shared<preview::detail::alloc_connector<std::decay_t<Allocator>>>(
         std::forward<Allocator>(alloc));
 }
 
 class read_args_graph_impl : public base {
 public:
-    explicit read_args_graph_impl(dal::detail::shared<preview::detail::byte_alloc_iface> alloc,
-                                  read_mode mode)
+    explicit read_args_graph_impl(
+        const dal::detail::shared<preview::detail::byte_alloc_iface>& alloc,
+        read_mode mode)
             : allocator(alloc),
               mode(mode) {
-        if (mode != read_mode::edge_list && mode != read_mode::weighted_edge_list)
+        if (mode != read_mode::edge_list && mode != read_mode::weighted_edge_list) {
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
+        }
     }
 
     dal::detail::shared<preview::detail::byte_alloc_iface> get_allocator() const {
@@ -92,13 +94,14 @@ class ONEDAL_EXPORT read_args : public base {
 public:
     using object_t = Object;
     using tag_t = read_args_tag;
-    read_args(const read_args& args) = default;
-    read_args(read_mode mode = read_mode::edge_list)
+    explicit read_args(read_mode mode = read_mode::edge_list)
             : impl_(new detail::read_args_graph_impl(detail::make_allocator(std::allocator<int>{}),
                                                      mode)) {}
     template <typename Allocator>
     explicit read_args(Allocator&& allocator, read_mode mode = read_mode::edge_list)
-            : impl_(new detail::read_args_graph_impl(detail::make_allocator(allocator), mode)) {}
+            : impl_(new detail::read_args_graph_impl(
+                  detail::make_allocator(std::forward<Allocator>(allocator)),
+                  mode)) {}
 
     dal::detail::shared<preview::detail::byte_alloc_iface> get_allocator() const {
         return impl_->get_allocator();

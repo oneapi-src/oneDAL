@@ -22,8 +22,6 @@
 
 namespace dal = oneapi::dal;
 
-using namespace dal;
-
 #include <stdlib.h> // size_t, malloc, free
 #include <new> // bad_alloc, bad_array_new_length
 template <class T>
@@ -59,8 +57,8 @@ struct Mallocator {
     }
 };
 
-void print_graph_info(preview::undirected_adjacency_vector_graph<> &graph) {
-    using graph_t = preview::undirected_adjacency_vector_graph<>;
+void print_graph_info(dal::preview::undirected_adjacency_vector_graph<> &graph) {
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
     std::cout << "Number of vertices: " << dal::preview::get_vertex_count(graph) << std::endl;
     std::cout << "Number of edges: " << dal::preview::get_edge_count(graph) << std::endl;
 
@@ -86,15 +84,16 @@ int main(int argc, char **argv) {
 
     { const auto x_test = dal::read<dal::table>(dal::csv::data_source{ filename }); }
 
-    using graph_t = preview::undirected_adjacency_vector_graph<>;
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
 
     {
-        auto graph = read<graph_t>(csv::data_source{ filename });
+        auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
         print_graph_info(graph);
     }
 
     {
-        auto graph = read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list);
+        auto graph = dal::read<graph_t>(dal::csv::data_source{ filename },
+                                        dal::preview::read_mode::edge_list);
         print_graph_info(graph);
     }
 
@@ -106,14 +105,14 @@ int main(int argc, char **argv) {
     Mallocator<char> mallocator;
 
     {
-        auto graph = read<graph_t>(csv::data_source{ filename }, mallocator);
+        auto graph = dal::read<graph_t>(dal::csv::data_source{ filename }, mallocator);
         print_graph_info(graph);
     }
 
     {
         auto read_args =
-            dal::preview::csv::read_args<graph_t>{ mallocator, preview::read_mode::edge_list };
-        auto graph = read<graph_t>(csv::data_source{ filename }, std::move(read_args));
+            dal::preview::csv::read_args<graph_t>{ mallocator, dal::preview::read_mode::edge_list };
+        auto graph = dal::read<graph_t>(dal::csv::data_source{ filename }, std::move(read_args));
         print_graph_info(graph);
     }
 
@@ -121,24 +120,25 @@ int main(int argc, char **argv) {
         // auto read_args = dal::preview::csv::read_args<graph_t>(mallocator); // - partial deduction doesn't work
         // sof: 45528865 trailing-class-template-arguments-not-deduced
         auto read_args = dal::preview::csv::read_args<graph_t>(mallocator);
-        auto graph = read<graph_t>(csv::data_source{ filename }, std::move(read_args));
+        auto graph = dal::read<graph_t>(dal::csv::data_source{ filename }, std::move(read_args));
         print_graph_info(graph);
     }
 
     {
         auto read_args = dal::preview::csv::read_args<graph_t>{ mallocator }.set_read_mode(
-            preview::read_mode::edge_list);
-        auto graph = read<graph_t, csv::data_source, dal::preview::csv::read_args<graph_t>>(
-            csv::data_source{ filename },
-            std::move(read_args));
+            dal::preview::read_mode::edge_list);
+        auto graph =
+            dal::read<graph_t, dal::csv::data_source, dal::preview::csv::read_args<graph_t>>(
+                dal::csv::data_source{ filename },
+                std::move(read_args));
         print_graph_info(graph);
     }
 
     {
         auto graph =
-            read<graph_t>(csv::data_source{ filename },
-                          dal::preview::csv::read_args<graph_t>{ mallocator }.set_read_mode(
-                              preview::read_mode::edge_list));
+            dal::read<graph_t>(dal::csv::data_source{ filename },
+                               dal::preview::csv::read_args<graph_t>{ mallocator }.set_read_mode(
+                                   dal::preview::read_mode::edge_list));
         print_graph_info(graph);
     }
 }

@@ -24,12 +24,7 @@ namespace oneapi::dal::csv {
 template <>
 class detail::v1::read_args_impl<table> : public base {
 public:
-    read_args_impl(preview::read_mode mode = preview::read_mode::table) : mode(mode) {
-        if (mode != preview::read_mode::table)
-            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
-    }
-
-    preview::read_mode mode;
+    read_args_impl() {}
 };
 
 namespace v1 {

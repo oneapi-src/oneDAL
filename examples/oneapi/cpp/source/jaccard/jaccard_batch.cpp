@@ -25,13 +25,11 @@
 
 namespace dal = oneapi::dal;
 
-using namespace dal;
-
 int main(int argc, char **argv) {
     const auto filename = get_data_path("graph.csv");
 
     // read the graph
-    using graph_t = preview::undirected_adjacency_vector_graph<>;
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
     const auto graph = read<graph_t>(csv::data_source{ filename });
 
     // set blocks ranges
@@ -42,19 +40,15 @@ int main(int argc, char **argv) {
 
     // set algorithm parameters
     const auto jaccard_desc =
-        preview::jaccard::descriptor<>().set_block({ row_range_begin, row_range_end },
-                                                   { column_range_begin, column_range_end });
+        dal::preview::jaccard::descriptor<>().set_block({ row_range_begin, row_range_end },
+                                                        { column_range_begin, column_range_end });
 
     // create caching builder for jaccard result
-    preview::jaccard::caching_builder builder;
+    dal::preview::jaccard::caching_builder builder;
 
     // compute Jaccard similarity coefficients
-<<<<<<< HEAD
-    const auto result_vertex_similarity = preview::vertex_similarity(jaccard_desc, graph, builder);
-=======
     const auto result_vertex_similarity =
         dal::preview::vertex_similarity(jaccard_desc, graph, builder);
->>>>>>> origin/master
 
     // extract the result
     const auto jaccard_coeffs = result_vertex_similarity.get_coeffs();
