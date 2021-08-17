@@ -15,11 +15,6 @@
 *******************************************************************************/
 #pragma once
 
-#include <random>
-#include <unordered_map>
-#include <algorithm>
-#include <iostream>
-
 #include "oneapi/dal/algo/connected_components/common.hpp"
 #include "oneapi/dal/algo/connected_components/vertex_partitioning_types.hpp"
 #include "oneapi/dal/backend/common.hpp"
@@ -27,7 +22,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-//#include "oneapi/dal/backend/primitives/rng/rnd_seq.hpp"
+#include "oneapi/dal/algo/connected_components/backend/cpu/vertex_partitioning_rng.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
 using namespace oneapi::dal::preview::detail;
@@ -95,21 +90,37 @@ inline bool compare_sample_counts(std::unordered_map<std::int64_t, std::int64_t>
     return (a.second < b.second);
 }
 
+template <typename Cpu>
 inline std::int32_t most_frequent_element(std::int64_t *D,
                                           std::int64_t vertex_count,
-                                          std::int32_t samples_num = 10) {
-    std::default_random_engine generator;
-    std::uniform_int_distribution<std::int64_t> distribution(0, vertex_count - 1);
+                                          byte_alloc_iface *alloc_ptr,
+                                          std::int32_t samples_num = 1024) {
+    using vertex_type = std::int64_t;
+    using vertex_allocator_type = inner_alloc<vertex_type>;
 
-    std::unordered_map<std::int64_t, std::int64_t> sample_counts;
+    vertex_allocator_type vertex_allocator(alloc_ptr);
 
-    for (std::int32_t i = 0; i < samples_num; ++i) {
-        std::int64_t vertex = distribution(generator);
-        sample_counts[D[vertex]]++;
+    vertex_type *samples = allocate(vertex_allocator, vertex_count);
+    for (std::int64_t i = 0; i < vertex_count; ++i) {
+        samples[i] = 0;
     }
-    auto sample_component =
-        std::max_element(sample_counts.begin(), sample_counts.end(), compare_sample_counts);
-    return sample_component->first;
+
+    rnd_seq<Cpu, std::int64_t> gen(samples_num, 0, vertex_count);
+    auto uniform_values = gen.get_data();
+
+    for (std::int64_t i = 0; i < samples_num; i++) {
+        samples[D[uniform_values[i]]]++;
+    }
+    std::int64_t max_sample = 0;
+    std::int64_t max_sample_root = 0;
+    for (std::int64_t i = 0; i < vertex_count; i++) {
+        if (samples[i] > max_sample) {
+            max_sample = samples[i];
+            max_sample_root = i;
+        }
+    }
+
+    return max_sample_root;
 }
 
 template <typename Cpu>
@@ -140,8 +151,7 @@ struct afforest {
                 }
             }
 
-            std::int32_t samples_num = 10;
-            std::int32_t sample_comp = most_frequent_element(D, vertex_count, samples_num);
+            std::int32_t sample_comp = most_frequent_element<Cpu>(D, vertex_count, alloc_ptr);
 
             for (std::int64_t i = 0; i < vertex_count; ++i) {
                 if (D[i] != sample_comp) {
