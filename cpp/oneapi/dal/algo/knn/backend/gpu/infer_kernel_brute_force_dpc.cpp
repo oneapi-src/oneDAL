@@ -25,6 +25,12 @@
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 
+#include "oneapi/dal/backend/primitives/common.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/search.hpp"
+#include "oneapi/dal/backend/primitives/selection.hpp"
+#include "oneapi/dal/backend/primitives/voting.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::knn::backend {
@@ -34,13 +40,13 @@ using dal::backend::context_gpu;
 template <typename Task>
 using descriptor_t = detail::descriptor_base<Task>;
 
-namespace bk = dal::backend;
-namespace pr = dal::backend::primitives;
+namespace bk = ::oneapi::dal::backend;
+namespace pr = ::oneapi::dal::backend::primitives;
 
 template<typename Float>
 sycl::event sqrt(sycl::queue& q,
                  array<Float>& data,
-                 const event_vector& deps = {}) {
+                 const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_mutable_data());
     const auto length = data.get_count();
     const auto range = make_range_1d(length);
@@ -55,7 +61,7 @@ sycl::event sqrt(sycl::queue& q,
 
 template<typename Float>
 class knn_callback {
-    using voting_t = std::unique_ptr<pr::uniform_voting<std::int32_t>>;
+    using voting_t = std::unique_ptr<pr::uniform_voting<std::int32_t>>>;
 
 public:
     knn_callback(sycl::queue& q,
@@ -106,7 +112,7 @@ public:
     sycl::event operator() (std::int64_t qb_id,
                             const ndview<std::int32_t, 2>& inp_indices,
                             const ndview<Float, 2>& inp_distances,
-                            const event_vector& deps = {}) {
+                            const bk::event_vector& deps = {}) {
         sycl::event copy_indices, copy_distances, comp_responses;
         const auto blocking = this->get_blocking();
 
@@ -150,7 +156,7 @@ public:
 private:
     sycl::queue& queue_;
     const result_option_id result_options_;
-    const sts::int64_t query_block_, query_length_, k_neighbors;
+    const std::int64_t query_block_, query_length_, k_neighbors_;
     pr::ndview<std::int32_t, 1> inp_responses_;
     pr::ndarray<std::int32_t, 2> temp_resp_;
     pr::ndarray<std::int32_t, 1> responses_;
