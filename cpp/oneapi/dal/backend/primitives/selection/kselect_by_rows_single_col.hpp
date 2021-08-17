@@ -68,7 +68,9 @@ private:
 
         const std::int64_t col_count = data.get_dimension(1);
         const std::int64_t row_count = data.get_dimension(0);
-        const std::int64_t stride = data.get_shape()[1];
+        const std::int64_t inp_stride = data.get_leading_stride();
+        [[maybe_unused]] const std::int64_t out_ids_stride = indices.get_leading_stride();
+        [[maybe_unused]] const std::int64_t out_dst_stride = selection.get_leading_stride();
 
         const std::int64_t wg_size =
             get_scaled_wg_size_per_row(queue, col_count, preffered_wg_size);
@@ -92,8 +94,9 @@ private:
                     const std::uint32_t sg_global_id = wg_id * sg_num + sg_id;
                     if (sg_global_id >= row_count)
                         return;
-                    const std::uint32_t in_offset = sg_global_id * stride;
-                    const std::uint32_t out_offset = sg_global_id;
+                    const std::uint32_t in_offset = sg_global_id * inp_stride;
+                    [[maybe_unused]] const std::int32_t offset_ids_out = sg_global_id * out_ids_stride;
+                    [[maybe_unused]] const std::int32_t offset_dst_out = sg_global_id * out_dst_stride;
 
                     const std::uint32_t local_id = sg.get_local_id()[0];
                     const std::uint32_t local_range = sg.get_local_range()[0];
@@ -120,10 +123,10 @@ private:
 
                     if (local_id == 0) {
                         if constexpr (indices_out) {
-                            indices_ptr[out_offset] = final_index;
+                            indices_ptr[offset_ids_out] = final_index;
                         }
                         if constexpr (selection_out) {
-                            selection_ptr[out_offset] = final_value;
+                            selection_ptr[offset_dst_out] = final_value;
                         }
                     }
                 });

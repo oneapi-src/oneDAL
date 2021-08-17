@@ -116,9 +116,68 @@ inline constexpr Integer up_pow2(Integer x) {
     return power;
 }
 
+class uniform_blocking {
+public:
+    uniform_blocking(std::int64_t length, std::int64_t block)
+        : range_length_{ length }, block_length_{ block } {
+        ONEDAL_ASSERT(block > 0);
+    }
+
+    std::int64_t get_block() const {
+        return block_length_;
+    }
+
+    std::int64_t get_length() const {
+        return range_length_;
+    }
+
+    std::int64_t get_block_count() const {
+        return (get_length() / get_block()) + bool(get_length() % get_block());
+    }
+
+    std::int64_t get_block_start_index(std::int64_t i) const {
+        ONEDAL_ASSERT((get_block_count() > i) && (i >= 0));
+        return i * get_block();
+    }
+
+    std::int64_t get_block_end_index(std::int64_t i) const {
+        ONEDAL_ASSERT((get_block_count() > i) && (i >= 0));
+        return std::min((i + 1l) * get_block(), get_length());
+    }
+
+    std::int64_t get_block_length(std::int64_t i) const {
+        return get_block_end_index(i) - get_block_start_index(i);
+    }
+
+private:
+    const std::int64_t range_length_;
+    const std::int64_t block_length_;
+};
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 using event_vector = std::vector<sycl::event>;
+
+inline event_vector operator+(const event_vector& lhs, const event_vector& rhs) {
+    const auto res_size = rhs.size() + lhs.size();
+    event_vector result(res_size);
+    auto iter = result.begin();
+    auto copy = [](const auto& vec, auto& oit) -> void {
+        for(auto iit = vec.cbegin(); iit < vec.cend(); ++iit) {
+            *(oit++) = *(iit);
+        }
+    };
+    copy(lhs, iter), copy(rhs, iter);
+    return result;
+}
+
+inline event_vector operator+(const event_vector& lhs, const sycl::event& rhs) {
+    return lhs + event_vector{ rhs };
+}
+
+inline event_vector operator+(const sycl::event& lhs, const sycl::event& rhs) {
+    return event_vector{ lhs } + rhs;
+}
 
 template <typename T>
 class object_store_entry : public base {

@@ -85,8 +85,10 @@ private:
         ONEDAL_ASSERT(data.get_shape() == data_.get_shape());
         last_call_.wait_and_throw();
         const std::int64_t col_count = data.get_dimension(1);
-        const std::int64_t stride = data.get_shape()[1];
         const std::int64_t row_count = data.get_dimension(0);
+        const std::int64_t inp_stride = data.get_leading_stride();
+        [[maybe_unused]] const std::int64_t out_ids_stride = indices.get_leading_stride();
+        [[maybe_unused]] const std::int64_t out_dst_stride = selection.get_leading_stride();
 
         auto data_ptr = data.get_data();
         auto data_tmp_ptr = data_.get_mutable_data();
@@ -121,7 +123,9 @@ private:
                                      rnd_period,
                                      col_count,
                                      k,
-                                     stride);
+                                     inp_stride,
+                                     out_ids_stride,
+                                     out_dst_stride);
                              });
         });
         last_call_ = event;
@@ -147,7 +151,9 @@ private:
                               std::int32_t rnd_period,
                               std::int32_t row_count,
                               std::int32_t k,
-                              std::int32_t BlockOffset) {
+                              std::int32_t inp_stride,
+                              std::int32_t out_ids_stride,
+                              std::int32_t out_dst_stride) {
         auto sg = item.get_sub_group();
         const std::int32_t row_id =
             item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
@@ -156,8 +162,9 @@ private:
         if (row_id >= num_rows)
             return;
 
-        const std::int32_t offset_in = row_id * BlockOffset;
-        const std::int32_t offset_out = row_id * k;
+        const std::int32_t offset_in = row_id * inp_stride;
+        [[maybe_unused]] const std::int32_t offset_ids_out = row_id * out_ids_stride;
+        [[maybe_unused]] const std::int32_t offset_dst_out = row_id * out_dst_stride;
         std::int32_t partition_start = 0;
         std::int32_t partition_end = row_count;
         std::int32_t rnd_count = 0;
@@ -192,11 +199,11 @@ private:
         }
         //assert(iteration_count < row_count);
         for (std::int32_t i = local_id; i < k; i += local_size) {
-            if constexpr (selection_out) {
-                out_values[offset_out + i] = values[i];
-            }
             if constexpr (indices_out) {
-                out_indices[offset_out + i] = indices[i];
+                out_indices[offset_ids_out + i] = indices[i];
+            }
+            if constexpr (selection_out) {
+                out_values[offset_dst_out + i] = values[i];
             }
         }
     }
