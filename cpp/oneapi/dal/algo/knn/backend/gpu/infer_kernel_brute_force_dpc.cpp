@@ -110,10 +110,6 @@ public:
                             const pr::ndview<std::int32_t, 2>& inp_indices,
                             const pr::ndview<Float, 2>& inp_distances,
                             const bk::event_vector& deps = {}) {
-        sycl::event::wait_and_throw(deps);
-        std::cout << qb_id << " II: " << inp_indices << std::endl;
-        std::cout << qb_id << " ID: " << inp_distances << std::endl;
-
         sycl::event copy_indices, copy_distances, comp_responses;
         const auto blocking = this->get_blocking();
 

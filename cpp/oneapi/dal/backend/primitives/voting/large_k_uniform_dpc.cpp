@@ -46,14 +46,14 @@ sycl::event large_k_uniform_voting<ClassType>::select_winner (
         h.parallel_for(range, [=](sycl::id<1> idx) {
             const auto* const row = inp_ptr + idx * inp_str;
             ClassType last = -1, winner = -1;
-            std::int32_t last_span = 0, winner_span = 0;
+            std::int32_t last_span = -1, winner_span = -1;
             for(std::int32_t i = 0; i < inp_wdt; ++i) {
                 const ClassType& cur = *(row + i);
                 if(cur == last) {
                     ++last_span;
                 } else {
                     last = cur;
-                    last_span = 0;
+                    last_span = 1;
                 }
                 if(last_span > winner_span) {
                     winner = last;
