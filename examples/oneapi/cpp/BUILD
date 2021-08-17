@@ -81,10 +81,12 @@ dal_example_suite(
 dal_algo_example_suite(
     algos = [
         "connected_components",
+        "covariance",
         "decision_forest",
         "kmeans",
         "knn",
         "linear_kernel",
+        "louvain",
         "pca",
         "polynomial_kernel",
         "rbf_kernel",

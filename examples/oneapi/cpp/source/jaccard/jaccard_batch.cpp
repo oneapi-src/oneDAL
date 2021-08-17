@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
     // read the graph
     const dal::preview::graph_csv_data_source ds(filename);
     const dal::preview::load_graph::descriptor<> d;
-    const auto my_graph = dal::preview::load_graph::load(d, ds);
+    const auto graph = dal::preview::load_graph::load(d, ds);
 
     // set blocks ranges
     const std::int64_t row_range_begin = 0;
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 
     // compute Jaccard similarity coefficients
     const auto result_vertex_similarity =
-        dal::preview::vertex_similarity(jaccard_desc, my_graph, builder);
+        dal::preview::vertex_similarity(jaccard_desc, graph, builder);
 
     // extract the result
     const auto jaccard_coeffs = result_vertex_similarity.get_coeffs();

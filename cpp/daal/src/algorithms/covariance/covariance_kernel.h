@@ -24,6 +24,7 @@
 #ifndef __COVARIANCE_KERNEL_H__
 #define __COVARIANCE_KERNEL_H__
 
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/covariance/covariance_types.h"

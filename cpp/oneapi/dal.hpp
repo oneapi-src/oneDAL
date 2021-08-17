@@ -43,6 +43,7 @@
 
 /* Algos */
 #include "oneapi/dal/algo/connected_components.hpp"
+#include "oneapi/dal/algo/covariance.hpp"
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism.hpp"
@@ -50,6 +51,7 @@
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/algo/knn.hpp"
 #include "oneapi/dal/algo/linear_kernel.hpp"
+#include "oneapi/dal/algo/louvain.hpp"
 #include "oneapi/dal/algo/pca.hpp"
 #include "oneapi/dal/algo/polynomial_kernel.hpp"
 #include "oneapi/dal/algo/sigmoid_kernel.hpp"
@@ -57,3 +59,4 @@
 #include "oneapi/dal/algo/shortest_paths.hpp"
 #include "oneapi/dal/algo/svm.hpp"
 #include "oneapi/dal/algo/triangle_counting.hpp"
+#include "oneapi/dal/algo/basic_statistics.hpp"
