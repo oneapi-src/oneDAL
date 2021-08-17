@@ -86,8 +86,7 @@ public:
     auto& set_responses(array<std::int32_t> responses) {
         ONEDAL_ASSERT(!result_options_.test(result_options::responses) ||
                       responses.get_count() == query_length_);
-        this->responses_ =
-            pr::ndarray<std::int32_t, 1>::wrap_mutable(responses, query_length_);
+        this->responses_ = pr::ndarray<std::int32_t, 1>::wrap_mutable(responses, query_length_);
         return *this;
     }
 
@@ -103,7 +102,7 @@ public:
         ONEDAL_ASSERT(!result_options_.test(result_options::distances) ||
                       distances.get_count() == (query_length_ * k_neighbors_));
         this->distances_ =
-            pr::ndarray<Float, 2>::::wrap_mutable(distances, { query_length_, k_neighbors_ });
+            pr::ndarray<Float, 2>:: ::wrap_mutable(distances, { query_length_, k_neighbors_ });
         return *this;
     }
 
@@ -220,7 +219,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         using search_t = pr::search_engine<Float, dst_t>;
 
         const dst_t dist{ queue };
-        const search_t search{ queue, train_data, dist};
+        const search_t search{ queue, train_data, dist };
         auto last_event = search(query_data, callback, infer_block, neighbor_count);
         if (desc.get_result_options().test(result_options::distances)) {
             last_event = sqrt<Float>(queue, arr_distances, { last_event });
@@ -233,7 +232,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         using search_t = pr::search_engine<Float, dst_t>;
 
         const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
-        const search_t search{ queue, train_data, dist};
+        const search_t search{ queue, train_data, dist };
         search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
     }
 
