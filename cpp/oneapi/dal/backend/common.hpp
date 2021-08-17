@@ -119,7 +119,8 @@ inline constexpr Integer up_pow2(Integer x) {
 class uniform_blocking {
 public:
     uniform_blocking(std::int64_t length, std::int64_t block)
-        : range_length_{ length }, block_length_{ block } {
+            : range_length_{ length },
+              block_length_{ block } {
         ONEDAL_ASSERT(block > 0);
     }
 
@@ -163,7 +164,7 @@ inline event_vector operator+(const event_vector& lhs, const event_vector& rhs) 
     event_vector result(res_size);
     auto iter = result.begin();
     auto copy = [](const auto& vec, auto& oit) -> void {
-        for(auto iit = vec.cbegin(); iit < vec.cend(); ++iit) {
+        for (auto iit = vec.cbegin(); iit < vec.cend(); ++iit) {
             *(oit++) = *(iit);
         }
     };

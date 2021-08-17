@@ -233,10 +233,10 @@ public:
         ONEDAL_ASSERT((this->get_dimension(1) >= id1) && (id1 >= 0));
         if constexpr (order == ndorder::c) {
             const auto* row = get_data() + id0 * this->get_stride(0);
-            return *(row +  id1);
+            return *(row + id1);
         }
         const auto* const col = get_data() + id1 * this->get_stride(1);
-        return *(col +  id0);
+        return *(col + id0);
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
@@ -253,10 +253,10 @@ public:
         ONEDAL_ASSERT((this->get_dimension(1) >= id1) && (id1 >= 0));
         if constexpr (order == ndorder::c) {
             auto* const row = get_mutable_data() + id0 * this->get_stride(0);
-            return *(row +  id1);
+            return *(row + id1);
         }
         auto* const col = get_mutable_data() + id1 * this->get_stride(1);
-        return *(col +  id0);
+        return *(col + id0);
     }
 
     auto t() const {
@@ -278,7 +278,7 @@ public:
         ONEDAL_ASSERT((this->get_dimension(0) >= from_row) && (from_row >= 0));
         ONEDAL_ASSERT((this->get_dimension(0) >= to_row) && (to_row >= from_row));
         ONEDAL_ASSERT(this->has_data());
-        const ndshape<2> new_shape{(to_row - from_row), this->get_dimension(1)};
+        const ndshape<2> new_shape{ (to_row - from_row), this->get_dimension(1) };
         if constexpr (order == ndorder::c) {
             const T* new_start_point = this->get_data() + from_row * this->get_leading_stride();
             return this_t(new_start_point, new_shape, this->get_strides(), this->is_data_mutable());
@@ -352,7 +352,7 @@ private:
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
-template<typename T1, ndorder ord1, typename T2, ndorder ord2>
+template <typename T1, ndorder ord1, typename T2, ndorder ord2>
 sycl::event copy_by_value(sycl::queue& q,
                           ndview<T1, 2, ord1>& dst,
                           const ndview<T2, 2, ord2>& src,
@@ -363,7 +363,7 @@ sycl::event copy_by_value(sycl::queue& q,
     const auto cp_range = make_range_2d(dst_shape[0], dst_shape[1]);
     if constexpr (ord1 == ndorder::c) {
         T1* const dst_ptr = dst.get_mutable_data();
-        const T2* const  src_ptr = src.get_data();
+        const T2* const src_ptr = src.get_data();
         const auto dst_stride = dst.get_leading_stride();
         const auto src_stride = src.get_leading_stride();
         return q.submit([&](sycl::handler& h) {
@@ -388,7 +388,7 @@ sycl::event copy_by_value(sycl::queue& q,
     return sycl::event();
 }
 
-template<typename T>
+template <typename T>
 sycl::event fill_with_value(sycl::queue& q,
                             ndview<T, 1>& dst,
                             const T& value = T{},
@@ -400,7 +400,7 @@ sycl::event fill_with_value(sycl::queue& q,
     });
 }
 
-template<typename T, ndorder ord1>
+template <typename T, ndorder ord1>
 sycl::event fill_with_value(sycl::queue& q,
                             ndview<T, 2, ord1>& dst,
                             const T& value = T{},
