@@ -26,8 +26,6 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-using namespace oneapi::dal::preview::subgraph_isomorphism::backend;
-
 template <typename Cpu>
 oneapi::dal::homogen_table si(const graph<Cpu>& pattern,
                               const graph<Cpu>& target,
