@@ -73,7 +73,7 @@ sycl::event large_k_uniform_voting<ClassType>::operator() (
     const auto n = responses.get_dimension(0);
     ONEDAL_ASSERT(n <= swp_.get_dimension(0));
     ONEDAL_ASSERT(n <= out_.get_dimension(0));
-    const auto r = responses.get_dimension(1);
+    [[maybe_unused]] const auto r = responses.get_dimension(1);
     ONEDAL_ASSERT(r == swp_.get_dimension(1));
     ONEDAL_ASSERT(r == out_.get_dimension(1));
     auto swp_slice = swp_.get_row_slice(0, n);
