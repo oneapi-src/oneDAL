@@ -23,14 +23,14 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename Type, typename Index>
+template <typename Type, typename Index>
 sycl::event select_indexed(sycl::queue& q,
                            const ndview<Index, 2>& ids,
                            const ndview<Type, 2>& src,
                            ndview<Type, 2>& dst,
                            const event_vector& deps = {});
 
-template<typename Type, typename Index>
+template <typename Type, typename Index>
 sycl::event select_indexed(sycl::queue& q,
                            const ndview<Index, 2>& ids,
                            const ndview<Type, 1>& src,

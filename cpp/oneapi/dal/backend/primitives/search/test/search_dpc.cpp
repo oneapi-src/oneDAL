@@ -54,11 +54,11 @@ public:
     }
 
     void generate_data() {
-        const auto train_df = GENERATE_DATAFRAME(
-            te::dataframe_builder{ m_, d_ }.fill_uniform(-0.2, 0.5));
+        const auto train_df =
+            GENERATE_DATAFRAME(te::dataframe_builder{ m_, d_ }.fill_uniform(-0.2, 0.5));
         this->train_ = train_df.get_table(this->get_policy(), this->get_homogen_table_id());
-        const auto query_df = GENERATE_DATAFRAME(
-            te::dataframe_builder{ n_, d_ }.fill_uniform(-0.5, 1.0));
+        const auto query_df =
+            GENERATE_DATAFRAME(te::dataframe_builder{ n_, d_ }.fill_uniform(-0.5, 1.0));
         this->query_ = query_df.get_table(this->get_policy(), this->get_homogen_table_id());
     }
 
@@ -73,30 +73,27 @@ public:
     }
 
     auto get_train_view() {
-        const auto acc = row_accessor<const Float>(train_)
-                .pull(this->get_queue(), { 0, m_ });
-        return ndview<Float, 2>::wrap(acc.get_data(), {m_, d_});
+        const auto acc = row_accessor<const Float>(train_).pull(this->get_queue(), { 0, m_ });
+        return ndview<Float, 2>::wrap(acc.get_data(), { m_, d_ });
     }
 
     auto get_query_view() {
-        const auto acc = row_accessor<const Float>(query_)
-                .pull(this->get_queue(), { 0, n_ });
-        return ndview<Float, 2>::wrap(acc.get_data(), {n_, d_});
+        const auto acc = row_accessor<const Float>(query_).pull(this->get_queue(), { 0, n_ });
+        return ndview<Float, 2>::wrap(acc.get_data(), { n_, d_ });
     }
 
     auto get_temp_indices() {
-        return ndarray<std::int32_t, 2>::empty(this->get_queue(), {n_, k_});
+        return ndarray<std::int32_t, 2>::empty(this->get_queue(), { n_, k_ });
     }
 
     auto get_temp_distances() {
-        return ndarray<Float, 2>::empty(this->get_queue(), {n_, k_});
+        return ndarray<Float, 2>::empty(this->get_queue(), { n_, k_ });
     }
 
     void exact_nearest_indices_check(const table& train_data,
                                      const table& infer_data,
                                      const idx_t& result_ids,
                                      const dst_t& result_dst) {
-
         const auto gtruth = naive_knn_search(train_data, infer_data);
 
         INFO("check if data shape is expected");
@@ -106,10 +103,10 @@ public:
 
         auto indices = naive_knn_search(train_data, infer_data);
         auto ind_arr = row_accessor<const std::int32_t>(indices).pull({ 0, n_ });
-        const auto ind_ndarr = idx_t::wrap(ind_arr.get_data(), {n_, m_});
+        const auto ind_ndarr = idx_t::wrap(ind_arr.get_data(), { n_, m_ });
 
-        for(std::int64_t j = 0; j < n_; ++j) {
-            for(std::int64_t i = 0; i < k_; ++i) {
+        for (std::int64_t j = 0; j < n_; ++j) {
+            for (std::int64_t i = 0; i < k_; ++i) {
                 const auto gtr_val = ind_ndarr.at(j, i);
                 const auto res_val = result_ids.at(j, i);
                 [[maybe_unused]] const auto res_dst = result_dst.at(j, i);
@@ -121,7 +118,7 @@ public:
 
     void test_correctness() {
         check_if_initialized();
-        if(m_ > k_) {
+        if (m_ > k_) {
             const auto train = get_train_view();
             const auto query = get_query_view();
 
@@ -202,7 +199,7 @@ private:
     std::int64_t m_, n_, k_, d_;
 };
 
-using search_types = std::tuple<float/*, double*/>;
+using search_types = std::tuple<float /*, double*/>;
 
 TEMPLATE_LIST_TEST_M(search_test,
                      "Randomly filled L2-distance search",

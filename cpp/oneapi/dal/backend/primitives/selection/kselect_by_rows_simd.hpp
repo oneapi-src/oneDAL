@@ -96,8 +96,10 @@ private:
                     if (sg_global_id >= row_count)
                         return;
                     const std::uint32_t in_offset = sg_global_id * inp_stride;
-                    [[maybe_unused]] const std::int32_t offset_ids_out = sg_global_id * out_ids_stride;
-                    [[maybe_unused]] const std::int32_t offset_dst_out = sg_global_id * out_dst_stride;
+                    [[maybe_unused]] const std::int32_t offset_ids_out =
+                        sg_global_id * out_ids_stride;
+                    [[maybe_unused]] const std::int32_t offset_dst_out =
+                        sg_global_id * out_dst_stride;
 
                     const std::uint32_t local_id = sg.get_local_id()[0];
                     const std::uint32_t local_range = sg.get_local_range()[0];
