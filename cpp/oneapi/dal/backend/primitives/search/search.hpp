@@ -76,7 +76,7 @@ public:
 
     template <typename CallbackImpl>
     sycl::event operator()(const ndview<Float, 2>& query_data,
-                           call_t<CallbackImpl>& callback,
+                           CallbackImpl& callback,
                            std::int64_t k_neighbors = 1,
                            const event_vector& deps = {}) const {
         const auto query_block = propose_query_block<Float>(queue_, query_data.get_dimension(1));
@@ -85,7 +85,7 @@ public:
 
     template <typename CallbackImpl>
     sycl::event operator()(const ndview<Float, 2>& query_data,
-                           call_t<CallbackImpl>& callback,
+                           CallbackImpl& callback,
                            std::int64_t query_block,
                            std::int64_t k_neighbors = 1,
                            const event_vector& deps = {}) const {

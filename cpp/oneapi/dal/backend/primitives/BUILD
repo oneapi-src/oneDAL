@@ -71,14 +71,11 @@ dal_collect_test_suites(
     name = "tests",
     modules = [
         "blas",
-        "distance",
         "lapack",
         "reduction",
-        "search",
         "selection",
         "sort",
         "stat",
-        "voting",
     ],
     root = "@onedal//cpp/oneapi/dal/backend/primitives",
     tests = [

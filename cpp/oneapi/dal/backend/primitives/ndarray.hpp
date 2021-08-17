@@ -384,7 +384,10 @@ sycl::event fill_with_value(sycl::queue& q,
                             const T& value = T{},
                             const event_vector& deps = {}) {
     ONEDAL_ASSERT(dst.has_mutable_data());
-    return q.fill(dst.get_mutable_data(), value, dst.get_count(), deps);
+    return q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.fill(dst.get_mutable_data(), value, dst.get_count());
+    });
 }
 
 template<typename T, ndorder ord1>
@@ -610,7 +613,10 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event fill(sycl::queue& q, T value, const event_vector& deps = {}) {
-        return fill_with_value(q, *this, value, deps);
+        return q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.fill(this->get_mutable_data(), value, this->get_count());
+        });
     }
 #endif
 
