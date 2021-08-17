@@ -95,9 +95,9 @@ services::Status generateShuffledIndicesImpl(const NumericTablePtr & idxTable, c
     const size_t nThreads  = threader_get_threads_number();
     const size_t n         = idxTable->getNumberOfRows();
     const size_t stateSize = rngStateTable->getNumberOfRows();
-    // number of generated uints: 1.5x of n for reserve
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n / 2lu, 3lu);
-    const size_t nRandomUInts = n / 2lu * 3lu;
+    // number of generated uints: 2 x n + 32 for reserve
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n + 16, 2);
+    const size_t nRandomUInts = 2 * n + 32;
 
     daal::internal::WriteColumns<IdxType, cpu> idxBlock(*idxTable, 0, 0, n);
     IdxType * idx = idxBlock.get();
