@@ -52,12 +52,24 @@ dal_example_suite(
     extra_deps = _TEST_DEPS,
 )
 
+dal_example_suite(
+    name = "jaccard",
+    compile_as = [ "c++" ],
+    srcs = glob(["source/jaccard/*.cpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo:jaccard",
+    ],
+    data = _DATA_DEPS,
+    extra_deps = _TEST_DEPS + [
+        "@tbb//:tbb",
+    ],
+)
+
 dal_algo_example_suite(
     algos = [
         "connected_components",
         "covariance",
         "decision_forest",
-        "jaccard",
         "kmeans",
         "knn",
         "linear_kernel",
