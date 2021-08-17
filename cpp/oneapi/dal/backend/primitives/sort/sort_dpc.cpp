@@ -526,10 +526,7 @@ template <typename Integer>
 sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                                             ndview<Integer, 2>& val_out,
                                             const event_vector& deps) {
-    return this->operator()(val_in,
-                            val_out,
-                            val_in.get_dimension(1),
-                            deps);
+    return this->operator()(val_in, val_out, val_in.get_dimension(1), deps);
 }
 
 #define INSTANTIATE_SORT_INDICES(F, I) \

@@ -454,14 +454,14 @@ TEST_M(ndarray_test, "can get element - c-order", "[ndarray]") {
 
     std::int64_t data[m * n];
 
-    for(std::int64_t i = 0; i < (m * n); ++i) {
+    for (std::int64_t i = 0; i < (m * n); ++i) {
         data[i] = i;
     }
 
     auto x = ndarray<std::int64_t, 2, ndorder::c>::wrap(data, { m, n });
 
-    for(std::int64_t r = 0; r < m; ++r) {
-        for(std::int64_t c = 0; c < n; ++c) {
+    for (std::int64_t r = 0; r < m; ++r) {
+        for (std::int64_t c = 0; c < n; ++c) {
             const std::int64_t gtr_val = r * n + c;
             const std::int64_t res_val = x.at(r, c);
             CAPTURE(r, c, gtr_val, res_val);
@@ -476,14 +476,14 @@ TEST_M(ndarray_test, "can get element - f-order", "[ndarray]") {
 
     std::int64_t data[m * n];
 
-    for(std::int64_t i = 0; i < (m * n); ++i) {
+    for (std::int64_t i = 0; i < (m * n); ++i) {
         data[i] = i;
     }
 
     auto x = ndarray<std::int64_t, 2, ndorder::f>::wrap(data, { m, n });
 
-    for(std::int64_t r = 0; r < m; ++r) {
-        for(std::int64_t c = 0; c < n; ++c) {
+    for (std::int64_t r = 0; r < m; ++r) {
+        for (std::int64_t c = 0; c < n; ++c) {
             const std::int64_t gtr_val = r + c * m;
             const std::int64_t res_val = x.at(r, c);
             CAPTURE(r, c, gtr_val, res_val);
@@ -498,7 +498,7 @@ TEST_M(ndarray_test, "can row slice ndarray - c-order", "[ndarray]") {
 
     float data[m * n];
 
-    for(std::int64_t i = 0; i < (m * n); ++i) {
+    for (std::int64_t i = 0; i < (m * n); ++i) {
         data[i] = float(i);
     }
 
@@ -514,8 +514,8 @@ TEST_M(ndarray_test, "can row slice ndarray - c-order", "[ndarray]") {
     REQUIRE(n == y.get_dimension(1));
     REQUIRE(x.get_leading_stride() == y.get_leading_stride());
 
-    for(std::int64_t r = 0; r < new_m; ++r) {
-        for(std::int64_t c = 0; c < n; ++c) {
+    for (std::int64_t r = 0; r < new_m; ++r) {
+        for (std::int64_t c = 0; c < n; ++c) {
             const float gtr_val = x.at(r + from_row, c);
             const float res_val = y.at(r, c);
             REQUIRE(gtr_val == res_val);
@@ -529,7 +529,7 @@ TEST_M(ndarray_test, "can row slice ndarray - f-order", "[ndarray]") {
 
     float data[m * n];
 
-    for(std::int64_t i = 0; i < (m * n); ++i) {
+    for (std::int64_t i = 0; i < (m * n); ++i) {
         data[i] = float(i);
     }
 
@@ -545,8 +545,8 @@ TEST_M(ndarray_test, "can row slice ndarray - f-order", "[ndarray]") {
     REQUIRE(n == y.get_dimension(1));
     REQUIRE(x.get_leading_stride() == y.get_leading_stride());
 
-    for(std::int64_t r = 0; r < new_m; ++r) {
-        for(std::int64_t c = 0; c < n; ++c) {
+    for (std::int64_t r = 0; r < new_m; ++r) {
+        for (std::int64_t c = 0; c < n; ++c) {
             const float gtr_val = x.at(r + from_row, c);
             const float res_val = y.at(r, c);
             REQUIRE(gtr_val == res_val);
@@ -560,7 +560,7 @@ TEST_M(ndarray_test, "can col slice ndarray - c-order", "[ndarray]") {
 
     float data[m * n];
 
-    for(std::int64_t i = 0; i < (m * n); ++i) {
+    for (std::int64_t i = 0; i < (m * n); ++i) {
         data[i] = float(i);
     }
 
@@ -576,8 +576,8 @@ TEST_M(ndarray_test, "can col slice ndarray - c-order", "[ndarray]") {
     REQUIRE(new_n == y.get_dimension(1));
     REQUIRE(x.get_leading_stride() == y.get_leading_stride());
 
-    for(std::int64_t r = 0; r < m; ++r) {
-        for(std::int64_t c = 0; c < new_n; ++c) {
+    for (std::int64_t r = 0; r < m; ++r) {
+        for (std::int64_t c = 0; c < new_n; ++c) {
             const float gtr_val = x.at(r, c + from_col);
             const float res_val = y.at(r, c);
             REQUIRE(gtr_val == res_val);
@@ -591,7 +591,7 @@ TEST_M(ndarray_test, "can col slice ndarray - f-order", "[ndarray]") {
 
     float data[m * n];
 
-    for(std::int64_t i = 0; i < (m * n); ++i) {
+    for (std::int64_t i = 0; i < (m * n); ++i) {
         data[i] = float(i);
     }
 
@@ -607,8 +607,8 @@ TEST_M(ndarray_test, "can col slice ndarray - f-order", "[ndarray]") {
     REQUIRE(new_n == y.get_dimension(1));
     REQUIRE(x.get_leading_stride() == y.get_leading_stride());
 
-    for(std::int64_t r = 0; r < m; ++r) {
-        for(std::int64_t c = 0; c < new_n; ++c) {
+    for (std::int64_t r = 0; r < m; ++r) {
+        for (std::int64_t c = 0; c < new_n; ++c) {
             const float gtr_val = x.at(r, c + from_col);
             const float res_val = y.at(r, c);
             REQUIRE(gtr_val == res_val);
@@ -733,8 +733,8 @@ TEST_M(ndarray_test, "can copy array rm-rm", "[ndarray]") {
 
     copy_by_value(queue, dst, src, { dst_event, src_event }).wait_and_throw();
 
-    for(std::int64_t r = 0; r < m; ++r) {
-        for(std::int64_t c = 0; c < n; ++c) {
+    for (std::int64_t r = 0; r < m; ++r) {
+        for (std::int64_t c = 0; c < n; ++c) {
             const float gtr_val = src.at(r, c);
             const float res_val = dst.at(r, c);
             REQUIRE(gtr_val == res_val);
@@ -754,8 +754,8 @@ TEST_M(ndarray_test, "can copy array rm-cm", "[ndarray]") {
 
     copy_by_value(queue, dst, src, { dst_event, src_event }).wait_and_throw();
 
-    for(std::int64_t r = 0; r < m; ++r) {
-        for(std::int64_t c = 0; c < n; ++c) {
+    for (std::int64_t r = 0; r < m; ++r) {
+        for (std::int64_t c = 0; c < n; ++c) {
             const float gtr_val = src.at(r, c);
             const float res_val = dst.at(r, c);
             REQUIRE(gtr_val == res_val);

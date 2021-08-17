@@ -68,8 +68,8 @@ public:
     void check_selection_1d(const ndview<std::int32_t, 2>& ids,
                             const ndview<TestType, 1>& src,
                             const ndview<TestType, 2>& dst) {
-        for(std::int64_t j = 0; j < m_; ++j) {
-            for(std::int64_t i = 0; i < n_; ++i) {
+        for (std::int64_t j = 0; j < m_; ++j) {
+            for (std::int64_t i = 0; i < n_; ++i) {
                 const std::int64_t idx = (i + j) % k_;
                 const std::int64_t val = k_ - idx;
                 CAPTURE(i, j, idx, val);
@@ -82,8 +82,8 @@ public:
     void check_selection_2d(const ndview<std::int32_t, 2>& ids,
                             const ndview<TestType, 2>& src,
                             const ndview<TestType, 2>& dst) {
-        for(std::int64_t j = 0; j < m_; ++j) {
-            for(std::int64_t i = 0; i < n_; ++i) {
+        for (std::int64_t j = 0; j < m_; ++j) {
+            for (std::int64_t i = 0; i < n_; ++i) {
                 const std::int64_t idx = (i + j) % k_;
                 const std::int64_t val = j + idx;
                 CAPTURE(i, j, idx, val);
@@ -99,8 +99,8 @@ public:
 
     auto indices() {
         auto res = ndarray<std::int32_t, 2>::empty(this->get_queue(), { m_, n_ });
-        for(std::int64_t j = 0; j < m_; ++j) {
-            for(std::int64_t i = 0; i < n_; ++i) {
+        for (std::int64_t j = 0; j < m_; ++j) {
+            for (std::int64_t i = 0; i < n_; ++i) {
                 res.at(j, i) = (i + j) % k_;
             }
         }
@@ -109,7 +109,7 @@ public:
 
     auto source_1d() {
         auto res = ndarray<TestType, 1>::empty(this->get_queue(), { k_ });
-        for(std::int64_t i = 0; i < k_; ++i) {
+        for (std::int64_t i = 0; i < k_; ++i) {
             *(res.get_mutable_data() + i) = TestType(k_ - i);
         }
         return res;
@@ -117,8 +117,8 @@ public:
 
     auto source_2d() {
         auto res = ndarray<TestType, 2>::empty(this->get_queue(), { m_, k_ });
-        for(std::int64_t j = 0; j < m_; ++j) {
-            for(std::int64_t i = 0; i < k_; ++i) {
+        for (std::int64_t j = 0; j < m_; ++j) {
+            for (std::int64_t i = 0; i < k_; ++i) {
                 res.at(j, i) = TestType(i + j);
             }
         }

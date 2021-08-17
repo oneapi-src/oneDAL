@@ -19,7 +19,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename Type, typename Index>
+template <typename Type, typename Index>
 sycl::event select_indexed(sycl::queue& q,
                            const ndview<Index, 2>& ids,
                            const ndview<Type, 2>& src,
@@ -47,7 +47,7 @@ sycl::event select_indexed(sycl::queue& q,
     });
 }
 
-template<typename Type, typename Index>
+template <typename Type, typename Index>
 sycl::event select_indexed(sycl::queue& q,
                            const ndview<Index, 2>& ids,
                            const ndview<Type, 1>& src,
@@ -73,25 +73,24 @@ sycl::event select_indexed(sycl::queue& q,
     });
 }
 
-#define INSTANTIATE(TYPE, INDEX)                            \
-template sycl::event select_indexed(sycl::queue&,           \
-                                    const ndview<INDEX, 2>&,\
-                                    const ndview<TYPE, 2>&, \
-                                    ndview<TYPE, 2>&,       \
-                                    const event_vector&);   \
-template sycl::event select_indexed(sycl::queue&,           \
-                                    const ndview<INDEX, 2>&,\
-                                    const ndview<TYPE, 1>&, \
-                                    ndview<TYPE, 2>&,       \
-                                    const event_vector&);
+#define INSTANTIATE(TYPE, INDEX)                                 \
+    template sycl::event select_indexed(sycl::queue&,            \
+                                        const ndview<INDEX, 2>&, \
+                                        const ndview<TYPE, 2>&,  \
+                                        ndview<TYPE, 2>&,        \
+                                        const event_vector&);    \
+    template sycl::event select_indexed(sycl::queue&,            \
+                                        const ndview<INDEX, 2>&, \
+                                        const ndview<TYPE, 1>&,  \
+                                        ndview<TYPE, 2>&,        \
+                                        const event_vector&);
 
 #define INSTANTIATE_TYPE(INDEX) \
-INSTANTIATE(float, INDEX);      \
-INSTANTIATE(double, INDEX);     \
-INSTANTIATE(std::int32_t, INDEX);
+    INSTANTIATE(float, INDEX);  \
+    INSTANTIATE(double, INDEX); \
+    INSTANTIATE(std::int32_t, INDEX);
 
 INSTANTIATE_TYPE(std::int32_t);
 INSTANTIATE_TYPE(std::int64_t);
-
 
 } // namespace oneapi::dal::backend::primitives
