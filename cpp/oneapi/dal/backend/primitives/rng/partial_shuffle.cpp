@@ -24,21 +24,40 @@
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
 #include <daal/src/algorithms/engines/engine_batch_impl.h>
 
+#include <tuple>
+
 namespace oneapi::dal::backend::primitives {
+
+template <typename U, typename... Args>
+struct uniform_functor {
+    void operator()(Args... args) {
+        int res = U{}.uniform(std::forward<Args>(args)...);
+        if (res) {
+            using msg = dal::detail::error_messages;
+            throw internal_error(msg::failed_to_generate_random_numbers());
+        }
+    }
+};
+
+template <typename... Args>
+struct internal_dispatcher {
+    explicit internal_dispatcher(Args&&... args) : args_(std::forward<Args>(args)...) {}
+    template <typename CPU>
+    void operator()(CPU cpu) {
+        using uniform_type = daal::internal::RNGs<
+            std::size_t,
+            oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>;
+        uniform_functor<uniform_type, Args...> f;
+        std::apply(f, args_);
+    }
+    std::tuple<Args...> args_;
+};
 
 struct uniform_dispatcher {
     template <typename... Args>
     static void uniform_by_cpu(Args&&... args) {
-        dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-            int res = daal::internal::RNGs<
-                          std::size_t,
-                          oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                          .uniform(std::forward<Args>(args)...);
-            if (res) {
-                using msg = dal::detail::error_messages;
-                throw internal_error(msg::failed_to_generate_random_numbers());
-            }
-        });
+        internal_dispatcher<Args...> disp(std::forward<Args>(args)...);
+        dispatch_by_cpu(context_cpu{}, disp);
     }
 };
 
