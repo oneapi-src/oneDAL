@@ -37,13 +37,13 @@ inline bool compare_and_swap(T &x, const T &old_val, const T &new_val) {
     return false;
 }
 
-inline void link(std::int64_t u, std::int64_t v, std::int64_t *D) {
+inline void link(std::int64_t u, std::int64_t v, std::int64_t *components) {
     std::int64_t p1;
     std::int64_t p2;
     std::int64_t h;
     std::int64_t l;
-    p1 = D[u];
-    p2 = D[v];
+    p1 = components[u];
+    p2 = components[v];
     while (p1 != p2) {
         if (p1 > p2) {
             h = p1;
@@ -53,40 +53,40 @@ inline void link(std::int64_t u, std::int64_t v, std::int64_t *D) {
             h = p2;
             l = p1;
         }
-        if (compare_and_swap<std::int64_t>(D[h], h, l)) {
+        if (compare_and_swap<std::int64_t>(components[h], h, l)) {
             break;
         }
-        p1 = D[D[h]];
-        p2 = D[l];
+        p1 = components[components[h]];
+        p2 = components[l];
     }
 }
 
-inline void compress(std::int64_t u, std::int64_t *D) {
-    while (D[D[u]] != D[u]) {
-        D[u] = D[D[u]];
+inline void compress(std::int64_t u, std::int64_t *components) {
+    while (components[components[u]] != components[u]) {
+        components[u] = components[components[u]];
     }
 }
 
 inline void order_component_ids(const std::int64_t &vertex_count,
                                 std::int64_t &component_count,
-                                std::int64_t *D) {
+                                std::int64_t *components) {
     std::int64_t ordered_comp_id = 0;
     component_count = 0;
 
     for (auto i = 0; i < vertex_count; ++i) {
-        if (D[i] == i) {
-            D[i] = ordered_comp_id;
+        if (components[i] == i) {
+            components[i] = ordered_comp_id;
             component_count++;
             ordered_comp_id++;
         }
         else {
-            D[i] = D[D[i]];
+            components[i] = components[components[i]];
         }
     }
 }
 
 template <typename Cpu>
-inline std::int32_t most_frequent_element(std::int64_t *D,
+inline std::int32_t most_frequent_element(std::int64_t *components,
                                           std::int64_t vertex_count,
                                           byte_alloc_iface *alloc_ptr,
                                           std::int32_t samples_num = 1024) {
@@ -95,27 +95,27 @@ inline std::int32_t most_frequent_element(std::int64_t *D,
 
     vertex_allocator_type vertex_allocator(alloc_ptr);
 
-    vertex_type *samples = allocate(vertex_allocator, vertex_count);
+    vertex_type *sample_counts = allocate(vertex_allocator, vertex_count);
     for (std::int64_t i = 0; i < vertex_count; ++i) {
-        samples[i] = 0;
+        sample_counts[i] = 0;
     }
 
-    rnd_seq<Cpu, std::int64_t> gen(samples_num, 0, vertex_count);
-    auto uniform_values = gen.get_data();
+    rnd_seq<Cpu, std::int64_t> gen(samples_num, 0, vertex_count-1);
+    auto rnd_vertex_ids = gen.get_data();
 
     for (std::int64_t i = 0; i < samples_num; i++) {
-        samples[D[uniform_values[i]]]++;
+        sample_counts[components[rnd_vertex_ids[i]]]++;
     }
-    std::int64_t max_sample = 0;
-    std::int64_t max_sample_root = 0;
+    std::int64_t max_sample_count = 0;
+    std::int64_t most_frequent_root = 0;
     for (std::int64_t i = 0; i < vertex_count; i++) {
-        if (samples[i] > max_sample) {
-            max_sample = samples[i];
-            max_sample_root = i;
+        if (sample_counts[i] > max_sample_count) {
+            max_sample_count = sample_counts[i];
+            most_frequent_root = i;
         }
     }
-
-    return max_sample_root;
+    deallocate(vertex_allocator, sample_counts, vertex_count);
+    return most_frequent_root;
 }
 
 template <typename Cpu>
@@ -132,9 +132,9 @@ struct afforest {
 
             const auto vertex_count = t.get_vertex_count();
 
-            vertex_type *D = allocate(vertex_allocator, vertex_count);
+            vertex_type *components = allocate(vertex_allocator, vertex_count);
             for (std::int64_t i = 0; i < vertex_count; ++i) {
-                D[i] = i;
+                components[i] = i;
             }
 
             std::int32_t neighbors_round = 2;
@@ -142,37 +142,37 @@ struct afforest {
             for (std::int64_t i = 0; i < vertex_count; ++i) {
                 std::int32_t neighbors_count = t.get_vertex_degree(i);
                 for (std::int32_t j = 0; (j < neighbors_count) && (j < neighbors_round); ++j) {
-                    link(i, t.get_vertex_neighbors_begin(i)[j], D);
+                    link(i, t.get_vertex_neighbors_begin(i)[j], components);
                 }
             }
 
-            std::int32_t sample_comp = most_frequent_element<Cpu>(D, vertex_count, alloc_ptr);
+            std::int32_t sample_comp = most_frequent_element<Cpu>(components, vertex_count, alloc_ptr);
 
             for (std::int64_t i = 0; i < vertex_count; ++i) {
-                if (D[i] != sample_comp) {
+                if (components[i] != sample_comp) {
                     if (t.get_vertex_degree(i) >= neighbors_round) {
                         for (auto j = t.get_vertex_neighbors_begin(i);
                              j != t.get_vertex_neighbors_end(i);
                              ++j) {
-                            link(i, *j, D);
+                            link(i, *j, components);
                         }
                     }
                 }
             }
 
             for (std::int64_t i = 0; i < vertex_count; ++i) {
-                compress(i, D);
+                compress(i, components);
             }
 
             std::int64_t component_count = 0;
-            order_component_ids(vertex_count, component_count, D);
+            order_component_ids(vertex_count, component_count, components);
 
             auto label_arr = array<vertex_type>::empty(vertex_count);
             vertex_type *label_ = label_arr.get_mutable_data();
             for (std::int64_t i = 0; i < vertex_count; ++i) {
-                label_[i] = D[i];
+                label_[i] = components[i];
             }
-            deallocate(vertex_allocator, D, vertex_count);
+            deallocate(vertex_allocator, components, vertex_count);
 
             return vertex_partitioning_result<task::vertex_partitioning>()
                 .set_labels(dal::detail::homogen_table_builder{}
