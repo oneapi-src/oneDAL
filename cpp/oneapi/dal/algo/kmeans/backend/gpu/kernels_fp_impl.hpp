@@ -156,13 +156,18 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
 
                 sg.barrier();
 
-                const Float final_value = reduce(sg, value, sycl::ONEAPI::minimum<Float>());
+                const Float final_value =
+                    sycl::reduce_over_group(sg, value, sycl::ext::oneapi::minimum<Float>());
                 const bool present = (final_value == value);
                 const std::int32_t pos =
-                    exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
+                    sycl::exclusive_scan_over_group(sg,
+                                                    present ? 1 : 0,
+                                                    sycl::ext::oneapi::plus<std::int32_t>());
                 const bool owner = present && pos == 0;
                 const std::int32_t final_index =
-                    -reduce(sg, owner ? -index : 1, sycl::ONEAPI::minimum<std::int32_t>());
+                    -sycl::reduce_over_group(sg,
+                                             owner ? -index : 1,
+                                             sycl::ext::oneapi::minimum<std::int32_t>());
 
                 if (local_id == 0) {
                     indices_ptr[out_offset] = final_index;
@@ -267,7 +272,7 @@ sycl::event kernels_fp<Float>::merge_reduce_centroids(sycl::queue& queue,
                 for (std::int64_t i = local_id; i < part_count; i += local_range) {
                     sum += partial_centroids_ptr[i * cluster_count * column_count + sg_global_id];
                 }
-                sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
+                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
 
                 if (local_id == 0) {
                     auto count = counters_ptr[sg_cluster_id];
@@ -317,7 +322,8 @@ sycl::event kernels_fp<Float>::partial_reduce_centroids(
                     if (local_id == 0) {
                         cl = response_ptr[i];
                     }
-                    cl = reduce(sg, cl, sycl::ONEAPI::maximum<std::int32_t>());
+                    cl =
+                        sycl::reduce_over_group(sg, cl, sycl::ext::oneapi::maximum<std::int32_t>());
                     for (std::int64_t j = local_id; j < column_count; j += local_range) {
                         partial_centroids_ptr[sg_global_id * cluster_count * column_count +
                                               cl * column_count + j] +=
@@ -355,7 +361,7 @@ sycl::event kernels_fp<Float>::compute_objective_function(
                 for (std::int64_t i = local_id; i < row_count; i += local_range) {
                     sum += distance_ptr[i];
                 }
-                sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
+                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
                 if (local_id == 0) {
                     value_ptr[0] = sum;
                 }
@@ -378,28 +384,28 @@ sycl::event kernels_fp<Float>::compute_squares(sycl::queue& queue,
 
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
-                         [=](sycl::nd_item<2> item) {
-                             auto sg = item.get_sub_group();
-                             const std::uint32_t sg_id = sg.get_group_id()[0];
-                             if (sg_id > 0)
-                                 return;
-                             const std::uint64_t sg_local_id = sg.get_local_id()[0];
-                             const std::uint32_t sg_local_range = sg.get_local_range()[0];
-                             const std::uint64_t wg_id = item.get_global_id(1);
-                             const std::uint64_t offset = wg_id * column_count;
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::uint64_t sg_local_id = sg.get_local_id()[0];
+                const std::uint32_t sg_local_range = sg.get_local_range()[0];
+                const std::uint64_t wg_id = item.get_global_id(1);
+                const std::uint64_t offset = wg_id * column_count;
 
-                             Float sum = Float(0);
-                             for (std::int64_t i = sg_local_id; i < column_count;
-                                  i += sg_local_range) {
-                                 const Float value = data_ptr[offset + i];
-                                 sum += value * value;
-                             }
-                             sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
-                             if (sg_local_id == 0) {
-                                 squares_ptr[wg_id] = sum;
-                             }
-                         });
+                Float sum = Float(0);
+                for (std::int64_t i = sg_local_id; i < column_count; i += sg_local_range) {
+                    const Float value = data_ptr[offset + i];
+                    sum += value * value;
+                }
+                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                if (sg_local_id == 0) {
+                    squares_ptr[wg_id] = sum;
+                }
+            });
     });
 }
 

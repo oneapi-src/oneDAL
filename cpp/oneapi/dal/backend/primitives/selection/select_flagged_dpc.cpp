@@ -22,9 +22,7 @@ namespace oneapi::dal::backend::primitives {
 
 namespace de = dal::detail;
 
-using sycl::ONEAPI::reduce;
-using sycl::ONEAPI::plus;
-using sycl::ONEAPI::exclusive_scan;
+using sycl::ext::oneapi::plus;
 
 template <typename Data, typename Flag>
 sycl::event select_flagged_base<Data, Flag>::scan(sycl::queue& queue,
@@ -65,7 +63,7 @@ sycl::event select_flagged_base<Data, Flag>::scan(sycl::queue& queue,
 
             for (integer_t i = ind_start + local_id; i < ind_end; i += local_size) {
                 const integer_t value = static_cast<integer_t>(mask_accessor[i]);
-                sum += reduce(sbg, value, plus<integer_t>());
+                sum += sycl::reduce_over_group(sbg, value, plus<integer_t>());
             }
 
             if (local_id == 0) {
@@ -108,9 +106,9 @@ sycl::event select_flagged_base<Data, Flag>::sum_scan(sycl::queue& queue,
             integer_t sum = 0;
             for (integer_t i = local_id; i < local_sum_count; i += local_size) {
                 integer_t value = part_sum_ptr[i];
-                integer_t boundary = exclusive_scan(sbg, value, plus<integer_t>());
+                integer_t boundary = sycl::exclusive_scan_over_group(sbg, value, plus<integer_t>());
                 part_prefix_sum_ptr[i] = sum + boundary;
-                sum += reduce(sbg, value, plus<integer_t>());
+                sum += sycl::reduce_over_group(sbg, value, plus<integer_t>());
             }
 
             if (local_id == 0) {
@@ -169,10 +167,11 @@ sycl::event select_flagged_base<Data, Flag>::reorder(sycl::queue& queue,
             for (integer_t i = ind_start + local_id; i < ind_end; i += local_size) {
                 const integer_t part = static_cast<integer_t>(mask_accessor[i]);
                 const integer_t boundary =
-                    group_offset + sum + exclusive_scan(sbg, part, plus<integer_t>());
+                    group_offset + sum +
+                    sycl::exclusive_scan_over_group(sbg, part, plus<integer_t>());
                 if (part)
                     out_ptr[boundary] = in_ptr[i];
-                sum += reduce(sbg, part, plus<integer_t>());
+                sum += sycl::reduce_over_group(sbg, part, plus<integer_t>());
             }
         });
     });

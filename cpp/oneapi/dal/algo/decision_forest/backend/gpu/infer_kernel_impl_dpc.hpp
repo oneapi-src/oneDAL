@@ -34,12 +34,9 @@ namespace pr = dal::backend::primitives;
 using alloc = sycl::usm::alloc;
 using address = sycl::access::address_space;
 
-using sycl::ONEAPI::broadcast;
-using sycl::ONEAPI::reduce;
-using sycl::ONEAPI::plus;
-using sycl::ONEAPI::minimum;
-using sycl::ONEAPI::maximum;
-using sycl::ONEAPI::exclusive_scan;
+using sycl::ext::oneapi::plus;
+using sycl::ext::oneapi::minimum;
+using sycl::ext::oneapi::maximum;
 
 template <typename Float, typename Index, typename Task>
 void infer_kernel_impl<Float, Index, Task>::validate_input(const descriptor_t& desc,
@@ -380,7 +377,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
                             resp_val += obs_response_list_ptr[resp_offset + i];
                         }
 
-                        resp_val = reduce(sbg, resp_val, plus<Float>());
+                        resp_val = sycl::reduce_over_group(sbg, resp_val, plus<Float>());
 
                         if (0 == sub_group_local_id) {
                             response_list_ptr[row_idx * class_count + class_idx] = resp_val;
@@ -396,7 +393,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
                         resp_val += obs_response_list_ptr[resp_offset + i];
                     }
 
-                    resp_val = reduce(sbg, resp_val, plus<Float>());
+                    resp_val = sycl::reduce_over_group(sbg, resp_val, plus<Float>());
 
                     if (0 == sub_group_local_id) {
                         response_list_ptr[row_idx] = resp_val * scale;

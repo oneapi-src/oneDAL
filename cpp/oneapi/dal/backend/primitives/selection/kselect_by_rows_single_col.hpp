@@ -110,13 +110,18 @@ private:
 
                     sg.barrier();
 
-                    const Float final_value = reduce(sg, value, sycl::ONEAPI::minimum<Float>());
+                    const Float final_value =
+                        sycl::reduce_over_group(sg, value, sycl::ext::oneapi::minimum<Float>());
                     const bool present = (final_value == value);
                     const std::int32_t pos =
-                        exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
+                        sycl::exclusive_scan_over_group(sg,
+                                                        present ? 1 : 0,
+                                                        sycl::ext::oneapi::plus<std::int32_t>());
                     const bool owner = present && pos == 0;
                     const std::int32_t final_index =
-                        -reduce(sg, owner ? -index : 1, sycl::ONEAPI::minimum<std::int32_t>());
+                        -sycl::reduce_over_group(sg,
+                                                 owner ? -index : 1,
+                                                 sycl::ext::oneapi::minimum<std::int32_t>());
 
                     if (local_id == 0) {
                         if constexpr (indices_out) {

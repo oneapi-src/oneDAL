@@ -91,10 +91,10 @@ sycl::event count_clusters(sycl::queue& queue,
                 (offset + block_size) > row_count ? row_count : (offset + block_size);
             for (std::int64_t i = offset + local_id; i < end; i += local_range) {
                 const std::int32_t cl = response_ptr[i];
-                sycl::ONEAPI::atomic_ref<std::int32_t,
-                                         cl::sycl::ONEAPI::memory_order::relaxed,
-                                         cl::sycl::ONEAPI::memory_scope::device,
-                                         cl::sycl::access::address_space::global_device_space>
+                sycl::ext::oneapi::atomic_ref<std::int32_t,
+                                              cl::sycl::ext::oneapi::memory_order::relaxed,
+                                              cl::sycl::ext::oneapi::memory_scope::device,
+                                              cl::sycl::access::address_space::global_device_space>
                     counter_atomic(counter_ptr[cl]);
                 counter_atomic.fetch_add(1);
             }
@@ -135,7 +135,7 @@ std::int64_t count_empty_clusters(sycl::queue& queue,
                 for (std::int64_t i = local_id; i < cluster_count; i += local_range) {
                     sum += counter_ptr[i] == 0;
                 }
-                sum = reduce(sg, sum, sycl::ONEAPI::plus<std::int32_t>());
+                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<std::int32_t>());
                 if (local_id == 0) {
                     value_ptr[0] = sum;
                 }
