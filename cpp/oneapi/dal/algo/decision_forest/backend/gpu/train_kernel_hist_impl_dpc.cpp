@@ -31,12 +31,9 @@ namespace pr = dal::backend::primitives;
 using alloc = sycl::usm::alloc;
 using address = sycl::access::address_space;
 
-using sycl::ONEAPI::broadcast;
-using sycl::ONEAPI::reduce;
-using sycl::ONEAPI::plus;
-using sycl::ONEAPI::minimum;
-using sycl::ONEAPI::maximum;
-using sycl::ONEAPI::exclusive_scan;
+using sycl::ext::oneapi::plus;
+using sycl::ext::oneapi::minimum;
+using sycl::ext::oneapi::maximum;
 
 template <typename T>
 using enable_if_float_t = std::enable_if_t<detail::is_valid_float_v<T>>;
@@ -60,10 +57,10 @@ struct float_accuracy<double> {
 
 template <typename T>
 inline T atomic_global_add(T* ptr, T operand) {
-    sycl::ONEAPI::atomic_ref<T,
-                             cl::sycl::ONEAPI::memory_order::relaxed,
-                             cl::sycl::ONEAPI::memory_scope::device,
-                             cl::sycl::access::address_space::global_device_space>
+    sycl::ext::oneapi::atomic_ref<T,
+                                  cl::sycl::ext::oneapi::memory_order::relaxed,
+                                  cl::sycl::ext::oneapi::memory_scope::device,
+                                  cl::sycl::access::address_space::global_device_space>
         atomic_var(*ptr);
     return atomic_var.fetch_add(operand);
 }
@@ -2382,7 +2379,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
                 Index split_node = Index(
                     node_list_ptr[node_id * node_prop_count + impl_const_t::ind_fid] != bad_val);
                 Index new_left_node_pos =
-                    created_node_count + exclusive_scan(sbg, split_node, plus<Index>()) * 2;
+                    created_node_count +
+                    sycl::exclusive_scan_over_group(sbg, split_node, plus<Index>()) * 2;
                 if (split_node) {
                     // split parent node on left and right nodes
                     const Index* node_prn = node_list_ptr + node_id * node_prop_count;
@@ -2425,7 +2423,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
                                                           node_id,
                                                           new_left_node_pos);
                 }
-                created_node_count += reduce(sbg, split_node, plus<Index>()) * 2;
+                created_node_count += sycl::reduce_over_group(sbg, split_node, plus<Index>()) * 2;
             }
         });
     });
