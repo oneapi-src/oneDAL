@@ -166,7 +166,7 @@ public:
     explicit descriptor(std::int64_t source_vertex,
                         double delta,
                         optional_result_id optional_results = optional_results::distances,
-                        Allocator allocator = std::allocator<char>()) {
+                        const Allocator& allocator = std::allocator<char>()) {
         base_t::set_source(source_vertex);
         base_t::set_delta(delta);
         base_t::set_optional_results(optional_results);
