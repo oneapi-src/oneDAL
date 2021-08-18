@@ -289,10 +289,10 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "mnist: samples=10K, epsilon=1.7e3, min_observations=3",
                      "[dbscan][nightly][batch][external-dataset]",
                      dbscan_types) {
+    using Float = std::tuple_element_t<0, TestType>;
     constexpr bool is_double = std::is_same_v<Float, double>;
     // Skipped due to known issue
     SKIP_IF(is_double);
-    using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data =
         te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" }.build();
