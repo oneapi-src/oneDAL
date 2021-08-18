@@ -77,20 +77,20 @@ public:
                              : pr::ndarray<std::int32_t, 2>{}),
               voting_(pr::make_uniform_voting(q, query_block, k_neighbors)) {}
 
-    auto& set_inp_responses(array<std::int32_t> inp_responses) {
-        this->inp_responses_ = pr::ndarray<std::int32_t, 1>::wrap(inp_responses.get_data(),
-                                                                  { inp_responses.get_count() });
+    auto& set_inp_responses(const array<std::int32_t>& inp_responses) {
+        this->inp_responses_ =
+            pr::ndarray<std::int32_t, 1>::wrap(inp_responses, inp_responses.get_count());
         return *this;
     }
 
-    auto& set_responses(array<std::int32_t> responses) {
+    auto& set_responses(array<std::int32_t>& responses) {
         ONEDAL_ASSERT(!result_options_.test(result_options::responses) ||
                       responses.get_count() == query_length_);
         this->responses_ = pr::ndarray<std::int32_t, 1>::wrap_mutable(responses, query_length_);
         return *this;
     }
 
-    auto& set_indices(array<std::int32_t> indices) {
+    auto& set_indices(array<std::int32_t>& indices) {
         ONEDAL_ASSERT(!result_options_.test(result_options::indices) ||
                       indices.get_count() == (query_length_ * k_neighbors_));
         this->indices_ =
@@ -98,7 +98,7 @@ public:
         return *this;
     }
 
-    auto& set_distances(array<Float> distances) {
+    auto& set_distances(array<Float>& distances) {
         ONEDAL_ASSERT(!result_options_.test(result_options::distances) ||
                       distances.get_count() == (query_length_ * k_neighbors_));
         this->distances_ =
