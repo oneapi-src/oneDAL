@@ -24,7 +24,7 @@
 
     
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
   <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
@@ -41,6 +41,18 @@
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Ensembles" href="../ensembles/index.html" />
     <link rel="prev" title="Decomposition" href="index.html" />
+    <script defer type="text/javascript" src="https://www.intel.com/content/dam/www/global/wap/performance-config.js" ></script>
+    <script type="text/javascript">
+        // Configure TMS settings
+        var wapLocalCode = 'us-en'; // Dynamically set per localized site, see mapping table for values
+        var wapSection = "oneapi-dal"; // WAP team will give you a unique section for your site
+        // Load TMS
+        (function () {
+          var url = 'https://www.intel.com/content/dam/www/global/wap/tms-loader.js'; // WAP file URL
+          var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = url;
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+        })();
+      </script>
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
   </head>
@@ -396,8 +408,23 @@
       </label>
       <ul>
        <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/dpc/basic_statistics_dense_batch.html">
+         basic_statistics_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="../../../examples/dpc/column_accessor_homogen.html">
          column_accessor_homogen.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/dpc/cor_dense_batch.html">
+         cor_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/dpc/cov_dense_batch.html">
+         cov_dense_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -436,6 +463,11 @@
         </a>
        </li>
        <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/dpc/knn_search_brute_force_dense_batch.html">
+         knn_search_brute_force_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="../../../examples/dpc/linear_kernel_dense_batch.html">
          linear_kernel_dense_batch.cpp
         </a>
@@ -468,8 +500,28 @@
       </label>
       <ul>
        <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/basic_statistics_dense_batch.html">
+         basic_statistics_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="../../../examples/cpp/column_accessor_homogen.html">
          column_accessor_homogen.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/connected_components_batch.html">
+         connected_components_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/cor_dense_batch.html">
+         cor_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/cov_dense_batch.html">
+         cov_dense_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -535,6 +587,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../../examples/cpp/load_graph.html">
          load_graph.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/louvain_batch.html">
+         louvain_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -2164,19 +2221,6 @@ variance, that is, the directions where the data is mostly spread out.</p>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3pca10descriptor13deterministicE">
-<span id="_CPPv3N6oneapi3dal3pca10descriptor13deterministicE"></span><span id="_CPPv2N6oneapi3dal3pca10descriptor13deterministicE"></span><span id="oneapi::dal::pca::descriptor::deterministic__b"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">deterministic</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca10descriptor13deterministicE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Specifies whether the algorithm applies the sign-flip technique. If it is <cite>true</cite>, the directions of the eigenvectors must be deterministic. <strong>Default value</strong>: true.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">get_deterministic()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_deterministic(bool</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal3pca10descriptor15component_countE">
 <span id="_CPPv3N6oneapi3dal3pca10descriptor15component_countE"></span><span id="_CPPv2N6oneapi3dal3pca10descriptor15component_countE"></span><span id="oneapi::dal::pca::descriptor::component_count__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">component_count</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca10descriptor15component_countE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The number of principal components <span class="math notranslate nohighlight">\(r\)</span>. If it is zero, the algorithm computes the eigenvectors for all features, <span class="math notranslate nohighlight">\(r = p\)</span>. <strong>Default value</strong>: 0.</p>
@@ -2188,6 +2232,19 @@ variance, that is, the directions where the data is mostly spread out.</p>
 </dd>
 <dt>Invariants</dt><dd><div class="line-block">
 <div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3pca10descriptor15component_countE" title="oneapi::dal::pca::descriptor::component_count"><span class="pre">component_count</span></a> <span class="pre">&gt;=</span> <span class="pre">0</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3pca10descriptor13deterministicE">
+<span id="_CPPv3N6oneapi3dal3pca10descriptor13deterministicE"></span><span id="_CPPv2N6oneapi3dal3pca10descriptor13deterministicE"></span><span id="oneapi::dal::pca::descriptor::deterministic__b"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">deterministic</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca10descriptor13deterministicE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Specifies whether the algorithm applies the sign-flip technique. If it is <cite>true</cite>, the directions of the eigenvectors must be deterministic. <strong>Default value</strong>: true.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">get_deterministic()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_deterministic(bool</span> <span class="pre">value)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2328,6 +2385,19 @@ variance, that is, the directions where the data is mostly spread out.</p>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3pca12train_result11eigenvaluesE">
+<span id="_CPPv3N6oneapi3dal3pca12train_result11eigenvaluesE"></span><span id="_CPPv2N6oneapi3dal3pca12train_result11eigenvaluesE"></span><span id="oneapi::dal::pca::train_result::eigenvalues__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">eigenvalues</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca12train_result11eigenvaluesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A <span class="math notranslate nohighlight">\(1 \times r\)</span> table that contains the eigenvalues for for the first <code class="docutils literal notranslate"><span class="pre">r</span></code> features. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_eigenvalues()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_eigenvalues(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal3pca12train_result5meansE">
 <span id="_CPPv3N6oneapi3dal3pca12train_result5meansE"></span><span id="_CPPv2N6oneapi3dal3pca12train_result5meansE"></span><span id="oneapi::dal::pca::train_result::means__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">means</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca12train_result5meansE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>A <span class="math notranslate nohighlight">\(1 \times r\)</span> table that contains the mean values for the first <code class="docutils literal notranslate"><span class="pre">r</span></code> features. <strong>Default value</strong>: table{}.</p>
@@ -2361,19 +2431,6 @@ variance, that is, the directions where the data is mostly spread out.</p>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_variances()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_variances(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3pca12train_result11eigenvaluesE">
-<span id="_CPPv3N6oneapi3dal3pca12train_result11eigenvaluesE"></span><span id="_CPPv2N6oneapi3dal3pca12train_result11eigenvaluesE"></span><span id="oneapi::dal::pca::train_result::eigenvalues__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">eigenvalues</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca12train_result11eigenvaluesE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>A <span class="math notranslate nohighlight">\(1 \times r\)</span> table that contains the eigenvalues for for the first <code class="docutils literal notranslate"><span class="pre">r</span></code> features. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_eigenvalues()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_eigenvalues(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
