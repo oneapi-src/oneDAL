@@ -16,3 +16,6 @@ bazel-*
 
 # Bazel directories
 bazel-*
+
+# PyCharm directories
+.idea*

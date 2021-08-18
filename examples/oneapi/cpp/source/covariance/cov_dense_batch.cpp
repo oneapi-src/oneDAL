@@ -14,11 +14,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl_dpc.hpp"
+#include "oneapi/dal/algo/covariance.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
-namespace oneapi::dal::decision_forest::backend {
+#include "example_util/utils.hpp"
 
-INSTANTIATE(double, std::int32_t, task::classification);
-INSTANTIATE(double, std::int32_t, task::regression);
+namespace dal = oneapi::dal;
 
-} // namespace oneapi::dal::decision_forest::backend
+int main(int argc, char const *argv[]) {
+    const auto input_file_name = get_data_path("covcormoments_dense.csv");
+
+    const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
+    auto cov_desc = dal::covariance::descriptor{}.set_result_options(
+        dal::covariance::result_options::cov_matrix);
+
+    auto result = dal::compute(cov_desc, input);
+
+    std::cout << "Cov:\n" << result.get_cov_matrix() << std::endl;
+
+    return 0;
+}

@@ -14,11 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl_dpc.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp_impl.hpp"
 
-namespace oneapi::dal::decision_forest::backend {
+namespace oneapi::dal::kmeans::backend {
 
-INSTANTIATE(float, std::int32_t, task::classification);
-INSTANTIATE(float, std::int32_t, task::regression);
+#ifdef ONEDAL_DATA_PARALLEL
+template struct kernels_fp<float>;
+template struct kernels_fp<double>;
+#endif
 
-} // namespace oneapi::dal::decision_forest::backend
+} // namespace oneapi::dal::kmeans::backend
