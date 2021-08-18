@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <memory>
-
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/connected_components.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
@@ -31,10 +29,9 @@ int main(int argc, char** argv) {
     const dal::preview::graph_csv_data_source ds(filename);
     const dal::preview::load_graph::descriptor<> d;
     const auto graph = dal::preview::load_graph::load(d, ds);
-    std::allocator<char> alloc;
 
     // set algorithm parameters
-    const auto cc_desc = dal::preview::connected_components::descriptor<>(alloc);
+    const auto cc_desc = dal::preview::connected_components::descriptor<>();
 
     // compute connected_components
     const auto result_connected_components = dal::preview::vertex_partitioning(cc_desc, graph);

@@ -100,7 +100,7 @@ inline std::int32_t most_frequent_element(std::int64_t *components,
         sample_counts[i] = 0;
     }
 
-    rnd_seq<Cpu, std::int64_t> gen(samples_num, 0, vertex_count-1);
+    rnd_seq<Cpu, std::int64_t> gen(samples_num, 0, vertex_count - 1);
     auto rnd_vertex_ids = gen.get_data();
 
     for (std::int64_t i = 0; i < samples_num; i++) {
@@ -124,62 +124,60 @@ struct afforest {
         const detail::descriptor_base<task::vertex_partitioning> &desc,
         const dal::preview::detail::topology<std::int32_t> &t,
         byte_alloc_iface *alloc_ptr) {
-        {
-            using vertex_type = std::int64_t;
-            using vertex_allocator_type = inner_alloc<vertex_type>;
+        using vertex_type = std::int64_t;
+        using vertex_allocator_type = inner_alloc<vertex_type>;
 
-            vertex_allocator_type vertex_allocator(alloc_ptr);
+        vertex_allocator_type vertex_allocator(alloc_ptr);
 
-            const auto vertex_count = t.get_vertex_count();
+        const auto vertex_count = t.get_vertex_count();
 
-            vertex_type *components = allocate(vertex_allocator, vertex_count);
-            for (std::int64_t i = 0; i < vertex_count; ++i) {
-                components[i] = i;
+        vertex_type *components = allocate(vertex_allocator, vertex_count);
+        for (std::int64_t i = 0; i < vertex_count; ++i) {
+            components[i] = i;
+        }
+
+        std::int32_t neighbors_round = 2;
+
+        for (std::int64_t i = 0; i < vertex_count; ++i) {
+            std::int32_t neighbors_count = t.get_vertex_degree(i);
+            for (std::int32_t j = 0; (j < neighbors_count) && (j < neighbors_round); ++j) {
+                link(i, t.get_vertex_neighbors_begin(i)[j], components);
             }
+        }
 
-            std::int32_t neighbors_round = 2;
+        std::int32_t sample_comp = most_frequent_element<Cpu>(components, vertex_count, alloc_ptr);
 
-            for (std::int64_t i = 0; i < vertex_count; ++i) {
-                std::int32_t neighbors_count = t.get_vertex_degree(i);
-                for (std::int32_t j = 0; (j < neighbors_count) && (j < neighbors_round); ++j) {
-                    link(i, t.get_vertex_neighbors_begin(i)[j], components);
-                }
-            }
-
-            std::int32_t sample_comp = most_frequent_element<Cpu>(components, vertex_count, alloc_ptr);
-
-            for (std::int64_t i = 0; i < vertex_count; ++i) {
-                if (components[i] != sample_comp) {
-                    if (t.get_vertex_degree(i) >= neighbors_round) {
-                        for (auto j = t.get_vertex_neighbors_begin(i);
-                             j != t.get_vertex_neighbors_end(i);
-                             ++j) {
-                            link(i, *j, components);
-                        }
+        for (std::int64_t i = 0; i < vertex_count; ++i) {
+            if (components[i] != sample_comp) {
+                if (t.get_vertex_degree(i) >= neighbors_round) {
+                    for (auto j = t.get_vertex_neighbors_begin(i);
+                         j != t.get_vertex_neighbors_end(i);
+                         ++j) {
+                        link(i, *j, components);
                     }
                 }
             }
-
-            for (std::int64_t i = 0; i < vertex_count; ++i) {
-                compress(i, components);
-            }
-
-            std::int64_t component_count = 0;
-            order_component_ids(vertex_count, component_count, components);
-
-            auto label_arr = array<vertex_type>::empty(vertex_count);
-            vertex_type *label_ = label_arr.get_mutable_data();
-            for (std::int64_t i = 0; i < vertex_count; ++i) {
-                label_[i] = components[i];
-            }
-            deallocate(vertex_allocator, components, vertex_count);
-
-            return vertex_partitioning_result<task::vertex_partitioning>()
-                .set_labels(dal::detail::homogen_table_builder{}
-                                .reset(label_arr, t.get_vertex_count(), 1)
-                                .build())
-                .set_component_count(component_count);
         }
+
+        for (std::int64_t i = 0; i < vertex_count; ++i) {
+            compress(i, components);
+        }
+
+        std::int64_t component_count = 0;
+        order_component_ids(vertex_count, component_count, components);
+
+        auto label_arr = array<vertex_type>::empty(vertex_count);
+        vertex_type *label_ = label_arr.get_mutable_data();
+        for (std::int64_t i = 0; i < vertex_count; ++i) {
+            label_[i] = components[i];
+        }
+        deallocate(vertex_allocator, components, vertex_count);
+
+        return vertex_partitioning_result<task::vertex_partitioning>()
+            .set_labels(dal::detail::homogen_table_builder{}
+                            .reset(label_arr, t.get_vertex_count(), 1)
+                            .build())
+            .set_component_count(component_count);
     }
 };
 
