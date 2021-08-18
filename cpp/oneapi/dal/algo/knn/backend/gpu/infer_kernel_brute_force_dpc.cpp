@@ -203,6 +203,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         pr::ndview<Float, 2>::wrap(query_arr.get_data(), { infer_row_count, feature_count });
 
     const std::int64_t infer_block = pr::propose_query_block<Float>(queue, feature_count);
+    const std::int64_t train_block = pr::propose_train_block<Float>(queue, feature_count);
 
     knn_callback<Float> callback(queue,
                                  desc.get_result_options(),
@@ -219,7 +220,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         using search_t = pr::search_engine<Float, dst_t>;
 
         const dst_t dist{ queue };
-        const search_t search{ queue, train_data, dist };
+        const search_t search{ queue, train_data, train_block, dist };
         auto last_event = search(query_data, callback, infer_block, neighbor_count);
         if (desc.get_result_options().test(result_options::distances)) {
             last_event = sqrt<Float>(queue, arr_distances, { last_event });
@@ -232,7 +233,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         using search_t = pr::search_engine<Float, dst_t>;
 
         const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
-        const search_t search{ queue, train_data, dist };
+        const search_t search{ queue, train_data, train_block, dist };
         search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
     }
 
