@@ -43,6 +43,7 @@
 
 /* Algos */
 #include "oneapi/dal/algo/connected_components.hpp"
+#include "oneapi/dal/algo/covariance.hpp"
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism.hpp"
@@ -58,3 +59,4 @@
 #include "oneapi/dal/algo/shortest_paths.hpp"
 #include "oneapi/dal/algo/svm.hpp"
 #include "oneapi/dal/algo/triangle_counting.hpp"
+#include "oneapi/dal/algo/basic_statistics.hpp"
