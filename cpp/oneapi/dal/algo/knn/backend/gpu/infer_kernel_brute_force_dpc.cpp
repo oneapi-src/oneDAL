@@ -102,7 +102,7 @@ public:
         ONEDAL_ASSERT(!result_options_.test(result_options::distances) ||
                       distances.get_count() == (query_length_ * k_neighbors_));
         this->distances_ =
-            pr::ndarray<Float, 2>:: ::wrap_mutable(distances, { query_length_, k_neighbors_ });
+            pr::ndarray<Float, 2>::wrap_mutable(distances, { query_length_, k_neighbors_ });
         return *this;
     }
 
