@@ -215,7 +215,6 @@ auto search_engine<Float, Distance>::create_selection_objects(std::int64_t query
                                                               std::int64_t k_neighbors) const
     -> selc_t {
     const auto train_block = get_train_blocking().get_block();
-    dal::detail::check_mul_overflow(selection_sub_blocks, 1);
     dal::detail::check_mul_overflow(k_neighbors, (selection_sub_blocks + 1));
     const auto width =
         std::max<std::int64_t>(k_neighbors * (selection_sub_blocks + 1), train_block);
