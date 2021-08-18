@@ -36,7 +36,6 @@
 #include "src/algorithms/service_error_handling.h"
 
 using namespace daal::internal;
-using namespace daal::services::internal;
 using namespace daal::algorithms::internal;
 
 namespace daal
