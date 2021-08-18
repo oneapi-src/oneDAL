@@ -93,7 +93,8 @@ public:
 
     auto& set_indices(array<std::int32_t>& indices) {
         if (result_options_.test(result_options::indices)) {
-            ONEDAL_ASSERT(indices.get_count() == dal::detail::check_mul_overflow(query_length_, k_neighbors_));
+            ONEDAL_ASSERT(indices.get_count() ==
+                          dal::detail::check_mul_overflow(query_length_, k_neighbors_));
             this->indices_ =
                 pr::ndarray<std::int32_t, 2>::wrap_mutable(indices,
                                                            { query_length_, k_neighbors_ });
@@ -103,7 +104,8 @@ public:
 
     auto& set_distances(array<Float>& distances) {
         if (result_options_.test(result_options::distances)) {
-            ONEDAL_ASSERT(distances.get_count() == dal::detail::check_mul_overflow(query_length_, k_neighbors_));
+            ONEDAL_ASSERT(distances.get_count() ==
+                          dal::detail::check_mul_overflow(query_length_, k_neighbors_));
             this->distances_ =
                 pr::ndarray<Float, 2>::wrap_mutable(distances, { query_length_, k_neighbors_ });
         }
