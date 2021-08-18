@@ -47,6 +47,17 @@ struct read_ops_dispatcher<table, dal::detail::host_policy> {
                      const dal::csv::read_args<table>& args) const;
 };
 
+#ifdef ONEDAL_DATA_PARALLEL
+
+template <>
+struct read_ops_dispatcher<table, dal::detail::data_parallel_policy> {
+    table operator()(const dal::detail::data_parallel_policy& ctx,
+                     const data_source_base& ds,
+                     const dal::csv::read_args<table>& args) const;
+};
+
+#endif
+
 template <typename Object, typename DataSource>
 struct read_ops;
 
