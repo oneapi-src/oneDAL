@@ -115,6 +115,7 @@ dal_test_suite(
 dal_test_suite(
     name = "mpi_communicator_test",
     mpi = True,
+    mpi_ranks = 2,
     framework = "catch2",
     srcs = glob([
         "test/mpi_*.cpp"

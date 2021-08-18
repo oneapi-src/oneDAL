@@ -1,5 +1,22 @@
 package(default_visibility = ["//visibility:public"])
 
+filegroup(
+    name = "mpi_runfiles",
+    srcs = glob([
+        "bin/**/*",
+    ]),
+)
+
+sh_binary(
+    name = "mpiexec",
+    srcs = [
+        "bin/mpiexec",
+    ],
+    data = [
+        ":mpi_runfiles",
+    ]
+)
+
 cc_library(
     name = "headers",
     hdrs = glob(["include/**/*.h"]),
@@ -22,16 +39,9 @@ cc_library(
 
 filegroup(
     name = "fi",
-    srcs = [
-        "libfabric/lib/prov/libefa-fi.so",
-        "libfabric/lib/prov/libmlx-fi.so",
-        "libfabric/lib/prov/libpsmx2-fi.so",
-        "libfabric/lib/prov/librxm-fi.so",
-        "libfabric/lib/prov/libshm-fi.so",
-        "libfabric/lib/prov/libsockets-fi.so",
-        "libfabric/lib/prov/libtcp-fi.so",
-        "libfabric/lib/prov/libverbs-fi.so",
-    ],
+    srcs = glob([
+        "libfabric/lib/prov/*.so",
+    ]),
 )
 
 cc_library(

@@ -155,7 +155,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
              extra_deps=[], host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[], compile_as=[ "c++", "dpc++" ],
              framework="gtest", data=[], tags=[], private=False,
-             mpi=False, args=[], **kwargs):
+             mpi=False, mpi_ranks=0, args=[], **kwargs):
     # TODO: Check `compile_as` parameter
     # TODO: Refactor this rule once decision on the tests structure is made
     if not framework in ["gtest", "catch2", "none"]:
@@ -206,6 +206,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         _dal_cc_test(
             name = name + "_host",
             mpi = mpi,
+            mpi_ranks = mpi_ranks,
             deps = [ ":" + module_name ],
             data = data,
             tags = common_tags + tags + ["host", iface_access_tag],
@@ -217,6 +218,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
             name = name + "_dpc",
             features = [ "dpc++" ],
             mpi = mpi,
+            mpi_ranks = mpi_ranks,
             deps = [
                 ":" + module_name + "_dpc",
                 # TODO: Remove once all GPU algorithms are migrated to DPC++
@@ -502,8 +504,11 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         **kwargs,
     )
 
-def _dal_cc_test(name, mpi=False, **kwargs):
+def _dal_cc_test(name, mpi=False, mpi_ranks=0, **kwargs):
     if mpi:
+        if mpi_ranks <= 0:
+            fail("Test is marked as MPI, you must provide `mpi_ranks` " +
+                 "attribute with the valid number of MPI ranks ")
         cc_test(
             name = "_mpi_" + name,
             **kwargs,
@@ -511,6 +516,8 @@ def _dal_cc_test(name, mpi=False, **kwargs):
         mpi_test(
             name = name,
             src = "_mpi_" + name,
+            mpi_ranks = mpi_ranks,
+            mpiexec = "@mpi//:mpiexec",
             fi = "@mpi//:fi",
         )
     else:

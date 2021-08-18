@@ -17,6 +17,9 @@
 load("@onedal//dev/bazel:repos.bzl", "repos")
 
 mpi_repo = repos.prebuilt_libs_repo_rule(
+    bins = [
+        "bin",
+    ],
     includes = [
         "include",
     ],
@@ -27,14 +30,7 @@ mpi_repo = repos.prebuilt_libs_repo_rule(
         "lib/release/libmpi.so.12.0.0",
         "libfabric/lib/libfabric.so",
         "libfabric/lib/libfabric.so.1",
-        "libfabric/lib/prov/libefa-fi.so",
-        "libfabric/lib/prov/libmlx-fi.so",
-        "libfabric/lib/prov/libpsmx2-fi.so",
-        "libfabric/lib/prov/librxm-fi.so",
-        "libfabric/lib/prov/libshm-fi.so",
-        "libfabric/lib/prov/libsockets-fi.so",
-        "libfabric/lib/prov/libtcp-fi.so",
-        "libfabric/lib/prov/libverbs-fi.so",
+        "libfabric/lib/prov",
     ],
     build_template = "@onedal//dev/bazel/deps:mpi.tpl.BUILD",
     download_mapping = {
@@ -61,7 +57,7 @@ def _get_fi_providers_dir(fi_files):
             fail("All fabric interface files must reside in the same directory")
     return fi_dir
 
-def _generate_exec_wrapper(ctx, executable, fi_dir):
+def _generate_mpiexec_wrapper(ctx, mpiexec, executable, fi_dir):
     exec_wrapper = ctx.actions.declare_file(ctx.label.name)
     content = (
         "#!/bin/bash\n" +
@@ -73,20 +69,24 @@ def _generate_exec_wrapper(ctx, executable, fi_dir):
         "   cd ${script_path}${runfiles_suffix}\n" +
         "fi\n" +
         "export FI_PROVIDER_PATH=\"{}\"\n".format(fi_dir) +
-        "exec {} \"$@\"\n".format(executable.short_path)
+        "{} -n {} {} \"$@\"\n".format(mpiexec.path,
+                                      ctx.attr.mpi_ranks,
+                                      executable.short_path)
     )
     ctx.actions.write(exec_wrapper, content, is_executable=True)
     return exec_wrapper
 
 def _mpi_test_impl(ctx):
     exec = ctx.executable.src
+    mpiexec = ctx.files.mpiexec[0]
     fi_files = ctx.files.fi
     fi_dir = _get_fi_providers_dir(fi_files)
-    exec_wrapper = _generate_exec_wrapper(ctx, exec, fi_dir)
+    exec_wrapper = _generate_mpiexec_wrapper(ctx, mpiexec, exec, fi_dir)
     return DefaultInfo(
         files = depset([ exec_wrapper ]),
         runfiles = ctx.runfiles(
             files = fi_files + [ exec ],
+            transitive_files = ctx.attr.mpiexec.default_runfiles.files,
         ),
         executable = exec_wrapper,
     )
@@ -97,6 +97,10 @@ mpi_test = rule(
         "src": attr.label(mandatory=True,
                           executable=True,
                           cfg="exec"),
+        "mpi_ranks": attr.int(mandatory=True),
+        "mpiexec": attr.label(mandatory=True,
+                              executable=True,
+                              cfg="exec"),
         "fi": attr.label(mandatory=True),
     },
     test = True,

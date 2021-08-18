@@ -256,16 +256,42 @@ public:
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_buf);
 
-        MPI_Request mpi_request;
-        mpi_call(MPI_Iallreduce(send_buf,
-                                recv_buf,
-                                integral_cast<int>(count),
-                                make_mpi_data_type(dtype),
-                                make_mpi_reduce_op(op),
-                                mpi_comm_,
-                                &mpi_request));
+        // Intel MPI requires buffers to be not aliased
+        // However, communicator interface allows aliased buffers
+        // TODO: Implement correct aliasing check
+        if (send_buf != recv_buf) {
+            MPI_Request mpi_request;
+            mpi_call(MPI_Iallreduce(send_buf,
+                                    recv_buf,
+                                    integral_cast<int>(count),
+                                    make_mpi_data_type(dtype),
+                                    make_mpi_reduce_op(op),
+                                    mpi_comm_,
+                                    &mpi_request));
+            return new mpi_request_impl{ mpi_request };
+        }
+        else {
+            const std::int64_t dtype_size = get_data_type_size(dtype);
+            const std::int64_t size = check_mul_overflow(count, dtype_size);
+            auto recv_buf_backup = array<byte_t>::empty(size);
 
-        return new mpi_request_impl{ mpi_request };
+            MPI_Request mpi_request;
+            mpi_call(MPI_Iallreduce(send_buf,
+                                    recv_buf_backup.get_mutable_data(),
+                                    integral_cast<int>(count),
+                                    make_mpi_data_type(dtype),
+                                    make_mpi_reduce_op(op),
+                                    mpi_comm_,
+                                    &mpi_request));
+            mpi_call(MPI_Wait(&mpi_request, MPI_STATUSES_IGNORE));
+
+            memcpy(default_host_policy{}, recv_buf, recv_buf_backup.get_data(), size);
+
+            // We have to copy memory after reduction, this cannot be performed
+            // asynchronously in the current implementation, so we return `nullptr`
+            // indicating that operation was performed synchronously
+            return nullptr;
+        }
     }
 
 private:
