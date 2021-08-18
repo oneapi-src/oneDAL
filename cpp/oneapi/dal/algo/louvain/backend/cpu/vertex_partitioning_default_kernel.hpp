@@ -39,22 +39,22 @@ inline void random_shuffle(Type* data, std::int64_t n) {
     }
 }
 
-template <typename vertex_type>
-inline void singleton_partition(vertex_type* labels, std::int64_t vertex_count) {
+template <typename IndexType>
+inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
     for (std::int64_t v = 0; v < vertex_count; ++v) {
         labels[v] = v;
     }
 }
 
-template <typename vertex_type, typename vertex_allocator_type>
-inline std::int64_t reindex_communities(vertex_type* data,
+template <typename IndexType, typename VertexAllocator>
+inline std::int64_t reindex_communities(IndexType* data,
                                         std::int64_t vertex_count,
-                                        vertex_allocator_type& vertex_allocator) {
-    vertex_type* index = allocate(vertex_allocator, vertex_count);
+                                        VertexAllocator& vertex_allocator) {
+    IndexType* index = allocate(vertex_allocator, vertex_count);
     for (std::int64_t v = 0; v < vertex_count; ++v) {
         index[v] = -1;
     }
-    vertex_type count = 0;
+    IndexType count = 0;
     for (std::int64_t v = 0; v < vertex_count; ++v) {
         if (index[data[v]] == -1) {
             index[data[v]] = count++;
@@ -65,27 +65,29 @@ inline std::int64_t reindex_communities(vertex_type* data,
     return count;
 }
 
-template <typename vertex_type, typename EdgeValue>
-inline void compress_graph(graph<vertex_type, EdgeValue>& g,
+template <typename IndexType, typename EdgeValue>
+inline void compress_graph(graph<IndexType, EdgeValue>& g,
                            std::int64_t community_count,
-                           vertex_type* partition) {
+                           IndexType* partition) {
     using value_type = EdgeValue;
+    using vertex_type = IndexType;
     using value_allocator_type = inner_alloc<value_type>;
     using vertex_allocator_type = inner_alloc<vertex_type>;
 
+    using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
+    using ev1v_t = vector_container<value_type, value_allocator_type>;
+    using v1a_t = inner_alloc<v1v_t>;
+    using v2v_t = vector_container<v1v_t, v1a_t>;
+
     vertex_type* c_neighbors = allocate(g.vertex_allocator, community_count);
-    EdgeValue* weights = allocate(g.value_allocator, community_count);
-    EdgeValue* c_self_loops = allocate(g.value_allocator, community_count);
+    value_type* weights = allocate(g.value_allocator, community_count);
+    value_type* c_self_loops = allocate(g.value_allocator, community_count);
     vertex_type* c_rows = allocate(g.vertex_allocator, community_count + 1);
     c_rows[0] = 0;
     for (std::int64_t c = 0; c < community_count; ++c) {
         c_self_loops[c] = 0;
         weights[c] = 0;
     }
-    using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
-    using ev1v_t = vector_container<EdgeValue, value_allocator_type>;
-    using v1a_t = inner_alloc<v1v_t>;
-    using v2v_t = vector_container<v1v_t, v1a_t>;
 
     v1a_t v1a(g.alloc_ptr);
     v2v_t c2v(community_count, v1a);
@@ -105,7 +107,7 @@ inline void compress_graph(graph<vertex_type, EdgeValue>& g,
             for (std::int64_t index = g.rows[v]; index < g.rows[v + 1]; ++index) {
                 std::int32_t v_to = g.cols[index];
                 std::int32_t c_to = partition[v_to];
-                EdgeValue v_w = g.vals[index];
+                value_type v_w = g.vals[index];
                 if (c == c_to) {
                     if (v < v_to) {
                         c_self_loops[c] += v_w;
@@ -147,9 +149,9 @@ inline void compress_graph(graph<vertex_type, EdgeValue>& g,
     deallocate(g.vertex_allocator, c_rows, community_count + 1);
 }
 
-template <typename Float, typename vertex_type, typename EdgeValue>
-inline Float init_step(graph<vertex_type, EdgeValue>& g,
-                       vertex_type* labels,
+template <typename Float, typename IndexType, typename EdgeValue>
+inline Float init_step(graph<IndexType, EdgeValue>& g,
+                       IndexType* labels,
                        double resolution,
                        EdgeValue* k,
                        EdgeValue* tot,
@@ -202,9 +204,9 @@ inline Float init_step(graph<vertex_type, EdgeValue>& g,
     return modularity;
 }
 
-template <typename Cpu, typename Float, typename vertex_type, typename EdgeValue>
-inline Float move_nodes(graph<vertex_type, EdgeValue>& g,
-                        vertex_type* n2c,
+template <typename Cpu, typename Float, typename IndexType, typename EdgeValue>
+inline Float move_nodes(graph<IndexType, EdgeValue>& g,
+                        IndexType* n2c,
                         bool& changed,
                         double resolution,
                         double accuracy_threshold) {
@@ -229,12 +231,12 @@ inline Float move_nodes(graph<vertex_type, EdgeValue>& g,
 
     // interate over all vertices
     Float old_modularity = modularity;
-    vertex_type* random_order = allocate(g.vertex_allocator, g.vertex_count);
+    IndexType* random_order = allocate(g.vertex_allocator, g.vertex_count);
     for (std::int64_t index = 0; index < g.vertex_count; ++index) {
         random_order[index] = index;
     }
     random_shuffle<Cpu>(random_order, g.vertex_count);
-    vertex_type* empty_community = allocate(g.vertex_allocator, g.vertex_count);
+    IndexType* empty_community = allocate(g.vertex_allocator, g.vertex_count);
     std::int64_t empty_count = 0;
     do {
         old_modularity = modularity;
@@ -311,12 +313,12 @@ inline Float move_nodes(graph<vertex_type, EdgeValue>& g,
     return modularity;
 }
 
-template <typename vertex_type, typename community_vector_type, typename size_vector_type>
-inline void set_result_labels(community_vector_type& communities,
-                              size_vector_type& vertex_size,
-                              const vertex_type* init_partition,
+template <typename IndexType, typename CommunityVector, typename SizeVector>
+inline void set_result_labels(CommunityVector& communities,
+                              SizeVector& vertex_size,
+                              const IndexType* init_partition,
                               std::int64_t vertex_count,
-                              vertex_type* result_labels) {
+                              IndexType* result_labels) {
     if (!communities.empty()) {
         // flat the communities from the next iteration
         for (std::int64_t iteration = communities.size() - 2; iteration >= 0; --iteration) {
