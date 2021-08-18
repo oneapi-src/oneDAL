@@ -160,7 +160,7 @@ public:
 
     void check_cov_matrix_values(const table& data, const table& cov_matrix) {
         const auto reference_cov = compute_reference_cov(data);
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
+        const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
         const double diff = te::abs_error(reference_cov, cov_matrix);
         CHECK(diff < tol);
     }
@@ -213,7 +213,7 @@ public:
 using covariance_types = COMBINE_TYPES((float, double), (covariance::method::dense));
 
 TEMPLATE_LIST_TEST_M(covariance_batch_test,
-                     "covariance common flow",
+                     "covariance  fill_normal common flow",
                      "[covariance][integration][batch]",
                      covariance_types) {
     SKIP_IF(this->not_float64_friendly());
@@ -237,6 +237,41 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
 
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
+
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto input_data_table_id = this->get_homogen_table_id();
+    this->general_checks(input, input_data_table_id);
+}
+
+TEMPLATE_LIST_TEST_M(covariance_batch_test,
+                     "covariance fill_uniform common flow",
+                     "[covariance][integration][batch]",
+                     covariance_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    const te::dataframe input =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1000, 20 }.fill_uniform(-30, 30, 7777),
+                           te::dataframe_builder{ 16, 16 }.fill_uniform(-5, 5, 7777),
+                           te::dataframe_builder{ 100, 10 }.fill_uniform(0, 1, 7777),
+                           te::dataframe_builder{ 100, 10 }.fill_uniform(-10, 10, 7777),
+                           te::dataframe_builder{ 500, 40 }.fill_uniform(-100, 100, 7777),
+                           te::dataframe_builder{ 500, 250 }.fill_uniform(0, 1, 7777));
+
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto input_data_table_id = this->get_homogen_table_id();
+    this->general_checks(input, input_data_table_id);
+}
+
+TEMPLATE_LIST_TEST_M(covariance_batch_test,
+                     "covariance fill_uniform nightly common flow",
+                     "[covariance][integration][batch][nightly]",
+                     covariance_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    const te::dataframe input =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 5000, 20 }.fill_uniform(-30, 30, 7777),
+                           te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777),
+                           te::dataframe_builder{ 1000000, 20 }.fill_uniform(-0.5, 0.5, 7777));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
