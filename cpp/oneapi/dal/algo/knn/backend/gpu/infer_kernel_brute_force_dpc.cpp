@@ -73,7 +73,9 @@ public:
               query_length_(query_length),
               k_neighbors_(k_neighbors),
               temp_resp_(result_options_.test(result_options::responses)
-                             ? pr::ndarray<std::int32_t, 2>::empty(q, { query_block, k_neighbors })
+                             ? pr::ndarray<std::int32_t, 2>::empty(q,
+                                                                   { query_block, k_neighbors },
+                                                                   sycl::usm_alloc::device)
                              : pr::ndarray<std::int32_t, 2>{}),
               voting_(pr::make_uniform_voting(q, query_block, k_neighbors)) {}
 

@@ -47,13 +47,19 @@ public:
             : k_{ k },
               qblock_{ query_block },
               sblock_{ select_block },
-              distances_{ ndarray<Float, 2>::empty(q, { query_block, train_block }) },
-              out_indices_(ndarray<std::int32_t, 2>::empty(q, { query_block, k })),
-              out_distances_(ndarray<Float, 2>::empty(q, { query_block, k })),
-              part_indices_(
-                  ndarray<std::int32_t, 2>::empty(q, { query_block, k * (select_block + 1) })),
-              part_distances_(
-                  ndarray<Float, 2>::empty(q, { query_block, k * (select_block + 1) })) {
+              distances_{
+                  ndarray<Float, 2>::empty(q, { query_block, train_block }, sycl::usm_alloc::device)
+              },
+              out_indices_(
+                  ndarray<std::int32_t, 2>::empty(q, { query_block, k }, sycl::usm_alloc::device)),
+              out_distances_(
+                  ndarray<Float, 2>::empty(q, { query_block, k }, sycl::usm_alloc::device)),
+              part_indices_(ndarray<std::int32_t, 2>::empty(q,
+                                                            { query_block, k * (select_block + 1) },
+                                                            sycl::usm_alloc::device)),
+              part_distances_(ndarray<Float, 2>::empty(q,
+                                                       { query_block, k * (select_block + 1) },
+                                                       sycl::usm_alloc::device)) {
         dal::detail::check_mul_overflow(query_block, k);
         dal::detail::check_mul_overflow(query_block, train_block);
         dal::detail::check_mul_overflow(query_block, k * (select_block + 1));
