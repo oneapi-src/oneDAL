@@ -182,7 +182,9 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         ] if is_gtest else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:common",
             "@onedal//cpp/oneapi/dal/test/engine:catch2_main",
-        ] if is_catch2 else []),
+        ] if is_catch2 else []) + ([
+            "@onedal//cpp/oneapi/dal/test/engine:mpi",
+        ] if mpi else []),
         extra_deps = _test_deps_on_daal() + extra_deps,
         testonly = True,
         **kwargs,
@@ -201,26 +203,20 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
 
     tests_for_test_suite = []
     if "c++" in compile_as:
-        cc_test(
+        _dal_cc_test(
             name = name + "_host",
+            mpi = mpi,
             deps = [ ":" + module_name ],
             data = data,
             tags = common_tags + tags + ["host", iface_access_tag],
             args = test_args,
         )
-        if mpi:
-            mpi_test(
-                name = name + "_host_mpi",
-                src = name + "_host",
-                fi = "@mpi//:fi",
-            )
-            tests_for_test_suite.append(name + "_host_mpi")
-        else:
-            tests_for_test_suite.append(name + "_host")
+        tests_for_test_suite.append(name + "_host")
     if "dpc++" in compile_as:
-        cc_test(
+        _dal_cc_test(
             name = name + "_dpc",
             features = [ "dpc++" ],
+            mpi = mpi,
             deps = [
                 ":" + module_name + "_dpc",
                 # TODO: Remove once all GPU algorithms are migrated to DPC++
@@ -505,6 +501,23 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         deps = _expand_select(deps),
         **kwargs,
     )
+
+def _dal_cc_test(name, mpi=False, **kwargs):
+    if mpi:
+        cc_test(
+            name = "_mpi_" + name,
+            **kwargs,
+        )
+        mpi_test(
+            name = name,
+            src = "_mpi_" + name,
+            fi = "@mpi//:fi",
+        )
+    else:
+        cc_test(
+            name = name,
+            **kwargs,
+        )
 
 def _select(x):
     return [x]

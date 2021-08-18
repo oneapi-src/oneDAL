@@ -122,9 +122,6 @@ dal_test_suite(
     dal_deps = [
         ":common",
     ],
-    dal_test_deps = [
-        "@onedal//cpp/oneapi/dal/test/engine:mpi",
-    ],
 )
 
 dal_collect_test_suites(

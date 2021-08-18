@@ -61,8 +61,8 @@ def _get_fi_providers_dir(fi_files):
             fail("All fabric interface files must reside in the same directory")
     return fi_dir
 
-def _generate_exec_wrapper(ctx, actions, executable, fi_dir):
-    exec_wrapper = actions.declare_file(executable.basename + ".sh")
+def _generate_exec_wrapper(ctx, executable, fi_dir):
+    exec_wrapper = ctx.actions.declare_file(ctx.label.name)
     content = (
         "#!/bin/bash\n" +
         "# We need to check if we are in the runfiles directory.\n" +
@@ -75,15 +75,14 @@ def _generate_exec_wrapper(ctx, actions, executable, fi_dir):
         "export FI_PROVIDER_PATH=\"{}\"\n".format(fi_dir) +
         "exec {} \"$@\"\n".format(executable.short_path)
     )
-    actions.write(exec_wrapper, content, is_executable=True)
+    ctx.actions.write(exec_wrapper, content, is_executable=True)
     return exec_wrapper
 
 def _mpi_test_impl(ctx):
+    exec = ctx.executable.src
     fi_files = ctx.files.fi
     fi_dir = _get_fi_providers_dir(fi_files)
-    print(ctx.genfiles_dir.path)
-    exec = ctx.executable.src
-    exec_wrapper = _generate_exec_wrapper(ctx, ctx.actions, exec, fi_dir)
+    exec_wrapper = _generate_exec_wrapper(ctx, exec, fi_dir)
     return DefaultInfo(
         files = depset([ exec_wrapper ]),
         runfiles = ctx.runfiles(
