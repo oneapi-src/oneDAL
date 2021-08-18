@@ -88,7 +88,7 @@ public:
     using task_t = Task;
     using allocator_t = Allocator;
 
-    explicit descriptor(Allocator allocator = std::allocator<char>()) {
+    explicit descriptor(const Allocator& allocator = std::allocator<char>()) {
         alloc_ = allocator;
     }
 
