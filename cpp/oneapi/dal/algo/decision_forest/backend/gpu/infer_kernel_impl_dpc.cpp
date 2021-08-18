@@ -17,12 +17,6 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#ifdef ONEDAL_DATA_PARALLEL
-
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
-
-#endif
-
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
@@ -517,5 +511,11 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
 }
 
 #define INSTANTIATE(F, I, T) template class infer_kernel_impl<F, I, T>;
+
+INSTANTIATE(float, std::int32_t, task::classification);
+INSTANTIATE(float, std::int32_t, task::regression);
+
+INSTANTIATE(double, std::int32_t, task::classification);
+INSTANTIATE(double, std::int32_t, task::regression);
 
 } // namespace oneapi::dal::decision_forest::backend
