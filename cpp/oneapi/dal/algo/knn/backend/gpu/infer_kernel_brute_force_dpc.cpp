@@ -31,6 +31,8 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#include "oneapi/dal/detail/common.hpp"
+
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_gpu;
@@ -91,7 +93,7 @@ public:
 
     auto& set_indices(array<std::int32_t>& indices) {
         if (result_options_.test(result_options::indices)) {
-            ONEDAL_ASSERT(indices.get_count() == (query_length_ * k_neighbors_));
+            ONEDAL_ASSERT(indices.get_count() == dal::detail::check_mul_overflow(query_length_, k_neighbors_));
             this->indices_ =
                 pr::ndarray<std::int32_t, 2>::wrap_mutable(indices,
                                                            { query_length_, k_neighbors_ });
@@ -101,7 +103,7 @@ public:
 
     auto& set_distances(array<Float>& distances) {
         if (result_options_.test(result_options::distances)) {
-            ONEDAL_ASSERT(distances.get_count() == (query_length_ * k_neighbors_));
+            ONEDAL_ASSERT(distances.get_count() == dal::detail::check_mul_overflow(query_length_, k_neighbors_));
             this->distances_ =
                 pr::ndarray<Float, 2>::wrap_mutable(distances, { query_length_, k_neighbors_ });
         }
@@ -184,14 +186,19 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
     auto arr_responses = array<std::int32_t>{};
-    if (desc.get_result_options().test(result_options::responses))
+    if (desc.get_result_options().test(result_options::responses)) {
         arr_responses = array<std::int32_t>::empty(queue, infer_row_count);
+    }
     auto arr_distances = array<Float>{};
-    if (desc.get_result_options().test(result_options::distances))
-        arr_distances = array<Float>::empty(queue, infer_row_count * neighbor_count);
+    if (desc.get_result_options().test(result_options::distances)) {
+        const auto length = dal::detail::check_mul_overflow(infer_row_count, neighbor_count);
+        arr_distances = array<Float>::empty(queue, length);
+    }
     auto arr_indices = array<std::int32_t>{};
-    if (desc.get_result_options().test(result_options::indices))
-        arr_indices = array<std::int32_t>::empty(queue, infer_row_count * neighbor_count);
+    if (desc.get_result_options().test(result_options::indices)) {
+        const auto length = dal::detail::check_mul_overflow(infer_row_count, neighbor_count);
+        arr_indices = array<std::int32_t>::empty(queue, length);
+    }
 
     auto resp_arr =
         row_accessor<const std::int32_t>(resps).pull(queue, { 0, -1 }, sycl::usm::alloc::device);

@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/detail/common.hpp"
+
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/search/search.hpp"
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
@@ -51,7 +53,11 @@ public:
               part_indices_(
                   ndarray<std::int32_t, 2>::empty(q, { query_block, k * (select_block + 1) })),
               part_distances_(
-                  ndarray<Float, 2>::empty(q, { query_block, k * (select_block + 1) })){};
+                  ndarray<Float, 2>::empty(q, { query_block, k * (select_block + 1) })) {
+        dal::detail::check_mul_overflow(query_block, k);
+        dal::detail::check_mul_overflow(query_block, train_block);
+        dal::detail::check_mul_overflow(query_block, k * (select_block + 1));
+    }
 
     std::int64_t get_k() const {
         return k_;
@@ -209,6 +215,8 @@ auto search_engine<Float, Distance>::create_selection_objects(std::int64_t query
                                                               std::int64_t k_neighbors) const
     -> selc_t {
     const auto train_block = get_train_blocking().get_block();
+    dal::detail::check_mul_overflow(selection_sub_blocks, 1);
+    dal::detail::check_mul_overflow(k_neighbors, (selection_sub_blocks + 1));
     const auto width =
         std::max<std::int64_t>(k_neighbors * (selection_sub_blocks + 1), train_block);
     const ndshape<2> typical_blocking(query_block, width);
@@ -305,7 +313,7 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
             const auto st_idx = get_train_blocking().get_block_start_index(tb_id);
             last_event = treat_indices(part_inds, st_idx, { selt_event });
         }
-
+        dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
         const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
         auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
         auto selt_event = select(get_queue(),
