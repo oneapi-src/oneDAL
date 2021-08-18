@@ -28,8 +28,10 @@ large_k_uniform_voting<ClassType>::large_k_uniform_voting(sycl::queue& q,
                                                           std::int64_t max_block,
                                                           std::int64_t k_response)
         : base_t{ q },
-          swp_(ndarray<ClassType, 2>::empty(q, { max_block, k_response })),
-          out_(ndarray<ClassType, 2>::empty(q, { max_block, k_response })),
+          swp_(
+              ndarray<ClassType, 2>::empty(q, { max_block, k_response }, sycl::usm::alloc::device)),
+          out_(
+              ndarray<ClassType, 2>::empty(q, { max_block, k_response }, sycl::usm::alloc::device)),
           sorting_{ q } {}
 
 template <typename ClassType>
