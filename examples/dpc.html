@@ -24,7 +24,7 @@
 
     
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
     
   <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
@@ -37,8 +37,20 @@
     <link rel="shortcut icon" href="../_static/favicons.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="column_accessor_homogen.cpp" href="dpc/column_accessor_homogen.html" />
+    <link rel="next" title="basic_statistics_dense_batch.cpp" href="dpc/basic_statistics_dense_batch.html" />
     <link rel="prev" title="oneAPI Examples" href="../examples.html" />
+    <script defer type="text/javascript" src="https://www.intel.com/content/dam/www/global/wap/performance-config.js" ></script>
+    <script type="text/javascript">
+        // Configure TMS settings
+        var wapLocalCode = 'us-en'; // Dynamically set per localized site, see mapping table for values
+        var wapSection = "oneapi-dal"; // WAP team will give you a unique section for your site
+        // Load TMS
+        (function () {
+          var url = 'https://www.intel.com/content/dam/www/global/wap/tms-loader.js'; // WAP file URL
+          var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = url;
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+        })();
+      </script>
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
   </head>
@@ -394,8 +406,23 @@
       </label>
       <ul>
        <li class="toctree-l4">
+        <a class="reference internal" href="dpc/basic_statistics_dense_batch.html">
+         basic_statistics_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="dpc/column_accessor_homogen.html">
          column_accessor_homogen.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="dpc/cor_dense_batch.html">
+         cor_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="dpc/cov_dense_batch.html">
+         cov_dense_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -434,6 +461,11 @@
         </a>
        </li>
        <li class="toctree-l4">
+        <a class="reference internal" href="dpc/knn_search_brute_force_dense_batch.html">
+         knn_search_brute_force_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="dpc/linear_kernel_dense_batch.html">
          linear_kernel_dense_batch.cpp
         </a>
@@ -466,8 +498,28 @@
       </label>
       <ul>
        <li class="toctree-l4">
+        <a class="reference internal" href="cpp/basic_statistics_dense_batch.html">
+         basic_statistics_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="cpp/column_accessor_homogen.html">
          column_accessor_homogen.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="cpp/connected_components_batch.html">
+         connected_components_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="cpp/cor_dense_batch.html">
+         cor_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="cpp/cov_dense_batch.html">
+         cov_dense_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -533,6 +585,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="cpp/load_graph.html">
          load_graph.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="cpp/louvain_batch.html">
+         louvain_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -1961,7 +2018,10 @@
 <h1>oneAPI DPC++ examples<a class="headerlink" href="#oneapi-dpc-examples" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="dpc/basic_statistics_dense_batch.html">basic_statistics_dense_batch.cpp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dpc/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dpc/cov_dense_batch.html">cov_dense_batch.cpp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dpc/df_cls_hist_batch.html">df_cls_hist_batch.cpp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dpc/df_cls_traverse_model.html">df_cls_traverse_model.cpp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dpc/df_reg_hist_batch.html">df_reg_hist_batch.cpp</a></li>
@@ -1969,6 +2029,7 @@
 <li class="toctree-l1"><a class="reference internal" href="dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dpc/knn_search_brute_force_dense_batch.html">knn_search_brute_force_dense_batch.cpp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dpc/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dpc/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dpc/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
@@ -1984,7 +2045,7 @@
         <div class='prev-next-bottom'>
             
     <a class='left-prev' id="prev-link" href="../examples.html" title="previous page">oneAPI Examples</a>
-    <a class='right-next' id="next-link" href="dpc/column_accessor_homogen.html" title="next page">column_accessor_homogen.cpp</a>
+    <a class='right-next' id="next-link" href="dpc/basic_statistics_dense_batch.html" title="next page">basic_statistics_dense_batch.cpp</a>
 
         </div>
         

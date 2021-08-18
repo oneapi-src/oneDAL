@@ -23,7 +23,7 @@
 
     
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
     
   <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
@@ -37,6 +37,18 @@
     <link rel="shortcut icon" href="_static/favicons.png"/>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
+    <script defer type="text/javascript" src="https://www.intel.com/content/dam/www/global/wap/performance-config.js" ></script>
+    <script type="text/javascript">
+        // Configure TMS settings
+        var wapLocalCode = 'us-en'; // Dynamically set per localized site, see mapping table for values
+        var wapSection = "oneapi-dal"; // WAP team will give you a unique section for your site
+        // Load TMS
+        (function () {
+          var url = 'https://www.intel.com/content/dam/www/global/wap/tms-loader.js'; // WAP file URL
+          var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = url;
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+        })();
+      </script>
     <link href="_static/style.css" rel="stylesheet" type="text/css">
 
   </head>
@@ -392,8 +404,23 @@
       </label>
       <ul>
        <li class="toctree-l4">
+        <a class="reference internal" href="examples/dpc/basic_statistics_dense_batch.html">
+         basic_statistics_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="examples/dpc/column_accessor_homogen.html">
          column_accessor_homogen.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="examples/dpc/cor_dense_batch.html">
+         cor_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="examples/dpc/cov_dense_batch.html">
+         cov_dense_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -432,6 +459,11 @@
         </a>
        </li>
        <li class="toctree-l4">
+        <a class="reference internal" href="examples/dpc/knn_search_brute_force_dense_batch.html">
+         knn_search_brute_force_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="examples/dpc/linear_kernel_dense_batch.html">
          linear_kernel_dense_batch.cpp
         </a>
@@ -464,8 +496,28 @@
       </label>
       <ul>
        <li class="toctree-l4">
+        <a class="reference internal" href="examples/cpp/basic_statistics_dense_batch.html">
+         basic_statistics_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="examples/cpp/column_accessor_homogen.html">
          column_accessor_homogen.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="examples/cpp/connected_components_batch.html">
+         connected_components_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="examples/cpp/cor_dense_batch.html">
+         cor_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="examples/cpp/cov_dense_batch.html">
+         cov_dense_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -531,6 +583,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="examples/cpp/load_graph.html">
          load_graph.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="examples/cpp/louvain_batch.html">
+         louvain_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -2454,11 +2511,13 @@
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor11class_countE">oneapi::dal::knn::descriptor::class_count (C++ member)</a>
 </li>
-      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t">oneapi::dal::knn::descriptor::descriptor (C++ function)</a>, <a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t">[1]</a>, <a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE">[2]</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE">oneapi::dal::knn::descriptor::descriptor (C++ function)</a>, <a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t">[1]</a>, <a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t">[2]</a>, <a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE">[3]</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor8distanceE">oneapi::dal::knn::descriptor::distance (C++ member)</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor14neighbor_countE">oneapi::dal::knn::descriptor::neighbor_count (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor14result_optionsE">oneapi::dal::knn::descriptor::result_options (C++ member)</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE">oneapi::dal::knn::descriptor::voting_mode (C++ member)</a>
 </li>
@@ -2484,6 +2543,8 @@
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn12infer_result9responsesE">oneapi::dal::knn::infer_result::responses (C++ member)</a>
 </li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn12infer_result14result_optionsE">oneapi::dal::knn::infer_result::result_options (C++ member)</a>
+</li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method11brute_forceE">oneapi::dal::knn::method::brute_force (C++ struct)</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method10by_defaultE">oneapi::dal::knn::method::by_default (C++ type)</a>
@@ -2493,6 +2554,10 @@
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn5modelE">oneapi::dal::knn::model (C++ class)</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn5model5modelEv">oneapi::dal::knn::model::model (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn16result_option_idE">oneapi::dal::knn::result_option_id (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idERK21result_option_id_base">oneapi::dal::knn::result_option_id::result_option_id (C++ function)</a>, <a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idEv">[1]</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task10by_defaultE">oneapi::dal::knn::task::by_default (C++ type)</a>
 </li>
@@ -2506,12 +2571,12 @@
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input4dataE">oneapi::dal::knn::train_input::data (C++ member)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input6labelsE">oneapi::dal::knn::train_input::labels (C++ member)</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input9responsesE">oneapi::dal::knn::train_input::responses (C++ member)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5table">oneapi::dal::knn::train_input::train_input (C++ function)</a>, <a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table">[1]</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn12train_resultE">oneapi::dal::knn::train_result (C++ class)</a>
