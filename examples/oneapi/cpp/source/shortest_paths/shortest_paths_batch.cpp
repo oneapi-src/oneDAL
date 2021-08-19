@@ -22,7 +22,6 @@
 #include "oneapi/dal/io/csv.hpp"
 
 namespace dal = oneapi::dal;
-using namespace dal::preview::shortest_paths;
 
 int main(int argc, char** argv) {
     const auto filename = get_data_path("weighted_edge_list.csv");
@@ -35,10 +34,14 @@ int main(int argc, char** argv) {
                                           dal::preview::read_mode::weighted_edge_list);
 
     // set algorithm parameters
-    const auto shortest_paths_desc = descriptor<float, method::delta_stepping, task::one_to_all>(
+    const auto shortest_paths_desc = dal::preview::shortest_paths::descriptor<
+        float,
+        dal::preview::shortest_paths::method::delta_stepping,
+        dal::preview::shortest_paths::task::one_to_all>(
         0,
         0.85,
-        optional_results::distances | optional_results::predecessors);
+        dal::preview::shortest_paths::optional_results::distances |
+            dal::preview::shortest_paths::optional_results::predecessors);
     // compute shortest paths
     const auto result_shortest_paths = dal::preview::traverse(shortest_paths_desc, graph);
 
