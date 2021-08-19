@@ -31,7 +31,7 @@ namespace dbscan
 {
 namespace internal
 {
-template class DBSCANBatchKernelUCAPI<DAAL_FPTYPE>;
+template DAAL_EXPORT class DBSCANBatchKernelUCAPI<DAAL_FPTYPE>;
 } // namespace internal
 } // namespace dbscan
 } // namespace algorithms
