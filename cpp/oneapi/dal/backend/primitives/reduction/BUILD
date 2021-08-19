@@ -24,9 +24,6 @@ dal_test_suite(
         ":reduction",
         "@onedal//cpp/oneapi/dal/test/engine:common",
     ],
-    #dal_test_deps = [
-    #    "@onedal//cpp/oneapi/dal/test/engine:common",
-    #],
 )
 
 dal_test_suite(
