@@ -58,14 +58,16 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const auto daal_data = interop::convert_to_daal_table(queue, data);
     const auto daal_weights = interop::convert_to_daal_table(queue, weights);
 
-    array<int> arr_responses = array<int>::empty(queue, row_count * 1, sycl::usm::alloc::device);
-    array<int> arr_cluster_count = array<int>::empty(queue, 1, sycl::usm::alloc::device);
+    array<std::int32_t> arr_responses =
+        array<std::int32_t>::empty(queue, row_count * 1, sycl::usm::alloc::device);
+    array<std::int32_t> arr_cluster_count =
+        array<std::int32_t>::empty(queue, 1, sycl::usm::alloc::device);
 
     const auto daal_responses = interop::convert_to_daal_table(queue, arr_responses, row_count, 1);
     const auto daal_cluster_count = interop::convert_to_daal_table(queue, arr_cluster_count, 1, 1);
 
     /* Tables for core observation indices and core observations are allocated inside the kernel */
-    const auto daal_core_observation_indices = interop::empty_daal_homogen_table<int>(1);
+    const auto daal_core_observation_indices = interop::empty_daal_homogen_table<std::int32_t>(1);
     const auto daal_core_observations = interop::empty_daal_homogen_table<Float>(column_count);
 
     interop::status_to_exception(daal_dbscan_t<Float>{}.compute(daal_data.get(),
@@ -76,7 +78,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                                                                 daal_core_observations.get(),
                                                                 &par));
     auto core_observation_indices =
-        interop::convert_from_daal_homogen_table<int>(daal_core_observation_indices);
+        interop::convert_from_daal_homogen_table<std::int32_t>(daal_core_observation_indices);
     auto core_observations =
         interop::convert_from_daal_homogen_table<Float>(daal_core_observations);
     auto arr_core_flags = fill_core_flags(core_observation_indices, row_count);

@@ -70,7 +70,6 @@ class descriptor_base : public base {
 
 public:
     using tag_t = descriptor_tag;
-    using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
 

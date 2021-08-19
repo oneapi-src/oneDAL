@@ -119,9 +119,6 @@ void compute_result<Task>::set_core_observations_impl(const table& value) {
 
 template <typename Task>
 void compute_result<Task>::set_cluster_count_impl(std::int64_t value) {
-    if (value < 0) {
-        //        throw domain_error(dal::detail::error_messages::cluster_count_lt_zero());
-    }
     impl_->cluster_count = value;
 }
 

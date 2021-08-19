@@ -26,7 +26,7 @@ inline array<std::int32_t> fill_core_flags(const table& core_observation_indices
     if (core_observation_indices.get_row_count() > 0) {
         auto index_block = row_accessor<const std::int32_t>(core_observation_indices).pull();
         auto arr_core_flags_ptr = arr_core_flags.get_mutable_data();
-        for (std::int32_t index = 0; index < core_observation_indices.get_row_count(); index++) {
+        for (std::int64_t index = 0; index < core_observation_indices.get_row_count(); index++) {
             arr_core_flags_ptr[index_block[index]] = 1;
         }
     }
