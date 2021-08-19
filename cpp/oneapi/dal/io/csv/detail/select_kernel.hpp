@@ -42,7 +42,7 @@ struct backend_default : public backend_base<Policy, DataSource, Descriptor> {
 };
 
 template <typename Policy, typename DataSource, typename Descriptor>
-dal::detail::shared<backend_base<Policy, DataSource, Descriptor>> get_backend(
+inline dal::detail::shared<backend_base<Policy, DataSource, Descriptor>> get_backend(
     const DataSource &ds,
     const Descriptor &desc) {
     return std::make_shared<backend_default<Policy, DataSource, Descriptor>>();

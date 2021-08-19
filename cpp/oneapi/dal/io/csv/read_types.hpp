@@ -61,7 +61,7 @@ namespace detail {
 using byte_alloc_ptr = dal::detail::shared<preview::detail::byte_alloc_iface>;
 
 template <typename Allocator>
-byte_alloc_ptr make_allocator(Allocator&& alloc) {
+inline byte_alloc_ptr make_allocator(Allocator&& alloc) {
     return std::make_shared<preview::detail::alloc_connector<std::decay_t<Allocator>>>(
         std::forward<Allocator>(alloc));
 }
