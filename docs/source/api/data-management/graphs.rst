@@ -34,13 +34,34 @@ All types and functions in this section are declared in the
 ``oneapi::dal::preview`` namespace and be available via inclusion of the
 ``oneapi/dal/graph/common.hpp`` header file.
 
+Graph
+-----
+
+The :txtref:`graph` concept is represented by types with suffix _graph and all of them are
+:term:`reference-counted <Reference-counted object>`:
+
+1. The instance stores a pointer to graph implementation that holds graph :capterm:`topology`
+   and :capterm:`attributes` of vertices and edges.
+
+2. The reference count indicating how many graph objects refer to the same implementation.
+
+3. The graph increments the reference count
+   for it to be equal to the number of graph objects sharing the same implementation.
+
+4. The graph decrements the reference count when the
+   graph goes out of the scope. If the reference count is zero, the graph
+   frees its implementation.
+
 .. _graph_traits:
 
 Graph traits
 ------------
 
 graph_traits defines the core data model required for the functions and 
-algorithms in this proposal. It defines a set of value types and ranges for a graph data structure used by the functions and algorithms in this proposal. While usable as-is, they are typically used by the template type aliases, such as vertex_edge_range<G>, edge_user_value_type<G> and edge_iterator<G> in algorithms.
+algorithms in this proposal. It defines a set of value types and ranges for a graph data
+structure used by the functions and algorithms in this proposal. While usable as-is, they
+are typically used by the template type aliases, such as vertex_edge_range<G>,
+edge_user_value_type<G> and edge_iterator<G> in algorithms.
 
 graph_traits needs to be specialized for each graph data structure.
 

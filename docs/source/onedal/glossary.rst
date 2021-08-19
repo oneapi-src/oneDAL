@@ -191,6 +191,51 @@ Machine learning terms
         By default, the delimiter is a comma, but, generally, it can be any character.
         For more details, `see <https://en.wikipedia.org/wiki/Comma-separated_values>`_.
 
+Graph analytics terms
+======================
+
+.. glossary::
+    :sorted:
+
+    Adjacency matrix
+        A square matrix used to represent a :capterm:`graph`. The elements of the
+        matrix indicate whether pairs of :capterm:`vertices` are adjacent or not
+        in the graph.
+
+    Attribute
+        Value or property assigned to :capterm:`graph`, :capterm:`vertex` or
+        :capterm:`edge`.
+
+    Directed graph
+        A :capterm:`graph` whose :capterm:`edges` are ordered. For any two vertices
+        :math:`u` and :math:`v`, with :math:`u != v`, :math:`(u,v) != (v,u)`.
+
+    Edge
+        One of the connections between the vertices of the :capterm:`graph`. Represented
+        by pair of vertices :math:`u` and :math:`v`, edge is pair :math:`(u, v)`.
+        If pair is ordered, the edge is directed. Otherwise edge is undirected.
+
+    Graph
+        A pair :math:`G = (V, E)`, where :math:`V` is a set whose elements are
+        called vertices, and :math:`E` is a set of paired
+        :capterm:`vertices`, whose elements are called :capterm:`edges`.
+
+    Topology
+        The structure of the :capterm:`graph` defined by connections between
+        :capterm:`vertices` and :capterm:`edges` without their :capterm:`attributes`.
+
+    Undirected graph
+        A :capterm:`graph` whose :capterm:`edges` are unordered. For any two vertices
+        :math:`u` and :math:`v`, with :math:`u != v`, :math:`(u,v) = (v,u)`.
+
+    Vertex
+        One of the points on which the :capterm:`graph` is defined and which
+        may be connected by :capterm:`edges`.
+
+    Weighted graph
+        A graph in which each :capterm:`edge` or/and :capterm:`vertex` is given
+        an :capterm:`attribute`.
+
 |short_name| terms
 ======================
 
@@ -217,7 +262,8 @@ Machine learning terms
         characteristics of a :capterm:`data format`.
     
     CSR data
-        A compressed sparse row (csr) data is the sparse matrix representation. Data with values of single :capterm:`data type` and the same set of
+        A compressed sparse row (csr) data is the sparse matrix representation.
+        Data with values of single :capterm:`data type` and the same set of
         available operations defined on them. One of the characteristics of a
         :capterm:`data format`.
 
@@ -252,7 +298,6 @@ Machine learning terms
         .. code-block:: cpp
 
             std::int64_t get_row_count() const;
-
 
     Heterogeneous data
         Data which contain values either of different :capterm:`data types <Data

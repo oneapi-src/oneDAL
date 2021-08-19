@@ -93,6 +93,10 @@ For more information about algorithms implemented in |short_name|, refer to the 
    KDD '16 Proceedings of the 22nd ACM SIGKDD International
    Conference on Knowledge Discovery and Data Mining.
 
+.. [Cormen2009]
+   Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein.
+   3rd Edition, Introduction to Algorithms, 2009.
+
 .. [Defazio2014]
    Defazio, Aaron, Francis Bach, and Simon Lacoste-Julien.
    SAGA: A fast incremental gradient method with support for non-strongly convex composite objectives.
@@ -157,6 +161,9 @@ For more information about algorithms implemented in |short_name|, refer to the 
 .. [Freund01]
    Yoav Freund. An adaptive version of the boost by majority algorithm.
    Machine Learning (43), pp. 293-318, 2001.
+
+.. [Harary1995]
+   F. Harary, “Graph Theory,” Addison-Wesley Publishing Company, Boston, 1995.
 
 .. [Hastie2009] 
    Trevor Hastie, Robert Tibshirani, Jerome Friedman. *The Elements

@@ -71,9 +71,7 @@ Dataset
 --------
 
 The main data-related concept that |short_name| works with is a
-:capterm:`dataset`. It is a tabular view of data, where table rows represent the
-:capterm:`observations <observation>` and columns represent the
-:capterm:`features <feature>`.
+:capterm:`dataset`. It is a collection of data in specific data format.
 
 .. image:: _static/dataset.png
   :width: 400
@@ -241,19 +239,10 @@ interface or via read-only accessor as shown on the diagram.
 Graph
 -----
 
-A graph G is a pair of two sets V and E, where V is a (finite) set of elements
-called, and E is a set of pairs, each pair consisting of elements from V. We
-write G = (V, E);  an element in the set V is called a vertex (plural vertices)
-and an element in set E is called an edge. The elements of Emay be ordered pairs
-or unordered pairs, which we define in the following way.  Given two vertices u
-and v, with u != v, (u,v) != (v,u) for an ordered pair, whereas (u,v) = (v,u) for
-an unordered pair. A graph whose edges are ordered is called a directed graph
-(sometimes, digraph); a graph whose edges are unordered is called an undirected
-graph.  We denote the number of vertices in V by `|V|`` and the number of edges in
-E by `|E|`.  Finally, vertices and edges often have various kinds of properties
-associated with them, stemming from what the graph is actually attempting to
-represent, and which may be used by algorithms during their execution. It is
-used at the data preparation and data processing stages to:
+A :capterm:`graph` is a concept of in-memory structured data that are organized
+in a topological view with several :capterm:`vertices <Vertex>` and :capterm:`edges <Edge>`. The
+specific value can be assigned to :capterm:`vertex`, :capterm:`edge` or the whole
+:capterm:`graph`. Graph is used at the data preparation and data processing stages to:
 
 - Be an in-memory representation of a :txtref:`dataset`.
 
@@ -263,13 +252,8 @@ used at the data preparation and data processing stages to:
 - Avoid unnecessary data copies during conversion from external data
   representations.
 
-- Transfer memory ownership of the data from user application to the graph,
-  or share it between them.
-
 - Connect with the :txtref:`data-source` to convert data from an
   out-of-memory into an in-memory representation.
-
-- Support streaming of the data to the algorithm.
 
 .. note::
   For thread-safety reasons and better integration with external entities, a
@@ -279,11 +263,12 @@ used at the data preparation and data processing stages to:
 This concept has different logical organization and physical :capterm:`format of
 the data <data format>`:
 
-- Logically, a graph contains V vertices and E edges.
-  Every vertex index, edge index, vertex value, edge value, graph value may have
+- Logically, a graph contains :math:`n` vertices and :math:`m` edges.
+  Every :capterm:`vertex`, :capterm:`edge` and :capterm:`graph` value may have
   its own type of data values and a set of allowed operations.
 
-- Physically, a graph can be organized in :capterm:`CSR format <CSR data>`.
+- Physically, a graph :capterm:`topology` can be organized in :capterm:`CSR <CSR data>`
+  and others data formats.
 
 For details, see :txtref:`dm_graphs` section.
 
@@ -298,5 +283,5 @@ This section includes the detailed descriptions of all data management objects i
    array.rst
    accessors.rst
    data-sources.rst
-   tables.rst
    graphs.rst
+   tables.rst

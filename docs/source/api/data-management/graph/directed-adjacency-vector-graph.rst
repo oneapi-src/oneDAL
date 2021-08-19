@@ -20,7 +20,8 @@
 Directed adjacency vector graph
 ===============================
 
-Refer to :ref:`Developer Guide: Directed adjacency vector graph <directed_adjacency_vector_graph>`.
+Refer to :ref:`Developer Guide: Directed adjacency vector graph
+<directed_adjacency_vector_graph>`.
 
 ---------------------
 Programming interface

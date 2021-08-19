@@ -33,7 +33,7 @@ This section describes the types related to the :txtref:`graph` concept.
 
    * - :ref:`api_graphs_data_layout`
      - An enumeration of :capterm:`data layouts<data layout>` used to store
-       adjacency matrix inside the graph.
+       :capterm:`adjacency matrix` inside the :capterm:`graph`.
 
 ---------------------------
 Requirements on graph types
@@ -44,9 +44,9 @@ Each implementation of :txtref:`graph` concept:
 1. Follows the definition of the :txtref:`graph` concept and its restrictions
    (e.g., :capterm:`immutability`).
 
-3. Is :term:`reference-counted <Reference-counted object>`.
+2. Is :term:`reference-counted <Reference-counted object>`.
 
-4. :txtref:`Graph traits` should be defined for each new :txtref:`graph` type.
+3. :txtref:`graph_traits` should be defined for each new :txtref:`graph` type.
 
 The following listing provides an example of graph API to illustrate table kinds
 and copy-assignment operation:
@@ -63,12 +63,12 @@ Graph types
      - Description
 
    * - :txtref:`undirected_adjacency_vector_graph`
-     - A sparse undirected weighted or unweighted graph that contains :term:`CSR representation <CSR data>` of
-        data.
+     - A sparse undirected weighted or unweighted graph that contains :term:`CSR <CSR data>`
+       data format.
 
    * - :txtref:`directed_adjacency_vector_graph`
-     - A sparse directed weighted or unweighted graph that contains :term:`CSR representation <CSR data>` of
-        data.
+     - A sparse directed weighted or unweighted graph that contains :term:`CSR <CSR data>`
+       data format.
 
 .. toctree::
    :hidden:

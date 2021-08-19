@@ -20,7 +20,8 @@
 Undirected adjacency vector graph
 =================================
 
-Refer to :ref:`Developer Guide: Undirected adjacency vector graph <undirected_adjacency_vector_graph>`.
+Refer to :ref:`Developer Guide: Undirected adjacency vector graph
+<undirected_adjacency_vector_graph>`.
 
 ---------------------
 Programming interface

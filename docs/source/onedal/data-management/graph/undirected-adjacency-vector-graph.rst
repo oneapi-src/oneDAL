@@ -20,8 +20,10 @@
 Undirected adjacency vector graph
 =================================
 
-Class ``undirected_adjacency_vector_graph`` is the implementation of undirected weighted sparse graph with adjacency matrix underneath 
-for which the following is true:
+Class ``undirected_adjacency_vector_graph`` is the implementation of
+:capterm:`undirected <Undirected graph>` :capterm:`weighted <Weighted graph>`
+sparse graph concept with :capterm:`adjacency matrix` underneath for which the following
+is true:
 
 - The data within the graph are sparse and stored in :capterm:`CSR <CSR data>`.
 - The specific :ref:`graph traits <graph_traits>` are defined for this class.
