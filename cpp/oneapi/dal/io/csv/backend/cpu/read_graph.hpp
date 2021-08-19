@@ -21,7 +21,7 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/io/csv/detail/graph_service.hpp"
+#include "oneapi/dal/io/csv/detail/common.hpp"
 
 namespace oneapi::dal::preview::csv::backend {
 
