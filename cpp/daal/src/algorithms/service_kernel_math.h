@@ -52,7 +52,6 @@ namespace internal
 {
 using namespace daal::internal;
 using namespace daal::services;
-using namespace daal::services::internal;
 
 template <typename FPType, CpuType cpu>
 FPType distancePow2(const FPType * a, const FPType * b, size_t dim)
