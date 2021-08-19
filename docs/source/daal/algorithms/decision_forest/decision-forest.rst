@@ -16,7 +16,7 @@
 
 .. _decision_forest:
 
-Decision Forest 
+Decision Forest
 ================
 
 Details
@@ -101,7 +101,7 @@ Maximal number of leaf nodes
   Grow trees with positive maximal number of leaf nodes in a :ref:`best-first <best_first_strategy>` fashion.
   Best nodes are defined by relative reduction in impurity.
   If maximal number of leaf nodes equals zero, then this criterion does not limit the number of leaf nodes,
-  and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion. 
+  and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion.
 
 Tree Building Strategies
 ++++++++++++++++++++++++
@@ -115,7 +115,7 @@ Depth-first Strategy
 ~~~~~~~~~~~~~~~~~~~~
 
 If maximal number of leaf nodes equals zero, a decision tree is built using depth-first strategy.
-In each terminal node :math:`t`, the following recursive procedure is applied: 
+In each terminal node :math:`t`, the following recursive procedure is applied:
 
 - Stop if the termination criteria are met.
 - Choose randomly without replacement :math:`m` feature indices :math:`J_t \in \{0, 1, \ldots, p-1\}`.
@@ -336,7 +336,7 @@ At the training stage, decision forest regression has the following parameters:
    * - ``bootstrap``
      - ``true``
      - If true, the training set for a tree is a bootstrap of the whole training set.
-       If false, the whole training set is used to build trees.        
+       If false, the whole training set is used to build trees.
    * - ``minObservationsInLeafNode``
      - :math:`1` for classification, :math:`5` for regression
      - Minimum number of observations in the leaf node.
@@ -347,7 +347,7 @@ At the training stage, decision forest regression has the following parameters:
      - :math:`0.0`
      - Minimum weighted fraction of the sum total of weights of all the input observations required to be at a leaf node,
        from :math:`0.0` to :math:`0.5`.
-        
+
        All observations have equal weights if the weights of the observations are not provided.
 
    * - ``minImpurityDecreaseInSplitNode``
@@ -371,7 +371,7 @@ parameter to the methods that access the result of your algorithm.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Training Output for Decision Forest (Batch Processing) 
+.. list-table:: Training Output for Decision Forest (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -382,18 +382,18 @@ parameter to the methods that access the result of your algorithm.
    * - ``outOfBagError``
      - A numeric table :math:`1 \times 1` containing out-of-bag error computed when the
        ``computeOutOfBagErroroption`` option is on.
-       
+
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``.
    * - ``variableImportance``
      - A numeric table :math:`1 \times p` that contains variable importance values for each
        feature. If you set the ``varImportance`` parameter to none, the library
        returns a null pointer to the table.
-       
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
@@ -403,9 +403,9 @@ parameter to the methods that access the result of your algorithm.
        :math:`-1` in the table indicates that no OOB value was computed because this
        observation was not in OOB set for any of the trees in the model (never
        left out during the bootstrap).
-       
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``.
    * - ``updatedEngine``

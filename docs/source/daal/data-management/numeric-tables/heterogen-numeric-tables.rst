@@ -35,7 +35,7 @@ that are laid out in a contiguous memory block:
 
 .. figure:: ./images/aos-layout.png
   :width: 600
-  :alt: 
+  :alt:
 
   Array-Of-Structures (AOS) Memory Layout
 
@@ -58,7 +58,7 @@ for each feature are laid out contiguously in memory:
 
 .. figure:: ./images/soa-layout.png
   :width: 600
-  :alt: 
+  :alt:
 
   Structure-Of-Arrays (SOA) Memory Layout
 

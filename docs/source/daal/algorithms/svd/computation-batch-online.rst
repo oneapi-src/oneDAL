@@ -22,7 +22,7 @@ Online processing computation mode assumes that the data arrives in blocks :math
 Algorithm Input
 ***************
 
-The SVD algorithm accepts the input described below. 
+The SVD algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
@@ -38,7 +38,7 @@ Pass the ``Input ID`` as a parameter to the methods that provide input for your 
      - Pointer to the numeric table that represents:
 
        - For batch processing, the entire :math:`n \times p` matrix :math:`X` to be factorized.
-       - For online processing, the :math:`n_i \times p` submatrix of :math:`X` that represents 
+       - For online processing, the :math:`n_i \times p` submatrix of :math:`X` that represents
          the current data block in the online processing mode.
 
        The input can be an object of any class derived from ``NumericTable``.
@@ -97,10 +97,10 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
    * - Result ID
      - Result
    * - ``singularValues``
-     - Pointer to the :math:`1 \times p` numeric table with singular values (the diagonal of the matrix :math:`\Sigma`). 
+     - Pointer to the :math:`1 \times p` numeric table with singular values (the diagonal of the matrix :math:`\Sigma`).
    * - ``leftSingularMatrix``
      - Pointer to the :math:`n \times p` numeric table with left singular vectors (matrix :math:`U`).
-       Pass ``NULL`` if left singular vectors are not required. 
+       Pass ``NULL`` if left singular vectors are not required.
    * - ``rightSingularMatrix``
      - Pointer to the :math:`p \times p` numeric table with right singular vectors (matrix :math:`V`).
        Pass ``NULL`` if right singular vectors are not required.

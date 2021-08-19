@@ -50,7 +50,7 @@ In this step, the DBSCAN algorithm has the following parameters:
    * - ``memorySavingMode``
      - ``false``
      - If flag is set to false, all neighborhoods will be computed and stored prior to clustering.
-       It will require up to :math:`O(|\text{sum of sizes of neighborhoods}|)` of additional memory, 
+       It will require up to :math:`O(|\text{sum of sizes of neighborhoods}|)` of additional memory,
        which in worst case can be :math:`O(|\text{number of observations}|^2)`. However, in general, performance may be better.
 
 
@@ -80,16 +80,16 @@ For more details, :ref:`algorithms`.
 
    * - ``haloDataIndices``
      - Pointer to the collection of numeric tables with :math:`1` column and arbitrary number of rows,
-       containing indices for halo observations for current node computed on :ref:`step 5 <dbscan_step_5>`. 
-       
+       containing indices for halo observations for current node computed on :ref:`step 5 <dbscan_step_5>`.
+
        Size of this collection should be equal to the size of collection for ``haloData``'s ``Input ID``.
 
        .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
    * - ``haloDataBlocks``
      - Pointer to the collection of :math:`1 \times 1` numeric tables containing identifiers of initial block for halo observations
-       for current node computed on :ref:`step 5 <dbscan_step_5>`. 
-       
+       for current node computed on :ref:`step 5 <dbscan_step_5>`.
+
        Size of this collection should be equal to the size of collection for ``haloData``'s ``Input ID``.
 
        .. include:: ./../../includes/input_data_collection_with_exceptions.rst

@@ -214,7 +214,7 @@ Examples
     - :cpp_example:`dt_cls_dense_batch.cpp <decision_tree/dt_cls_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

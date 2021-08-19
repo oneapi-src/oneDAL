@@ -78,7 +78,7 @@ The library uses the following quality metrics for multi-class classifiers:
      - :math:`\frac {\sum _{i = 1}^{l} \frac {\text{tp}_i}{\text{tp}_i + \text{fn}_i}}{l}`
    * - Macro F-score (:math:`\text{F-score}_M`)
      - :math:`\frac {(\beta^2 + 1)(\text{Precision}_M \times \text{Recall}_M)}{\beta^2 \times \text{Precision}_M + \text{Recall}_M}`
-        
+
 For more details of these metrics, including the evaluation focus, refer to [Sokolova09]_.
 
 The following is the confusion matrix:
@@ -144,8 +144,8 @@ Batch Processing
 Algorithm Input
 ---------------
 
-The quality metric algorithm for multi-class classifiers accepts the input described below. 
-Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
+The quality metric algorithm for multi-class classifiers accepts the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
@@ -159,11 +159,11 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``predictedLabels``
      - Pointer to the :math:`n \times 1` numeric table that contains labels computed at the prediction stage of the classification algorithm.
-       
+
        This input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
    * - ``groundTruthLabels``
      - Pointer to the :math:`n \times 1` numeric table that contains expected labels.
-     
+
        This input can be an object of any class derived from NumericTable except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
 Algorithm Parameters
@@ -175,7 +175,7 @@ The quality metric algorithm has the following parameters:
 
 .. list-table:: Algorithm Parameters for Quality Metrics for Multi-class Classification Algorithms (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
    :class: longtable
 
@@ -214,7 +214,7 @@ The quality metric algorithm calculates the result described below. Pass the ``R
      - Result
    * - ``confusionMatrix``
      - Pointer to the :math:`\text{nClasses} \times \text{nClasses}` numeric table with the confusion matrix.
-     
+
        .. note::
          By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object
          of any class derived from NumericTable except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -246,7 +246,7 @@ Examples
     - :cpp_example:`svm_multi_class_metrics_dense_batch.cpp <quality_metrics/svm_multi_class_metrics_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

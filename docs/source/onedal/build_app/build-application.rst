@@ -74,17 +74,17 @@ Applications on Windows* OS
         - Single-threaded (non-threaded)
         - Multi-threaded (internally threaded)
       * - Static linking
-        - 
+        -
           | onedal_core.lib,
           | onedal_sequential.lib
-        - 
+        -
           | onedal_core.lib,
           | onedal_thread.lib
       * - Dynamic linking
         - onedal_core_dll.lib
         - onedal_core_dll.lib
 
-   You may also add debug versions of the libraries based on the threading mode and linking method: 
+   You may also add debug versions of the libraries based on the threading mode and linking method:
 
    .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
 
@@ -98,20 +98,20 @@ Applications on Windows* OS
         - Single-threaded (non-threaded)
         - Multi-threaded (internally threaded)
       * - Static linking
-        - 
+        -
           | onedal_cored.lib,
           | onedald.lib,
           | onedal_dpcd.lib,
           | onedal_sycld.lib,
           | onedal_sequentiald.lib
-        - 
+        -
           | onedal_cored.lib,
           | onedald.lib,
           | onedal_dpcd.lib,
           | onedal_sycld.lib,
           | onedal_threadd.lib
       * - Dynamic linking
-        - 
+        -
           | onedal_cored_dll.lib (onedal_cored_dll.1.lib),
           | onedald_dll.lib (onedald_dll.1.lib),
           | onedal_dpcd_dll.lib (onedal_dpcd_dll.1.lib),
@@ -119,7 +119,7 @@ Applications on Windows* OS
           | onedal_cored.1.dll,
           | onedal_dpcd.1.dll,
           | onedal_sequentiald.1.dll
-        - 
+        -
           | onedal_cored_dll.lib (onedal_cored_dll.1.lib),
           | onedald_dll.lib (onedald_dll.1.lib),
           | onedal_dpcd_dll.lib (onedal_dpcd_dll.1.lib),
@@ -168,20 +168,20 @@ Applications on Linux* OS
           :class: longtable
 
           * -
-            - Single-threaded (non-threaded) 
+            - Single-threaded (non-threaded)
             - Multi-threaded (internally threaded)
           * - Static linking
-            - 
+            -
               | libonedal_core.a,
               | libonedal_sequential.a
-            - 
+            -
               | libonedal_core.a,
               | libonedal_thread.a
           * - Dynamic linking
-            - 
+            -
               | libonedal_core.so,
               | libonedal_sequential.so
-            - 
+            -
               | libonedal_core.so,
               | libonedal_thread.so
 

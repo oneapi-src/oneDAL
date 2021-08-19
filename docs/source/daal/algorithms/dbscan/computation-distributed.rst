@@ -19,7 +19,7 @@ Distributed Processing
 
 This mode assumes that the data set is split into ``nBlocks`` blocks across computation nodes.
 
-To compute DBSCAN algorithm in the distributed processing mode, 
+To compute DBSCAN algorithm in the distributed processing mode,
 use the general schema described in :ref:`algorithms` with the following steps:
 
 .. _dbscan_step_1:

@@ -160,7 +160,7 @@ the limited-memory BFGS algorithm accepts the following optional input:
      - A numeric table of size :math:`2 \times p`, where row 0 represents average arguments
        for previous :math:`L` iterations, and row 1 represents average arguments for
        last :math:`L` iterations. These values are required to compute :math:`s` correction
-       vectors in the next step. 
+       vectors in the next step.
 
 Algorithm Parameters
 --------------------
@@ -193,7 +193,7 @@ the limited-memory BFGS algorithm has the following parameters:
        implementation generates random indices.
 
        .. note::
-       
+
           This parameter can be an object of any class derived from ``NumericTable``,
           except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
    * - ``batchSize``
@@ -222,12 +222,12 @@ the limited-memory BFGS algorithm has the following parameters:
        implementation generates random indices.
 
        .. note::
-        
+
           This parameter can be an object of any class derived from ``NumericTable``,
           except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
        .. note::
-          
+
           If the algorithm runs with no optional input data, :math:`(nIterations / L - 1)` rows
           of the table are used. Otherwise, it can use one more row, :math:`(nIterations / L)` in total.
    * - :math:`m`
@@ -246,10 +246,10 @@ the limited-memory BFGS algorithm has the following parameters:
        -  :math:`size = 1 \times 1`: the value of step length at each iteration :math:`\alpha^1 = \ldots = \alpha^{nIterations}`
 
        ..note::
-       
+
           This parameter can be an object of any class derived from ``NumericTable``,
           except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
-       
+
        The recommended data type for storing the step-length sequence is the
        floating-point type, either float or double, that the algorithm uses in
        intermediate computations.
@@ -287,7 +287,7 @@ BFGS algorithm calculates the following optional results:
      - A numeric table of size :math:`2 \times p`, where row 0 represents average arguments
        for previous :math:`L` iterations, and row 1 represents average arguments for
        last :math:`L` iterations. These values are required to compute :math:`s` correction
-       vectors in the next step. 
+       vectors in the next step.
 
 Examples
 --------
@@ -302,7 +302,7 @@ Examples
      - :cpp_example:`lbfgs_opt_res_dense_batch.cpp <optimization_solvers/lbfgs_opt_res_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
      .. note:: There is no support for Java on GPU.
 
      Batch Processing:

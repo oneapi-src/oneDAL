@@ -25,7 +25,7 @@ and algorithm-specific vector :math:`U` and power :math:`d` of `Lebesgue space <
 
 .. math::
     S_t = {G_t}
-    
+
     G_t = (G_{t, i})_{i = 1, \ldots, p}
 
     G_0 \equiv 0
@@ -36,8 +36,8 @@ and algorithm-specific vector :math:`U` and power :math:`d` of `Lebesgue space <
    where :math:`g_i(\theta_{t - 1})` is the :math:`i`-th coordinate of the gradient :math:`g(\theta_{t - 1})`
 
 #. :math:`\theta_t = \theta_{t - 1} - \frac {\eta}{\sqrt{G_t + \varepsilon}} g(\theta_{t - 1})`,
-   where 
-   
+   where
+
    .. math::
         \frac {\eta}{\sqrt{G_t + \varepsilon}} g(\theta_{t - 1}) =
         \{\frac {\eta}{\sqrt{G_{t, 1} + \varepsilon}} g_1(\theta_{t - 1}), \ldots, \frac {\eta}{\sqrt{G_{t, 1} + \varepsilon}} g_p(\theta_{t - 1})\}
@@ -95,13 +95,13 @@ the AdaGrad method has the following parameters:
    * - ``batchIndices``
      - ``NULL``
      - A numeric table of size :math:`\text{nIterations} \times \text{batchSize}` for the ``defaultDense`` method
-       that represents 32-bit integer indices of terms in the objective function. 
+       that represents 32-bit integer indices of terms in the objective function.
        If no indices are provided, the algorithm generates random indices.
    * - ``batchSize``
      - :math:`128`
-     - The number of batch indices to compute the stochastic gradient. 
-       
-       If ``batchSize`` equals the number of terms in the objective function, no random sampling is performed, 
+     - The number of batch indices to compute the stochastic gradient.
+
+       If ``batchSize`` equals the number of terms in the objective function, no random sampling is performed,
        and all terms are used to calculate the gradient.
 
        The algorithm ignores this parameter if the ``batchIndices`` parameter is provided.
@@ -149,7 +149,7 @@ Examples
     - :cpp_example:`adagrad_opt_res_dense_batch.cpp <optimization_solvers/adagrad_opt_res_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`AdagradDenseBatch.java <optimization_solvers/AdagradDenseBatch.java>`

@@ -107,7 +107,7 @@ Examples
     - :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing
@@ -209,8 +209,8 @@ At the prediction stage, a multi-class classifier has the following parameters:
      - ``voteBased``
      - ``computeClassLabels``
      - The 64-bit integer flag that specifies which extra characteristics of the decision function to compute.
-       
-       Provide one of the following values to request a single characteristic 
+
+       Provide one of the following values to request a single characteristic
        or use bitwise OR to request a combination of the characteristics:
 
        - ``computeClassLabels`` for `prediction`
@@ -260,7 +260,7 @@ Examples
     -  :cpp_example:`svm_multi_class_thunder_dense_batch.cpp <svm/svm_multi_class_thunder_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

@@ -75,7 +75,7 @@ Step 1 - on Local Nodes
 
 .. figure:: images/naive-bayes-distributed-step-1.png
     :width: 600
-    :alt: 
+    :alt:
 
     Training with Naïve Bayes Classifier: Distributed Processing, Step 1 - on Local Nodes
 
@@ -113,7 +113,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``partialModel``
      - Pointer to the partial Naïve Bayes classifier model that corresponds to the :math:`i`-th data block.
-       
+
        The result can only be an object of the ``Model`` class.
 
 .. _naive_bayes_step_2:
@@ -123,8 +123,8 @@ Step 2 - on Master Node
 
 .. figure:: images/naive-bayes-distributed-step-2.png
     :width: 600
-    :alt: 
-    
+    :alt:
+
     Trainin with Naïve Bayes Classifier: Distributed Processing, Step 2 - on Master Node
 
 In this step, Naïve Bayes classifier training accepts the input described below.
@@ -141,7 +141,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``partialModels``
      - A collection of partial models computed on local nodes in :ref:`Step 1 <naive_bayes_step_1>`.
-     
+
        The collection contains objects of the ``Model`` class.
 
 In this step, Naïve Bayes classifier training calculates the result described below.
@@ -157,6 +157,6 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``model``
-     - Pointer to the Naïve Bayes classifier model being trained. 
-     
+     - Pointer to the Naïve Bayes classifier model being trained.
+
        The result can only be an object of the ``Model`` class.

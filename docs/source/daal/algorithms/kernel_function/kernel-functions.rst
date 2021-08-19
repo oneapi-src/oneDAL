@@ -111,12 +111,12 @@ The linear kernel function has the following parameters:
 
        + ``vectorVector`` - compute the kernel function for given feature vectors :math:`x_i` and :math:`y_j`
        + ``matrixVector`` - compute the kernel function for all vectors in the set :math:`X` and a given feature vector :math:`y_j`
-       + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`. 
+       + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`.
          In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
 
        For GPU:
 
-       + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`. 
+       + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`.
          In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
 
    * - ``rowIndexX``
@@ -153,9 +153,9 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
    * - ``values``
      - Pointer to the :math:`n \times m` numeric table with the values of the kernel
        function.
-       
+
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
@@ -168,7 +168,7 @@ Examples
   .. tab:: oneAPI DPC++
 
     Batch Processing:
-    
+
     - :ref:`dpc_linear_kernel_dense_batch.cpp`
 
   .. tab:: oneAPI C++
@@ -185,7 +185,7 @@ Examples
     - :cpp_example:`kernel_func_lin_csr_batch.cpp <kernel_function/kernel_func_lin_csr_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
@@ -317,7 +317,7 @@ your algorithm.
        function.
 
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
@@ -348,7 +348,7 @@ Examples
     - :cpp_example:`kernel_func_rbf_csr_batch.cpp <kernel_function/kernel_func_rbf_csr_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

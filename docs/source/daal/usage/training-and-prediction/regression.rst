@@ -32,11 +32,11 @@ Training Stage
 
 .. figure:: images/training-stage-regression.png
     :width: 600
-    :alt: 
+    :alt:
 
     Regression Usage Model: Training Stage
 
-At the training stage, regression algorithms accept the input described below. 
+At the training stage, regression algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
@@ -80,7 +80,7 @@ Prediction Stage
 
 .. figure:: images/prediction-stage-regression.png
     :width: 600
-    :alt: 
+    :alt:
 
     Regression Usage Model: Prediction Stage
 
@@ -117,8 +117,8 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``prediction``
-     - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables). 
-     
+     - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables).
+
        By default, this table is an object of the ``HomogenNumericTable`` class,
        but you can define it as an object of any class derived from ``NumericTable``
        except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.

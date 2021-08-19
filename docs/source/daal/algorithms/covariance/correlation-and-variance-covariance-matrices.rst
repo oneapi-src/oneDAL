@@ -67,7 +67,7 @@ The following computation modes are available:
 
 .. toctree::
    :maxdepth: 1
-   
+
    computation-batch.rst
    computation-online.rst
    computation-distributed.rst
@@ -85,7 +85,7 @@ Examples
     -  :cpp_example:`cov_csr_batch.cpp <covariance/cov_csr_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
@@ -103,7 +103,7 @@ Examples
 
     - :daal4py_sycl_example:`covariance_streaming.py`
 
-  .. tab:: Python* 
+  .. tab:: Python*
 
     Batch Processing:
 

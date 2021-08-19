@@ -63,6 +63,6 @@ For more details, :ref:`algorithms`.
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`2` columns and arbitrary number of rows
        containing clusters assigning queries that should be processed on each node.
 
-       Numeric tables in the collection are ordered by the identifiers of initial block of nodes.       
+       Numeric tables in the collection are ordered by the identifiers of initial block of nodes.
 
 .. include:: ./../../includes/default_result_data_collection.rst

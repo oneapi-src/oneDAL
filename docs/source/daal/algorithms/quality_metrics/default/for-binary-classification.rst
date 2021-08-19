@@ -89,7 +89,7 @@ The confusion matrix is defined as follows:
       - Classified as Class :math:`C_2`
     * - Actual Class :math:`C_1`
       - `tp`
-      - `fn`    
+      - `fn`
     * - Actual Class :math:`C_2`
       - `fp`
       - `tn`
@@ -115,11 +115,11 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``predictedLabels``
      - Pointer to the :math:`n \times 1` numeric table that contains labels computed at the prediction stage of the classification algorithm.
-       
+
        This input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
    * - ``groundTruthLabels``
-     - Pointer to the :math:`n \times 1` numeric table that contains expected labels. 
-       
+     - Pointer to the :math:`n \times 1` numeric table that contains expected labels.
+
        This input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
 Algorithm Parameters
@@ -131,7 +131,7 @@ The quality metric algorithm has the following parameters:
 
 .. list-table:: Algorithm Parameters for Quality Metrics for Binary Classification (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
    :class: longtable
 
@@ -151,8 +151,8 @@ The quality metric algorithm has the following parameters:
 Algorithm Output
 ----------------
 
-The quality metric algorithm calculates the result described below. 
-Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
+The quality metric algorithm calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
@@ -166,7 +166,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``confusionMatrix``
      - Pointer to the :math:`2 \times 2` numeric table with the confusion matrix.
-       
+
        .. note::
          By default, this result is an object of the ``HomogenNumericTable`` class,
          but you can define the result as an object of any class derived from NumericTable except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -196,7 +196,7 @@ Examples
     - :cpp_example:`svm_two_class_metrics_dense_batch.cpp <quality_metrics/svm_two_class_metrics_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

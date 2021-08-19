@@ -43,7 +43,7 @@ Both LASSO and Elastic Net algorithms have the following input parameters in add
    * - ``weights``
      - Optional input.
 
-       Pointer to the :math:`1 \times n` numeric table with weights of samples. 
+       Pointer to the :math:`1 \times n` numeric table with weights of samples.
        The input can be an object of any class derived from NumericTable except for PackedTriangularMatrix,
        PackedSymmetricMatrix, and CSRNumericTable.
 
@@ -52,10 +52,10 @@ Both LASSO and Elastic Net algorithms have the following input parameters in add
    * - ``gramMatrix``
      - Optional input.
 
-       Pointer to the :math:`p \times p` numeric table with pre-computed Gram Matrix. 
+       Pointer to the :math:`p \times p` numeric table with pre-computed Gram Matrix.
        The input can be an object of any class derived from NumericTable except for CSRNumericTable.
 
-       By default, the table is set to an empty numeric table. 
+       By default, the table is set to an empty numeric table.
        It is used only when the number of features is less than the number of observations.
 
 Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net batch training algorithms:
@@ -79,21 +79,21 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
         - ``float``
         - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
       * - ``method``
-        - ``defaultDense`` 
+        - ``defaultDense``
         - The computation method used by the LASSO regression. The only training method supported so far is the default dense method.
       * - ``interceptFlag``
         - ``True``
         - A flag that indicates whether or not to compute
-      * - ``lassoParameters`` 
+      * - ``lassoParameters``
         - A numeric table of size :math:`1 \times 1` that contains the default LASSO parameter equal to :math:`0.1`.
         - :math:`L_1` coefficients: :math:`\lambda_i`
 
-          A numeric table of size :math:`1 \times k` (where :math:`k` is the number of dependent variables) or :math:`1 \times 1`. 
+          A numeric table of size :math:`1 \times k` (where :math:`k` is the number of dependent variables) or :math:`1 \times 1`.
           The contents of the table depend on its size:
 
           - For the table of size :math:`1 \times k`, use the values of LASSO parameters :math:`\lambda_j` for :math:`j = 1, \ldots, k`.
           - For the table of size :math:`1 \times 1`, use the value of LASSO parameter for each dependant variable :math:`\lambda_1 = \ldots = \lambda_k`.
-      
+
           This parameter can be an object of any class derived from NumericTable, except for PackedTriangularMatrix,
           PackedSymmetricMatrix, and CSRNumericTable.
 
@@ -110,7 +110,7 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
 
       * - ``dataUseInComputation``
         - ``doNotUse``
-        - A flag that indicates a permission to overwrite input data. 
+        - A flag that indicates a permission to overwrite input data.
           Provide the following value to restrict or allow modification of input data:
 
           - ``doNotUse`` – restricts modification
@@ -133,7 +133,7 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
         - ``float``
         - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
       * - ``method``
-        - ``defaultDense`` 
+        - ``defaultDense``
         - The computation method used by the Elastic Net regression. The only training method supported so far is the default dense method.
       * - ``interceptFlag``
         - ``True``
@@ -177,7 +177,7 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
 
       * - ``dataUseInComputation``
         - ``doNotUse``
-        - A flag that indicates a permission to overwrite input data. 
+        - A flag that indicates a permission to overwrite input data.
           Provide the following value to restrict or allow modification of input data:
 
           - ``doNotUse`` – restricts modification

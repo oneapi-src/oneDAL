@@ -91,11 +91,11 @@ Examples
     :cpp_example:`stump_reg_mse_dense_batch.cpp <stump/stump_reg_mse_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
-    
+
     :java_example:`StumpRegMseDenseBatch.java <stump/StumpRegMseDenseBatch.java>`
 
   .. tab:: Python*

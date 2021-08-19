@@ -109,9 +109,9 @@ methods that access the results of your algorithm.
    * - ``covariance``
      - Use when outputMatrixType=covarianceMatrix. Pointer to the numeric table
        with the :math:`p \times p` variance-covariance matrix.
-       
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
@@ -120,15 +120,15 @@ methods that access the results of your algorithm.
        table with the :math:`p \times p` correlation matrix.
 
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
    * - ``mean``
      - Pointer to the :math:`1 \times p` numeric table with means.
-     
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.

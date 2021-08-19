@@ -69,7 +69,7 @@ Working subset of α updated on each iteration of the algorithm is
 based on the Working Set Selection (WSS) 3 scheme [Fan05]_.
 The scheme can be optimized using one of these techniques or both:
 
-- **Cache**:      
+- **Cache**:
   the implementation can allocate a predefined amount of memory
   to store intermediate results of the kernel computation.
 
@@ -109,7 +109,7 @@ complete the following steps:
   - Use ``setBias`` to add a bias term to the model.
 
 - Use the ``getModel`` method to get the trained SVM Classifier model.
-- Use the ``getStatus`` method to check the status of the model building process. 
+- Use the ``getStatus`` method to check the status of the model building process.
   If ``DAAL_NOTHROW_EXCEPTIONS`` macros is defined, the status report contains the list of errors
   that describe the problems API encountered (in case of API runtime failure).
 
@@ -124,15 +124,15 @@ Examples
 .. tabs::
 
   .. tab:: C++ (CPU)
-  
+
     - :cpp_example:`svm_two_class_model_builder.cpp <svm/svm_two_class_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`SVMTwoClassModelBuilder.java <svm/SVMTwoClassModelBuilder.java>`
-  
+
   .. tab:: Python*
 
     - :daal4py_example:`svm_two_class_model_builder.py`
@@ -247,18 +247,18 @@ Examples
   .. tab:: oneAPI DPC++
 
     Batch Processing:
-    
+
     - :ref:`dpc_svm_two_class_thunder_dense_batch.cpp`
 
   .. tab:: oneAPI C++
 
     Batch Processing:
-    
+
     - :ref:`cpp_svm_two_class_smo_dense_batch.cpp`
     - :ref:`cpp_svm_two_class_thunder_dense_batch.cpp`
 
   .. tab:: C++ (CPU)
-  
+
     Batch Processing:
 
     - :cpp_example:`svm_two_class_boser_dense_batch.cpp <svm/svm_two_class_boser_dense_batch.cpp>`
@@ -267,9 +267,9 @@ Examples
     - :cpp_example:`svm_two_class_thunder_csr_batch.cpp <svm/svm_two_class_thunder_csr_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
-  
+
     Batch Processing:
 
     - :java_example:`SVMTwoClassBoserDenseBatch.java <svm/SVMTwoClassBoserDenseBatch.java>`

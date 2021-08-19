@@ -61,7 +61,7 @@ To initialize the implicit ALS algorithm in the distributed processing mode, use
 .. figure:: images/implicit-als-distributed-init-general-scheme.png
     :width: 600
     :align: center
-    :alt: 
+    :alt:
 
     Implicit Alternating Least Squares Initialization: General Schema of Distributed Processing
 
@@ -73,7 +73,7 @@ Step 1 - on Local Nodes
 .. figure:: images/implicit-als-distributed-init-step-1.png
     :width: 600
     :align: center
-    :alt: 
+    :alt:
 
     Implicit Alternating Least Squares Initialization: Distributed Processing, Step 1 - on Local Nodes
 
@@ -96,7 +96,7 @@ For more details, see :ref:`algorithms`.
    * - ``dataColumnSlice``
      - An :math:`n_i \times m` numeric table with the part of the input data set.
        Each node holds :math:`n_i` rows of the full transposed input data set :math:`R^T`.
-       
+
        The input should be an object of ``CSRNumericTable`` class.
 
 Output
@@ -147,10 +147,10 @@ Step 2 - on Local Nodes
 .. figure:: images/implicit-als-distributed-init-step-2.png
     :width: 600
     :align: center
-    :alt: 
+    :alt:
 
     Implicit Alternating Least Squares Initialization: Distributed Processing, Step 2 - on Local Nodes
-    
+
 
 Input
 -----

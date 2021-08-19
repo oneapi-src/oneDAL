@@ -18,11 +18,11 @@ DLL file not found
 ******************
 
 If you run your program in Visual Studio and encounter a "sycl.dll was not found" runtime error
-or a similar one such as the one shown below, update the project property :guilabel:`Debugging` > :guilabel:`Environment`. 
+or a similar one such as the one shown below, update the project property :guilabel:`Debugging` > :guilabel:`Environment`.
 To do this, follow `How to Fix`_ instructions.
 
   .. figure:: images/runtime_error.png
-    :alt: Unable to start a program: the code execution cannot proceed because XXX.dll was not found. 
+    :alt: Unable to start a program: the code execution cannot proceed because XXX.dll was not found.
     :class: with-border
 
 .. attention::
@@ -33,7 +33,7 @@ To do this, follow `How to Fix`_ instructions.
 How to Fix
 ----------
 
-1. Open the project's properties, go to :guilabel:`Debugging` > :guilabel:`Environment` property, 
+1. Open the project's properties, go to :guilabel:`Debugging` > :guilabel:`Environment` property,
    right-click the drop-down menu, and select :guilabel:`Edit`:
 
   .. figure:: images/vsproj_debug_step1_open.png

@@ -48,11 +48,11 @@ For more details, see :ref:`algorithms`.
    * - ``data``
      - Use when the input data is a normalized or non-normalized data set.
 
-       Pointer to the :math:`n \times p` numeric table that contains the input data set. 
+       Pointer to the :math:`n \times p` numeric table that contains the input data set.
        This input can be an object of any class derived from ``NumericTable``.
    * - ``eigenvectors``
      - Principal components computed using the PCA algorithm.
-       
+
        Pointer to the :math:`p_r \times p` numeric table :math:`(p_r \leq p)`.
        You can define it as an object of any class derived from ``NumericTable``,
        except for ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
@@ -66,11 +66,11 @@ For more details, see :ref:`algorithms`.
        eigenvalue
            eigenvalues
 
-       .. note:: 
-       
+       .. note::
+
         - If you do not provide the collection, the library will not apply the corresponding centering, normalization or whitening operation.
-        - If one of the numeric tables in collection is ``NULL``, the corresponding operation will not be applied: centering for means, normalization for variances, whitening for eigenvalues. 
-        - If mean or variance tables exist, it should be a pointer to the :math:`1 \times p` numeric table. 
+        - If one of the numeric tables in collection is ``NULL``, the corresponding operation will not be applied: centering for means, normalization for variances, whitening for eigenvalues.
+        - If mean or variance tables exist, it should be a pointer to the :math:`1 \times p` numeric table.
         - If eigenvalue table is not ``NULL``, it is the pointer to (:math:`1 \times \text{nColumns}`) numeric table, where the number of the columns is greater than or equal to ``nComponents``.
 
 Algorithm Parameters
@@ -82,7 +82,7 @@ The PCA Transform algorithm has the following parameters:
 
 .. list-table:: Algorithm Parameters for Principal Components Analysis Transform (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 10 60   
+   :widths: 10 10 10 60
    :align: left
    :class: longtable
 
@@ -115,8 +115,8 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
    * - Result ID
      - Result
    * - ``transformedData``
-     - Pointer to the :math:`n \times p_r` numeric table that contains data projected to the principal components basis. 
-     
+     - Pointer to the :math:`n \times p_r` numeric table that contains data projected to the principal components basis.
+
        .. note::
 
             By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object
@@ -130,11 +130,11 @@ Examples
   .. tab:: C++ (CPU)
 
     Batch Processing:
-    
+
     - :cpp_example:`pca_transform_dense_batch.cpp <pca_transform/pca_transform_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

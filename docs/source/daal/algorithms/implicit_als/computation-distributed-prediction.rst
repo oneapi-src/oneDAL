@@ -41,7 +41,7 @@ At the prediction stage, implicit ALS recommender in the distributed processing 
    * - ``computeStep``
      - Not applicable
      - The parameter required to initialize the algorithm. Can be:
-       
+
        - ``step1Local`` - the first step, performed on local nodes
    * - ``algorithmFPType``
      - ``float``
@@ -67,10 +67,10 @@ that correspond to the user factors and item factors from the input partial mode
 .. figure:: images/implicit-als-distributed-computation-prediction-step-1.png
     :width: 800
     :align: center
-    :alt: 
+    :alt:
 
     Prediction with Implicit Alternating Least Squares: Distributed Processing, Step 1 - on Local Nodes
-    
+
 In this step, implicit ALS recommender-based prediction accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
@@ -106,7 +106,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``prediction``
      - Pointer to the :math:`m_i \times n_j` numeric table with predicted ratings.
-     
+
        .. note::
             By default this table is an object of the ``HomogenNumericTable`` class,
             but you can define it as an object of any class derived from ``NumericTable``

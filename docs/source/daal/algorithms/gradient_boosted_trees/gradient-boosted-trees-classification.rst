@@ -107,7 +107,7 @@ Examples
     - :cpp_example:`gbt_cls_traversed_model_builder.cpp <gradient_boosted_trees/gbt_cls_traversed_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`GbtClsTraversedModelBuilder.java <gbt/GbtClsTraversedModelBuilder.java>`
@@ -199,7 +199,7 @@ Examples
     - :cpp_example:`gbt_cls_dense_batch.cpp <gradient_boosted_trees/gbt_cls_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

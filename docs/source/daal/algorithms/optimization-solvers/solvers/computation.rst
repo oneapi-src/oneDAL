@@ -41,7 +41,7 @@ For more details, see Algorithms.
    * - ``inputArgument``
      - A numeric table of size :math:`p \times 1` with the value of start argument :math:`\theta_0`.
    * - ``optionalArgument``
-     - Object of the ``OptionalArgument`` class that contains a set of algorithm-specific intrinsic parameters. 
+     - Object of the ``OptionalArgument`` class that contains a set of algorithm-specific intrinsic parameters.
        For a detailed definition of the set, see the problem statement above and the description of a specific algorithm.
 
 .. _iterative_solver_computation_parameters:
@@ -95,7 +95,7 @@ For more details, see Algorithms.
    * - Result ID
      - Result
    * - ``minimum``
-     - A numeric table of size :math:`p \times 1` with argument :math:`\theta_{*}`. 
+     - A numeric table of size :math:`p \times 1` with argument :math:`\theta_{*}`.
        By default, the result is an object of the HomogenNumericTable class, but you can define the result as an object of any class
        derived from NumericTable, except for PackedTriangularMatrix and PackedSymmetricMatrix.
 

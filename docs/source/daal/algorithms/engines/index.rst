@@ -18,7 +18,7 @@ Engines
 =======
 
 Random number engines are used for uniformly distributed random numbers generation by using a seed - the initial
-value that allows to select a particular random number sequence. 
+value that allows to select a particular random number sequence.
 Initialization is an engine-specific procedure.
 
 .. rubric:: Algorithm Input
@@ -40,7 +40,7 @@ For more details, see :ref:`algorithms`.
 
        This input can be an object of any class derived from ``NumericTable``
        except ``CSRNumericTable``, ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``,
-       and ``MergedNumericTable`` when it holds one of the above table types.  
+       and ``MergedNumericTable`` when it holds one of the above table types.
 
 .. rubric:: Algorithm Output
 
@@ -58,7 +58,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``randomNumbers``
      - Pointer to the :math:`n \times p` numeric table with generated random floating-point values of single or double precision.
-     
+
        In |short_name|, engines are in-place, which means that the algorithm does not allocate memory for the distribution result,
        but returns pointer to the filled input.
 
@@ -71,7 +71,7 @@ The following methods that support generation of sequences of random numbers in 
 Family
     Engines follow the same algorithmic scheme with different algorithmic parameters.
     The set of the parameters guarantee independence of random number sequences produced by the engines.
-    
+
     The example below demonstrates the idea for the case when 2 engines from the same family are used to generate 2 random sequences:
 
     .. figure:: images/englines-family-method-example.jpg
@@ -83,7 +83,7 @@ Family
 SkipAhead
     This method skips ``nskip`` elements of the original random sequence.
     This method allows to produce ``nThreads`` non-overlapping subsequences.
-    
+
     The example below demonstrates the idea for the case when 2 subsequences are used from the random sequence:
 
     .. figure:: images/englines-skipahead-method-example.jpg
@@ -93,9 +93,9 @@ SkipAhead
         SkipAhead method of random sequence generation
 
 LeapFrog
-    This method generates random numbers with a stride of ``nThreads``. 
+    This method generates random numbers with a stride of ``nThreads``.
     ``threadIdx`` is an index of the current thread.
-    
+
     The example below demonstrates the idea for the case when 2 subsequences are used from the random sequence:
 
     .. figure:: images/englines-leapfrog-method-example.jpg
@@ -110,7 +110,7 @@ These methods are represented with member functions of classes that represent fu
 
 .. toctree::
     :maxdepth: 1
-    
+
     mt19937.rst
     mcg59.rst
     mt2203.rst

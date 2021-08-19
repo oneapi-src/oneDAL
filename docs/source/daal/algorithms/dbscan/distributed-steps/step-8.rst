@@ -68,7 +68,7 @@ For more details, :ref:`algorithms`.
      - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows
        containing information about current clustering state of observations processed on the local node.
 
-       .. include:: ./../../includes/default_result_numeric_table.rst      
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
    * - ``step8FinishedFlag``
      - Pointer to :math:`1 \times 1` numeric table containing the flag indicating that the clustering process is finished for current node.

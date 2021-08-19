@@ -42,7 +42,7 @@ The following methods are available to provide input to an algorithm:
    :class: longtable
 
    * - ``input.set(Input ID, InputData)``
-     - Use to set a pointer to the input argument with the ``Input ID`` identifier. 
+     - Use to set a pointer to the input argument with the ``Input ID`` identifier.
        This method overwrites the previous input pointer stored in the algorithm.
    * - ``input.add(Input ID, InputData)``
      - Use in the distributed computation mode to add the pointers with the ``Input ID`` identifier.

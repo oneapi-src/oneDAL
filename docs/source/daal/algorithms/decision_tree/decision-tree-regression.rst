@@ -70,7 +70,7 @@ Prediction Stage
 The regression decision tree follows the algorithmic framework of
 decision tree prediction described in :ref:`decision_tree`.
 
-Given the regression decision tree and vectors :math:`x_1, \ldots, x_r`, 
+Given the regression decision tree and vectors :math:`x_1, \ldots, x_r`,
 the problem is to calculate the responses for those vectors.
 
 Batch Processing
@@ -164,7 +164,7 @@ Examples
     - :cpp_example:`dt_reg_dense_batch.cpp <decision_tree/dt_reg_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

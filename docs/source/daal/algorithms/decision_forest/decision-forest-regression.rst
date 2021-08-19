@@ -30,7 +30,7 @@ Details
 
 Given:
 
-- :math:`n` feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}` 
+- :math:`n` feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}`
   of size :math:`p`;
 - their non-negative sample weights :math:`w = (w_1, \ldots, w_n)`;
 - the vector of responses :math:`y = (y_1, \ldots, y_n)`
@@ -108,7 +108,7 @@ Training
 
 For the description of the input and output, refer to :ref:`regression_usage_model`.
 
-In addition to the decision forest parameters described in :ref:`df_batch`, 
+In addition to the decision forest parameters described in :ref:`df_batch`,
 the training algorithm for decision forest regression has the following parameters:
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
@@ -137,7 +137,7 @@ the training algorithm for decision forest regression has the following paramete
        For GPU:
 
        - ``hist`` - :ref:`inexact histogram computation method <df_inexact_hist_method>`
-      
+
 
 Output
 ******
@@ -199,7 +199,7 @@ Examples
     - :cpp_example:`df_reg_traverse_model.cpp <decision_forest/df_reg_traverse_model.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

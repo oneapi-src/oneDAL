@@ -49,16 +49,16 @@ For a given set of the indices :math:`I = \{i_1, i_2, \ldots, i_m \}`,
 :math:`1 \leq i_r \leq n`, :math:`r \in \{1, \ldots, m \}`:
 
 - The value of the sum of functions has the format:
-  
+
   .. math::
     F_I(\theta, X, y) = -\frac{1}{m}
     \sum_{i \in I} \left( y_i \ln \sigma(x_i, \theta) + (1 - y_i) \ln (1 - \sigma(x_i, \theta)) \right) +
     \lambda_2 \sum_{k=1}^{p} \theta_k^2
 
 - The gradient of the sum of functions has the format:
-  
+
   .. math::
-    \nabla F_I(\theta, x, y) = 
+    \nabla F_I(\theta, x, y) =
     \left\{ \frac{\partial F_I}{\partial \theta_0}, \ldots, \frac{\partial F_I}{\partial \theta_p} \right\},
 
   where
@@ -102,18 +102,18 @@ For more details, see :ref:`algorithms`.
    * - ``argument``
      - A numeric table of size :math:`(p + 1) \times 1` with the input argument :math:`\theta` of the objective function.
 
-       .. note:: 
+       .. note::
             The sizes of the argument, gradient, and hessian numeric tables do not depend on ``interceptFlag``.
             When ``interceptFlag`` is set to ``false``, the computation of :math:`\theta_0` value is skipped,
             but the sizes of the tables should remain the same.
    * - ``data``
      - A numeric table of size :math:`n \times p` with the data :math:`x_ij`.
-       
+
        .. note:: This parameter can be an object of any class derived from ``NumericTable``.
    * - ``dependentVariables``
      - A numeric table of size :math:`n \times 1` with dependent variables :math:`y_i`.
 
-       .. note:: 
+       .. note::
            This parameter can be an object of any class derived from ``NumericTable``,
            except for ``PackedTriangularMatrix`` , ``PackedSymmetricMatrix`` , and ``CSRNumericTable``.
 

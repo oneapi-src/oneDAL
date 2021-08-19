@@ -18,7 +18,7 @@ In this step, the DBSCAN algorithm has the following parameters:
 
 .. include:: distributed-steps/includes/parameters_blocks.rst
 
-In this step, the DBSCAN algorithm accepts the input described below. 
+In this step, the DBSCAN algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. For more details, :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
@@ -31,7 +31,7 @@ Pass the ``Input ID`` as a parameter to the methods that provide input for your 
      - Input
    * - ``step1Data``
      - Pointer to the :math:`n \times p` numeric table with the observations to be clustered.
-       
+
        .. note:: The input can be an object of any class derived from NumericTable.
 
 Algorithm Output
@@ -50,8 +50,8 @@ For more details, :ref:`algorithms`.
    * - Partial Result ID
      - Result
    * - ``partialOrder``
-     - Pointer to the :math:`n \times 2` numeric table containing information about observations: 
-       identifier of initial block and index in initial block. 
+     - Pointer to the :math:`n \times 2` numeric table containing information about observations:
+       identifier of initial block and index in initial block.
        This information will be required to reconstruct initial blocks after transferring observations among nodes.
 
        .. include:: ./../../includes/default_result_numeric_table.rst

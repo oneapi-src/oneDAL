@@ -46,7 +46,7 @@ In this step, the DBSCAN algorithm has the following parameters:
      - The maximum distance between observations lying in the same neighborhood.
 
 In this step, the DBSCAN algorithm accepts the input described below.
-Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|

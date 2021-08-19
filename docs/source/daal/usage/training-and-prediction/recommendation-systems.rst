@@ -32,7 +32,7 @@ Training Stage
 
 .. figure:: images/training-stage-recommendation-systems.png
     :width: 600
-    :alt: 
+    :alt:
 
     Recommendation Systems Usage Model: Training Stage
 
@@ -49,10 +49,10 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the :math:`m \times n` numeric table with the mining data. 
-     
+     - Pointer to the :math:`m \times n` numeric table with the mining data.
+
        .. note::
-            
+
             This table can be an object of any class derived from ``NumericTable``
             except ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
 
@@ -69,8 +69,8 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``model``
-     - Model with initialized item factors. 
-     
+     - Model with initialized item factors.
+
        .. note:: The result can only be an object of the ``Model`` class.
 
 Prediction Stage
@@ -78,7 +78,7 @@ Prediction Stage
 
 .. figure:: images/prediction-stage-recommendation-systems.png
     :width: 600
-    :alt: 
+    :alt:
 
     Recommendation Systems Usage Model: Prediction Stage
 
@@ -95,8 +95,8 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``model``
-     - Model with initialized item factors. 
-     
+     - Model with initialized item factors.
+
        .. note:: This input can only be an object of the ``Model`` class.
 
 At the prediction stage, recommender algorithms calculate the result described below.
@@ -113,9 +113,9 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``prediction``
      - Pointer to the :math:`m \times n` numeric table with predicted ratings.
-     
-       .. note:: 
-       
+
+       .. note::
+
             By default, this table is an object of the ``HomogenNumericTable`` class,
             but you can define it as an object of any class derived from ``NumericTable``
             except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.

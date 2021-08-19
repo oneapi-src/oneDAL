@@ -34,7 +34,7 @@ Training
 --------
 
 Given :math:`n` feature vectors :math:`X=\{x_1=(x_{11},\ldots,x_{1p}),\ldots,x_n=(x_{n1},\ldots,x_{np})\}` of
-size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}` and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`, 
+size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}` and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`,
 
 .. tabs::
 
@@ -44,7 +44,7 @@ size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n
 
   .. group-tab:: Regression
 
-    - :math:`y_i \in \mathbb{R}` 
+    - :math:`y_i \in \mathbb{R}`
 
 the problem is to build a decision forest classification or regression model.
 
@@ -73,7 +73,7 @@ corresponding to their children, :math:`t_L` and :math:`t_R`.
 Training method: *Dense*
 ++++++++++++++++++++++++
 
-In *dense* training method, all possible splits for each feature are taken from the subset of selected features for the current node and evaluated 
+In *dense* training method, all possible splits for each feature are taken from the subset of selected features for the current node and evaluated
 for best split computation.
 
 .. _df_t_math_hist:
@@ -81,8 +81,8 @@ for best split computation.
 Training method: *Hist*
 +++++++++++++++++++++++
 
-In *hist* training method, only a selected subset of splits is considered for best split computation. 
-This subset of splits is computed for each feature at the initialization stage of the algorithm. 
+In *hist* training method, only a selected subset of splits is considered for best split computation.
+This subset of splits is computed for each feature at the initialization stage of the algorithm.
 After computing the subset of splits, each value from the initially provided data is substituted
 with the value of the corresponding bin.
 Bins are continuous intervals between selected splits.
@@ -99,44 +99,44 @@ the subset :math:`D_t` in the node :math:`t`.
   .. group-tab:: Classification
 
    *Gini index* is an impurity metric for classification, calculated as follows:
-   
+
    .. math::
    	{I}_{Gini}\left(D\right)=1-\sum _{i=0}^{C-1}{p}_{i}^{2}
-   
-   where 
-   
+
+   where
+
    - :math:`D` is a set of observations that reach the node;
    - :math:`p_i` is specified in the table below:
 
    .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
-   
+
    .. list-table:: Decision Forest Split Criteria Calculation
       :widths: 10 10
       :header-rows: 1
       :align: left
       :class: longtable
-   
+
       * - Without sample weights
         - With sample weights
       * - :math:`p_i` is the observed fraction of observations that belong to class :math:`i` in :math:`D`
         - :math:`p_i` is the observed weighted fraction of observations that belong to class :math:`i` in :math:`D`:
-   
+
           .. math::
-   
+
              p_i = \frac{\sum_{d \in \{d \in D | y_d = i \}} W_d}{\sum_{d \in D} W_d}
-   
+
   .. group-tab:: Regression
 
    *MSE* is an impurity metric for regression, calculated as follows:
 
    .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
-   
+
    .. list-table:: MSE Impurity Metric
       :widths: 10 10
       :header-rows: 1
       :align: left
       :class: longtable
-   
+
       * - Without sample weights
         - With sample weights
       * - :math:`I_{\mathrm{MSE}}\left(D\right) = \frac{1}{W(D)} \sum _{i=1}^{W(D)}{\left(y_i - \frac{1}{W(D)} \sum _{j=1}^{W(D)} y_j \right)}^{2}`
@@ -177,7 +177,7 @@ Maximal number of leaf nodes
   Grow trees with positive maximal number of leaf nodes in a :ref:`best-first <df_t_best_first_strategy>` fashion.
   Best nodes are defined by relative reduction in impurity.
   If maximal number of leaf nodes equals zero, then this criterion does not limit the number of leaf nodes,
-  and trees grow in a :ref:`depth-first <df_t_depth_first_strategy>` fashion. 
+  and trees grow in a :ref:`depth-first <df_t_depth_first_strategy>` fashion.
 
 Tree Building Strategies
 ++++++++++++++++++++++++
@@ -191,7 +191,7 @@ Depth-first Strategy
 ~~~~~~~~~~~~~~~~~~~~
 
 If maximal number of leaf nodes equals zero, a :ref:`decision tree <dt>` is built using depth-first strategy.
-In each terminal node :math:`t`, the following recursive procedure is applied: 
+In each terminal node :math:`t`, the following recursive procedure is applied:
 
 - Stop if the termination criteria are met.
 - Choose randomly without replacement :math:`m` feature indices :math:`J_t \in \{0, 1, \ldots, p-1\}`.
@@ -231,7 +231,7 @@ Inference
 ---------
 
 Given decision forest classification or regression model and vectors :math:`x_1, \ldots, x_r`,
-the problem is to calculate the responses for those vectors. 
+the problem is to calculate the responses for those vectors.
 
 .. _df_i_math_dense_hist:
 

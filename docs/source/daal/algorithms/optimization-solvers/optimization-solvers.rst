@@ -17,7 +17,7 @@
 Optimization Solvers
 ====================
 
-An optimization solver is an algorithm to solve an optimization problem, that is, 
+An optimization solver is an algorithm to solve an optimization problem, that is,
 to find the maximum or minimum of an objective function in the presence of constraints on its variables.
 In |short_name| the optimization solver represents the interface of algorithms that search
 for the argument :math:`\theta_{*}` that minimizes the function :math:`K(\theta)`:

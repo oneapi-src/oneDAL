@@ -28,13 +28,13 @@ uses the Condensed Sparse Row (CSR) format for encoding:
 
 .. figure:: ./images/zero-based-csr.png
   :width: 600
-  :alt: 
+  :alt:
 
   Condensed Sparse Row (CSR) 0-Based Encoding
 
 .. figure:: ./images/one-based-csr.png
   :width: 600
-  :alt: 
+  :alt:
 
   Condensed Sparse Row (CSR) 1-Based Encoding
 

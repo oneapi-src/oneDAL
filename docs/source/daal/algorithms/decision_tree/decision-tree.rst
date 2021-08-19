@@ -39,7 +39,7 @@ the figure below, where:
 
 .. figure:: images/decision-tree-structure.png
   :width: 600
-  :alt: 
+  :alt:
 
   Decision Tree Structure
 

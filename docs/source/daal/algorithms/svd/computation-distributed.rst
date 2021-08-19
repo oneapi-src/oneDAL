@@ -51,13 +51,13 @@ The SVD algorithm in the distributed processing mode has the following parameter
    * - ``leftSingularMatrix``
      - ``requiredInPackedForm``
      - Specifies whether the matrix of left singular vectors is required. Can be:
-     
+
        - ``notRequired`` - the matrix is not required
        - ``requiredInPackedForm`` - the matrix in the packed format is required
    * - ``rightSingularMatrix``
      - ``requiredInPackedForm``
      - Specifies whether the matrix of right singular vectors is required. Can be:
-     
+
        - ``notRequired`` - the matrix is not required
        - ``requiredInPackedForm`` - the matrix in the packed format is required
 
@@ -71,7 +71,7 @@ Step 1 - on Local Nodes
 
 .. figure:: images/svd-distributed-step-1.png
     :width: 800
-    :alt: 
+    :alt:
 
     Singular Value Decomposition: Distributed Processing, Step 1 - on Local Nodes
 
@@ -89,7 +89,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``data``
      - Pointer to the :math:`n_i \times p` numeric table that represents the :math:`i`-th data block on the local node.
-     
+
        .. note:: The input can be an object of any class derived from ``NumericTable``.
 
 
@@ -107,13 +107,13 @@ For more details, see :ref:`algorithms`.
    * - Partial Result ID
      - Result
    * - ``outputOfStep1ForStep2``
-     - A collection that contains numeric tables each with the partial result to transmit to the master node for :ref:`Step 2 <svd_step_2>`. 
+     - A collection that contains numeric tables each with the partial result to transmit to the master node for :ref:`Step 2 <svd_step_2>`.
    * - ``outputOfStep1ForStep3``
      - A collection that contains numeric tables each with the partial result to keep on the local node for :ref:`Step 3 <svd_step_3>`.
 
 .. note::
 
-    By default, the tables in these collections are objects of the ``HomogenNumericTable`` class, 
+    By default, the tables in these collections are objects of the ``HomogenNumericTable`` class,
     but you can define them as objects of any class derived from ``NumericTable``
     except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
@@ -124,7 +124,7 @@ Step 2 - on Master Node
 
 .. figure:: images/svd-distributed-step-2.png
     :width: 800
-    :alt: 
+    :alt:
 
     Singular Value Decomposition: Distributed Processing, Step 2 - on Master Node
 
@@ -149,7 +149,7 @@ For more details, see :ref:`algorithms`.
             except the ``PackedSymmetricMatrix`` class and ``PackedTriangularMatrix`` class with the ``lowerPackedTriangularMatrix`` layout.
    * - ``key``
      - A key, a number of type ``int``.
-     
+
        Keys enable tracking the order in which partial results from :ref:`Step 1 <svd_step_1>` (``inputOfStep2FromStep1``)
        come to the master node, so that the partial results computed in :ref:`Step 2 <svd_step_2>` (``outputOfStep2ForStep3``)
        can be delivered back to local nodes in exactly the same order.
@@ -168,10 +168,10 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``outputOfStep2ForStep3``
      - A collection that contains numeric tables to be split across local nodes to compute left singular vectors.
-       Set to ``NULL`` if you do not need left singular vectors. 
+       Set to ``NULL`` if you do not need left singular vectors.
 
        .. note::
-       
+
             By default, these tables are objects of the ``HomogenNumericTable`` class,
             but you can define them as objects of any class derived from ``NumericTable``
             except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
@@ -186,18 +186,18 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``singularValues``
-     - Pointer to the :math:`1 \times p` numeric table with singular values (the diagonal of the matrix :math:`\Sigma`). 
+     - Pointer to the :math:`1 \times p` numeric table with singular values (the diagonal of the matrix :math:`\Sigma`).
 
        .. note::
-            By default, this result is an object of the ``HomogenNumericTable`` class, 
+            By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define the result as an object of any class derived from ``NumericTable``
             except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
    * - ``rightSingularMatrix``
      - Pointer to the :math:`p \times p` numeric table with right singular vectors (matrix :math:`V`).
-       Pass ``NULL`` if right singular vectors are not required. 
+       Pass ``NULL`` if right singular vectors are not required.
 
        .. note::
-            By default, this result is an object of the ``HomogenNumericTable`` class, 
+            By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define the result as an object of any class derived from ``NumericTable``
             except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
@@ -208,7 +208,7 @@ Step 3 - on Local Nodes
 
 .. figure:: images/svd-distributed-step-2.png
     :width: 800
-    :alt: 
+    :alt:
 
     Singular Value Decomposition: Distributed Processing, Step 3 - on Local Nodes
 
@@ -226,15 +226,15 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``inputOfStep3FromStep1``
-     - A collection that contains results computed in :ref:`Step 1 <svd_step_1>` on local nodes (``outputOfStep1ForStep3``). 
-       
+     - A collection that contains results computed in :ref:`Step 1 <svd_step_1>` on local nodes (``outputOfStep1ForStep3``).
+
        .. note::
             The collection can contain objects of any class derived from ``NumericTable``
             except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
    * - ``inputOfStep3FromStep2``
-     - A collection that contains results computed in :ref:`Step 2 <svd_step_2>` on local nodes (``outputOfStep2ForStep3``). 
+     - A collection that contains results computed in :ref:`Step 2 <svd_step_2>` on local nodes (``outputOfStep2ForStep3``).
 
-       .. note::     
+       .. note::
             The collection can contain objects of any class derived from ``NumericTable``
             except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
 
@@ -251,11 +251,11 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``leftSingularMatrix``
-     - Pointer to the :math:`n \times p` numeric table with left singular vectors (matrix :math:`U`). 
-       Pass ``NULL`` if left singular vectors are not required. 
-       
+     - Pointer to the :math:`n \times p` numeric table with left singular vectors (matrix :math:`U`).
+       Pass ``NULL`` if left singular vectors are not required.
+
        .. note::
-       
-            By default, this result is an object of the ``HomogenNumericTable`` class, 
+
+            By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define the result as an object of any class derived from ``NumericTable``
             except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.

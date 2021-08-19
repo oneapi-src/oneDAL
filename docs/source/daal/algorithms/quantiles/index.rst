@@ -32,7 +32,7 @@ the problem is to compute :math:`z_{ik}` that meets the following conditions:
 
 .. math::
     P\{\xi_i > z_{ik} \} \leq 1 - \beta_k
-    
+
 In the equations above:
 
 - :math:`x_i = (x_{1i}, \ldots, x_{ni})` are observations of a random variable :math:`\xi_i` that represents the :math:`i`-th feature
@@ -103,8 +103,8 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``quantiles``
-     - Pointer to the :math:`p \times m` numeric table with the quantiles. 
-     
+     - Pointer to the :math:`p \times m` numeric table with the quantiles.
+
        By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
        derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
@@ -120,7 +120,7 @@ Examples
     - :cpp_example:`quantiles_dense_batch.cpp <quantiles/quantiles_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

@@ -44,10 +44,10 @@ the value and the gradient of the sum of functions in the argument X respectivel
     (\log p_{y_i} (x_i, \theta) + \lambda_2 \sum_{t=0}^{T-1} \sum_{j=1}^{p} \theta_{ij}^2)
 
 .. math::
-    \nabla F_I(\theta, x, y) = 
+    \nabla F_I(\theta, x, y) =
     \left( \frac{\partial F_I}{\partial \theta_{00}}, \ldots, \frac{\partial F_I}{\partial \theta_{{T-1}p}} \right)^T
 
-where 
+where
 
 .. math::
     \frac{\partial F_I}{\partial \theta_{tj}} =
@@ -56,7 +56,7 @@ where
         \frac{1}{m} \sum_{i \in I} g_t (\theta, x_i, y_i) x_{ij} + L_{tj}(\theta), & j = 0
     \end{cases}
 
-    g_t (\theta, x, y) = 
+    g_t (\theta, x, y) =
     \begin{cases}
         p_k (x, \theta) - 1, & y = t \\
         p_t (x, \theta), & y \neq t
@@ -79,18 +79,18 @@ Hessian matrix is a symmetric matrix of size :math:`S \times S`, where  :math:`S
         \frac
             {\partial^2 F_I}
         {\partial \theta_{00} \partial \theta_{{T-1} p}} \\
-        \vdots & \ddots & \vdots \\ 
+        \vdots & \ddots & \vdots \\
         \frac
             {\partial^2 F_I}
             {\partial \theta_{{T-1} p} \partial \theta_{00}} &
-        \cdots & 
+        \cdots &
         \frac
             {\partial^2 F_I}
             {\partial \theta_{{T-1} p} \partial \theta_{{T-1} p}}
     \end{array}\right]
 
 .. math::
-    \frac {\partial^2 F_I} {\partial \theta_{tj} \partial \theta_{pq}} = 
+    \frac {\partial^2 F_I} {\partial \theta_{tj} \partial \theta_{pq}} =
     \begin{cases}
         \frac{1}{m} \sum_{i \in I} g_{tp} (\theta, x_i, y_i) + 2 \lambda_2,
             & j = 0, q = 0\\
@@ -109,7 +109,7 @@ Hessian matrix is a symmetric matrix of size :math:`S \times S`, where  :math:`S
             p_p (x, \theta) (1 - p_t (x, \theta)), & p = t \\
             -p_t (x, \theta) p_p (x, \theta), & p \neq t
         \end{cases}
-    
+
     t, p \in [0, T-1]
 
     j, q \in [0, p]
@@ -146,18 +146,18 @@ For more details, see :ref:`algorithms`.
    * - ``argument``
      - A numeric table of size :math:`(p + 1) \times \mathrm{nClasses}` with the input argument :math:`\theta` of the objective function.
 
-       .. note:: 
+       .. note::
             The sizes of the argument, gradient, and hessian numeric tables do not depend on ``interceptFlag``.
             When ``interceptFlag`` is set to ``false``, the computation of :math:`\theta_0` value is skipped,
             but the sizes of the tables should remain the same.
    * - ``data``
      - A numeric table of size :math:`n \times p` with the data :math:`x_ij`.
-       
+
        .. note:: This parameter can be an object of any class derived from ``NumericTable``.
    * - ``dependentVariables``
      - A numeric table of size :math:`n \times 1` with dependent variables :math:`y_i`.
 
-       .. note:: 
+       .. note::
            This parameter can be an object of any class derived from ``NumericTable``,
            except for ``PackedTriangularMatrix`` , ``PackedSymmetricMatrix`` , and ``CSRNumericTable``.
 
@@ -244,7 +244,7 @@ Examples
 ********
 
 .. tabs::
-    
+
     .. tab:: C++ (CPU)
 
         - :cpp_example:`lbfgs_cr_entr_loss_dense_batch.cpp <optimization_solvers/lbfgs_cr_entr_loss_dense_batch.cpp>`

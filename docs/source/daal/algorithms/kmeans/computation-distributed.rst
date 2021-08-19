@@ -74,7 +74,7 @@ Step 1 - on Local Nodes
 
 .. figure:: images/kmeans-distributed-computation-step-1.png
     :width: 1000
-    :alt: 
+    :alt:
 
     K-Means Computaion: Distributed Processing, Step 1 - on Local Nodes
 
@@ -115,15 +115,15 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``nObservations``
      - Pointer to the :math:`\mathrm{nClusters} \times 1` numeric table that contains
-       the number of observations assigned to the clusters on local node. 
-       
+       the number of observations assigned to the clusters on local node.
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
    * - ``partialSums``
      - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with
        partial sums of observations assigned to the clusters on the local node.
-     
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define the result as an object of any class derived from ``NumericTable``
@@ -131,14 +131,14 @@ For more details, see :ref:`algorithms`.
    * - ``partialObjectiveFunction``
      - Pointer to the :math:`1 \times 1` numeric table that contains the value of the partial objective function
        for observations processed on the local node.
-       
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
    * - ``partialCandidatesDistances``
      - Pointer to the :math:`\mathrm{nClusters} \times 1` numeric table that contains the value of the ``nClusters``
        largest objective function for the observations processed on the local node and stored in descending order.
-       
+
        .. note::
            By default, this result if an object of the ``HomogenNumericTable`` class,
            but you can define this result as an object of any class derived from ``NumericTable``
@@ -147,7 +147,7 @@ For more details, see :ref:`algorithms`.
      - Pointer to the :math:`\mathrm{nClusters} \times 1` numeric table that contains the observations of the ``nClusters``
        largest objective function value processed on the local node and stored in descending order of the objective function.
 
-       .. note::       
+       .. note::
             By default, this result if an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable``
             except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, ``CSRNumericTable``.
@@ -164,7 +164,7 @@ For more details, see :ref:`algorithms`.
    * - ``assignments``
      - Use when ``assignFlag`` = ``true``. Pointer to the :math:`n_i \times 1` numeric table
        with 32-bit integer assignments of cluster indices to feature vectors in the input data on the local node.
-       
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable``
@@ -177,8 +177,8 @@ Step 2 - on Master Node
 
 .. figure:: images/kmeans-distributed-computation-step-2.png
     :width: 1000
-    :alt: 
-    
+    :alt:
+
     K-Means Computaion: Distributed Processing, Step 2 - on Master Node
 
 In this step, the K-Means clustering algorithm accepts the input from each local node described below.
@@ -212,16 +212,16 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``centroids``
-     - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with centroids. 
+     - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with centroids.
 
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
    * - ``objectiveFunction``
      - Pointer to the :math:`1 \times 1` numeric table that contains the value of the objective function.
-       
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.

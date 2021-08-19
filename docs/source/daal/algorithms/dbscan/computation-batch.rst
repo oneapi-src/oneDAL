@@ -50,17 +50,17 @@ The DBSCAN clustering algorithm has the following parameters:
    * - ``memorySavingMode``
      - ``false``
      - If flag is set to false, all neighborhoods will be computed and stored prior to clustering.
-       It will require up to :math:`O(|\text{sum of sizes of all observations' neighborhoods}|)` of additional memory, 
+       It will require up to :math:`O(|\text{sum of sizes of all observations' neighborhoods}|)` of additional memory,
        which in worst case can be :math:`O(|\text{number of observations}|^2)`. However, in general, performance may be better.
 
-       .. note:: 
+       .. note::
           On GPU, the ``memorySavingMode`` flag can only be set to ``true``.
           You will get an error if the flag is set to ``false``.
 
    * - ``resultsToCompute``
      - :math:`0`
      - The 64-bit integer flag that specifies which extra characteristics of the DBSCAN algorithm to compute.
-        
+
        Provide one of the following values to request a single characteristic or
        use bitwise OR to request a combination of the characteristics:
 
@@ -92,10 +92,10 @@ For more details, see :ref:`algorithms`.
      - Optional input. Pointer to the :math:`n \times 1` numeric table with weights of observations.
 
        .. note::
-       
+
          The input can be an object of any class derived from ``NumericTable``
          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``.
-         
+
          By default all weights are equal to :math:`1`.
 
        .. note::
@@ -120,7 +120,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``assignments``
      - Pointer to the :math:`n \times 1` numeric table with assignments of cluster indices to observations in the input data.
-       
+
        :term:`Noise observations <noise observation>` have the assignment equal to :math:`-1`.
 
    * - ``nClusters``

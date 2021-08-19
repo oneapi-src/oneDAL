@@ -82,7 +82,7 @@ Centroid initialization for K-Means clustering in the distributed processing mod
        * ``parallelPlusDense``
        * ``parallelPlusCSR``
      - :math:`0.5`
-     - A fraction of ``nClusters`` in each of ``nRounds`` of parallel K-Means++. 
+     - A fraction of ``nClusters`` in each of ``nRounds`` of parallel K-Means++.
        :math:`L = \mathrm{nClusters}*\mathrm{oversamplingFactor}` points are sampled in a round.
        For details, see [Bahmani2012]_, section 3.3.
    * - ``nRounds``
@@ -115,14 +115,14 @@ Centroid initialization for K-Means clustering follows the general schema descri
     .. tab:: ``plusPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-plusPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``plusPlus`` methods: Distributed Processing
 
     .. tab:: ``parrallelPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-parallelPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``parrallelPlus`` methods: Distributed Processing
 
@@ -136,14 +136,14 @@ Step 1 - on Local Nodes (``deterministic``, ``random``, ``plusPlus``, and ``para
     .. tab:: ``plusPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-step-1-plusPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``plusPlus`` methods: Distributed Processing, Step 1 - on Local Nodes
 
     .. tab:: ``parrallelPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-step-1-parallelPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``parrallelPlus`` methods: Distributed Processing, Step 1 - on Local Nodes
 
@@ -162,7 +162,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``data``
      - Pointer to the :math:`n_i \times p` numeric table that represents the :math:`i`-th data block on the local node.
-       
+
        .. note::
 
           While the input for ``defaultDense``, ``randomDense``, ``plusPlusDense``, and ``parallelPlusDense`` methods
@@ -185,9 +185,9 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``partialCentroids``
      - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with the centroids computed on the local node.
-       
+
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -198,8 +198,8 @@ Step 2 - on Master Node (``deterministic`` and ``random`` methods)
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 This step is applicable for ``deterministic`` and ``random`` methods only.
-Centroid initialization for K-Means clustering accepts the input from each local node described below. 
-Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
+Centroid initialization for K-Means clustering accepts the input from each local node described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
@@ -229,10 +229,10 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``centroids``
-     - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with centroids. 
+     - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with centroids.
 
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -247,14 +247,14 @@ Step 2 - on Local Nodes (``plusPlus`` and ``parallelPlus`` methods)
     .. tab:: ``plusPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-step-2-plusPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``plusPlus`` methods: Distributed Processing, Step 2 - on Local Nodes
 
     .. tab:: ``parrallelPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-step-2-parallelPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``parrallelPlus`` methods: Distributed Processing, Step 2 - on Local Nodes
 
@@ -274,7 +274,7 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the :math:`n_i \times p` numeric table that represents the :math:`i`-th data block on the local node. 
+     - Pointer to the :math:`n_i \times p` numeric table that represents the :math:`i`-th data block on the local node.
 
        .. note::
 
@@ -286,12 +286,12 @@ For more details, see :ref:`algorithms`.
    * - ``inputOfStep2``
      - Pointer to the :math:`m \times p` numeric table with the centroids calculated in the previous steps
        (:ref:`Step 1 <kmeans_init_step_1>` or :ref:`Step 4 <kmeans_init_step_4>`).
-       
+
        The value of :math:`m` is defined by the method and iteration of the algorithm:
-       
+
        - ``plusPlus`` method: :math:`m = 1`
        - ``parallelPlus`` method:
-       
+
          - :math:`m = 1` for the first iteration of the Step 2 - Step 4 loop
          - :math:`m = L = \mathrm{nClusters} * \mathrm{oversamplingFactor}` for other iterations
 
@@ -300,7 +300,7 @@ For more details, see :ref:`algorithms`.
 
    * - ``internalInput``
      - Pointer to the ``DataCollection`` object with the internal data of the distributed algorithm
-       used by its local nodes in :ref:`Step 2 <kmeans_init_step_2_local>` and :ref:`Step 4 <kmeans_init_step_4>`. 
+       used by its local nodes in :ref:`Step 2 <kmeans_init_step_2_local>` and :ref:`Step 4 <kmeans_init_step_4>`.
        The ``DataCollection`` is created in :ref:`Step 2 <kmeans_init_step_2_local>` when ``firstIteration`` is set to ``true``,
        and then the ``DataCollection`` should be set from the partial result as an input for next local steps
        (:ref:`Step 2 <kmeans_init_step_2_local>` and :ref:`Step 4 <kmeans_init_step_4>`).
@@ -328,7 +328,7 @@ For more details, see :ref:`algorithms`.
        and :math:`m = \mathrm{oversamplingFactor} * \mathrm{nClusters} * \mathrm{nRounds} + 1`.
        For a description of ratings, see :ref:`K-Means Clustering Details <kmeans_details>`.
 
-.. note:: 
+.. note::
 
     By default, these results are objects of the ``HomogenNumericTable`` class,
     but you can define the result as an object of any class derived from ``NumericTable``
@@ -344,14 +344,14 @@ Step 3 - on Master Node (``plusPlus`` and ``parallelPlus`` methods)
     .. tab:: ``plusPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-step-3-plusPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``plusPlus`` methods: Distributed Processing, Step 3 - on Master Node
 
     .. tab:: ``parrallelPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-step-3-parallelPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``parrallelPlus`` methods: Distributed Processing, Step 3 - on Master Node
 
@@ -411,14 +411,14 @@ Step 4 - on Local Nodes (``plusPlus`` and ``parallelPlus`` methods)
     .. tab:: ``plusPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-step-4-plusPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``plusPlus`` methods: Distributed Processing, Step 4 - on Local Nodes
 
     .. tab:: ``parrallelPlus`` methods
 
         .. figure:: images/kmeans-distributed-init-step-4-parallelPlus-methods.png
-           :alt: 
+           :alt:
 
            K-Means Centroid Initialization with ``parrallelPlus`` methods: Distributed Processing, Step 4 - on Local Nodes
 
@@ -439,7 +439,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``data``
      - Pointer to the :math:`n_i \times p` numeric table that represents the :math:`i`-th data block on the local node.
-       
+
        .. note::
 
           While the input for ``defaultDense``, ``randomDense``, ``plusPlusDense``, and ``parallelPlusDense`` methods
@@ -449,12 +449,12 @@ For more details, see :ref:`algorithms`.
 
    * - ``inputOfStep4FromStep3``
      - Pointer to the :math:`l \times m` numeric table with the values calculated in :ref:`Step 3 <kmeans_init_step_3>`.
-       
+
        The value of :math:`m` is defined by the method of the algorithm:
-       
+
        - ``plusPlus`` method: :math:`m = 1`
        - ``parallelPlus`` method: :math:`m \leq L`, :math:`L = \mathrm{nClusters} * \mathrm{oversamplingFactor}`
-      
+
        This input can be an object of any class derived from ``NumericTable``,
        except ``CSRNumericTable``, ``PackedTriangularMatrix``, and ``PackedSymmetricMatrix``.
 
@@ -481,9 +481,9 @@ For more details, see :ref:`algorithms`.
    * - ``outputOfStep4``
      - Pointer to the :math:`m \times p` numeric table that contains centroids computed on this local node,
        where :math:`m` equals to the one in ``inputOfStep4FromStep3``.
-     
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``CSRNumericTable``, ``PackedTriangularMatrix``, and ``PackedSymmetricMatrix``.
@@ -495,7 +495,7 @@ Step 5 - on Master Node (``parallelPlus`` methods)
 
 .. figure:: images/kmeans-distributed-init-step-5-parallelPlus-methods.png
     :width: 1000
-    :alt: 
+    :alt:
 
     K-Means Centroid Initialization with ``parrallelPlus`` methods: Distributed Processing, Step 5 - on Master Node
 
@@ -520,11 +520,11 @@ For more details, see :ref:`algorithms`.
        where the value of :math:`m` is defined by the method and the iteration of the algorithm:
 
        ``parallelPlus`` method:
-       
+
        - :math:`m = 1` for the data added as the output of :ref:`Step 1 <kmeans_init_step_1>`
        - :math:`m \leq L`, :math:`L = \mathrm{nClusters} * \mathrm{oversamplingFactor}`
          for the data added as the output of :ref:`Step 4 <kmeans_init_step_4>`
-       
+
        Each numeric table can be an object of any class derived from ``NumericTable``,
        except ``CSRNumericTable``, ``PackedTriangularMatrix``, and ``PackedSymmetricMatrix``.
 
@@ -549,10 +549,10 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``centroids``
-     - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with centroids. 
+     - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with centroids.
 
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.

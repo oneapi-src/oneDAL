@@ -54,7 +54,7 @@ MCG59 engine has the following parameters:
      - ``defaultDense``
      - Performance-oriented computation method; the only method supported by the algorithm.
    * - ``seed``
-     - 
+     -
        - :math:`777` for a scalar seed
        - NA for a vector seed
      - Initial condition for state initialization, scalar or vector:

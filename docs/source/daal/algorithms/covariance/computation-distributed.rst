@@ -90,15 +90,15 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Step 1: Algorithm Input for Correlation and Variance-Covariance Matrices Algorithm (Distributed Processing) 
+.. list-table:: Step 1: Algorithm Input for Correlation and Variance-Covariance Matrices Algorithm (Distributed Processing)
    :widths: 10 60
    :header-rows: 1
 
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the numeric table of size :math:`n_i \times p` that represents the :math:`i`-th data block on the local node. 
-     
+     - Pointer to the numeric table of size :math:`n_i \times p` that represents the :math:`i`-th data block on the local node.
+
        While the input for ``defaultDense``, ``singlePassDense``, or ``sumDense`` method can be an object of any class derived
        from ``NumericTable``, the input for ``fastCSR``, ``singlePassCSR``, or ``sumCSR`` method can only be an object of
        the ``CSRNumericTable`` class.
@@ -118,25 +118,25 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``nObservations``
      - Pointer to the :math:`1 \times 1` numeric table that contains the number of observations processed so far on the local node.
-       
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``CSRNumericTable``.
    * - ``crossProduct``
      - Pointer to :math:`p \times p` numeric table with the cross-product matrix computed so far on the local node.
-       
+
        .. note::
-       
+
           By default, this table is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
    * - ``sum``
      - Pointer to :math:`1 \times p` numeric table with partial sums computed so far on the local node.
-       
+
        .. note::
-       
+
           By default, this table is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
@@ -159,9 +159,9 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``partialResults``
      - A collection that contains results computed in :ref:`Step 1 <cor_cov_step_1>` on local nodes (``nObservations``, ``crossProduct``, and ``sum``).
-       
+
        .. note::
-      
+
           The collection can contain objects of any class derived from the ``NumericTable`` class
           except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
 
@@ -179,26 +179,26 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``covariance``
-     - Use when ``outputMatrixType``=``covarianceMatrix``. Pointer to the numeric table with the :math:`p \times p` variance-covariance matrix. 
-       
+     - Use when ``outputMatrixType``=``covarianceMatrix``. Pointer to the numeric table with the :math:`p \times p` variance-covariance matrix.
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
    * - ``correlation``
      - Use when ``outputMatrixType``=``correlationMatrix``. Pointer to the numeric table with the :math:`p \times p` correlation matrix.
-     
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
    * - ``mean``
      - Pointer to the :math:`1 \times p` numeric table with means.
-     
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.

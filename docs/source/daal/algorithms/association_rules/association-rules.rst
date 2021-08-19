@@ -232,7 +232,7 @@ Examples
     - :cpp_example:`assoc_rules_apriori_batch.cpp <association_rules/assoc_rules_apriori_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
@@ -242,7 +242,7 @@ Examples
   .. tab:: Python*
 
     Batch Processing:
-    
+
     - :daal4py_example:`association_rules_batch.py`
 
 Performance Considerations

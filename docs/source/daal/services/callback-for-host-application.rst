@@ -60,10 +60,10 @@ HostAppIface class includes following methods:
         Enables computation cancelling. The method is called by the
         owning algorithm when computation is in progress. If the method
         returns true then computation stops and returns
-        ErrorUserCancelled status. Since the method can be called from     
-        parallel threads when running with |short_name| threaded version, it is 
-        application responsibility to make its implementation thread-safe. It is not           
-        recommended for this method to throw exceptions.                 
+        ErrorUserCancelled status. Since the method can be called from
+        parallel threads when running with |short_name| threaded version, it is
+        application responsibility to make its implementation thread-safe. It is not
+        recommended for this method to throw exceptions.
 
 
 Currently HostAppIface is supported in C++ only, cancelling is

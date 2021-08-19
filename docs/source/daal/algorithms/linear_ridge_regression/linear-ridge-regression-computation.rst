@@ -54,7 +54,7 @@ algorithm.
       * - ``method``
         - ``defaultDense``
         - Available methods for linear regression training:
-        
+
           - ``defaultDense`` - the normal equations method
           - ``qrDense`` - the method based on QR decomposition
 
@@ -80,7 +80,7 @@ algorithm.
         - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
       * - ``method``
         - ``defaultDense``
-        - Default computation method used by the ridge regression. 
+        - Default computation method used by the ridge regression.
           The only method supported at the training stage is the normal equations method.
       * - ``ridgeParameters``
         - A numeric table of size :math:`1 \times 1` that contains the default ridge parameter
@@ -89,11 +89,11 @@ algorithm.
           or :math:`1 \times 1`. The contents of the table depend on its size:
 
           -  :math:`size = 1 \times k`: values of the ridge parameters :math:`\lambda_j` for :math:`j = 1, \ldots, k`.
-          -  :math:`size = 1 \times 1`: the value of the ridge parameter for each dependent variable 
+          -  :math:`size = 1 \times 1`: the value of the ridge parameter for each dependent variable
              :math:`\lambda_1 = \ldots = \lambda_k`.
 
           .. note::
-          
+
             This parameter can be an object of any class derived from ``NumericTable``,
             except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
@@ -183,7 +183,7 @@ The following table lists parameters of linear and ridge regressions at the trai
       * - ``method``
         - ``defaultDense``
         - Available methods for linear regression training:
-          
+
           - ``defaultDense`` - the normal equations method
           - ``qrDense`` - the method based on QR decomposition
 
@@ -269,7 +269,7 @@ The following table lists parameters of linear and ridge regressions at the trai
       * - ``computeStep``
         - Not applicable
         - The parameter required to initialize the algorithm. Can be:
-        
+
           - ``step1Local`` - the first step, performed on local nodes
           - ``step2Master`` - the second step, performed on a master node
 
@@ -279,13 +279,13 @@ The following table lists parameters of linear and ridge regressions at the trai
       * - ``method``
         - ``defaultDense``
         - Available methods for linear regression training:
-          
+
           - ``defaultDense`` - the normal equations method
           - ``qrDense`` - the method based on QR decomposition
       * - ``interceptFlag``
         - ``true``
         - A flag that indicates a need to compute :math:`\beta_{0_j}`.
- 
+
 
   .. group-tab:: Ridge Regression
 
@@ -303,7 +303,7 @@ The following table lists parameters of linear and ridge regressions at the trai
       * - ``computeStep``
         - Not applicable
         - The parameter required to initialize the algorithm. Can be:
-        
+
           - ``step1Local`` - the first step, performed on local nodes
           - ``step2Master`` - the second step, performed on a master node
 
@@ -338,7 +338,7 @@ Step 1 - on Local Nodes
 
 .. figure:: images/distributed-step-1.png
   :width: 600
-  :alt: 
+  :alt:
 
   Linear and Ridge Regression Training: Distributed Processing, Step 1 - on Local Nodes
 
@@ -376,7 +376,7 @@ For more details, see :ref:`algorithms`.
     - Result
   * - ``partialModel``
     - Pointer to the partial linear regression model that corresponds to the :math:`i`-th data block.
-    
+
       The result can only be an object of the ``Model`` class.
 
 .. _lin_ridge_step_2:
@@ -386,7 +386,7 @@ Step 2 - on Master Node
 
 .. figure:: images/distributed-step-2.png
   :width: 600
-  :alt: 
+  :alt:
 
   Linear and Ridge Regression Training: Distributed Processing, Step 2 - on Master Node
 
@@ -404,7 +404,7 @@ For more details, see :ref:`algorithms`.
     - Input
   * - ``partialModels``
     - A collection of partial models computed on local nodes in :ref:`Step 1 <lin_ridge_step_1>`.
-      
+
       The collection contains objects of the ``Model`` class.
 
 In this step, linear and ridge regression training calculates the result described below.
@@ -421,7 +421,7 @@ For more details, see :ref:`algorithms`.
     - Result
   * - ``model``
     - Pointer to the linear or ridge regression model being trained.
-    
+
       The result can only be an object of the ``Model`` class.
 
 Examples
@@ -453,7 +453,7 @@ Examples
 
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
@@ -480,7 +480,7 @@ Examples
 
     - :daal4py_sycl_example:`linear_regression_batch.py`
 
-  .. tab:: Python* 
+  .. tab:: Python*
 
     Batch Processing:
 

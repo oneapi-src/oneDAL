@@ -19,7 +19,7 @@ Sorting
 
 In |short_name| sorting is an algorithm to sort the observations by each feature (column) in the ascending order.
 
-The result of the sorting algorithm applied to the matrix 
+The result of the sorting algorithm applied to the matrix
 :math:`X = (x_{ij})_{n \times p}` is the matrix :math:`Y = (y_{ij})_{n \times p}`
 where the :math:`j`-th column :math:`(Y)_j = ( y_{ij} )`, :math:`i = 1, \ldots, n`,
 is the column :math:`(X)_j = ( x_{ij} )`, :math:`i = 1, \ldots, n`, sorted in the ascending order.
@@ -44,7 +44,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``data``
      - Pointer to the :math:`n \times p` numeric table that contains the input data set.
-     
+
        This table can be an object of any class derived from ``NumericTable`` except
        ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
@@ -70,7 +70,7 @@ The sorting algorithm has the following parameters:
    * - ``method``
      - ``defaultDense``
      - The radix method for sorting a data set, the only method supported by the algorithm.
-     
+
 
 Algorithm Output
 ----------------
@@ -107,7 +107,7 @@ Examples
     - :cpp_example:`sorting_dense_batch.cpp <sorting/sorting_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

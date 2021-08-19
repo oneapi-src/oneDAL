@@ -22,7 +22,7 @@ by iterative re-weighting according to some accuracy measure for weak learners.
 A weak learner is a classification or regression algorithm that has only slightly better performance than random guessing.
 Weak learners are usually very simple and fast, and they focus on classification of very specific features.
 
-Boosting algorithms include LogitBoost, BrownBoost, AdaBoost, and others. 
+Boosting algorithms include LogitBoost, BrownBoost, AdaBoost, and others.
 A Decision Stump classifier is one of the popular weak learners.
 
 In |short_name|, a weak learner is:
@@ -46,7 +46,7 @@ You can implement your own weak learners by deriving from the appropriate interf
 
     - The number from :math:`\{-1, 1\}` in case of binary classification.
     - Class label from :math:`\{0, \ldots, \text{nClasses}-1\}` for ``nClasses`` > 2.
-    - Some boosting algorithms like SAMME.R AdaBoost that require probabilities of classes. 
+    - Some boosting algorithms like SAMME.R AdaBoost that require probabilities of classes.
       For description of each boosting algorithm, refer to a corresponding section in this document.
 
 .. toctree::

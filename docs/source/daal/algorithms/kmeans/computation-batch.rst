@@ -91,7 +91,7 @@ The K-Means clustering algorithm has the following parameters:
      - ``euclidean``
      - The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidian distance.
    * - **DEPRECATED:** ``assignFlag``
-       
+
        **USE INSTEAD:** ``resultsToEvaluate``
 
      - ``true``
@@ -99,9 +99,9 @@ The K-Means clustering algorithm has the following parameters:
    * - ``resultsToEvaluate``
      - ``computeCentroids`` | ``computeAssignments`` | ``computeExactObjectiveFunction``
      - The 64-bit integer flag that specifies which extra characteristics of the K-Means algorithm to compute.
-     
+
        Provide one of the following values to request a single characteristic or use bitwise OR to request a combination of the characteristics:
-       
+
        - ``computeCentroids`` for computation centroids.
        - ``computeAssignments`` for computation of assignments, that is, assigning cluster indices to respective observations.
        - ``computeExactObjectiveFunction`` for computation of exact ObjectiveFunction.
@@ -136,7 +136,7 @@ the results of your algorithm.
        Pointer to the :math:`n \times 1` numeric table with
        assignments of cluster indices to feature vectors in the input data,
        computed when ``computeAssignments`` option is enabled.
-       
+
        .. include:: ./../../includes/default_result_numeric_table.rst
 
    * - ``objectiveFunction``
@@ -151,7 +151,7 @@ the results of your algorithm.
      -
        Pointer to the :math:`1 \times 1` numeric table with the actual number of iterations
        done by the algorithm.
-       
+
        .. include:: ./../../includes/default_result_numeric_table.rst
 
 .. note::

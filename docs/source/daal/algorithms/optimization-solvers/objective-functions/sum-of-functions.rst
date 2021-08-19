@@ -22,7 +22,7 @@ The sum of functions :math:`F(\theta)` is a function that has the form of a sum:
 .. math::
     F(\theta) = \sum _{i=1}{n} F_i(\theta), \theta \in \mathbb{R}^p
 
-For given set of the indices :math:`I = \{i_1, i_2, \ldots , i_m\}`, :math:`1 \leq ik < n`, 
+For given set of the indices :math:`I = \{i_1, i_2, \ldots , i_m\}`, :math:`1 \leq ik < n`,
 :math:`k \in \{1, \ldots, m\}`, the value and the gradient of the sum of functions in the argument :math:`\theta` has the format:
 
 .. math::

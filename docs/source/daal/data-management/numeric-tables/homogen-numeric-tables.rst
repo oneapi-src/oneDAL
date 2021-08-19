@@ -42,6 +42,6 @@ between representations of triangular and symmetric matrices:
 
 .. figure:: ./images/packed-storage-format.png
   :width: 600
-  :alt: 
+  :alt:
 
   Packed Storage Format for Symmetric and Triangular Matrices

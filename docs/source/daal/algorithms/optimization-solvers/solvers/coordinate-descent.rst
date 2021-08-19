@@ -55,7 +55,7 @@ and power :math:`d` of `Lebesgue space <https://en.wikipedia.org/wiki/Lp_space>`
         \begin{cases}
             (\theta_{t-1})_j - \lambda \frac{1}{\eta}, & (\theta_{t-1})_j > \lambda \frac{1}{\eta}\\
             0, & |(\theta_{t-1})_j| \leq \lambda \frac{1}{\eta}\\
-            (\theta_{t-1})_j + \lambda \frac{1}{\eta}, & (\theta_{t-1})_j < -\lambda \frac{1}{\eta}    
+            (\theta_{t-1})_j + \lambda \frac{1}{\eta}, & (\theta_{t-1})_j < -\lambda \frac{1}{\eta}
         \end{cases}
 
 Convergence check is performed each :math:`p` iterations:
@@ -105,7 +105,7 @@ In addition to the input of a iterative solver, Coordinate Descent algorithm acc
      - ``cyclic``
      - Value that specifies the strategy of certain coordinate selection on each iteration.
        Except for default ``cyclic`` value, Coordinate Descent also supports:
-       
+
        - ``random`` – on each iteration the index of coordinate is selected randomly by the engine.
    * - ``skipTheFirstComponents``
      - ``false``
@@ -121,7 +121,7 @@ Examples
     - :cpp_example:`cd_dense_batch.cpp <optimization_solvers/cd_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`CDDenseBatch.java <optimization_solvers/CDDenseBatch.java>`

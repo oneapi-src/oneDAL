@@ -36,7 +36,7 @@ and power :math:`d` of `Lebesgue space <https://en.wikipedia.org/wiki/Lp_space>`
 
 .. math::
     G^t = (G_i^t)_{i = 1, \ldots, n}
-    
+
 .. math::
     G^0 \equiv (G_i^0)_{i = 1, \ldots, n} \equiv F_i'(\theta_0)_{i = 1, \ldots, n}
 
@@ -48,7 +48,7 @@ and power :math:`d` of `Lebesgue space <https://en.wikipedia.org/wiki/Lp_space>`
 :math:`T(\theta_{t-1}, F_j'(\theta_{t-1}), S_{t-1}, M(\theta_{t-1}))`:
 
 #. :math:`W_t = \theta_{t-1} - \eta_j \left[ F_j'(\theta_{t-1}) - G_j^{t-1} + \frac{1}{n} \sum_{i=1}^{n} G_i^{t-1}\right]`
-    
+
 #. :math:`\theta_t = \mathrm{prox}_{\eta}^{M} (W_t)`
 
 Update of the set of intrinsic parameters :math:`S_t`:
@@ -182,7 +182,7 @@ Examples
     - :cpp_example:`saga_logistic_loss_dense_batch.cpp <optimization_solvers/saga_logistic_loss_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

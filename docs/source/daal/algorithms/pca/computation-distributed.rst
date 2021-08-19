@@ -44,7 +44,7 @@ The PCA algorithm in the distributed processing mode has the following parameter
      - ``defaultDense`` or ``svdDense``
      - Not applicable
      - The parameter required to initialize the algorithm. Can be:
-     
+
        - ``step1Local`` - the first step, performed on local nodes
        - ``step2Master`` - the second step, performed on a master node
    * - ``algorithmFPType``
@@ -55,7 +55,7 @@ The PCA algorithm in the distributed processing mode has the following parameter
      - Not applicable
      - ``defaultDense``
      - Available computation methods for PCA computation:
-     
+
        - ``defaultDense`` - the correlation method
        - ``svdDense`` - the SVD method
    * - ``covariance``
@@ -106,20 +106,20 @@ Step 1 - on Local Nodes
               - Result
             * - ``nObservationsCorrelation``
               - Pointer to the :math:`1 \times 1` numeric table with the number of observations processed so far on the local node.
-              
+
                 .. note::
                     By default, this result is an object of the ``HomogenNumericTable`` class,
                     but you can define it as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
             * - ``crossProductCorrelation``
               - Pointer to the :math:`p \times p` numeric table with the cross-product matrix computed so far on the local node.
-              
+
                 .. note::
                     By default, this table is an object of the ``HomogenNumericTable`` class,
                     but you can define it as an object of any class derived from ``NumericTable``
                     except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
             * - ``sumCorrelation``
               - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far on the local node.
-              
+
                 .. note::
                     By default, this table is an object of the ``HomogenNumericTable`` class,
                     but you can define it as an object of any class derived from ``NumericTable``
@@ -158,13 +158,13 @@ Step 1 - on Local Nodes
               - Result
             * - ``nObservationsCorrelation``
               - Pointer to the :math:`1 \times 1` numeric table with the number of observations processed so far on the local node.
-              
+
                 .. note::
                     By default, this result is an object of the ``HomogenNumericTable`` class,
                     but you can define it as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
             * - ``sumSVD``
               - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far on the local node.
-              
+
                 .. note::
                     By default, this table is an object of the ``HomogenNumericTable`` class,
                     but you can define it as an object of any class derived from ``NumericTable``
@@ -178,7 +178,7 @@ Step 1 - on Local Nodes
                     except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
             * - ``auxiliaryDataSVD``
               - A collection of numeric tables each with the partial result to transmit to the master node for :ref:`Step 2 <pca_step_2>`.
-                
+
                 .. note::
                     The collection can contain objects of any class derived from ``NumericTable``
                     except the ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
@@ -207,10 +207,10 @@ Step 2 - on Master Node
             * - ``partialResults``
               - A collection that contains results computed in :ref:`Step 1 <pca_step_1>` on local nodes
                 (``nObservationsCorrelation``, ``crossProductCorrelation``, and ``sumCorrelation``).
-                
+
                 .. note::
                     The collection can contain objects of any class derived from ``NumericTable``
-                    except the ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.  
+                    except the ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
 
         In this step, PCA calculates the results described below.
         Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
@@ -226,14 +226,14 @@ Step 2 - on Master Node
             * - Result ID
               - Result
             * - ``eigenvalues``
-              - Pointer to the :math:`1 \times p` numeric table that contains eigenvalues in the descending order. 
+              - Pointer to the :math:`1 \times p` numeric table that contains eigenvalues in the descending order.
             * - ``eigenvectors``
               - Pointer to the :math:`p \times p` numeric table that contains eigenvectors in the row-major order.
 
         .. note::
             By default, these results are object of the ``HomogenNumericTable`` class,
             but you can define the result as an object of any class derived from ``NumericTable``
-            except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.        
+            except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
     .. group-tab:: SVD method (``svdDense``)
 
@@ -252,7 +252,7 @@ Step 2 - on Master Node
             * - ``partialResults``
               - A collection that contains results computed in :ref:`Step 1 <pca_step_1>` on local nodes
                 (``nObservationsSVD``, ``sumSVD``, ``sumSquaresSVD``, and ``auxiliaryDataSVD``).
-                
+
                 .. note::
                     The collection can contain objects of any class derived from ``NumericTable``
                     except the ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
@@ -271,11 +271,11 @@ Step 2 - on Master Node
             * - Result ID
               - Result
             * - ``eigenvalues``
-              - Pointer to the :math:`1 \times p` numeric table that contains eigenvalues in the descending order. 
+              - Pointer to the :math:`1 \times p` numeric table that contains eigenvalues in the descending order.
             * - ``eigenvectors``
               - Pointer to the :math:`p \times p` numeric table that contains eigenvectors in the row-major order.
 
         .. note::
             By default, these results are object of the ``HomogenNumericTable`` class,
             but you can define the result as an object of any class derived from ``NumericTable``
-            except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``. 
+            except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.

@@ -97,8 +97,8 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the numeric table of size :math:`n_i \times p` that represents the :math:`i`-th data block on the local node. 
-     
+     - Pointer to the numeric table of size :math:`n_i \times p` that represents the :math:`i`-th data block on the local node.
+
        While the input for ``defaultDense``, ``singlePassDense``, or ``sumDense`` method can be an object of any class derived
        from ``NumericTable``, the input for ``fastCSR``, ``singlePassCSR``, or ``sumCSR`` method can only be an object of
        the ``CSRNumericTable`` class.
@@ -116,8 +116,8 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``nObservations``
-     - Pointer to the :math:`1 \times 1` numeric table that contains the number of observations processed so far on the local node. 
-     
+     - Pointer to the :math:`1 \times 1` numeric table that contains the number of observations processed so far on the local node.
+
        By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result
        as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
 

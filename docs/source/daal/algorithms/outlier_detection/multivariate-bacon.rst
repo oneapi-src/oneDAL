@@ -80,7 +80,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``data``
      - Pointer to the :math:`n \times p` numeric table with the data for outlier detection.
-     
+
        .. note:: The input can be an object of any class derived from the ``NumericTable`` class.
 
 Algorithm Parameters
@@ -135,7 +135,7 @@ For more details, see :ref:`algorithms`.
    * - ``weights``
      - Pointer to the :math:`n \times 1` numeric table of zeros and ones.
        Zero in the :math:`i`-th position indicates that the :math:`i`-th feature vector is an outlier.
-       
+
        .. note::
           By default, the result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
@@ -153,7 +153,7 @@ Examples
     - :cpp_example:`out_detect_bacon_dense_batch.cpp <outlier_detection/out_detect_bacon_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

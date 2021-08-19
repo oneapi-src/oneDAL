@@ -67,7 +67,7 @@ The PCA algorithm in the online processing mode has the following parameters, de
      - Not applicable
      - ``defaultDense``
      - Available computation methods for PCA computation:
-     
+
        - ``defaultDense`` - the correlation method
        - ``svdDense`` - the SVD method
    * - ``initializationProcedure``
@@ -109,12 +109,12 @@ For more details, see :ref:`algorithms`.
               - Result
             * - ``nObservationsCorrelation``
               - Pointer to the :math:`1 \times 1` numeric table with the number of observations processed so far.
-                
+
                 .. note::
                         By default, this result is an object of the ``HomogenNumericTable`` class,
                         but you can define it as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
             * - ``crossProductCorrelation``
-              - Pointer to the :math:`p \times p` numeric table with the partial cross-product matrix computed so far. 
+              - Pointer to the :math:`p \times p` numeric table with the partial cross-product matrix computed so far.
 
                 .. note::
 
@@ -123,7 +123,7 @@ For more details, see :ref:`algorithms`.
                     except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
             * - ``sumCorrelation``
-              - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far. 
+              - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far.
 
                 .. note::
 
@@ -145,12 +145,12 @@ For more details, see :ref:`algorithms`.
               - Result
             * - ``nObservationsCorrelation``
               - Pointer to the :math:`1 \times 1` numeric table with the number of observations processed so far.
-                
+
                 .. note::
                         By default, this result is an object of the ``HomogenNumericTable`` class,
                         but you can define it as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
             * - ``sumSVD``
-              - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far. 
+              - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far.
 
                 .. note::
 
@@ -184,10 +184,10 @@ For more details, see :ref:`algorithms`.
     * - Result ID
       - Result
     * - ``eigenvalues``
-      - Pointer to the :math:`1 \times p` numeric table that contains eigenvalues in the descending order. 
+      - Pointer to the :math:`1 \times p` numeric table that contains eigenvalues in the descending order.
     * - ``eigenvectors``
       - Pointer to the :math:`p \times p` numeric table that contains eigenvectors in the row-major order.
-       
+
 .. note::
 
     By default, these results are objects of the ``HomogenNumericTable`` class,

@@ -72,7 +72,7 @@ For more details, :ref:`algorithms`.
 
    * - ``step11Queries``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`4` columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.
-       
+
        Numeric tables in the collection are ordered by the identifiers of initial block of nodes.
 
        .. include:: ./../../includes/default_result_data_collection.rst

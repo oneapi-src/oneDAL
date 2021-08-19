@@ -136,7 +136,7 @@ Prediction Stage
 ----------------
 
 Given kNN classifier and query vectors :math:`x_0, \ldots, x_r`,
-the problem is to calculate the labels for those vectors. 
+the problem is to calculate the labels for those vectors.
 
 Prediction using K-D Tree
 +++++++++++++++++++++++++
@@ -280,18 +280,18 @@ Pass the ``Result ID`` as a parameter to the methods that access the result of y
 
    * - Result ID
      - Result
-   * - ``indices`` 
+   * - ``indices``
      - A numeric table :math:`n \times k` containing indices of rows from training dataset that are nearest neighbors computed when the ``computeIndicesOfNeigtbors`` option is on.
-     
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``.
    * - ``distances``
      - A numeric table :math:`n \times k` containing distances to nearest neighbors computed when the ``computeDistances`` option is on.
-     
+
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``.
 
@@ -305,7 +305,7 @@ Examples
     Batch Processing:
 
     - :ref:`dpc_knn_cls_brute_force_dense_batch.cpp`
-  
+
   .. tab:: oneAPI C++
 
     Batch Processing:
@@ -320,7 +320,7 @@ Examples
     - :cpp_example:`bf_knn_dense_batch.cpp <k_nearest_neighbors/bf_knn_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

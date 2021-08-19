@@ -36,8 +36,8 @@ names and respective arguments.
 
 .. figure:: images/numeric-table-lifecycle.png
   :width: 400
-  :alt: 
-  
+  :alt:
+
   Numeric Table Lifecycle
 
 Initialize

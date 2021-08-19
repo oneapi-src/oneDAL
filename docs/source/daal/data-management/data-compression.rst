@@ -36,7 +36,7 @@ flow at a high level:
 
 .. figure:: ./images/compression-flow.png
   :width: 600
-  :alt: 
+  :alt:
 
   Data Compression and Decompression Flow
 

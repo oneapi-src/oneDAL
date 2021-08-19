@@ -163,7 +163,7 @@ method parameter method:
      - ``miniBatch``,``momentum``
      - :math:`128`
      - The number of batch indices to compute the stochastic gradient.
-     
+
        If ``batchSize`` equals the number of terms in the objective function, no random sampling
        is performed, and all terms are used to calculate the gradient.
 
@@ -223,7 +223,7 @@ Examples
     - :cpp_example:`sgd_moment_opt_res_dense_batch.cpp <optimization_solvers/sgd_moment_opt_res_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

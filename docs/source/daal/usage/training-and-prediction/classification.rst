@@ -31,7 +31,7 @@ Training Stage
 
 .. figure:: images/training-stage-classification.png
     :width: 600
-    :alt: 
+    :alt:
 
     Classification Usage Model: Training Stage
 
@@ -81,7 +81,7 @@ Prediction Stage
 
 .. figure:: images/prediction-stage-classification.png
     :width: 600
-    :alt: 
+    :alt:
 
     Classification Usage Model: Prediction Stage
 
@@ -120,13 +120,13 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``prediction``
      - Pointer to the :math:`n \times 1` numeric table with classification results (class labels or confidence levels).
-       
+
        .. note::
-       
+
           By default, this table is an object of the ``HomogenNumericTable`` class,
           but you can define it as an object of any class derived from ``NumericTable``
           except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
-   
+
    * - ``probabilities``
      - A numeric table of size :math:`n \times \text{nClasses}`, containing probabilities of classes computed when the
        ``computeClassProbabilities`` option is enabled. This result table is available for selected algorithms, see corresponding algorithm documentation for details.

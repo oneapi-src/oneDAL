@@ -38,8 +38,8 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the numeric table of size :math:`n_i \times p` that represents the current data block. 
-     
+     - Pointer to the numeric table of size :math:`n_i \times p` that represents the current data block.
+
        While the input for ``defaultDense``, ``singlePassDense``, or ``sumDense`` method can be an object of any class derived
        from ``NumericTable``, the input for ``fastCSR``, ``singlePassCSR``, or ``sumCSR`` method can only be an object of
        the ``CSRNumericTable`` class.
@@ -90,7 +90,7 @@ The low order moments algorithm has the following parameters:
    * - ``initializationProcedure``
      - Not applicable
      - The procedure for setting initial parameters of the algorithm in the online processing mode.
-       
+
        By default, the algorithm does the following initialization:
 
        - Sets ``nObservations``, ``partialSum``, and ``partialSumSquares`` to zero.
@@ -120,12 +120,12 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``nObservations``
-     - Pointer to the :math:`1 \times 1` numeric table that contains the number of rows processed so far. 
-     
+     - Pointer to the :math:`1 \times 1` numeric table that contains the number of rows processed so far.
+
        By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result
        as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
 
-Partial characteristics computed so far, each in a :math:`1 \times p` numeric table. 
+Partial characteristics computed so far, each in a :math:`1 \times p` numeric table.
 By default, each table is an object of the ``HomogenNumericTable`` class, but you can define the tables as objects
 of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 

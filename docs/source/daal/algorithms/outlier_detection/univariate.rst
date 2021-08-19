@@ -23,7 +23,7 @@ Details
 *******
 
 Given a set :math:`X` of :math:`n` feature vectors
-:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of dimension :math:`p`, 
+:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of dimension :math:`p`,
 the problem is to identify the vectors that do not belong to the underlying distribution
 (see [Ben2005]_ for exact definitions of an outlier).
 
@@ -64,7 +64,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``data``
      - Pointer to the :math:`n \times p` numeric table with the data for outlier detection.
-     
+
        .. note:: The input can be an object of any class derived from the ``NumericTable`` class.
    * - ``location``
      - Pointer to the :math:`1 \times p` numeric table with the vector of means.
@@ -75,7 +75,7 @@ For more details, see :ref:`algorithms`.
 
        .. note:: The input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
    * - ``threshold``
-     - Pointer to the :math:`1 \times p` numeric table with non-negative numbers that define the outlier region. 
+     - Pointer to the :math:`1 \times p` numeric table with non-negative numbers that define the outlier region.
 
        .. note:: The input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
 
@@ -89,7 +89,7 @@ For more details, see :ref:`algorithms`.
     .. list-table:: Default Values for Algorithm Input of Univariate Outlier Detection (Batch Processing)
         :widths: 10 20
         :class: longtable
-        
+
         * - ``location``
           - A set of :math:`0.0`
         * - ``scatter``
@@ -135,11 +135,11 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``weights``
-     - Pointer to the :math:`n \times p` numeric table of zeros and ones. 
-       Zero in the position :math:`(i, j)` indicates an outlier in the :math:`i`-th observation of the :math:`j`-th feature. 
-       
-       .. note:: 
-       
+     - Pointer to the :math:`n \times p` numeric table of zeros and ones.
+       Zero in the position :math:`(i, j)` indicates an outlier in the :math:`i`-th observation of the :math:`j`-th feature.
+
+       .. note::
+
             By default, the result is an object of the ``HomogenNumericTable`` class,
             but you can define the result as an object of any class derived from ``NumericTable``
             except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``СSRNumericTable``.
@@ -156,7 +156,7 @@ Examples
     - :cpp_example:`out_detect_uni_dense_batch.cpp <outlier_detection/out_detect_uni_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

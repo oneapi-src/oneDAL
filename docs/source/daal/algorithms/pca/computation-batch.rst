@@ -36,12 +36,12 @@ For more details, see :ref:`algorithms`.
    * - ``data``
      - Use when the input data is a normalized or non-normalized data set.
        Pointer to the :math:`n \times p` numeric table that contains the input data set.
-       
+
        .. note:: This input can be an object of any class derived from ``NumericTable``.
    * - ``correlation``
      - Use when the input data is a correlation matrix. Pointer to the :math:`p \times p`
-       numeric table that contains the correlation matrix. 
-       
+       numeric table that contains the correlation matrix.
+
        .. note::
           This input can be an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``.
@@ -79,7 +79,7 @@ computation method parameter method:
        - ``defaultDense`` - the correlation method
        - ``svdDense`` - the SVD method
 
-       For GPU: 
+       For GPU:
 
        - ``defaultDense`` - the correlation method
 
@@ -93,7 +93,7 @@ computation method parameter method:
      - ``svdDense``
      - `SharedPtr<normalization::zscore::Batch<algorithmFPType, normalization::zscore::defaultDense>>`
      - The data normalization algorithm to be used for PCA computations with
-       the SVD method. 
+       the SVD method.
    * - ``nComponents``
      - ``defaultDense``, ``svdDense``
      - :math:`0`
@@ -120,7 +120,7 @@ Algorithm Output
 
 The PCA algorithm calculates the results described below. Pass the
 ``Result ID`` as a parameter to the methods that access the results of
-your algorithm. 
+your algorithm.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
@@ -134,8 +134,8 @@ your algorithm.
      - Result
    * - ``eigenvalues``
      - Pointer to the :math:`1 \times p_r` numeric table that contains eigenvalues
-       in the descending order. 
-       
+       in the descending order.
+
        .. note::
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``

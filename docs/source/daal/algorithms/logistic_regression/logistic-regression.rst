@@ -95,8 +95,8 @@ complete the following steps:
 - Use the ``setBeta`` method to add the set of pre-calculated coefficients to the model.
   Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7]_.
 
-  .. note:: 
-  
+  .. note::
+
     If your set of coefficients does not contain an intercept, interceptFlag is automatically set to ``False``, and to ``True``, otherwise.
 
 - Use the ``getModel`` method to get the trained Logistic Regression model.
@@ -105,7 +105,7 @@ complete the following steps:
   that describe the problems API encountered (in case of API runtime failure).
 
 .. note::
-  
+
   If after calling the ``getModel`` method you use the ``setBeta`` method to update coefficients,
   the initial model will be automatically updated with the new :math:`\beta` coefficients.
 
@@ -119,7 +119,7 @@ Examples
     - :cpp_example:`log_reg_model_builder.cpp <logistic_regression/log_reg_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`LogRegModelBuilder.java <logistic_regression/LogRegModelBuilder.java>`
@@ -277,7 +277,7 @@ Examples
     -  :cpp_example:`log_reg_binary_dense_batch.cpp <logistic_regression/log_reg_binary_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
@@ -297,4 +297,4 @@ Examples
     Batch Processing:
 
     - :daal4py_example:`log_reg_dense_batch.py`
-    - :daal4py_example:`log_reg_binary_dense_batch.py` 
+    - :daal4py_example:`log_reg_binary_dense_batch.py`

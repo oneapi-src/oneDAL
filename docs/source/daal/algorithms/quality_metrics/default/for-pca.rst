@@ -18,7 +18,7 @@ Quality Metrics for Principal Components Analysis
 =================================================
 
 Given the results of the PCA algorithm, data set :math:`E = (e_i)`, :math:`i = \overline{1, p}`
-of eigenvalues in decreasing order, full number of principal components :math:`p` and reduced number 
+of eigenvalues in decreasing order, full number of principal components :math:`p` and reduced number
 of components :math:`p_r \leq p`, the problem is to evaluate the explained variances radio and noise variance.
 
 ``QualityMetricsId`` for the PCA algorithm is ``explainedVarianceMetrics``.
@@ -29,7 +29,7 @@ Details
 The metrics are computed given the input data meets the following requirements:
 
 - At least the largest eigenvalue :math:`e_0` is non-zero. Returns an error otherwise.
-- The number of eigenvalues :math:`p` must be equal to the number of features provided. 
+- The number of eigenvalues :math:`p` must be equal to the number of features provided.
   Returns an error if :math:`p` is less than the number of features.
 
 The PCA algorithm receives input argument eigenvalues :math:`e_k`, :math:`k = \overline{1, p}`.
@@ -55,10 +55,10 @@ The library uses the following quality metrics:
      - :math:`r_k = \frac {e_k}{\sum _{i = 1}^{p} e_i}`, :math:`k = \overline{1, p}`
    * - Noise variance
      - .. math::
-           v_\text{noise} = 
+           v_\text{noise} =
            \begin{cases}
               0, & p_r = p;\\
-		          \frac{1}{p - p_r} \sum _{i = p_r + 1}^{p} e_i, & p_r < p 
+		          \frac{1}{p - p_r} \sum _{i = p_r + 1}^{p} e_i, & p_r < p
            \end{cases}
 
 .. note::
@@ -85,8 +85,8 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``eigenvalues``
-     - :math:`p` eigenvalues (explained variances), numeric table of size :math:`1 \times p`. 
-       
+     - :math:`p` eigenvalues (explained variances), numeric table of size :math:`1 \times p`.
+
        You can define it as an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
 Algorithm Parameters
@@ -98,7 +98,7 @@ The quality metric algorithm has the following parameters:
 
 .. list-table:: Algorithm Parameters for Quality Metrics for Principal Components Analysis (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
    :class: longtable
 
@@ -110,13 +110,13 @@ The quality metric algorithm has the following parameters:
      - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``nComponents``
      - :math:`0`
-     - The number of principal components :math:`p_r \leq p` to compute metrics for. 
+     - The number of principal components :math:`p_r \leq p` to compute metrics for.
        If it is zero, the algorithm will compute the result for :math:`p`.
    * - ``nFeatures``
      - :math:`0`
-     - The number of features in the data set used as input in PCA algorithm. 
-       If it is zero, the algorithm will compute the result for p. 
-       
+     - The number of features in the data set used as input in PCA algorithm.
+       If it is zero, the algorithm will compute the result for p.
+
        .. note:: if :math:`\text{nFeatures} \neq p`, the algorithm will return non-relevant results.
 
 Algorithm Output
@@ -157,7 +157,7 @@ Examples
     - :cpp_example:`pca_metrics_dense_batch.cpp <quality_metrics/pca_metrics_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

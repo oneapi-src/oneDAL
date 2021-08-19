@@ -66,7 +66,7 @@ For more details, :ref:`algorithms`.
    * - ``step10FinishedFlag``
      - Pointer to :math:`1 \times 1` numeric table containing the flag indicating that the clusters numeration process is finished for current node.
 
-       .. include:: ./../../includes/default_result_numeric_table.rst       
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
    * - ``step10Queries``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`4` columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.

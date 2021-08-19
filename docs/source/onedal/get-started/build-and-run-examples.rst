@@ -67,7 +67,7 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
               .. code-block:: bash
 
-                 module load dal    
+                 module load dal
 
       .. group-tab:: Windows
 

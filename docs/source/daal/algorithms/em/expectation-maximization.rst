@@ -126,8 +126,8 @@ for :math:`i = 1, \ldots, n` and :math:`j=1, \ldots, k`.
 
 #. Repeat steps 2 and 3 until any of these conditions is met:
 
-   - :math:`|\log({\theta }^{(j+1)}-{\theta }^{(j)})|<\epsilon`, where the likelihood function is: 
-   
+   - :math:`|\log({\theta }^{(j+1)}-{\theta }^{(j)})|<\epsilon`, where the likelihood function is:
+
      :math:`\log(\theta)=\sum_{i=1}^{n}\log(\sum _{j=1}^{k}{pd(x}_{i}|{z}_{j},{\theta }_{j}){\alpha }_{j})`
 
    - The number of iterations exceeds the predefined level.
@@ -252,7 +252,7 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
      - Pointer to the :math:`1 \times k` numeric table with mixture weights.
 
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -260,9 +260,9 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
    * - ``means``
      - Pointer to the :math:`k \times p` numeric table with each row containing the estimate
        of the means for the :math:`i`-th mixture component, where :math:`i=0, 1, \ldots, k-1`.
-       
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -275,7 +275,7 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
        + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
 
        .. note::
-       
+
           By default, the collection contains objects of the ``HomogenNumericTable`` class,
           but you can define them as objects of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
@@ -362,9 +362,9 @@ The EM for GMM algorithm has the following parameters:
    * - ``covariance``
      - Pointer to an object of the BatchIface class
      - Pointer to the algorithm that computes the covariance matrix.
-     
+
        .. note::
-          
+
           By default, the respective |product| algorithm is used,
           implemented in the class derived from ``BatchIface``.
    * - ``regularizationFactor``
@@ -400,9 +400,9 @@ of your algorithm.
      - Result
    * - ``weights``
      - Pointer to the :math:`1 \times k` numeric table with mixture weights.
-     
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -411,7 +411,7 @@ of your algorithm.
        of the means for the :math:`i`-th mixture component, where :math:`i=0, 1, \ldots, k-1`.
 
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -433,7 +433,7 @@ of your algorithm.
    * - ``goalFunction``
      - Pointer to the :math:`1 \times 1` numeric table with the value of the logarithm of
        the likelihood function after the last iteration.
-       
+
        .. note:: By default, this result is an object of the ``HomogenNumericTable`` class.
    * - ``nIterations``
      - Pointer to the :math:`1 \times 1` numeric table with the number of iterations
@@ -453,7 +453,7 @@ Examples
     - :cpp_example:`em_gmm_dense_batch.cpp <em/em_gmm_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
