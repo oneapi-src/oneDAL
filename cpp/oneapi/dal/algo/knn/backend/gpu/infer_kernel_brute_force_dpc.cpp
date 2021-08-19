@@ -194,17 +194,17 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
 
     auto arr_responses = array<idx_t>{};
     if (desc.get_result_options().test(result_options::responses)) {
-        arr_responses = array<idx_t>::empty(queue, infer_row_count);
+        arr_responses = array<idx_t>::empty(queue, infer_row_count, sycl::usm::alloc::device);
     }
     auto arr_distances = array<Float>{};
     if (desc.get_result_options().test(result_options::distances)) {
         const auto length = dal::detail::check_mul_overflow(infer_row_count, neighbor_count);
-        arr_distances = array<Float>::empty(queue, length);
+        arr_distances = array<Float>::empty(queue, length, sycl::usm::alloc::device);
     }
     auto arr_indices = array<idx_t>{};
     if (desc.get_result_options().test(result_options::indices)) {
         const auto length = dal::detail::check_mul_overflow(infer_row_count, neighbor_count);
-        arr_indices = array<idx_t>::empty(queue, length);
+        arr_indices = array<idx_t>::empty(queue, length, sycl::usm::alloc::device);
     }
 
     auto train_data = pr::table2ndarray<Float>(queue, train, sycl::usm::alloc::device);
