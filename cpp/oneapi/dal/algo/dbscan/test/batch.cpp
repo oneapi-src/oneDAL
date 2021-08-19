@@ -337,7 +337,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 
     const double epsilon = 1.0e3;
     const std::int64_t min_observations = 220;
-    constexpr Float ref_dbi = 0.00036f;
+    constexpr Float ref_dbi = Float(0.00036);
 
     this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-1);
 }
