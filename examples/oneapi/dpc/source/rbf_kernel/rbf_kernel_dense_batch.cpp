@@ -17,7 +17,7 @@
 #include <CL/sycl.hpp>
 
 #ifndef ONEDAL_DATA_PARALLEL
-    #define ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
 #endif
 
 #include "oneapi/dal/algo/rbf_kernel.hpp"

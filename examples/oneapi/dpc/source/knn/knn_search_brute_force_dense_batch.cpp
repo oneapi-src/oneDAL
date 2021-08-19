@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #ifndef ONEDAL_DATA_PARALLEL
-    #define ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
 #endif
 
 #include "oneapi/dal/algo/knn.hpp"

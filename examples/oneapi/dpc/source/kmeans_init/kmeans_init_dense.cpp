@@ -19,7 +19,7 @@
 #include <iostream>
 
 #ifndef ONEDAL_DATA_PARALLEL
-    #define ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
 #endif
 
 #include "example_util/utils.hpp"
