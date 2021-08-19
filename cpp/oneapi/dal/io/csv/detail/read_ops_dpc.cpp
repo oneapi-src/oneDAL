@@ -23,10 +23,10 @@ namespace oneapi::dal::csv::detail {
 namespace v1 {
 
 using dal::detail::data_parallel_policy;
-ONEDAL_EXPORT table
-read_ops_dispatcher<table, data_parallel_policy>::operator()(const data_parallel_policy& ctx,
-                                                             const data_source_base& ds,
-                                                             const read_args<table>& args) const {
+table read_ops_dispatcher<table, data_parallel_policy>::operator()(
+    const data_parallel_policy& ctx,
+    const data_source_base& ds,
+    const read_args<table>& args) const {
     using kernel_dispatcher_t =
         dal::backend::kernel_dispatcher<KERNEL_SINGLE_NODE_CPU(backend::read_kernel_cpu<table>),
                                         KERNEL_SINGLE_NODE_GPU(backend::read_kernel_gpu<table>)>;
