@@ -144,7 +144,7 @@ public:
             using namespace bk;
             auto out_block = responses_.get_slice(from, to);
             const auto ndeps = deps + copy_indices + copy_distances;
-            auto temp_resp = temp_resp_.get_row_slice(0, from - to);
+            auto temp_resp = temp_resp_.get_row_slice(0, to - from);
             auto s_event = select_indexed(queue_, inp_indices, inp_responses_, temp_resp, ndeps);
             comp_responses = voting_->operator()(temp_resp, out_block, { s_event });
         }
