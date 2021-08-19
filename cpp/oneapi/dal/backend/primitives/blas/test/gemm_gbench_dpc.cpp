@@ -40,19 +40,19 @@ public:
     static constexpr ndorder co = std::tuple_element_t<3, Param>::value;
 
     void if_should_be_skipped(::benchmark::State& st) {
-        if (this->not_float64_friendly()){
+        if (this->not_float64_friendly()) {
             st.SkipWithError("Not float64 friendly");
         }
     }
 
-    void generate(std::int64_t m, std::int64_t n, std::int64_t k) { 
-	    this->m_ = m;
+    void generate(std::int64_t m, std::int64_t n, std::int64_t k) {
+        this->m_ = m;
         this->n_ = n;
         this->k_ = k;
     }
-    
+
     void generate(const ::benchmark::State& st) final {
-       this->generate(st.range(0), st.range(1), st.range(2));
+        this->generate(st.range(0), st.range(1), st.range(2));
     }
 
     auto A() {
@@ -77,7 +77,7 @@ public:
 
         this->get_queue().wait_and_throw();
 
-        if_should_be_skipped(st); 
+        if_should_be_skipped(st);
 
         for (auto _ : st) {
             gemm(this->get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
@@ -100,14 +100,15 @@ private:
     std::int64_t k_;
 };
 
-template<typename Float>
-using gemm_types =  std::tuple<Float, c_order, c_order, c_order>;
+template <typename Float>
+using gemm_types = std::tuple<Float, c_order, c_order, c_order>;
 
-#define INSTANTIATE_FLOAT(FPTYPE)\
-BM_TEMPLATE_F(gemm_gbench, gemm_##FPTYPE, gemm_types<FPTYPE> )->ArgsProduct({{4, 5, 300, 400},\
-                                                                {5, 6, 400, 500}, {6, 7, 500, 600}})->Unit(benchmark::kMillisecond);
+#define INSTANTIATE_FLOAT(FPTYPE)                                                     \
+    BM_TEMPLATE_F(gemm_gbench, gemm_##FPTYPE, gemm_types<FPTYPE>)                     \
+        ->ArgsProduct({ { 4, 5, 300, 400 }, { 5, 6, 400, 500 }, { 6, 7, 500, 600 } }) \
+        ->Unit(benchmark::kMillisecond);
 
 INSTANTIATE_FLOAT(float);
-INSTANTIATE_FLOAT(double);                                                
+INSTANTIATE_FLOAT(double);
 
 } // namespace oneapi::dal::backend::primitives::test

@@ -27,7 +27,7 @@ public:
         return policy_;
     }
 
-#ifdef ONEDAL_DATA_PARALLEL 
+#ifdef ONEDAL_DATA_PARALLEL
     sycl::queue& get_queue() {
         return policy_.get_queue();
     }

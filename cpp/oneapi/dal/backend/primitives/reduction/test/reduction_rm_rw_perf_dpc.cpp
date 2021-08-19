@@ -146,7 +146,7 @@ public:
                            unary_desc(),
                            binary_desc());
     }
- 
+
     template <typename reduction_t>
     void test_raw_rw_reduce(const std::string& name) {
         auto [inp_array, inp_event] = input();
