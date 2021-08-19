@@ -80,8 +80,10 @@ public:
               voting_(pr::make_uniform_voting(q, query_block, k_neighbors)) {}
 
     auto& set_inp_responses(const array<std::int32_t>& inp_responses) {
-        this->inp_responses_ =
-            pr::ndarray<std::int32_t, 1>::wrap(inp_responses, inp_responses.get_count());
+        if (result_options_.test(result_options::responses)) {
+            this->inp_responses_ =
+                pr::ndarray<std::int32_t, 1>::wrap(inp_responses, inp_responses.get_count());
+        }
         return *this;
     }
 
@@ -142,7 +144,7 @@ public:
             using namespace bk;
             auto out_block = responses_.get_slice(from, to);
             const auto ndeps = deps + copy_indices + copy_distances;
-            auto temp_resp = temp_resp_.get_row_slice(from, to);
+            auto temp_resp = temp_resp_.get_row_slice(0, from - to);
             auto s_event = select_indexed(queue_, inp_indices, inp_responses_, temp_resp, ndeps);
             comp_responses = voting_->operator()(temp_resp, out_block, { s_event });
         }
@@ -164,10 +166,10 @@ private:
 };
 
 template <typename Float, typename Task>
-static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
-                                           const descriptor_t<Task>& desc,
-                                           const table& infer,
-                                           const model<Task>& m) {
+static infer_result<Task> call_kernel(const context_gpu& ctx,
+                                      const descriptor_t<Task>& desc,
+                                      const table& infer,
+                                      const model<Task>& m) {
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
@@ -275,7 +277,7 @@ template <typename Float, typename Task>
 static infer_result<Task> infer(const context_gpu& ctx,
                                 const descriptor_t<Task>& desc,
                                 const infer_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_model());
+    return call_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float, typename Task>
