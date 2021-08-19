@@ -1,0 +1,48 @@
+load("@onedal//dev/bazel:dal.bzl",
+    "dal_module",
+    "dal_example_suite",
+    "dal_algo_example_suite",
+)
+
+dal_module(
+    name = "example_util",
+    hdrs = glob(["source/example_util/*.hpp"]),
+    includes = [ "source" ],
+)
+
+_TEST_DEPS = [
+    ":example_util",
+]
+
+_DATA_DEPS = [
+    "@onedal//examples/oneapi:data",
+]
+
+dal_example_suite(
+    name = "table",
+    compile_as = [ "dpc++" ],
+    srcs = glob(["source/table/*.cpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/table",
+    ],
+    data = _DATA_DEPS,
+    extra_deps = _TEST_DEPS,
+)
+
+dal_algo_example_suite(
+    algos = [
+        "basic_statistics",
+        "covariance",
+        "decision_forest",
+        "kmeans",
+        "kmeans_init",
+        "knn",
+        "linear_kernel",
+        "pca",
+        "rbf_kernel",
+        "svm",
+    ],
+    compile_as = [ "dpc++" ],
+    data = _DATA_DEPS,
+    extra_deps = _TEST_DEPS,
+)

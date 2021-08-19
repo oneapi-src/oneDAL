@@ -18,7 +18,10 @@
 #include <iomanip>
 #include <iostream>
 
-#define ONEDAL_DATA_PARALLEL
+#ifndef ONEDAL_DATA_PARALLEL
+    #define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/algo/kmeans_init.hpp"

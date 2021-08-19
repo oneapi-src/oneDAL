@@ -16,7 +16,10 @@
 
 #include <CL/sycl.hpp>
 
-#define ONEDAL_DATA_PARALLEL
+#ifndef ONEDAL_DATA_PARALLEL
+    #define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/algo/svm.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
