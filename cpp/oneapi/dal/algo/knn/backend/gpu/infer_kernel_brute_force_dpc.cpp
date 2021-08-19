@@ -28,12 +28,15 @@
 #include "oneapi/dal/backend/primitives/search.hpp"
 #include "oneapi/dal/backend/primitives/selection.hpp"
 #include "oneapi/dal/backend/primitives/voting.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::knn::backend {
+
+using idx_t = std::int32_t;
 
 using dal::backend::context_gpu;
 
@@ -59,7 +62,7 @@ sycl::event sqrt(sycl::queue& q, array<Float>& data, const bk::event_vector& dep
 
 template <typename Float>
 class knn_callback {
-    using voting_t = std::unique_ptr<pr::uniform_voting<std::int32_t>>;
+    using voting_t = std::unique_ptr<pr::uniform_voting<idx_t>>;
 
 public:
     knn_callback(sycl::queue& q,
@@ -72,34 +75,35 @@ public:
               query_block_(query_block),
               query_length_(query_length),
               k_neighbors_(k_neighbors),
-              temp_resp_(result_options_.test(result_options::responses)
-                             ? pr::ndarray<std::int32_t, 2>::empty(q,
-                                                                   { query_block, k_neighbors },
-                                                                   sycl::usm::alloc::device)
-                             : pr::ndarray<std::int32_t, 2>{}),
-              voting_(pr::make_uniform_voting(q, query_block, k_neighbors)) {}
-
-    auto& set_inp_responses(const array<std::int32_t>& inp_responses) {
-        this->inp_responses_ =
-            pr::ndarray<std::int32_t, 1>::wrap(inp_responses, inp_responses.get_count());
-        return *this;
+              voting_(pr::make_uniform_voting(q, query_block, k_neighbors)) {
+        if (result_options_.test(result_options::responses)) {
+            this->temp_resp_ = pr::ndarray<idx_t, 2>::empty(q,
+                                                            { query_block, k_neighbors },
+                                                            sycl::usm::alloc::device);
+        }
     }
 
-    auto& set_responses(array<std::int32_t>& responses) {
+    auto& set_inp_responses(const pr::ndview<idx_t, 1>& inp_responses) {
         if (result_options_.test(result_options::responses)) {
-            ONEDAL_ASSERT(responses.get_count() == query_length_);
-            this->responses_ = pr::ndarray<std::int32_t, 1>::wrap_mutable(responses, query_length_);
+            this->inp_responses_ = inp_responses;
         }
         return *this;
     }
 
-    auto& set_indices(array<std::int32_t>& indices) {
+    auto& set_responses(const array<idx_t>& responses) {
+        if (result_options_.test(result_options::responses)) {
+            ONEDAL_ASSERT(responses.get_count() == query_length_);
+            this->responses_ = pr::ndarray<idx_t, 1>::wrap_mutable(responses, query_length_);
+        }
+        return *this;
+    }
+
+    auto& set_indices(const array<idx_t>& indices) {
         if (result_options_.test(result_options::indices)) {
             ONEDAL_ASSERT(indices.get_count() ==
                           dal::detail::check_mul_overflow(query_length_, k_neighbors_));
             this->indices_ =
-                pr::ndarray<std::int32_t, 2>::wrap_mutable(indices,
-                                                           { query_length_, k_neighbors_ });
+                pr::ndarray<idx_t, 2>::wrap_mutable(indices, { query_length_, k_neighbors_ });
         }
         return *this;
     }
@@ -119,7 +123,7 @@ public:
     }
 
     sycl::event operator()(std::int64_t qb_id,
-                           const pr::ndview<std::int32_t, 2>& inp_indices,
+                           const pr::ndview<idx_t, 2>& inp_indices,
                            const pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
         sycl::event copy_indices, copy_distances, comp_responses;
@@ -155,11 +159,11 @@ private:
     sycl::queue& queue_;
     const result_option_id result_options_;
     const std::int64_t query_block_, query_length_, k_neighbors_;
-    pr::ndview<std::int32_t, 1> inp_responses_;
-    pr::ndarray<std::int32_t, 2> temp_resp_;
-    pr::ndarray<std::int32_t, 1> responses_;
-    pr::ndarray<std::int32_t, 2> indices_;
+    pr::ndview<idx_t, 1> inp_responses_;
+    pr::ndarray<idx_t, 2> temp_resp_;
+    pr::ndarray<idx_t, 1> responses_;
     pr::ndarray<Float, 2> distances_;
+    pr::ndarray<idx_t, 2> indices_;
     voting_t voting_;
 };
 
@@ -183,37 +187,31 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     const auto train = trained_model->get_data();
     const auto resps = trained_model->get_responses();
 
-    ONEDAL_ASSERT(train.get_column_count() == infer.get_column_count());
-    const std::int64_t feature_count = train.get_column_count();
-    const std::int64_t train_row_count = train.get_row_count();
     const std::int64_t infer_row_count = infer.get_row_count();
+    const std::int64_t feature_count = train.get_column_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
+    ONEDAL_ASSERT(train.get_column_count() == infer.get_column_count());
 
-    auto arr_responses = array<std::int32_t>{};
+    auto arr_responses = array<idx_t>{};
     if (desc.get_result_options().test(result_options::responses)) {
-        arr_responses = array<std::int32_t>::empty(queue, infer_row_count);
+        arr_responses = array<idx_t>::empty(queue, infer_row_count);
     }
     auto arr_distances = array<Float>{};
     if (desc.get_result_options().test(result_options::distances)) {
         const auto length = dal::detail::check_mul_overflow(infer_row_count, neighbor_count);
         arr_distances = array<Float>::empty(queue, length);
     }
-    auto arr_indices = array<std::int32_t>{};
+    auto arr_indices = array<idx_t>{};
     if (desc.get_result_options().test(result_options::indices)) {
         const auto length = dal::detail::check_mul_overflow(infer_row_count, neighbor_count);
-        arr_indices = array<std::int32_t>::empty(queue, length);
+        arr_indices = array<idx_t>::empty(queue, length);
     }
 
-    auto resp_arr =
-        row_accessor<const std::int32_t>(resps).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    auto train_arr =
-        row_accessor<const Float>(train).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    auto train_data =
-        pr::ndview<Float, 2>::wrap(train_arr.get_data(), { train_row_count, feature_count });
-    auto query_arr =
-        row_accessor<const Float>(infer).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    auto query_data =
-        pr::ndview<Float, 2>::wrap(query_arr.get_data(), { infer_row_count, feature_count });
+    auto train_data = pr::table2ndarray<Float>(queue, train, sycl::usm::alloc::device);
+    auto query_data = pr::table2ndarray<Float>(queue, infer, sycl::usm::alloc::device);
+    auto resps_data = desc.get_result_options().test(result_options::responses)
+                          ? pr::table2ndarray_1d<idx_t>(queue, resps, sycl::usm::alloc::device)
+                          : pr::ndarray<idx_t, 1>{};
 
     const std::int64_t infer_block = pr::propose_query_block<Float>(queue, feature_count);
     const std::int64_t train_block = pr::propose_train_block<Float>(queue, feature_count);
@@ -223,7 +221,8 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
                                  infer_block,
                                  infer_row_count,
                                  neighbor_count);
-    callback.set_inp_responses(resp_arr);
+
+    callback.set_inp_responses(resps_data);
     callback.set_responses(arr_responses);
     callback.set_distances(arr_distances);
     callback.set_indices(arr_indices);
