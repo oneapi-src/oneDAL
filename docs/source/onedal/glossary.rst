@@ -61,9 +61,6 @@ Machine learning terms
 
         **Examples:** a person's height, the price of the house
 
-    Dataset
-        A collection of :capterm:`observations <observation>`.
-
     Dimensionality reduction
         A problem of transforming a set of :capterm:`feature vectors <feature
         vector>` from a high-dimensional space into a low-dimensional space
@@ -197,40 +194,66 @@ Graph analytics terms
 .. glossary::
     :sorted:
 
+    Adjacency
+        A vertex :math:`u` is adjacent to vertex :math:`v` if they are joined by
+        an edge.
+
     Adjacency matrix
-        A square matrix used to represent a :capterm:`graph`. The elements of the
-        matrix indicate whether pairs of :capterm:`vertices` are adjacent or not
-        in the graph.
+        For a simple graph :math:`G` whose :capterm:`vertices <Vertex>` are explicitly ordered
+        :math:`(v_1, v_2, ..., v_n)` is the :math:`n × n` matrix :math:`A_G`.
 
     Attribute
-        Value or property assigned to :capterm:`graph`, :capterm:`vertex` or
-        :capterm:`edge`.
+        Value assigned to :capterm:`graph`, :capterm:`vertex` or :capterm:`edge`.
+
+    Directed edge
+        An edge :math:`e`, one of whose endpoints is designated as the tail, and
+        whose other endpoint is designated as the head. They are denoted :math:`head(e)`
+        and :math:`tail(e)`, respectively.
 
     Directed graph
-        A :capterm:`graph` whose :capterm:`edges` are ordered. For any two vertices
-        :math:`u` and :math:`v`, with :math:`u != v`, :math:`(u,v) != (v,u)`.
+        A :capterm:`graph` each of whose edges is :capterm:`directed <Directed edge>`.
 
     Edge
-        One of the connections between the vertices of the :capterm:`graph`. Represented
-        by pair of vertices :math:`u` and :math:`v`, edge is pair :math:`(u, v)`.
-        If pair is ordered, the edge is directed. Otherwise edge is undirected.
+        The elements of the :capterm:`edge set` :math:`E`.
+
+    Edge attribute
+        A function from the :capterm:`edge set` to some set of possible attribute
+        values.
+
+    Edge set
+        A finite set :math:`E`, may be empty, but otherwise its elements are two-element
+        subsets of the :capterm:`vertex set` :math:`V`.
+
+    Endpoints
+        A set of one or two vertices associated to :capterm:`edge`.
 
     Graph
-        A pair :math:`G = (V, E)`, where :math:`V` is a set whose elements are
-        called vertices, and :math:`E` is a set of paired
-        :capterm:`vertices`, whose elements are called :capterm:`edges`.
+        An object :math:`G = (V; E)` consists of two sets :math:`V` and :math:`E`.
+
+    Self-loop
+        An :capterm:`edge` that joins a single :capterm:`endpoint <Endpoints>` to itself.
+    
+    Set
+        A collection of distinct objects, none of which is the set itself.
 
     Topology
         The structure of the :capterm:`graph` defined by connections between
-        :capterm:`vertices` and :capterm:`edges` without their :capterm:`attributes`.
+        :capterm:`vertices <Vertex>` and :capterm:`edges <Edge>` without their
+        :capterm:`attributes <Attribute>`.
 
     Undirected graph
-        A :capterm:`graph` whose :capterm:`edges` are unordered. For any two vertices
-        :math:`u` and :math:`v`, with :math:`u != v`, :math:`(u,v) = (v,u)`.
+        :math:`G = (V; E)` consists of a finite, nonempty set of vertices :math:`V`
+         and a set of edges :math:`E`. Each edge is a set :math:`(u, v)` of vertices.
 
     Vertex
-        One of the points on which the :capterm:`graph` is defined and which
-        may be connected by :capterm:`edges`.
+        The elements of the :capterm:`vertex set` :math:`V`.
+
+    Vertex attribute
+        A function from the :capterm:`vertex set` to some set of possible attribute
+        values.
+
+    Vertex set
+        A finite nonempty :capterm:`set` :math:`V`.
 
     Weighted graph
         A graph in which each :capterm:`edge` or/and :capterm:`vertex` is given
@@ -285,6 +308,9 @@ Graph analytics terms
         (in terms of a programming language).
 
         **Examples:** ``int32_t``, ``float``, ``double``
+
+    Dataset
+        A collection of data in specific data format.
 
     Flat data
         A block of :capterm:`contiguous <contiguous data>` :capterm:`homogeneous

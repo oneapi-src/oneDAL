@@ -239,10 +239,11 @@ interface or via read-only accessor as shown on the diagram.
 Graph
 -----
 
-A :capterm:`graph` is a concept of in-memory structured data that are organized
-in a topological view with several :capterm:`vertices <Vertex>` and :capterm:`edges <Edge>`. The
-specific value can be assigned to :capterm:`vertex`, :capterm:`edge` or the whole
-:capterm:`graph`. Graph is used at the data preparation and data processing stages to:
+A graph is a concept of in-memory structured data that are organized
+as :capterm:`graph` with several :capterm:`vertices <Vertex>` and :capterm:`edges <Edge>`.
+Graph can be :capterm:`directed <Directed graph>`, :capterm:`undirected <Undirected graph>`,
+:capterm:`weighted <Weighted graph>` and :capterm:`attributed <Attribute>`. Graph is used
+at the data preparation and data processing stages to:
 
 - Be an in-memory representation of a :txtref:`dataset`.
 
@@ -263,8 +264,8 @@ specific value can be assigned to :capterm:`vertex`, :capterm:`edge` or the whol
 This concept has different logical organization and physical :capterm:`format of
 the data <data format>`:
 
-- Logically, a graph contains :math:`n` vertices and :math:`m` edges.
-  Every :capterm:`vertex`, :capterm:`edge` and :capterm:`graph` value may have
+- Logically, a graph contains :math:`|V|` vertices and :math:`|E|` edges.
+  Every :capterm:`vertex`, :capterm:`edge` and :capterm:`graph` :capterm:`attribute` may have
   its own type of data values and a set of allowed operations.
 
 - Physically, a graph :capterm:`topology` can be organized in :capterm:`CSR <CSR data>`

@@ -32,9 +32,7 @@ Mathematical Notations
        :term:`dataset <Dataset>`. Typically :math:`n` is used, but sometimes
        :math:`m` is required to distinguish two datasets, e.g., the
        :term:`training set <Training set>` and the :term:`inference set
-       <Inference set>`. In graph context :math:`n` is used as a number of
-       :term:`vertices <Vertex>` in a :term:`graph`; :math:`m` is used as a number of
-       :term:`edges <Edge>` in a graph.
+       <Inference set>`.
 
    * - :math:`p` or :math:`r`
      - The number of features in a tabular dataset. Typically :math:`p` is used, but
@@ -51,7 +49,7 @@ Mathematical Notations
      - The edge set in a graph.
 
    * - :math:`u`, :math:`v` or :math:`w`
-     - The number of the vertex in a graph.
+     - The vertex in a graph.
 
    * - :math:`(u, v)`
      - The edge in the graph.
@@ -63,6 +61,15 @@ Mathematical Notations
           of elements in the set :math:`A`.
         + If :math:`A` is a real number, this denotes an absolute value of
           :math:`A`.
+
+   * - :math:`A_G`
+     - :capterm:`Adjacency matrix` for :capterm:`graph` G,
+
+        .. math::
+           \mathrm{A_G}=\begin{cases}
+               1, if v_i and v_j are adjacent\\
+               0, otherwise.
+           \end{cases}
 
    * - :math:`\|x\|`
      - The :math:`L_2`-norm of a vector :math:`x \in \mathbb{R}^d`,
