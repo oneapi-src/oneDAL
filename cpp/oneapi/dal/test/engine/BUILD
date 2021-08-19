@@ -29,12 +29,6 @@ dal_test_module(
 
 dal_test_module(
     name = "common",
-    #auto = True,
-    #auto_exclude = [
-    #    "gtest_main.cpp",
-    #    "catch_main.cpp",
-    #    "gbench_main.cpp",
-    #],
     hdrs = [
         "common.hpp",
     ],
@@ -66,7 +60,6 @@ dal_test_module(
         ":common_base",
     ],
     extra_deps = [
-       # "@gtest//:gtest",
         "@gbench//:benchmark",
     ],
 )

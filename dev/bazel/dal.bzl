@@ -181,8 +181,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         ] if is_gtest else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:common",
             "@onedal//cpp/oneapi/dal/test/engine:catch2_main",
-        ]
-         if is_catch2 else []),
+        ] if is_catch2 else []),
         extra_deps = _test_deps_on_daal() + extra_deps,
         testonly = True,
         **kwargs,

@@ -212,5 +212,5 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     this->test_raw_rw_reduce_narrow();
     this->test_raw_rw_reduce_wrapper();
 }
-//TODO
+
 } // namespace oneapi::dal::backend::primitives::test
