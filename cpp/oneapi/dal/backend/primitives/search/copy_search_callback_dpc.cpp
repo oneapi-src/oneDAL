@@ -49,12 +49,12 @@ sycl::event copy_callback<Float, indices, distances>::run(
 
     if constexpr (indices) {
         auto out_block = out_indices_.get_row_slice(from, to);
-        ind_event = copy_by_value(queue_, out_block, inp_indices, deps);
+        ind_event = copy(queue_, out_block, inp_indices, deps);
     }
 
     if constexpr (distances) {
         auto out_block = out_distances_.get_row_slice(from, to);
-        dst_event = copy_by_value(queue_, out_block, inp_distances, deps);
+        dst_event = copy(queue_, out_block, inp_distances, deps);
     }
 
     sycl::event::wait_and_throw(deps + ind_event + dst_event);

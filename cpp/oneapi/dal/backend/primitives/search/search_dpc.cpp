@@ -244,15 +244,15 @@ sycl::event search_engine<Float, Distance>::reset(temp_ptr_t tmp_objs,
     constexpr Float default_dst_value = detail::limits<Float>::max();
     constexpr std::int32_t default_idx_value = -1;
     auto out_dsts =
-        fill_with_value(get_queue(), tmp_objs->get_out_distances(), default_dst_value, deps);
+        fill(get_queue(), tmp_objs->get_out_distances(), default_dst_value, deps);
     auto out_idcs =
-        fill_with_value(get_queue(), tmp_objs->get_out_indices(), default_idx_value, deps);
+        fill(get_queue(), tmp_objs->get_out_indices(), default_idx_value, deps);
     auto part_dsts =
-        fill_with_value(get_queue(), tmp_objs->get_part_distances(), default_dst_value, deps);
+        fill(get_queue(), tmp_objs->get_part_distances(), default_dst_value, deps);
     auto part_idcs =
-        fill_with_value(get_queue(), tmp_objs->get_part_indices(), default_idx_value, deps);
+        fill(get_queue(), tmp_objs->get_part_indices(), default_idx_value, deps);
     const auto fill_events = out_dsts + out_idcs + part_dsts + part_idcs;
-    return fill_with_value(get_queue(), tmp_objs->get_distances(), default_dst_value, fill_events);
+    return fill(get_queue(), tmp_objs->get_distances(), default_dst_value, fill_events);
 }
 
 template <typename Float, typename Distance>
@@ -333,7 +333,7 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
 
         auto part_indcs = temp_objs->get_part_indices_block(0);
         last_event =
-            copy_by_value(get_queue(), part_indcs, temp_objs->get_out_indices(), { inds_event });
+            copy(get_queue(), part_indcs, temp_objs->get_out_indices(), { inds_event });
     }
     return last_event;
 }

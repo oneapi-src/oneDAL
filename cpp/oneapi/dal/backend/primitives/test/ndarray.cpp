@@ -731,7 +731,7 @@ TEST_M(ndarray_test, "can copy array rm-rm", "[ndarray]") {
     auto [src, src_event] = ndarray<float, 2, ndorder::c>::ones(queue, { m, n });
     auto [dst, dst_event] = ndarray<float, 2, ndorder::c>::zeros(queue, { m, n });
 
-    copy_by_value(queue, dst, src, { dst_event, src_event }).wait_and_throw();
+    copy(queue, dst, src, { dst_event, src_event }).wait_and_throw();
 
     for (std::int64_t r = 0; r < m; ++r) {
         for (std::int64_t c = 0; c < n; ++c) {
@@ -752,7 +752,7 @@ TEST_M(ndarray_test, "can copy array rm-cm", "[ndarray]") {
     auto [src, src_event] = ndarray<float, 2, ndorder::c>::ones(queue, { m, n });
     auto [dst, dst_event] = ndarray<float, 2, ndorder::f>::zeros(queue, { m, n });
 
-    copy_by_value(queue, dst, src, { dst_event, src_event }).wait_and_throw();
+    copy(queue, dst, src, { dst_event, src_event }).wait_and_throw();
 
     for (std::int64_t r = 0; r < m; ++r) {
         for (std::int64_t c = 0; c < n; ++c) {

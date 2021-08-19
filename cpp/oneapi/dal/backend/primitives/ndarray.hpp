@@ -211,12 +211,8 @@ public:
         return this->get_count() > 0;
     }
 
-    bool is_data_mutable() const {
-        return data_is_mutable_;
-    }
-
     bool has_mutable_data() const {
-        return has_data() && is_data_mutable();
+        return this->has_data() && this->data_is_mutable_;
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
@@ -281,10 +277,10 @@ public:
         const ndshape<2> new_shape{ (to_row - from_row), this->get_dimension(1) };
         if constexpr (order == ndorder::c) {
             const T* new_start_point = this->get_data() + from_row * this->get_leading_stride();
-            return this_t(new_start_point, new_shape, this->get_strides(), this->is_data_mutable());
+            return this_t(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
         }
         const T* new_start_point = this->get_data() + from_row;
-        return this_t(new_start_point, new_shape, this->get_strides(), this->is_data_mutable());
+        return this_t(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
@@ -299,7 +295,7 @@ public:
         ONEDAL_ASSERT(this->has_data());
         const ndshape<1> new_shape{ to - from };
         const T* new_start_point = this->get_data() + from;
-        return this_t(new_start_point, new_shape, this->get_strides(), this->is_data_mutable());
+        return this_t(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -353,20 +349,21 @@ private:
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename T1, ndorder ord1, typename T2, ndorder ord2>
-sycl::event copy_by_value(sycl::queue& q,
+sycl::event copy(sycl::queue& q,
                           ndview<T1, 2, ord1>& dst,
                           const ndview<T2, 2, ord2>& src,
                           const event_vector& deps = {}) {
     ndshape<2> dst_shape = dst.get_shape();
     ONEDAL_ASSERT(dst_shape == src.get_shape());
     ONEDAL_ASSERT(dst.has_mutable_data() && src.has_data());
-    const auto cp_range = make_range_2d(dst_shape[0], dst_shape[1]);
+    sycl::event res_event;
     if constexpr (ord1 == ndorder::c) {
         T1* const dst_ptr = dst.get_mutable_data();
         const T2* const src_ptr = src.get_data();
         const auto dst_stride = dst.get_leading_stride();
         const auto src_stride = src.get_leading_stride();
-        return q.submit([&](sycl::handler& h) {
+        const auto cp_range = make_range_2d(dst_shape[0], dst_shape[1]);
+        res_event = q.submit([&](sycl::handler& h) {
             h.depends_on(deps);
             h.parallel_for(cp_range, [=](sycl::id<2> idx) {
                 T1& dst_ref = *(dst_ptr + idx[0] * dst_stride + idx[1]);
@@ -382,14 +379,13 @@ sycl::event copy_by_value(sycl::queue& q,
     else {
         auto new_dst = dst.t();
         const auto new_src = src.t();
-        return copy_by_value(q, new_dst, new_src, deps);
+        res_event = copy(q, new_dst, new_src, deps);
     }
-    ONEDAL_ASSERT(false);
-    return sycl::event();
+    return res_event;
 }
 
 template <typename T>
-sycl::event fill_with_value(sycl::queue& q,
+sycl::event fill(sycl::queue& q,
                             ndview<T, 1>& dst,
                             const T& value = T{},
                             const event_vector& deps = {}) {
@@ -401,29 +397,29 @@ sycl::event fill_with_value(sycl::queue& q,
 }
 
 template <typename T, ndorder ord1>
-sycl::event fill_with_value(sycl::queue& q,
+sycl::event fill(sycl::queue& q,
                             ndview<T, 2, ord1>& dst,
                             const T& value = T{},
                             const event_vector& deps = {}) {
     ONEDAL_ASSERT(dst.has_mutable_data());
-    const ndshape<2> dst_shape = dst.get_shape();
-    const auto cp_range = make_range_2d(dst_shape[0], dst_shape[1]);
+    sycl::event res_event;
     if constexpr (ord1 == ndorder::c) {
         T* const dst_ptr = dst.get_mutable_data();
+        const ndshape<2> dst_shape = dst.get_shape();
         const auto dst_stride = dst.get_leading_stride();
-        return q.submit([&](sycl::handler& h) {
+        const auto fl_range = make_range_2d(dst_shape[0], dst_shape[1]);
+        res_event = q.submit([&](sycl::handler& h) {
             h.depends_on(deps);
-            h.parallel_for(cp_range, [=](sycl::id<2> idx) {
+            h.parallel_for(fl_range, [=](sycl::id<2> idx) {
                 *(dst_ptr + idx[0] * dst_stride + idx[1]) = value;
             });
         });
     }
     else {
         auto new_dst = dst.t();
-        return fill_with_value(q, new_dst, value, deps);
+        res_event = fill(q, new_dst, value, deps);
     }
-    ONEDAL_ASSERT(false);
-    return sycl::event();
+    return res_event;
 }
 #endif
 

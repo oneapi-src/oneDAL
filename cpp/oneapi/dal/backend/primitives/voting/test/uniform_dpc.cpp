@@ -41,13 +41,13 @@ public:
         const auto k = responses.get_dimension(1);
         auto tmp = ndarray<cls_t, 2>::empty(this->get_queue(), { r, k });
         auto res = ndarray<cls_t, 1>::empty(this->get_queue(), { r });
-        copy_by_value(this->get_queue(), tmp, responses).wait_and_throw();
+        copy(this->get_queue(), tmp, responses).wait_and_throw();
         for (int j = 0; j < r; ++j) {
             auto* const from = tmp.get_mutable_data() + j * k;
             auto* const to = tmp.get_mutable_data() + (j + 1) * k;
             std::sort(from, to);
             cls_t last = -1, winner = -1;
-            int last_span = 0, winner_span = 0;
+            int last_span = -1, winner_span = -1;
             for (int i = 0; i < k; ++i) {
                 const cls_t& cur = *(from + i);
                 if (cur == last) {

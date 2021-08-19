@@ -43,6 +43,7 @@ using dal::backend::context_gpu;
 template <typename Task>
 using descriptor_t = detail::descriptor_base<Task>;
 
+namespace de = ::oneapi::dal::detail;
 namespace bk = ::oneapi::dal::backend;
 namespace pr = ::oneapi::dal::backend::primitives;
 
@@ -101,7 +102,7 @@ public:
     auto& set_indices(const array<idx_t>& indices) {
         if (result_options_.test(result_options::indices)) {
             ONEDAL_ASSERT(indices.get_count() ==
-                          dal::detail::check_mul_overflow(query_length_, k_neighbors_));
+                          de::check_mul_overflow(query_length_, k_neighbors_));
             this->indices_ =
                 pr::ndarray<idx_t, 2>::wrap_mutable(indices, { query_length_, k_neighbors_ });
         }
@@ -111,7 +112,7 @@ public:
     auto& set_distances(array<Float>& distances) {
         if (result_options_.test(result_options::distances)) {
             ONEDAL_ASSERT(distances.get_count() ==
-                          dal::detail::check_mul_overflow(query_length_, k_neighbors_));
+                          de::check_mul_overflow(query_length_, k_neighbors_));
             this->distances_ =
                 pr::ndarray<Float, 2>::wrap_mutable(distances, { query_length_, k_neighbors_ });
         }
@@ -134,12 +135,12 @@ public:
 
         if (result_options_.test(result_options::indices)) {
             auto out_block = indices_.get_row_slice(from, to);
-            copy_indices = copy_by_value(queue_, out_block, inp_indices, deps);
+            copy_indices = copy(queue_, out_block, inp_indices, deps);
         }
 
         if (result_options_.test(result_options::distances)) {
             auto out_block = distances_.get_row_slice(from, to);
-            copy_distances = copy_by_value(queue_, out_block, inp_distances, deps);
+            copy_distances = copy(queue_, out_block, inp_distances, deps);
         }
 
         if (result_options_.test(result_options::responses)) {
@@ -174,10 +175,10 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
                                       const model<Task>& m) {
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
-        throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
+        throw internal_error{ de::error_messages::unknown_distance_type() };
     }
     else if (distance_impl->get_daal_distance_type() != detail::v1::daal_distance_t::minkowski) {
-        throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
+        throw internal_error{ de::error_messages::distance_is_not_supported_for_gpu() };
     }
 
     auto& queue = ctx.get_queue();
@@ -198,12 +199,12 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     }
     auto arr_distances = array<Float>{};
     if (desc.get_result_options().test(result_options::distances)) {
-        const auto length = dal::detail::check_mul_overflow(infer_row_count, neighbor_count);
+        const auto length = de::check_mul_overflow(infer_row_count, neighbor_count);
         arr_distances = array<Float>::empty(queue, length, sycl::usm::alloc::device);
     }
     auto arr_indices = array<idx_t>{};
     if (desc.get_result_options().test(result_options::indices)) {
-        const auto length = dal::detail::check_mul_overflow(infer_row_count, neighbor_count);
+        const auto length = de::check_mul_overflow(infer_row_count, neighbor_count);
         arr_indices = array<idx_t>::empty(queue, length, sycl::usm::alloc::device);
     }
 

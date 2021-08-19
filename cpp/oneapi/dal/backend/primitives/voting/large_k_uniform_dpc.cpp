@@ -80,7 +80,7 @@ sycl::event large_k_uniform_voting<ClassType>::operator()(const ndview<ClassType
     ONEDAL_ASSERT(r == out_.get_dimension(1));
     auto swp_slice = swp_.get_row_slice(0, n);
     auto out_slice = out_.get_row_slice(0, n);
-    auto cpy_event = copy_by_value(this->get_queue(), swp_slice, responses, deps);
+    auto cpy_event = copy(this->get_queue(), swp_slice, responses, deps);
     auto srt_event = sorting_(swp_slice, out_slice, { cpy_event });
     return select_winner(results, { srt_event });
 }
