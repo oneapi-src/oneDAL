@@ -200,64 +200,50 @@ Graph analytics terms
 
     Adjacency matrix
         For a simple graph :math:`G` whose :capterm:`vertices <Vertex>` are explicitly ordered
-        :math:`(v_1, v_2, ..., v_n)` is the :math:`n × n` matrix :math:`A_G`.
+        :math:`(v_1, v_2, ..., v_n)` is the :math:`n × n` matrix :math:`A_G`,
+
+        .. math::
+            \mathrm{A_G}=\begin{cases}
+               1, \text{where } v_i \text{ and } v_j \text{ adjacent} \\
+               0, \text{otherwise.}
+            \end{cases}
 
     Attribute
         Value assigned to :capterm:`graph`, :capterm:`vertex` or :capterm:`edge`.
-
-    Directed edge
-        An edge :math:`e`, one of whose endpoints is designated as the tail, and
-        whose other endpoint is designated as the head. They are denoted :math:`head(e)`
-        and :math:`tail(e)`, respectively.
+        Can be a number (:capterm:`weight`), string or any other custom data type.
 
     Directed graph
-        A :capterm:`graph` each of whose edges is :capterm:`directed <Directed edge>`.
+        A :capterm:`graph` where each :capterm:`edge` is an ordered pair :math:`(u, v)`
+        of vertices.
 
     Edge
-        The elements of the :capterm:`edge set` :math:`E`.
-
-    Edge attribute
-        A function from the :capterm:`edge set` to some set of possible attribute
-        values.
-
-    Edge set
-        A finite set :math:`E`, may be empty, but otherwise its elements are two-element
-        subsets of the :capterm:`vertex set` :math:`V`.
-
-    Endpoints
-        A set of one or two vertices associated to :capterm:`edge`.
+        The elements of the edge set :math:`E`.
 
     Graph
-        An object :math:`G = (V; E)` consists of two sets :math:`V` and :math:`E`.
+        An object :math:`G = (V; E)` consists of two sets of vectices :math:`V` and
+        edges :math:`E`. :math:`V` is a finite nonempty set. A finite set :math:`E`,
+        may be empty, but otherwise its elements are two-element subsets of
+        :math:`V` [Gross2014]_.
 
     Self-loop
-        An :capterm:`edge` that joins a single :capterm:`endpoint <Endpoints>` to itself.
-    
-    Set
-        A collection of distinct objects, none of which is the set itself.
+        An :capterm:`edge` that joins a single :capterm:`vertex` to itself.
 
     Topology
-        The structure of the :capterm:`graph` defined by connections between
-        :capterm:`vertices <Vertex>` and :capterm:`edges <Edge>` without their
+        A :capterm:`graph` without :capterm:`weights <Weight>` and
         :capterm:`attributes <Attribute>`.
 
     Undirected graph
-        :math:`G = (V; E)` consists of a finite, nonempty set of vertices :math:`V`
-         and a set of edges :math:`E`. Each edge is a set :math:`(u, v)` of vertices.
+        A :capterm:`graph` where each edge is a unordered pair :math:`(u, v)` of vertices.
 
     Vertex
-        The elements of the :capterm:`vertex set` :math:`V`.
+        The elements of the vertex set :math:`V`.
 
-    Vertex attribute
-        A function from the :capterm:`vertex set` to some set of possible attribute
-        values.
-
-    Vertex set
-        A finite nonempty :capterm:`set` :math:`V`.
+    Weight
+        A numerical value assigned to vertex, edge or graph.
 
     Weighted graph
-        A graph in which each :capterm:`edge` or/and :capterm:`vertex` is given
-        an :capterm:`attribute`.
+        A :capterm:`graph` :math:`G` where all :capterm:`vertices <Vertex>` or all
+        :capterm:`edges <Edge>` have :capterm:`weights <Weight>.`
 
 |short_name| terms
 ======================
@@ -310,7 +296,8 @@ Graph analytics terms
         **Examples:** ``int32_t``, ``float``, ``double``
 
     Dataset
-        A collection of data in specific data format.
+        A collection of data in specific data format. Examples of datasets:
+        collection of observations, graph.
 
     Flat data
         A block of :capterm:`contiguous <contiguous data>` :capterm:`homogeneous

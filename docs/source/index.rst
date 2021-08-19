@@ -37,10 +37,6 @@ algorithmic building blocks for all stages of data analytics
 (preprocessing, transformation, analysis, modeling, validation, and
 decision making) in batch, online, and distributed processing modes of
 computation. The library provides two different sets of C++ interfaces: :ref:`oneAPI and DAAL <oneapi_vs_daal>`.
-Graph analytics extends |short_name| with IA optimized blocks for analysis of
-the relationships in graphs enriching analytical pipelines with capabilities for
-more accurate data modeling.
-
 
 For general information, refer to |daal-docs|_ official page.
 

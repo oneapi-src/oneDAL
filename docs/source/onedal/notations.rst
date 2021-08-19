@@ -62,15 +62,6 @@ Mathematical Notations
         + If :math:`A` is a real number, this denotes an absolute value of
           :math:`A`.
 
-   * - :math:`A_G`
-     - :capterm:`Adjacency matrix` for :capterm:`graph` G,
-
-        .. math::
-           \mathrm{A_G}=\begin{cases}
-               1, if v_i and v_j are adjacent\\
-               0, otherwise.
-           \end{cases}
-
    * - :math:`\|x\|`
      - The :math:`L_2`-norm of a vector :math:`x \in \mathbb{R}^d`,
 
