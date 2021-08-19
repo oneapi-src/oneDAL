@@ -353,9 +353,10 @@ sycl::event copy(sycl::queue& q,
                  ndview<T1, 2, ord1>& dst,
                  const ndview<T2, 2, ord2>& src,
                  const event_vector& deps = {}) {
-    ndshape<2> dst_shape = dst.get_shape();
+    ONEDAL_ASSERT(src.has_data());
+    ONEDAL_ASSERT(dst.has_mutable_data());
+    const ndshape<2> dst_shape = dst.get_shape();
     ONEDAL_ASSERT(dst_shape == src.get_shape());
-    ONEDAL_ASSERT(dst.has_mutable_data() && src.has_data());
     sycl::event res_event;
     if constexpr (ord1 == ndorder::c) {
         T1* const dst_ptr = dst.get_mutable_data();
