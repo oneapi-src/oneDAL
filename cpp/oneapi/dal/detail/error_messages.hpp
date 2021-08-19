@@ -129,6 +129,10 @@ public:
     MSG(invalid_range_of_columns);
     MSG(column_index_out_of_range);
 
+    /* RNG */
+    MSG(rng_engine_does_not_support_parallelization_techniques);
+    MSG(rng_engine_is_not_supported);
+
     /* Graphs */
     MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count);
     MSG(negative_vertex_id);
@@ -165,6 +169,12 @@ public:
     MSG(invalid_number_of_trees);
     MSG(invalid_number_of_classes);
     MSG(input_model_is_not_initialized);
+    MSG(invalid_number_of_min_observations_in_leaf_node);
+    MSG(invalid_number_of_feature_per_node);
+    MSG(invalid_number_of_max_bins);
+    MSG(invalid_value_for_min_bin_size);
+    MSG(invalid_value_for_observations_per_tree_fraction);
+    MSG(not_enough_memory_to_build_one_tree);
     MSG(input_model_tree_has_invalid_size);
 
     /* Jaccard */

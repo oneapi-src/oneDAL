@@ -498,10 +498,32 @@ public:
         return dal::backend::copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
     }
 
+    sycl::event assign_from_host(sycl::queue& q,
+                                 const T* source_ptr,
+                                 std::int64_t source_count,
+                                 const event_vector& deps = {}) {
+        ONEDAL_ASSERT(source_ptr != nullptr);
+        ONEDAL_ASSERT(source_count > 0);
+        ONEDAL_ASSERT(source_count <= this->get_count());
+        return dal::backend::copy_host2usm(q,
+                                           this->get_mutable_data(),
+                                           source_ptr,
+                                           source_count,
+                                           deps);
+    }
+
     sycl::event assign(sycl::queue& q, const ndarray& src, const event_vector& deps = {}) {
         ONEDAL_ASSERT(src.get_count() > 0);
         ONEDAL_ASSERT(src.get_count() <= this->get_count());
         return this->assign(q, src.get_data(), src.get_count(), deps);
+    }
+
+    sycl::event assign_from_host(sycl::queue& q,
+                                 const ndarray& src,
+                                 const event_vector& deps = {}) {
+        ONEDAL_ASSERT(src.get_count() > 0);
+        ONEDAL_ASSERT(src.get_count() <= this->get_count());
+        return this->assign_from_host(q, src.get_data(), src.get_count(), deps);
     }
 #endif
 

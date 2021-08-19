@@ -5,18 +5,13 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "decision_forest",
+    name = "basic_statistics",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/algo:decision_tree",
-        "@onedal//cpp/oneapi/dal/backend/primitives:common",
-        "@onedal//cpp/oneapi/dal/backend/primitives:sort",
-        "@onedal//cpp/oneapi/dal/backend/primitives:rng",
     ],
     extra_deps = [
-        "@onedal//cpp/daal/src/algorithms/dtrees/forest/classification:kernel",
-        "@onedal//cpp/daal/src/algorithms/dtrees/forest/regression:kernel",
+        "@onedal//cpp/daal/src/algorithms/low_order_moments:kernel",
     ]
 )
 
@@ -27,7 +22,7 @@ dal_test_suite(
         "test/*.cpp",
     ]),
     dal_deps = [
-        ":decision_forest",
+        ":basic_statistics",
     ],
 )
 

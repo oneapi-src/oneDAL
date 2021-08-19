@@ -14,11 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl_dpc.hpp"
+#pragma once
 
-namespace oneapi::dal::decision_forest::backend {
+#include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
+#include "oneapi/dal/algo/basic_statistics/detail/compute_ops.hpp"
+#include "oneapi/dal/compute.hpp"
 
-INSTANTIATE(double, std::int32_t, task::classification);
-INSTANTIATE(double, std::int32_t, task::regression);
+namespace oneapi::dal::detail {
+namespace v1 {
 
-} // namespace oneapi::dal::decision_forest::backend
+template <typename Descriptor>
+struct compute_ops<Descriptor, dal::basic_statistics::detail::descriptor_tag>
+        : dal::basic_statistics::detail::compute_ops<Descriptor> {};
+
+} // namespace v1
+} // namespace oneapi::dal::detail
