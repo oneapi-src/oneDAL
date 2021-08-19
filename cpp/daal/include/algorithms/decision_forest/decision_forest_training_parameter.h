@@ -82,8 +82,8 @@ enum ResultToComputeId
     computeOutOfBagErrorPerObservation   = 0x00000002ULL,
     computeOutOfBagErrorAccuracy         = 0x00000004ULL,
     computeOutOfBagErrorR2               = 0x00000008ULL,
-    computeOutOfBagErrorDecisionFunction = 0x00000016ULL,
-    computeOutOfBagErrorPrediction       = 0x00000032ULL
+    computeOutOfBagErrorDecisionFunction = 0x00000010ULL,
+    computeOutOfBagErrorPrediction       = 0x00000020ULL
 };
 
 /**
