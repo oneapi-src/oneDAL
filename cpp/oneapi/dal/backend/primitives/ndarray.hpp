@@ -177,7 +177,6 @@ class ndview : public ndarray_base<axis_count, order> {
 
 public:
     using base = ndarray_base<axis_count, order>;
-    using this_t = ndview<T, axis_count, order>;
     using shape_t = ndshape<axis_count>;
 
     ndview() : data_(nullptr) {}
@@ -269,33 +268,33 @@ public:
         return reshaped_ndview_t{ data_, new_shape, data_is_mutable_ };
     }
 
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    ndview get_slice(std::int64_t from, std::int64_t to) const {
+        ONEDAL_ASSERT((this->get_dimension(0) >= from) && (from >= 0));
+        ONEDAL_ASSERT((this->get_dimension(0) >= to) && (to >= from));
+        ONEDAL_ASSERT(this->has_data());
+        const ndshape<1> new_shape{ to - from };
+        const T* new_start_point = this->get_data() + from;
+        return ndview(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
+    }
+
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
-    this_t get_row_slice(std::int64_t from_row, std::int64_t to_row) const {
+    ndview get_row_slice(std::int64_t from_row, std::int64_t to_row) const {
         ONEDAL_ASSERT((this->get_dimension(0) >= from_row) && (from_row >= 0));
         ONEDAL_ASSERT((this->get_dimension(0) >= to_row) && (to_row >= from_row));
         ONEDAL_ASSERT(this->has_data());
         const ndshape<2> new_shape{ (to_row - from_row), this->get_dimension(1) };
         if constexpr (order == ndorder::c) {
             const T* new_start_point = this->get_data() + from_row * this->get_leading_stride();
-            return this_t(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
+            return ndview(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
         }
         const T* new_start_point = this->get_data() + from_row;
-        return this_t(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
+        return ndview(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
-    this_t get_col_slice(std::int64_t from_col, std::int64_t to_col) const {
+    ndview get_col_slice(std::int64_t from_col, std::int64_t to_col) const {
         return this->t().get_row_slice(from_col, to_col).t();
-    }
-
-    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
-    this_t get_slice(std::int64_t from, std::int64_t to) const {
-        ONEDAL_ASSERT((this->get_dimension(0) >= from) && (from >= 0));
-        ONEDAL_ASSERT((this->get_dimension(0) >= to) && (to >= from));
-        ONEDAL_ASSERT(this->has_data());
-        const ndshape<1> new_shape{ to - from };
-        const T* new_start_point = this->get_data() + from;
-        return this_t(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
