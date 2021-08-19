@@ -94,7 +94,7 @@ class shortest_paths_badargs_test {
 public:
     template <typename GraphType>
     void check_shortest_paths(double delta, std::int64_t source, bool nothing_to_compute = false) {
-        using namespace oneapi::dal::preview::shortest_paths;
+        using namespace dal::preview::shortest_paths;
         GraphType graph_data;
 
         const auto graph_builder = dal::preview::detail::directed_adjacency_vector_graph_builder<

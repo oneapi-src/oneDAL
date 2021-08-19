@@ -26,7 +26,7 @@
 
 namespace oneapi::dal::preview::shortest_paths::detail {
 
-using namespace oneapi::dal::preview::detail;
+using namespace dal::preview::detail;
 
 template <typename Method, typename Task, typename Allocator, typename Graph>
 struct traverse_kernel_cpu {

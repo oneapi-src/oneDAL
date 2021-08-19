@@ -667,7 +667,7 @@ Type get_inf_value() {
 class shortest_paths_test {
 public:
     inline auto get_result_type(bool calculate_distances, bool calculate_predecessors) {
-        using namespace oneapi::dal::preview::shortest_paths;
+        using namespace dal::preview::shortest_paths;
         if (calculate_distances && calculate_predecessors) {
             return optional_results::distances | optional_results::predecessors;
         }
@@ -759,7 +759,7 @@ public:
         oneapi::dal::preview::shortest_paths::optional_result_id result_type,
         const std::array<EdgeValueType, Size>& true_distances,
         const Allocator& alloc) {
-        using namespace oneapi::dal::preview::shortest_paths;
+        using namespace dal::preview::shortest_paths;
         const auto shortest_paths_desc =
             descriptor<float, method::delta_stepping, task::one_to_all, Allocator>(
                 source,

@@ -26,7 +26,7 @@
 
 namespace oneapi::dal::preview::connected_components::detail {
 
-using namespace oneapi::dal::preview::detail;
+using namespace dal::preview::detail;
 
 template <typename Method, typename Task, typename Allocator, typename Graph>
 struct vertex_partitioning_kernel_cpu {
