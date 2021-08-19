@@ -350,9 +350,9 @@ private:
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename T1, ndorder ord1, typename T2, ndorder ord2>
 sycl::event copy(sycl::queue& q,
-                          ndview<T1, 2, ord1>& dst,
-                          const ndview<T2, 2, ord2>& src,
-                          const event_vector& deps = {}) {
+                 ndview<T1, 2, ord1>& dst,
+                 const ndview<T2, 2, ord2>& src,
+                 const event_vector& deps = {}) {
     ndshape<2> dst_shape = dst.get_shape();
     ONEDAL_ASSERT(dst_shape == src.get_shape());
     ONEDAL_ASSERT(dst.has_mutable_data() && src.has_data());
@@ -386,9 +386,9 @@ sycl::event copy(sycl::queue& q,
 
 template <typename T>
 sycl::event fill(sycl::queue& q,
-                            ndview<T, 1>& dst,
-                            const T& value = T{},
-                            const event_vector& deps = {}) {
+                 ndview<T, 1>& dst,
+                 const T& value = T{},
+                 const event_vector& deps = {}) {
     ONEDAL_ASSERT(dst.has_mutable_data());
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -398,9 +398,9 @@ sycl::event fill(sycl::queue& q,
 
 template <typename T, ndorder ord1>
 sycl::event fill(sycl::queue& q,
-                            ndview<T, 2, ord1>& dst,
-                            const T& value = T{},
-                            const event_vector& deps = {}) {
+                 ndview<T, 2, ord1>& dst,
+                 const T& value = T{},
+                 const event_vector& deps = {}) {
     ONEDAL_ASSERT(dst.has_mutable_data());
     sycl::event res_event;
     if constexpr (ord1 == ndorder::c) {
