@@ -195,6 +195,9 @@ jobs:
       git clone https://github.com/OnlyDeniko/daal4py.git daal4py
       cd daal4py
       git checkout test
+
+
+      
     displayName: Clone daal4py
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
