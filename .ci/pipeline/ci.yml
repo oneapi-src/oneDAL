@@ -192,7 +192,9 @@ jobs:
     displayName: 'Conda create'
   - script: |
       sudo apt-get install git
-      git clone https://github.com/intel/scikit-learn-intelex.git daal4py
+      git clone https://github.com/OnlyDeniko/daal4py.git daal4py
+      cd daal4py
+      git checkout test
     displayName: Clone daal4py
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
