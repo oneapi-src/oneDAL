@@ -341,13 +341,12 @@ struct louvain_kernel {
             using vertex_size_allocator_type = inner_alloc<vertex_size_type>;
             using vertex_pointer_allocator_type = inner_alloc<vertex_pointer_type>;
 
-            
             using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
             using v1s_t = vector_container<vertex_size_type, vertex_size_allocator_type>;
             using v1p_t = vector_container<vertex_pointer_type, vertex_pointer_allocator_type>;
             using v1a_t = inner_alloc<v1v_t>;
             using v2v_t = vector_container<v1v_t, v1a_t>;
-            
+
             vertex_allocator_type vertex_allocator(alloc_ptr);
             vertex_size_allocator_type vertex_size_allocator(alloc_ptr);
             value_allocator_type value_allocator(alloc_ptr);
@@ -361,12 +360,14 @@ struct louvain_kernel {
             const std::int64_t vertex_count = t.get_vertex_count();
             const std::int64_t edge_count = t.get_edge_count();
             dal::preview::detail::topology<std::int32_t> current_topology;
-            
-            auto current_topology_rows_shared_ptr = vertex_size_allocator.make_shared_memory(vertex_count + 1);
-            auto current_topology_cols_shared_ptr = vertex_allocator.make_shared_memory(edge_count * 2);
+
+            auto current_topology_rows_shared_ptr =
+                vertex_size_allocator.make_shared_memory(vertex_count + 1);
+            auto current_topology_cols_shared_ptr =
+                vertex_allocator.make_shared_memory(edge_count * 2);
             auto current_vals_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
             auto currnet_self_loops_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
-            
+
             vertex_size_type* current_topology_rows = current_topology_rows_shared_ptr.get();
             vertex_type* current_topology_cols = current_topology_cols_shared_ptr.get();
             value_type* current_vals = current_vals_shared_ptr.get();
@@ -392,7 +393,8 @@ struct louvain_kernel {
             auto k_shared_ptr = value_allocator.make_shared_memory(vertex_count);
             auto tot_shared_ptr = value_allocator.make_shared_memory(vertex_count);
             auto k_vertex_to_shared_ptr = value_allocator.make_shared_memory(vertex_count);
-            auto neighboring_communities_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
+            auto neighboring_communities_shared_ptr =
+                vertex_allocator.make_shared_memory(vertex_count);
             auto random_order_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
             auto empty_community_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
             auto community_size_shared_ptr = vertex_size_allocator.make_shared_memory(vertex_count);
@@ -456,8 +458,9 @@ struct louvain_kernel {
                     deallocate(vertex_allocator, labels, current_topology._vertex_count);
                     break;
                 }
-                std::int64_t community_count =
-                    reindex_communities(labels, current_topology._vertex_count, index_shared_ptr.get());
+                std::int64_t community_count = reindex_communities(labels,
+                                                                   current_topology._vertex_count,
+                                                                   index_shared_ptr.get());
 
                 compress_graph(current_topology,
                                current_vals,
