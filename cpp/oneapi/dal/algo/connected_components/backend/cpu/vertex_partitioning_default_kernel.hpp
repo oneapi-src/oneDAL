@@ -22,26 +22,17 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include "oneapi/dal/algo/connected_components/backend/cpu/vertex_partitioning_rng.hpp"
+#include "cpp/oneapi/dal/backend/primitives/rng/rnd_seq.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
 using namespace oneapi::dal::preview::detail;
 using namespace oneapi::dal::preview::backend;
 
-template <typename T>
-inline bool compare_and_swap(T &x, const T &old_val, const T &new_val) {
-    if (x == old_val) {
-        x = new_val;
-        return true;
-    }
-    return false;
-}
-
-inline void link(std::int64_t u, std::int64_t v, std::int64_t *components) {
-    std::int64_t p1;
-    std::int64_t p2;
-    std::int64_t h;
-    std::int64_t l;
+inline void link(std::int64_t u, std::int64_t v, std::int32_t *components) {
+    std::int32_t p1;
+    std::int32_t p2;
+    std::int32_t h;
+    std::int32_t l;
     p1 = components[u];
     p2 = components[v];
     while (p1 != p2) {
@@ -53,7 +44,8 @@ inline void link(std::int64_t u, std::int64_t v, std::int64_t *components) {
             h = p2;
             l = p1;
         }
-        if (compare_and_swap<std::int64_t>(components[h], h, l)) {
+        if (components[h] == h) {
+            components[h] = l;
             break;
         }
         p1 = components[components[h]];
@@ -61,17 +53,16 @@ inline void link(std::int64_t u, std::int64_t v, std::int64_t *components) {
     }
 }
 
-inline void compress(std::int64_t u, std::int64_t *components) {
+inline void compress(std::int64_t u, std::int32_t *components) {
     while (components[components[u]] != components[u]) {
         components[u] = components[components[u]];
     }
 }
 
-inline void order_component_ids(const std::int64_t &vertex_count,
+inline void order_component_ids(const std::int64_t vertex_count,
                                 std::int64_t &component_count,
-                                std::int64_t *components) {
+                                std::int32_t *components) {
     std::int64_t ordered_comp_id = 0;
-    component_count = 0;
 
     for (auto i = 0; i < vertex_count; ++i) {
         if (components[i] == i) {
@@ -86,11 +77,11 @@ inline void order_component_ids(const std::int64_t &vertex_count,
 }
 
 template <typename Cpu>
-inline std::int32_t most_frequent_element(std::int64_t *components,
-                                          std::int64_t vertex_count,
+inline std::int32_t most_frequent_element(const std::int32_t *components,
+                                          const std::int64_t vertex_count,
                                           byte_alloc_iface *alloc_ptr,
-                                          std::int32_t samples_num = 1024) {
-    using vertex_type = std::int64_t;
+                                          const std::int64_t samples_num = 1024) {
+    using vertex_type = std::int32_t;
     using vertex_allocator_type = inner_alloc<vertex_type>;
 
     vertex_allocator_type vertex_allocator(alloc_ptr);
@@ -100,12 +91,13 @@ inline std::int32_t most_frequent_element(std::int64_t *components,
         sample_counts[i] = 0;
     }
 
-    rnd_seq<Cpu, std::int64_t> gen(samples_num, 0, vertex_count - 1);
+    rnd_seq<Cpu, std::int32_t> gen(samples_num, 0, vertex_count);
     auto rnd_vertex_ids = gen.get_data();
 
     for (std::int64_t i = 0; i < samples_num; i++) {
         sample_counts[components[rnd_vertex_ids[i]]]++;
     }
+
     std::int64_t max_sample_count = 0;
     std::int64_t most_frequent_root = 0;
     for (std::int64_t i = 0; i < vertex_count; i++) {
@@ -115,6 +107,7 @@ inline std::int32_t most_frequent_element(std::int64_t *components,
         }
     }
     deallocate(vertex_allocator, sample_counts, vertex_count);
+
     return most_frequent_root;
 }
 
@@ -124,7 +117,7 @@ struct afforest {
         const detail::descriptor_base<task::vertex_partitioning> &desc,
         const dal::preview::detail::topology<std::int32_t> &t,
         byte_alloc_iface *alloc_ptr) {
-        using vertex_type = std::int64_t;
+        using vertex_type = std::int32_t;
         using vertex_allocator_type = inner_alloc<vertex_type>;
 
         vertex_allocator_type vertex_allocator(alloc_ptr);
