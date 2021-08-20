@@ -266,7 +266,7 @@ the data <data format>`:
 
 - Logically, a graph contains :math:`|V|` vertices and :math:`|E|` edges.
   Vertex, edge and :capterm:`graph` :capterm:`attributes <Attribute>` may have
-  its own data type and a set of allowed operations.
+  different data types and a set of allowed operations.
 
 - Physically, a graph :capterm:`topology` can be organized in :capterm:`CSR <CSR data>`
   and others data formats.

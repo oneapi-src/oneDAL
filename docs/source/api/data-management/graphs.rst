@@ -52,18 +52,102 @@ The :txtref:`graph` concept is represented by types with suffix _graph and all o
    graph goes out of the scope. If the reference count is zero, the graph
    frees its implementation.
 
-.. _graph_traits:
+.. _api_graph_traits:
 
 Graph traits
 ------------
 
-Graph traits define the data model required for the functions and 
-algorithms. It defines a set of value types and ranges for a graph data
-structure used by the functions and algorithms. While usable as-is, they
-are typically used by the template type aliases. Examples: vertex_edge_range<G>,
-edge_user_value_type<G>, edge_iterator<G>.
+Graph traits is a data type that defines the data model required for processing
+and service functionality: a set of value types and ranges associated with graph
+data types.  
 
-graph_traits needs to be specialized for each graph data structure.
+graph_traits shall be specialized for each graph data structure.
+
+::
+
+   template <typename Graph>
+   struct graph_traits {
+      using graph_type = empty_value;
+      using allocator_type = empty_value;
+
+      // graph weight types
+      using graph_user_value_type = empty_value;
+      using const_graph_user_value_type = empty_value;
+
+      // vertex types
+      using vertex_type = empty_value;
+      using vertex_iterator = empty_value;
+      using const_vertex_iterator = empty_value;
+      using vertex_size_type = empty_value;
+
+      // vertex weight types
+      using vertex_user_value_type = empty_value;
+
+      // edge types
+      using edge_type = empty_value;
+      using edge_iterator = empty_value;
+      using const_edge_iterator = empty_value;
+      using edge_size_type = empty_value;
+
+      // edge weight types
+      using edge_user_value_type = empty_value;
+   };
+
+.. .. namespace:: oneapi::dal::preview
+.. .. struct:: graph_traits
+
+graph_traits<G>::graph_type
+   Represents the type of the graph G.
+
+graph_traits<G>::allocator_type
+   Represents the type of allocator of the graph G.
+
+graph_traits<G>::graph_user_value_type
+   Represents the type of the :capterm:`attribute` of the graph G.
+
+graph_traits<G>::const_graph_user_value_type
+   Represents the constant type of the :capterm:`attribute` of the graph G.
+
+graph_traits<G>::vertex_type
+   Represents the type of vertices in the graph G.
+
+graph_traits<G>::vertex_iterator
+   Represents the type of the iterator by vertices in the graph G.
+
+graph_traits<G>::const_vertex_iterator
+   Represents the constant type of the iterator by vertices in the graph G.
+
+graph_traits<G>::vertex_size_type
+   Represents the type of the index of the vertices in the graph G.
+
+graph_traits<G>::vertex_user_value_type
+   Represents the type of the :capterm:`attributes <Attribute>` of the vertices
+   in the graph G.
+
+graph_traits<G>::edge_type
+   Represents the type of edges in the graph G.
+
+graph_traits<G>::edge_iterator
+   Represents the type of the iterator by edges in the graph G.
+
+graph_traits<G>::const_edge_iterator
+   Represents the constant type of the iterator by edges in the graph G.
+
+graph_traits<G>::edge_size_type
+   Represents the type of the index of the edges in the graph G.
+
+graph_traits<G>::edge_user_value_type
+   Represents the type of the :capterm:`attributes <Attribute>` of the edges
+   in the graph G.
+
+.. _api_graph_service_funcs:
+
+Graph service functions
+-----------------------
+
+Graph service functions is the set of functionality for access to the graph.
+
+
 
 .. toctree::
 

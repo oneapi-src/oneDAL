@@ -37,7 +37,7 @@ This section describes the types and functions related to the :txtref:`graph` co
    * - :ref:`api_directed_adjacency_vector_graph`
      - An implementation of the :capterm:`directed graph` concept.
   
-   * - :ref:`api_graphs_traits`
+   * - :ref:`api_graph_traits`
      - A standartized way to access various properties of the :capterm:`graph`.
 
    * - :ref:`api_graph_service_funcs`
@@ -54,10 +54,7 @@ Each implementation of :txtref:`graph` concept:
 
 2. Is :term:`reference-counted <Reference-counted object>`.
 
-3. :txtref:`graph_traits` should be defined for each new :txtref:`graph` type.
-
-The following listing provides an example of graph API to illustrate table kinds
-and copy-assignment operation:
+3. :txtref:`api_graph_traits` should be defined for each new :txtref:`graph` type.
 
 -----------
 Graph types
@@ -72,13 +69,13 @@ Graph types
 
    * - :txtref:`undirected_adjacency_vector_graph`
      - A sparse :capterm:`undirected <Undirected graph>` :capterm:`weighted <Weighted graph>`
-       or :capterm:`unweighted <Unweighted graph>` graph that contains :term:`CSR <CSR data>`
-       data format.
+       or :capterm:`unweighted <Unweighted graph>` graph that contains :capterm:`graph` in
+       :term:`CSR <CSR data>` data format.
 
    * - :txtref:`directed_adjacency_vector_graph`
      - A sparse :capterm:`directed <Directed graph>` :capterm:`weighted <Weighted graph>`
-       or :capterm:`unweighted <Unweighted graph>` graph that contains :term:`CSR <CSR data>`
-       data format.
+       or :capterm:`unweighted <Unweighted graph>` graph that contains :capterm:`graph` in
+       :term:`CSR <CSR data>` data format.
 
 .. toctree::
    :hidden:
