@@ -61,27 +61,26 @@ private:
     const event_ptr_t last_event_;
 };
 
-template <typename Float, typename Distance>
-class search_engine {
+template <typename Float, typename Distance, typename Impl>
+class search_engine_base {
+protected:
     using temp_t = search_temp_objects<Float, Distance>;
     using temp_del_t = search_temp_objects_deleter<Float, Distance>;
     using temp_ptr_t = std::shared_ptr<temp_t>;
     using event_ptr_t = std::shared_ptr<sycl::event>;
     using selc_t = kselect_by_rows<Float>;
-    template <typename CallbackImpl>
-    using call_t = callback_base<Float, CallbackImpl>;
 
     constexpr static inline std::int64_t selection_sub_blocks = 16;
 
 public:
-    search_engine(sycl::queue& queue, const ndview<Float, 2>& train_data);
+    search_engine_base(sycl::queue& queue, const ndview<Float, 2>& train_data);
 
-    search_engine(sycl::queue& queue, const ndview<Float, 2>& train_data, std::int64_t train_block);
+    search_engine_base(sycl::queue& queue, const ndview<Float, 2>& train_data, std::int64_t train_block);
 
-    search_engine(sycl::queue& queue,
-                  const ndview<Float, 2>& train_data,
-                  std::int64_t train_block,
-                  const Distance& distance_instance);
+    search_engine_base(sycl::queue& queue,
+                       const ndview<Float, 2>& train_data,
+                       std::int64_t train_block,
+                       const Distance& distance_instance);
 
     template <typename CallbackImpl>
     sycl::event operator()(const ndview<Float, 2>& query_data,
@@ -98,16 +97,17 @@ public:
                            std::int64_t query_block,
                            std::int64_t k_neighbors = 1,
                            const event_vector& deps = {}) const {
+        const auto* const impl_ptr = static_cast<const Impl* const>(this);
         selc_t selection = create_selection_objects(query_block, k_neighbors);
         const uniform_blocking query_blocking(query_data.get_dimension(0), query_block);
         auto last_event = std::make_shared<sycl::event>();
-        auto tmp_objs = create_temporary_objects(query_blocking, k_neighbors, last_event);
+        auto tmp_objs = impl_ptr->create_temporary_objects(query_blocking, k_neighbors, last_event);
         for (std::int64_t qb_id = 0; qb_id < query_blocking.get_block_count(); ++qb_id) {
             const auto query_slice =
                 query_data.get_row_slice(query_blocking.get_block_start_index(qb_id),
                                          query_blocking.get_block_end_index(qb_id));
-            auto search_event =
-                do_search(query_slice, k_neighbors, tmp_objs, selection, deps + *last_event);
+            auto search_event = impl_ptr->do_search(
+                        query_slice, k_neighbors, tmp_objs, selection, deps + *last_event);
             auto out_indices =
                 get_indices(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
             auto out_distances =
@@ -128,8 +128,6 @@ protected:
                                         std::int64_t k_neighbors,
                                         event_ptr_t last_event) const;
     sycl::queue& get_queue() const;
-
-private:
     const Distance& get_distance_impl() const;
     const uniform_blocking& get_train_blocking() const;
     const uniform_blocking& get_selection_blocking() const;
@@ -153,6 +151,80 @@ private:
     const ndview<Float, 2>& train_data_;
     const uniform_blocking train_blocking_;
     const uniform_blocking selection_blocking_;
+};
+
+template <typename Float, typename Distance>
+class search_engine : public search_engine_base<Float, Distance, search_engine<Float, Distance>> {
+    using base_t = search_engine_base<Float, Distance, search_engine>;
+
+public:
+    search_engine(sycl::queue& queue, const ndview<Float, 2>& train_data, std::int64_t train_block);
+
+    search_engine(sycl::queue& queue,
+                       const ndview<Float, 2>& train_data,
+                       std::int64_t train_block,
+                       const Distance& distance_instance);
+
+    template <typename CallbackImpl>
+    sycl::event operator()(const ndview<Float, 2>& query_data,
+                           CallbackImpl& callback,
+                           std::int64_t query_block,
+                           std::int64_t k_neighbors = 1,
+                           const event_vector& deps = {}) const {
+        return base_t::operator()(query_data,
+                                  callback,
+                                  query_block,
+                                  k_neighbors,
+                                  deps);
+    }
+};
+
+template <typename Float>
+class search_engine<Float, squared_l2_distance<Float>>
+        : public search_engine_base<Float, squared_l2_distance<Float>, search_engine<Float, squared_l2_distance<Float>>> {
+    using base_t = search_engine_base<Float, squared_l2_distance<Float>, search_engine>;
+    using temp_t = search_temp_objects<Float, squared_l2_distance<Float>>;
+    using temp_del_t = search_temp_objects_deleter<Float, squared_l2_distance<Float>>;
+    using temp_ptr_t = std::shared_ptr<temp_t>;
+    using event_ptr_t = std::shared_ptr<sycl::event>;
+    using selc_t = kselect_by_rows<Float>;
+
+    friend class search_engine_base<Float, squared_l2_distance<Float>, search_engine>;
+
+public:
+    search_engine(sycl::queue& queue, const ndview<Float, 2>& train_data, std::int64_t train_block);
+
+    search_engine(sycl::queue& queue,
+                       const ndview<Float, 2>& train_data,
+                       std::int64_t train_block,
+                       const squared_l2_distance<Float>& distance_instance);
+
+    template <typename CallbackImpl>
+    sycl::event operator()(const ndview<Float, 2>& query_data,
+                           CallbackImpl& callback,
+                           std::int64_t query_block,
+                           std::int64_t k_neighbors = 1,
+                           const event_vector& deps = {}) const {
+        return base_t::operator()(query_data,
+                                  callback,
+                                  query_block,
+                                  k_neighbors,
+                                  deps);
+    }
+
+protected:
+    sycl::event do_search(const ndview<Float, 2>& query,
+                          std::int64_t k_neighbors,
+                          temp_ptr_t temp_objs,
+                          selc_t& select,
+                          const event_vector& deps) const;
+    sycl::event distance(const ndview<Float, 2>& query,
+                         const ndview<Float, 2>& train,
+                         ndview<Float, 2>& distances,
+                         const ndview<Float, 1>& query_norms,
+                         const ndview<Float, 1>& train_norms,
+                         const event_vector& deps) const;
+
 };
 
 #endif

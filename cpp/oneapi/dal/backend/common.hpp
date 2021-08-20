@@ -124,6 +124,8 @@ public:
         ONEDAL_ASSERT(block > 0);
     }
 
+    uniform_blocking() : range_length_(0), block_length_(0) {}
+
     std::int64_t get_block() const {
         return block_length_;
     }
@@ -151,8 +153,8 @@ public:
     }
 
 private:
-    const std::int64_t range_length_;
-    const std::int64_t block_length_;
+    std::int64_t range_length_;
+    std::int64_t block_length_;
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
