@@ -23,10 +23,9 @@
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
 #include <daal/src/algorithms/engines/engine_batch_impl.h>
 
-#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/array.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::preview {
 
 // Generates random sequence with required parameters
 template <typename Cpu, typename Type>
@@ -67,6 +66,7 @@ private:
         ONEDAL_ASSERT(a >= 0);
         ONEDAL_ASSERT(b >= 0);
         ONEDAL_ASSERT(b >= a);
+
         rng.uniform(count_as_size_t, number_ptr, engine_impl->getState(), 0, count_as_size_t);
         std::transform(number_ptr, number_ptr + count, values, [=](size_t number) {
             return a + (b - a) * static_cast<Type>(number) / static_cast<Type>(count);
@@ -74,6 +74,44 @@ private:
     }
     array<Type> seq_;
 };
+
+template <typename Cpu>
+class rnd_seq<Cpu, std::int32_t> {
+public:
+    rnd_seq() = delete;
+    rnd_seq(std::int64_t count, std::int32_t a = 0, std::int32_t b = 1000) {
+        ONEDAL_ASSERT(count > 0);
+        seq_ = array<std::int32_t>::empty(count);
+        generate(a, b);
+    }
+    std::int64_t get_count() {
+        return seq_.get_count();
+    }
+    const std::int32_t* get_data() {
+        return seq_.get_data();
+    }
+
+private:
+    void generate(std::int32_t a, std::int32_t b) {
+        auto engine = daal::algorithms::engines::mt19937::Batch<>::create(777);
+        auto engine_impl =
+            dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*engine));
+        ONEDAL_ASSERT(engine_impl != nullptr);
+
+        auto* values = this->seq_.get_mutable_data();
+        auto count = this->seq_.get_count();
+        const auto count_as_size_t = dal::detail::integral_cast<std::size_t>(count);
+
+        daal::internal::RNGs<int, oneapi::dal::backend::interop::to_daal_cpu_type<Cpu>::value> rng;
+
+        rng.uniform(count_as_size_t, values, engine_impl->getState(), a, b);
+    }
+    array<std::int32_t> seq_;
+};
+
+} // namespace oneapi::dal::preview
+
+namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 

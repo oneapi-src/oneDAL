@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/backend/primitives/rng/rnd_seq.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::preview {
 
 template <typename Cpu, typename Type>
 void random_shuffle(Type* data, std::int64_t n) {
@@ -29,4 +29,4 @@ void random_shuffle(Type* data, std::int64_t n) {
     }
 }
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::preview
