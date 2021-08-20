@@ -199,8 +199,8 @@ Graph analytics terms
         an edge.
 
     Adjacency matrix
-        For a simple graph :math:`G` whose :capterm:`vertices <Vertex>` are explicitly ordered
-        :math:`(v_1, v_2, ..., v_n)` is the :math:`n × n` matrix :math:`A_G`,
+        A :math:`n × n` matrix :math:`A_G` for a graph :math:`G` whose vertices
+        are explicitly ordered :math:`(v_1, v_2, ..., v_n)`,
 
         .. math::
             \mathrm{A_G}=\begin{cases}
@@ -209,41 +209,38 @@ Graph analytics terms
             \end{cases}
 
     Attribute
-        Value assigned to :capterm:`graph`, :capterm:`vertex` or :capterm:`edge`.
-        Can be a number (:capterm:`weight`), string or any other custom data type.
+        Value assigned to :capterm:`graph`, vertex or edge.
+        Can be a numerical value (:capterm:`weight`), string or any other custom data type.
 
     Directed graph
-        A :capterm:`graph` where each :capterm:`edge` is an ordered pair :math:`(u, v)`
-        of vertices.
-
-    Edge
-        The elements of the edge set :math:`E`.
+        A :capterm:`graph` where each edge is an ordered pair :math:`(u, v)`
+        of vertices. :math:`v` is designated as the tail, and :math:`u` is designated
+        as the head.
 
     Graph
-        An object :math:`G = (V; E)` consists of two sets of vectices :math:`V` and
-        edges :math:`E`. :math:`V` is a finite nonempty set. A finite set :math:`E`,
-        may be empty, but otherwise its elements are two-element subsets of
-        :math:`V` [Gross2014]_.
+        An object :math:`G=(V;E)` consists of two sets, :math:`V` and :math:`E`
+        where :math:`V` is a finite nonempty set and a finite set :math:`E`, may
+        be empty, but otherwise its elements are two-element subsets of :math:`V`.
+        :math:`V` is set of vertices, :math:`E` is set of edges [Gross2014]_. 
 
     Self-loop
-        An :capterm:`edge` that joins a single :capterm:`vertex` to itself.
+        An edge that joins a single vertex to itself.
 
     Topology
-        A :capterm:`graph` without :capterm:`weights <Weight>` and
-        :capterm:`attributes <Attribute>`.
+        A :capterm:`graph` without :capterm:`attributes <Attribute>`.
 
     Undirected graph
         A :capterm:`graph` where each edge is a unordered pair :math:`(u, v)` of vertices.
 
-    Vertex
-        The elements of the vertex set :math:`V`.
+    Unweighted graph
+        A :capterm:`graph` where all vertices and all edges has no :capterm:`weights <Weight>`.
 
     Weight
         A numerical value assigned to vertex, edge or graph.
 
     Weighted graph
-        A :capterm:`graph` :math:`G` where all :capterm:`vertices <Vertex>` or all
-        :capterm:`edges <Edge>` have :capterm:`weights <Weight>.`
+        A :capterm:`graph` :math:`G` where all vertices or all
+        edges have :capterm:`weights <Weight>.`
 
 |short_name| terms
 ======================

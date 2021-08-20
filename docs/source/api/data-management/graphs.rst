@@ -40,8 +40,8 @@ Graph
 The :txtref:`graph` concept is represented by types with suffix _graph and all of them are
 :term:`reference-counted <Reference-counted object>`:
 
-1. The instance stores a pointer to graph implementation that holds graph :capterm:`topology`
-   and :capterm:`attributes` of vertices and edges.
+1. The instance stores a pointer to the graph :capterm:`topology`
+   and :capterm:`attributes <Attribute>` of vertices and edges.
 
 2. The reference count indicating how many graph objects refer to the same implementation.
 
@@ -57,11 +57,11 @@ The :txtref:`graph` concept is represented by types with suffix _graph and all o
 Graph traits
 ------------
 
-graph_traits defines the core data model required for the functions and 
-algorithms in this proposal. It defines a set of value types and ranges for a graph data
-structure used by the functions and algorithms in this proposal. While usable as-is, they
-are typically used by the template type aliases, such as vertex_edge_range<G>,
-edge_user_value_type<G> and edge_iterator<G> in algorithms.
+Graph traits define the data model required for the functions and 
+algorithms. It defines a set of value types and ranges for a graph data
+structure used by the functions and algorithms. While usable as-is, they
+are typically used by the template type aliases. Examples: vertex_edge_range<G>,
+edge_user_value_type<G>, edge_iterator<G>.
 
 graph_traits needs to be specialized for each graph data structure.
 

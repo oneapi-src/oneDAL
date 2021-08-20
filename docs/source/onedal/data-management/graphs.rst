@@ -22,7 +22,7 @@
 Graphs
 ======
 
-This section describes the types related to the :txtref:`graph` concept.
+This section describes the types and functions related to the :txtref:`graph` concept.
 
 .. list-table::
    :header-rows: 1
@@ -30,10 +30,18 @@ This section describes the types related to the :txtref:`graph` concept.
 
    * - Type
      - Description
+   
+   * - :ref:`api_undirected_adjacency_vector_graph`
+     - An implementation of the :capterm:`undirected graph` concept.
 
-   * - :ref:`api_graphs_data_layout`
-     - An enumeration of :capterm:`data layouts<data layout>` used to store
-       :capterm:`adjacency matrix` inside the :capterm:`graph`.
+   * - :ref:`api_directed_adjacency_vector_graph`
+     - An implementation of the :capterm:`directed graph` concept.
+  
+   * - :ref:`api_graphs_traits`
+     - A standartized way to access various properties of the :capterm:`graph`.
+
+   * - :ref:`api_graph_service_funcs`
+     - The set of service functions to access the graph.
 
 ---------------------------
 Requirements on graph types
@@ -63,11 +71,13 @@ Graph types
      - Description
 
    * - :txtref:`undirected_adjacency_vector_graph`
-     - A sparse undirected weighted or unweighted graph that contains :term:`CSR <CSR data>`
+     - A sparse :capterm:`undirected <Undirected graph>` :capterm:`weighted <Weighted graph>`
+       or :capterm:`unweighted <Unweighted graph>` graph that contains :term:`CSR <CSR data>`
        data format.
 
    * - :txtref:`directed_adjacency_vector_graph`
-     - A sparse directed weighted or unweighted graph that contains :term:`CSR <CSR data>`
+     - A sparse :capterm:`directed <Directed graph>` :capterm:`weighted <Weighted graph>`
+       or :capterm:`unweighted <Unweighted graph>` graph that contains :term:`CSR <CSR data>`
        data format.
 
 .. toctree::
