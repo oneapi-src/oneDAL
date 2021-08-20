@@ -31,7 +31,7 @@ using namespace oneapi::dal::preview::backend;
 using namespace oneapi::dal::backend::primitives;
 
 template <typename IndexType>
-inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
+inline void singleton_partition(IndexType* labels, const std::int64_t& vertex_count) {
     for (std::int64_t v = 0; v < vertex_count; ++v) {
         labels[v] = v;
     }
@@ -39,7 +39,7 @@ inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
 
 template <typename IndexType>
 inline std::int64_t reindex_communities(IndexType* data,
-                                        std::int64_t vertex_count,
+                                        const std::int64_t& vertex_count,
                                         IndexType* index) {
     for (std::int64_t v = 0; v < vertex_count; ++v) {
         index[v] = -1;
@@ -58,9 +58,9 @@ template <typename IndexType, typename EdgeValue, typename CommunityVertexContai
 inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
                            EdgeValue* vals,
                            EdgeValue* self_loops,
-                           std::int64_t community_count,
-                           IndexType* partition,
-                           std::int64_t* community_size,
+                           const std::int64_t& community_count,
+                           const IndexType* partition,
+                           const std::int64_t* community_size,
                            IndexType* c_neighbors,
                            IndexType* c_rows,
                            EdgeValue* weights,
@@ -126,11 +126,11 @@ inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
 }
 
 template <typename Float, typename IndexType, typename EdgeValue>
-inline Float init_step(dal::preview::detail::topology<std::int32_t>& t,
-                       EdgeValue* vals,
-                       EdgeValue* self_loops,
-                       IndexType* labels,
-                       double resolution,
+inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
+                       const EdgeValue* vals,
+                       const EdgeValue* self_loops,
+                       const IndexType* labels,
+                       const double& resolution,
                        EdgeValue* k,
                        EdgeValue* tot,
                        EdgeValue& m,
@@ -181,13 +181,13 @@ inline Float init_step(dal::preview::detail::topology<std::int32_t>& t,
 }
 
 template <typename Cpu, typename Float, typename IndexType, typename EdgeValue>
-inline Float move_nodes(dal::preview::detail::topology<std::int32_t>& t,
-                        EdgeValue* vals,
-                        EdgeValue* self_loops,
+inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
+                        const EdgeValue* vals,
+                        const EdgeValue* self_loops,
                         IndexType* n2c,
                         bool& changed,
-                        double resolution,
-                        double accuracy_threshold,
+                        const double& resolution,
+                        const double& accuracy_threshold,
                         EdgeValue* k,
                         EdgeValue* tot,
                         EdgeValue* k_vertex_to,
@@ -266,7 +266,7 @@ inline Float move_nodes(dal::preview::detail::topology<std::int32_t>& t,
 
                 // try to move vertex to the community
                 EdgeValue k_ic = k_vertex_to[c];
-                Float delta =
+                const Float delta =
                     static_cast<Float>(k_ic) / m - resolution * tot[c] * k[v] / (2.0 * m * m);
                 if (delta_modularity < delta) {
                     delta_modularity = delta;
@@ -295,9 +295,9 @@ inline Float move_nodes(dal::preview::detail::topology<std::int32_t>& t,
 
 template <typename IndexType, typename CommunityVector, typename SizeVector>
 inline void set_result_labels(CommunityVector& communities,
-                              SizeVector& vertex_size,
+                              const SizeVector& vertex_size,
                               const IndexType* init_partition,
-                              std::int64_t vertex_count,
+                              const std::int64_t& vertex_count,
                               IndexType* result_labels) {
     if (!communities.empty()) {
         // flat the communities from the next iteration
@@ -354,9 +354,9 @@ struct louvain_kernel {
             vertex_pointer_allocator_type vp_a(alloc_ptr);
             v1a_t v1a(alloc_ptr);
 
-            double resolution = desc.get_resolution();
-            double accuracy_threshold = desc.get_accuracy_threshold();
-            std::int64_t max_iteration_count = desc.get_max_iteration_count();
+            const double resolution = desc.get_resolution();
+            const double accuracy_threshold = desc.get_accuracy_threshold();
+            const std::int64_t max_iteration_count = desc.get_max_iteration_count();
 
             const std::int64_t vertex_count = t.get_vertex_count();
             const std::int64_t edge_count = t.get_edge_count();
