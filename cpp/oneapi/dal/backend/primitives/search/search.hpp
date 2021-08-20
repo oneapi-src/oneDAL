@@ -51,11 +51,14 @@ class search_temp_objects;
 template <typename Float, typename Distance>
 class search_temp_objects_deleter {
     using temp_t = search_temp_objects<Float, Distance>;
+    using event_ptr_t = std::shared_ptr<sycl::event>;
+
 public:
-    search_temp_objects_deleter(const sycl::event& event);
+    search_temp_objects_deleter(event_ptr_t event);
     void operator() (temp_t* obj) const;
+
 private:
-    const sycl::event& last_event_;
+    const event_ptr_t last_event_;
 };
 
 template <typename Float, typename Distance>
@@ -63,6 +66,7 @@ class search_engine {
     using temp_t = search_temp_objects<Float, Distance>;
     using temp_del_t = search_temp_objects_deleter<Float, Distance>;
     using temp_ptr_t = std::shared_ptr<temp_t>;
+    using event_ptr_t = std::shared_ptr<sycl::event>;
     using selc_t = kselect_by_rows<Float>;
     template <typename CallbackImpl>
     using call_t = callback_base<Float, CallbackImpl>;
@@ -96,21 +100,21 @@ public:
                            const event_vector& deps = {}) const {
         selc_t selection = create_selection_objects(query_block, k_neighbors);
         const uniform_blocking query_blocking(query_data.get_dimension(0), query_block);
-        sycl::event last_event;
+        auto last_event = std::make_shared<sycl::event>();
         auto tmp_objs = create_temporary_objects(query_blocking, k_neighbors, last_event);
         for (std::int64_t qb_id = 0; qb_id < query_blocking.get_block_count(); ++qb_id) {
             const auto query_slice =
                 query_data.get_row_slice(query_blocking.get_block_start_index(qb_id),
                                          query_blocking.get_block_end_index(qb_id));
             auto search_event =
-                do_search(query_slice, k_neighbors, tmp_objs, selection, deps + last_event);
+                do_search(query_slice, k_neighbors, tmp_objs, selection, deps + *last_event);
             auto out_indices =
                 get_indices(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
             auto out_distances =
                 get_distances(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
-            last_event = callback(qb_id, out_indices, out_distances, { search_event });
+            *last_event = callback(qb_id, out_indices, out_distances, { search_event });
         }
-        return last_event;
+        return *last_event;
     }
 
 protected:
@@ -121,7 +125,7 @@ protected:
                           const event_vector& deps) const;
     selc_t create_selection_objects(std::int64_t query_block, std::int64_t k_neighbors) const;
     temp_ptr_t create_temporary_objects(const uniform_blocking& query_blocking,
-                                        std::int64_t k_neighbors, const sycl::event& last_event) const;
+                                        std::int64_t k_neighbors, event_ptr_t last_event) const;
     sycl::queue& get_queue() const;
 
 private:

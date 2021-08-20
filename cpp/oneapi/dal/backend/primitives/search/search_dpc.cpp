@@ -119,12 +119,12 @@ private:
 };
 
 template <typename Float, typename Distance>
-search_temp_objects_deleter<Float, Distance>::search_temp_objects_deleter(const sycl::event& event)
+search_temp_objects_deleter<Float, Distance>::search_temp_objects_deleter(event_ptr_t event)
     : last_event_(event) {}
 
 template <typename Float, typename Distance>
 void search_temp_objects_deleter<Float, Distance>::operator() (temp_t* obj) const {
-    sycl::event::wait_and_throw({ last_event_ });
+    last_event_->wait_and_throw();
     delete obj;
 }
 
@@ -210,7 +210,7 @@ template <typename Float, typename Distance>
 auto search_engine<Float, Distance>::create_temporary_objects(
     const uniform_blocking& query_blocking,
     std::int64_t k_neighbors,
-    const sycl::event& last_event) const -> temp_ptr_t {
+    event_ptr_t last_event) const -> temp_ptr_t {
     auto* res_obj = new temp_t(get_queue(),
                       k_neighbors,
                       query_blocking.get_block(),
