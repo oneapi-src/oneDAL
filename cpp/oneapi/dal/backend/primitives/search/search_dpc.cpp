@@ -120,10 +120,10 @@ private:
 
 template <typename Float, typename Distance>
 search_temp_objects_deleter<Float, Distance>::search_temp_objects_deleter(event_ptr_t event)
-    : last_event_(event) {}
+        : last_event_(event) {}
 
 template <typename Float, typename Distance>
-void search_temp_objects_deleter<Float, Distance>::operator() (temp_t* obj) const {
+void search_temp_objects_deleter<Float, Distance>::operator()(temp_t* obj) const {
     last_event_->wait_and_throw();
     delete obj;
 }
@@ -212,10 +212,10 @@ auto search_engine<Float, Distance>::create_temporary_objects(
     std::int64_t k_neighbors,
     event_ptr_t last_event) const -> temp_ptr_t {
     auto* res_obj = new temp_t(get_queue(),
-                      k_neighbors,
-                      query_blocking.get_block(),
-                      get_train_blocking().get_block(),
-                      selection_sub_blocks);
+                               k_neighbors,
+                               query_blocking.get_block(),
+                               get_train_blocking().get_block(),
+                               selection_sub_blocks);
     auto res_del = temp_del_t(last_event);
     return temp_ptr_t(res_obj, res_del);
 }
@@ -337,14 +337,14 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
     return last_event;
 }
 
-#define INSTANTIATE(F)                                                              \
-    template std::int64_t propose_train_block<F>(const sycl::queue&, std::int64_t); \
-    template std::int64_t propose_query_block<F>(const sycl::queue&, std::int64_t); \
-    template class search_temp_objects<F, distance<F, lp_metric<F>>>;               \
-    template class search_temp_objects<F, distance<F, squared_l2_metric<F>>>;       \
-    template class search_temp_objects_deleter<F, distance<F, lp_metric<F>>>;               \
-    template class search_temp_objects_deleter<F, distance<F, squared_l2_metric<F>>>;       \
-    template class search_engine<F, distance<F, lp_metric<F>>>;                     \
+#define INSTANTIATE(F)                                                                \
+    template std::int64_t propose_train_block<F>(const sycl::queue&, std::int64_t);   \
+    template std::int64_t propose_query_block<F>(const sycl::queue&, std::int64_t);   \
+    template class search_temp_objects<F, distance<F, lp_metric<F>>>;                 \
+    template class search_temp_objects<F, distance<F, squared_l2_metric<F>>>;         \
+    template class search_temp_objects_deleter<F, distance<F, lp_metric<F>>>;         \
+    template class search_temp_objects_deleter<F, distance<F, squared_l2_metric<F>>>; \
+    template class search_engine<F, distance<F, lp_metric<F>>>;                       \
     template class search_engine<F, distance<F, squared_l2_metric<F>>>;
 
 INSTANTIATE(float);

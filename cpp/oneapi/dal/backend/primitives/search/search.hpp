@@ -55,7 +55,7 @@ class search_temp_objects_deleter {
 
 public:
     search_temp_objects_deleter(event_ptr_t event);
-    void operator() (temp_t* obj) const;
+    void operator()(temp_t* obj) const;
 
 private:
     const event_ptr_t last_event_;
@@ -125,7 +125,8 @@ protected:
                           const event_vector& deps) const;
     selc_t create_selection_objects(std::int64_t query_block, std::int64_t k_neighbors) const;
     temp_ptr_t create_temporary_objects(const uniform_blocking& query_blocking,
-                                        std::int64_t k_neighbors, event_ptr_t last_event) const;
+                                        std::int64_t k_neighbors,
+                                        event_ptr_t last_event) const;
     sycl::queue& get_queue() const;
 
 private:
