@@ -67,7 +67,7 @@ private:
         ONEDAL_ASSERT(b >= 0);
         ONEDAL_ASSERT(b >= a);
 
-        rng.(count_as_size_t, number_ptr, engine_impl->getState(), 0, count_as_size_t);
+        rng.uniform(count_as_size_t, number_ptr, engine_impl->getState(), 0, count_as_size_t);
         std::transform(number_ptr, number_ptr + count, values, [=](size_t number) {
             return a + (b - a) * static_cast<Type>(number) / static_cast<Type>(count);
         });
