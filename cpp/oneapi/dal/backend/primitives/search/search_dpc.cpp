@@ -155,7 +155,8 @@ public:
                         std::int64_t query_block,
                         std::int64_t train_block,
                         std::int64_t select_block)
-            : base_t(q, k, query_block, train_block, select_block) {}
+            : base_t(q, k, query_block, train_block, select_block),
+              query_norms_(ndarray<Float, 1>::empty(q, { query_block })) {}
 
     auto& init_train_norms(sycl::queue& queue,
                            const ndview<Float, 2>& train,
@@ -184,9 +185,14 @@ public:
         return train_events_.at(tb);
     }
 
+    ndview<Float, 1>& get_query_norms() {
+        return query_norms_;
+    }
+
 protected:
     event_vector train_events_;
     ndarray<Float, 1> train_norms_;
+    ndarray<Float, 1> query_norms_;
     uniform_blocking train_blocking_;
 };
 
@@ -444,9 +450,10 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
     ONEDAL_ASSERT(temp_objs->get_select_block() == base_t::selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
     temp_objs->init_train_norms(this->get_queue(), this->train_data_, deps);
-    auto [qnorms, qevent] = compute_squared_l2_norms(this->get_queue(), query, deps);
     sycl::event last_event = this->reset(temp_objs, deps);
     const auto query_block_size = query.get_dimension(0);
+    auto qnorms = temp_objs->get_query_norms().get_slice(0, query_block_size);
+    auto qevent = compute_squared_l2_norms(this->get_queue(), query, qnorms, deps);
     //Iterations over larger blocks
     for (std::int64_t sb_id = 0; sb_id < this->get_selection_blocking().get_block_count();
          ++sb_id) {
@@ -456,8 +463,8 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
         for (std::int64_t tb_id = start_tb; tb_id < end_tb; ++tb_id) {
             const auto train = this->get_train_block(tb_id);
             const auto train_block_size = this->get_train_blocking().get_block_length(tb_id);
-            const auto tnorms = temp_objs->get_train_norms_block(tb_id);
-            const auto tevent = temp_objs->get_train_norms_event(tb_id);
+            auto tnorms = temp_objs->get_train_norms_block(tb_id);
+            auto tevent = temp_objs->get_train_norms_event(tb_id);
             ONEDAL_ASSERT(train.get_dimension(0) == train_block_size);
             auto dists = temp_objs->get_distances()
                              .get_col_slice(0, train_block_size)
