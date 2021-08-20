@@ -42,13 +42,13 @@ public:
         auto tmp = ndarray<cls_t, 2>::empty(this->get_queue(), { r, k });
         auto res = ndarray<cls_t, 1>::empty(this->get_queue(), { r });
         copy(this->get_queue(), tmp, responses).wait_and_throw();
-        for (int j = 0; j < r; ++j) {
+        for (std::int32_t j = 0; j < r; ++j) {
             auto* const from = tmp.get_mutable_data() + j * k;
             auto* const to = tmp.get_mutable_data() + (j + 1) * k;
             std::sort(from, to);
             cls_t last = -1, winner = -1;
-            int last_span = -1, winner_span = -1;
-            for (int i = 0; i < k; ++i) {
+            std::int32_t last_span = -1, winner_span = -1;
+            for (std::int32_t i = 0; i < k; ++i) {
                 const cls_t& cur = *(from + i);
                 if (cur == last) {
                     ++last_span;
@@ -70,7 +70,7 @@ public:
     void test_correctness(const ndview<cls_t, 2>& responses, const ndview<cls_t, 1>& results) {
         const auto own_res = compute_results(responses);
         const auto r = results.get_dimension(0);
-        for (int i = 0; i < r; ++i) {
+        for (std::int32_t i = 0; i < r; ++i) {
             const auto val = *(results.get_data() + i);
             const auto gtr = *(own_res.get_data() + i);
             CAPTURE(i, val, gtr);
@@ -78,11 +78,11 @@ public:
         }
     }
 
-    auto generate_input(int m, int n) {
+    auto generate_input(std::int32_t m, std::int32_t n) {
         auto x = ndarray<std::int32_t, 2>::empty(this->get_queue(), { m, n });
 
-        for (int j = 0; j < m; ++j) {
-            for (int i = 0; i < n; ++i) {
+        for (std::int32_t j = 0; j < m; ++j) {
+            for (std::int32_t i = 0; i < n; ++i) {
                 if (i < (j + 1)) {
                     x.at(j, i) = i;
                 }

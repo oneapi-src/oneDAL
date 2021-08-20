@@ -119,6 +119,16 @@ private:
 };
 
 template <typename Float, typename Distance>
+search_temp_objects_deleter<Float, Distance>::search_temp_objects_deleter(const sycl::event& event)
+    : last_event_(event) {}
+
+template <typename Float, typename Distance>
+void search_temp_objects_deleter<Float, Distance>::operator() (temp_t* obj) const {
+    sycl::event::wait_and_throw({ last_event_ });
+    delete obj;
+}
+
+template <typename Float, typename Distance>
 class search_temp_objects : public search_temp_objects_base<Float, Distance> {
     using base_t = search_temp_objects_base<Float, Distance>;
 
@@ -199,21 +209,15 @@ ndview<Float, 2> search_engine<Float, Distance>::get_train_block(std::int64_t i)
 template <typename Float, typename Distance>
 auto search_engine<Float, Distance>::create_temporary_objects(
     const uniform_blocking& query_blocking,
-    std::int64_t k_neighbors) const -> temp_ptr_t {
-    return new temp_t(get_queue(),
+    std::int64_t k_neighbors,
+    const sycl::event& last_event) const -> temp_ptr_t {
+    auto* res_obj = new temp_t(get_queue(),
                       k_neighbors,
                       query_blocking.get_block(),
                       get_train_blocking().get_block(),
                       selection_sub_blocks);
-}
-
-template <typename Float, typename Distance>
-sycl::event search_engine<Float, Distance>::dispose_temporary_objects(
-    temp_ptr_t temp,
-    const event_vector& deps) const {
-    sycl::event::wait_and_throw(deps);
-    delete temp;
-    return sycl::event();
+    auto res_del = temp_del_t(last_event);
+    return temp_ptr_t(res_obj, res_del);
 }
 
 template <typename Float, typename Distance>
@@ -338,6 +342,8 @@ sycl::event search_engine<Float, Distance>::do_search(const ndview<Float, 2>& qu
     template std::int64_t propose_query_block<F>(const sycl::queue&, std::int64_t); \
     template class search_temp_objects<F, distance<F, lp_metric<F>>>;               \
     template class search_temp_objects<F, distance<F, squared_l2_metric<F>>>;       \
+    template class search_temp_objects_deleter<F, distance<F, lp_metric<F>>>;               \
+    template class search_temp_objects_deleter<F, distance<F, squared_l2_metric<F>>>;       \
     template class search_engine<F, distance<F, lp_metric<F>>>;                     \
     template class search_engine<F, distance<F, squared_l2_metric<F>>>;
 

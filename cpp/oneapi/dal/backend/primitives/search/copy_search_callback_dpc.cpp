@@ -21,7 +21,6 @@ namespace oneapi::dal::backend::primitives {
 template <typename F, bool i, bool d>
 std::int64_t get_length(const ndview<F, 2>& dsts, ndview<std::int32_t, 2>& inds) {
     static_assert(i || d);
-    //ONEDAL_ASSERT((i && d) && (dsts.get_shape() == inds.get_shape()));
     return i ? inds.get_dimension(0) : dsts.get_dimension(0);
 }
 
