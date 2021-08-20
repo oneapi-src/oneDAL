@@ -23,20 +23,12 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include "oneapi/dal/algo/louvain/backend/cpu/vertex_partitioning_rng.hpp"
+#include "oneapi/dal/backend/primitives/rng/random_shuffle.hpp"
 
 namespace oneapi::dal::preview::louvain::backend {
 using namespace oneapi::dal::preview::detail;
 using namespace oneapi::dal::preview::backend;
-
-template <typename Cpu, typename Type>
-inline void random_shuffle(Type* data, std::int64_t n) {
-    rnd_seq<Cpu, std::int64_t> gen(n, 0, n - 1);
-    auto uniform_values = gen.get_data();
-    for (std::int64_t index = 0; index < n; ++index) {
-        std::swap(data[index], data[uniform_values[index]]);
-    }
-}
+using namespace oneapi::dal::backend::primitives;
 
 template <typename IndexType>
 inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
@@ -199,7 +191,7 @@ inline Float move_nodes(dal::preview::detail::topology<std::int32_t>& t,
                         EdgeValue* k,
                         EdgeValue* tot,
                         EdgeValue* k_vertex_to,
-                        EdgeValue* neighboring_communities,
+                        IndexType* neighboring_communities,
                         IndexType* random_order,
                         IndexType* empty_community,
                         std::int64_t* community_size,
@@ -353,7 +345,6 @@ struct louvain_kernel {
             using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
             using v1s_t = vector_container<vertex_size_type, vertex_size_allocator_type>;
             using v1p_t = vector_container<vertex_pointer_type, vertex_pointer_allocator_type>;
-            using ev1v_t = vector_container<value_type, value_allocator_type>;
             using v1a_t = inner_alloc<v1v_t>;
             using v2v_t = vector_container<v1v_t, v1a_t>;
             
@@ -401,7 +392,7 @@ struct louvain_kernel {
             auto k_shared_ptr = value_allocator.make_shared_memory(vertex_count);
             auto tot_shared_ptr = value_allocator.make_shared_memory(vertex_count);
             auto k_vertex_to_shared_ptr = value_allocator.make_shared_memory(vertex_count);
-            auto neighboring_communities_shared_ptr = value_allocator.make_shared_memory(vertex_count);
+            auto neighboring_communities_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
             auto random_order_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
             auto empty_community_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
             auto community_size_shared_ptr = vertex_size_allocator.make_shared_memory(vertex_count);
