@@ -342,23 +342,26 @@ struct louvain_kernel {
             using value_type = EdgeValue;
             using vertex_type = std::int32_t;
             using vertex_size_type = std::int64_t;
+            using vertex_pointer_type = vertex_type*;
 
             using value_allocator_type = inner_alloc<value_type>;
             using vertex_allocator_type = inner_alloc<vertex_type>;
             using vertex_size_allocator_type = inner_alloc<vertex_size_type>;
+            using vertex_pointer_allocator_type = inner_alloc<vertex_pointer_type>;
 
-            using vertex_p_type = vertex_type*;
-            using vertex_p_allocator_type = inner_alloc<vertex_p_type>;
-            using vp_t = vector_container<vertex_p_type, vertex_p_allocator_type>;
-            using vs_t = vector_container<vertex_size_type, vertex_size_allocator_type>;
+            
             using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
+            using v1s_t = vector_container<vertex_size_type, vertex_size_allocator_type>;
+            using v1p_t = vector_container<vertex_pointer_type, vertex_pointer_allocator_type>;
             using ev1v_t = vector_container<value_type, value_allocator_type>;
             using v1a_t = inner_alloc<v1v_t>;
             using v2v_t = vector_container<v1v_t, v1a_t>;
-
+            
             vertex_allocator_type vertex_allocator(alloc_ptr);
             vertex_size_allocator_type vertex_size_allocator(alloc_ptr);
             value_allocator_type value_allocator(alloc_ptr);
+            vertex_pointer_allocator_type vp_a(alloc_ptr);
+            v1a_t v1a(alloc_ptr);
 
             double resolution = desc.get_resolution();
             double accuracy_threshold = desc.get_accuracy_threshold();
@@ -367,18 +370,23 @@ struct louvain_kernel {
             const std::int64_t vertex_count = t.get_vertex_count();
             const std::int64_t edge_count = t.get_edge_count();
             dal::preview::detail::topology<std::int32_t> current_topology;
+            
+            auto current_topology_rows_shared_ptr = vertex_size_allocator.make_shared_memory(vertex_count + 1);
+            auto current_topology_cols_shared_ptr = vertex_allocator.make_shared_memory(edge_count * 2);
+            auto current_vals_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
+            auto currnet_self_loops_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
+            
+            vertex_size_type* current_topology_rows = current_topology_rows_shared_ptr.get();
+            vertex_type* current_topology_cols = current_topology_cols_shared_ptr.get();
+            value_type* current_vals = current_vals_shared_ptr.get();
+            value_type* currnet_self_loops = currnet_self_loops_shared_ptr.get();
 
-            vertex_size_type* current_topology_rows =
-                allocate(vertex_size_allocator, vertex_count + 1);
-            vertex_type* current_topology_cols = allocate(vertex_allocator, edge_count * 2);
             current_topology.set_topology(vertex_count,
                                           edge_count,
                                           current_topology_rows,
                                           current_topology_cols,
                                           edge_count * 2,
                                           nullptr);
-            value_type* current_vals = allocate(value_allocator, edge_count * 2);
-            value_type* currnet_self_loops = allocate(value_allocator, edge_count * 2);
 
             current_topology_rows[0] = t._rows_ptr[0];
             for (std::int64_t index = 0; index < vertex_count; ++index) {
@@ -390,28 +398,30 @@ struct louvain_kernel {
                 current_vals[index] = vals[index];
             }
 
-            value_type* k = allocate(value_allocator, vertex_count);
-            value_type* tot = allocate(value_allocator, vertex_count);
-            value_type* k_vertex_to = allocate(value_allocator, vertex_count);
-            value_type* neighboring_communities = allocate(value_allocator, vertex_count);
-            vertex_type* random_order = allocate(vertex_allocator, vertex_count);
-            vertex_type* empty_community = allocate(vertex_allocator, vertex_count);
-            vertex_size_type* community_size = allocate(vertex_size_allocator, vertex_count);
+            auto k_shared_ptr = value_allocator.make_shared_memory(vertex_count);
+            auto tot_shared_ptr = value_allocator.make_shared_memory(vertex_count);
+            auto k_vertex_to_shared_ptr = value_allocator.make_shared_memory(vertex_count);
+            auto neighboring_communities_shared_ptr = value_allocator.make_shared_memory(vertex_count);
+            auto random_order_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
+            auto empty_community_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
+            auto community_size_shared_ptr = vertex_size_allocator.make_shared_memory(vertex_count);
 
-            value_type* k_c = allocate(value_allocator, vertex_count);
-            value_type* local_self_loops = allocate(value_allocator, vertex_count);
+            auto k_c_shared_ptr = value_allocator.make_shared_memory(vertex_count);
+            auto local_self_loops_shared_ptr = value_allocator.make_shared_memory(vertex_count);
 
-            vertex_type* c_neighbors = allocate(vertex_allocator, vertex_count);
-            value_type* weights = allocate(value_allocator, edge_count * 2);
-            value_type* c_self_loops = allocate(value_allocator, vertex_count);
-            vertex_type* c_rows = allocate(vertex_allocator, vertex_count + 1);
+            auto weights_shared_ptr = value_allocator.make_shared_memory(vertex_count);
+            auto c_self_loops_shared_ptr = value_allocator.make_shared_memory(vertex_count);
+            auto c_neighbors_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
+            auto c_rows_shared_ptr = vertex_allocator.make_shared_memory(vertex_count + 1);
 
-            v1a_t v1a(alloc_ptr);
+            auto c_vals_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
+            auto c_cols_shared_ptr = vertex_allocator.make_shared_memory(edge_count * 2);
+            auto index_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
+
             v2v_t c2v(vertex_count, v1a);
-            vertex_type* c_cols = allocate(vertex_allocator, edge_count * 2);
-            value_type* c_vals = allocate(value_allocator, edge_count * 2);
-
-            vertex_type* index = allocate(vertex_allocator, vertex_count);
+            v1p_t communities(vp_a);
+            v1s_t labels_size(vertex_size_allocator);
+            v1s_t vertex_size(vertex_size_allocator);
 
             Float modularity = std::numeric_limits<Float>::min();
             vertex_type* labels = allocate(vertex_allocator, vertex_count);
@@ -423,11 +433,6 @@ struct louvain_kernel {
             else {
                 singleton_partition(labels, vertex_count);
             }
-
-            vertex_p_allocator_type vp_a(alloc_ptr);
-            vp_t communities(vp_a);
-            vs_t labels_size(vertex_size_allocator);
-            vs_t vertex_size(vertex_size_allocator);
 
             bool allocate_labels = false;
             for (std::int64_t iteration = 0;
@@ -446,36 +451,36 @@ struct louvain_kernel {
                                                     changed,
                                                     resolution,
                                                     accuracy_threshold,
-                                                    k,
-                                                    tot,
-                                                    k_vertex_to,
-                                                    neighboring_communities,
-                                                    random_order,
-                                                    empty_community,
-                                                    community_size,
-                                                    k_c,
-                                                    local_self_loops);
+                                                    k_shared_ptr.get(),
+                                                    tot_shared_ptr.get(),
+                                                    k_vertex_to_shared_ptr.get(),
+                                                    neighboring_communities_shared_ptr.get(),
+                                                    random_order_shared_ptr.get(),
+                                                    empty_community_shared_ptr.get(),
+                                                    community_size_shared_ptr.get(),
+                                                    k_c_shared_ptr.get(),
+                                                    local_self_loops_shared_ptr.get());
 
                 if (!changed) {
                     deallocate(vertex_allocator, labels, current_topology._vertex_count);
                     break;
                 }
                 std::int64_t community_count =
-                    reindex_communities(labels, current_topology._vertex_count, index);
+                    reindex_communities(labels, current_topology._vertex_count, index_shared_ptr.get());
 
                 compress_graph(current_topology,
                                current_vals,
                                currnet_self_loops,
                                community_count,
                                labels,
-                               community_size,
-                               c_neighbors,
-                               c_rows,
-                               weights,
-                               c_self_loops,
+                               community_size_shared_ptr.get(),
+                               c_neighbors_shared_ptr.get(),
+                               c_rows_shared_ptr.get(),
+                               weights_shared_ptr.get(),
+                               c_self_loops_shared_ptr.get(),
                                c2v,
-                               c_cols,
-                               c_vals);
+                               c_cols_shared_ptr.get(),
+                               c_vals_shared_ptr.get());
                 labels_size.push_back(community_count);
                 vertex_size.push_back(current_topology._vertex_count);
                 communities.push_back(labels);
@@ -489,32 +494,6 @@ struct louvain_kernel {
             for (int64_t iteration = 0; iteration < communities.size(); ++iteration) {
                 deallocate(vertex_allocator, communities[iteration], labels_size[iteration]);
             }
-
-            deallocate(vertex_size_allocator, current_topology_rows, vertex_count + 1);
-            deallocate(vertex_allocator, current_topology_cols, edge_count * 2);
-            deallocate(value_allocator, current_vals, edge_count * 2);
-            deallocate(value_allocator, currnet_self_loops, edge_count * 2);
-
-            deallocate(value_allocator, k, vertex_count);
-            deallocate(value_allocator, tot, vertex_count);
-            deallocate(value_allocator, k_vertex_to, vertex_count);
-            deallocate(value_allocator, neighboring_communities, vertex_count);
-            deallocate(vertex_allocator, random_order, vertex_count);
-            deallocate(vertex_allocator, empty_community, vertex_count);
-            deallocate(vertex_size_allocator, community_size, vertex_count);
-
-            deallocate(value_allocator, k_c, vertex_count);
-            deallocate(value_allocator, local_self_loops, vertex_count);
-
-            deallocate(value_allocator, weights, vertex_count);
-            deallocate(value_allocator, c_self_loops, vertex_count);
-            deallocate(vertex_allocator, c_neighbors, vertex_count);
-            deallocate(vertex_allocator, c_rows, vertex_count + 1);
-
-            deallocate(vertex_allocator, c_cols, vertex_count);
-            deallocate(value_allocator, c_vals, edge_count * 2);
-
-            deallocate(vertex_allocator, index, vertex_count);
 
             return vertex_partitioning_result<task::vertex_partitioning>()
                 .set_labels(dal::detail::homogen_table_builder{}
