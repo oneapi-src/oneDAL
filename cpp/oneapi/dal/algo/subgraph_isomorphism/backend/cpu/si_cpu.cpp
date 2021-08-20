@@ -22,12 +22,12 @@ template oneapi::dal::homogen_table si<__CPU_TAG__>(const graph<__CPU_TAG__>& pa
                                                     const graph<__CPU_TAG__>& target,
                                                     kind isomorphism_kind,
                                                     std::int64_t max_match_count,
-                                                    detail::byte_alloc_iface* alloc_ptr);
+                                                    byte_alloc_iface_t* alloc_ptr);
 
 template subgraph_isomorphism::graph_matching_result<task::compute> si_call_kernel<__CPU_TAG__>(
     const kind& si_kind,
     std::int64_t max_match_count,
-    detail::byte_alloc_iface* alloc_ptr,
+    byte_alloc_iface_t* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
     std::int64_t* vv_t,
