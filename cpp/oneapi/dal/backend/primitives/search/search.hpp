@@ -70,7 +70,7 @@ protected:
     using event_ptr_t = std::shared_ptr<sycl::event>;
     using selc_t = kselect_by_rows<Float>;
 
-    constexpr static inline std::int64_t selection_sub_blocks = 63;
+    constexpr static inline std::int64_t selection_sub_blocks = 31;
 
 public:
     search_engine_base(sycl::queue& queue, const ndview<Float, 2>& train_data);
