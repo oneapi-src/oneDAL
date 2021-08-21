@@ -27,6 +27,15 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
+constexpr std::int64_t mem_block_count = 4; // To ensure all blocks fit in memory
+
+std::int64_t get_max_block_size_in_bytes(const sycl::queue& queue) {
+    const std::int64_t max_block_size_in_bytes =
+        std::min(bk::device_max_mem_alloc_size(queue),
+                 bk::device_global_mem_size(queue) / mem_block_count);
+    return max_block_size_in_bytes;
+}
+
 inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
     // TODO optimization/dispatching
     return 16;
@@ -66,8 +75,13 @@ struct complete_distances {};
 template <typename Float>
 std::int64_t kernels_fp<Float>::get_block_size_in_rows(sycl::queue& queue,
                                                        std::int64_t column_count) {
-    // TODO optimization
+    constexpr std::int64_t effective_cache_column_count_limit = 256;
     std::int64_t block_size_in_bytes = bk::device_global_mem_cache_size(queue);
+    bool use_cache = column_count < effective_cache_column_count_limit;
+    if (!use_cache) {
+        auto max_block_size_in_bytes = get_max_block_size_in_bytes(queue);
+        block_size_in_bytes = bk::down_pow2(max_block_size_in_bytes);
+    }
     std::int64_t block_size_in_rows = block_size_in_bytes / column_count / sizeof(Float);
     ONEDAL_ASSERT(block_size_in_rows > 0);
     return block_size_in_rows;
@@ -78,10 +92,7 @@ std::int64_t kernels_fp<Float>::get_part_count_for_partial_centroids(sycl::queue
                                                                      std::int64_t column_count,
                                                                      std::int64_t cluster_count) {
     // TODO optimization
-    constexpr std::int64_t mem_block_count = 4; // To ensure all blocks fit in memory
-    const std::int64_t block_size_in_bytes =
-        std::min(bk::device_max_mem_alloc_size(queue),
-                 bk::device_global_mem_size(queue) / mem_block_count);
+    const std::int64_t block_size_in_bytes = get_max_block_size_in_bytes(queue);
     std::int64_t part_count = 128; // Number of partial centroids. Reasonable initial guess.
     dal::detail::check_mul_overflow(cluster_count, column_count);
     dal::detail::check_mul_overflow(cluster_count * column_count, part_count);
