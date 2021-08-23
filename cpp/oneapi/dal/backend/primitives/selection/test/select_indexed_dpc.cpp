@@ -35,14 +35,10 @@ class selection_by_rows_test : public te::float_algo_fixture<TestType> {
 public:
     using float_t = TestType;
 
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<float_t>();
-    }
-
     void generate() {
-        m_ = GENERATE(1, 11, 129);
-        n_ = GENERATE(1, 17, 131);
-        k_ = GENERATE(1, 19, 137);
+        m_ = GENERATE(1, 3, 129, 515);
+        n_ = GENERATE(1, 4, 131, 517);
+        k_ = GENERATE(1, 5, 133, 513, 1031);
     }
 
     void test_selection_1d() {
@@ -129,7 +125,7 @@ private:
     std::int64_t m_, n_, k_;
 };
 
-using selection_types = std::tuple<float, double>;
+using selection_types = std::tuple<std::int32_t >;
 
 TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection indexed 1D",

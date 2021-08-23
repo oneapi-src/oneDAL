@@ -448,7 +448,8 @@ inline std::int64_t device_local_mem_size(const sycl::queue& q) {
 
 template <typename T>
 inline std::int64_t device_native_vector_size(const sycl::queue& q) {
-    static_assert(std::is_same_v<T, float> || std::is_same_v<T, double>);
+    static_assert(std::is_same_v<T, float> || std::is_same_v<T, double>
+        || std::is_same_v<T, int> || std::is_same_v<T, long>);
     return 0;
 }
 
@@ -463,6 +464,20 @@ template <>
 inline std::int64_t device_native_vector_size<double>(const sycl::queue& q) {
     const auto res =
         q.get_device().template get_info<sycl::info::device::native_vector_width_double>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+template <>
+inline std::int64_t device_native_vector_size<int>(const sycl::queue& q) {
+    const auto res =
+        q.get_device().template get_info<sycl::info::device::native_vector_width_int>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+template <>
+inline std::int64_t device_native_vector_size<long>(const sycl::queue& q) {
+    const auto res =
+        q.get_device().template get_info<sycl::info::device::native_vector_width_long>();
     return dal::detail::integral_cast<std::int64_t>(res);
 }
 
