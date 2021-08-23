@@ -99,7 +99,7 @@ public:
     using allocator_t = Allocator;
 
     explicit descriptor(Allocator allocator = std::allocator<char>()) {
-        _alloc = allocator;
+        alloc_ = allocator;
     }
 
     /// Returns kind of subgraph isomorphism
@@ -142,11 +142,11 @@ public:
     }
 
     Allocator get_allocator() const {
-        return _alloc;
+        return alloc_;
     }
 
 private:
-    Allocator _alloc;
+    Allocator alloc_;
 };
 
 namespace detail {
