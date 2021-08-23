@@ -17,6 +17,10 @@
 #pragma once
 
 #include "oneapi/dal/io/csv/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/graph/common.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/detail/memory.hpp"
 
 namespace oneapi::dal::csv {
 
@@ -49,3 +53,77 @@ private:
 using v1::read_args;
 
 } // namespace oneapi::dal::csv
+
+namespace oneapi::dal::preview::csv {
+
+namespace detail {
+
+using byte_alloc_ptr = dal::detail::shared<preview::detail::byte_alloc_iface>;
+
+template <typename Allocator>
+inline byte_alloc_ptr make_allocator(Allocator&& alloc) {
+    return std::make_shared<preview::detail::alloc_connector<std::decay_t<Allocator>>>(
+        std::forward<Allocator>(alloc));
+}
+
+class read_args_graph_impl : public base {
+public:
+    explicit read_args_graph_impl(const byte_alloc_ptr& alloc, read_mode mode)
+            : allocator(alloc),
+              mode(mode) {
+        if (mode != read_mode::edge_list && mode != read_mode::weighted_edge_list) {
+            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
+        }
+    }
+
+    byte_alloc_ptr get_allocator() const {
+        return allocator;
+    }
+    read_mode get_read_mode() const {
+        return mode;
+    }
+    byte_alloc_ptr allocator;
+    read_mode mode;
+};
+} // namespace detail
+
+struct read_args_tag {};
+
+template <typename Object>
+class ONEDAL_EXPORT read_args : public base {
+public:
+    using object_t = Object;
+    using tag_t = read_args_tag;
+    explicit read_args(read_mode mode = read_mode::edge_list)
+            : impl_(new detail::read_args_graph_impl(detail::make_allocator(std::allocator<int>{}),
+                                                     mode)) {}
+    template <typename Allocator>
+    explicit read_args(Allocator&& allocator, read_mode mode = read_mode::edge_list)
+            : impl_(new detail::read_args_graph_impl(
+                  detail::make_allocator(std::forward<Allocator>(allocator)),
+                  mode)) {}
+
+    detail::byte_alloc_ptr get_allocator() const {
+        return impl_->get_allocator();
+    }
+
+    auto& set_read_mode(read_mode mode) {
+        set_read_mode_impl(mode);
+        return *this;
+    }
+    read_mode get_read_mode() const {
+        return impl_->get_read_mode();
+    }
+
+protected:
+    void set_read_mode_impl(read_mode mode) {
+        if (mode != read_mode::edge_list && mode != read_mode::weighted_edge_list)
+            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
+        impl_->mode = mode;
+    }
+
+private:
+    dal::detail::pimpl<detail::read_args_graph_impl> impl_;
+};
+
+} // namespace oneapi::dal::preview::csv

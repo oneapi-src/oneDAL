@@ -20,6 +20,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/graph_matching_default_kernel.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#include "oneapi/dal/detail/memory.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -69,7 +70,8 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology, Verte
         const oneapi::dal::preview::detail::edge_values<EdgeValue> &ev_t,
         const oneapi::dal::preview::detail::vertex_values<VertexValue> &vv_p,
         const oneapi::dal::preview::detail::edge_values<EdgeValue> &ev_p) {
-        alloc_connector<allocator_t> alloc_con(descriptor.get_allocator());
+        oneapi::dal::preview::detail::alloc_connector<allocator_t> alloc_con(
+            descriptor.get_allocator());
         static auto impl = std::make_shared<
             call_subgraph_isomorphism_kernel_cpu<allocator_t, VertexValue, EdgeValue>>();
         return (*impl)(ctx,
