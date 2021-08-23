@@ -27,7 +27,7 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width) {
-    constexpr std::int64_t result = 2048 * 8 / sizeof(Float);
+    constexpr std::int64_t result = 4096 * 8 / sizeof(Float);
     return result;
 }
 
@@ -156,7 +156,8 @@ public:
                         std::int64_t train_block,
                         std::int64_t select_block)
             : base_t(q, k, query_block, train_block, select_block),
-              query_norms_(ndarray<Float, 1>::empty(q, { query_block })) {}
+              query_norms_(ndarray<Float, 1>::empty(q, { query_block }, sycl::usm::alloc::device)) {
+    }
 
     auto& init_train_norms(sycl::queue& queue,
                            const ndview<Float, 2>& train,
@@ -164,7 +165,7 @@ public:
         const std::int32_t samples_count = train.get_dimension(0);
         train_blocking_ = uniform_blocking(samples_count, this->tblock_);
         train_events_ = event_vector(train_blocking_.get_block_count());
-        train_norms_ = ndarray<Float, 1>::empty(queue, { samples_count });
+        train_norms_ = ndarray<Float, 1>::empty(queue, { samples_count }, sycl::usm::alloc::device);
         for (std::int64_t tb = 0; tb < train_blocking_.get_block_count(); ++tb) {
             const auto from = train_blocking_.get_block_start_index(tb);
             const auto to = train_blocking_.get_block_end_index(tb);
