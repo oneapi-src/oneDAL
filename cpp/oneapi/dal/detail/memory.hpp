@@ -20,6 +20,7 @@
 
 #include "oneapi/dal/detail/memory_impl_dpc.hpp"
 #include "oneapi/dal/detail/memory_impl_host.hpp"
+#include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -70,19 +71,19 @@ namespace oneapi::dal::preview::detail {
 using namespace std;
 
 struct byte_alloc_iface {
-    using byte_t = char;
+    virtual ~byte_alloc_iface() = default;
     virtual byte_t* allocate(std::int64_t n) = 0;
     virtual void deallocate(byte_t* ptr, std::int64_t n) = 0;
 };
 
 template <typename Alloc>
 struct alloc_connector : public byte_alloc_iface {
-    using byte_t = char;
-    using t_allocator_traits =
+    using allocator_traits_t =
         typename std::allocator_traits<Alloc>::template rebind_traits<byte_t>;
-    alloc_connector(Alloc alloc) : _alloc(alloc) {}
+    using t_byte_allocator = typename std::allocator_traits<Alloc>::template rebind_alloc<byte_t>;
+    alloc_connector(Alloc alloc) : alloc_(alloc) {}
     byte_t* allocate(std::int64_t count) override {
-        typename t_allocator_traits::pointer ptr = t_allocator_traits::allocate(_alloc, count);
+        auto ptr = allocator_traits_t::allocate(alloc_, count);
         if (ptr == nullptr) {
             throw host_bad_alloc();
         }
@@ -91,12 +92,12 @@ struct alloc_connector : public byte_alloc_iface {
 
     void deallocate(byte_t* ptr, std::int64_t count) override {
         if (ptr != nullptr) {
-            t_allocator_traits::deallocate(_alloc, ptr, count);
+            allocator_traits_t::deallocate(alloc_, ptr, count);
         }
     };
 
 private:
-    Alloc _alloc;
+    t_byte_allocator alloc_;
 };
 
 } // namespace oneapi::dal::preview::detail

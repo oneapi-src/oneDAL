@@ -25,18 +25,16 @@
 #include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "oneapi/dal/io/common.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph_descriptor.hpp"
+#include "oneapi/dal/io/csv/detail/read_graph_service.hpp"
+#include "oneapi/dal/io/csv/detail/common.hpp"
 
-namespace oneapi::dal::preview::load_graph::detail {
+namespace oneapi::dal::preview::csv::detail {
 
 template <typename EdgeList>
-inline void load_edge_list(const std::string &name, EdgeList &elist);
+inline void read_edge_list(const std::string &name, EdgeList &elist);
 
 template <>
-inline void load_edge_list(const std::string &name, edge_list<std::int32_t> &elist) {
+inline void read_edge_list(const std::string &name, edge_list<std::int32_t> &elist) {
     std::ifstream file(name);
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
@@ -54,7 +52,7 @@ inline void load_edge_list(const std::string &name, edge_list<std::int32_t> &eli
 }
 
 template <typename Vertex, typename Weight>
-inline void load_edge_list(const std::string &name, weighted_edge_list<Vertex, Weight> &elist) {
+inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, Weight> &elist) {
     std::ifstream file(name);
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
@@ -572,15 +570,50 @@ void convert_to_csr_impl(
     return;
 }
 
-template <typename Descriptor, typename DataSource>
-output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
-    using graph_type = output_type<Descriptor>;
-    using edge_list_type = typename Descriptor::input_type;
-
-    graph_type graph;
-    edge_list_type elist;
-    load_edge_list(data_source.get_filename(), elist);
+template <typename EdgeListType, typename Descriptor, typename DataSource>
+void read_from_edgelist(EdgeListType &elist,
+                        const DataSource &ds,
+                        const Descriptor &desc,
+                        typename Descriptor::object_t &graph) {
+    auto alloc = desc.get_allocator();
+    read_edge_list(ds.get_file_name(), elist);
     convert_to_csr_impl(elist, graph);
-    return graph;
+    return;
 }
-} // namespace oneapi::dal::preview::load_graph::detail
+
+template <bool IsEdgeWeighted, typename Descriptor, typename DataSource>
+class read_impl {};
+
+template <typename Descriptor, typename DataSource>
+class read_impl<false, Descriptor, DataSource> {
+    using graph_t = typename Descriptor::object_t;
+    using vertex_t = typename dal::preview::vertex_type<graph_t>;
+    using edge_list_t = typename preview::edge_list<vertex_t>;
+    edge_list_t elist;
+
+public:
+    void operator()(const DataSource &ds,
+                    const Descriptor &desc,
+                    typename Descriptor::object_t &graph) {
+        read_from_edgelist(elist, ds, desc, graph);
+    }
+};
+
+template <typename Descriptor, typename DataSource>
+class read_impl<true, Descriptor, DataSource> {
+    using graph_t = typename Descriptor::object_t;
+    using vertex_t = typename dal::preview::vertex_type<graph_t>;
+    using weight_t = typename dal::preview::edge_user_value_type<graph_t>;
+    using edge_list_t = typename preview::weighted_edge_list<vertex_t, weight_t>;
+    edge_list_t elist;
+
+public:
+    void operator()(const DataSource &ds,
+                    const Descriptor &desc,
+                    typename Descriptor::object_t &graph) {
+        read_from_edgelist(elist, ds, desc, graph);
+        return;
+    }
+};
+
+} // namespace oneapi::dal::preview::csv::detail

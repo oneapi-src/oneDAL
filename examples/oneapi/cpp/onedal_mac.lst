@@ -19,7 +19,7 @@
 ##     oneAPI Data Analytics Library examples list
 ##******************************************************************************
 
-ONEDAL = basic_statistics_dense_batch        \ 
+ONEDAL = basic_statistics_dense_batch        \
          column_accessor_homogen             \
          connected_components_batch          \
          cor_dense_batch                     \
@@ -35,7 +35,6 @@ ONEDAL = basic_statistics_dense_batch        \
          knn_cls_kd_tree_dense_batch         \
          knn_search_brute_force_dense_batch  \
          linear_kernel_dense_batch           \
-         load_graph                          \
          louvain_batch                       \
          pca_dense_batch                     \
          polynomial_kernel_dense_batch       \

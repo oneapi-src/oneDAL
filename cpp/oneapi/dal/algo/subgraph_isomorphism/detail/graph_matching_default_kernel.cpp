@@ -25,7 +25,7 @@ ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result<task::compute> call_ke
     const dal::detail::host_policy& policy,
     const kind& si_kind,
     std::int64_t max_match_count,
-    byte_alloc_iface* alloc_ptr,
+    byte_alloc_iface_t* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
     std::int64_t* vv_t,

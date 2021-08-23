@@ -18,19 +18,16 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/byte_alloc.hpp"
-
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
-struct byte_alloc_iface;
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+#include "oneapi/dal/detail/memory.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
-struct inner_alloc {
-    using byte_t = char;
 
-    inner_alloc(detail::byte_alloc_iface* byte_allocator) : byte_allocator_(byte_allocator) {}
-    inner_alloc(const detail::byte_alloc_iface* byte_allocator)
-            : byte_allocator_(const_cast<detail::byte_alloc_iface*>(byte_allocator)) {}
+using byte_alloc_iface_t = oneapi::dal::preview::detail::byte_alloc_iface;
+
+struct inner_alloc {
+    inner_alloc(byte_alloc_iface_t* byte_allocator) : byte_allocator_(byte_allocator) {}
+    inner_alloc(const byte_alloc_iface_t* byte_allocator)
+            : byte_allocator_(const_cast<byte_alloc_iface_t*>(byte_allocator)) {}
 
     template <typename T>
     T* allocate(std::int64_t n) {
@@ -54,16 +51,16 @@ struct inner_alloc {
         return ptr;
     }
 
-    detail::byte_alloc_iface* get_byte_allocator() {
+    byte_alloc_iface_t* get_byte_allocator() {
         return byte_allocator_;
     }
 
-    const detail::byte_alloc_iface* get_byte_allocator() const {
+    const byte_alloc_iface_t* get_byte_allocator() const {
         return byte_allocator_;
     }
 
 private:
-    detail::byte_alloc_iface* byte_allocator_;
+    byte_alloc_iface_t* byte_allocator_;
 };
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

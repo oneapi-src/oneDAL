@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,11 +14,17 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl_dpc.hpp"
+#include "oneapi/dal/io/csv/detail/read_graph_service.hpp"
+#include "src/externals/service_service.h"
 
-namespace oneapi::dal::decision_forest::backend {
+namespace oneapi::dal::preview::csv::detail {
 
-INSTANTIATE(double, std::int32_t, task::classification);
-INSTANTIATE(double, std::int32_t, task::regression);
+ONEDAL_EXPORT std::int32_t daal_string_to_int(const char* nptr, char** endptr) {
+    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
+}
 
-} // namespace oneapi::dal::decision_forest::backend
+ONEDAL_EXPORT double daal_string_to_double(const char* nptr, char** endptr) {
+    return daal::internal::Service<>::serv_string_to_double(nptr, endptr);
+}
+
+} // namespace oneapi::dal::preview::csv::detail

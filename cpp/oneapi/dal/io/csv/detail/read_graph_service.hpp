@@ -1,4 +1,3 @@
-/* file: common.hpp */
 /*******************************************************************************
 * Copyright 2020-2021 Intel Corporation
 *
@@ -14,13 +13,28 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
 #pragma once
 
-#include "oneapi/dal/graph/detail/container.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::preview::detail {
+namespace oneapi::dal::preview::csv::detail {
 
-template <typename T = std::int32_t, typename Allocator = std::allocator<char>>
-using edge_list_container = vector_container<T, Allocator>;
+ONEDAL_EXPORT std::int32_t daal_string_to_int(const char *nptr, char **endptr);
 
-} // namespace oneapi::dal::preview::detail
+ONEDAL_EXPORT double daal_string_to_double(const char *nptr, char **endptr);
+
+template <typename T>
+inline T daal_string_to(const char *nptr, char **endptr);
+
+template <>
+inline std::int32_t daal_string_to(const char *nptr, char **endptr) {
+    return daal_string_to_int(nptr, endptr);
+}
+
+template <>
+inline double daal_string_to(const char *nptr, char **endptr) {
+    return daal_string_to_double(nptr, endptr);
+}
+
+} // namespace oneapi::dal::preview::csv::detail
