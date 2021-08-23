@@ -29,4 +29,6 @@ Programming interface
 
 All types and functions in this section are declared in the
 ``oneapi::dal::preview`` namespace and be available via inclusion of the
-``oneapi/dal/graph/directed_adjacency_vector_graph.hpp`` header file.
+``oneapi/dal/graph/directed_adjacency_vector_graph.hpp`` header file. 
+
+The :ref:`specific graph traits <graph traits types>` are defined for this class.

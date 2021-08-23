@@ -56,89 +56,98 @@ The :txtref:`graph` concept is represented by types with suffix _graph and all o
 
 Graph traits
 ------------
+   
+Graph traits is a data type that defines the data model, a set of types
+associated with the graph, used by processing and service functionality.
 
-Graph traits is a data type that defines the data model required for processing
-and service functionality: a set of value types and ranges associated with graph
-data types.  
+Type graph_traits shall be specialized for each graph by following the pattern
+below.
 
-graph_traits shall be specialized for each graph data structure.
-
-::
+.. code-block:: cpp
 
    template <typename Graph>
    struct graph_traits {
-      using graph_type = empty_value;
-      using allocator_type = empty_value;
-
-      // graph weight types
-      using graph_user_value_type = empty_value;
-      using const_graph_user_value_type = empty_value;
-
-      // vertex types
-      using vertex_type = empty_value;
-      using vertex_iterator = empty_value;
-      using const_vertex_iterator = empty_value;
-      using vertex_size_type = empty_value;
-
-      // vertex weight types
-      using vertex_user_value_type = empty_value;
-
-      // edge types
-      using edge_type = empty_value;
-      using edge_iterator = empty_value;
-      using const_edge_iterator = empty_value;
-      using edge_size_type = empty_value;
-
-      // edge weight types
-      using edge_user_value_type = empty_value;
+      using graph_type = ...;
+      using allocator_type = ...;
+      ...
    };
 
 .. .. namespace:: oneapi::dal::preview
 .. .. struct:: graph_traits
 
-graph_traits<G>::graph_type
-   Represents the type of the graph G.
+The full list of types defined in ``graph_traits<G>`` is in the table below:
 
-graph_traits<G>::allocator_type
-   Represents the type of allocator of the graph G.
+.. _graph traits types:
 
-graph_traits<G>::graph_user_value_type
-   Represents the type of the :capterm:`attribute` of the graph G.
+.. list-table:: Graph traits types
+   :widths: 25 70 50 50
+   :header-rows: 1
 
-graph_traits<G>::const_graph_user_value_type
-   Represents the constant type of the :capterm:`attribute` of the graph G.
+   * - Type, ``graph_traits<G>::``
+     - Description
+     - :ref:`Undirected Adjacency Vector Graph <api_undirected_adjacency_vector_graph>`
+     - :ref:`Directed Adjacency Vector Graph <api_directed_adjacency_vector_graph>`
+   * - ``graph_type``
+     - Type of the graph ``G``
+     - ``undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>``
+     - ``directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>``
+   * - ``allocator_type``
+     - Type of the allocator of the graph ``G``
+     - ``Allocator``
+     - ``Allocator``
+   * - ``graph_user_value_type``
+     - Type of the :capterm:`attribute` of the graph ``G``
+     - ``GraphValue``
+     - ``GraphValue``
+   * - ``const_graph_user_value_type``
+     - Constant type of the :capterm:`attribute` of the graph G
+     - ``const GraphValue``
+     - ``const GraphValue``
+   * - ``vertex_type``
+     - Type of vertices in the graph ``G``
+     - ``IndexType``
+     - ``IndexType``
+   * - ``vertex_iterator``
+     - Type of the vertex iterator in the graph ``G``
+     - ``vertex_type*``
+     - ``vertex_type*``
+   * - ``const_vertex_iterator``
+     -  Constant type of the vertex iterator in the graph ``G``
+     - ``const vertex_type*``
+     - ``const vertex_type*``
+   * - ``vertex_size_type``
+     - Type of the index of the vertices in the graph ``G``
+     - ``std::int64_t``
+     - ``std::int64_t``
+   * - ``vertex_user_value_type``
+     - Type of the :capterm:`attributes <Attribute>` of the vertices
+     - ``VertexValue``
+     - ``VertexValue``
+   * - ``edge_type``
+     - Type of edges in the graph ``G``
+     - ``std::int64_t``
+     - ``std::int64_t``
+   * - ``edge_iterator``
+     - Type of the edge iterator in the graph ``G``
+     - *N/A** 
+     - *N/A** 
+   * - ``const_edge_iterator``
+     - Constant type of the edge iterator in the graph ``G``
+     - *N/A** 
+     - *N/A** `
+   * - ``edge_size_type``
+     - Type of the index of the edges in the graph ``G`` 
+     - ``std::int64_t``
+     - ``std::int64_t``
+   * - ``edge_user_value_type``
+     - Type of the :capterm:`attributes <Attribute>` of the edges
+     - ``EdgeValue``
+     - ``EdgeValue``
 
-graph_traits<G>::vertex_type
-   Represents the type of vertices in the graph G.
+*N/A** -- Not available. 
 
-graph_traits<G>::vertex_iterator
-   Represents the type of the iterator by vertices in the graph G.
-
-graph_traits<G>::const_vertex_iterator
-   Represents the constant type of the iterator by vertices in the graph G.
-
-graph_traits<G>::vertex_size_type
-   Represents the type of the index of the vertices in the graph G.
-
-graph_traits<G>::vertex_user_value_type
-   Represents the type of the :capterm:`attributes <Attribute>` of the vertices
-   in the graph G.
-
-graph_traits<G>::edge_type
-   Represents the type of edges in the graph G.
-
-graph_traits<G>::edge_iterator
-   Represents the type of the iterator by edges in the graph G.
-
-graph_traits<G>::const_edge_iterator
-   Represents the constant type of the iterator by edges in the graph G.
-
-graph_traits<G>::edge_size_type
-   Represents the type of the index of the edges in the graph G.
-
-graph_traits<G>::edge_user_value_type
-   Represents the type of the :capterm:`attributes <Attribute>` of the edges
-   in the graph G.
+``VertexValue``, ``EdgeValue``, ``GraphValue``, ``IndexType``, ``Allocator`` -- template parameters of graph G (see :ref:`example <api_directed_adjacency_vector_graph>`).
+     
 
 .. _api_graph_service_funcs:
 

@@ -54,7 +54,7 @@ Each implementation of :txtref:`graph` concept:
 
 2. Is :term:`reference-counted <Reference-counted object>`.
 
-3. :txtref:`api_graph_traits` should be defined for each new :txtref:`graph` type.
+3. Defines :txtref:`api_graph_traits` data type.
 
 -----------
 Graph types
