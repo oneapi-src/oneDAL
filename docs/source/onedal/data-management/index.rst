@@ -264,9 +264,10 @@ at the data preparation and data processing stages to:
 This concept has different logical organization and physical :capterm:`format of
 the data <data format>`:
 
-- Logically, a graph contains :math:`|V|` vertices and :math:`|E|` edges.
-  Vertex, edge and :capterm:`graph` :capterm:`attributes <Attribute>` may have
-  different data types and a set of allowed operations.
+- Logically, a :capterm:`graph` contains :math:`|V|` vertices and :math:`|E|` edges.
+  Vertices of the :capterm:`graph` are described with the same data type and
+  respective operations on it. The same holds the truth for edges and :capterm:`attributes <Attribute>`
+  of the :capterm:`graph`.
 
 - Physically, a graph :capterm:`topology` can be organized in :capterm:`CSR <CSR data>`
   and others data formats.
