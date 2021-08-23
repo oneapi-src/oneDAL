@@ -448,8 +448,9 @@ inline std::int64_t device_local_mem_size(const sycl::queue& q) {
 
 template <typename T>
 inline std::int64_t device_native_vector_size(const sycl::queue& q) {
-    static_assert(std::is_same_v<T, float> || std::is_same_v<T, double> || std::is_same_v<T, int> ||
-                  std::is_same_v<T, long>);
+    constexpr bool is_fpt_type = std::is_same_v<T, float> || std::is_same_v<T, double>;
+    constexpr bool is_int_type = std::is_same_v<T, std::int32_t> || std::is_same_v<T, std::int64_t>;
+    static_assert(is_fpt_type || is_int_type);
     return 0;
 }
 
