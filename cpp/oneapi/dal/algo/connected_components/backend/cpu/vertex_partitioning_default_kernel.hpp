@@ -22,7 +22,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include "cpp/oneapi/dal/backend/primitives/rng/rnd_seq.hpp"
+#include "oneapi/dal/backend/primitives/rng/rnd_seq.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
 using namespace oneapi::dal::preview::detail;
