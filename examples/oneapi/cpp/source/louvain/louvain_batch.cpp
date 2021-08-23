@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 
     std::cout << "Modularity: " << result.get_modularity() << std::endl;
     std::cout << "Number of communities: " << result.get_community_count() << std::endl;
-    std::cout << "Labels of communities: " << result.get_labels() << std::endl;
+    std::cout << "Labels of communities:" << std::endl << result.get_labels() << std::endl;
 
     return 0;
 }
