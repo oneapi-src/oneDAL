@@ -125,7 +125,7 @@ private:
     std::int64_t m_, n_, k_;
 };
 
-using selection_types = std::tuple<std::int32_t >;
+using selection_types = std::tuple<std::int32_t>;
 
 TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection indexed 1D",

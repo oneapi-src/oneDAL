@@ -91,19 +91,20 @@ sycl::event select_indexed_local(sycl::queue& q,
     const std::int32_t block_count = src_count / block + bool(src_count % block);
     auto select_event = q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
-        const auto nd_range = make_multiple_nd_range_2d({block_count, width}, {1l, width});
-        sycl::accessor<Type, 1, sycl::access::mode::read_write, sycl::access::target::local>
-            cache{ make_range_1d(block), h };
+        const auto nd_range = make_multiple_nd_range_2d({ block_count, width }, { 1l, width });
+        sycl::accessor<Type, 1, sycl::access::mode::read_write, sycl::access::target::local> cache{
+            make_range_1d(block),
+            h
+        };
         h.parallel_for(nd_range, [=](sycl::nd_item<2> it) {
             const auto bid = it.get_global_id(0);
             const std::int32_t from = bid * block;
-            const std::int32_t to =
-                std::min<std::int32_t>((bid + 1) * block, src_count);
+            const std::int32_t to = std::min<std::int32_t>((bid + 1) * block, src_count);
             sycl::global_ptr<const Type> global((const Type*)(src_ptr + from));
             sycl::local_ptr<const Type> local((const Type*)(cache.get_pointer().get()));
             it.async_work_group_copy(local, global, to - from).wait();
             const auto cid = it.get_global_id(1);
-            for(std::int32_t r = 0; r < row_count; ++r) {
+            for (std::int32_t r = 0; r < row_count; ++r) {
                 const auto idx = *(ids_ptr + ids_str * r + cid);
                 const bool handle = (to > idx) && (idx >= from) && !bool(idx & first_bit);
                 if (handle) {
@@ -138,7 +139,7 @@ sycl::event select_indexed(sycl::queue& q,
         const auto src_len = src.get_dimension(0);
         const auto vec_len = device_native_vector_size<Type>(q);
         const bool perf_criteria = (vec_len * vec_len * src_len) > (samples * folding);
-        if ((wg_size >= folding)  && perf_criteria) {
+        if ((wg_size >= folding) && perf_criteria) {
             return select_indexed_local(q, ids, src, dst, deps);
         }
     }
@@ -157,9 +158,9 @@ sycl::event select_indexed(sycl::queue& q,
                                         ndview<TYPE, 2>&,        \
                                         const event_vector&);
 
-#define INSTANTIATE_TYPE(INDEX) \
-    INSTANTIATE(float, INDEX);  \
-    INSTANTIATE(double, INDEX); \
+#define INSTANTIATE_TYPE(INDEX)       \
+    INSTANTIATE(float, INDEX);        \
+    INSTANTIATE(double, INDEX);       \
     INSTANTIATE(std::int32_t, INDEX); \
     INSTANTIATE(std::int64_t, INDEX);
 
