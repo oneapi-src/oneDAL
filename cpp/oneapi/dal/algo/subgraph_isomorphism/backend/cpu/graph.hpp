@@ -40,7 +40,7 @@ class graph {
 public:
     graph(const dal::preview::detail::topology<std::int32_t>& t,
           graph_storage_scheme storage_scheme,
-          detail::byte_alloc_iface* byte_alloc);
+          byte_alloc_iface_t* byte_alloc);
     ~graph();
 
     double get_graph_density();
@@ -110,7 +110,7 @@ void graph<Cpu>::allocate_arrays() {
 template <typename Cpu>
 graph<Cpu>::graph(const dal::preview::detail::topology<std::int32_t>& t,
                   graph_storage_scheme storage_scheme,
-                  detail::byte_alloc_iface* byte_alloc)
+                  byte_alloc_iface_t* byte_alloc)
         : external_data(true),
           bit_representation(false),
           allocator(byte_alloc),

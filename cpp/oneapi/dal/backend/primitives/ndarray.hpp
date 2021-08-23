@@ -498,10 +498,32 @@ public:
         return dal::backend::copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
     }
 
+    sycl::event assign_from_host(sycl::queue& q,
+                                 const T* source_ptr,
+                                 std::int64_t source_count,
+                                 const event_vector& deps = {}) {
+        ONEDAL_ASSERT(source_ptr != nullptr);
+        ONEDAL_ASSERT(source_count > 0);
+        ONEDAL_ASSERT(source_count <= this->get_count());
+        return dal::backend::copy_host2usm(q,
+                                           this->get_mutable_data(),
+                                           source_ptr,
+                                           source_count,
+                                           deps);
+    }
+
     sycl::event assign(sycl::queue& q, const ndarray& src, const event_vector& deps = {}) {
         ONEDAL_ASSERT(src.get_count() > 0);
         ONEDAL_ASSERT(src.get_count() <= this->get_count());
         return this->assign(q, src.get_data(), src.get_count(), deps);
+    }
+
+    sycl::event assign_from_host(sycl::queue& q,
+                                 const ndarray& src,
+                                 const event_vector& deps = {}) {
+        ONEDAL_ASSERT(src.get_count() > 0);
+        ONEDAL_ASSERT(src.get_count() <= this->get_count());
+        return this->assign_from_host(q, src.get_data(), src.get_count(), deps);
     }
 #endif
 
@@ -526,6 +548,56 @@ public:
                                     deps)
             .wait_and_throw();
         return dev;
+    }
+#endif
+
+    ndarray slice(std::int64_t offset, std::int64_t count, std::int64_t axis = 0) const {
+        ONEDAL_ASSERT(order == ndorder::c, "Only C-order is supported");
+        ONEDAL_ASSERT(axis == 0, "Non-zero axis is not supported");
+        ONEDAL_ASSERT(offset >= 0);
+        ONEDAL_ASSERT(count > 0);
+        ONEDAL_ASSERT(offset + count <= this->get_dimension(axis));
+
+        const auto shape = this->get_shape();
+        const std::int64_t rest_shape_count = shape.get_count() / shape[axis];
+        ONEDAL_ASSERT(rest_shape_count > 0);
+
+        T* data_ptr = data_.get() + offset * rest_shape_count;
+        const auto aliased_data = shared_t{ data_, data_ptr };
+
+        backend::ndindex<axis_count> shape_index = shape.get_index();
+        shape_index[0] = count;
+
+        return wrap(aliased_data, ndshape<axis_count>{ shape_index });
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    std::vector<ndarray> split(std::int64_t fold_count, std::int64_t axis = 0) const {
+        ONEDAL_ASSERT(order == ndorder::c, "Only C-order is supported");
+        ONEDAL_ASSERT(axis == 0, "Non-zero axis is not supported");
+        ONEDAL_ASSERT(fold_count >= 0);
+
+        if (fold_count <= 0) {
+            return {};
+        }
+
+        const std::int64_t regular_block = this->get_dimension(axis) / fold_count;
+        ONEDAL_ASSERT(regular_block > 0);
+
+        std::vector<ndarray> slices;
+        slices.reserve(fold_count);
+
+        for (std::int64_t i = 0; i < fold_count - 1; i++) {
+            slices.push_back(this->slice(i * regular_block, regular_block, axis));
+        }
+
+        {
+            const std::int64_t i = fold_count - 1;
+            const std::int64_t tail_block = this->get_dimension(axis) - regular_block * i;
+            slices.push_back(this->slice(i * regular_block, tail_block, axis));
+        }
+
+        return slices;
     }
 #endif
 

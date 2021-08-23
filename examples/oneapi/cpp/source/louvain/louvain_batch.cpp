@@ -19,41 +19,31 @@
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/louvain.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 namespace dal = oneapi::dal;
-using namespace dal::preview::louvain;
 
 int main(int argc, char** argv) {
     const auto filename = get_data_path("weighted_edge_list.csv");
 
-    // read the graph
-    const dal::preview::graph_csv_data_source ds(filename);
-
     using vertex_type = int32_t;
     using weight_type = double;
-    using my_graph_type = dal::preview::undirected_adjacency_vector_graph<vertex_type, weight_type>;
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<vertex_type, weight_type>;
+    const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename },
+                                          dal::preview::read_mode::weighted_edge_list);
 
-    const dal::preview::load_graph::
-        descriptor<dal::preview::weighted_edge_list<vertex_type, weight_type>, my_graph_type>
-            d;
-    const auto my_graph = dal::preview::load_graph::load(d, ds);
-
-    std::allocator<char> alloc;
     // set algorithm parameters
-    const auto louvain_desc =
-        descriptor<float, method::fast, task::vertex_partitioning, std::allocator<char>>(alloc)
-            .set_resolution(1)
-            .set_accuracy_threshold(0.0001)
-            .set_max_iteration_count(3);
+    const auto louvain_desc = dal::preview::louvain::descriptor<>()
+                                  .set_resolution(1)
+                                  .set_accuracy_threshold(0.0001)
+                                  .set_max_iteration_count(3);
     // compute louvain
     const std::int64_t row_count = 7;
     const std::int64_t col_count = 1;
     const std::int64_t data[] = { 0, 1, 2, 3, 4, 5, 6 };
     const auto initial_labels = dal::homogen_table::wrap(data, row_count, col_count);
 
-    const auto result = dal::preview::vertex_partitioning(louvain_desc, my_graph, initial_labels);
+    const auto result = dal::preview::vertex_partitioning(louvain_desc, graph, initial_labels);
 
     std::cout << "Modularity: " << result.get_modularity() << std::endl;
     std::cout << "Number of communities: " << result.get_community_count() << std::endl;

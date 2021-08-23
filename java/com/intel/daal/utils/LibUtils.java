@@ -140,7 +140,12 @@ public final class LibUtils{
 
         if (OSname.startsWith("linux")) {
             if (name.contains("tbb")) {
-                fullName = "lib" + name + ".so.2";
+                if (name.contains("malloc")) {
+                    fullName = "lib" + name + ".so.2";
+                }
+                else {
+                    fullName = "lib" + name + ".so.12";
+                }
             }
             else {
                 fullName = "lib" + name + ".so";

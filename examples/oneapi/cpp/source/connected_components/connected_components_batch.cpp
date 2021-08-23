@@ -19,8 +19,7 @@
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/connected_components.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 namespace dal = oneapi::dal;
 
@@ -28,18 +27,14 @@ int main(int argc, char** argv) {
     const auto filename = get_data_path("graph.csv");
 
     // read the graph
-    const dal::preview::graph_csv_data_source ds(filename);
-    const dal::preview::load_graph::descriptor<> d;
-    const auto my_graph = dal::preview::load_graph::load(d, ds);
-    std::allocator<char> alloc;
-
-    // set algorithm parameters
-    const auto cc_desc = dal::preview::connected_components::descriptor<>(alloc);
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
+    const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
 
     try {
         // compute connected_components
         const auto result_connected_components =
-            dal::preview::vertex_partitioning(cc_desc, my_graph);
+            dal::preview::vertex_partitioning(dal::preview::connected_components::descriptor<>{},
+                                              graph);
 
         // extract the result
         std::cout << "Components' labels:\n"
