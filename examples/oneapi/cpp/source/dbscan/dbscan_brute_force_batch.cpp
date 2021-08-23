@@ -14,11 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <CL/sycl.hpp>
-#include <iomanip>
-#include <iostream>
-
-#define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/algo/dbscan.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -26,27 +21,18 @@
 
 namespace dal = oneapi::dal;
 
-void run(sycl::queue &q) {
+int main(int argc, char const *argv[]) {
     const auto data_file_name = get_data_path("dbscan_dense.csv");
 
-    const auto x_data = dal::read<dal::table>(q, dal::csv::data_source{ data_file_name });
+    const auto x_data = dal::read<dal::table>(dal::csv::data_source{ data_file_name });
 
     double epsilon = 0.04;
     std::int64_t min_observations = 45;
-
     const auto dbscan_desc = dal::dbscan::descriptor<>(epsilon, min_observations);
 
-    const auto result_compute = dal::compute(q, dbscan_desc, x_data);
+    const auto result_compute = dal::compute(dbscan_desc, x_data);
 
     std::cout << "Cluster count: " << result_compute.get_cluster_count() << std::endl;
     std::cout << "Responses:\n" << result_compute.get_responses() << std::endl;
-}
-
-int main(int argc, char const *argv[]) {
-    for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << std::endl;
-        auto q = sycl::queue{ d };
-        run(q);
-    }
     return 0;
 }
