@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/detail/train_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::pca::detail {
 namespace v1 {
@@ -29,9 +29,9 @@ struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
     train_result<Task> operator()(const data_parallel_policy& ctx,
                                   const descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method, Task>,
-                                            backend::train_kernel_gpu<Float, Method, Task>>;
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
+            KERNEL_SINGLE_NODE_CPU(backend::train_kernel_cpu<Float, Method, Task>),
+            KERNEL_SINGLE_NODE_GPU(backend::train_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };

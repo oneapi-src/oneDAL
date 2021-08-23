@@ -370,9 +370,9 @@ using v1::integral_cast;
 namespace oneapi::dal::preview::detail {
 template <typename Alloc>
 static constexpr auto allocate(Alloc& alloc, std::int64_t count) {
-    using t_allocator_traits =
+    using allocator_traits_t =
         typename std::allocator_traits<Alloc>::template rebind_traits<typename Alloc::value_type>;
-    typename t_allocator_traits::pointer ptr = t_allocator_traits::allocate(alloc, count);
+    typename allocator_traits_t::pointer ptr = allocator_traits_t::allocate(alloc, count);
     if (ptr == nullptr) {
         throw host_bad_alloc();
     }
@@ -381,10 +381,10 @@ static constexpr auto allocate(Alloc& alloc, std::int64_t count) {
 
 template <typename Alloc>
 static constexpr void deallocate(Alloc& alloc, typename Alloc::pointer ptr, std::int64_t count) {
-    using t_allocator_traits =
+    using allocator_traits_t =
         typename std::allocator_traits<Alloc>::template rebind_traits<typename Alloc::value_type>;
     if (ptr != nullptr) {
-        t_allocator_traits::deallocate(alloc, ptr, count);
+        allocator_traits_t::deallocate(alloc, ptr, count);
     }
 }
 

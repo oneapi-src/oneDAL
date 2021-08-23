@@ -71,7 +71,7 @@ algorithmFPType HelperTrainSVM<algorithmFPType, cpu>::WSSi(size_t nActiveVectors
 
     Bi                   = -1;
     algorithmFPType GMin = (MaxVal<algorithmFPType>::get()); // some big negative number
-    char sign            = getSign(signNuType);
+    const char sign      = getSign(signNuType);
 
     /* Find i index of the working set (Bi) */
     for (size_t i = 0; i < nActiveVectors; ++i)

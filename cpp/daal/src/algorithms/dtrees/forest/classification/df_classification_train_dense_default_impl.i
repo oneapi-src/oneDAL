@@ -869,6 +869,8 @@ void UnorderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexTyp
     size_t iLeft                  = 0;
     size_t iRight                 = 0;
     int iRowSplitVal              = -1;
+    int iNext                     = -1;
+    int idxNext                   = this->_aResponse.size() - 1;
     const auto aResponse          = this->_aResponse.get();
     for (size_t i = 0; i < n; ++i)
     {
@@ -885,12 +887,19 @@ void UnorderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexTyp
             DAAL_ASSERT(iLeft < bestSplit.nLeft);
             bestSplitIdx[iLeft++] = iSample;
         }
+        if ((idx > idxFeatureValueBestSplit) && (idxNext > idx))
+        {
+            idxNext = idx;
+            iNext   = aResponse[iSample].idx;
+        }
     }
     DAAL_ASSERT(iRight == n - bestSplit.nLeft);
     DAAL_ASSERT(iLeft == bestSplit.nLeft);
     bestSplit.iStart = 0;
     DAAL_ASSERT(iRowSplitVal >= 0);
-    bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
+    if (idxNext == this->_aResponse.size() - 1) iNext = iRowSplitVal;
+    bestSplit.featureValue = (this->getValue(iFeature, iRowSplitVal) + this->getValue(iFeature, iNext)) / (algorithmFPType)2.;
+    if (bestSplit.featureValue == this->getValue(iFeature, iNext)) bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
