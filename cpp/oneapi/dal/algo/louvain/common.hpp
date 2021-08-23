@@ -94,8 +94,8 @@ public:
     using task_t = Task;
     using allocator_t = Allocator;
 
-    descriptor(Allocator allocator = std::allocator<char>()) {
-        _alloc = allocator;
+    explicit descriptor(const Allocator &allocator = std::allocator<char>()) {
+        alloc_ = allocator;
     }
 
     /// Returns the threshold for the stop condition of the local moving
@@ -153,11 +153,11 @@ public:
     }
 
     Allocator get_allocator() const {
-        return _alloc;
+        return alloc_;
     }
 
 private:
-    Allocator _alloc;
+    Allocator alloc_;
 };
 
 namespace detail {
