@@ -23,6 +23,7 @@
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
 #include <daal/src/algorithms/engines/engine_batch_impl.h>
 
+#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::preview {

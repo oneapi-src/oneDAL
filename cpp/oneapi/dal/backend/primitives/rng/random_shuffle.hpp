@@ -22,7 +22,7 @@ namespace oneapi::dal::preview {
 
 template <typename Cpu, typename Type>
 void random_shuffle(Type* data, std::int64_t n) {
-    rnd_seq<Cpu, std::int64_t> gen(n, 0, n - 1);
+    rnd_seq<Cpu, std::int32_t> gen(n, 0, n - 1);
     auto uniform_values = gen.get_data();
     for (std::int64_t index = 0; index < n; ++index) {
         std::swap(data[index], data[uniform_values[index]]);
