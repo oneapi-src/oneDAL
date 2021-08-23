@@ -280,7 +280,7 @@ MSG(input_initial_partition_table_rc_neq_vertex_count,
     "Input initial partition table row count is not equal to vertex count")
 MSG(input_initial_partition_table_has_wrong_cc_expect_one,
     "Input initial partition table has wrong column count, one column is expected")
-MSG(negatitive_initial_partition_label, "Input initial partition label is lower than zero")
+MSG(negative_initial_partition_label, "Input initial partition label is negative")
 MSG(initial_partition_label_gte_vertex_count,
     "Input initial partition label is greater than or equal to vertex count")
 

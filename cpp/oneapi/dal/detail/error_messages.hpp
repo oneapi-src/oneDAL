@@ -217,7 +217,7 @@ public:
     MSG(negative_resolution);
     MSG(input_initial_partition_table_rc_neq_vertex_count);
     MSG(input_initial_partition_table_has_wrong_cc_expect_one);
-    MSG(negatitive_initial_partition_label);
+    MSG(negative_initial_partition_label);
     MSG(initial_partition_label_gte_vertex_count);
 
     /* Minkowski distance */

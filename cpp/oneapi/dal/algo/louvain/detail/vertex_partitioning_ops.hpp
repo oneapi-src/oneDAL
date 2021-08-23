@@ -79,7 +79,7 @@ struct vertex_partitioning_ops {
                 max_label = std::max(max_label, init_partition_data[v]);
             }
             if (min_label < 0) {
-                throw invalid_argument(msg::negatitive_initial_partition_label());
+                throw invalid_argument(msg::negative_initial_partition_label());
             }
             if (max_label >= vertex_count) {
                 throw invalid_argument(msg::initial_partition_label_gte_vertex_count());
