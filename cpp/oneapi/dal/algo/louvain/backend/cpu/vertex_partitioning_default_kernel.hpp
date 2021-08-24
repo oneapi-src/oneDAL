@@ -31,7 +31,7 @@ using namespace oneapi::dal::preview::backend;
 using namespace oneapi::dal::backend::primitives;
 
 template <typename IndexType>
-inline void singleton_partition(IndexType* labels, const std::int64_t& vertex_count) {
+inline void singleton_partition(IndexType* labels, const std::int64_t vertex_count) {
     for (std::int64_t v = 0; v < vertex_count; v++) {
         labels[v] = v;
     }
@@ -39,7 +39,7 @@ inline void singleton_partition(IndexType* labels, const std::int64_t& vertex_co
 
 template <typename IndexType>
 inline std::int64_t reindex_communities(IndexType* communities,
-                                        const std::int64_t& vertex_count,
+                                        const std::int64_t vertex_count,
                                         IndexType* index) {
     for (std::int64_t v = 0; v < vertex_count; v++) {
         index[v] = -1;
@@ -130,7 +130,7 @@ inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
                        const EdgeValue* vals,
                        const EdgeValue* self_loops,
                        const IndexType* labels,
-                       const double& resolution,
+                       const double resolution,
                        EdgeValue* k,
                        EdgeValue* tot,
                        EdgeValue& m,
@@ -186,8 +186,8 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
                         const EdgeValue* self_loops,
                         IndexType* n2c,
                         bool& changed,
-                        const double& resolution,
-                        const double& accuracy_threshold,
+                        const double resolution,
+                        const double accuracy_threshold,
                         EdgeValue* k,
                         EdgeValue* tot,
                         EdgeValue* k_vertex_to,
@@ -297,7 +297,7 @@ template <typename IndexType, typename CommunityVector, typename SizeVector>
 inline void set_result_labels(CommunityVector& communities,
                               const SizeVector& vertex_size,
                               const IndexType* init_partition,
-                              const std::int64_t& vertex_count,
+                              const std::int64_t vertex_count,
                               IndexType* result_labels) {
     if (!communities.empty()) {
         // flat the communities from the next iteration
@@ -366,12 +366,12 @@ struct louvain_kernel {
             auto current_topology_cols_shared_ptr =
                 vertex_allocator.make_shared_memory(edge_count * 2);
             auto current_vals_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
-            auto currnet_self_loops_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
+            auto current_self_loops_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
 
             vertex_size_type* current_topology_rows = current_topology_rows_shared_ptr.get();
             vertex_type* current_topology_cols = current_topology_cols_shared_ptr.get();
             value_type* current_vals = current_vals_shared_ptr.get();
-            value_type* currnet_self_loops = currnet_self_loops_shared_ptr.get();
+            value_type* current_self_loops = current_self_loops_shared_ptr.get();
 
             current_topology.set_topology(vertex_count,
                                           edge_count,
@@ -383,7 +383,7 @@ struct louvain_kernel {
             current_topology_rows[0] = t._rows_ptr[0];
             for (std::int64_t index = 0; index < vertex_count; index++) {
                 current_topology_rows[index + 1] = t._rows_ptr[index + 1];
-                currnet_self_loops[index] = 0;
+                current_self_loops[index] = 0;
             }
             for (std::int64_t index = 0; index < edge_count * 2; index++) {
                 current_topology_cols[index] = t._cols_ptr[index];
@@ -439,7 +439,7 @@ struct louvain_kernel {
                 bool changed = false;
                 modularity = move_nodes<Cpu, Float>(current_topology,
                                                     current_vals,
-                                                    currnet_self_loops,
+                                                    current_self_loops,
                                                     labels,
                                                     changed,
                                                     resolution,
@@ -464,7 +464,7 @@ struct louvain_kernel {
 
                 compress_graph(current_topology,
                                current_vals,
-                               currnet_self_loops,
+                               current_self_loops,
                                community_count,
                                labels,
                                community_size_shared_ptr.get(),
