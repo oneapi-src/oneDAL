@@ -31,7 +31,7 @@ using namespace oneapi::dal::preview::backend;
 using namespace oneapi::dal::backend::primitives;
 
 template <typename IndexType>
-inline void singleton_partition(IndexType* labels, const std::int64_t vertex_count) {
+inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
     for (std::int64_t v = 0; v < vertex_count; v++) {
         labels[v] = v;
     }
@@ -39,7 +39,7 @@ inline void singleton_partition(IndexType* labels, const std::int64_t vertex_cou
 
 template <typename IndexType>
 inline std::int64_t reindex_communities(IndexType* communities,
-                                        const std::int64_t vertex_count,
+                                        std::int64_t vertex_count,
                                         IndexType* index) {
     for (std::int64_t v = 0; v < vertex_count; v++) {
         index[v] = -1;
@@ -58,7 +58,7 @@ template <typename IndexType, typename EdgeValue, typename CommunityVertexContai
 inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
                            EdgeValue* vals,
                            EdgeValue* self_loops,
-                           const std::int64_t community_count,
+                           std::int64_t community_count,
                            const IndexType* partition,
                            const std::int64_t* community_size,
                            IndexType* c_neighbors,
@@ -130,7 +130,7 @@ inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
                        const EdgeValue* vals,
                        const EdgeValue* self_loops,
                        const IndexType* labels,
-                       const double resolution,
+                       double resolution,
                        EdgeValue* k,
                        EdgeValue* tot,
                        EdgeValue& m,
@@ -186,8 +186,8 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
                         const EdgeValue* self_loops,
                         IndexType* n2c,
                         bool& changed,
-                        const double resolution,
-                        const double accuracy_threshold,
+                        double resolution,
+                        double accuracy_threshold,
                         EdgeValue* k,
                         EdgeValue* tot,
                         EdgeValue* k_vertex_to,
@@ -297,7 +297,7 @@ template <typename IndexType, typename CommunityVector, typename SizeVector>
 inline void set_result_labels(CommunityVector& communities,
                               const SizeVector& vertex_size,
                               const IndexType* init_partition,
-                              const std::int64_t vertex_count,
+                              std::int64_t vertex_count,
                               IndexType* result_labels) {
     if (!communities.empty()) {
         // flat the communities from the next iteration
