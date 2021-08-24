@@ -52,7 +52,7 @@ Mathematical Notations
      - The vertex in a graph.
 
    * - :math:`(u, v)`
-     - The edge in the graph.
+     - The edge in a graph.
 
    * - :math:`|A|`
      - Depending on the context may be interpreted as follows:
