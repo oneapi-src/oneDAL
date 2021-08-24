@@ -23,7 +23,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include "oneapi/dal/backend/primitives/rng/random_shuffle.hpp"
+#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 
 namespace oneapi::dal::preview::louvain::backend {
 using namespace oneapi::dal::preview::detail;
@@ -137,6 +137,9 @@ struct louvain_data {
 
     v2v_t c2v;
     value_type m;
+
+    engine eng;
+    rng<std::int32_t> rn_gen;
 };
 
 template <typename IndexType>
@@ -303,7 +306,11 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
     for (std::int64_t index = 0; index < t._vertex_count; index++) {
         ld.random_order[index] = index;
     }
-    random_shuffle<Cpu>(ld.random_order, t._vertex_count);
+    // random shuffle
+    ld.rn_gen.uniform(t._vertex_count, ld.index, ld.eng.get_state(), 0, t._vertex_count);
+    for (std::int64_t index = 0; index < t._vertex_count; ++index) {
+        std::swap(ld.random_order[index], ld.random_order[ld.index[index]]);
+    }
     std::int64_t empty_count = 0;
     do {
         old_modularity = modularity;
