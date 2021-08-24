@@ -259,8 +259,7 @@ at the data preparation and data processing stages to:
 .. note::
   For thread-safety reasons and better integration with external entities, a
   graph provides a read-only access to the data within it, thus, graph object
-  is :capterm:`immutable <immutability>`. Data types of vertex, edge, and attribute
-  can be different.
+  is :capterm:`immutable <immutability>`.
 
 This concept has different logical organization and physical :capterm:`format of
 the data <data format>`:

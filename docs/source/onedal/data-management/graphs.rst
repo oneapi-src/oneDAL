@@ -26,7 +26,7 @@ This section describes the types and functions related to the :txtref:`graph` co
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 70
+   :widths: 40 60
 
    * - Type
      - Description
@@ -62,7 +62,7 @@ Graph types
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 70
+   :widths: 40 60
 
    * - Graph type
      - Description

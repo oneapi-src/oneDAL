@@ -25,7 +25,7 @@ Class ``directed_adjacency_vector_graph`` is the implementation of
 graph concept with :capterm:`adjacency matrix` underneath for which the following is true:
 
 - The data within the graph are sparse and stored in :capterm:`CSR format <CSR data>`.
-- The specific :ref:`graph traits <graph_traits>` are defined for this class.
+- The :ref:`specific graph traits <graph traits types>` are defined for this class.
 
 ---------------------
 Programming interface
