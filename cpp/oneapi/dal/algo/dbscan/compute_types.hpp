@@ -63,7 +63,7 @@ public:
     const table& get_weights() const;
 
     auto& set_weights(const table& weights) {
-        set_weights_impl(data);
+        set_weights_impl(weights);
         return *this;
     }
 
