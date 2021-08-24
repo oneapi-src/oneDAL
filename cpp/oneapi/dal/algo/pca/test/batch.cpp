@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/pca/train.hpp"
 #include "oneapi/dal/algo/pca/infer.hpp"
 
-#include "oneapi/dal/test/engine/fixtures_catch.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
 

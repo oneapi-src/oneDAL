@@ -19,7 +19,7 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/fixtures_catch.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/serialization.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
 #include "oneapi/dal/test/engine/math.hpp"

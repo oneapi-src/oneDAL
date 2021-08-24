@@ -19,7 +19,7 @@
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/mocks.hpp"
-#include "oneapi/dal/test/engine/fixtures_catch.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
 
 namespace oneapi::dal::rbf_kernel::test {
 

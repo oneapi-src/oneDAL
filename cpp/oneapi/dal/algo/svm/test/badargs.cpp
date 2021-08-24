@@ -20,7 +20,7 @@
 #include "oneapi/dal/algo/svm/train.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/fixtures_catch.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
 

@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/algo/linear_kernel/compute.hpp"
 
-#include "oneapi/dal/test/engine/fixtures_catch.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::linear_kernel::test {
