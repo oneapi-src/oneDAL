@@ -138,6 +138,7 @@ class InputIface : public daal::algorithms::Input
 public:
     InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
     InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
+    InputIface & operator=(const InputIface & other)                  = default;
     virtual services::Status getNumberOfColumns(size_t & nCols) const = 0;
     virtual ~InputIface() {}
 };
@@ -151,6 +152,7 @@ class DAAL_EXPORT Input : public InputIface
 public:
     Input();
     Input(const Input & other);
+    Input & operator=(const Input & other) = default;
 
     virtual ~Input() {}
 
@@ -361,6 +363,7 @@ class DAAL_EXPORT DistributedInput : public InputIface
 public:
     DistributedInput();
     DistributedInput(const DistributedInput & other);
+    DistributedInput & operator=(const DistributedInput & other) = default;
 
     virtual ~DistributedInput() {}
 
