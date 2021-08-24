@@ -22,7 +22,6 @@
 Jaccard Similarity
 ===================================
 
-.. /use the algorithm name/
 .. include:: ../../../includes/graphs/graph-algorithm-introduction.rst
 
 ------------------------
