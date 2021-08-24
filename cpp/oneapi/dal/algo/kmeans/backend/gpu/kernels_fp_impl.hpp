@@ -28,11 +28,20 @@ namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 std::int64_t get_max_block_size_in_bytes(const sycl::queue& queue) {
-    constexpr std::int64_t mem_block_count = 4; // To ensure all blocks fit in memory
+    constexpr std::int64_t mem_block_size_limit_ratio = 4; // To ensure all blocks fit in memory
     const std::int64_t max_block_size_in_bytes =
         std::min(bk::device_max_mem_alloc_size(queue),
-                 bk::device_global_mem_size(queue) / mem_block_count);
+                 bk::device_global_mem_size(queue) / mem_block_size_limit_ratio);
     return max_block_size_in_bytes;
+}
+
+bool can_use_cache_for_distance_matrix(const sycl::queue& queue,
+                                       std::int64_t cache_size_in_bytes,
+                                       std::int64_t column_count) {
+    // TODO optimization/dispatching
+    constexpr std::int64_t effective_cache_column_count_limit = 256;
+    bool use_cache = column_count < effective_cache_column_count_limit;
+    return use_cache;
 }
 
 inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
@@ -74,9 +83,8 @@ struct complete_distances {};
 template <typename Float>
 std::int64_t kernels_fp<Float>::get_block_size_in_rows(sycl::queue& queue,
                                                        std::int64_t column_count) {
-    constexpr std::int64_t effective_cache_column_count_limit = 256;
     std::int64_t block_size_in_bytes = bk::device_global_mem_cache_size(queue);
-    bool use_cache = column_count < effective_cache_column_count_limit;
+    bool use_cache = can_use_cache_for_distance_matrix(queue, block_size_in_bytes, column_count);
     if (!use_cache) {
         auto max_block_size_in_bytes = get_max_block_size_in_bytes(queue);
         block_size_in_bytes = bk::down_pow2(max_block_size_in_bytes);
