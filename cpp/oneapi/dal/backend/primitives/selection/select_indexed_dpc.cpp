@@ -138,7 +138,7 @@ sycl::event select_indexed(sycl::queue& q,
         const auto samples = ids.get_dimension(0);
         const auto src_len = src.get_dimension(0);
         const auto vec_len = device_native_vector_size<Type>(q);
-        const bool perf_criteria = (vec_len * vec_len * src_len) > (samples * folding);
+        const bool perf_criteria = (vec_len * src_len) > (samples * folding);
         if ((wg_size >= folding) && perf_criteria) {
             return select_indexed_local(q, ids, src, dst, deps);
         }
