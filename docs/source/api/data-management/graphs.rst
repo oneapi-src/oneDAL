@@ -77,7 +77,7 @@ below.
 
 The full list of types defined in ``graph_traits<G>`` is in the table below:
 
-.. _graph traits types:
+.. _graph_traits_types:
 
 .. list-table:: Graph traits types
    :widths: 25 70 50 50
