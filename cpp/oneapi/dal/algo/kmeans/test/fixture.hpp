@@ -25,7 +25,7 @@
 
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/test/engine/fixtures_catch.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/metrics/clustering.hpp"
 

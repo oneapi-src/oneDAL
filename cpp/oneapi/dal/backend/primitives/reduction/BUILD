@@ -27,21 +27,6 @@ dal_test_suite(
 )
 
 dal_test_suite(
-    name = "perf_catch",
-    framework = "catch2",
-    compile_as = [ "dpc++" ],
-    private = True,
-    srcs = glob([
-        "test/*perf*.cpp",
-    ], exclude=[
-        "test/*gbench*.cpp",
-    ]),
-    dal_deps = [
-        ":reduction",
-    ],
-)
-
-dal_test_suite(
     name = "tests",
     framework = "catch2",
     compile_as = [ "dpc++" ],

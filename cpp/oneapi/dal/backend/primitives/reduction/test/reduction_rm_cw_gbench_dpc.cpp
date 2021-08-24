@@ -125,9 +125,9 @@ private:
     std::int64_t height_;
 };
 
-#define INSTANTIATE_FLOAT(FPTYPE)                                                            \
-    BM_TEMPLATE_F(reduction_rm_cw_gbench, rm_cw_reduction_##FPTYPE, reduction_types<FPTYPE>) \
-        ->ArgsProduct({ { 1024, 2048 }, { 1024, 2048 }, { 2048, 16384 } })                   \
+#define INSTANTIATE_FLOAT(FPTYPE)                                                                \
+    BM_TEMPLATE_F(reduction_rm_cw_gbench, bm_rm_cw_reduction_##FPTYPE, reduction_types<FPTYPE>)  \
+        ->ArgsProduct({ { 28, 256, 512, 2000 }, { 28, 256, 512, 2000 }, { 1024, 8192, 32768 } }) \
         ->Unit(benchmark::kMillisecond);
 
 INSTANTIATE_FLOAT(float);

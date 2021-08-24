@@ -19,6 +19,8 @@
 #include <stdexcept>
 #include "oneapi/dal/test/engine/common_base.hpp"
 
+#include <iostream>
+
 namespace oneapi::dal::test::engine {
 
 #ifdef ONEDAL_DATA_PARALLEL

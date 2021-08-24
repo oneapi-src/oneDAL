@@ -16,6 +16,7 @@
 
 #include <benchmark/benchmark.h>
 #include "oneapi/dal/test/engine/config.hpp"
+#include <iostream>
 
 int main(int argc, char** argv) {
     using oneapi::dal::test::engine::global_config;
