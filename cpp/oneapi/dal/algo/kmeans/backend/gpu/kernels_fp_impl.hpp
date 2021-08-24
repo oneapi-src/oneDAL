@@ -27,9 +27,8 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-constexpr std::int64_t mem_block_count = 4; // To ensure all blocks fit in memory
-
 std::int64_t get_max_block_size_in_bytes(const sycl::queue& queue) {
+    constexpr std::int64_t mem_block_count = 4; // To ensure all blocks fit in memory
     const std::int64_t max_block_size_in_bytes =
         std::min(bk::device_max_mem_alloc_size(queue),
                  bk::device_global_mem_size(queue) / mem_block_count);
