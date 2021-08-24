@@ -16,61 +16,13 @@
 
 #pragma once
 
-#include "oneapi/dal/test/engine/common_base.hpp"
+#include "oneapi/dal/test/engine/fixtures_base.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/spmd.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/thread_communicator.hpp"
 
 namespace oneapi::dal::test::engine {
-
-class policy_fixture {
-public:
-    auto& get_policy() {
-        return policy_;
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    sycl::queue& get_queue() {
-        return policy_.get_queue();
-    }
-#endif
-
-private:
-    DECLARE_TEST_POLICY(policy_);
-};
-
-class algo_fixture : public policy_fixture {
-public:
-    template <typename... Args>
-    auto train(Args&&... args) {
-        return oneapi::dal::test::engine::train(get_policy(), std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto infer(Args&&... args) {
-        return oneapi::dal::test::engine::infer(get_policy(), std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto compute(Args&&... args) {
-        return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
-    }
-};
-
-template <typename Float>
-class float_algo_fixture : public algo_fixture {
-public:
-    using float_t = Float;
-
-    bool not_float64_friendly() {
-        constexpr bool is_double = std::is_same_v<Float, double>;
-        return is_double && !this->get_policy().has_native_float64();
-    }
-
-    table_id get_homogen_table_id() const {
-        return table_id::homogen<Float>();
-    }
-};
 
 template <typename TestType, typename Derived>
 class crtp_algo_fixture : public float_algo_fixture<std::tuple_element_t<0, TestType>> {

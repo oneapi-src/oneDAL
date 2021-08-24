@@ -24,7 +24,7 @@
 
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
-#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/common_base.hpp"
 
 namespace oneapi::dal::test::engine {
 

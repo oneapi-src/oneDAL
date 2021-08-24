@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/detail/spmd_policy.hpp"
-#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/common_base.hpp"
 
 namespace oneapi::dal::test::engine {
 

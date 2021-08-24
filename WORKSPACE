@@ -72,14 +72,6 @@ mkl_repo(
     ],
 )
 
-#load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-#git_repository(
-#    name = "gbench",
-#    remote = "https://github.com/google/benchmark.git",
-#    branch = "master",
-#    recursive_init_submodules = True,
-#)
-
 load("@onedal//dev/bazel/deps:onedal.bzl", "onedal_repo")
 onedal_repo(
     name = "onedal_release",

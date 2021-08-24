@@ -15,7 +15,7 @@
 *******************************************************************************/
 #pragma once
 
-#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/fixtures_base.hpp"
 #include "benchmark/benchmark.h"
 
 namespace oneapi::dal::test::engine {
