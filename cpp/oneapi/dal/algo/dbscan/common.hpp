@@ -125,7 +125,7 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literals:`epsilon`, `min_observations`
-    explicit descriptor(float_t epsilon, std::int64_t min_observations) {
+    explicit descriptor(double epsilon, std::int64_t min_observations) {
         set_min_observations(min_observations);
         set_epsilon(epsilon);
     }
@@ -140,7 +140,7 @@ public:
         return *this;
     }
 
-    /// The distance `epsion` for neighbor search
+    /// The distance `epsilon` for neighbor search
     /// @invariant :expr:`epsilon >= 0.0`
     double get_epsilon() const {
         return base_t::get_epsilon();

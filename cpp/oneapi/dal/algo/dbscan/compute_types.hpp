@@ -62,7 +62,7 @@ public:
     /// stores one weight per observation.
     const table& get_weights() const;
 
-    auto& set_weights(const table& data) {
+    auto& set_weights(const table& weights) {
         set_weights_impl(data);
         return *this;
     }
