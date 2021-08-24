@@ -26,7 +26,7 @@ This section describes the types and functions related to the :txtref:`graph` co
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 70
+   :widths: 30 70
 
    * - Type
      - Description
@@ -54,7 +54,7 @@ Each implementation of :txtref:`graph` concept:
 
 2. Is :term:`reference-counted <Reference-counted object>`.
 
-3. Defines :txtref:`api_graph_traits` data type.
+3. Defines :txtref:`graph_traits <api_graph_traits>` data type.
 
 -----------
 Graph types
