@@ -59,7 +59,7 @@ Mathematical Notations
 
         + If :math:`A` is a set, this denotes its cardinality, i.e., the number
           of elements in the set :math:`A`.
-        + If :math:`A` is a real number, this denotes an absolute value of
+        + If :math:`A` is a real number, this denotes the absolute value of
           :math:`A`.
 
    * - :math:`\|x\|`
