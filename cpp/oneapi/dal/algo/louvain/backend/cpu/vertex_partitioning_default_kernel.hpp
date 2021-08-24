@@ -58,7 +58,7 @@ template <typename IndexType, typename EdgeValue, typename CommunityVertexContai
 inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
                            EdgeValue* vals,
                            EdgeValue* self_loops,
-                           const std::int64_t& community_count,
+                           const std::int64_t community_count,
                            const IndexType* partition,
                            const std::int64_t* community_size,
                            IndexType* c_neighbors,
