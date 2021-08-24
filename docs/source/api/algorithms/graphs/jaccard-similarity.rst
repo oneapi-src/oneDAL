@@ -40,5 +40,4 @@ Programming Interface
 Examples
 --------
 
-.. /use the algorithm name/
 .. include:: ../../../includes/graphs/graph-algorithm-examples.rst
