@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/algo/polynomial_kernel/compute.hpp"
 
-#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/fixtures_catch.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::polynomial_kernel::test {

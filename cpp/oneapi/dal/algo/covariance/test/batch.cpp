@@ -26,7 +26,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/test/engine/linalg/matrix.hpp"
-#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/fixtures_catch.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::covariance::test {

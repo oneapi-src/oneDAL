@@ -19,7 +19,7 @@
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/mocks.hpp"
-#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/fixtures_catch.hpp"
 
 namespace oneapi::dal::sigmoid_kernel::test {
 

@@ -18,7 +18,7 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/fixtures_catch.hpp"
 
 namespace oneapi::dal::kmeans_init::test {
 

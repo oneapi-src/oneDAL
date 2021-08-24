@@ -16,7 +16,7 @@
 
 #include <mutex>
 #include "oneapi/dal/detail/communicator.hpp"
-#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/fixtures_catch.hpp"
 #include "oneapi/dal/test/engine/thread_communicator.hpp"
 
 namespace oneapi::dal::test {

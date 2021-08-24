@@ -19,7 +19,7 @@
 #include <type_traits>
 
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/fixtures_catch.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"

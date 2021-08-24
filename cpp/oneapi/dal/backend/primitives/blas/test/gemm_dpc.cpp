@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/backend/primitives/blas/gemm.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/fixtures_catch.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
