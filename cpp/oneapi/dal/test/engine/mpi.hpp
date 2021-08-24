@@ -14,17 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/engine/config.hpp"
+#pragma once
+
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/detail/communicator.hpp"
 
 namespace oneapi::dal::test::engine {
 
-void global_setup(const global_config& config) {
-    init_global_setup_actions(config);
-}
+dal::detail::spmd_communicator get_global_mpi_communicator();
 
-void global_cleanup() {
-    tear_down_global_setup_actions();
-}
-
-} //namespace oneapi::dal::test::engine
+} // namespace oneapi::dal::test::engine

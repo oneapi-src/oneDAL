@@ -81,3 +81,6 @@ dal_test_suite(
     ],
 )
 
+dal_test_suite(
+    name = "mpi_tests",
+)
