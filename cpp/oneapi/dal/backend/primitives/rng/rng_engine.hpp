@@ -46,6 +46,7 @@ public:
                                                                      b);
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
     cl::sycl::event shuffle(Size count, Type* dst, void* state) {
         Type idx[2];
@@ -57,9 +58,12 @@ public:
 
         return cl::sycl::event{};
     }
+#endif
 
 private:
+#ifdef ONEDAL_DATA_PARALLEL
     sycl::queue queue_;
+#endif
     daal::internal::RNGs<Type, daal::sse2> daal_rng_;
 };
 

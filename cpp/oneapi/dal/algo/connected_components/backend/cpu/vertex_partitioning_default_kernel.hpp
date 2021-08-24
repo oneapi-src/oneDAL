@@ -22,7 +22,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include "oneapi/dal/backend/primitives/rng/rnd_seq.hpp"
+#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
 using namespace oneapi::dal::preview::detail;
@@ -91,12 +91,17 @@ inline std::int32_t most_frequent_element(const std::int32_t *components,
         sample_counts[i] = 0;
     }
 
-    rnd_seq<Cpu, std::int32_t> gen(samples_num, 0, vertex_count);
-    auto rnd_vertex_ids = gen.get_data();
+    vertex_type *rnd_vertex_ids = allocate(vertex_allocator, samples_num);
+
+    oneapi::dal::backend::primitives::engine eng;
+    oneapi::dal::backend::primitives::rng<std::int32_t> rn_gen;
+
+    rn_gen.uniform(samples_num, rnd_vertex_ids, eng.get_state(), 0, vertex_count);
 
     for (std::int64_t i = 0; i < samples_num; i++) {
         sample_counts[components[rnd_vertex_ids[i]]]++;
     }
+    deallocate(vertex_allocator, rnd_vertex_ids, samples_num);
 
     std::int64_t max_sample_count = 0;
     std::int64_t most_frequent_root = 0;
