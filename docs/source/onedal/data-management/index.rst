@@ -71,7 +71,7 @@ Dataset
 --------
 
 The main data-related concept that |short_name| works with is a
-:capterm:`dataset`. It is a collection of data in specific data format.
+:capterm:`dataset`. It is a collection of data in a specific data format.
 
 .. image:: _static/dataset.png
   :width: 400
