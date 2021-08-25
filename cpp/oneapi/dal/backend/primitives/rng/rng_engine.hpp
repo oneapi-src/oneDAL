@@ -20,6 +20,8 @@
 
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
 
+#include <vector>
+
 namespace oneapi::dal::backend::primitives {
 
 template <typename Type, typename Size = std::int64_t>
