@@ -76,7 +76,7 @@ The :txtref:`graph` types are defined as templated classes with the following pa
 
 :ref:`Empty value <api_empty_value>` tag structure shall be used as a value for 
 ``VertexValue``, ``EdgeValue``, ``GraphValue`` types if the corresponding
- attribute is not set.
+attribute is not set.
 
 .. _api_empty_value:
 
@@ -84,7 +84,8 @@ The :txtref:`graph` types are defined as templated classes with the following pa
 
 Graph class does not contain any public methods beside constructors 
 and related overloaded ``operator=``. The graph is accessed  using the 
-:ref:`service functions <_api_graph_traits>`.
+:ref:`service functions <api_graph_service>`.
+
 
 .. _api_graph_traits:
 

@@ -33,5 +33,5 @@ All types and functions in this section are declared in the
 
 .. onedal_class:: oneapi::dal::preview::directed_adjacency_vector_graph
 
-The :ref:`specific graph traits <graph traits types>` are defined for this class.
+The :ref:`specific graph traits <_api_graph_service>` are defined for this class.
 
