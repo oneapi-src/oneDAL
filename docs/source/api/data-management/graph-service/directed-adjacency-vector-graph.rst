@@ -20,3 +20,4 @@
 Directed adjacency vector graph service
 ========================================
 
+.. onedal_class:: oneapi::dal::preview::directed_adjacency_vector_graph

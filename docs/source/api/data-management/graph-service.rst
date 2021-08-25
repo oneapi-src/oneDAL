@@ -51,13 +51,24 @@ In order to improve readability, the following aliases are introduced:
 
    * - Alias
      - Value
+   * - ``graph_allocator<G>``
+     - ``graph_traits<G>::allocator_type``
+   * - ``graph_user_value_type<G>``
+     - ``graph_traits<G>::graph_user_value_type``
+   * - ``vertex_user_value_type<G>``
+     - ``graph_traits<G>::vertex_user_value_type``
+   * - ``edge_user_value_type<G>``
+     - ``graph_traits<G>::edge_user_value_type``
+   * - ``vertex_type<G>``
+     - ``graph_traits<G>::vertex_type``
+   * - ``vertex_type<G>``
+     - ``graph_traits<G>::vertex_type``
    * - ``vertex_type<G>``
      - ``graph_traits<G>::vertex_type``
 
-
 There are several graph service functions: 
 
-.. onedal_class:: oneapi::dal::preview::get_vertex_count
+.... onedal_class:: oneapi::dal::preview::get_vertex_count
 
 api_2
 
