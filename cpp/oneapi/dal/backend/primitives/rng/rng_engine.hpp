@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <daal/include/algorithms/engines/mt2203/mt2203.h>
 
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
