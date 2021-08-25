@@ -48,24 +48,17 @@ public:
                                                                      b);
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
     template <typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
-    cl::sycl::event shuffle(Size count, Type* dst, void* state) {
+    void shuffle(Size count, Type* dst, void* state) {
         Type idx[2];
 
         for (Size i = 0; i < count; ++i) {
             uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
             std::swap(dst[idx[0]], dst[idx[1]]);
         }
-
-        return cl::sycl::event{};
     }
-#endif
 
 private:
-#ifdef ONEDAL_DATA_PARALLEL
-    sycl::queue queue_;
-#endif
     daal::internal::RNGs<Type, daal::sse2> daal_rng_;
 };
 

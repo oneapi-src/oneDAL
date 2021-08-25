@@ -26,7 +26,7 @@ spmd_request::spmd_request() : impl_(nullptr) {}
 
 void spmd_request::wait() {
     if (impl_) {
-        return impl_->wait();
+        impl_->wait();
     }
 }
 
@@ -50,7 +50,7 @@ std::int64_t spmd_communicator::get_default_root_rank() const {
 }
 
 void spmd_communicator::barrier() const {
-    return impl_->barrier();
+    impl_->barrier();
 }
 
 spmd_request spmd_communicator::bcast(byte_t* send_buf,
