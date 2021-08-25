@@ -69,16 +69,6 @@ load("@onedal//dev/bazel:dal.bzl",
     "dal_test_suite",
 )
 
-dal_test_suite(
-    name = "func_test",
-    framework = "gbench",
-    srcs = [
-        "func.cpp",
-    ],
-    dal_deps = [
-    ],
-)
-
 dal_test_module(
     name = "catch2_main",
     srcs = [
