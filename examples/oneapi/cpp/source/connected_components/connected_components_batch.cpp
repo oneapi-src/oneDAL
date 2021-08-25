@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     // set algorithm parameters
     const auto cc_desc = dal::preview::connected_components::descriptor<>();
 
-    // compute connected_components
+    // compute connected components
     const auto result_connected_components = dal::preview::vertex_partitioning(cc_desc, graph);
 
     // extract the result
