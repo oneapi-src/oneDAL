@@ -28,7 +28,7 @@ Programming interface
 ---------------------
 
 All types and functions in this section are declared in the
-``oneapi::dal::preview`` namespace and be available via inclusion of the
+``oneapi::dal::preview`` namespace and are available via inclusion of the
 ``oneapi/dal/graph/undirected_adjacency_vector_graph.hpp`` header file. 
 
 .. onedal_class:: oneapi::dal::preview::undirected_adjacency_vector_graph
