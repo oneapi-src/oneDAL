@@ -37,7 +37,7 @@ All types and functions in this section are declared in the
 Graph
 -----
 
-The :txtref:`graph` concept is represented by types with suffix _graph and all of them are
+The :txtref:`graph` concept is represented by the types with the `_graph` suffix and all of them are
 :term:`reference-counted <Reference-counted object>`:
 
 1. The instance stores a pointers to the graph :capterm:`topology`
