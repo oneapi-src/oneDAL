@@ -43,21 +43,15 @@ copyright = '2014 - 2021, Intel Corporation' # pylint: disable=redefined-builtin
 # release = '2021'
 
 rst_prolog = """
-.. |short_name| replace:: oneDAL
-.. |product| replace:: oneDAL
-.. |namespace| replace:: daal
-.. |daal_in_code| replace:: daal
-.. |reg| unicode:: U+000AE
-.. |copy| unicode:: U+000A9
-.. |base_tk| replace:: Intel\ |reg|\  oneAPI Base Toolkit
-.. |dpcpp| replace:: Intel\ |reg|\  oneAPI DPC++/C++ Compiler
+.. include:: /substitutions_common.txt
+.. include:: /substitutions_specific.txt
 """
 
-if tags.has('use_intelname'):
-    # use supplied =t use_intelname
-    rst_prolog += ".. |full_name| replace:: Intel\ |reg|\  oneAPI Data Analytics Library"
-else:
-    rst_prolog += ".. |full_name| replace:: oneAPI Data Analytics Library"
+# if tags.has('use_intelname'):
+#     # use supplied =t use_intelname
+#     rst_prolog += ".. |full_name| replace:: Intel\ |reg|\  oneAPI Data Analytics Library"
+# else:
+#     rst_prolog += ".. |full_name| replace:: oneAPI Data Analytics Library"
 
 
 # for substitutions in code blocks and sphinx-prompts:
