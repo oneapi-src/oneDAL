@@ -439,10 +439,12 @@ sycl::event kernels_fp<Float>::complete_closest_distances(sycl::queue& queue,
 
     auto complete_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for<complete_distances<Float>>(sycl::range<1>(elem_count),
-                                                    [=](sycl::id<1> idx) {
-                                                        values_ptr[idx] += squares_ptr[idx];
-                                                    });
+        cgh.parallel_for<complete_distances<Float>>(
+            sycl::range<1>(elem_count),
+            [=](sycl::id<1> idx) {
+                Float val = values_ptr[idx] + squares_ptr[idx];
+                values_ptr[idx] = val < Float(0) ? Float(0) : val;
+            });
     });
     return complete_event;
 }
