@@ -274,6 +274,21 @@ the data <data format>`:
 
 For details, see :txtref:`dm_graphs` section.
 
+.. _graph_service:
+
+Graph service
+-------------
+
+Graph service is a concept that defines a set of functionality for access to the :capterm:`graph`.
+It allows to:
+
+- Have unified access to the data from :capterm:`graph` objects of different
+  types, without exposing their implementation details.
+
+- Have read-only access to the :capterm:`graph` data.
+
+For details, see :txtref:`dm_graph_service` section.
+
 Details
 =======
 
@@ -286,4 +301,5 @@ This section includes the detailed descriptions of all data management objects i
    accessors.rst
    data-sources.rst
    graphs.rst
+   graph-service.rst
    tables.rst

@@ -52,6 +52,32 @@ The :txtref:`graph` concept is represented by types with suffix _graph and all o
    graph goes out of the scope. If the reference count is zero, the graph
    frees its implementation.
 
+.. _api_graph_template_type:
+
+The :txtref:`graph` types are defined as templated classes with the following parameters.
+
+.. list-table:: 
+   :widths: 30 70 
+   :header-rows: 1
+
+   * - Parameter
+     - Description
+   * - ``VertexValue``
+     - Type of the vertices :capterm:`attributes <Attribute>`
+   * - ``EdgeValue``
+     - Type of the edge :capterm:`attributes <Attribute>`  
+   * - ``GraphValue``
+     - Type of the graph :capterm:`attributes <Attribute>`  
+   * - ``IndexType``
+     - Type of the vertex indices.
+   * - ``Allocator``
+     - An allocator type. Rebind is used to redefine for described above types. Allocator type shall be followed ``std::allocator_traits`` requirements.
+
+
+Graph class does not contain any  public methods beside constructors 
+and related overloaded ``operator=``. The graph is accessed  using the 
+:ref:`service functions <_api_graph_traits>`.
+
 .. _api_graph_traits:
 
 Graph traits
@@ -80,7 +106,7 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
 .. _graph traits types:
 
 .. list-table:: 
-   :widths: 25 70 50 50
+   :widths: 20 40 20 20
    :header-rows: 1
 
    * - Type, ``graph_traits<G>::``
@@ -93,20 +119,20 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
      - ``directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>``
    * - ``allocator_type``
      - Type of the allocator of the graph ``G``
-     - ``Allocator`` [2]_
-     - ``Allocator`` [2]_
+     - ``Allocator`` :ref:`[1] <GraphTemplateTypes>`
+     - ``Allocator`` :ref:`[1] <GraphTemplateTypes>`
    * - ``graph_user_value_type``
      - Type of the :capterm:`attribute` of the graph ``G``
-     - ``GraphValue`` [2]_
-     - ``GraphValue`` [2]_
+     - ``GraphValue`` :ref:`[1] <GraphTemplateTypes>`
+     - ``GraphValue`` :ref:`[1] <GraphTemplateTypes>`
    * - ``const_graph_user_value_type``
      - Constant type of the :capterm:`attribute` of the graph ``G``
-     - ``const GraphValue`` [2]_
-     - ``const GraphValue`` [2]_
+     - ``const GraphValue`` :ref:`[1] <GraphTemplateTypes>`
+     - ``const GraphValue`` :ref:`[1] <GraphTemplateTypes>`
    * - ``vertex_type``
-     - Type of vertices in the graph ``G``
-     - ``IndexType`` [2]_
-     - ``IndexType`` [2]_
+     - Type of the vertices in the graph ``G``
+     - ``IndexType`` :ref:`[1] <GraphTemplateTypes>`
+     - ``IndexType`` :ref:`[1] <GraphTemplateTypes>`
    * - ``vertex_iterator``
      - Type of the vertex iterator in the graph ``G``
      - ``vertex_type*``
@@ -120,44 +146,34 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
      - ``std::int64_t``
      - ``std::int64_t``
    * - ``vertex_user_value_type``
-     - Type of the :capterm:`attributes <Attribute>` of the vertices
-     - ``VertexValue`` [2]_
-     - ``VertexValue`` [2]_
+     - Type of the vertices :capterm:`attributes <Attribute>` of the graph ``G``
+     - ``VertexValue`` :ref:`[1] <GraphTemplateTypes>`
+     - ``VertexValue`` :ref:`[1] <GraphTemplateTypes>`
    * - ``edge_type``
      - Type of edges in the graph ``G``
      - ``std::int64_t``
      - ``std::int64_t``
    * - ``edge_iterator``
      - Type of the edge iterator in the graph ``G``
-     - *N/A* [1]_ 
-     - *N/A* [1]_ 
+     - *Not available* 
+     - *Not available*  
    * - ``const_edge_iterator``
      - Constant type of the edge iterator in the graph ``G``
-     - *N/A* [1]_ 
-     - *N/A* [1]_
+     - *Not available*  
+     - *Not available* 
    * - ``edge_size_type``
      - Type of the index of the edges in the graph ``G`` 
      - ``std::int64_t``
      - ``std::int64_t``
    * - ``edge_user_value_type``
-     - Type of the :capterm:`attributes <Attribute>` of the edges
-     - ``EdgeValue`` [2]_
-     - ``EdgeValue`` [2]_
+     - Type of  edges :capterm:`attributes <Attribute>` 
+     - ``EdgeValue`` :ref:`[1] <GraphTemplateTypes>`
+     - ``EdgeValue`` :ref:`[1] <GraphTemplateTypes>`
 
-.. [1] *N/A* -- Not available. 
+.. _GraphTemplateTypes:     
 
-.. [2] ``VertexValue``, ``EdgeValue``, ``GraphValue``, ``IndexType``, ``Allocator`` -- template parameters of graph G (see :ref:`example <api_directed_adjacency_vector_graph>`).
+[1] ``VertexValue``, ``EdgeValue``, ``GraphValue``, ``IndexType``, ``Allocator`` -- template parameters of graph G (see :ref:`example <api_directed_adjacency_vector_graph>`).
      
-
-.. _api_graph_service_funcs:
-
-Graph service functions
------------------------
-
-Graph service functions is the set of functionality for access to the graph.
-
-
-
 .. toctree::
 
    graph/undirected-adjacency-vector-graph.rst

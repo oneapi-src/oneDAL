@@ -14,17 +14,9 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-===============
-Data Management
-===============
+.. _api_directed_adjacency_vector_graph_service:
 
-Refer to :ref:`Developer Guide: Data Management <dg_data_management>`.
+========================================
+Directed adjacency vector graph service
+========================================
 
-.. toctree::
-
-   array.rst
-   accessors.rst
-   data-sources.rst
-   graphs.rst
-   graph-service.rst
-   tables.rst
