@@ -82,14 +82,18 @@ struct complete_distances {};
 
 template <typename Float>
 std::int64_t kernels_fp<Float>::get_block_size_in_rows(sycl::queue& queue,
-                                                       std::int64_t column_count) {
+                                                       std::int64_t column_count,
+                                                       std::int64_t cluster_count) {
     std::int64_t block_size_in_bytes = bk::device_global_mem_cache_size(queue);
     bool use_cache = can_use_cache_for_distance_matrix(queue, block_size_in_bytes, column_count);
     if (!use_cache) {
-        auto max_block_size_in_bytes = get_max_block_size_in_bytes(queue);
-        block_size_in_bytes = bk::down_pow2(max_block_size_in_bytes);
+        const auto max_block_size_in_bytes = get_max_block_size_in_bytes(queue);
+        const std::int64_t max_width = std::max(column_count, cluster_count);
+        std::int64_t block_size_in_rows = max_block_size_in_bytes / max_width / sizeof(Float);
+        ONEDAL_ASSERT(block_size_in_rows > 0);
+        return block_size_in_rows;
     }
-    std::int64_t block_size_in_rows = block_size_in_bytes / column_count / sizeof(Float);
+    const std::int64_t block_size_in_rows = block_size_in_bytes / column_count / sizeof(Float);
     ONEDAL_ASSERT(block_size_in_rows > 0);
     return block_size_in_rows;
 }
