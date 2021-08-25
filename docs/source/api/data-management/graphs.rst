@@ -74,7 +74,15 @@ The :txtref:`graph` types are defined as templated classes with the following pa
      - An allocator type. Rebind is used to redefine for described above types. Allocator type shall be followed ``std::allocator_traits`` requirements.
 
 
-Graph class does not contain any  public methods beside constructors 
+:ref:`Empty value <api_empty_value>` tag structure shall be used as a value for 
+``VertexValue``, ``EdgeValue``, ``GraphValue`` types if the corresponding
+ attribute is not set.
+
+.. _api_empty_value:
+
+.. onedal_class:: oneapi::dal::preview::empty_value
+
+Graph class does not contain any public methods beside constructors 
 and related overloaded ``operator=``. The graph is accessed  using the 
 :ref:`service functions <_api_graph_traits>`.
 

@@ -57,7 +57,7 @@ In order to improve readability, the following aliases are introduced:
 
 There are several graph service functions: 
 
-api_1
+.. onedal_class:: oneapi::dal::preview::get_vertex_count
 
 api_2
 
