@@ -64,8 +64,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     if (!distance_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
     }
-    else if (distance_impl->get_daal_distance_type() != detail::v1::daal_distance_t::minkowski ||
-             distance_impl->get_degree() != 2.0) {
+    else if (distance_impl->get_daal_distance_type() != detail::v1::daal_distance_t::minkowski) {
         throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
     }
 

@@ -29,9 +29,11 @@ dal_collect_modules(
         "lapack",
         "reduction",
         "rng",
+        "search",
         "selection",
         "sort",
         "stat",
+        "voting",
     ],
     root = "@onedal//cpp/oneapi/dal/backend/primitives",
 )
