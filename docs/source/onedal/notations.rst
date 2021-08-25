@@ -52,14 +52,14 @@ Mathematical Notations
      - The vertex in a graph.
 
    * - :math:`(u, v)`
-     - The edge in the graph.
+     - The edge in a graph.
 
    * - :math:`|A|`
      - Depending on the context may be interpreted as follows:
 
         + If :math:`A` is a set, this denotes its cardinality, i.e., the number
           of elements in the set :math:`A`.
-        + If :math:`A` is a real number, this denotes an absolute value of
+        + If :math:`A` is a real number, this denotes the absolute value of
           :math:`A`.
 
    * - :math:`\|x\|`

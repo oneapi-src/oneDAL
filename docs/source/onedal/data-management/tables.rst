@@ -60,7 +60,7 @@ Each implementation of :txtref:`table` concept:
 
 3. Is :term:`reference-counted <Reference-counted object>`.
 
-4. Defines a unique id number - the "kind" that represents objects of that
+4. Defines a unique id number: the "kind" that represents objects of that
    type in runtime.
 
 The following listing provides an example of table API to illustrate table kinds
