@@ -235,6 +235,10 @@ Graph analytics terms
     Unweighted graph
         A :capterm:`graph` where all vertices and all edges has no :capterm:`weights <Weight>`.
 
+    Vertex index
+        Index :math:`i` of vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
+        from :capterm:`graph` :math:`G` with :math:`n` vertices. Can be an integer value. 
+
     Weight
         A numerical value assigned to vertex, edge or graph.
 

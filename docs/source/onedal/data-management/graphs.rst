@@ -24,6 +24,8 @@ Graphs
 
 This section describes the types and functions related to the :txtref:`graph` concept.
 
+.. _graph_concepts:
+
 .. list-table::
    :header-rows: 1
    :widths: 40 60
@@ -40,8 +42,8 @@ This section describes the types and functions related to the :txtref:`graph` co
    * - :ref:`api_graph_traits`
      - A standartized way to access various properties of the :capterm:`graph`.
 
-   * - :ref:`api_graph_service_funcs`
-     - The set of service functions to access the graph.
+   * - :ref:`api_graph_service`
+     - The set of :txtref:`service functions <graph_service>` to access the graph.
 
 ---------------------------
 Requirements on graph types

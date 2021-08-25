@@ -18,9 +18,9 @@
 
 .. _api_graph_service:
 
-============================
-Graph service functionality
-============================
+==============
+Graph Service 
+==============
 
 Refer to :ref:`Developer Guide: Graph service <dm_graph_service>`.
 
@@ -35,15 +35,21 @@ All types and functions in this section are declared in the
 ``oneapi/dal/graph/service_functions.hpp`` header file.
 
 
+The :ref:`graph service <graph_service>` is represented by a functionality
+set providing a way to access the :txtref:`graph <api_graphs>`.
 
-Graph service 
+
+Each graph service function is a templated function with parameter ``Graph`` 
+and uses :txtref:`aliases <graph_aliases>` on ``graph_traits`` for ``Graph`` types access.
+
+
+.. _graph_aliases:
+
+
+Related types
 --------------
 
-The :ref:`graph service <graph_service>` concept is represented by a functionality set providing a way to access the :ref:`graph`.
-
-Each graph service function is a templated function with parameter ``Graph`` and uses ``graph_traits`` for ``Graph`` types access.
-
-In order to improve readability, the following aliases are introduced:
+Aliases are used for shorter access to the :txtref:`graph <api_graph_template_type>` types.
 
 .. list-table:: 
    :widths: 40 60 
@@ -61,19 +67,73 @@ In order to improve readability, the following aliases are introduced:
      - ``graph_traits<G>::edge_user_value_type``
    * - ``vertex_type<G>``
      - ``graph_traits<G>::vertex_type``
-   * - ``vertex_type<G>``
-     - ``graph_traits<G>::vertex_type``
-   * - ``vertex_type<G>``
-     - ``graph_traits<G>::vertex_type``
+   * - ``vertex_size_type<G>``
+     - ``graph_traits<G>::vertex_size_type``
+   * - ``edge_size_type<G>``
+     - ``graph_traits<G>::edge_size_type``
+   * - ``vertex_edge_size_type<G>``
+     - ``graph_traits<G>::vertex_edge_size_type``
+   * - ``vertex_outward_edge_size_type<G>``
+     - ``graph_traits<G>::vertex_outward_edge_size_type`` 
+   * - ``vertex_edge_iterator_type<G>``
+     - ``graph_traits<G>::vertex_edge_iterator_type``
+   * - ``const_vertex_edge_iterator_type<G>``
+     - ``graph_traits<G>::const_vertex_edge_iterator_type``
+   * - ``vertex_edge_range_type<G>``
+     - ``graph_traits<G>::vertex_edge_range_type``
+   * - ``const_vertex_edge_range_type<G>``
+     - ``graph_traits<G>::const_vertex_edge_range_type``
+   * - ``const_vertex_outward_edge_range_type<G>``
+     - ``graph_traits<G>::const_vertex_outward_edge_range_type``    
 
-There are several graph service functions: 
 
-.. onedal_func:: oneapi::dal::preview::get_vertex_count
+Graph service functions
+------------------------
 
-api_2
+Any service function has the following pattern:
 
-api_3
+.. code-block:: cpp
 
+  template <typename Graph>
+  some_type<Graph> graph_service_func(const Graph& g, ...);
+
+.. .. namespace:: oneapi::dal::preview
+.. .. func:: graph_service_func
+ 
+
+.. _api_get_vertex_count: 
+
+.. onedal_func:: oneapi::dal::preview::get_vertex_count 
+
+.. _api_get_edge_count:
+
+.. onedal_func:: oneapi::dal::preview::get_edge_count
+
+.. _api_get_vertex_degree:
+
+.. onedal_func:: oneapi::dal::preview::get_vertex_degree
+
+.. _api_get_vertex_neighbors:
+
+.. onedal_func:: oneapi::dal::preview::get_vertex_neighbors
+
+.. _api_get_vertex_outward_degree:
+
+.. onedal_func:: oneapi::dal::preview::get_vertex_outward_degree
+
+.. _api_get_vertex_outward_neighbors:
+
+.. onedal_func:: oneapi::dal::preview::get_vertex_outward_neighbors
+
+.. _api_get_edge_value:
+
+.. onedal_func:: oneapi::dal::preview::get_edge_value
+
+Specified graphs service
+-------------------------
+
+This section contains description of service functions
+which can access to the specified :txtref:`graph <api_graphs>` type.
 
 .. toctree::
 

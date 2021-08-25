@@ -20,3 +20,20 @@
 Undirected adjacency vector graph service
 ==========================================
 
+This section describes supported service functions which can access to the :ref:`api_undirected_adjacency_vector_graph`. 
+
+.. list-table:: 
+  :widths: 30 70 
+  :header-rows: 1
+
+  * - Service function
+    - Description
+  * - :txtref:`get_vertex_count <api_get_vertex_count>`
+    - Get the number of vertices in the graph 
+  * - :txtref:`get_edge_count <api_get_edge_count>`
+    - Get the number of edges in the graph 
+  * - :txtref:`get_vertex_degree <api_get_vertex_degree>`
+    - Get the degree for the specified vertex 
+  * - :txtref:`get_vertex_neighbors <api_get_vertex_neighbors>`
+    - Get the range of the vertex neighbors for the specified vertex 
+

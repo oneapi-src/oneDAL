@@ -37,7 +37,7 @@ All types and functions in this section are declared in the
 Graph
 -----
 
-The :txtref:`graph` concept is represented by the types with the `_graph` suffix and all of them are
+The :txtref:`graph` concept is represented by the types with the ``_graph`` suffix and all of them are
 :term:`reference-counted <Reference-counted object>`:
 
 1. The instance stores a pointers to the graph :capterm:`topology`
@@ -56,22 +56,34 @@ The :txtref:`graph` concept is represented by the types with the `_graph` suffix
 
 The :txtref:`graph` types are defined as templated classes with the following parameters.
 
+.. code-block:: cpp
+
+  template <typename VertexValue,
+            typename EdgeValue,
+            typename GraphValue,
+            typename IndexType,
+            typename Allocator>
+  class graph_type;
+
+.. .. namespace:: oneapi::dal::preview
+.. .. struct:: graph_traits
+
 .. list-table:: 
    :widths: 30 70 
    :header-rows: 1
 
-   * - Parameter
+   * - Type name
      - Description
    * - ``VertexValue``
-     - Type of the vertices :capterm:`attributes <Attribute>`
+     - Type of the vertex :capterm:`attributes <Attribute>` values
    * - ``EdgeValue``
-     - Type of the edge :capterm:`attributes <Attribute>`  
+     - Type of the edge :capterm:`attributes <Attribute>` values  
    * - ``GraphValue``
-     - Type of the graph :capterm:`attributes <Attribute>`  
+     - Type of the graph :capterm:`attributes <Attribute>` value  
    * - ``IndexType``
-     - Type of the vertex indices.
+     - Type of the :capterm:`vertex indices <Vertex index>`. 
    * - ``Allocator``
-     - An allocator type. Rebind is used to redefine for described above types. Allocator type shall be followed ``std::allocator_traits`` requirements.
+     - C++17 (ISO/IEC 14882:2017) compliant allocator.
 
 
 :ref:`Empty value <api_empty_value>` tag structure shall be used as a value for 
@@ -82,10 +94,24 @@ attribute is not set.
 
 .. onedal_class:: oneapi::dal::preview::empty_value
 
-Graph class does not contain any public methods beside constructors 
+Graph class does not contain any public methods beside default and move constructors 
 and related overloaded ``operator=``. The graph is accessed  using the 
 :ref:`service functions <api_graph_service>`.
 
+.. list-table:: 
+  :widths: 30 70 
+  :header-rows: 1
+
+  * - ``graph_type`` method
+    - Description
+  * - Default constructor
+    - Constructs an empty graph object 
+  * - Move constructor
+    - Swaps implementation  
+  * - Move assignment
+    - Swaps implementation 
+
+Copy constructor and assigment are unavaiable.
 
 .. _api_graph_traits:
 
@@ -177,12 +203,55 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
    * - ``edge_user_value_type``
      - Type of  edges :capterm:`attributes <Attribute>` 
      - ``EdgeValue`` :ref:`[1] <GraphTemplateTypes>`
-     - ``EdgeValue`` :ref:`[1] <GraphTemplateTypes>`
+     - ``EdgeValue`` :ref:`[1] <GraphTemplateTypes>`  
+   * - ``vertex_edge_size_type``
+     - Type of the vertex neighbors indices 
+     - ``std::int64_t``
+     - *Not available*     
+   * - ``vertex_outward_edge_size_type``
+     - Type of the vertex outward neighbors indices 
+     - *Not available*
+     - ``std::int64_t``
+   * - ``vertex_edge_iterator_type``
+     - Type of the vertex neighbors iterator 
+     - ``IndexType*`` :ref:`[1] <GraphTemplateTypes>`
+     - *Not available*    
+   * - ``const_vertex_edge_iterator_type``
+     - Type of the vertex neighbors constant iterator 
+     - ``const IndexType*`` :ref:`[1] <GraphTemplateTypes>`
+     - *Not available*    
+   * - ``vertex_outward_edge_iterator_type``
+     - Type of the vertex outward neighbors iterator 
+     - *Not available*
+     - ``IndexType*`` :ref:`[1] <GraphTemplateTypes>`    
+   * - ``const_vertex_outward_edge_iterator_type``
+     - Type of the vertex outward neighbors constant iterator 
+     - *Not available*
+     - ``const IndexType*`` :ref:`[1] <GraphTemplateTypes>`
+   * - ``vertex_edge_range``
+     - Type of the range of vertex neighbors 
+     - ``std::pair<IndexType*, IndexType*>`` :ref:`[1] <GraphTemplateTypes>`
+     - *Not available*    
+   * - ``const_vertex_edge_range``
+     - Type of the constant range of vertex neighbors 
+     - ``std::pair<IndexType*, IndexType*>`` :ref:`[1] <GraphTemplateTypes>`
+     - *Not available*    
+   * - ``vertex_outward_edge_range``
+     - Type of the range of vertex outward neighbors 
+     - *Not available*
+     - ``std::pair<IndexType*, IndexType*>`` :ref:`[1] <GraphTemplateTypes>`    
+   * - ``const_vertex_outward_edge_range``
+     - Type of the constant range of vertex outward neighbors 
+     - *Not available*
+     - ``std::pair<IndexType*, IndexType*>`` :ref:`[1] <GraphTemplateTypes>`
 
+     
 .. _GraphTemplateTypes:     
 
 [1] ``VertexValue``, ``EdgeValue``, ``GraphValue``, ``IndexType``, ``Allocator`` -- template parameters of graph G (see :ref:`example <api_directed_adjacency_vector_graph>`).
-     
+
+This section describes API of the specified graph types.
+
 .. toctree::
 
    graph/undirected-adjacency-vector-graph.rst

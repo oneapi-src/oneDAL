@@ -279,7 +279,7 @@ For details, see :txtref:`dm_graphs` section.
 Graph service
 -------------
 
-Graph service is a concept that defines a set of functionality for access to the :capterm:`graph`.
+Graph service is a set of functionality for access to the :capterm:`graph`.
 It allows to:
 
 - Have unified access to the data from :capterm:`graph` objects of different
