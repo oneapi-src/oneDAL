@@ -165,15 +165,13 @@ struct afforest {
         std::int64_t component_count = 0;
         order_component_ids(vertex_count, component_count, components);
 
-        auto label_arr = array<vertex_type>::empty(vertex_count);
-        vertex_type *label_ = label_arr.get_mutable_data();
-        for (std::int64_t i = 0; i < vertex_count; ++i) {
-            label_[i] = components[i];
-        }
+        auto labels_arr = array<vertex_type>::empty(vertex_count);
+        vertex_type *labels = labels_arr.get_mutable_data();
+        dal::backend::copy<vertex_type>(labels, components, vertex_count);
         deallocate(vertex_allocator, components, vertex_count);
 
         return vertex_partitioning_result<task::vertex_partitioning>()
-            .set_labels(homogen_table::wrap(label_arr, t.get_vertex_count(), 1))
+            .set_labels(homogen_table::wrap(labels_arr, t.get_vertex_count(), 1))
             .set_component_count(component_count);
     }
 };
