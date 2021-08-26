@@ -209,7 +209,7 @@ Graph analytics terms
             \end{cases}
 
     Attribute
-        Value assigned to :capterm:`graph`, vertex or edge.
+        A value assigned to :capterm:`graph`, vertex or edge.
         Can be a numerical value (:capterm:`weight`), string or any other custom data type.
 
     Edge index
