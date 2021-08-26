@@ -20,6 +20,8 @@
 
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
 
+#include <vector>
+
 namespace oneapi::dal::backend::primitives {
 
 template <typename Type, typename Size = std::int64_t>
@@ -47,19 +49,16 @@ public:
     }
 
     template <typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
-    cl::sycl::event shuffle(Size count, Type* dst, void* state) {
+    void shuffle(Size count, Type* dst, void* state) {
         Type idx[2];
 
         for (Size i = 0; i < count; ++i) {
             uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
             std::swap(dst[idx[0]], dst[idx[1]]);
         }
-
-        return cl::sycl::event{};
     }
 
 private:
-    sycl::queue queue_;
     daal::internal::RNGs<Type, daal::sse2> daal_rng_;
 };
 
