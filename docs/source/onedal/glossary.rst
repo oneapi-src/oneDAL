@@ -199,7 +199,7 @@ Graph analytics terms
         an edge.
 
     Adjacency matrix
-        A :math:`n × n` matrix :math:`A_G` for a graph :math:`G` whose vertices
+        An :math:`n × n` matrix :math:`A_G` for a graph :math:`G` whose vertices
         are explicitly ordered :math:`(v_1, v_2, ..., v_n)`,
 
         .. math::
