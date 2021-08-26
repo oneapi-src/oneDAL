@@ -98,14 +98,14 @@ inline std::int32_t most_frequent_element(const std::int32_t *components,
 
     rn_gen.uniform(samples_num, rnd_vertex_ids, eng.get_state(), 0, vertex_count);
 
-    for (std::int64_t i = 0; i < samples_num; i++) {
+    for (std::int64_t i = 0; i < samples_num; ++i) {
         sample_counts[components[rnd_vertex_ids[i]]]++;
     }
     deallocate(vertex_allocator, rnd_vertex_ids, samples_num);
 
     std::int64_t max_sample_count = 0;
     std::int64_t most_frequent_root = 0;
-    for (std::int64_t i = 0; i < vertex_count; i++) {
+    for (std::int64_t i = 0; i < vertex_count; ++i) {
         if (sample_counts[i] > max_sample_count) {
             max_sample_count = sample_counts[i];
             most_frequent_root = i;
@@ -171,7 +171,7 @@ struct afforest {
         deallocate(vertex_allocator, components, vertex_count);
 
         return vertex_partitioning_result<task::vertex_partitioning>()
-            .set_labels(homogen_table::wrap(labels_arr, t.get_vertex_count(), 1))
+            .set_labels(homogen_table::wrap(labels_arr, vertex_count, 1))
             .set_component_count(component_count);
     }
 };
