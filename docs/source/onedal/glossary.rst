@@ -234,7 +234,7 @@ Graph analytics terms
         A :capterm:`graph` without :capterm:`attributes <Attribute>`.
 
     Undirected graph
-        A :capterm:`graph` where each edge is a unordered pair :math:`(u, v)` of vertices.
+        A :capterm:`graph` where each edge is an unordered pair :math:`(u, v)` of vertices.
 
     Unweighted graph
         A :capterm:`graph` where all vertices and all edges has no :capterm:`weights <Weight>`.
