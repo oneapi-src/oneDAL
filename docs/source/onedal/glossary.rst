@@ -228,7 +228,7 @@ Graph analytics terms
         :math:`V` is set of vertices, :math:`E` is set of edges [Gross2014]_. 
 
     Self-loop
-        An edge that joins a single vertex to itself.
+        An edge that joins a vertex to itself.
 
     Topology
         A :capterm:`graph` without :capterm:`attributes <Attribute>`.
