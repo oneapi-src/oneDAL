@@ -20,8 +20,8 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
-#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
@@ -93,8 +93,8 @@ inline std::int32_t most_frequent_element(const std::int32_t *components,
 
     vertex_type *rnd_vertex_ids = allocate(vertex_allocator, samples_num);
 
-    oneapi::dal::backend::primitives::engine eng;
-    oneapi::dal::backend::primitives::rng<std::int32_t> rn_gen;
+    dal::backend::primitives::engine eng;
+    dal::backend::primitives::rng<std::int32_t> rn_gen;
 
     rn_gen.uniform(samples_num, rnd_vertex_ids, eng.get_state(), 0, vertex_count);
 
@@ -134,7 +134,7 @@ struct afforest {
             components[i] = i;
         }
 
-        std::int32_t neighbors_round = 2;
+        const std::int32_t neighbors_round = 2;
 
         for (std::int64_t i = 0; i < vertex_count; ++i) {
             std::int32_t neighbors_count = t.get_vertex_degree(i);
@@ -143,7 +143,8 @@ struct afforest {
             }
         }
 
-        std::int32_t sample_comp = most_frequent_element<Cpu>(components, vertex_count, alloc_ptr);
+        const std::int32_t sample_comp =
+            most_frequent_element<Cpu>(components, vertex_count, alloc_ptr);
 
         for (std::int64_t i = 0; i < vertex_count; ++i) {
             if (components[i] != sample_comp) {
@@ -172,9 +173,7 @@ struct afforest {
         deallocate(vertex_allocator, components, vertex_count);
 
         return vertex_partitioning_result<task::vertex_partitioning>()
-            .set_labels(dal::detail::homogen_table_builder{}
-                            .reset(label_arr, t.get_vertex_count(), 1)
-                            .build())
+            .set_labels(homogen_table::wrap(label_arr, t.get_vertex_count(), 1))
             .set_component_count(component_count);
     }
 };
