@@ -37,7 +37,7 @@ namespace oneapi
 {
 namespace internal
 {
-template class CovarianceDenseBatchKernelOneAPI<DAAL_FPTYPE, defaultDense>;
+template class DAAL_EXPORT CovarianceDenseBatchKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 }
 } // namespace oneapi
 

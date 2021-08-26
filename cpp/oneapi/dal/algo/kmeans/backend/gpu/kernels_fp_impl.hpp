@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 
 namespace oneapi::dal::kmeans::backend {
@@ -25,6 +26,23 @@ namespace oneapi::dal::kmeans::backend {
 
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
+
+std::int64_t get_max_block_size_in_bytes(const sycl::queue& queue) {
+    constexpr std::int64_t mem_block_size_limit_ratio = 4; // To ensure all blocks fit in memory
+    const std::int64_t max_block_size_in_bytes =
+        std::min(bk::device_max_mem_alloc_size(queue),
+                 bk::device_global_mem_size(queue) / mem_block_size_limit_ratio);
+    return max_block_size_in_bytes;
+}
+
+bool can_use_cache_for_distance_matrix(const sycl::queue& queue,
+                                       std::int64_t cache_size_in_bytes,
+                                       std::int64_t column_count) {
+    // TODO optimization/dispatching
+    constexpr std::int64_t effective_cache_column_count_limit = 256;
+    bool use_cache = column_count < effective_cache_column_count_limit;
+    return use_cache;
+}
 
 inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
     // TODO optimization/dispatching
@@ -59,12 +77,23 @@ struct centroid_merge {};
 template <typename T>
 struct compute_obj_function {};
 
+template <typename T>
+struct complete_distances {};
+
 template <typename Float>
 std::int64_t kernels_fp<Float>::get_block_size_in_rows(sycl::queue& queue,
-                                                       std::int64_t column_count) {
-    // TODO optimization
+                                                       std::int64_t column_count,
+                                                       std::int64_t cluster_count) {
     std::int64_t block_size_in_bytes = bk::device_global_mem_cache_size(queue);
-    std::int64_t block_size_in_rows = block_size_in_bytes / column_count / sizeof(Float);
+    bool use_cache = can_use_cache_for_distance_matrix(queue, block_size_in_bytes, column_count);
+    if (!use_cache) {
+        const auto max_block_size_in_bytes = get_max_block_size_in_bytes(queue);
+        const std::int64_t max_width = std::max(column_count, cluster_count);
+        std::int64_t block_size_in_rows = max_block_size_in_bytes / max_width / sizeof(Float);
+        ONEDAL_ASSERT(block_size_in_rows > 0);
+        return block_size_in_rows;
+    }
+    const std::int64_t block_size_in_rows = block_size_in_bytes / column_count / sizeof(Float);
     ONEDAL_ASSERT(block_size_in_rows > 0);
     return block_size_in_rows;
 }
@@ -74,10 +103,7 @@ std::int64_t kernels_fp<Float>::get_part_count_for_partial_centroids(sycl::queue
                                                                      std::int64_t column_count,
                                                                      std::int64_t cluster_count) {
     // TODO optimization
-    constexpr std::int64_t mem_block_count = 4; // To ensure all blocks fit in memory
-    const std::int64_t block_size_in_bytes =
-        std::min(bk::device_max_mem_alloc_size(queue),
-                 bk::device_global_mem_size(queue) / mem_block_count);
+    const std::int64_t block_size_in_bytes = get_max_block_size_in_bytes(queue);
     std::int64_t part_count = 128; // Number of partial centroids. Reasonable initial guess.
     dal::detail::check_mul_overflow(cluster_count, column_count);
     dal::detail::check_mul_overflow(cluster_count * column_count, part_count);
@@ -93,24 +119,31 @@ std::int64_t kernels_fp<Float>::get_part_count_for_partial_centroids(sycl::queue
 
 template <typename Float>
 sycl::event kernels_fp<Float>::select(sycl::queue& queue,
-                                      const pr::ndview<Float, 2>& data,
+                                      const pr::ndview<Float, 2>& distances,
+                                      const pr::ndview<Float, 1>& centroid_squares,
                                       pr::ndview<Float, 2>& selection,
                                       pr::ndview<std::int32_t, 2>& indices,
                                       const bk::event_vector& deps) {
-    ONEDAL_ASSERT(indices.get_dimension(0) == data.get_dimension(0));
+    ONEDAL_ASSERT(indices.get_dimension(0) == distances.get_dimension(0));
     ONEDAL_ASSERT(indices.get_dimension(1) == 1);
-    ONEDAL_ASSERT(selection.get_dimension(0) == data.get_dimension(0));
+    ONEDAL_ASSERT(selection.get_dimension(0) == distances.get_dimension(0));
     ONEDAL_ASSERT(selection.get_dimension(1) == 1);
+    ONEDAL_ASSERT(centroid_squares.get_dimension(0) == distances.get_dimension(1));
 
-    const std::int64_t col_count = data.get_dimension(1);
-    const std::int64_t row_count = data.get_dimension(0);
-    const std::int64_t stride = data.get_dimension(1);
+    const std::int64_t cluster_count = distances.get_dimension(1);
+    const std::int64_t row_count = distances.get_dimension(0);
+    const std::int64_t stride = distances.get_dimension(1);
 
-    const std::int64_t preffered_wg_size = 128;
+    const std::int64_t cluster_count_as_int32 =
+        dal::detail::integral_cast<std::int32_t>(cluster_count);
+
+    const std::int64_t preffered_wg_size = bk::device_max_wg_size(queue);
     const std::int64_t wg_size =
-        bk::get_scaled_wg_size_per_row(queue, col_count, preffered_wg_size);
+        bk::get_scaled_wg_size_per_row(queue, cluster_count, preffered_wg_size);
+    dal::detail::check_mul_overflow(wg_size, stride);
 
-    const Float* data_ptr = data.get_data();
+    const Float* distances_ptr = distances.get_data();
+    const Float* centroid_squares_ptr = centroid_squares.get_data();
     Float* selection_ptr = selection.get_mutable_data();
     std::int32_t* indices_ptr = indices.get_mutable_data();
     const auto fp_max = dal::detail::limits<Float>::max();
@@ -121,24 +154,24 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
             bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
-                const std::uint32_t wg_id = item.get_global_id(1);
-                const std::uint32_t sg_num = sg.get_group_range()[0];
-                const std::uint32_t sg_global_id = wg_id * sg_num + sg_id;
+                const std::int64_t sg_id = sg.get_group_id()[0];
+                const std::int64_t wg_id = item.get_global_id(1);
+                const std::int64_t sg_num = sg.get_group_range()[0];
+                const std::int64_t sg_global_id = wg_id * sg_num + sg_id;
                 if (sg_global_id >= row_count)
                     return;
-                const std::uint32_t in_offset = sg_global_id * stride;
-                const std::uint32_t out_offset = sg_global_id;
+                const std::int64_t in_offset = sg_global_id * stride;
+                const std::int64_t out_offset = sg_global_id;
 
-                const std::uint32_t local_id = sg.get_local_id()[0];
-                const std::uint32_t local_range = sg.get_local_range()[0];
+                const std::int64_t local_id = sg.get_local_id()[0];
+                const std::int64_t local_range = sg.get_local_range()[0];
 
                 std::int32_t index = -1;
                 Float value = fp_max;
-                for (std::uint32_t i = local_id; i < col_count; i += local_range) {
-                    const Float cur_val = data_ptr[in_offset + i];
+                for (std::int64_t i = local_id; i < cluster_count_as_int32; i += local_range) {
+                    const Float cur_val = distances_ptr[in_offset + i] + centroid_squares_ptr[i];
                     if (cur_val < value) {
-                        index = i;
+                        index = static_cast<std::int32_t>(i);
                         value = cur_val;
                     }
                 }
@@ -163,10 +196,11 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
 }
 
 template <typename Float>
-template <typename Metric>
 sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
                                                const pr::ndview<Float, 2>& data,
                                                const pr::ndview<Float, 2>& centroids,
+                                               const pr::ndview<Float, 1>& data_squares,
+                                               const pr::ndview<Float, 1>& centroid_squares,
                                                std::int64_t block_size_in_rows,
                                                pr::ndview<std::int32_t, 2>& responses,
                                                pr::ndview<Float, 2>& distances,
@@ -179,13 +213,13 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
     ONEDAL_ASSERT(distances.get_dimension(0) >= block_size_in_rows);
     ONEDAL_ASSERT(distances.get_dimension(1) >= centroids.get_dimension(0));
+    ONEDAL_ASSERT(centroid_squares.get_dimension(0) == centroids.get_dimension(0));
+    ONEDAL_ASSERT(data_squares.get_dimension(0) == data.get_dimension(0));
     sycl::event selection_event;
     const auto row_count = data.get_dimension(0);
     const auto column_count = data.get_dimension(1);
     const auto centroid_count = centroids.get_dimension(0);
-    pr::distance<Float, Metric> block_distances(queue);
-    auto block_count =
-        row_count / block_size_in_rows + std::int64_t(row_count % block_size_in_rows > 0);
+    auto block_count = row_count / block_size_in_rows + bool(row_count % block_size_in_rows);
     for (std::int64_t iblock = 0; iblock < block_count; iblock++) {
         const auto row_offset = block_size_in_rows * iblock;
         auto cur_rows = std::min(block_size_in_rows, row_count - row_offset);
@@ -193,8 +227,13 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
             pr::ndview<Float, 2>::wrap(distances.get_mutable_data(), { cur_rows, centroid_count });
         auto data_block = pr::ndview<Float, 2>::wrap(data.get_data() + row_offset * column_count,
                                                      { cur_rows, column_count });
-        auto distance_event =
-            block_distances(data_block, centroids, distance_block, { selection_event });
+        auto distance_event = pr::gemm(queue,
+                                       data_block,
+                                       centroids.t(),
+                                       distance_block,
+                                       Float(-2.0),
+                                       Float(0.0),
+                                       { selection_event });
         auto response_block =
             pr::ndview<int32_t, 2>::wrap(responses.get_mutable_data() + row_offset,
                                          { cur_rows, 1 });
@@ -203,11 +242,14 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
                                        { cur_rows, 1 });
         selection_event = select(queue,
                                  distance_block,
+                                 centroid_squares,
                                  closest_distance_block,
                                  response_block,
                                  { distance_event });
     }
-    return selection_event;
+    auto completion_event =
+        complete_closest_distances(queue, data_squares, closest_distances, { selection_event });
+    return completion_event;
 }
 
 template <typename Float>
@@ -343,6 +385,69 @@ sycl::event kernels_fp<Float>::compute_objective_function(
     });
 }
 
+template <typename Float>
+sycl::event kernels_fp<Float>::compute_squares(sycl::queue& queue,
+                                               const pr::ndview<Float, 2>& data,
+                                               pr::ndview<Float, 1>& squares,
+                                               const bk::event_vector& deps) {
+    ONEDAL_ASSERT(data.get_dimension(0) == squares.get_dimension(0));
+    const Float* data_ptr = data.get_data();
+    Float* squares_ptr = squares.get_mutable_data();
+
+    const std::int64_t row_count = data.get_dimension(0);
+    const std::int64_t column_count = data.get_dimension(1);
+    const std::int64_t wg_size = bk::device_max_sg_size(queue);
+
+    return queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
+                         [=](sycl::nd_item<2> item) {
+                             auto sg = item.get_sub_group();
+                             const std::uint32_t sg_id = sg.get_group_id()[0];
+                             if (sg_id > 0)
+                                 return;
+                             const std::uint64_t sg_local_id = sg.get_local_id()[0];
+                             const std::uint32_t sg_local_range = sg.get_local_range()[0];
+                             const std::uint64_t wg_id = item.get_global_id(1);
+                             const std::uint64_t offset = wg_id * column_count;
+
+                             Float sum = Float(0);
+                             for (std::int64_t i = sg_local_id; i < column_count;
+                                  i += sg_local_range) {
+                                 const Float value = data_ptr[offset + i];
+                                 sum += value * value;
+                             }
+                             sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
+                             if (sg_local_id == 0) {
+                                 squares_ptr[wg_id] = sum;
+                             }
+                         });
+    });
+}
+
+template <typename Float>
+sycl::event kernels_fp<Float>::complete_closest_distances(sycl::queue& queue,
+                                                          const pr::ndview<Float, 1>& data_squares,
+                                                          pr::ndview<Float, 2>& closest_distances,
+                                                          const bk::event_vector& deps) {
+    ONEDAL_ASSERT(data_squares.get_dimension(0) == closest_distances.get_dimension(0));
+    ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
+
+    const auto elem_count = closest_distances.get_dimension(0);
+    auto values_ptr = closest_distances.get_mutable_data();
+    const auto squares_ptr = data_squares.get_data();
+
+    auto complete_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for<complete_distances<Float>>(
+            sycl::range<1>(elem_count),
+            [=](sycl::id<1> idx) {
+                Float val = values_ptr[idx] + squares_ptr[idx];
+                values_ptr[idx] = val < Float(0) ? Float(0) : val;
+            });
+    });
+    return complete_event;
+}
 #endif
 
 } // namespace oneapi::dal::kmeans::backend
