@@ -99,7 +99,7 @@ sycl::event select_indexed_local(sycl::queue& q,
         h.parallel_for(nd_range, [=](sycl::nd_item<2> it) {
             const auto bid = it.get_global_id(0);
             const std::int32_t from = bid * block;
-            const std::int32_t to = std::min<std::int32_t>((bid + 1) * block, src_count);
+            const std::int32_t to = (static_cast<std::int32_t>((bid + 1) * block) < static_cast<std::int32_t>(src_count)) ? (bid + 1) * block : src_count;
             sycl::global_ptr<const Type> global((const Type*)(src_ptr + from));
             sycl::local_ptr<const Type> local((const Type*)(cache.get_pointer().get()));
             it.async_work_group_copy(local, global, to - from).wait();
