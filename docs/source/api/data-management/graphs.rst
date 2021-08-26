@@ -69,7 +69,7 @@ The :txtref:`graph` types are defined as templated classes with the following pa
 .. .. struct:: graph_traits
 
 .. list-table:: 
-   :widths: 30 70 
+   :widths: 20 40 40 
    :header-rows: 1
 
    * - Type name
