@@ -301,8 +301,9 @@ Graph analytics terms
         **Examples:** ``int32_t``, ``float``, ``double``
 
     Dataset
-        A collection of data in specific data format. Examples of datasets:
-        collection of observations, graph.
+        A collection of data in a specific data format. 
+        
+        **Examples:** a collection of observations, a :capterm:`graph`
 
     Flat data
         A block of :capterm:`contiguous <contiguous data>` :capterm:`homogeneous
