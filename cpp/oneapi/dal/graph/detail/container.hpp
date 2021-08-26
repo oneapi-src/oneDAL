@@ -21,7 +21,7 @@
 
 #include "oneapi/dal/array.hpp"
 
-#if defined(__INTEL_COMPILER)  && !defined(ONEDAL_DATA_PARALLEL)
+#if defined(__INTEL_COMPILER) && !defined(ONEDAL_DATA_PARALLEL)
 #define PRAGMA_IVDEP         _Pragma("ivdep")
 #define PRAGMA_VECTOR_ALWAYS _Pragma("vector always")
 #else
