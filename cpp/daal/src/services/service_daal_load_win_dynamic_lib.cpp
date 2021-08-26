@@ -36,6 +36,8 @@
         #include <wincrypt.h>
         #include <wintrust.h>
 
+        #pragma comment(lib, "Wintrust.lib")
+
 static HMODULE WINAPI _DAALLoadLibrary(LPCTSTR filename)
 {
     TCHAR PathBuf[MAX_PATH];

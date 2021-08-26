@@ -89,7 +89,7 @@ CLEAN=
 
 !IF ("$(RES_EXT)"=="lib")
 DAAL_LIB="$(DAAL_PATH)\onedal_core.lib" "$(DAAL_PATH)\onedal_dpc.lib" "$(DAAL_PATH)\onedal_sycl.lib"
-RT_LIB=/link /ignore:4078 OpenCL.lib Wintrust.lib
+RT_LIB=/link /ignore:4078 OpenCL.lib 
 !IF ("$(threading)"=="sequential")
 DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.lib"
 !ELSE

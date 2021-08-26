@@ -81,7 +81,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib;Wintrust.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -100,7 +100,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib;Wintrust.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -119,7 +119,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_sycld.lib;onedal_cored_dll.lib;OpenCL.lib;Wintrust.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycld.lib;onedal_cored_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -138,7 +138,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_sycld.lib;onedal_cored.lib;OpenCL.lib;Wintrust.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycld.lib;onedal_cored.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
