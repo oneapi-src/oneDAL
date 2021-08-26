@@ -74,16 +74,22 @@ The :txtref:`graph` types are defined as templated classes with the following pa
 
    * - Type name
      - Description
+     - Valid types
    * - ``VertexValue``
      - Type of the vertex :capterm:`attributes <Attribute>` values
+     - :ref:`Empty value <api_empty_value>`
    * - ``EdgeValue``
-     - Type of the edge :capterm:`attributes <Attribute>` values  
+     - Type of the edge :capterm:`attributes <Attribute>` values
+     - ``std::int32, double``  
    * - ``GraphValue``
-     - Type of the graph :capterm:`attributes <Attribute>` value  
+     - Type of the graph :capterm:`attributes <Attribute>` value
+     - :ref:`Empty value <api_empty_value>`  
    * - ``IndexType``
-     - Type of the :capterm:`vertex indices <Vertex index>`. 
+     - Type of the :capterm:`vertex indices <Vertex index>`
+     - ``std::int32`` 
    * - ``Allocator``
-     - C++17 (ISO/IEC 14882:2017) compliant allocator.
+     - graph allocator type.
+     - C++17 (ISO/IEC 14882:2017) compliant allocator
 
 
 :ref:`Empty value <api_empty_value>` tag structure shall be used as a value for 
