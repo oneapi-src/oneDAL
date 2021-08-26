@@ -240,7 +240,7 @@ Graph analytics terms
         A :capterm:`graph` where all vertices and all edges has no :capterm:`weights <Weight>`.
 
     Vertex index
-        Index :math:`i` of vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
+        The index :math:`i` of a vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
         of :capterm:`graph` :math:`G`. Can be an integer value. 
 
     Weight
