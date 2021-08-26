@@ -32,5 +32,3 @@ All types and functions in this section are declared in the
 ``oneapi/dal/graph/undirected_adjacency_vector_graph.hpp`` header file. 
 
 .. onedal_class:: oneapi::dal::preview::undirected_adjacency_vector_graph
-
-The :ref:`specific graph traits <api_graph_traits>` are defined for this class.

@@ -20,7 +20,7 @@
 Undirected adjacency vector graph service
 ==========================================
 
-This section describes supported service functions which can access to the :ref:`api_undirected_adjacency_vector_graph`. 
+This section describes graph service functions for :ref:`api_undirected_adjacency_vector_graph`. 
 
 .. list-table:: 
   :widths: 30 70 

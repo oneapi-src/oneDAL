@@ -22,8 +22,6 @@
 Graph Service 
 ==============
 
-Refer to :ref:`Developer Guide: Graph service <dm_graph_service>`.
-
 .. _graph_service_programming_interface:
 
 ---------------------
@@ -35,16 +33,15 @@ All types and functions in this section are declared in the
 ``oneapi/dal/graph/service_functions.hpp`` header file.
 
 
-The :ref:`graph service <graph_service>` is represented by a functionality
-set providing a way to access the :txtref:`graph <api_graphs>`.
+The graph service is a set of functions that allow to get access to the
+elements and characteristics of the :capterm:`graph` such as vertex degree
+or edge attribute.
 
-
-Each graph service function is a templated function with parameter ``Graph`` 
-and uses :txtref:`aliases <graph_aliases>` on ``graph_traits`` for ``Graph`` types access.
-
+The graph service function is defined as a function template with ``Graph``
+as template parameter. The graph service functions introduce :txtref:`aliases <graph_aliases>`
+to ``graph_traits`` as shown below.
 
 .. _graph_aliases:
-
 
 Related types
 --------------
@@ -95,7 +92,7 @@ Any service function has the following pattern:
 .. code-block:: cpp
 
   template <typename Graph>
-  some_type<Graph> graph_service_func(const Graph& g, ...);
+  return_type<Graph> get_[graph_element](const Graph& g, ...);
 
 .. .. namespace:: oneapi::dal::preview
 .. .. func:: graph_service_func
@@ -129,11 +126,48 @@ Any service function has the following pattern:
 
 .. onedal_func:: oneapi::dal::preview::get_edge_value
 
+
+-------------
+Usage example
+-------------
+
+.. code-block:: cpp
+
+  using graph_type = ...;
+  const my_graph_type g = ...;
+  std::cout << "Number of vertices: " << oneapi::dal::preview::get_vertex_count(g) << std::endl;
+  std::cout << "Number of edges: " << oneapi::dal::preview::get_edge_count(g) << std::endl;
+
+.. .. namespace:: oneapi::dal::preview
+.. .. example:: graph_service_example
+
+-------------------------
 Specified graphs service
 -------------------------
 
 This section contains description of service functions
-which can access to the specified :txtref:`graph <api_graphs>` type.
+supported for the specified :txtref:`graph <api_graphs>` types.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Service function
+     - Valid :txtref:`graph concepts <graph_concepts>` 
+   * - ``get_vertex_count``
+     - :capterm:`undirected graph`, :capterm:`directed graph` 
+   * - ``get_edge_count``
+     - :capterm:`undirected graph`, :capterm:`directed graph`
+   * - ``get_vertex_degree``
+     - :capterm:`undirected graph`
+   * - ``get_vertex_outward_degree``
+     - :capterm:`directed graph`
+   * - ``get_vertex_neighbors``
+     - :capterm:`undirected graph`
+   * - ``get_vertex_outward_neighbors``
+     - :capterm:`directed graph`
+   * - ``get_edge_value``
+     - :capterm:`undirected graph`, :capterm:`directed graph` 
 
 .. toctree::
 

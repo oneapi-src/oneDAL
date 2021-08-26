@@ -32,42 +32,38 @@ namespace oneapi::dal::preview {
 /// CSR format with ordered vertex keys within each row. Self-loops and multi-edges
 /// are not supported.
 ///
-/// @tparam VertexValue  Type of vertex properties
-/// @tparam EdgeValue    Type of edge properties
-/// @tparam GraphValue   Type of graph properties
+/// @tparam VertexValueType  Type of vertex properties
+/// @tparam EdgeValueType    Type of edge properties
+/// @tparam GraphValueType   Type of graph properties
 /// @tparam IndexType    Type of vertex indices
 /// @tparam Allocator    Type of the custom allocator (currently not supported)
-template <typename VertexValue = empty_value,
-          typename EdgeValue = empty_value,
-          typename GraphValue = empty_value,
+template <typename VertexValueType = empty_value,
+          typename EdgeValueType = empty_value,
+          typename GraphValueType = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
 class ONEDAL_EXPORT directed_adjacency_vector_graph {
 public:
-    using graph_type =
-        directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
+    using graph_type = directed_adjacency_vector_graph<VertexValueType,
+                                                       EdgeValueType,
+                                                       GraphValueType,
+                                                       IndexType,
+                                                       Allocator>;
 
     static_assert(detail::is_valid_index_v<IndexType>, "Use int32_t for vertex index type");
-    static_assert(detail::is_valid_edge_value_v<EdgeValue>,
+    static_assert(detail::is_valid_edge_value_v<EdgeValueType>,
                   "Use empty_value, double or int32_t for edge value type");
 
-    /// Constructs an empty directed_adjacency_vector_graph
+    /// Constructs an empty graph
     directed_adjacency_vector_graph();
 
+    /// Destructs graph
     ~directed_adjacency_vector_graph() = default;
 
-    /// Move constructor for directed_adjacency_vector_graph
+    /// Move constructor for graph
     directed_adjacency_vector_graph(directed_adjacency_vector_graph &&other) = default;
 
-    /// Constructs an empty directed_adjacency_vector_graph with specified graph properties
-    /// and allocator
-    directed_adjacency_vector_graph(const GraphValue &value, Allocator allocator = Allocator()){};
-
-    /// Constructs an empty directed_adjacency_vector_graph with move graph properties and
-    /// allocator
-    directed_adjacency_vector_graph(GraphValue &&value, Allocator allocator = Allocator()){};
-
-    /// Move operator for directed_adjacency_vector_graph
+    /// Move operator for graph
     directed_adjacency_vector_graph &operator=(directed_adjacency_vector_graph &&other);
 
 private:
@@ -78,18 +74,24 @@ private:
     friend dal::detail::pimpl_accessor;
 };
 
-template <typename VertexValue,
-          typename EdgeValue,
-          typename GraphValue,
+template <typename VertexValueType,
+          typename EdgeValueType,
+          typename GraphValueType,
           typename IndexType,
           typename Allocator>
-struct graph_traits<
-    directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> {
-    using graph_type =
-        directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
-    using impl_type = detail::directed_adjacency_vector_graph_impl<VertexValue,
-                                                                   EdgeValue,
-                                                                   GraphValue,
+struct graph_traits<directed_adjacency_vector_graph<VertexValueType,
+                                                    EdgeValueType,
+                                                    GraphValueType,
+                                                    IndexType,
+                                                    Allocator>> {
+    using graph_type = directed_adjacency_vector_graph<VertexValueType,
+                                                       EdgeValueType,
+                                                       GraphValueType,
+                                                       IndexType,
+                                                       Allocator>;
+    using impl_type = detail::directed_adjacency_vector_graph_impl<VertexValueType,
+                                                                   EdgeValueType,
+                                                                   GraphValueType,
                                                                    IndexType,
                                                                    Allocator>;
     using allocator_type = Allocator;
@@ -144,40 +146,52 @@ struct graph_traits<
     using const_edge_value_range_type = typename impl_type::const_edge_value_range_type;
 };
 
-template <typename VertexValue,
-          typename EdgeValue,
-          typename GraphValue,
+template <typename VertexValueType,
+          typename EdgeValueType,
+          typename GraphValueType,
           typename IndexType,
           typename Allocator>
-directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    directed_adjacency_vector_graph()
-        : impl_(new detail::directed_adjacency_vector_graph_impl<VertexValue,
-                                                                 EdgeValue,
-                                                                 GraphValue,
+directed_adjacency_vector_graph<VertexValueType,
+                                EdgeValueType,
+                                GraphValueType,
+                                IndexType,
+                                Allocator>::directed_adjacency_vector_graph()
+        : impl_(new detail::directed_adjacency_vector_graph_impl<VertexValueType,
+                                                                 EdgeValueType,
+                                                                 GraphValueType,
                                                                  IndexType,
                                                                  Allocator>) {}
 
-template <typename VertexValue,
-          typename EdgeValue,
-          typename GraphValue,
+template <typename VertexValueType,
+          typename EdgeValueType,
+          typename GraphValueType,
           typename IndexType,
           typename Allocator>
-directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>
-    &directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    operator=(directed_adjacency_vector_graph &&other) {
+directed_adjacency_vector_graph<VertexValueType,
+                                EdgeValueType,
+                                GraphValueType,
+                                IndexType,
+                                Allocator> &
+directed_adjacency_vector_graph<VertexValueType,
+                                EdgeValueType,
+                                GraphValueType,
+                                IndexType,
+                                Allocator>::operator=(directed_adjacency_vector_graph &&other) {
     if (&other != this) {
         swap(*this, other);
     }
     return *this;
 }
 
-template <typename VertexValue,
-          typename EdgeValue,
-          typename GraphValue,
+template <typename VertexValueType,
+          typename EdgeValueType,
+          typename GraphValueType,
           typename IndexType,
           typename Allocator>
-constexpr bool is_directed<
-    directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> =
-    true;
+constexpr bool is_directed<directed_adjacency_vector_graph<VertexValueType,
+                                                           EdgeValueType,
+                                                           GraphValueType,
+                                                           IndexType,
+                                                           Allocator>> = true;
 
 } // namespace oneapi::dal::preview

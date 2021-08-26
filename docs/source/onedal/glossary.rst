@@ -212,6 +212,10 @@ Graph analytics terms
         Value assigned to :capterm:`graph`, vertex or edge.
         Can be a numerical value (:capterm:`weight`), string or any other custom data type.
 
+    Edge index
+        Index :math:`i` of edge :math:`e_i` in an edge set :math:`E=\{e_1, e_2,  ..., e_m\}`
+        of :capterm:`graph` :math:`G`. Can be an integer value.         
+
     Directed graph
         A :capterm:`graph` where each edge is an ordered pair :math:`(u, v)`
         of vertices. :math:`v` is designated as the tail, and :math:`u` is designated
@@ -237,7 +241,7 @@ Graph analytics terms
 
     Vertex index
         Index :math:`i` of vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
-        from :capterm:`graph` :math:`G` with :math:`n` vertices. Can be an integer value. 
+        of :capterm:`graph` :math:`G`. Can be an integer value. 
 
     Weight
         A numerical value assigned to vertex, edge or graph.
