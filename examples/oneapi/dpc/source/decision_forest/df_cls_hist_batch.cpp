@@ -44,7 +44,7 @@ void run(sycl::queue& q) {
         df::descriptor<float, df::method::hist, df::task::classification>{}
             .set_class_count(5)
             .set_tree_count(10)
-            .set_features_per_node(1)
+            .set_features_per_node(x_train.get_column_count())
             .set_min_observations_in_leaf_node(8)
             .set_min_observations_in_split_node(16)
             .set_min_weight_fraction_in_leaf_node(0.0)
