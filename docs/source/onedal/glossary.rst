@@ -223,8 +223,8 @@ Graph analytics terms
 
     Graph
         An object :math:`G=(V;E)` that consists of two sets, :math:`V` and :math:`E`,
-        where :math:`V` is a finite nonempty set and a finite set :math:`E`, may
-        be empty, but otherwise its elements are two-element subsets of :math:`V`.
+        where :math:`V` is a finite nonempty set, :math:`E` is a finite set that may
+        be empty, and the elements of :math:`E` are two-element subsets of :math:`V`.
         :math:`V` is set of vertices, :math:`E` is set of edges [Gross2014]_. 
 
     Self-loop
