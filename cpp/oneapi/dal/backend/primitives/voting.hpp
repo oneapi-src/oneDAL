@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,19 +16,4 @@
 
 #pragma once
 
-#include <string>
-
-namespace oneapi::dal::preview {
-
-class ONEDAL_EXPORT graph_csv_data_source {
-public:
-    graph_csv_data_source(std::string filename) : _file_name(filename) {}
-    std::string get_filename() const {
-        return _file_name;
-    }
-
-private:
-    std::string _file_name;
-};
-
-} // namespace oneapi::dal::preview
+#include "oneapi/dal/backend/primitives/voting/uniform.hpp"

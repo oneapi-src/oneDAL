@@ -23,8 +23,7 @@
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph.hpp"
+#include "oneapi/dal/io/csv.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
 namespace dal = oneapi::dal;
@@ -44,9 +43,8 @@ int main(int argc, char **argv) {
     // load the graph
     const auto filename = get_data_path("graph.csv");
 
-    const dal::preview::graph_csv_data_source ds(filename);
-    const dal::preview::load_graph::descriptor<> d;
-    const auto graph = dal::preview::load_graph::load(d, ds);
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
+    const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
 
     // set the block sizes for Jaccard similarity block processing
     const std::int32_t block_row_count = 2;

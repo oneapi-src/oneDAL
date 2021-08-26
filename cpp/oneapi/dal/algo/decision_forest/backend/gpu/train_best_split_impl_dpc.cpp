@@ -452,10 +452,10 @@ struct split_smp {
 
             if (update_imp_dec_required) {
                 if constexpr (std::is_same_v<task_t, task::classification>) {
-                    node_imp_decr_ptr[0] = bs_imp_dec_;
+                    node_imp_decr_ptr[node_id] = bs_imp_dec_;
                 }
                 else {
-                    node_imp_decr_ptr[0] = bs_imp_dec_ / node_ptr[impl_const_t::ind_grc];
+                    node_imp_decr_ptr[node_id] = bs_imp_dec_ / node_ptr[impl_const_t::ind_grc];
                 }
             }
 

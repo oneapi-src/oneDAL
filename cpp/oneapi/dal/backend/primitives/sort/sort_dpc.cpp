@@ -521,6 +521,13 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
     return sort_event_;
 }
 
+template <typename Integer>
+sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
+                                            ndview<Integer, 2>& val_out,
+                                            const event_vector& deps) {
+    return this->operator()(val_in, val_out, val_in.get_dimension(1), deps);
+}
+
 #define INSTANTIATE_SORT_INDICES(F, I) \
     template class ONEDAL_EXPORT radix_sort_indices_inplace<F, I>;
 
@@ -533,4 +540,6 @@ INSTANTIATE_SORT_INDICES(double, std::int32_t)
 
 INSTANTIATE_SORT(std::int32_t)
 INSTANTIATE_SORT(std::uint32_t)
+INSTANTIATE_SORT(std::int64_t)
+INSTANTIATE_SORT(std::uint64_t)
 } // namespace oneapi::dal::backend::primitives

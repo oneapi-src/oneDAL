@@ -2602,11 +2602,9 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
             pr::rng<Index> rn_gen;
 
             for (Index column_idx = 0; column_idx < ctx.column_count_; ++column_idx) {
-                rn_gen
-                    .shuffle(oob_row_count,
-                             permutation_ptr,
-                             engine_arr[built_tree_count + tree_idx_in_block].get_state())
-                    .wait_and_throw();
+                rn_gen.shuffle(oob_row_count,
+                               permutation_ptr,
+                               engine_arr[built_tree_count + tree_idx_in_block].get_state());
                 const Float oob_err_perm = compute_oob_error_perm(ctx,
                                                                   model_manager,
                                                                   data_host,
