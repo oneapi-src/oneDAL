@@ -21,14 +21,6 @@
 
 #include "oneapi/dal/array.hpp"
 
-#if defined(__INTEL_COMPILER) && !defined(ONEDAL_DATA_PARALLEL)
-#define PRAGMA_IVDEP         _Pragma("ivdep")
-#define PRAGMA_VECTOR_ALWAYS _Pragma("vector always")
-#else
-#define PRAGMA_IVDEP
-#define PRAGMA_VECTOR_ALWAYS
-#endif
-
 namespace oneapi::dal::preview::detail {
 
 template <typename T, typename Allocator = std::allocator<char>>
@@ -37,8 +29,6 @@ class vector_container;
 template <typename T>
 inline void copy(const T* old_begin, const T* old_end, T* new_begin) {
     const int64_t count = std::distance(old_begin, old_end);
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < count; i++) {
         new_begin[i] = old_begin[i];
     }
@@ -47,8 +37,6 @@ inline void copy(const T* old_begin, const T* old_end, T* new_begin) {
 template <typename T>
 inline void fill(T* begin, T* end, const T& value) {
     const int64_t count = std::distance(begin, end);
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < count; i++) {
         begin[i] = value;
     }
@@ -64,8 +52,6 @@ inline void copy(const std::tuple<First, Second, Third>* old_begin,
                  const std::tuple<First, Second, Third>* old_end,
                  std::tuple<First, Second, Third>* new_begin) {
     const int64_t count = std::distance(old_begin, old_end);
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < count; i++) {
         const auto& b = old_begin[i];
         auto& a = new_begin[i];
