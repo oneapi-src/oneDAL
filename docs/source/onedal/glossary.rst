@@ -222,7 +222,7 @@ Graph analytics terms
         as the head.
 
     Graph
-        An object :math:`G=(V;E)` consists of two sets, :math:`V` and :math:`E`
+        An object :math:`G=(V;E)` that consists of two sets, :math:`V` and :math:`E`,
         where :math:`V` is a finite nonempty set and a finite set :math:`E`, may
         be empty, but otherwise its elements are two-element subsets of :math:`V`.
         :math:`V` is set of vertices, :math:`E` is set of edges [Gross2014]_. 
