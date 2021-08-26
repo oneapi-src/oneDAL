@@ -247,7 +247,7 @@ Graph analytics terms
         A numerical value assigned to vertex, edge or graph.
 
     Weighted graph
-        A :capterm:`graph` :math:`G` where all vertices or all
+        A :capterm:`graph` where all vertices or all
         edges have :capterm:`weights <Weight>.`
 
 |short_name| terms
