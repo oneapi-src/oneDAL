@@ -277,7 +277,7 @@ Graph analytics terms
     
     CSR data
         A compressed sparse row (csr) data is the sparse matrix representation.
-        Data with values of single :capterm:`data type` and the same set of
+        Data with values of a single :capterm:`data type` and the same set of
         available operations defined on them. One of the characteristics of a
         :capterm:`data format`.
 
