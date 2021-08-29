@@ -46,70 +46,59 @@ struct louvain_data {
                  vertex_size_allocator_type& vertex_size_allocator,
                  v1a_t& v1a)
             : c2v(vertex_count, v1a),
-              m(0) {
-        k_shared_ptr = value_allocator.make_shared_memory(vertex_count);
-        tot_shared_ptr = value_allocator.make_shared_memory(vertex_count);
-        k_vertex_to_shared_ptr = value_allocator.make_shared_memory(vertex_count);
-        neighboring_communities_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
-        random_order_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
-        empty_community_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
-        community_size_shared_ptr = vertex_size_allocator.make_shared_memory(vertex_count);
+              m(0),
+              vertex_count(vertex_count),
+              edge_count(edge_count),
+              value_allocator(value_allocator),
+              vertex_allocator(vertex_allocator),
+              vertex_size_allocator(vertex_size_allocator) {
+        k = allocate(value_allocator, vertex_count);
+        tot = allocate(value_allocator, vertex_count);
+        k_vertex_to = allocate(value_allocator, vertex_count);
+        neighboring_communities = allocate(vertex_allocator, vertex_count);
+        random_order = allocate(vertex_allocator, vertex_count);
+        empty_community = allocate(vertex_allocator, vertex_count);
+        community_size = allocate(vertex_size_allocator, vertex_count);
 
-        k_c_shared_ptr = value_allocator.make_shared_memory(vertex_count);
-        local_self_loops_shared_ptr = value_allocator.make_shared_memory(vertex_count);
+        k_c = allocate(value_allocator, vertex_count);
+        local_self_loops = allocate(value_allocator, vertex_count);
 
-        weights_shared_ptr = value_allocator.make_shared_memory(vertex_count);
-        c_self_loops_shared_ptr = value_allocator.make_shared_memory(vertex_count);
-        c_neighbors_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
-        c_rows_shared_ptr = vertex_allocator.make_shared_memory(vertex_count + 1);
+        weights = allocate(value_allocator, vertex_count);
+        c_self_loops = allocate(value_allocator, vertex_count);
+        c_neighbors = allocate(vertex_allocator, vertex_count);
+        c_rows = allocate(vertex_allocator, vertex_count + 1);
 
-        c_vals_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
-        c_cols_shared_ptr = vertex_allocator.make_shared_memory(edge_count * 2);
-        index_shared_ptr = vertex_allocator.make_shared_memory(vertex_count);
+        c_vals = allocate(value_allocator, edge_count * 2);
+        c_cols = allocate(vertex_allocator, edge_count * 2);
+        index = allocate(vertex_allocator, vertex_count);
+    }
+    ~louvain_data() {
+        deallocate(value_allocator, k, vertex_count);
+        deallocate(value_allocator, tot, vertex_count);
+        deallocate(value_allocator, k_vertex_to, vertex_count);
+        deallocate(vertex_allocator, neighboring_communities, vertex_count);
+        deallocate(vertex_allocator, random_order, vertex_count);
+        deallocate(vertex_allocator, empty_community, vertex_count);
+        deallocate(vertex_size_allocator, community_size, vertex_count);
 
-        k = k_shared_ptr.get();
-        tot = tot_shared_ptr.get();
-        k_vertex_to = k_vertex_to_shared_ptr.get();
-        neighboring_communities = neighboring_communities_shared_ptr.get();
-        random_order = random_order_shared_ptr.get();
-        empty_community = empty_community_shared_ptr.get();
-        community_size = community_size_shared_ptr.get();
+        deallocate(value_allocator, k_c, vertex_count);
+        deallocate(value_allocator, local_self_loops, vertex_count);
 
-        k_c = k_c_shared_ptr.get();
-        local_self_loops = local_self_loops_shared_ptr.get();
+        deallocate(value_allocator, weights, vertex_count);
+        deallocate(value_allocator, c_self_loops, vertex_count);
+        deallocate(vertex_allocator, c_neighbors, vertex_count);
+        deallocate(vertex_allocator, c_rows, vertex_count + 1);
 
-        weights = weights_shared_ptr.get();
-        c_self_loops = c_self_loops_shared_ptr.get();
-        c_neighbors = c_neighbors_shared_ptr.get();
-        c_rows = c_rows_shared_ptr.get();
-
-        c_vals = c_vals_shared_ptr.get();
-        c_cols = c_cols_shared_ptr.get();
-        index = index_shared_ptr.get();
+        deallocate(value_allocator, c_vals, edge_count * 2);
+        deallocate(vertex_allocator, c_cols, edge_count * 2);
+        deallocate(vertex_allocator, index, vertex_count);
     }
 
-    oneapi::dal::detail::shared<value_type> k_shared_ptr;
-    oneapi::dal::detail::shared<value_type> tot_shared_ptr;
-    oneapi::dal::detail::shared<value_type> k_vertex_to_shared_ptr;
-    oneapi::dal::detail::shared<vertex_type> neighboring_communities_shared_ptr;
-    oneapi::dal::detail::shared<vertex_type> random_order_shared_ptr;
-    oneapi::dal::detail::shared<vertex_type> empty_community_shared_ptr;
-    oneapi::dal::detail::shared<vertex_size_type> community_size_shared_ptr;
-
-    oneapi::dal::detail::shared<value_type> k_c_shared_ptr;
-    oneapi::dal::detail::shared<value_type> local_self_loops_shared_ptr;
-
-    oneapi::dal::detail::shared<value_type> weights_shared_ptr;
-    oneapi::dal::detail::shared<value_type> c_self_loops_shared_ptr;
-    oneapi::dal::detail::shared<vertex_type> c_neighbors_shared_ptr;
-    oneapi::dal::detail::shared<vertex_type> c_rows_shared_ptr;
-
-    oneapi::dal::detail::shared<value_type> c_vals_shared_ptr;
-    oneapi::dal::detail::shared<vertex_type> c_cols_shared_ptr;
-    oneapi::dal::detail::shared<vertex_type> index_shared_ptr;
-
+    // Sum of the weights of the edges attached to nodes
     value_type* k;
+    // Sum of the weights of the links incident to vertices in community
     value_type* tot;
+    // Sum of weights from current vertex to communies
     value_type* k_vertex_to;
     vertex_type* neighboring_communities;
     vertex_type* random_order;
@@ -128,11 +117,20 @@ struct louvain_data {
     vertex_type* c_cols;
     vertex_type* index;
 
+    // Set of vertices for every community
     v2v_t c2v;
+    // Total link weight in the network
     value_type m;
 
     engine eng;
     rng<std::int32_t> rn_gen;
+
+    const std::int64_t vertex_count;
+    const std::int64_t edge_count;
+
+    value_allocator_type& value_allocator;
+    vertex_allocator_type& vertex_allocator;
+    vertex_size_allocator_type& vertex_size_allocator;
 };
 
 } // namespace oneapi::dal::preview::louvain::backend

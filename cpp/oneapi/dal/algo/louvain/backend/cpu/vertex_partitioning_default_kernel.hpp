@@ -334,17 +334,11 @@ struct louvain_kernel {
             const std::int64_t edge_count = t.get_edge_count();
             dal::preview::detail::topology<std::int32_t> current_topology;
 
-            auto current_topology_rows_shared_ptr =
-                vertex_size_allocator.make_shared_memory(vertex_count + 1);
-            auto current_topology_cols_shared_ptr =
-                vertex_allocator.make_shared_memory(edge_count * 2);
-            auto current_vals_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
-            auto current_self_loops_shared_ptr = value_allocator.make_shared_memory(edge_count * 2);
-
-            vertex_size_type* current_topology_rows = current_topology_rows_shared_ptr.get();
-            vertex_type* current_topology_cols = current_topology_cols_shared_ptr.get();
-            value_type* current_vals = current_vals_shared_ptr.get();
-            value_type* current_self_loops = current_self_loops_shared_ptr.get();
+            vertex_size_type* current_topology_rows =
+                allocate(vertex_size_allocator, vertex_count + 1);
+            vertex_type* current_topology_cols = allocate(vertex_allocator, edge_count * 2);
+            value_type* current_vals = allocate(value_allocator, edge_count * 2);
+            value_type* current_self_loops = allocate(value_allocator, edge_count * 2);
 
             current_topology.set_topology(vertex_count,
                                           edge_count,
@@ -426,6 +420,11 @@ struct louvain_kernel {
             auto labels_arr = array<vertex_type>::empty(vertex_count);
             vertex_type* labels_ = labels_arr.get_mutable_data();
             set_result_labels(communities, vertex_size, init_partition, vertex_count, labels_);
+
+            deallocate(vertex_size_allocator, current_topology_rows, vertex_count + 1);
+            deallocate(vertex_allocator, current_topology_cols, edge_count * 2);
+            deallocate(value_allocator, current_vals, edge_count * 2);
+            deallocate(value_allocator, current_self_loops, edge_count * 2);
 
             for (int64_t iteration = 0; iteration < communities.size(); iteration++) {
                 deallocate(vertex_allocator, communities[iteration], labels_size[iteration]);
