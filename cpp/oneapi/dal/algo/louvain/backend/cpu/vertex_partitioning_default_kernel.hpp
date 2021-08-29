@@ -32,7 +32,7 @@ using namespace oneapi::dal::backend::primitives;
 
 template <typename IndexType>
 inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
-    for (std::int64_t v = 0; v < vertex_count; v++) {
+    for (std::int32_t v = 0; v < vertex_count; v++) {
         labels[v] = v;
     }
 }
@@ -68,13 +68,13 @@ inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
         ld.c_self_loops[c] = 0;
         ld.weights[c] = 0;
     }
-    for (int64_t v = 0; v < t._vertex_count; v++) {
+    for (std::int32_t v = 0; v < t._vertex_count; v++) {
         std::int32_t c = partition[v];
         ld.c2v[c].push_back(v);
     }
 
     std::int64_t neighbor_count = 0;
-    for (std::int64_t c = 0; c < community_count; c++) {
+    for (std::int32_t c = 0; c < community_count; c++) {
         for (std::int64_t v_index = 0; v_index < ld.c2v[c].size(); v_index++) {
             std::int32_t v = ld.c2v[c][v_index];
             ld.c_self_loops[c] += self_loops[v];
@@ -285,7 +285,7 @@ inline void set_result_labels(CommunityVector& communities,
         }
     }
     else if (init_partition == nullptr) {
-        for (std::int64_t v = 0; v < vertex_count; v++) {
+        for (std::int32_t v = 0; v < vertex_count; v++) {
             result_labels[v] = v;
         }
     }
