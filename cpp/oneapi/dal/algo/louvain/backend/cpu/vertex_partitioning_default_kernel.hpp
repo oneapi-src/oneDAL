@@ -32,6 +32,7 @@ using namespace oneapi::dal::backend::primitives;
 
 template <typename IndexType>
 inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
+    ONEDAL_ASSERT(vertex_count <= std::numeric_limits<std::int32_t>::max());
     for (std::int32_t v = 0; v < vertex_count; v++) {
         labels[v] = v;
     }
@@ -61,6 +62,7 @@ inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
                            std::int64_t community_count,
                            const IndexType* partition,
                            louvain_data<IndexType, EdgeValue>& ld) {
+    ONEDAL_ASSERT(community_count <= std::numeric_limits<std::int32_t>::max());
     ld.c_rows[0] = 0;
     for (std::int64_t c = 0; c < community_count; c++) {
         ld.c2v[c].resize(0);
@@ -285,6 +287,7 @@ inline void set_result_labels(CommunityVector& communities,
         }
     }
     else if (init_partition == nullptr) {
+        ONEDAL_ASSERT(vertex_count <= std::numeric_limits<std::int32_t>::max());
         for (std::int32_t v = 0; v < vertex_count; v++) {
             result_labels[v] = v;
         }
