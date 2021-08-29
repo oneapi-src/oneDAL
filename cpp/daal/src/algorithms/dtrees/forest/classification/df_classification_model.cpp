@@ -115,7 +115,6 @@ bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::classification::int
     return visitor.onLeafNode(descLeaf);
 }
 
-
 } // namespace internal
 } // namespace dtrees
 
@@ -235,7 +234,6 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVi
     }
 }
 
-
 void ModelImpl::traverseDFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const
 {
     if (iTree >= size()) return;
@@ -286,7 +284,6 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::interface1
         traverseNodesBF(0, aCur, aNext, aNode, onSplitNodeFunc, onLeafNodeFunc);
     }
 }
-
 
 services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * arch)
 {
