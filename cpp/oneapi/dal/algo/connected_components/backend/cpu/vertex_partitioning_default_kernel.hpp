@@ -27,7 +27,7 @@ namespace oneapi::dal::preview::connected_components::backend {
 using namespace oneapi::dal::preview::detail;
 using namespace oneapi::dal::preview::backend;
 
-inline void link(const std::int32_t& u, const std::int32_t& v, std::int32_t *components) {
+inline void link(const std::int32_t &u, const std::int32_t &v, std::int32_t *components) {
     std::int32_t p1 = components[u];
     std::int32_t p2 = components[v];
     std::int32_t h;
@@ -50,17 +50,17 @@ inline void link(const std::int32_t& u, const std::int32_t& v, std::int32_t *com
     }
 }
 
-inline void compress(const std::int32_t& u, std::int32_t *components) {
+inline void compress(const std::int32_t &u, std::int32_t *components) {
     while (components[components[u]] != components[u]) {
         components[u] = components[components[u]];
     }
 }
 
-inline void order_component_ids(const std::int64_t& vertex_count,
+inline void order_component_ids(const std::int64_t &vertex_count,
                                 std::int64_t &component_count,
                                 std::int32_t *components) {
     std::int32_t ordered_comp_id = 0;
-    const auto max_vertex_id = dal::detail::integral_cast<std::int32_t>(vertex_count-1);
+    const auto max_vertex_id = dal::detail::integral_cast<std::int32_t>(vertex_count - 1);
     for (std::int32_t u = 0; u <= max_vertex_id; ++u) {
         if (components[u] == u) {
             components[u] = ordered_comp_id;
@@ -75,9 +75,9 @@ inline void order_component_ids(const std::int64_t& vertex_count,
 
 template <typename Cpu>
 inline std::int32_t most_frequent_element(const std::int32_t *components,
-                                          const std::int64_t& vertex_count,
+                                          const std::int64_t &vertex_count,
                                           byte_alloc_iface *alloc_ptr,
-                                          const std::int32_t& samples_num = 1024) {
+                                          const std::int32_t &samples_num = 1024) {
     using vertex_type = std::int32_t;
     using vertex_allocator_type = inner_alloc<vertex_type>;
 
@@ -90,7 +90,7 @@ inline std::int32_t most_frequent_element(const std::int32_t *components,
     rn_gen.uniform(samples_num, rnd_vertex_ids, eng.get_state(), 0, vertex_count);
 
     vertex_type *sample_counts = allocate(vertex_allocator, vertex_count);
-    const auto max_vertex_id = dal::detail::integral_cast<std::int32_t>(vertex_count-1);
+    const auto max_vertex_id = dal::detail::integral_cast<std::int32_t>(vertex_count - 1);
     for (std::int32_t u = 0; u <= max_vertex_id; ++u) {
         sample_counts[u] = 0;
     }
@@ -124,10 +124,10 @@ struct afforest {
         vertex_allocator_type vertex_allocator(alloc_ptr);
 
         const auto vertex_count = t.get_vertex_count();
-        const auto max_vertex_id = dal::detail::integral_cast<std::int32_t>(vertex_count-1);
+        const auto max_vertex_id = dal::detail::integral_cast<std::int32_t>(vertex_count - 1);
 
         vertex_type *components = allocate(vertex_allocator, vertex_count);
-        
+
         for (std::int32_t u = 0; u <= max_vertex_id; ++u) {
             components[u] = u;
         }
