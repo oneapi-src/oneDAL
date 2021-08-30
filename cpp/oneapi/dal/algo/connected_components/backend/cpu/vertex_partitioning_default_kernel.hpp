@@ -62,8 +62,8 @@ void compress(const std::int32_t &u, std::int32_t *components) {
 
 template <typename Cpu>
 void order_component_ids(const std::int64_t &vertex_count,
-                                std::int64_t &component_count,
-                                std::int32_t *components) {
+                         std::int64_t &component_count,
+                         std::int32_t *components) {
     std::int32_t ordered_comp_id = 0;
 
     for (std::int32_t u = 0; u < vertex_count; ++u) {
@@ -80,9 +80,9 @@ void order_component_ids(const std::int64_t &vertex_count,
 
 template <typename Cpu>
 std::int32_t most_frequent_element(const std::int32_t *components,
-                                          const std::int64_t &vertex_count,
-                                          inner_alloc<std::int32_t> &vertex_allocator,
-                                          const std::int64_t &samples_count = 1024) {
+                                   const std::int64_t &vertex_count,
+                                   inner_alloc<std::int32_t> &vertex_allocator,
+                                   const std::int64_t &samples_count = 1024) {
     std::int32_t *rnd_vertex_ids = allocate(vertex_allocator, samples_count);
 
     dal::backend::primitives::engine eng;
@@ -129,7 +129,7 @@ struct afforest {
 
         const std::int32_t neighbors_round = 2;
 
-        for (std::int32_t u = 0; u < vertex_count ; ++u) {
+        for (std::int32_t u = 0; u < vertex_count; ++u) {
             std::int32_t neighbors_count = t.get_vertex_degree(u);
             for (std::int32_t i = 0; (i < neighbors_count) && (i < neighbors_round); ++i) {
                 link<Cpu>(u, t.get_vertex_neighbors_begin(u)[i], components);
