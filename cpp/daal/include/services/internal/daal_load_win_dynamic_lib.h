@@ -1,5 +1,6 @@
+/* file: daal_load_win_dynamic_lib.h */
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,27 +15,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+/*
+//++
+//  Implementation of safe load library functionality for Windows.
+//--
+*/
 
-#include "oneapi/dal/detail/common.hpp"
+#ifndef __DAAL_LOAD_WIN_DYNAMIC_LIB_H__
+#define __DAAL_LOAD_WIN_DYNAMIC_LIB_H__
 
-namespace oneapi::dal::preview::load_graph::detail {
+#if defined(_WIN32) || defined(_WIN64)
 
-ONEDAL_EXPORT std::int32_t daal_string_to_int(const char *nptr, char **endptr);
+    #include <windows.h>
+    #include "services/daal_defines.h"
 
-ONEDAL_EXPORT double daal_string_to_double(const char *nptr, char **endptr);
+DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPCTSTR filename);
 
-template <typename T>
-inline T daal_string_to(const char *nptr, char **endptr);
+#endif // defined(_WIN32) || defined(_WIN64)
 
-template <>
-inline std::int32_t daal_string_to(const char *nptr, char **endptr) {
-    return daal_string_to_int(nptr, endptr);
-}
-
-template <>
-inline double daal_string_to(const char *nptr, char **endptr) {
-    return daal_string_to_double(nptr, endptr);
-}
-
-} // namespace oneapi::dal::preview::load_graph::detail
+#endif // __DAAL_LOAD_WIN_DYNAMIC_LIB_H__

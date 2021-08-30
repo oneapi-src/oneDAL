@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,17 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "src/externals/service_service.h"
+#pragma once
 
-namespace oneapi::dal::preview::load_graph::detail {
-
-ONEDAL_EXPORT std::int32_t daal_string_to_int(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
-}
-
-ONEDAL_EXPORT double daal_string_to_double(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_double(nptr, endptr);
-}
-
-} // namespace oneapi::dal::preview::load_graph::detail
+#include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
+#include "oneapi/dal/backend/primitives/selection/select_indexed.hpp"

@@ -138,7 +138,7 @@ public:
                                 std::int64_t row,
                                 std::int64_t pos,
                                 float_t cur_val) {
-        CAPTURE(row, k, pos);
+        CAPTURE(row, k, pos, cur_val);
         if constexpr (indices_out && selection_out) {
             REQUIRE(selection.get_data()[row * k + pos] ==
                     data.get_data()[row * row_size + indices.get_data()[row * k + pos]]);

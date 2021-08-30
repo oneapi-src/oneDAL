@@ -330,7 +330,6 @@ namespace oneapi::dal::preview::backend {
 
 template <typename T>
 struct inner_alloc {
-    using byte_t = char;
     using value_type = T;
     using pointer = T*;
 

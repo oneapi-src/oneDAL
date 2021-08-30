@@ -16,19 +16,25 @@
 
 #pragma once
 
-#include <string>
+#include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::preview {
+namespace oneapi::dal::preview::csv::detail {
 
-class ONEDAL_EXPORT graph_csv_data_source {
-public:
-    graph_csv_data_source(std::string filename) : _file_name(filename) {}
-    std::string get_filename() const {
-        return _file_name;
-    }
+ONEDAL_EXPORT std::int32_t daal_string_to_int(const char *nptr, char **endptr);
 
-private:
-    std::string _file_name;
-};
+ONEDAL_EXPORT double daal_string_to_double(const char *nptr, char **endptr);
 
-} // namespace oneapi::dal::preview
+template <typename T>
+inline T daal_string_to(const char *nptr, char **endptr);
+
+template <>
+inline std::int32_t daal_string_to(const char *nptr, char **endptr) {
+    return daal_string_to_int(nptr, endptr);
+}
+
+template <>
+inline double daal_string_to(const char *nptr, char **endptr) {
+    return daal_string_to_double(nptr, endptr);
+}
+
+} // namespace oneapi::dal::preview::csv::detail

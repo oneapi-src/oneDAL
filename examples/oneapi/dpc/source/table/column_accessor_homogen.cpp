@@ -17,7 +17,10 @@
 #include <CL/sycl.hpp>
 #include <iostream>
 
+#ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
