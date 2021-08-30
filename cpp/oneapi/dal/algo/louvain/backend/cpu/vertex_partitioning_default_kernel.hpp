@@ -32,8 +32,8 @@ using namespace oneapi::dal::backend::primitives;
 
 template <typename IndexType>
 inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
-    for (std::int64_t v = 0; v < vertex_count; v++) {
-        labels[v] = dal::detail::integral_cast<IndexType>(v);
+    for (IndexType v = 0; v < vertex_count; v++) {
+        labels[v] = v;
     }
 }
 
@@ -68,13 +68,13 @@ inline void compress_graph(dal::preview::detail::topology<IndexType>& t,
         ld.c_self_loops[c] = 0;
         ld.weights[c] = 0;
     }
-    for (std::int64_t v = 0; v < t._vertex_count; v++) {
+    for (IndexType v = 0; v < t._vertex_count; v++) {
         IndexType c = partition[v];
-        ld.c2v[c].push_back(dal::detail::integral_cast<IndexType>(v));
+        ld.c2v[c].push_back(v);
     }
 
     std::int64_t neighbor_count = 0;
-    for (std::int64_t c = 0; c < community_count; c++) {
+    for (IndexType c = 0; c < community_count; c++) {
         for (std::int64_t v_index = 0; v_index < ld.c2v[c].size(); v_index++) {
             IndexType v = ld.c2v[c][v_index];
             ld.c_self_loops[c] += self_loops[v];
@@ -82,7 +82,7 @@ inline void compress_graph(dal::preview::detail::topology<IndexType>& t,
                 IndexType v_to = t._cols_ptr[index];
                 IndexType c_to = partition[v_to];
                 EdgeValue v_w = vals[index];
-                if (dal::detail::integral_cast<IndexType>(c) == c_to) {
+                if (c == c_to) {
                     if (v < v_to) {
                         ld.c_self_loops[c] += v_w;
                     }
@@ -193,8 +193,8 @@ inline Float move_nodes(const dal::preview::detail::topology<IndexType>& t,
 
     // interate over all vertices
     Float old_modularity = modularity;
-    for (std::int64_t index = 0; index < t._vertex_count; index++) {
-        ld.random_order[index] = dal::detail::integral_cast<IndexType>(index);
+    for (IndexType index = 0; index < t._vertex_count; index++) {
+        ld.random_order[index] = index;
     }
     // random shuffle
     ld.rn_gen.uniform(t._vertex_count, ld.index, ld.eng.get_state(), 0, t._vertex_count);
@@ -292,8 +292,8 @@ inline void set_result_labels(CommunityVector& communities,
         }
     }
     else if (init_partition == nullptr) {
-        for (std::int64_t v = 0; v < vertex_count; v++) {
-            result_labels[v] = dal::detail::integral_cast<IndexType>(v);
+        for (IndexType v = 0; v < vertex_count; v++) {
+            result_labels[v] = v;
         }
     }
     else {

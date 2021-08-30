@@ -100,8 +100,8 @@ struct vertex_partitioning_kernel_cpu<Float,
             }
             else {
                 community_count = vertex_count;
-                for (std::int64_t v = 0; v < vertex_count; v++) {
-                    labels_[v] = dal::detail::integral_cast<std::int32_t>(v);
+                for (std::int32_t v = 0; v < vertex_count; v++) {
+                    labels_[v] = v;
                 }
             }
             return vertex_partitioning_result<task::vertex_partitioning>()
