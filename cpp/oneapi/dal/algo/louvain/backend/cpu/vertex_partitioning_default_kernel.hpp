@@ -33,7 +33,7 @@ using namespace oneapi::dal::backend::primitives;
 template <typename IndexType>
 inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
     for (std::int64_t v = 0; v < vertex_count; v++) {
-        labels[v] = dal::detail::integral_cast<std::int32_t>(v);
+        labels[v] = dal::detail::integral_cast<IndexType>(v);
     }
 }
 
@@ -55,7 +55,7 @@ inline std::int64_t reindex_communities(IndexType* communities,
 }
 
 template <typename IndexType, typename EdgeValue>
-inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
+inline void compress_graph(dal::preview::detail::topology<IndexType>& t,
                            EdgeValue* vals,
                            EdgeValue* self_loops,
                            std::int64_t community_count,
@@ -69,20 +69,20 @@ inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
         ld.weights[c] = 0;
     }
     for (std::int64_t v = 0; v < t._vertex_count; v++) {
-        std::int32_t c = partition[v];
-        ld.c2v[c].push_back(dal::detail::integral_cast<std::int32_t>(v));
+        IndexType c = partition[v];
+        ld.c2v[c].push_back(dal::detail::integral_cast<IndexType>(v));
     }
 
     std::int64_t neighbor_count = 0;
     for (std::int64_t c = 0; c < community_count; c++) {
         for (std::int64_t v_index = 0; v_index < ld.c2v[c].size(); v_index++) {
-            std::int32_t v = ld.c2v[c][v_index];
+            IndexType v = ld.c2v[c][v_index];
             ld.c_self_loops[c] += self_loops[v];
             for (std::int64_t index = t._rows_ptr[v]; index < t._rows_ptr[v + 1]; index++) {
-                std::int32_t v_to = t._cols_ptr[index];
-                std::int32_t c_to = partition[v_to];
+                IndexType v_to = t._cols_ptr[index];
+                IndexType c_to = partition[v_to];
                 EdgeValue v_w = vals[index];
-                if (dal::detail::integral_cast<std::int32_t>(c) == c_to) {
+                if (dal::detail::integral_cast<IndexType>(c) == c_to) {
                     if (v < v_to) {
                         ld.c_self_loops[c] += v_w;
                     }
@@ -98,7 +98,7 @@ inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
         ld.c_rows[c + 1] = ld.c_rows[c] + neighbor_count;
         for (std::int64_t index = 0, c_index = ld.c_rows[c]; index < neighbor_count;
              index++, c_index++) {
-            std::int32_t c_neigh = ld.c_neighbors[index];
+            IndexType c_neigh = ld.c_neighbors[index];
             ld.c_cols[c_index] = c_neigh;
             ld.c_vals[c_index] = ld.weights[c_neigh];
             ld.weights[c_neigh] = 0;
@@ -119,13 +119,13 @@ inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
 }
 
 template <typename Float, typename IndexType, typename EdgeValue>
-inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
+inline Float init_step(const dal::preview::detail::topology<IndexType>& t,
                        const EdgeValue* vals,
                        const EdgeValue* self_loops,
                        const IndexType* labels,
                        Float resolution,
                        louvain_data<IndexType, EdgeValue>& ld) {
-    std::int32_t max_community_label = 0;
+    IndexType max_community_label = 0;
     for (std::int64_t v = 0; v < t._vertex_count; v++) {
         ld.community_size[labels[v]]++;
         max_community_label = std::max(max_community_label, labels[v]);
@@ -138,16 +138,16 @@ inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
     }
     ld.m = 0;
     for (std::int64_t v = 0; v < t._vertex_count; v++) {
-        std::int32_t c = labels[v];
+        IndexType c = labels[v];
         ld.local_self_loops[c] += self_loops[v];
         ld.k_c[c] += self_loops[v] * 2;
         ld.k[v] += self_loops[v] * 2;
         ld.tot[c] += self_loops[v] * 2;
         ld.m += self_loops[v];
         for (std::int64_t index = t._rows_ptr[v]; index < t._rows_ptr[v + 1]; index++) {
-            std::int32_t to = t._cols_ptr[index];
+            IndexType to = t._cols_ptr[index];
             EdgeValue v_w = vals[index];
-            std::int32_t to_c = labels[to];
+            IndexType to_c = labels[to];
             ld.k_c[c] += v_w;
             ld.k[v] += v_w;
             ld.tot[c] += v_w;
@@ -172,7 +172,7 @@ inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
 }
 
 template <typename Cpu, typename Float, typename IndexType, typename EdgeValue>
-inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
+inline Float move_nodes(const dal::preview::detail::topology<IndexType>& t,
                         const EdgeValue* vals,
                         const EdgeValue* self_loops,
                         IndexType* n2c,
@@ -194,7 +194,7 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
     // interate over all vertices
     Float old_modularity = modularity;
     for (std::int64_t index = 0; index < t._vertex_count; index++) {
-        ld.random_order[index] = dal::detail::integral_cast<std::int32_t>(index);
+        ld.random_order[index] = dal::detail::integral_cast<IndexType>(index);
     }
     // random shuffle
     ld.rn_gen.uniform(t._vertex_count, ld.index, ld.eng.get_state(), 0, t._vertex_count);
@@ -205,14 +205,14 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
     do {
         old_modularity = modularity;
         for (std::int64_t order_index = 0; order_index < t._vertex_count; order_index++) {
-            std::int32_t v = ld.random_order[order_index];
-            std::int32_t c_old = n2c[v];
+            IndexType v = ld.random_order[order_index];
+            IndexType c_old = n2c[v];
 
             // calculate sum of weights of edges between vertex and community to move into
             std::int64_t community_count = 0;
             for (std::int64_t index = t._rows_ptr[v]; index < t._rows_ptr[v + 1]; index++) {
-                std::int32_t to = t._cols_ptr[index];
-                std::int32_t c = n2c[to];
+                IndexType to = t._cols_ptr[index];
+                IndexType c = n2c[to];
                 EdgeValue v_w = vals[index];
                 if (ld.k_vertex_to[c] == 0) {
                     ld.neighboring_communities[community_count++] = c;
@@ -228,7 +228,7 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
                 resolution * static_cast<Float>(ld.tot[c_old]) * static_cast<Float>(ld.k[v]) /
                     (static_cast<Float>(2) * static_cast<Float>(ld.m) * static_cast<Float>(ld.m));
             modularity -= delta_modularity;
-            std::int32_t move_community = n2c[v];
+            IndexType move_community = n2c[v];
             ld.community_size[c_old]--;
             if (!ld.community_size[c_old]) {
                 ld.empty_community[empty_count++] = c_old;
@@ -240,7 +240,7 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
 
             // iterate over nodes
             for (std::int64_t index = 0; index < community_count; index++) {
-                std::int32_t c = ld.neighboring_communities[index];
+                IndexType c = ld.neighboring_communities[index];
 
                 // try to move vertex to the community
                 EdgeValue k_ic = ld.k_vertex_to[c];
@@ -293,7 +293,7 @@ inline void set_result_labels(CommunityVector& communities,
     }
     else if (init_partition == nullptr) {
         for (std::int64_t v = 0; v < vertex_count; v++) {
-            result_labels[v] = dal::detail::integral_cast<std::int32_t>(v);
+            result_labels[v] = dal::detail::integral_cast<IndexType>(v);
         }
     }
     else {
@@ -339,7 +339,7 @@ struct louvain_kernel {
 
             const std::int64_t vertex_count = t.get_vertex_count();
             const std::int64_t edge_count = t.get_edge_count();
-            dal::preview::detail::topology<std::int32_t> current_topology;
+            dal::preview::detail::topology<vertex_type> current_topology;
 
             vertex_size_type* current_topology_rows =
                 allocate(vertex_size_allocator, vertex_count + 1);
@@ -364,12 +364,12 @@ struct louvain_kernel {
                 current_vals[index] = vals[index];
             }
 
-            louvain_data<std::int32_t, value_type> ld(vertex_count,
-                                                      edge_count,
-                                                      value_allocator,
-                                                      vertex_allocator,
-                                                      vertex_size_allocator,
-                                                      v1a);
+            louvain_data<vertex_type, value_type> ld(vertex_count,
+                                                     edge_count,
+                                                     value_allocator,
+                                                     vertex_allocator,
+                                                     vertex_size_allocator,
+                                                     v1a);
 
             v1p_t communities(vp_a);
             v1s_t labels_size(vertex_size_allocator);
