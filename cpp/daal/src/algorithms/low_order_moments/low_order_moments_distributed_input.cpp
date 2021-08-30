@@ -45,6 +45,13 @@ template <>
 DistributedInput<step2Master>::DistributedInput(const DistributedInput<step2Master> & other) : InputIface(other)
 {}
 
+template <>
+DistributedInput<step2Master> & DistributedInput<step2Master>::operator=(const DistributedInput<step2Master> & other)
+{
+    InputIface::operator=(other);
+    return *this;
+}
+
 /**
  * Returns the number of columns in the input data set
  * \return Number of columns in the input data set
