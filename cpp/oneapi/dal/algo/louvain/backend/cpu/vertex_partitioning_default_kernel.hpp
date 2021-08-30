@@ -32,9 +32,8 @@ using namespace oneapi::dal::backend::primitives;
 
 template <typename IndexType>
 inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
-    ONEDAL_ASSERT(vertex_count <= std::numeric_limits<std::int32_t>::max());
-    for (std::int32_t v = 0; v < vertex_count; v++) {
-        labels[v] = v;
+    for (std::int64_t v = 0; v < vertex_count; v++) {
+        labels[v] = dal::detail::integral_cast<std::int32_t>(v);
     }
 }
 
@@ -62,7 +61,6 @@ inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
                            std::int64_t community_count,
                            const IndexType* partition,
                            louvain_data<IndexType, EdgeValue>& ld) {
-    ONEDAL_ASSERT(community_count <= std::numeric_limits<std::int32_t>::max());
     ld.c_rows[0] = 0;
     for (std::int64_t c = 0; c < community_count; c++) {
         ld.c2v[c].resize(0);
@@ -70,13 +68,13 @@ inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
         ld.c_self_loops[c] = 0;
         ld.weights[c] = 0;
     }
-    for (std::int32_t v = 0; v < t._vertex_count; v++) {
+    for (std::int64_t v = 0; v < t._vertex_count; v++) {
         std::int32_t c = partition[v];
-        ld.c2v[c].push_back(v);
+        ld.c2v[c].push_back(dal::detail::integral_cast<std::int32_t>(v));
     }
 
     std::int64_t neighbor_count = 0;
-    for (std::int32_t c = 0; c < community_count; c++) {
+    for (std::int64_t c = 0; c < community_count; c++) {
         for (std::int64_t v_index = 0; v_index < ld.c2v[c].size(); v_index++) {
             std::int32_t v = ld.c2v[c][v_index];
             ld.c_self_loops[c] += self_loops[v];
@@ -84,7 +82,7 @@ inline void compress_graph(dal::preview::detail::topology<std::int32_t>& t,
                 std::int32_t v_to = t._cols_ptr[index];
                 std::int32_t c_to = partition[v_to];
                 EdgeValue v_w = vals[index];
-                if (c == c_to) {
+                if (dal::detail::integral_cast<std::int32_t>(c) == c_to) {
                     if (v < v_to) {
                         ld.c_self_loops[c] += v_w;
                     }
@@ -127,13 +125,14 @@ inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
                        const IndexType* labels,
                        double resolution,
                        louvain_data<IndexType, EdgeValue>& ld) {
-    std::int32_t community_count = 0;
+    std::int32_t max_community_label = 0;
     for (std::int64_t v = 0; v < t._vertex_count; v++) {
         ld.community_size[labels[v]]++;
-        community_count = std::max(community_count, labels[v]);
+        max_community_label = std::max(max_community_label, labels[v]);
     }
-    community_count++;
-    for (std::int32_t c = 0; c < community_count; c++) {
+    const std::int64_t community_count =
+        dal::detail::integral_cast<std::int64_t>(max_community_label) + 1;
+    for (std::int64_t c = 0; c < community_count; c++) {
         ld.k_c[c] = 0;
         ld.local_self_loops[c] = 0;
     }
@@ -163,7 +162,7 @@ inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
     ONEDAL_ASSERT(m > 0);
 
     Float modularity = 0;
-    for (std::int32_t c = 0; c < community_count; c++) {
+    for (std::int64_t c = 0; c < community_count; c++) {
         modularity +=
             1.0 / 2 / ld.m *
             (ld.local_self_loops[c] * 2 - resolution * ld.k_c[c] * ld.k_c[c] / (2.0 * ld.m));
@@ -194,7 +193,7 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
     // interate over all vertices
     Float old_modularity = modularity;
     for (std::int64_t index = 0; index < t._vertex_count; index++) {
-        ld.random_order[index] = index;
+        ld.random_order[index] = dal::detail::integral_cast<std::int32_t>(index);
     }
     // random shuffle
     ld.rn_gen.uniform(t._vertex_count, ld.index, ld.eng.get_state(), 0, t._vertex_count);
@@ -237,7 +236,7 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
             }
 
             // iterate over nodes
-            for (std::int32_t index = 0; index < community_count; index++) {
+            for (std::int64_t index = 0; index < community_count; index++) {
                 std::int32_t c = ld.neighboring_communities[index];
 
                 // try to move vertex to the community
@@ -287,9 +286,8 @@ inline void set_result_labels(CommunityVector& communities,
         }
     }
     else if (init_partition == nullptr) {
-        ONEDAL_ASSERT(vertex_count <= std::numeric_limits<std::int32_t>::max());
-        for (std::int32_t v = 0; v < vertex_count; v++) {
-            result_labels[v] = v;
+        for (std::int64_t v = 0; v < vertex_count; v++) {
+            result_labels[v] = dal::detail::integral_cast<std::int32_t>(v);
         }
     }
     else {
