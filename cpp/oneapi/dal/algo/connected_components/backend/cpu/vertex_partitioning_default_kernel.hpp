@@ -91,8 +91,8 @@ std::int32_t most_frequent_element(const std::int32_t *components,
 
     std::int32_t *root_sample_counts = allocate(vertex_allocator, vertex_count);
 
-    for (std::int32_t i = 0; i < vertex_count; ++i) {
-        root_sample_counts[i] = 0;
+    for (std::int32_t u = 0; u < vertex_count; ++u) {
+        root_sample_counts[u] = 0;
     }
     for (std::int32_t i = 0; i < samples_count; ++i) {
         root_sample_counts[components[rnd_vertex_ids[i]]]++;
