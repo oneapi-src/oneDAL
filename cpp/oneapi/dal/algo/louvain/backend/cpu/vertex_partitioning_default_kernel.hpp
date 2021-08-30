@@ -123,7 +123,7 @@ inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
                        const EdgeValue* vals,
                        const EdgeValue* self_loops,
                        const IndexType* labels,
-                       double resolution,
+                       Float resolution,
                        louvain_data<IndexType, EdgeValue>& ld) {
     std::int32_t max_community_label = 0;
     for (std::int64_t v = 0; v < t._vertex_count; v++) {
@@ -163,9 +163,10 @@ inline Float init_step(const dal::preview::detail::topology<std::int32_t>& t,
 
     Float modularity = 0;
     for (std::int64_t c = 0; c < community_count; c++) {
-        modularity +=
-            1.0 / 2 / ld.m *
-            (ld.local_self_loops[c] * 2 - resolution * ld.k_c[c] * ld.k_c[c] / (2.0 * ld.m));
+        modularity += static_cast<Float>(0.5) / static_cast<Float>(ld.m) *
+                      (static_cast<Float>(ld.local_self_loops[c]) * static_cast<Float>(2) -
+                       resolution * static_cast<Float>(ld.k_c[c]) * static_cast<Float>(ld.k_c[c]) /
+                           (static_cast<Float>(2) * static_cast<Float>(ld.m)));
     }
     return modularity;
 }
@@ -176,8 +177,8 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
                         const EdgeValue* self_loops,
                         IndexType* n2c,
                         bool& changed,
-                        double resolution,
-                        double accuracy_threshold,
+                        Float resolution,
+                        Float accuracy_threshold,
                         louvain_data<IndexType, EdgeValue>& ld) {
     for (std::int64_t v = 0; v < t._vertex_count; v++) {
         ld.k[v] = 0;
@@ -222,8 +223,10 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
             // remove vertex from the current community
             EdgeValue k_iold = ld.k_vertex_to[c_old];
             ld.tot[c_old] -= ld.k[v];
-            Float delta_modularity = static_cast<Float>(k_iold) / ld.m -
-                                     resolution * ld.tot[c_old] * ld.k[v] / (2.0 * ld.m * ld.m);
+            Float delta_modularity =
+                static_cast<Float>(k_iold) / static_cast<Float>(ld.m) -
+                resolution * static_cast<Float>(ld.tot[c_old]) * static_cast<Float>(ld.k[v]) /
+                    (static_cast<Float>(2) * static_cast<Float>(ld.m) * static_cast<Float>(ld.m));
             modularity -= delta_modularity;
             std::int32_t move_community = n2c[v];
             ld.community_size[c_old]--;
@@ -241,8 +244,11 @@ inline Float move_nodes(const dal::preview::detail::topology<std::int32_t>& t,
 
                 // try to move vertex to the community
                 EdgeValue k_ic = ld.k_vertex_to[c];
-                const Float delta = static_cast<Float>(k_ic) / ld.m -
-                                    resolution * ld.tot[c] * ld.k[v] / (2.0 * ld.m * ld.m);
+                const Float delta = static_cast<Float>(k_ic) / static_cast<Float>(ld.m) -
+                                    resolution * static_cast<Float>(ld.tot[c]) *
+                                        static_cast<Float>(ld.k[v]) /
+                                        (static_cast<Float>(2) * static_cast<Float>(ld.m) *
+                                         static_cast<Float>(ld.m));
                 if (delta_modularity < delta) {
                     delta_modularity = delta;
                     move_community = c;
@@ -327,8 +333,8 @@ struct louvain_kernel {
             vertex_pointer_allocator_type vp_a(alloc_ptr);
             v1a_t v1a(alloc_ptr);
 
-            const double resolution = desc.get_resolution();
-            const double accuracy_threshold = desc.get_accuracy_threshold();
+            const Float resolution = static_cast<Float>(desc.get_resolution());
+            const Float accuracy_threshold = static_cast<Float>(desc.get_accuracy_threshold());
             const std::int64_t max_iteration_count = desc.get_max_iteration_count();
 
             const std::int64_t vertex_count = t.get_vertex_count();
@@ -435,7 +441,7 @@ struct louvain_kernel {
                 .set_labels(dal::detail::homogen_table_builder{}
                                 .reset(labels_arr, t.get_vertex_count(), 1)
                                 .build())
-                .set_modularity(modularity)
+                .set_modularity(static_cast<double>(modularity))
                 .set_community_count(current_topology._vertex_count);
         }
     }
