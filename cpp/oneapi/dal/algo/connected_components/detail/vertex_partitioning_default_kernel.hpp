@@ -66,6 +66,10 @@ struct vertex_partitioning_kernel_cpu<method::afforest,
         using topology_type = typename graph_traits<Graph>::impl_type::topology_type;
         const auto& t = dal::preview::detail::csr_topology_builder<Graph>()(g);
         alloc_connector<Allocator> alloc_con(alloc);
+        const auto vertex_count = t.get_vertex_count();
+        if (vertex_count == 0) {
+            return vertex_partitioning_result<task::vertex_partitioning>();
+        }
         return afforest<float, task::vertex_partitioning, topology_type>{}(ctx,
                                                                            desc,
                                                                            t,
