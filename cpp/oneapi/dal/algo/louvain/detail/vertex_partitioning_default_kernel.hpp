@@ -76,10 +76,42 @@ struct vertex_partitioning_kernel_cpu<Float,
         using topology_type = typename graph_traits<Graph>::impl_type::topology_type;
         using value_type = edge_user_value_type<Graph>;
         const auto &t = dal::preview::detail::csr_topology_builder<Graph>()(g);
-        const auto vals = dal::detail::get_impl(g).get_edge_values().get_data();
         auto init_partition_arr =
             oneapi::dal::row_accessor<const std::int32_t>(init_partition).pull();
         const auto init_partition_data = init_partition_arr.get_data();
+        const std::int64_t vertex_count = t.get_vertex_count();
+        if (vertex_count == 0) {
+            return vertex_partitioning_result<task::vertex_partitioning>();
+        }
+        if (t.get_edge_count() == 0) {
+            std::int64_t community_count = 0;
+            auto community_size_arr = array<std::int64_t>::zeros(vertex_count);
+            std::int64_t *community_size = community_size_arr.get_mutable_data();
+            auto labels_arr = array<std::int32_t>::empty(vertex_count);
+            std::int32_t *labels_ = labels_arr.get_mutable_data();
+            if (init_partition_data != nullptr) {
+                for (std::int64_t v = 0; v < vertex_count; v++) {
+                    labels_[v] = init_partition_data[v];
+                    if (community_size[init_partition_data[v]] == 0) {
+                        community_count++;
+                    }
+                    community_size[init_partition_data[v]]++;
+                }
+            }
+            else {
+                community_count = vertex_count;
+                for (std::int64_t v = 0; v < vertex_count; v++) {
+                    labels_[v] = dal::detail::integral_cast<std::int32_t>(v);
+                }
+            }
+            return vertex_partitioning_result<task::vertex_partitioning>()
+                .set_labels(dal::detail::homogen_table_builder{}
+                                .reset(labels_arr, t.get_vertex_count(), 1)
+                                .build())
+                .set_modularity(0)
+                .set_community_count(community_count);
+        }
+        const auto vals = dal::detail::get_impl(g).get_edge_values().get_data();
         alloc_connector<Allocator> alloc_con(alloc);
         return louvain_kernel<Float, task::vertex_partitioning, topology_type, value_type>{}(
             ctx,
