@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <vector>
-
 #include <daal/include/algorithms/engines/mt2203/mt2203.h>
 
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
@@ -48,7 +46,6 @@ public:
                                                                      b);
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
     template <typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
     void shuffle(Size count, Type* dst, void* state) {
         Type idx[2];
@@ -58,7 +55,6 @@ public:
             std::swap(dst[idx[0]], dst[idx[1]]);
         }
     }
-#endif
 
 private:
     daal::internal::RNGs<Type, daal::sse2> daal_rng_;
