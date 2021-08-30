@@ -238,9 +238,10 @@ inline sycl::event memcpy_usm2host(sycl::queue& queue,
 
     // TODO: Remove additional copy to host usm memory once
     //       bug in `copy` with the host memory is fixed
-    //auto tmp_usm_host = make_unique_usm_host(queue, size);
-    //memcpy(queue, tmp_usm_host.get(), src_usm, size, deps).wait_and_throw();
-    memcpy(dest_host, src_usm, size);
+    auto tmp_usm_host = make_unique_usm_host(queue, size);
+    memcpy(queue, tmp_usm_host.get(), src_usm, size, deps).wait_and_throw();
+    memcpy(dest_host, tmp_usm_host.get(), size);
+    //memcpy(dest_host, src_usm, size);
     return {};
 }
 
