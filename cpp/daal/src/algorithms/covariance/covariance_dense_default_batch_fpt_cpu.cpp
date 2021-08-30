@@ -37,7 +37,7 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 namespace internal
 {
-template class CovarianceDenseBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+template class DAAL_EXPORT CovarianceDenseBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
 } // namespace covariance

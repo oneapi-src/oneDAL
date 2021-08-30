@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/io/csv/backend/cpu/read_kernel.hpp"
 #include "oneapi/dal/io/csv/backend/gpu/read_kernel.hpp"
 #include "oneapi/dal/io/csv/detail/read_ops.hpp"
@@ -23,20 +23,15 @@ namespace oneapi::dal::csv::detail {
 namespace v1 {
 
 using dal::detail::data_parallel_policy;
-
-template <typename Object>
-struct read_ops_dispatcher<Object, data_parallel_policy> {
-    Object operator()(const data_parallel_policy& ctx,
-                      const data_source_base& ds,
-                      const read_args<Object>& args) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::read_kernel_cpu<Object>,
-                                            backend::read_kernel_gpu<Object>>;
-        return kernel_dispatcher_t{}(ctx, ds, args);
-    }
-};
-
-template struct ONEDAL_EXPORT read_ops_dispatcher<table, data_parallel_policy>;
+table read_ops_dispatcher<table, data_parallel_policy>::operator()(
+    const data_parallel_policy& ctx,
+    const data_source_base& ds,
+    const read_args<table>& args) const {
+    using kernel_dispatcher_t =
+        dal::backend::kernel_dispatcher<KERNEL_SINGLE_NODE_CPU(backend::read_kernel_cpu<table>),
+                                        KERNEL_SINGLE_NODE_GPU(backend::read_kernel_gpu<table>)>;
+    return kernel_dispatcher_t{}(ctx, ds, args);
+}
 
 } // namespace v1
 } // namespace oneapi::dal::csv::detail

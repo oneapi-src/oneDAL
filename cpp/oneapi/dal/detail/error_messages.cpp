@@ -26,6 +26,9 @@ namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
+MSG(algorithm_is_not_implemented_for_this_device,
+    "Algorithm is not implemented for this device. "
+    "Consider running on it on the other device.")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
 MSG(incompatible_array_reinterpret_cast_types,
     "Cannot reinterpret array to provided type, "
@@ -39,6 +42,11 @@ MSG(unsupported_data_layout, "Unsupported data layout")
 MSG(unsupported_data_type, "Requested data type is not supported")
 MSG(unsupported_device_type, "Requested device type is not supported")
 MSG(small_data_block, "Data block size is smaller than expected")
+MSG(spmd_version_of_algorithm_is_not_implemented,
+    "SPMD version of the algorithm is not implemented")
+MSG(spmd_version_of_algorithm_is_not_implemented_for_this_device,
+    "SPMD version of the algorithm is not implemented for this device. "
+    "Consider running on it on the other device.")
 MSG(invalid_data_block_size, "Invalid data block size")
 MSG(method_not_implemented, "Method is not implemented")
 MSG(unsupported_feature_type, "Feature type is not supported")
@@ -49,11 +57,14 @@ MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 MSG(page_size_leq_zero, "Page size is lower than or equal to zero")
 MSG(invalid_key, "Cannot find the given key")
 MSG(capacity_leq_zero, "Capacity is lower than or equal to zero")
+MSG(empty_set_of_result_options, "Empty set of result options")
+MSG(this_result_is_not_enabled_via_result_options, "This result is not enabled via result options")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
 MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
 MSG(failed_to_compute_eigenvectors, "Failed to compute eigenvectors")
+MSG(failed_to_generate_random_numbers, "Failed to generate random numbers")
 
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,
@@ -98,6 +109,11 @@ MSG(invalid_range_of_rows, "Invalid range of rows")
 MSG(invalid_range_of_columns, "Invalid range of columns")
 MSG(column_index_out_of_range, "Column index out of range")
 
+/* RNG */
+MSG(rng_engine_does_not_support_parallelization_techniques,
+    "Random number generation engine doesn't support parallelization techniques")
+MSG(rng_engine_is_not_supported, "Random number generation engine isn't supported")
+
 /* Graphs */
 MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
     "Vertex index is out of range, expect index in [0, vertex_count)")
@@ -106,6 +122,7 @@ MSG(unimplemented_sorting_procedure, "Unimplemented sorting procedure")
 
 /* IO */
 MSG(file_not_found, "File not found")
+MSG(unsupported_read_mode, "Unsupported read mode")
 
 /* Serialization */
 MSG(object_is_not_serializable, "Object is not serializable")
@@ -164,6 +181,8 @@ MSG(unknown_distance_type,
 MSG(distance_is_not_supported_for_gpu, "Only Euclidean distances for k-NN is supported for GPU")
 MSG(incompatible_knn_model,
     "The provided model is incompatible with the selected k-NN task or method")
+MSG(invalid_set_of_result_options_to_search,
+    "Provided results options are incompatible with the search task. Search task cannot compute responses.")
 
 /* Minkowski distance */
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
@@ -257,9 +276,20 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 MSG(input_model_is_not_initialized, "Input model is not initialized")
-MSG(invalid_number_of_trees, "Invalid number of trees in model")
+MSG(not_enough_memory_to_build_one_tree, "There isn't enough memory to build one tree")
+MSG(invalid_number_of_trees, "Invalid number of trees")
+MSG(invalid_number_of_min_observations_in_leaf_node,
+    "Invalid number of min observations in leaf node")
+MSG(invalid_number_of_feature_per_node, "Invalid number of features per node")
+MSG(invalid_number_of_max_bins, "Invalid max number of bins")
+MSG(invalid_value_for_min_bin_size, "Invalid value for min bin size")
 MSG(invalid_number_of_classes, "Invalid number of classes")
+MSG(invalid_value_for_observations_per_tree_fraction,
+    "Invalid value for observations per tree fraction")
 MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
+
+/* Louvain */
+MSG(louvain_algorithm_is_not_implemented, "Louvain algorithm is not implemented")
 
 } // namespace v1
 } // namespace oneapi::dal::detail
