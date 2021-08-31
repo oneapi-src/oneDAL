@@ -1,3 +1,4 @@
+/* file: daal_load_win_dynamic_lib.h */
 /*******************************************************************************
 * Copyright 2021 Intel Corporation
 *
@@ -14,17 +15,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/louvain/backend/cpu/vertex_partitioning_default_kernel.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+/*
+//++
+//  Implementation of safe load library functionality for Windows.
+//--
+*/
 
-namespace oneapi::dal::preview::louvain::backend {
+#ifndef __DAAL_LOAD_WIN_DYNAMIC_LIB_H__
+#define __DAAL_LOAD_WIN_DYNAMIC_LIB_H__
 
-template struct louvain_kernel<__CPU_TAG__, float, std::int32_t>;
+#if defined(_WIN32) || defined(_WIN64)
 
-template struct louvain_kernel<__CPU_TAG__, float, double>;
+    #include <windows.h>
+    #include "services/daal_defines.h"
 
-template struct louvain_kernel<__CPU_TAG__, double, std::int32_t>;
+DAAL_EXPORT HMODULE _daal_load_win_dynamic_lib(LPCTSTR filename);
 
-template struct louvain_kernel<__CPU_TAG__, double, double>;
+#endif // defined(_WIN32) || defined(_WIN64)
 
-} // namespace oneapi::dal::preview::louvain::backend
+#endif // __DAAL_LOAD_WIN_DYNAMIC_LIB_H__

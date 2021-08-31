@@ -20,26 +20,36 @@ import glob
 import argparse
 from sys import platform
 
+LIBS_SEQ_STAT = ['onedal', 'onedal_core', 'onedal_sequential']
+LIBS_PAR_STAT = ['onedal', 'onedal_core', 'onedal_thread']
+
+if platform in ["win32", "win64"]:
+    LIBS_SEQ_DYN = ['onedal', 'onedal_core']
+    LIBS_PAR_DYN = ['onedal', 'onedal_core']
+else:
+    LIBS_SEQ_DYN = ['onedal', 'onedal_core', 'onedal_sequential']
+    LIBS_PAR_DYN = ['onedal', 'onedal_core', 'onedal_thread']
+
 RESULT_PKG_CONFIGS = {
     'dal-static-sequential-host': {
         'is_static': True,
         'is_threading': False,
-        'dal_libs': ['onedal', 'onedal_core', 'onedal_sequential']
+        'dal_libs': LIBS_SEQ_STAT
     },
     'dal-static-threading-host': {
         'is_static': True,
         'is_threading': True,
-        'dal_libs': ['onedal', 'onedal_core', 'onedal_thread']
+        'dal_libs': LIBS_PAR_STAT
     },
     'dal-dynamic-sequential-host': {
         'is_static': False,
         'is_threading': False,
-        'dal_libs': ['onedal', 'onedal_core', 'onedal_sequential']
+        'dal_libs': LIBS_SEQ_DYN
     },
     'dal-dynamic-threading-host': {
         'is_static': False,
         'is_threading': True,
-        'dal_libs': ['onedal', 'onedal_core', 'onedal_thread']
+        'dal_libs': LIBS_PAR_DYN
     },
 }
 

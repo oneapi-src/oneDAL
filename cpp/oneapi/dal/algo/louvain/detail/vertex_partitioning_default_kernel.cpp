@@ -32,11 +32,11 @@ vertex_partitioning_result<task::vertex_partitioning> louvain_kernel<
                            const EdgeValue *vals,
                            byte_alloc_iface *alloc_ptr) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::louvain_kernel<decltype(cpu), EdgeValue>{}(desc,
-                                                                   t,
-                                                                   init_partition,
-                                                                   vals,
-                                                                   alloc_ptr);
+        return backend::louvain_kernel<decltype(cpu), Float, EdgeValue>{}(desc,
+                                                                          t,
+                                                                          init_partition,
+                                                                          vals,
+                                                                          alloc_ptr);
     });
 }
 
@@ -46,6 +46,16 @@ template struct ONEDAL_EXPORT louvain_kernel<float,
                                              std::int32_t>;
 
 template struct ONEDAL_EXPORT louvain_kernel<float,
+                                             task::vertex_partitioning,
+                                             dal::preview::detail::topology<std::int32_t>,
+                                             double>;
+
+template struct ONEDAL_EXPORT louvain_kernel<double,
+                                             task::vertex_partitioning,
+                                             dal::preview::detail::topology<std::int32_t>,
+                                             std::int32_t>;
+
+template struct ONEDAL_EXPORT louvain_kernel<double,
                                              task::vertex_partitioning,
                                              dal::preview::detail::topology<std::int32_t>,
                                              double>;
