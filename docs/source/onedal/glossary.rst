@@ -210,7 +210,7 @@ Graph analytics terms
 
     Attribute
         A value assigned to :capterm:`graph`, vertex or edge.
-        Can be a numerical value (:capterm:`weight`), string or any other custom data type.
+        Can be numerical (:capterm:`weight`), string or any other custom data type.
 
     Edge index
         Index :math:`i` of edge :math:`e_i` in an edge set :math:`E=\{e_1, e_2,  ..., e_m\}`
