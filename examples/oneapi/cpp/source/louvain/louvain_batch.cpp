@@ -38,20 +38,16 @@ int main(int argc, char** argv) {
                                   .set_accuracy_threshold(0.0001)
                                   .set_max_iteration_count(3);
     // compute louvain
-    try {
-        const std::int64_t rows_count = 7;
-        const std::int64_t cols_count = 1;
-        const std::int64_t data[] = { 0, 1, 2, 3, 4, 5, 6 };
-        const auto initial_labels = dal::homogen_table::wrap(data, rows_count, cols_count);
+    const std::int64_t row_count = 7;
+    const std::int64_t col_count = 1;
+    const std::int64_t data[] = { 0, 1, 2, 3, 4, 5, 6 };
+    const auto initial_labels = dal::homogen_table::wrap(data, row_count, col_count);
 
-        const auto result = dal::preview::vertex_partitioning(louvain_desc, graph, initial_labels);
+    const auto result = dal::preview::vertex_partitioning(louvain_desc, graph, initial_labels);
 
-        std::cout << "Modularity: " << result.get_modularity() << std::endl;
-        std::cout << "Number of communities: " << result.get_community_count() << std::endl;
-        std::cout << "Get communities' labels: " << result.get_labels() << std::endl;
-    }
-    catch (dal::unimplemented& e) {
-        std::cout << e.what() << std::endl;
-    }
+    std::cout << "Modularity: " << result.get_modularity() << std::endl;
+    std::cout << "Number of communities: " << result.get_community_count() << std::endl;
+    std::cout << "Labels of communities:" << std::endl << result.get_labels() << std::endl;
+
     return 0;
 }
