@@ -24,6 +24,12 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+template <typename Float>
+std::int64_t get_heap_min_k(const sycl::queue& q);
+
+template <typename Float>
+std::int64_t get_heap_max_k(const sycl::queue& q);
+
 std::int64_t get_preferred_sub_group(const sycl::queue& q);
 
 template <typename Float, bool dst_out, bool ids_out, int sg_size = 64>

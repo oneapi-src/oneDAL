@@ -21,12 +21,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-std::int64_t get_preferred_sub_group(const sycl::queue& queue) {
-    const auto max_sg = device_max_sg_size(queue);
-    constexpr std::int64_t preferred_sg = 16;
-    return std::min(max_sg, preferred_sg);
-}
-
 template<typename Float, typename Index>
 struct selection_pair {
     Float dst;
@@ -36,6 +30,30 @@ struct selection_pair {
 template<typename Float, typename Index>
 inline bool operator< (const selection_pair<Float, Index>& lhs, const selection_pair<Float, Index>& rhs) {
     return lhs.dst < rhs.dst;
+}
+
+std::int64_t get_max_local_alloc(const sycl::queue& q) {
+    return device_local_mem_size(q) / 2;
+}
+
+std::int64_t get_preferred_sub_group(const sycl::queue& queue) {
+    const auto max_sg = device_max_sg_size(queue);
+    constexpr std::int64_t preferred_sg = 16;
+    return std::min(max_sg, preferred_sg);
+}
+
+template <typename Float>
+std::int64_t get_heap_min_k(const sycl::queue& q) {
+    return 0;
+}
+
+template <typename Float>
+std::int64_t get_heap_max_k(const sycl::queue& q) {
+    using sel_t = selection_pair<Float, std::int32_t>;
+    constexpr auto sel_size_v = sizeof(sel_t);
+    const auto mem = get_max_local_alloc(q);
+    const auto max_elems = mem / sizeof(Float);
+    return max_elems / sel_size_v - 1;
 }
 
 template<typename Float, bool dst_out, bool ids_out>
@@ -250,8 +268,8 @@ public:
                     }
                     pbuff_count = 0;
                 }
+                sg.barrier();
             } while (cid_to_handle > -1);
-            sg.barrier();
         }
 
         // Sorting heap before writing out
@@ -306,8 +324,7 @@ sycl::event select(sycl::queue& queue,
         ONEDAL_ASSERT(!indices_out || indices.get_dimension(0) == height);
         ONEDAL_ASSERT(!selection_out || selection.get_dimension(0) == height);
         const auto max_wkg = propose_wg_size(queue);
-        // TODO:
-        const auto available_mem = device_local_mem_size(queue) / 4;
+        const auto available_mem = get_max_local_alloc(queue);
         const auto mem_bound = available_mem / ((k + 1) * sizeof(sel_t));
         ONEDAL_ASSERT(mem_bound > 0);
         const auto wkg_bound = max_wkg / pref_sbg;
@@ -357,7 +374,7 @@ sycl::event select(sycl::queue& queue,
     }
 
     if constexpr (sg_size > 0) {
-        return select<Float, dst_out, ids_out, sg_size - 1>(queue,
+        return select<Float, dst_out, ids_out, sg_size / 2>(queue,
                                                             data,
                                                             k,
                                                             selection,
@@ -401,7 +418,14 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
     return select<Float, true, false>(queue, data, k, selection, dummy, deps);
 }
 
-template class kselect_by_rows_heap<float>;
-template class kselect_by_rows_heap<double>;
+#define INSTANTIATE_FLOAT(F)                                \
+template class kselect_by_rows_heap<F>;                     \
+template std::int64_t get_heap_max_k<F>(const sycl::queue&);\
+template std::int64_t get_heap_min_k<F>(const sycl::queue&);
+
+INSTANTIATE_FLOAT(float);
+INSTANTIATE_FLOAT(double);
+
+#undef INSTANTIATE_FLOAT
 
 } // namespace oneapi::dal::backend::primitives

@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
+#include "oneapi/dal/backend/primitives/selection/kselect_by_rows_heap.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_simd.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_quick.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_single_col.hpp"
@@ -46,7 +47,7 @@ kselect_by_rows<Float>::kselect_by_rows(sycl::queue& queue,
     const std::uint32_t simd_width = static_cast<std::uint32_t>(*max_sg_size_iter);
 
     if (k <= simd_width) {
-        if (simd_width == simd8) {
+        /*if (simd_width == simd8) {
             base_.reset(new kselect_by_rows_simd<Float, simd16>{});
             return;
         }
@@ -66,9 +67,18 @@ kselect_by_rows<Float>::kselect_by_rows(sycl::queue& queue,
             base_.reset(new kselect_by_rows_simd<Float, simd128>{});
             return;
         }
-        ONEDAL_ASSERT(false);
+        ONEDAL_ASSERT(false);*/
+        return;
     }
-    else {
+
+    if ((get_heap_min_k<Float>(queue) < k) && (k < get_heap_max_k<Float>(queue))) {
+        std::cout << "HEAP! " << std::endl;
+        base_.reset(new kselect_by_rows_heap<Float>{});
+        return;
+    }
+
+    {
+        std::cout << "NOT HEAP! " << std::endl;
         base_.reset(new kselect_by_rows_quick<Float>{ queue, shape });
     }
 }
