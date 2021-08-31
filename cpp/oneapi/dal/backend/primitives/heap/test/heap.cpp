@@ -42,7 +42,7 @@ class heap_test_random : public te::float_algo_fixture<std::tuple_element_t<0, P
 
 public:
     void generate() {
-        width_ = GENERATE(1, 2, 9, 31, 63, 127, 128, 129);
+        width_ = GENERATE(1, 2, 3, 4, 5, 6, 7, 8, 9);
         generate_input();
     }
 
@@ -103,16 +103,16 @@ public:
     }
 
     void check_make_heap() {
+        check_if_initialized();
+
         const auto res = make_heap_res_to_test();
         const auto gtr = make_heap_groundtruth();
 
         for(std::int32_t i = 0; i < width_; ++i) {
             const auto r = *(res.get_data() + i);
             const auto g = *(gtr.get_data() + i);
-            CAPTURE(i, r, g);
-            if(r != g) {
-                FAIL();
-            }
+            CAPTURE(width_, i, r, g);
+            REQUIRE(r == g);
         }
     }
 
@@ -141,18 +141,59 @@ public:
     }
 
     void check_sort_heap() {
+        check_if_initialized();
+
         auto res = sort_heap_res_to_test();
         auto gtr = sort_heap_groundtruth();
 
         for(std::int32_t i = 0; i < width_; ++i) {
             const auto r = *(res.get_data() + i);
             const auto g = *(gtr.get_data() + i);
-            CAPTURE(i, r, g);
-            if(r != g) {
-                FAIL();
-            }
+            CAPTURE(width_, i, r, g);
+            REQUIRE(r == g);
         }
     }
+
+    auto push_heap_groundtruth() const {
+        auto res = indices();
+        const auto inp = input();
+        const auto comp = [&](const auto& left, const auto& right) -> bool {
+            return *(inp.get_data() + left) < *(inp.get_data() + right);
+        };
+        auto* from = res.get_mutable_data();
+        for(std::int32_t i = 1; i < width_; ++i) {
+            std::push_heap(from, from + i, comp);
+        }
+        return res;
+    }
+
+    auto push_heap_res_to_test() const {
+        auto res = indices();
+        const auto inp = input();
+        const auto comp = [&](const auto& left, const auto& right) -> bool {
+            return *(inp.get_data() + left) < *(inp.get_data() + right);
+        };
+        auto* from = res.get_mutable_data();
+        for(std::int32_t i = 1; i < width_; ++i) {
+            detail::push_heap_impl(from, from + i, comp);
+        }
+        return res;
+    }
+
+    void check_push_heap() {
+        check_if_initialized();
+
+        const auto res = push_heap_res_to_test();
+        const auto gtr = push_heap_groundtruth();
+
+        for(std::int32_t i = 0; i < width_; ++i) {
+            const auto r = *(res.get_data() + i);
+            const auto g = *(gtr.get_data() + i);
+            CAPTURE(width_, i, r, g);
+            REQUIRE(r == g);
+        }
+    }
+
 
 private:
     std::int32_t width_;
@@ -161,18 +202,29 @@ private:
 
 TEMPLATE_LIST_TEST_M(heap_test_random,
                      "Randomly filled heap creation",
-                     "[heap][rm][small]",
+                     "[heap][make][small]",
                      heap_types) {
     this->generate();
+    this->generate_input();
     this->check_make_heap();
 }
 
 TEMPLATE_LIST_TEST_M(heap_test_random,
                      "Randomly created heap sorting",
-                     "[heap][rm][small]",
+                     "[heap][sort][small]",
                      heap_types) {
     this->generate();
+    this->generate_input();
     this->check_sort_heap();
+}
+
+TEMPLATE_LIST_TEST_M(heap_test_random,
+                     "Randomly created heap pushing",
+                     "[heap][push][small]",
+                     heap_types) {
+    this->generate();
+    this->generate_input();
+    this->check_push_heap();
 }
 
 } // namespace oneapi::dal::backend::primitives::test
