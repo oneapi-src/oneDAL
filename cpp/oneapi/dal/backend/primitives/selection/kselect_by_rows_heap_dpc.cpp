@@ -217,14 +217,13 @@ public:
         idx_t pbuff_ids[pbuff_size] = { idx_default };
         std::int32_t pbuff_count, prev_count;
 
-        dst_t worst_val = dst_default;
 
         sel_t* const heaps = heaps_.get_pointer();
         sel_t* const curr_heap = heaps + (k_ + 1) * sid;
         sel_t* const curr_heap_end = curr_heap + (k_ + 1);
 
         // Heap initialization
-        for(std::int32_t i = cid; i < k_; i += sg_width) {
+        for(std::int32_t i = cid; i <= k_; i += sg_width) {
             auto& values = curr_heap[i];
             values.idx = idx_default;
             values.dst = dst_default;
@@ -232,17 +231,20 @@ public:
         sg.barrier();
 
         std::int32_t k_written = 0;
-
+        dst_t worst_val = dst_default;
         const auto step = sg_width * pbuff_size;
         const auto* const row = src_ptr_ + rid * src_str_;
-        for(std::int32_t i = cid; i < width_; i += step) {
+        for(std::int32_t i = 0; i < width_; i += step) {
+            const std::int32_t block_start_col = cid + i;
+
             pbuff_count = 0, prev_count = 0;
             worst_val = curr_heap->dst;
 
             // Collecting temporary best values in private memory
-            for(std::int32_t j = 0; j < pbuff_size; ++j) {
-                const idx_t idx = i + sg_width * j;
-                const dst_t val = *(row + idx);
+            for(std::int32_t j = 0; (j < pbuff_size); ++j) {
+                const idx_t idx = block_start_col + sg_width * j;
+                const bool handle = idx < width_;
+                const dst_t val = handle ? *(row + idx) : dst_default;
                 pbuff_count += bool(val < worst_val);
                 pbuff_ids[prev_count] = idx;
                 pbuff_dst[prev_count] = val;
@@ -259,10 +261,11 @@ public:
                 if(cid_to_handle == cid) {
                     for(std::int32_t i = 0; i < pbuff_count; ++i, ++k_written) {
                         sel_t result{ pbuff_dst[i], pbuff_ids[i] };
+                        //sel_t result{ pbuff_dst[i], cid };
                         if (k_written > k_) {
-                            replace_first(std::move(result), curr_heap, curr_heap_end);
+                            replace_first(std::move(result), curr_heap, curr_heap + k_);
                         } else {
-                            *(curr_heap + k_written - 1) = std::move(result);
+                            *(curr_heap + k_written) = std::move(result);
                             push_heap(curr_heap, curr_heap + k_written);
                         }
                     }
@@ -275,13 +278,14 @@ public:
         // Sorting heap before writing out
         // TODO: Think out if it can be performed in parallel
         if(cid == 0) {
+            make_heap(curr_heap, curr_heap_end);
             sort_heap(curr_heap, curr_heap_end);
         }
         sg.barrier();
 
         // Writing output from heap
         for(std::int32_t i = cid; i < k_; i += sg_width) {
-            const auto values = curr_heap[i];
+            const auto& values = curr_heap[i];
             if constexpr (ids_out) {
                 *(this->get_indices_pointer() + this->get_indices_stride() * rid + i) = values.idx;
             }
@@ -319,10 +323,10 @@ sycl::event select(sycl::queue& queue,
     if (pref_sbg == sg_size) {
         const auto width = data.get_dimension(1);
         const auto height = data.get_dimension(0);
-        ONEDAL_ASSERT(!indices_out || indices.get_dimension(1) == k);
-        ONEDAL_ASSERT(!selection_out || selection.get_dimension(1) == k);
-        ONEDAL_ASSERT(!indices_out || indices.get_dimension(0) == height);
-        ONEDAL_ASSERT(!selection_out || selection.get_dimension(0) == height);
+        ONEDAL_ASSERT(!ids_out || indices.get_dimension(1) == k);
+        ONEDAL_ASSERT(!dst_out || selection.get_dimension(1) == k);
+        ONEDAL_ASSERT(!ids_out || indices.get_dimension(0) == height);
+        ONEDAL_ASSERT(!dst_out || selection.get_dimension(0) == height);
         const auto max_wkg = propose_wg_size(queue);
         const auto available_mem = get_max_local_alloc(queue);
         const auto mem_bound = available_mem / ((k + 1) * sizeof(sel_t));
@@ -395,6 +399,7 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     ndview<Float, 2>& selection,
                                                     ndview<std::int32_t, 2>& indices,
                                                     const event_vector& deps) {
+    std::cout << "Both" << std::endl;
     return select<Float, true, true>(queue, data, k, selection, indices, deps);
 }
 
@@ -404,6 +409,7 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     std::int64_t k,
                                                     ndview<std::int32_t, 2>& indices,
                                                     const event_vector& deps) {
+    std::cout << "Indices" << std::endl;
     ndarray<Float, 2> dummy;
     return select<Float, false, true>(queue, data, k, dummy, indices, deps);
 }
@@ -414,6 +420,7 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     std::int64_t k,
                                                     ndview<Float, 2>& selection,
                                                     const event_vector& deps) {
+    std::cout << "Distances" << std::endl;
     ndarray<std::int32_t, 2> dummy;
     return select<Float, true, false>(queue, data, k, selection, dummy, deps);
 }

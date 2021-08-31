@@ -36,6 +36,8 @@ template <typename Float>
 kselect_by_rows<Float>::kselect_by_rows(sycl::queue& queue,
                                         const ndshape<2>& shape,
                                         std::int64_t k) {
+    std::cout << "HERE!!! " << k << std::endl;
+
     if (k == 1) {
         base_.reset(new kselect_by_rows_single_col<Float>{});
         return;
@@ -68,7 +70,7 @@ kselect_by_rows<Float>::kselect_by_rows(sycl::queue& queue,
             return;
         }
         ONEDAL_ASSERT(false);*/
-        return;
+        //return;
     }
 
     if ((get_heap_min_k<Float>(queue) < k) && (k < get_heap_max_k<Float>(queue))) {
