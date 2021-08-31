@@ -142,6 +142,37 @@ private:
             *count = 0;
         return ret;
     }
+
+    static void finalize(sycl::nd_item<2> item,
+                         Float* values,
+                         std::int32_t* indices,
+                         std::int32_t partition_start,
+                         std::int32_t partition_end,
+                         std::int32_t remainder) {
+        auto sg = item.get_sub_group();
+        const std::int32_t local_id = sg.get_local_id()[0];
+        const std::int32_t local_size = sg.get_local_range()[0];
+
+        constexpr std::int32_t undefined_index = -1;
+        auto partition_size = partition_end - partition_start;
+        bool is_used = local_id < partition_size;
+        auto offset = partition_start + local_id;
+        Float val = is_used ? values[offset] : max_float;
+        std::int32_t ind = is_used ? indices[offset] : undefined_index;
+        std::int32_t pos = undefined_index;
+        for (std::int32_t step = 0; step < remainder; step++) {
+            Float min_val = reduce(sg, val, sycl::ONEAPI::minimum<Float>());
+            bool is_mine = min_val == val && pos == undefined_index;
+            std::int32_t min_id =
+                reduce(sg, is_mine ? local_id : local_size, sycl::ONEAPI::minimum<std::int32_t>());
+            pos = min_id == local_id ? step : pos;
+        }
+        if (pos > -1) {
+            values[partition_start + pos] = val;
+            indices[partition_start + pos] = ind;
+        }
+    }
+
     template <bool selection_out, bool indices_out>
     static void kernel_select(sycl::nd_item<2> item,
                               std::int32_t num_rows,
@@ -201,26 +232,8 @@ private:
                     partition_start = split_index;
             }
             else {
-                auto rem_k = k - partition_start;
-                if (rem_k <= 0)
-                    break;
-                bool inside = local_id < partition_size;
-                auto offset = partition_start + local_id;
-                Float val = inside ? values[offset] : max_float;
-                std::int32_t ind = inside ? indices[offset] : -1;
-                std::int32_t pos = -1;
-                for (std::int32_t step = 0; step < rem_k; step++) {
-                    Float min_val = reduce(sg, val, sycl::ONEAPI::minimum<Float>());
-                    bool is_mine = min_val == val && pos == -1;
-                    std::int32_t min_id = reduce(sg,
-                                                 is_mine ? local_id : local_size,
-                                                 sycl::ONEAPI::minimum<std::int32_t>());
-                    pos = min_id == local_id ? step : pos;
-                }
-                if (pos > -1) {
-                    values[partition_start + pos] = val;
-                    indices[partition_start + pos] = ind;
-                }
+                auto remainder = k - partition_start;
+                finalize(item, values, indices, partition_start, partition_end, remainder);
                 break;
             }
         }
