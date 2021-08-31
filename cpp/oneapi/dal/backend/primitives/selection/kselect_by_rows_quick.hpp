@@ -34,6 +34,8 @@ namespace oneapi::dal::backend::primitives {
 // Performs k-selection using Quick Select algorithm which is based on row partitioning
 template <typename Float>
 class kselect_by_rows_quick : public kselect_by_rows_base<Float> {
+    static constexpr Float max_float = oneapi::dal::detail::limits<Float>::max();
+
 public:
     kselect_by_rows_quick() = delete;
     kselect_by_rows_quick(sycl::queue& queue, const ndshape<2>& shape)
@@ -204,7 +206,7 @@ private:
                     break;
                 bool inside = local_id < partition_size;
                 auto offset = partition_start + local_id;
-                Float val = inside ? values[offset] : 1.0e30;
+                Float val = inside ? values[offset] : max_float;
                 std::int32_t ind = inside ? indices[offset] : -1;
                 std::int32_t pos = -1;
                 for (std::int32_t step = 0; step < rem_k; step++) {
