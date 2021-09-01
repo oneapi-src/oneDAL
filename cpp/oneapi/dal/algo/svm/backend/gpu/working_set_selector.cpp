@@ -65,11 +65,8 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
 
     std::int64_t left_to_select = ws_count_;
     std::int64_t selected_count = 0;
-    sycl::event event;
 
-    sycl::event::wait_and_throw(deps);
-
-    event = sort_f_indices(queue_, f, { event });
+    auto event = sort_f_indices(queue_, f, deps);
 
     const std::int64_t need_select_up = (ws_count_ - selected_count) / 2;
     std::tie(selected_count, event) =
@@ -237,10 +234,8 @@ sycl::event working_set_selector<Float>::sort_f_indices(sycl::queue& queue,
     return radix_sort_event;
 }
 
-#define INSTANTIATE_WORKING_SET(F) template class working_set_selector<F>;
-
-INSTANTIATE_WORKING_SET(float);
-INSTANTIATE_WORKING_SET(double);
+template class working_set_selector<float>;
+template class working_set_selector<double>;
 
 #endif
 
