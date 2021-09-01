@@ -68,7 +68,7 @@ public:
              ndarray<float_t, 2>& selection,
              ndarray<std::int32_t, 2>& indices) {
         INFO("benchmark sort with indices");
-        const auto name = fmt::format("Selection (small k): val_type {}, k {}, elem_count {}",
+        const auto name = fmt::format("Selection: val_type {}, k {}, elem_count {}",
                                       te::type2str<float_t>::name(),
                                       k,
                                       data.get_count());

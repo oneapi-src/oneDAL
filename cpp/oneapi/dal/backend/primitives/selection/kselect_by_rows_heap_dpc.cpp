@@ -270,7 +270,7 @@ public:
                             push_heap(curr_heap, curr_heap + k_written + 1);
                             ++k_written;
                         }
-                        else if (handle){
+                        else if (handle) {
                             replace_first(std::move(result), curr_heap, curr_heap + k_);
                         }
                     }

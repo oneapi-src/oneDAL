@@ -26,8 +26,6 @@
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include <iomanip>
-
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
@@ -72,13 +70,12 @@ public:
         }
     }
 
-    void check_equal(const ndview<float_t, 2>& res,
-                     const ndview<float_t, 2>& gtr) {
+    void check_equal(const ndview<float_t, 2>& res, const ndview<float_t, 2>& gtr) {
         REQUIRE(res.get_shape() == gtr.get_shape());
         const auto m = res.get_dimension(0);
         const auto k = res.get_dimension(1);
-        for(std::int32_t i = 0; i < k; ++i) {
-            for(std::int32_t j = 0; j < m; ++j) {
+        for (std::int32_t i = 0; i < k; ++i) {
+            for (std::int32_t j = 0; j < m; ++j) {
                 const auto r = res.at(j, i);
                 const auto g = gtr.at(j, i);
                 CAPTURE(i, j, r, g);
@@ -197,7 +194,7 @@ public:
     }
 };
 
-using selection_types = std::tuple<float/*, double*/>;
+using selection_types = std::tuple<float /*, double*/>;
 
 TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection degenerated test (k == 1)",

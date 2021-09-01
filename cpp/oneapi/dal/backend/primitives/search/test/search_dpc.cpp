@@ -18,7 +18,6 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
-#include <iomanip>
 #include <vector>
 
 #include "oneapi/dal/backend/primitives/common.hpp"
