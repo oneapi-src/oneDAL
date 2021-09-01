@@ -211,7 +211,7 @@ public:
         const std::int32_t sg_width = sg.get_local_range().size();
         const std::int32_t rid = sid + item.get_group_linear_id() * sg.get_group_range().size();
 
-        if ((rid >= height_) || (cid >= sg_width))
+        if (rid >= height_)
             return;
 
         dst_t pbuff_dst[pbuff_size] = { dst_default };

@@ -18,6 +18,7 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <iomanip>
 #include <vector>
 
 #include "oneapi/dal/backend/primitives/common.hpp"
@@ -37,6 +38,28 @@ namespace te = dal::test::engine;
 namespace de = dal::detail;
 namespace la = te::linalg;
 
+template<typename Type, ndorder order>
+inline std::ostream& operator<<(std::ostream& out, const ndview<Type, 2, order>& arr) {
+    constexpr int precision = 3;
+    const auto n = arr.get_dimension(0), m = arr.get_dimension(1);
+    const auto ord = (order == ndorder::c) ? 'c' : 'f';
+    out << ord << "-order array with shape [nxm]=[" << n << 'x' << m << ']' << std::endl;
+    if constexpr (std::is_floating_point<Type>::value) {
+        out << std::showpos << std::fixed << std::setprecision(precision);
+    }
+    for(std::int64_t j = 0; j < n; ++j) {
+        out << '\t';
+        for(std::int64_t i = 0; i < m; ++i) {
+            out << arr.at(j, i) << '\t';
+        }
+        out << std::endl;
+    }
+    if constexpr (std::is_floating_point<Type>::value) {
+        out << std::noshowpos << std::defaultfloat;
+    }
+    return out;
+}
+
 template <typename Float>
 class search_test : public te::float_algo_fixture<Float> {
     using idx_t = ndview<std::int32_t, 2>;
@@ -46,10 +69,10 @@ class search_test : public te::float_algo_fixture<Float> {
 
 public:
     void generate() {
-        m_ = GENERATE(2, 11, 17, 32, 129);
-        n_ = GENERATE(3, 10, 17, 32, 129);
-        k_ = GENERATE(1, 16, 32, 64, 128);
-        d_ = GENERATE(2, 28, 41, 131);
+        m_ = GENERATE(/*2, 11, 17, 32,*/ 129);
+        n_ = GENERATE(3/*, 10, 17, 32, 129*/);
+        k_ = GENERATE(/*1, 16, 32,*/ 64/*, 128*/);
+        d_ = GENERATE(2/*, 28, 41, 131*/);
         generate_data();
     }
 
@@ -101,16 +124,24 @@ public:
         REQUIRE(train_data.get_row_count() == gtruth.get_column_count());
         REQUIRE(infer_data.get_row_count() == gtruth.get_row_count());
 
-        auto indices = naive_knn_search(train_data, infer_data);
-        auto ind_arr = row_accessor<const std::int32_t>(indices).pull({ 0, n_ });
+        auto ind_arr = row_accessor<const std::int32_t>(gtruth).pull({ 0, n_ });
         const auto ind_ndarr = idx_t::wrap(ind_arr.get_data(), { n_, m_ });
+
+        auto dst_table = distances(train_data, infer_data);
+        auto dst_arr = row_accessor<const Float>(dst_table).pull({ 0, n_ });
+        const auto dst_ndarr = dst_t::wrap(dst_arr.get_data(), { n_, m_ });
+
+        std::cout << "Idx Gtr: " << ind_ndarr << "Idx Res : " << result_ids << std::endl;
+
+        std::cout << "Dst Gtr: " << dst_ndarr << "Dst Res : " << result_dst << std::endl;
 
         for (std::int64_t j = 0; j < n_; ++j) {
             for (std::int64_t i = 0; i < k_; ++i) {
                 const auto gtr_val = ind_ndarr.at(j, i);
+                const auto gtr_dst = dst_ndarr.at(j, gtr_val);
                 const auto res_val = result_ids.at(j, i);
-                [[maybe_unused]] const auto res_dst = result_dst.at(j, i);
-                CAPTURE(i, j, m_, n_, k_, d_, gtr_val, res_val, res_dst);
+                const auto res_dst = result_dst.at(j, i);
+                CAPTURE(i, j, m_, n_, k_, d_, gtr_val, gtr_dst, res_val, res_dst);
                 REQUIRE(gtr_val == res_val);
             }
         }
@@ -130,6 +161,7 @@ public:
 
             const search_t engine(this->get_queue(), train, tblock);
             copy_callback<Float, true, true> callbk(this->get_queue(), qblock, indices, distances);
+
 
             engine(query, callbk, qblock, k_).wait_and_throw();
 

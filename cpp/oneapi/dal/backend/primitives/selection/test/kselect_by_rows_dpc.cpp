@@ -93,7 +93,8 @@ public:
             check_results<true, true>(data, value_array, index_array);
             auto selct_array = ndarray<float_t, 2>::empty(get_queue(), { row_count, k });
             select_indexed(get_queue(), index_array, data, selct_array).wait_and_throw();
-            std::cout << "D: " << data << "I: " << index_array << "B: " << value_array << std::endl;
+            std::cout << "D: " << data << "I: " << index_array
+                << "B: " << value_array << "S:" << selct_array << std::endl;
             check_equal(value_array, selct_array);
         }
     }
