@@ -199,7 +199,7 @@ Graph analytics terms
         an edge.
 
     Adjacency matrix
-        A :math:`n × n` matrix :math:`A_G` for a graph :math:`G` whose vertices
+        An :math:`n × n` matrix :math:`A_G` for a graph :math:`G` whose vertices
         are explicitly ordered :math:`(v_1, v_2, ..., v_n)`,
 
         .. math::
@@ -209,8 +209,8 @@ Graph analytics terms
             \end{cases}
 
     Attribute
-        Value assigned to :capterm:`graph`, vertex or edge.
-        Can be a numerical value (:capterm:`weight`), string or any other custom data type.
+        A value assigned to :capterm:`graph`, vertex or edge.
+        Can be numerical (:capterm:`weight`), string or any other custom data type.
 
     Edge index
         Index :math:`i` of edge :math:`e_i` in an edge set :math:`E=\{e_1, e_2,  ..., e_m\}`
@@ -222,32 +222,32 @@ Graph analytics terms
         as the head.
 
     Graph
-        An object :math:`G=(V;E)` consists of two sets, :math:`V` and :math:`E`
-        where :math:`V` is a finite nonempty set and a finite set :math:`E`, may
-        be empty, but otherwise its elements are two-element subsets of :math:`V`.
-        :math:`V` is set of vertices, :math:`E` is set of edges [Gross2014]_. 
+        An object :math:`G=(V;E)` that consists of two sets, :math:`V` and :math:`E`,
+        where :math:`V` is a finite nonempty set, :math:`E` is a finite set that may
+        be empty, and the elements of :math:`E` are two-element subsets of :math:`V`.
+        :math:`V` is a set of vertices, :math:`E` is a set of edges [Gross2014]_. 
 
     Self-loop
-        An edge that joins a single vertex to itself.
+        An edge that joins a vertex to itself.
 
     Topology
         A :capterm:`graph` without :capterm:`attributes <Attribute>`.
 
     Undirected graph
-        A :capterm:`graph` where each edge is a unordered pair :math:`(u, v)` of vertices.
+        A :capterm:`graph` where each edge is an unordered pair :math:`(u, v)` of vertices.
 
     Unweighted graph
         A :capterm:`graph` where all vertices and all edges has no :capterm:`weights <Weight>`.
 
     Vertex index
-        Index :math:`i` of vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
+        The index :math:`i` of a vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
         of :capterm:`graph` :math:`G`. Can be an integer value. 
 
     Weight
         A numerical value assigned to vertex, edge or graph.
 
     Weighted graph
-        A :capterm:`graph` :math:`G` where all vertices or all
+        A :capterm:`graph` where all vertices or all
         edges have :capterm:`weights <Weight>.`
 
 |short_name| terms
@@ -277,7 +277,7 @@ Graph analytics terms
     
     CSR data
         A compressed sparse row (csr) data is the sparse matrix representation.
-        Data with values of single :capterm:`data type` and the same set of
+        Data with values of a single :capterm:`data type` and the same set of
         available operations defined on them. One of the characteristics of a
         :capterm:`data format`.
 
@@ -301,8 +301,9 @@ Graph analytics terms
         **Examples:** ``int32_t``, ``float``, ``double``
 
     Dataset
-        A collection of data in specific data format. Examples of datasets:
-        collection of observations, graph.
+        A collection of data in a specific data format. 
+        
+        **Examples:** a collection of observations, a :capterm:`graph`
 
     Flat data
         A block of :capterm:`contiguous <contiguous data>` :capterm:`homogeneous

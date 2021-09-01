@@ -49,9 +49,9 @@ Requirements on graph types
 Each implementation of :txtref:`graph` concept:
 
 1. Follows the definition of the :txtref:`graph` concept and its restrictions
-   (e.g., :capterm:`immutability`).
+   (for example, :capterm:`immutability`)
 
-2. Is :term:`reference-counted <Reference-counted object>`.
+2. Is :term:`reference-counted <Reference-counted object>`
 
 3. Defines :txtref:`graph_traits <api_graph_traits>` data type.
 
