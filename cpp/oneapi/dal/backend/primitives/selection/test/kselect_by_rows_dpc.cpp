@@ -73,16 +73,16 @@ public:
             auto value_array = ndarray<float_t, 2>::empty(get_queue(), { row_count, k });
             kselect_by_rows<float_t> sel(get_queue(), data.get_shape(), k);
             sel(get_queue(), data, k, value_array).wait_and_throw();
+            std::cout << "Distances " << value_array << std::endl;
             check_results<true, false>(data, value_array, dummy_array);
-            //std::cout << "Distances " << value_array << std::endl;
         }
         INFO("Output of selected indices") {
             ndarray<float_t, 2> dummy_array;
             auto index_array = ndarray<std::int32_t, 2>::empty(get_queue(), { row_count, k });
             kselect_by_rows<float_t> sel(get_queue(), data.get_shape(), k);
             sel(get_queue(), data, k, index_array).wait_and_throw();
+            std::cout << "Indices " << index_array << std::endl;
             check_results<false, true>(data, dummy_array, index_array);
-            //std::cout << "Indices " << index_array << std::endl;
         }
 
         INFO("Output of both") {
@@ -93,8 +93,8 @@ public:
             check_results<true, true>(data, value_array, index_array);
             auto selct_array = ndarray<float_t, 2>::empty(get_queue(), { row_count, k });
             select_indexed(get_queue(), index_array, data, selct_array).wait_and_throw();
-            std::cout << "D: " << data << "I: " << index_array
-                << "B: " << value_array << "S:" << selct_array << std::endl;
+            //std::cout << "D: " << data << "I: " << index_array
+            //    << "B: " << value_array << "S:" << selct_array << std::endl;
             check_equal(value_array, selct_array);
         }
     }

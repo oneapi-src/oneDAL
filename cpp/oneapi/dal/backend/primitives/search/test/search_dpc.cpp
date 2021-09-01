@@ -129,7 +129,9 @@ public:
 
         auto dst_table = distances(train_data, infer_data);
         auto dst_arr = row_accessor<const Float>(dst_table).pull({ 0, n_ });
-        const auto dst_ndarr = dst_t::wrap(dst_arr.get_data(), { n_, m_ });
+        const auto distances = dst_t::wrap(dst_arr.get_data(), { n_, m_ });
+        auto dst_ndarr = distances;
+        //select_indexed(this->get_queue(), ind_ndarr, distances, dst_ndarr).wait_and_throw();
 
         std::cout << "Idx Gtr: " << ind_ndarr << "Idx Res : " << result_ids << std::endl;
 
@@ -138,7 +140,7 @@ public:
         for (std::int64_t j = 0; j < n_; ++j) {
             for (std::int64_t i = 0; i < k_; ++i) {
                 const auto gtr_val = ind_ndarr.at(j, i);
-                const auto gtr_dst = dst_ndarr.at(j, gtr_val);
+                const auto gtr_dst = dst_ndarr.at(j, i);
                 const auto res_val = result_ids.at(j, i);
                 const auto res_dst = result_dst.at(j, i);
                 CAPTURE(i, j, m_, n_, k_, d_, gtr_val, gtr_dst, res_val, res_dst);

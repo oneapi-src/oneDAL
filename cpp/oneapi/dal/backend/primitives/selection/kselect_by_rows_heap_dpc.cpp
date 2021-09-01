@@ -241,11 +241,12 @@ public:
             worst_val = curr_heap->dst;
 
             // Collecting temporary best values in private memory
+            k_written = reduce(sg, k_written, max_func);
             for (std::int32_t j = 0; j < pbuff_size; ++j) {
                 const idx_t idx = block_start_col + sg_width * j;
                 const bool handle = idx < width_;
                 const dst_t val = handle ? *(row + idx) : dst_default;
-                pbuff_count += bool(val < worst_val);
+                pbuff_count += bool(val < worst_val || k_ >= k_written);
                 pbuff_ids[prev_count] = idx;
                 pbuff_dst[prev_count] = val;
                 prev_count = pbuff_count;
@@ -264,16 +265,14 @@ public:
                         const auto curr_val = pbuff_dst[i];
                         const bool handle = curr_val < worst_val;
                         sel_t result{ std::move(curr_val), pbuff_ids[i] };
-                        if (handle) {
-                            if (k_ > k_written) {
-                                *(curr_heap + k_written) = std::move(result);
-                                push_heap(curr_heap, curr_heap + k_written + 1);
-                            }
-                            else {
-                                replace_first(std::move(result), curr_heap, curr_heap + k_);
-                            }
+                        if (k_ >= k_written) {
+                            *(curr_heap + k_written) = std::move(result);
+                            push_heap(curr_heap, curr_heap + k_written + 1);
+                            ++k_written;
                         }
-                        k_written += handle;
+                        else if (handle){
+                            replace_first(std::move(result), curr_heap, curr_heap + k_);
+                        }
                     }
                     pbuff_count = 0;
                 }
