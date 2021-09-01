@@ -38,28 +38,6 @@ namespace te = dal::test::engine;
 namespace de = dal::detail;
 namespace la = te::linalg;
 
-template<typename Type, ndorder order>
-inline std::ostream& operator<<(std::ostream& out, const ndview<Type, 2, order>& arr) {
-    constexpr int precision = 3;
-    const auto n = arr.get_dimension(0), m = arr.get_dimension(1);
-    const auto ord = (order == ndorder::c) ? 'c' : 'f';
-    out << ord << "-order array with shape [nxm]=[" << n << 'x' << m << ']' << std::endl;
-    if constexpr (std::is_floating_point<Type>::value) {
-        out << std::showpos << std::fixed << std::setprecision(precision);
-    }
-    for(std::int64_t j = 0; j < n; ++j) {
-        out << '\t';
-        for(std::int64_t i = 0; i < m; ++i) {
-            out << arr.at(j, i) << '\t';
-        }
-        out << std::endl << std::endl;
-    }
-    if constexpr (std::is_floating_point<Type>::value) {
-        out << std::noshowpos << std::defaultfloat;
-    }
-    return out;
-}
-
 template <typename Float>
 class search_test : public te::float_algo_fixture<Float> {
     using idx_t = ndview<std::int32_t, 2>;
@@ -71,7 +49,7 @@ public:
         m_ = GENERATE(2, 11, 17, 32, 127);
         n_ = GENERATE(3, 10, 17, 32, 127);
         k_ = GENERATE(1, 16, 32, 64, 127);
-        d_ = GENERATE(2, 28, 41, 96);
+        d_ = GENERATE(2, 28, 41, 77);
         generate_data();
     }
 
