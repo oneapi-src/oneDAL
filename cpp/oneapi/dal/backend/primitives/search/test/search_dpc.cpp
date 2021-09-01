@@ -65,14 +65,13 @@ class search_test : public te::float_algo_fixture<Float> {
     using idx_t = ndview<std::int32_t, 2>;
     using dst_t = ndview<Float, 2>;
     using search_t = search_engine<Float, squared_l2_distance<Float>>;
-    //using search_t = search_engine<Float, lp_distance<Float>>;
 
 public:
     void generate() {
-        m_ = GENERATE(/*2, 11, 17, 32,*/ 129);
-        n_ = GENERATE(3/*, 10, 17, 32, 129*/);
-        k_ = GENERATE(/*1, 16, 32,*/ 64/*, 128*/);
-        d_ = GENERATE(2/*, 28, 41, 131*/);
+        m_ = GENERATE(2, 11, 17, 32, 127);
+        n_ = GENERATE(3, 10, 17, 32, 127);
+        k_ = GENERATE(1, 16, 32, 64, 127);
+        d_ = GENERATE(2, 28, 41, 96);
         generate_data();
     }
 
@@ -129,18 +128,12 @@ public:
 
         auto dst_table = distances(train_data, infer_data);
         auto dst_arr = row_accessor<const Float>(dst_table).pull({ 0, n_ });
-        const auto distances = dst_t::wrap(dst_arr.get_data(), { n_, m_ });
-        auto dst_ndarr = distances;
-        //select_indexed(this->get_queue(), ind_ndarr, distances, dst_ndarr).wait_and_throw();
-
-        std::cout << "Idx Gtr: " << ind_ndarr << "Idx Res : " << result_ids << std::endl;
-
-        std::cout << "Dst Gtr: " << dst_ndarr << "Dst Res : " << result_dst << std::endl;
+        const auto dst_ndarr = dst_t::wrap(dst_arr.get_data(), { n_, m_ });
 
         for (std::int64_t j = 0; j < n_; ++j) {
             for (std::int64_t i = 0; i < k_; ++i) {
                 const auto gtr_val = ind_ndarr.at(j, i);
-                const auto gtr_dst = dst_ndarr.at(j, i);
+                const auto gtr_dst = dst_ndarr.at(j, gtr_val);
                 const auto res_val = result_ids.at(j, i);
                 const auto res_dst = result_dst.at(j, i);
                 CAPTURE(i, j, m_, n_, k_, d_, gtr_val, gtr_dst, res_val, res_dst);
