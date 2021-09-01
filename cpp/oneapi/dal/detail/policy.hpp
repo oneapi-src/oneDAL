@@ -29,6 +29,36 @@ namespace v1 {
 class host_policy_impl;
 class data_parallel_policy_impl;
 
+template <typename T>
+struct is_execution_policy : std::bool_constant<false> {};
+
+template <typename T>
+struct is_local_policy : std::bool_constant<false> {};
+
+template <typename T>
+struct is_distributed_policy : std::bool_constant<false> {};
+
+template <typename T>
+struct is_host_policy : std::bool_constant<false> {};
+
+template <typename T>
+struct is_data_parallel_policy : std::bool_constant<false> {};
+
+template <typename T>
+inline constexpr bool is_execution_policy_v = is_execution_policy<T>::value;
+
+template <typename T>
+inline constexpr bool is_local_policy_v = is_local_policy<T>::value;
+
+template <typename T>
+inline constexpr bool is_distributed_policy_v = is_distributed_policy<T>::value;
+
+template <typename T>
+inline constexpr bool is_host_policy_v = is_host_policy<T>::value;
+
+template <typename T>
+inline constexpr bool is_data_parallel_policy_v = is_data_parallel_policy<T>::value;
+
 enum class cpu_extension : uint64_t {
     none = 0U,
     sse2 = 1U << 0,
@@ -63,6 +93,15 @@ private:
     pimpl<host_policy_impl> impl_;
 };
 
+template <>
+struct is_execution_policy<host_policy> : std::bool_constant<true> {};
+
+template <>
+struct is_local_policy<host_policy> : std::bool_constant<true> {};
+
+template <>
+struct is_host_policy<host_policy> : std::bool_constant<true> {};
+
 #ifdef ONEDAL_DATA_PARALLEL
 class ONEDAL_EXPORT data_parallel_policy : public base {
 public:
@@ -83,42 +122,35 @@ private:
 };
 #endif
 
-template <typename T>
-struct is_execution_policy : std::bool_constant<false> {};
-
-template <>
-struct is_execution_policy<host_policy> : std::bool_constant<true> {};
-
 #ifdef ONEDAL_DATA_PARALLEL
 template <>
 struct is_execution_policy<data_parallel_policy> : std::bool_constant<true> {};
 #endif
 
-template <typename T>
-constexpr bool is_execution_policy_v = is_execution_policy<T>::value;
+#ifdef ONEDAL_DATA_PARALLEL
+template <>
+struct is_local_policy<data_parallel_policy> : std::bool_constant<true> {};
+#endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-template <typename T>
-struct is_data_parallel_policy : std::bool_constant<false> {};
-
 template <>
 struct is_data_parallel_policy<data_parallel_policy> : std::bool_constant<true> {};
-
-template <typename T>
-constexpr bool is_data_parallel_policy_v = is_data_parallel_policy<T>::value;
 #endif
 
 } // namespace v1
 
+using v1::is_execution_policy_v;
+using v1::is_local_policy_v;
+using v1::is_distributed_policy_v;
+using v1::is_host_policy_v;
+using v1::is_data_parallel_policy_v;
+
 using v1::cpu_extension;
 using v1::default_host_policy;
 using v1::host_policy;
-using v1::is_execution_policy;
-using v1::is_execution_policy_v;
 
 #ifdef ONEDAL_DATA_PARALLEL
 using v1::data_parallel_policy;
-using v1::is_data_parallel_policy_v;
 #endif
 
 } // namespace oneapi::dal::detail

@@ -163,14 +163,14 @@ public:
     template <typename T = Task,
               typename M = Method,
               typename = detail::enable_if_delta_stepping_single_source_t<T, M>>
-    descriptor(std::int64_t source_vertex,
-               double delta,
-               optional_result_id optional_results = optional_results::distances,
-               Allocator allocator = std::allocator<char>()) {
+    explicit descriptor(std::int64_t source_vertex,
+                        double delta,
+                        optional_result_id optional_results = optional_results::distances,
+                        const Allocator& allocator = std::allocator<char>()) {
         base_t::set_source(source_vertex);
         base_t::set_delta(delta);
         base_t::set_optional_results(optional_results);
-        _alloc = allocator;
+        alloc_ = allocator;
     }
 
     template <typename T = Task, typename = detail::enable_if_single_source_t<T>>
@@ -205,11 +205,11 @@ public:
     }
 
     Allocator get_allocator() const {
-        return _alloc;
+        return alloc_;
     }
 
 private:
-    Allocator _alloc;
+    Allocator alloc_;
 };
 
 namespace detail {

@@ -16,9 +16,10 @@
 
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h>
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
-#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
+
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -31,7 +32,6 @@ using dal::backend::context_cpu;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
 namespace daal_classifier = daal::algorithms::classifier;
-
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
@@ -48,7 +48,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto arr_responses = array<Float>{};
     auto arr_indices = array<std::int64_t>{};
-    auto arr_distance = array<Float>{};
+    auto arr_distances = array<Float>{};
 
     auto daal_responses = daal::data_management::NumericTablePtr();
     auto daal_indices = daal::data_management::NumericTablePtr();
@@ -65,22 +65,28 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto daal_voting_mode = convert_to_daal_kdtree_voting_mode(desc.get_voting_mode());
     daal_parameter.voteWeights = daal_voting_mode;
 
-    if constexpr (std::is_same_v<Task, task::search>) {
+    if (desc.get_result_options().test(result_options::responses)) {
+        arr_responses.reset(1 * row_count);
+        daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
+    }
+    else {
         daal_parameter.resultsToEvaluate = daal_classifier::none;
-        daal_parameter.resultsToCompute =
-            daal_knn::computeDistances | daal_knn::computeIndicesOfNeighbors;
+    }
 
+    if (desc.get_result_options().test(result_options::indices)) {
+        dal::detail::check_mul_overflow(neighbor_count, row_count);
+        daal_parameter.resultsToCompute |= daal_knn::computeIndicesOfNeighbors;
         arr_indices.reset(neighbor_count * row_count);
         daal_indices =
             interop::convert_to_daal_homogen_table(arr_indices, row_count, neighbor_count);
-
-        arr_distance.reset(neighbor_count * row_count);
-        daal_distance =
-            interop::convert_to_daal_homogen_table(arr_distance, row_count, neighbor_count);
     }
-    else {
-        arr_responses.reset(1 * row_count);
-        daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
+
+    if (desc.get_result_options().test(result_options::distances)) {
+        dal::detail::check_mul_overflow(neighbor_count, row_count);
+        daal_parameter.resultsToCompute |= daal_knn::computeDistances;
+        arr_distances.reset(neighbor_count * row_count);
+        daal_distance =
+            interop::convert_to_daal_homogen_table(arr_distances, row_count, neighbor_count);
     }
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
@@ -96,19 +102,21 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal_distance.get(),
         &daal_parameter));
 
-    auto result = infer_result<Task>{};
-    if constexpr (std::is_same_v<Task, task::search>) {
-        result = result
-                     .set_indices(dal::detail::homogen_table_builder{}
-                                      .reset(arr_indices, row_count, neighbor_count)
-                                      .build())
-                     .set_distances(dal::detail::homogen_table_builder{}
-                                        .reset(arr_distance, row_count, neighbor_count)
-                                        .build());
+    auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
+
+    if (desc.get_result_options().test(result_options::responses)) {
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            result = result.set_responses(homogen_table::wrap(arr_responses, row_count, 1));
+        }
     }
-    else {
-        result = result.set_responses(
-            dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
+
+    if (desc.get_result_options().test(result_options::indices)) {
+        result = result.set_indices(homogen_table::wrap(arr_indices, row_count, neighbor_count));
+    }
+
+    if (desc.get_result_options().test(result_options::distances)) {
+        result =
+            result.set_distances(homogen_table::wrap(arr_distances, row_count, neighbor_count));
     }
 
     return result;
