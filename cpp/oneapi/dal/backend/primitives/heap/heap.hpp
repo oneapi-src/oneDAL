@@ -23,30 +23,30 @@ namespace oneapi::dal::backend::primitives {
 namespace detail {
 
 struct compare {
-    template<typename Type>
-    bool operator() (const Type& lhs, const Type& rhs) const {
+    template <typename Type>
+    bool operator()(const Type& lhs, const Type& rhs) const {
         return lhs < rhs;
     }
 };
 
-template<typename Index>
+template <typename Index>
 constexpr inline Index left_child(Index idx) {
     return 2 * idx + 1;
 }
 
-template<typename Index>
+template <typename Index>
 constexpr inline Index right_child(Index idx) {
     return 2 * idx + 2;
 }
 
-template<typename Index>
+template <typename Index>
 constexpr inline Index parent(Index idx) {
     return (idx - 1) / 2;
 }
 
-template<typename RandomIterator, typename Difference, typename Compare>
+template <typename RandomIterator, typename Difference, typename Compare>
 inline void adjust(RandomIterator first, Difference count, Difference i, Compare compare) {
-    for(auto largest = i; ; i = largest) {
+    for (auto largest = i;; i = largest) {
         const auto left = left_child(i);
         const bool use_left = (left < count) && compare(*(first + largest), *(first + left));
         largest = use_left ? left : largest;
@@ -62,47 +62,47 @@ inline void adjust(RandomIterator first, Difference count, Difference i, Compare
     }
 }
 
-template<typename RandomIterator, typename Compare>
+template <typename RandomIterator, typename Compare>
 inline void pop_heap_impl(RandomIterator first, RandomIterator last, Compare compare) {
-    if((last - first) > 1) {
+    if ((last - first) > 1) {
         --last;
         std::iter_swap(first, last);
         adjust(first, last - first, first - first, compare);
     }
 }
 
-template<typename RandomIterator, typename Compare>
+template <typename RandomIterator, typename Compare>
 inline void make_heap_impl(RandomIterator first, RandomIterator last, Compare compare) {
     const auto count = last - first;
-    for(auto i = count / 2; i > 0; --i) {
+    for (auto i = count / 2; i > 0; --i) {
         adjust(first, count, i - 1, compare);
     }
 }
 
-template<typename RandomIterator, typename Compare>
+template <typename RandomIterator, typename Compare>
 inline void sort_heap_impl(RandomIterator first, RandomIterator last, Compare compare) {
     while (last > first) {
         pop_heap_impl(first, last--, compare);
     }
 }
 
-template<typename T, typename RandomIterator, typename Difference, typename Compare>
+template <typename T, typename RandomIterator, typename Difference, typename Compare>
 inline void push_heap_impl(T value, RandomIterator first, Difference idx, Compare compare) {
-    for(auto par = parent(idx); (idx > 0) && compare(*(first + par), value); par = parent(idx)) {
+    for (auto par = parent(idx); (idx > 0) && compare(*(first + par), value); par = parent(idx)) {
         *(first + idx) = std::move(*(first + par));
         idx = par;
     }
     *(first + idx) = std::move(value);
 }
 
-template<typename RandomIterator, typename Compare>
+template <typename RandomIterator, typename Compare>
 inline void push_heap_impl(RandomIterator first, RandomIterator last, Compare compare) {
     push_heap_impl(std::move(*(last - 1)), first, last - first - 1, compare);
 }
 
 } // namespace detail
 
-template<typename RandomIterator, typename Compare = detail::compare>
+template <typename RandomIterator, typename Compare = detail::compare>
 inline void pop_heap(RandomIterator first, RandomIterator last, Compare compare = Compare{}) {
 #ifdef __SYCL_DEVICE_ONLY__
     detail::pop_heap_impl<RandomIterator, Compare>(first, last, compare);
@@ -111,7 +111,7 @@ inline void pop_heap(RandomIterator first, RandomIterator last, Compare compare 
 #endif
 }
 
-template<typename RandomIterator, typename Compare = detail::compare>
+template <typename RandomIterator, typename Compare = detail::compare>
 inline void make_heap(RandomIterator first, RandomIterator last, Compare compare = Compare{}) {
 #ifdef __SYCL_DEVICE_ONLY__
     detail::make_heap_impl<RandomIterator, Compare>(first, last, compare);
@@ -120,7 +120,7 @@ inline void make_heap(RandomIterator first, RandomIterator last, Compare compare
 #endif
 }
 
-template<typename RandomIterator, typename Compare = detail::compare>
+template <typename RandomIterator, typename Compare = detail::compare>
 inline void sort_heap(RandomIterator first, RandomIterator last, Compare compare = Compare{}) {
 #ifdef __SYCL_DEVICE_ONLY__
     detail::sort_heap_impl<RandomIterator, Compare>(first, last, compare);
@@ -129,7 +129,7 @@ inline void sort_heap(RandomIterator first, RandomIterator last, Compare compare
 #endif
 }
 
-template<typename RandomIterator, typename Compare = detail::compare>
+template <typename RandomIterator, typename Compare = detail::compare>
 inline void push_heap(RandomIterator first, RandomIterator last, Compare compare = Compare{}) {
 #ifdef __SYCL_DEVICE_ONLY__
     detail::push_heap_impl<RandomIterator, Compare>(first, last, compare);
@@ -138,8 +138,11 @@ inline void push_heap(RandomIterator first, RandomIterator last, Compare compare
 #endif
 }
 
-template<typename T, typename RandomIterator, typename Compare = detail::compare>
-inline void replace_first(T value, RandomIterator first, RandomIterator last, Compare compare = Compare{}) {
+template <typename T, typename RandomIterator, typename Compare = detail::compare>
+inline void replace_first(T value,
+                          RandomIterator first,
+                          RandomIterator last,
+                          Compare compare = Compare{}) {
     pop_heap(first, last, compare);
     *(last - 1) = std::move(value);
     push_heap(first, last, compare);

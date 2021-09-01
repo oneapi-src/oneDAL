@@ -21,14 +21,15 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename Float, typename Index>
+template <typename Float, typename Index>
 struct selection_pair {
     Float dst;
     Index idx;
 };
 
-template<typename Float, typename Index>
-inline bool operator< (const selection_pair<Float, Index>& lhs, const selection_pair<Float, Index>& rhs) {
+template <typename Float, typename Index>
+inline bool operator<(const selection_pair<Float, Index>& lhs,
+                      const selection_pair<Float, Index>& rhs) {
     return lhs.dst < rhs.dst;
 }
 
@@ -56,20 +57,20 @@ std::int64_t get_heap_max_k(const sycl::queue& q) {
     return max_elems / sel_size_v - 1;
 }
 
-template<typename Float, bool dst_out, bool ids_out>
+template <typename Float, bool dst_out, bool ids_out>
 class kernel_select_heap_base {
     static_assert(dst_out || ids_out);
 };
 
-template<typename Float>
+template <typename Float>
 class kernel_select_heap_base<Float, true, false> {
     using dst_t = Float;
 
 public:
     kernel_select_heap_base() = default;
-    kernel_select_heap_base(std::int32_t ids_str,
-                            dst_t* const ids_ptr)
-        : dst_str_(ids_str), dst_ptr_(ids_ptr) {}
+    kernel_select_heap_base(std::int32_t ids_str, dst_t* const ids_ptr)
+            : dst_str_(ids_str),
+              dst_ptr_(ids_ptr) {}
 
     const auto& get_selection_stride() const {
         return dst_str_;
@@ -84,15 +85,15 @@ private:
     dst_t* dst_ptr_;
 };
 
-template<typename Float>
+template <typename Float>
 class kernel_select_heap_base<Float, false, true> {
     using idx_t = std::int32_t;
 
 public:
     kernel_select_heap_base() = default;
-    kernel_select_heap_base(std::int32_t ids_str,
-                            idx_t* const ids_ptr)
-        : ids_str_(ids_str), ids_ptr_(ids_ptr) {}
+    kernel_select_heap_base(std::int32_t ids_str, idx_t* const ids_ptr)
+            : ids_str_(ids_str),
+              ids_ptr_(ids_ptr) {}
 
     const auto& get_indices_stride() const {
         return ids_str_;
@@ -107,7 +108,7 @@ private:
     idx_t* ids_ptr_;
 };
 
-template<typename Float>
+template <typename Float>
 class kernel_select_heap_base<Float, true, true>
         : public kernel_select_heap_base<Float, true, false>,
           public kernel_select_heap_base<Float, false, true> {
@@ -123,11 +124,11 @@ public:
                             std::int32_t dst_str,
                             idx_t* const ids_ptr,
                             dst_t* const dst_ptr)
-        : base_dst_t(dst_str, dst_ptr),
-          base_ids_t(ids_str, ids_ptr) {}
+            : base_dst_t(dst_str, dst_ptr),
+              base_ids_t(ids_str, ids_ptr) {}
 };
 
-template<typename Float, bool dst_out, bool ids_out, int sg_size>
+template <typename Float, bool dst_out, bool ids_out, int sg_size>
 class kernel_select_heap : public kernel_select_heap_base<Float, dst_out, ids_out> {
     using dst_t = Float;
     using idx_t = std::int32_t;
@@ -147,7 +148,7 @@ class kernel_select_heap : public kernel_select_heap_base<Float, dst_out, ids_ou
 public:
     kernel_select_heap() = default;
 
-    template<bool ids_only = (ids_out && !dst_out), typename = std::enable_if_t<ids_only>>
+    template <bool ids_only = (ids_out && !dst_out), typename = std::enable_if_t<ids_only>>
     kernel_select_heap(const dst_t* const src_ptr,
                        idx_t* const ids_ptr,
                        std::int32_t k,
@@ -156,15 +157,15 @@ public:
                        std::int32_t src_str,
                        std::int32_t ids_str,
                        acc_t heaps)
-        : base_t(ids_str, ids_ptr),
-          src_str_(src_str),
-          src_ptr_(src_ptr),
-          k_(k),
-          width_(width),
-          height_(height),
-          heaps_(heaps) {}
+            : base_t(ids_str, ids_ptr),
+              src_str_(src_str),
+              src_ptr_(src_ptr),
+              k_(k),
+              width_(width),
+              height_(height),
+              heaps_(heaps) {}
 
-    template<bool dst_only = (dst_out && !ids_out), typename = std::enable_if_t<dst_only>>
+    template <bool dst_only = (dst_out && !ids_out), typename = std::enable_if_t<dst_only>>
     kernel_select_heap(const dst_t* const src_ptr,
                        dst_t* const dst_ptr,
                        std::int32_t k,
@@ -173,15 +174,15 @@ public:
                        std::int32_t src_str,
                        std::int32_t dst_str,
                        acc_t heaps)
-        : base_t(dst_str, dst_ptr),
-          src_str_(src_str),
-          src_ptr_(src_ptr),
-          k_(k),
-          width_(width),
-          height_(height),
-          heaps_(heaps) {}
+            : base_t(dst_str, dst_ptr),
+              src_str_(src_str),
+              src_ptr_(src_ptr),
+              k_(k),
+              width_(width),
+              height_(height),
+              heaps_(heaps) {}
 
-    template<bool both = (ids_out && dst_out), typename = std::enable_if_t<both>>
+    template <bool both = (ids_out && dst_out), typename = std::enable_if_t<both>>
     kernel_select_heap(const dst_t* const src_ptr,
                        idx_t* const ids_ptr,
                        dst_t* const dst_ptr,
@@ -192,15 +193,15 @@ public:
                        std::int32_t ids_str,
                        std::int32_t dst_str,
                        acc_t heaps)
-        : base_t(ids_str, dst_str, ids_ptr, dst_ptr),
-          src_str_(src_str),
-          src_ptr_(src_ptr),
-          k_(k),
-          width_(width),
-          height_(height),
-          heaps_(heaps) {}
+            : base_t(ids_str, dst_str, ids_ptr, dst_ptr),
+              src_str_(src_str),
+              src_ptr_(src_ptr),
+              k_(k),
+              width_(width),
+              height_(height),
+              heaps_(heaps) {}
 
-    void operator() (sycl::nd_item<1> item) const {
+    void operator()(sycl::nd_item<1> item) const {
         using sycl::ONEAPI::reduce;
 
         auto sg = item.get_sub_group();
@@ -210,20 +211,19 @@ public:
         const std::int32_t rid = sid + item.get_group_linear_id();
         const std::int32_t sg_width = sg.get_group_range().size();
 
-        if((rid >= height_) || (cid >= sg_width))
+        if ((rid >= height_) || (cid >= sg_width))
             return;
 
         dst_t pbuff_dst[pbuff_size] = { dst_default };
         idx_t pbuff_ids[pbuff_size] = { idx_default };
         std::int32_t pbuff_count, prev_count;
 
-
         sel_t* const heaps = heaps_.get_pointer();
         sel_t* const curr_heap = heaps + (k_ + 1) * sid;
         sel_t* const curr_heap_end = curr_heap + (k_ + 1);
 
         // Heap initialization
-        for(std::int32_t i = cid; i <= k_; i += sg_width) {
+        for (std::int32_t i = cid; i <= k_; i += sg_width) {
             auto& values = curr_heap[i];
             values.idx = idx_default;
             values.dst = dst_default;
@@ -234,14 +234,14 @@ public:
         dst_t worst_val = dst_default;
         const auto step = sg_width * pbuff_size;
         const auto* const row = src_ptr_ + rid * src_str_;
-        for(std::int32_t i = 0; i < width_; i += step) {
+        for (std::int32_t i = 0; i < width_; i += step) {
             const std::int32_t block_start_col = cid + i;
 
             pbuff_count = 0, prev_count = 0;
             worst_val = curr_heap->dst;
 
             // Collecting temporary best values in private memory
-            for(std::int32_t j = 0; (j < pbuff_size); ++j) {
+            for (std::int32_t j = 0; (j < pbuff_size); ++j) {
                 const idx_t idx = block_start_col + sg_width * j;
                 const bool handle = idx < width_;
                 const dst_t val = handle ? *(row + idx) : dst_default;
@@ -258,12 +258,13 @@ public:
                 handle_this = pbuff_count ? cid : -1;
                 k_written = reduce(sg, k_written, max_func);
                 cid_to_handle = reduce(sg, handle_this, max_func);
-                if(cid_to_handle == cid) {
-                    for(std::int32_t i = 0; i < pbuff_count; ++i, ++k_written) {
+                if (cid_to_handle == cid) {
+                    for (std::int32_t i = 0; i < pbuff_count; ++i, ++k_written) {
                         sel_t result{ pbuff_dst[i], pbuff_ids[i] };
                         if (k_written > k_) {
                             replace_first(std::move(result), curr_heap, curr_heap + k_);
-                        } else {
+                        }
+                        else {
                             *(curr_heap + k_written) = std::move(result);
                             push_heap(curr_heap, curr_heap + k_written);
                         }
@@ -276,20 +277,21 @@ public:
 
         // Sorting heap before writing out
         // TODO: Think out if it can be performed in parallel
-        if(cid == 0) {
+        if (cid == 0) {
             make_heap(curr_heap, curr_heap_end);
             sort_heap(curr_heap, curr_heap_end);
         }
         sg.barrier();
 
         // Writing output from heap
-        for(std::int32_t i = cid; i < k_; i += sg_width) {
+        for (std::int32_t i = cid; i < k_; i += sg_width) {
             const auto& values = curr_heap[i];
             if constexpr (ids_out) {
                 *(this->get_indices_pointer() + this->get_indices_stride() * rid + i) = values.idx;
             }
             if constexpr (dst_out) {
-                *(this->get_selection_pointer() + this->get_selection_stride() * rid + i) = values.dst;
+                *(this->get_selection_pointer() + this->get_selection_stride() * rid + i) =
+                    values.dst;
             }
         }
     }
@@ -312,7 +314,6 @@ sycl::event select(sycl::queue& queue,
                    ndview<Float, 2>& selection,
                    ndview<std::int32_t, 2>& indices,
                    const event_vector& deps) {
-
     using kernel_t = kernel_select_heap<Float, dst_out, ids_out, sg_size>;
     using sel_t = selection_pair<Float, std::int32_t>;
     using acc_t =
@@ -320,6 +321,8 @@ sycl::event select(sycl::queue& queue,
 
     const auto pref_sbg = get_preferred_sub_group(queue);
     if (pref_sbg == sg_size) {
+        ONEDAL_ASSERT(get_heap_min_k<Float>(queue) < k);
+        ONEDAL_ASSERT(k < get_heap_max_k<Float>(queue));
         const auto width = data.get_dimension(1);
         const auto height = data.get_dimension(0);
         ONEDAL_ASSERT(!ids_out || indices.get_dimension(1) == k);
@@ -333,45 +336,50 @@ sycl::event select(sycl::queue& queue,
         const auto wkg_bound = max_wkg / pref_sbg;
         const auto wg_size = std::min<std::int64_t>(mem_bound, wkg_bound);
         const auto block_count = height / wg_size + bool(height % wg_size);
-        const auto ndrange = make_multiple_nd_range_1d(
-            {block_count * wg_size * pref_sbg}, {wg_size * pref_sbg});
+        const auto ndrange =
+            make_multiple_nd_range_1d({ block_count * wg_size * pref_sbg }, { wg_size * pref_sbg });
         return queue.submit([&](sycl::handler& h) {
             h.depends_on(deps);
             acc_t heaps(make_range_1d(wg_size * (k + 1)), h);
             if constexpr (dst_out && !ids_out) {
-                h.parallel_for(ndrange, kernel_t(
-                    data.get_data(),
-                    selection.get_mutable_data(),
-                    dal::detail::integral_cast<std::int32_t>(k),
-                    dal::detail::integral_cast<std::int32_t>(width),
-                    dal::detail::integral_cast<std::int32_t>(height),
-                    dal::detail::integral_cast<std::int32_t>(data.get_leading_stride()),
-                    dal::detail::integral_cast<std::int32_t>(selection.get_leading_stride()),
-                    heaps));
+                h.parallel_for(
+                    ndrange,
+                    kernel_t(
+                        data.get_data(),
+                        selection.get_mutable_data(),
+                        dal::detail::integral_cast<std::int32_t>(k),
+                        dal::detail::integral_cast<std::int32_t>(width),
+                        dal::detail::integral_cast<std::int32_t>(height),
+                        dal::detail::integral_cast<std::int32_t>(data.get_leading_stride()),
+                        dal::detail::integral_cast<std::int32_t>(selection.get_leading_stride()),
+                        heaps));
             }
             if constexpr (ids_out && !dst_out) {
-                h.parallel_for(ndrange, kernel_t(
-                    data.get_data(),
-                    indices.get_mutable_data(),
-                    dal::detail::integral_cast<std::int32_t>(k),
-                    dal::detail::integral_cast<std::int32_t>(width),
-                    dal::detail::integral_cast<std::int32_t>(height),
-                    dal::detail::integral_cast<std::int32_t>(data.get_leading_stride()),
-                    dal::detail::integral_cast<std::int32_t>(indices.get_leading_stride()),
-                    heaps));
+                h.parallel_for(
+                    ndrange,
+                    kernel_t(data.get_data(),
+                             indices.get_mutable_data(),
+                             dal::detail::integral_cast<std::int32_t>(k),
+                             dal::detail::integral_cast<std::int32_t>(width),
+                             dal::detail::integral_cast<std::int32_t>(height),
+                             dal::detail::integral_cast<std::int32_t>(data.get_leading_stride()),
+                             dal::detail::integral_cast<std::int32_t>(indices.get_leading_stride()),
+                             heaps));
             }
             if constexpr (ids_out && dst_out) {
-                h.parallel_for(ndrange, kernel_t(
-                    data.get_data(),
-                    indices.get_mutable_data(),
-                    selection.get_mutable_data(),
-                    dal::detail::integral_cast<std::int32_t>(k),
-                    dal::detail::integral_cast<std::int32_t>(width),
-                    dal::detail::integral_cast<std::int32_t>(height),
-                    dal::detail::integral_cast<std::int32_t>(data.get_leading_stride()),
-                    dal::detail::integral_cast<std::int32_t>(indices.get_leading_stride()),
-                    dal::detail::integral_cast<std::int32_t>(selection.get_leading_stride()),
-                    heaps));
+                h.parallel_for(
+                    ndrange,
+                    kernel_t(
+                        data.get_data(),
+                        indices.get_mutable_data(),
+                        selection.get_mutable_data(),
+                        dal::detail::integral_cast<std::int32_t>(k),
+                        dal::detail::integral_cast<std::int32_t>(width),
+                        dal::detail::integral_cast<std::int32_t>(height),
+                        dal::detail::integral_cast<std::int32_t>(data.get_leading_stride()),
+                        dal::detail::integral_cast<std::int32_t>(indices.get_leading_stride()),
+                        dal::detail::integral_cast<std::int32_t>(selection.get_leading_stride()),
+                        heaps));
             }
         });
     }
@@ -398,7 +406,6 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     ndview<Float, 2>& selection,
                                                     ndview<std::int32_t, 2>& indices,
                                                     const event_vector& deps) {
-    //std::cout << "Both" << std::endl;
     return select<Float, true, true>(queue, data, k, selection, indices, deps);
 }
 
@@ -408,7 +415,6 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     std::int64_t k,
                                                     ndview<std::int32_t, 2>& indices,
                                                     const event_vector& deps) {
-    //std::cout << "Indices" << std::endl;
     ndarray<Float, 2> dummy;
     return select<Float, false, true>(queue, data, k, dummy, indices, deps);
 }
@@ -419,15 +425,14 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     std::int64_t k,
                                                     ndview<Float, 2>& selection,
                                                     const event_vector& deps) {
-    //std::cout << "Distances" << std::endl;
     ndarray<std::int32_t, 2> dummy;
     return select<Float, true, false>(queue, data, k, selection, dummy, deps);
 }
 
-#define INSTANTIATE_FLOAT(F)                                \
-template class kselect_by_rows_heap<F>;                     \
-template std::int64_t get_heap_max_k<F>(const sycl::queue&);\
-template std::int64_t get_heap_min_k<F>(const sycl::queue&);
+#define INSTANTIATE_FLOAT(F)                                     \
+    template class kselect_by_rows_heap<F>;                      \
+    template std::int64_t get_heap_max_k<F>(const sycl::queue&); \
+    template std::int64_t get_heap_min_k<F>(const sycl::queue&);
 
 INSTANTIATE_FLOAT(float);
 INSTANTIATE_FLOAT(double);

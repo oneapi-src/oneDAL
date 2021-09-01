@@ -89,7 +89,7 @@ TEMPLATE_LIST_TEST_M(selection_test,
                      selection_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
-    std::int64_t k = GENERATE_COPY(64);
+    std::int64_t k = GENERATE_COPY(32, 64);
     std::int64_t row_count = GENERATE_COPY(1024);
     std::int64_t col_count = GENERATE_COPY(64 * 1024);
     auto [data, selection, indices] = this->allocate_matrices(k, row_count, col_count);
@@ -103,7 +103,7 @@ TEMPLATE_LIST_TEST_M(selection_test,
                      selection_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
-    std::int64_t k = GENERATE(16);
+    std::int64_t k = GENERATE(8, 16);
     std::int64_t row_count = GENERATE(1024);
     std::int64_t col_count = GENERATE(16 * 1024);
     auto [data, selection, indices] = this->allocate_matrices(k, row_count, col_count);

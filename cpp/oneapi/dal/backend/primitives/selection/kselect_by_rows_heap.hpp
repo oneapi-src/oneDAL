@@ -63,7 +63,6 @@ public:
                            std::int64_t k,
                            ndview<std::int32_t, 2>& indices,
                            const event_vector& deps) override;
-
 };
 #endif
 

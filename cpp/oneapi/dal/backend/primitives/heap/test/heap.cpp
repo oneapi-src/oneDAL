@@ -32,8 +32,7 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using heap_types = std::tuple<std::tuple<float, std::int32_t>,
-                              std::tuple<double, std::int64_t>>;
+using heap_types = std::tuple<std::tuple<float, std::int32_t>, std::tuple<double, std::int64_t>>;
 
 template <typename Param>
 class heap_test_random : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
@@ -73,7 +72,7 @@ public:
 
     auto indices() const {
         auto res = ndarray<index_t, 1>::empty(width_);
-        for(index_t i = 0; i < width_; ++i)
+        for (index_t i = 0; i < width_; ++i)
             *(res.get_mutable_data() + i) = i;
         return res;
     }
@@ -108,7 +107,7 @@ public:
         const auto res = make_heap_res_to_test();
         const auto gtr = make_heap_groundtruth();
 
-        for(std::int32_t i = 0; i < width_; ++i) {
+        for (std::int32_t i = 0; i < width_; ++i) {
             const auto r = *(res.get_data() + i);
             const auto g = *(gtr.get_data() + i);
             CAPTURE(width_, i, r, g);
@@ -146,7 +145,7 @@ public:
         auto res = sort_heap_res_to_test();
         auto gtr = sort_heap_groundtruth();
 
-        for(std::int32_t i = 0; i < width_; ++i) {
+        for (std::int32_t i = 0; i < width_; ++i) {
             const auto r = *(res.get_data() + i);
             const auto g = *(gtr.get_data() + i);
             CAPTURE(width_, i, r, g);
@@ -161,7 +160,7 @@ public:
             return *(inp.get_data() + left) < *(inp.get_data() + right);
         };
         auto* from = res.get_mutable_data();
-        for(std::int32_t i = 1; i < width_; ++i) {
+        for (std::int32_t i = 1; i < width_; ++i) {
             std::push_heap(from, from + i, comp);
         }
         return res;
@@ -174,7 +173,7 @@ public:
             return *(inp.get_data() + left) < *(inp.get_data() + right);
         };
         auto* from = res.get_mutable_data();
-        for(std::int32_t i = 1; i < width_; ++i) {
+        for (std::int32_t i = 1; i < width_; ++i) {
             detail::push_heap_impl(from, from + i, comp);
         }
         return res;
@@ -186,14 +185,13 @@ public:
         const auto res = push_heap_res_to_test();
         const auto gtr = push_heap_groundtruth();
 
-        for(std::int32_t i = 0; i < width_; ++i) {
+        for (std::int32_t i = 0; i < width_; ++i) {
             const auto r = *(res.get_data() + i);
             const auto g = *(gtr.get_data() + i);
             CAPTURE(width_, i, r, g);
             REQUIRE(r == g);
         }
     }
-
 
 private:
     std::int32_t width_;

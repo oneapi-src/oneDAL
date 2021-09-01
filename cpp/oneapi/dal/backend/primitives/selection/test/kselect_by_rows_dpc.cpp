@@ -92,15 +92,6 @@ public:
                                                                    i,
                                                                    j,
                                                                    cur_val);
-                //std::cout << i << ' ' << j;
-                //if constexpr (selection_out) {
-                //    std::cout << ' ' << selection.at(i, j);
-                //}
-                //if constexpr (indices_out) {
-                //    std::cout << ' ' << indices.at(i, j);
-                //}
-                //std::cout << std::endl;
-
                 if (max_val < cur_val)
                     max_val = cur_val;
             }

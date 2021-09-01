@@ -514,7 +514,9 @@ public:
 
     static ndarray empty(const shape_t& shape) {
         T* ptr = dal::detail::malloc<T>(dal::detail::default_host_policy{}, shape.get_count());
-        return wrap(ptr, shape, dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
+        return wrap(ptr,
+                    shape,
+                    dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
     }
 
     static ndarray copy(const T* data, const shape_t& shape) {
