@@ -52,7 +52,7 @@ inline std::ostream& operator<<(std::ostream& out, const ndview<Type, 2, order>&
         for(std::int64_t i = 0; i < m; ++i) {
             out << arr.at(j, i) << '\t';
         }
-        out << std::endl;
+        out << std::endl << std::endl;
     }
     if constexpr (std::is_floating_point<Type>::value) {
         out << std::noshowpos << std::defaultfloat;
@@ -161,7 +161,6 @@ public:
 
             const search_t engine(this->get_queue(), train, tblock);
             copy_callback<Float, true, true> callbk(this->get_queue(), qblock, indices, distances);
-
 
             engine(query, callbk, qblock, k_).wait_and_throw();
 

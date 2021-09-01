@@ -241,7 +241,7 @@ public:
             worst_val = curr_heap->dst;
 
             // Collecting temporary best values in private memory
-            for (std::int32_t j = 0; (j < pbuff_size); ++j) {
+            for (std::int32_t j = 0; j < pbuff_size; ++j) {
                 const idx_t idx = block_start_col + sg_width * j;
                 const bool handle = idx < width_;
                 const dst_t val = handle ? *(row + idx) : dst_default;
@@ -259,7 +259,7 @@ public:
                 k_written = reduce(sg, k_written, max_func);
                 cid_to_handle = reduce(sg, handle_this, max_func);
                 if (cid_to_handle == cid) {
-                    for (std::int32_t i = 0; i < pbuff_count; ++i, ++k_written) {
+                    for (std::int32_t i = 0; i < pbuff_count; ++i) {
                         worst_val = curr_heap->dst;
                         const auto curr_val = pbuff_dst[i];
                         const bool handle = curr_val < worst_val;
@@ -267,7 +267,7 @@ public:
                         if (handle) {
                             if (k_ > k_written) {
                                 *(curr_heap + k_written) = std::move(result);
-                                push_heap(curr_heap, curr_heap + k_written);
+                                push_heap(curr_heap, curr_heap + k_written + 1);
                             }
                             else {
                                 replace_first(std::move(result), curr_heap, curr_heap + k_);
@@ -284,7 +284,7 @@ public:
         // Sorting heap before writing out
         // TODO: Think out if it can be performed in parallel
         if (cid == 0) {
-            make_heap(curr_heap, curr_heap_end);
+            //make_heap(curr_heap, curr_heap_end);
             sort_heap(curr_heap, curr_heap_end);
         }
         sg.barrier();
