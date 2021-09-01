@@ -161,13 +161,13 @@ private:
         std::int32_t ind = is_used ? indices[offset] : undefined_index;
         std::int32_t pos = undefined_index;
         for (std::int32_t step = 0; step < remainder; step++) {
-            Float min_val = reduce(sg, val, sycl::ONEAPI::minimum<Float>());
+            Float min_val = reduce(sg, pos < 0 ? val : max_float, sycl::ONEAPI::minimum<Float>());
             bool is_mine = min_val == val && pos == undefined_index;
             std::int32_t min_id =
                 reduce(sg, is_mine ? local_id : local_size, sycl::ONEAPI::minimum<std::int32_t>());
             pos = min_id == local_id ? step : pos;
         }
-        if (pos > -1) {
+        if (pos > undefined_index) {
             values[partition_start + pos] = val;
             indices[partition_start + pos] = ind;
         }
@@ -216,7 +216,7 @@ private:
             std::int32_t pos = (std::int32_t)(rnd * (partition_end - partition_start - 1));
             pos = pos < 0 ? 0 : pos;
             const Float pivot = values[partition_start + pos];
-            auto partition_size = partition_end - partition_start - 1;
+            auto partition_size = partition_end - partition_start;
             if (partition_size > local_size) {
                 std::int32_t split_index = row_partitioning_kernel(item,
                                                                    values,
