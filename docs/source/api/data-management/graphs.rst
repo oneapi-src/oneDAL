@@ -58,9 +58,9 @@ The :txtref:`graph` types are defined as templated classes:
 
 .. code-block:: cpp
 
-  template <typename VertexValueType,
-            typename EdgeValueType,
-            typename GraphValueType,
+  template <typename VertexValue,
+            typename EdgeValue,
+            typename GraphValue,
             typename IndexType,
             typename Allocator>
   class [graph_name]_graph;
@@ -75,13 +75,13 @@ The :txtref:`graph` types are defined as templated classes:
    * - Type name
      - Description
      - Supported types
-   * - ``VertexValueType``
+   * - ``VertexValue``
      - Type of the vertex :capterm:`attribute <Attribute>` values
      - :ref:`Empty value <api_empty_value>`
-   * - ``EdgeValueType``
+   * - ``EdgeValue``
      - Type of the edge :capterm:`attribute <Attribute>` values
      - ``std::int32``, ``double``, :ref:`Empty value <api_empty_value>`  
-   * - ``GraphValueType``
+   * - ``GraphValue``
      - Type of the graph :capterm:`attribute <Attribute>` value
      - :ref:`Empty value <api_empty_value>`  
    * - ``IndexType``
@@ -153,20 +153,20 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
      - :ref:`Directed Adjacency Vector Graph <api_directed_adjacency_vector_graph>`
    * - ``graph_type``
      - Type of the graph ``G``
-     - ``undirected_adjacency_vector_graph<VertexValueType, EdgeValueType, GraphValueType, IndexType, Allocator>``
-     - ``directed_adjacency_vector_graph<VertexValueType, EdgeValueType, GraphValueType, IndexType, Allocator>``
+     - ``undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>``
+     - ``directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>``
    * - ``allocator_type``
      - Type of the allocator of the graph ``G``
      - ``Allocator`` :ref:`[1] <GraphTemplateTypes>`
      - ``Allocator`` :ref:`[1] <GraphTemplateTypes>`
    * - ``graph_user_value_type``
      - Type of the :capterm:`attribute` of the graph ``G``
-     - ``GraphValueType`` :ref:`[1] <GraphTemplateTypes>`
-     - ``GraphValueType`` :ref:`[1] <GraphTemplateTypes>`
+     - ``GraphValue`` :ref:`[1] <GraphTemplateTypes>`
+     - ``GraphValue`` :ref:`[1] <GraphTemplateTypes>`
    * - ``const_graph_user_value_type``
      - Constant type of the :capterm:`attribute` of the graph ``G``
-     - ``const GraphValueType`` :ref:`[1] <GraphTemplateTypes>`
-     - ``const GraphValueType`` :ref:`[1] <GraphTemplateTypes>`
+     - ``const GraphValue`` :ref:`[1] <GraphTemplateTypes>`
+     - ``const GraphValue`` :ref:`[1] <GraphTemplateTypes>`
    * - ``vertex_type``
      - Type of the vertices in the graph ``G``
      - ``IndexType`` :ref:`[1] <GraphTemplateTypes>`
@@ -185,8 +185,8 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
      - ``std::int64_t``
    * - ``vertex_user_value_type``
      - Type of the vertex :capterm:`attribute <Attribute>` of the graph ``G``
-     - ``VertexValueType`` :ref:`[1] <GraphTemplateTypes>`
-     - ``VertexValueType`` :ref:`[1] <GraphTemplateTypes>`
+     - ``VertexValue`` :ref:`[1] <GraphTemplateTypes>`
+     - ``VertexValue`` :ref:`[1] <GraphTemplateTypes>`
    * - ``edge_type``
      - Type of edges in the graph ``G``
      - ``std::int64_t``
@@ -205,8 +205,8 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
      - ``std::int64_t``
    * - ``edge_user_value_type``
      - Type of  edge :capterm:`attribute <Attribute>` 
-     - ``EdgeValueType`` :ref:`[1] <GraphTemplateTypes>`
-     - ``EdgeValueType`` :ref:`[1] <GraphTemplateTypes>`  
+     - ``EdgeValue`` :ref:`[1] <GraphTemplateTypes>`
+     - ``EdgeValue`` :ref:`[1] <GraphTemplateTypes>`  
    * - ``vertex_edge_size_type``
      - Type of the vertex neighbors indices 
      - ``std::int64_t``
@@ -251,7 +251,7 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
      
 .. _GraphTemplateTypes:     
 
-[1] ``VertexValueType``, ``EdgeValueType``, ``GraphValueType``, ``IndexType``, ``Allocator``
+[1] ``VertexValue``, ``EdgeValue``, ``GraphValue``, ``IndexType``, ``Allocator``
 -- :ref:`template parameters of graph G <api_graph_template_type>`.
 
 This section describes API of the specified graph types.
