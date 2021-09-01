@@ -261,7 +261,6 @@ public:
                 if(cid_to_handle == cid) {
                     for(std::int32_t i = 0; i < pbuff_count; ++i, ++k_written) {
                         sel_t result{ pbuff_dst[i], pbuff_ids[i] };
-                        //sel_t result{ pbuff_dst[i], cid };
                         if (k_written > k_) {
                             replace_first(std::move(result), curr_heap, curr_heap + k_);
                         } else {
@@ -399,7 +398,7 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     ndview<Float, 2>& selection,
                                                     ndview<std::int32_t, 2>& indices,
                                                     const event_vector& deps) {
-    std::cout << "Both" << std::endl;
+    //std::cout << "Both" << std::endl;
     return select<Float, true, true>(queue, data, k, selection, indices, deps);
 }
 
@@ -409,7 +408,7 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     std::int64_t k,
                                                     ndview<std::int32_t, 2>& indices,
                                                     const event_vector& deps) {
-    std::cout << "Indices" << std::endl;
+    //std::cout << "Indices" << std::endl;
     ndarray<Float, 2> dummy;
     return select<Float, false, true>(queue, data, k, dummy, indices, deps);
 }
@@ -420,7 +419,7 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     std::int64_t k,
                                                     ndview<Float, 2>& selection,
                                                     const event_vector& deps) {
-    std::cout << "Distances" << std::endl;
+    //std::cout << "Distances" << std::endl;
     ndarray<std::int32_t, 2> dummy;
     return select<Float, true, false>(queue, data, k, selection, dummy, deps);
 }
