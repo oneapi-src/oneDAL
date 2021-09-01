@@ -25,9 +25,10 @@ vertex_partitioning_result<task::vertex_partitioning>
 afforest<Float, task::vertex_partitioning, dal::preview::detail::topology<std::int32_t>>::
 operator()(const dal::detail::host_policy& policy,
            const detail::descriptor_base<task::vertex_partitioning>& desc,
-           const dal::preview::detail::topology<std::int32_t>& t) const {
+           const dal::preview::detail::topology<std::int32_t>& t,
+           byte_alloc_iface* alloc_ptr) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::afforest<decltype(cpu)>{}(desc, t);
+        return backend::afforest<decltype(cpu)>{}(desc, t, alloc_ptr);
     });
 }
 

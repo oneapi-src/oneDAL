@@ -52,7 +52,7 @@ private:
     dal::detail::pimpl<detail::vertex_partitioning_input_impl<Graph, Task>> impl_;
 };
 
-/// Class for the description of the result of the Shortest Paths algorithm
+/// Class for the description of the result of the Connected Components algorithm
 template <typename Task = task::by_default>
 class vertex_partitioning_result {
     static_assert(detail::is_valid_task<Task>);
@@ -80,7 +80,7 @@ public:
         return *this;
     }
 
-    /// Sets the table with computed number of connected components
+    /// Sets the number of connected components
     auto& set_component_count(int64_t value) {
         set_component_count_impl(value);
         return *this;

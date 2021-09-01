@@ -51,7 +51,7 @@ struct backend_default : public backend_base<Policy, Descriptor, Graph> {
                                                           const Descriptor &descriptor,
                                                           const Graph &t,
                                                           const table &init_partition) {
-        return vertex_partitioning_kernel_cpu<method_t, task_t, allocator_t, Graph>()(
+        return vertex_partitioning_kernel_cpu<float_t, method_t, task_t, allocator_t, Graph>()(
             ctx,
             descriptor,
             descriptor.get_allocator(),
