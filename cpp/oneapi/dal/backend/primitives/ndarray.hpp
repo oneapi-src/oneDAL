@@ -619,10 +619,11 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event fill(sycl::queue& q, T value, const event_vector& deps = {}) {
-        ONEDAL_ASSERT(is_known_usm(q, data_.get()));
+        auto data_ptr = this->get_mutable_data();
+        ONEDAL_ASSERT(is_known_usm(q, data_ptr));
         return q.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            cgh.fill(this->get_mutable_data(), value, this->get_count());
+            cgh.fill(data_ptr, value, this->get_count());
         });
     }
 #endif
@@ -636,8 +637,8 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event arange(sycl::queue& q, const event_vector& deps = {}) {
-        ONEDAL_ASSERT(is_known_usm(q, data_.get()));
         auto data_ptr = this->get_mutable_data();
+        ONEDAL_ASSERT(is_known_usm(q, data_ptr));
         return q.submit([&](sycl::handler& cgh) {
             const auto range = dal::backend::make_range_1d(this->get_count());
             cgh.depends_on(deps);
