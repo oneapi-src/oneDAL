@@ -18,15 +18,42 @@
 #include <tuple>
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/selection/select_indexed.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
+
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#include <iomanip>
+
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
+
+
+template<typename Type, ndorder order>
+inline std::ostream& operator<<(std::ostream& out, const ndview<Type, 2, order>& arr) {
+    constexpr int precision = 3;
+    const auto n = arr.get_dimension(0), m = arr.get_dimension(1);
+    const auto ord = (order == ndorder::c) ? 'c' : 'f';
+    out << ord << "-order array with shape [nxm]=[" << n << 'x' << m << ']' << std::endl;
+    if constexpr (std::is_floating_point<Type>::value) {
+        out << std::showpos << std::fixed << std::setprecision(precision);
+    }
+    for(std::int64_t j = 0; j < n; ++j) {
+        out << '\t';
+        for(std::int64_t i = 0; i < m; ++i) {
+            out << arr.at(j, i) << '\t';
+        }
+        out << std::endl;
+    }
+    if constexpr (std::is_floating_point<Type>::value) {
+        out << std::noshowpos << std::defaultfloat;
+    }
+    return out;
+}
 
 template <typename TestType>
 class selection_by_rows_test : public te::policy_fixture {
@@ -42,33 +69,54 @@ public:
                         std::int64_t col_count,
                         std::int64_t k) {
         INFO("Output of selected values") {
-            ndarray<int, 2> dummy_array;
+            ndarray<std::int32_t, 2> dummy_array;
             auto value_array = ndarray<float_t, 2>::empty(get_queue(), { row_count, k });
             kselect_by_rows<float_t> sel(get_queue(), data.get_shape(), k);
             sel(get_queue(), data, k, value_array).wait_and_throw();
             check_results<true, false>(data, value_array, dummy_array);
+            //std::cout << "Distances " << value_array << std::endl;
         }
         INFO("Output of selected indices") {
             ndarray<float_t, 2> dummy_array;
-            auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
+            auto index_array = ndarray<std::int32_t, 2>::empty(get_queue(), { row_count, k });
             kselect_by_rows<float_t> sel(get_queue(), data.get_shape(), k);
             sel(get_queue(), data, k, index_array).wait_and_throw();
             check_results<false, true>(data, dummy_array, index_array);
+            //std::cout << "Indices " << index_array << std::endl;
         }
 
         INFO("Output of both") {
             auto value_array = ndarray<float_t, 2>::empty(get_queue(), { row_count, k });
-            auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
+            auto index_array = ndarray<std::int32_t, 2>::empty(get_queue(), { row_count, k });
             kselect_by_rows<float_t> sel(get_queue(), data.get_shape(), k);
             sel(get_queue(), data, k, value_array, index_array).wait_and_throw();
             check_results<true, true>(data, value_array, index_array);
+            auto selct_array = ndarray<float_t, 2>::empty(get_queue(), { row_count, k });
+            select_indexed(get_queue(), index_array, data, selct_array).wait_and_throw();
+            std::cout << "D: " << data << "I: " << index_array << "B: " << value_array << std::endl;
+            check_equal(value_array, selct_array);
+        }
+    }
+
+    void check_equal(const ndview<float_t, 2>& res,
+                     const ndview<float_t, 2>& gtr) {
+        REQUIRE(res.get_shape() == gtr.get_shape());
+        const auto m = res.get_dimension(0);
+        const auto k = res.get_dimension(1);
+        for(std::int32_t i = 0; i < k; ++i) {
+            for(std::int32_t j = 0; j < m; ++j) {
+                const auto r = res.at(j, i);
+                const auto g = gtr.at(j, i);
+                CAPTURE(i, j, r, g);
+                REQUIRE(r == g);
+            }
         }
     }
 
     template <bool selection_out, bool indices_out>
     void check_results(const ndview<float_t, 2>& data,
                        const ndview<float_t, 2>& selection,
-                       const ndview<int, 2>& indices) {
+                       const ndview<std::int32_t, 2>& indices) {
         ONEDAL_ASSERT(!selection_out || data.get_dimension(0) == selection.get_dimension(0));
         ONEDAL_ASSERT(!indices_out || data.get_dimension(0) == indices.get_dimension(0));
         auto k = selection.get_dimension(1);
@@ -113,7 +161,7 @@ public:
     template <bool selection_out, bool indices_out>
     float_t get_value(const ndview<float_t, 2>& data,
                       const ndview<float_t, 2>& selection,
-                      const ndview<int, 2>& indices,
+                      const ndview<std::int32_t, 2>& indices,
                       std::int64_t k,
                       std::int64_t row_size,
                       std::int64_t row,
@@ -132,7 +180,7 @@ public:
     template <bool selection_out, bool indices_out>
     void check_presence_in_data(const ndview<float_t, 2>& data,
                                 const ndview<float_t, 2>& selection,
-                                const ndview<int, 2>& indices,
+                                const ndview<std::int32_t, 2>& indices,
                                 std::int64_t k,
                                 std::int64_t row_size,
                                 std::int64_t row,
@@ -153,12 +201,13 @@ public:
 
     template <bool selection_out, bool indices_out>
     void check_presence_in_selection(const ndview<float_t, 2>& selection,
-                                     const ndview<int, 2>& indices,
+                                     const ndview<std::int32_t, 2>& indices,
                                      std::int64_t k,
                                      std::int64_t row_size,
                                      std::int64_t row,
                                      std::int64_t pos,
                                      float_t cur_val) {
+        CAPTURE(row, k, pos, cur_val);
         std::int64_t count = 0;
         if constexpr (!indices_out) {
             for (std::int64_t l = 0; l < k; l++) {
@@ -174,7 +223,7 @@ public:
     }
 };
 
-using selection_types = std::tuple<float, double>;
+using selection_types = std::tuple<float/*, double*/>;
 
 TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection degenerated test (k == 1)",

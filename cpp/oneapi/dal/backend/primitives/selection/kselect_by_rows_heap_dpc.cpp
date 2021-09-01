@@ -208,8 +208,8 @@ public:
 
         const std::int32_t sid = sg.get_group_linear_id();
         const std::int32_t cid = sg.get_local_linear_id();
-        const std::int32_t rid = sid + item.get_group_linear_id();
-        const std::int32_t sg_width = sg.get_group_range().size();
+        const std::int32_t sg_width = sg.get_local_range().size();
+        const std::int32_t rid = sid + item.get_group_linear_id() * sg.get_group_range().size();
 
         if ((rid >= height_) || (cid >= sg_width))
             return;
@@ -260,14 +260,20 @@ public:
                 cid_to_handle = reduce(sg, handle_this, max_func);
                 if (cid_to_handle == cid) {
                     for (std::int32_t i = 0; i < pbuff_count; ++i, ++k_written) {
-                        sel_t result{ pbuff_dst[i], pbuff_ids[i] };
-                        if (k_written > k_) {
-                            replace_first(std::move(result), curr_heap, curr_heap + k_);
+                        worst_val = curr_heap->dst;
+                        const auto curr_val = pbuff_dst[i];
+                        const bool handle = curr_val < worst_val;
+                        sel_t result{ std::move(curr_val), pbuff_ids[i] };
+                        if (handle) {
+                            if (k_ > k_written) {
+                                *(curr_heap + k_written) = std::move(result);
+                                push_heap(curr_heap, curr_heap + k_written);
+                            }
+                            else {
+                                replace_first(std::move(result), curr_heap, curr_heap + k_);
+                            }
                         }
-                        else {
-                            *(curr_heap + k_written) = std::move(result);
-                            push_heap(curr_heap, curr_heap + k_written);
-                        }
+                        k_written += handle;
                     }
                     pbuff_count = 0;
                 }
