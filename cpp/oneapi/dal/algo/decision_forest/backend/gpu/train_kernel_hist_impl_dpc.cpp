@@ -80,7 +80,7 @@ std::int64_t train_kernel_hist_impl<Float, Bin, Index, Task>::get_part_hist_elem
     Index max_bin_count_among_ftrs,
     Index hist_prop_count) const {
     // mul overflow for selected_ftr_count * max_bin_count_among_ftrs and for hist_prop_count were checked before kernel call in compute
-    return selected_ftr_count * max_bin_count_among_ftrs * hist_prop_count * sizeof(hist_type_t);
+    return selected_ftr_count * max_bin_count_among_ftrs * hist_prop_count;
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
@@ -2127,9 +2127,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_hist
             }
 
             if (local_id == 0) {
-                merge_stat(node_hist_ptr + binId * hist_prop_count,
-                           buf_ptr + local_id * hist_prop_count,
-                           hist_prop_count);
+                for (Index i = 0; i < hist_prop_count; ++i) {
+                    (node_hist_ptr + binId * hist_prop_count)[i] =
+                        (buf_ptr + local_id * hist_prop_count)[i];
+                }
             }
         });
     });
