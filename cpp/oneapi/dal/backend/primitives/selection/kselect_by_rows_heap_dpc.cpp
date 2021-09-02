@@ -225,8 +225,7 @@ public:
         std::int32_t pbuff_count, prev_count;
 
         sel_t* const heaps = heaps_.get_pointer();
-        sel_t* const curr_heap = heaps + (k_ + 1) * sid;
-        //sel_t* const curr_heap_end = curr_heap + (k_ + 1);
+        sel_t* const curr_heap = heaps + k_ * sid;
 
         // Heap initialization
         for (std::int32_t i = cid; i < k_; i += sg_width) {
@@ -341,7 +340,7 @@ sycl::event select(sycl::queue& queue,
         ONEDAL_ASSERT(!dst_out || selection.get_dimension(0) == height);
         const auto max_wkg = propose_wg_size(queue);
         const auto available_mem = get_max_local_alloc(queue);
-        const auto mem_bound = available_mem / ((k + 1) * sizeof(sel_t));
+        const auto mem_bound = available_mem / (k * sizeof(sel_t));
         ONEDAL_ASSERT(mem_bound > 0);
         const auto wkg_bound = max_wkg / pref_sbg;
         const auto wg_size = std::min<std::int64_t>(mem_bound, wkg_bound);
@@ -350,7 +349,7 @@ sycl::event select(sycl::queue& queue,
             make_multiple_nd_range_1d({ block_count * wg_size * pref_sbg }, { wg_size * pref_sbg });
         return queue.submit([&](sycl::handler& h) {
             h.depends_on(deps);
-            acc_t heaps(make_range_1d(wg_size * (k + 1)), h);
+            acc_t heaps(make_range_1d(wg_size * k), h);
             if constexpr (dst_out && !ids_out) {
                 h.parallel_for(
                     ndrange,
