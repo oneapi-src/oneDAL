@@ -254,7 +254,7 @@ sycl::event select_flagged_base<Data, Flag>::select_flagged_base_impl(
                                          local_sum_count_,
                                          sum_scan_deps);
 
-    auto total_sum_host = total_sum_.to_host(queue_, {select_flagged_base_event_});
+    auto total_sum_host = total_sum_.to_host(queue_, { select_flagged_base_event_ });
     selected_elem_count = static_cast<std::int64_t>(total_sum_host.get_data()[0]);
     return select_flagged_base_event_;
 }
