@@ -19,8 +19,12 @@
 
 namespace oneapi::dal::preview::louvain::backend {
 
-template struct louvain_kernel<__CPU_TAG__, std::int32_t>;
+template struct louvain_kernel<__CPU_TAG__, float, std::int32_t>;
 
-template struct louvain_kernel<__CPU_TAG__, double>;
+template struct louvain_kernel<__CPU_TAG__, float, double>;
+
+template struct louvain_kernel<__CPU_TAG__, double, std::int32_t>;
+
+template struct louvain_kernel<__CPU_TAG__, double, double>;
 
 } // namespace oneapi::dal::preview::louvain::backend
