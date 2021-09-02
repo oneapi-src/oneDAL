@@ -29,16 +29,16 @@ Programming interface
 ---------------------
 
 All types and functions in this section are declared in the
-``oneapi::dal::preview`` namespace and be available via inclusion of the
+``oneapi::dal::preview`` namespace and are available via inclusion of the
 ``oneapi/dal/graph/service_functions.hpp`` header file.
 
 
-The graph service is a set of functions that allow to get access to the
-elements and characteristics of the :capterm:`graph` such as vertex degree
+The graph service is a set of functions that allow you to get access to the
+elements and characteristics of the :capterm:`graph`, such as vertex degree
 or edge attribute.
 
-The graph service function is defined as a function template with ``Graph``
-as template parameter. The graph service functions introduce :txtref:`aliases <graph_aliases>`
+Graph service functions are defined as function templates with ``Graph``
+as a template parameter. Graph service functions introduce :txtref:`aliases <graph_aliases>`
 to ``graph_traits`` as shown below.
 
 .. _graph_aliases:
@@ -135,8 +135,8 @@ Usage example
 
   using graph_type = ...;
   const my_graph_type g = ...;
-  std::cout << "Number of vertices: " << oneapi::dal::preview::get_vertex_count(g) << std::endl;
-  std::cout << "Number of edges: " << oneapi::dal::preview::get_edge_count(g) << std::endl;
+  std::cout << "The number of vertices: " << oneapi::dal::preview::get_vertex_count(g) << std::endl;
+  std::cout << "The number of edges: " << oneapi::dal::preview::get_edge_count(g) << std::endl;
 
 .. .. namespace:: oneapi::dal::preview
 .. .. example:: graph_service_example

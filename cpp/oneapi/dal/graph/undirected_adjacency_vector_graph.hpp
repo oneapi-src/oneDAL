@@ -52,7 +52,7 @@ public:
     /// Constructs an empty graph
     undirected_adjacency_vector_graph();
 
-    /// Destructs graph
+    /// Destructs the graph
     virtual ~undirected_adjacency_vector_graph() = default;
 
     /// Move constructor for graph

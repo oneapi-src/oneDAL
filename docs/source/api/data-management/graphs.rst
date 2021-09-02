@@ -152,55 +152,55 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
      - :ref:`Undirected Adjacency Vector Graph <api_undirected_adjacency_vector_graph>`
      - :ref:`Directed Adjacency Vector Graph <api_directed_adjacency_vector_graph>`
    * - ``graph_type``
-     - Type of the graph ``G``
+     - The type of the graph ``G``
      - ``undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>``
      - ``directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>``
    * - ``allocator_type``
-     - Type of the allocator of the graph ``G``
+     - The type of the allocator of the graph ``G``
      - ``Allocator`` :ref:`[1] <GraphTemplateTypes>`
      - ``Allocator`` :ref:`[1] <GraphTemplateTypes>`
    * - ``graph_user_value_type``
-     - Type of the :capterm:`attribute` of the graph ``G``
+     - The type of the :capterm:`attribute` of the graph ``G``
      - ``GraphValue`` :ref:`[1] <GraphTemplateTypes>`
      - ``GraphValue`` :ref:`[1] <GraphTemplateTypes>`
    * - ``const_graph_user_value_type``
-     - Constant type of the :capterm:`attribute` of the graph ``G``
+     - The constant type of the :capterm:`attribute` of the graph ``G``
      - ``const GraphValue`` :ref:`[1] <GraphTemplateTypes>`
      - ``const GraphValue`` :ref:`[1] <GraphTemplateTypes>`
    * - ``vertex_type``
-     - Type of the vertices in the graph ``G``
+     - The type of the vertices in the graph ``G``
      - ``IndexType`` :ref:`[1] <GraphTemplateTypes>`
      - ``IndexType`` :ref:`[1] <GraphTemplateTypes>`
    * - ``vertex_iterator``
-     - Type of the vertex iterator in the graph ``G``
+     - The type of the vertex iterator in the graph ``G``
      - ``vertex_type*``
      - ``vertex_type*``
    * - ``const_vertex_iterator``
-     -  Constant type of the vertex iterator in the graph ``G``
+     -  The constant type of the vertex iterator in the graph ``G``
      - ``const vertex_type*``
      - ``const vertex_type*``
    * - ``vertex_size_type``
-     - Type of the index of the vertices in the graph ``G``
+     - The type of the vertex indices in the graph ``G``
      - ``std::int64_t``
      - ``std::int64_t``
    * - ``vertex_user_value_type``
-     - Type of the vertex :capterm:`attribute <Attribute>` of the graph ``G``
+     - The type of the vertex :capterm:`attribute <Attribute>` of the graph ``G``
      - ``VertexValue`` :ref:`[1] <GraphTemplateTypes>`
      - ``VertexValue`` :ref:`[1] <GraphTemplateTypes>`
    * - ``edge_type``
-     - Type of edges in the graph ``G``
+     - The type of edges in the graph ``G``
      - ``std::int64_t``
      - ``std::int64_t``
    * - ``edge_iterator``
-     - Type of the edge iterator in the graph ``G``
+     - The type of the edge iterator in the graph ``G``
      - *Not available* 
      - *Not available*  
    * - ``const_edge_iterator``
-     - Constant type of the edge iterator in the graph ``G``
+     - The constant type of the edge iterator in the graph ``G``
      - *Not available*  
      - *Not available* 
    * - ``edge_size_type``
-     - Type of the index of the edges in the graph ``G`` 
+     - The type of the edge indices in the graph ``G`` 
      - ``std::int64_t``
      - ``std::int64_t``
    * - ``edge_user_value_type``
