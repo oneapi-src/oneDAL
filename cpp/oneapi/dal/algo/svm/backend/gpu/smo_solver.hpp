@@ -44,11 +44,13 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
                            key_value<Float>* local_cache,
                            key_value<Float>* result) {
     auto sg = item.get_sub_group();
+
     const std::uint32_t local_id = item.get_local_id(0);
-    const std::uint32_t sg_count = item.get_group_range(0);
+    const std::uint32_t wg_size = item.get_local_range()[0];
     const std::uint32_t sg_size = sg.get_local_range()[0];
-    const std::uint32_t sg_id = sg.get_group_id(); // [0] or (0)
-    const std::uint32_t sg_local_id = sg.get_local_id(); // [0] or (0)
+    const std::uint32_t sg_count = wg_size / sg_size;
+    const std::uint32_t sg_id = local_id / sg_size;
+    const std::uint32_t sg_local_id = sg.get_local_id();
 
     const std::uint32_t int_max = dal::detail::limits<std::uint32_t>::max();
 
@@ -56,10 +58,8 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
     std::uint32_t x_index = local_id;
 
     Float res_max = reduce(sg, x, maximum<Float>());
-    std::uint32_t res_index =
-        reduce(sg,
-               res_max == x ? x_index : int_max,
-               minimum<Float>());
+
+    std::uint32_t res_index = reduce(sg, res_max == x ? x_index : int_max, minimum<Float>());
 
     if (sg_local_id == 0) {
         local_cache[sg_id].value = res_max;
@@ -72,9 +72,7 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
         x = local_cache[sg_local_id].value;
         x_index = local_cache[sg_local_id].index;
         res_max = reduce(sg, x, maximum<Float>());
-        res_index = reduce(sg,
-                           res_max == x ? x_index : int_max,
-                           minimum<Float>());
+        res_index = reduce(sg, res_max == x ? x_index : int_max, minimum<Float>());
 
         for (std::uint32_t group_index = sg_size; group_index < sg_count; group_index += sg_size) {
             x = local_cache[group_index + sg_local_id].value;
@@ -83,10 +81,7 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
             const Float inner_max = reduce(sg, x, maximum<Float>());
             if (inner_max > res_max) {
                 res_max = inner_max;
-                res_index =
-                    reduce(sg,
-                           res_max == x ? x_index : int_max,
-                           minimum<Float>());
+                res_index = reduce(sg, res_max == x ? x_index : int_max, minimum<Float>());
             }
         }
 
@@ -139,31 +134,30 @@ sycl::event solve_smo(sycl::queue& queue,
     Float* f_diff_ptr = f_diff.get_mutable_data();
     std::uint32_t* inner_iter_count_ptr = inner_iter_count.get_mutable_data();
 
+    constexpr std::uint32_t max_sg_size = 64;
+
     const sycl::nd_range<1> nd_range = dal::backend::make_multiple_nd_range_1d(ws_count, ws_count);
+
     auto solve_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<Float> kd(ws_count, cgh);
         local_accessor_rw_t<Float> objective_func(ws_count, cgh);
-        local_accessor_rw_t<key_value<Float>> local_cache(64, cgh);  // SIMD_WIDTH = 64
+        local_accessor_rw_t<key_value<Float>> local_cache(max_sg_size, cgh);
         local_accessor_rw_t<Float> delta_Bi(1, cgh);
         local_accessor_rw_t<Float> delta_Bj(1, cgh);
         local_accessor_rw_t<key_value<Float>> max_val_ind(1, cgh);
         local_accessor_rw_t<Float> local_diff(1, cgh);
         local_accessor_rw_t<Float> local_eps(1, cgh);
 
-        sycl::stream out(1024, 256, cgh);
-        
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             const std::uint32_t i = item.get_local_id(0);
 
             const std::uint32_t ws_index = ws_indices_ptr[i];
 
             Float f_i = f_ptr[ws_index];
-            Float aplha_i = alpha_ptr[ws_index];
-            const Float old_alpha_i = aplha_i;
+            Float alpha_i = alpha_ptr[ws_index];
+            const Float old_alpha_i = alpha_i;
             const Float labels_i = labels_ptr[ws_index];
-
-            
 
             std::uint32_t Bi = 0;
             std::uint32_t Bj = 0;
@@ -183,15 +177,15 @@ sycl::event solve_smo(sycl::queue& queue,
             std::uint32_t inner_iter = 0;
             for (; inner_iter < max_inner_iter; ++inner_iter) {
                 /* m(alpha) = min(grad[i]): i belongs to I_UP (alpha) */
-                objective_func_ptr[i] = is_upper_edge<Float>(labels_i, aplha_i, C) ? -f_i : fp_min;
+                objective_func_ptr[i] = is_upper_edge<Float>(labels_i, alpha_i, C) ? -f_i : fp_min;
 
                 /* Find i index of the working set (Bi) */
                 reduce_arg_max(item, objective_func_ptr, local_cache_ptr, max_val_ind_ptr);
                 Bi = max_val_ind_ptr[0].index;
                 const Float ma = -max_val_ind_ptr[0].value;
 
-                /* maxgrad(alpha) = max(grad[i]): i belongs to I_low (alpha) */
-                objective_func_ptr[i] = is_lower_edge<Float>(labels_i, aplha_i, C) ? f_i : fp_min;
+                /* maxgrad(alpha) = max(grad[i]): i belongs to I_low (alpha)  */
+                objective_func_ptr[i] = is_lower_edge<Float>(labels_i, alpha_i, C) ? f_i : fp_min;
 
                 /* Find max gradient */
                 reduce_arg_max(item, objective_func_ptr, local_cache_ptr, max_val_ind_ptr);
@@ -216,7 +210,7 @@ sycl::event solve_smo(sycl::queue& queue,
                 const Float KBiBi = kd_ptr[Bi];
                 const Float KiBi = kernel_values_ptr[Bi * row_count + ws_index];
 
-                if (is_lower_edge<Float>(labels_i, aplha_i, C) && ma < f_i) {
+                if (is_lower_edge<Float>(labels_i, alpha_i, C) && ma < f_i) {
                     /* M(alpha) = max((b^2/a) : i belongs to I_low(alpha) and ma < f(alpha) */
                     const Float b = ma - f_i;
                     const Float a = sycl::fmax(Kii + KBiBi - Float(2.0) * KiBi, tau);
@@ -236,10 +230,10 @@ sycl::event solve_smo(sycl::queue& queue,
 
                 /* Update alpha */
                 if (i == Bi) {
-                    delta_Bi_ptr[0] = labels_i > 0 ? C - aplha_i : aplha_i;
+                    delta_Bi_ptr[0] = labels_i > 0 ? C - alpha_i : alpha_i;
                 }
                 if (i == Bj) {
-                    delta_Bj_ptr[0] = labels_i > 0 ? aplha_i : C - aplha_i;
+                    delta_Bj_ptr[0] = labels_i > 0 ? alpha_i : C - alpha_i;
                     const Float b = ma - f_i;
                     const Float a = sycl::fmax(Kii + KBiBi - Float(2.0) * KiBi, tau);
 
@@ -251,17 +245,17 @@ sycl::event solve_smo(sycl::queue& queue,
 
                 const Float delta = sycl::fmin(delta_Bi_ptr[0], delta_Bj_ptr[0]);
                 if (i == Bi) {
-                    aplha_i = aplha_i + labels_i * delta;
+                    alpha_i = alpha_i + labels_i * delta;
                 }
                 if (i == Bj) {
-                    aplha_i = aplha_i - labels_i * delta;
+                    alpha_i = alpha_i - labels_i * delta;
                 }
 
                 /* Update f */
                 f_i = f_i + delta * (KiBi - KiBj);
             }
-            alpha_ptr[ws_index] = aplha_i;
-            delta_alpha_ptr[i] = (aplha_i - old_alpha_i) * labels_i;
+            alpha_ptr[ws_index] = alpha_i;
+            delta_alpha_ptr[i] = (alpha_i - old_alpha_i) * labels_i;
             f_ptr[ws_index] = f_i;
             if (i == 0) {
                 inner_iter_count_ptr[0] = inner_iter;
