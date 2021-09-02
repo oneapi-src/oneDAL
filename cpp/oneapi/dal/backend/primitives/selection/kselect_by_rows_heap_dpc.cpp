@@ -209,8 +209,14 @@ public:
         const std::int32_t sid = sg.get_group_linear_id();
         const std::int32_t cid = sg.get_local_linear_id();
         const std::int32_t sg_width = sg.get_local_range().size();
+        const std::int32_t wg_width = item.get_local_range().size();
         const std::int32_t rid = sid + item.get_group_linear_id() * sg.get_group_range().size();
 
+        // Check for the case if sg_size != sg_width
+        if (sid * sg_size >= wg_width)
+            return;
+
+        // Check that we are working in data boundaries
         if (rid >= height_)
             return;
 
