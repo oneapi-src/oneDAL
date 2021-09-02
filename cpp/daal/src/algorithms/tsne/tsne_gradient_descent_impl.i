@@ -1024,6 +1024,23 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     status = pTable->releaseSparseBlock(CSRBlock);
     DAAL_CHECK_STATUS_VAR(status);
 
+    //free memory
+    services::internal::service_scalable_free<DataType, cpu>(posx);
+    services::internal::service_scalable_free<DataType, cpu>(posy);
+    services::internal::service_scalable_free<IdxType, cpu>(child);
+    services::internal::service_scalable_free<IdxType, cpu>(count);
+    services::internal::service_scalable_free<DataType, cpu>(mass);
+    services::internal::service_scalable_free<IdxType, cpu>(sort);
+    services::internal::service_scalable_free<IdxType, cpu>(start);
+    services::internal::service_scalable_free<DataType, cpu>(repx);
+    services::internal::service_scalable_free<DataType, cpu>(repy);
+    services::internal::service_scalable_free<DataType, cpu>(attrx);
+    services::internal::service_scalable_free<DataType, cpu>(attry);
+    services::internal::service_scalable_free<DataType, cpu>(gainx);
+    services::internal::service_scalable_free<DataType, cpu>(gainy);
+    services::internal::service_scalable_free<DataType, cpu>(oldForcex);
+    services::internal::service_scalable_free<DataType, cpu>(oldForcey);
+
     auto end = std::chrono::high_resolution_clock::now();
     if (verbose == 1)
     {

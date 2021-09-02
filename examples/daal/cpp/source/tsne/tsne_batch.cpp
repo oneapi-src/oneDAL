@@ -40,32 +40,32 @@ const string pDataset   = "../data/batch/tsne_p.csv";
 
 int main(int argc, char * argv[])
 {
-	NumericTablePtr initData;
-	FileDataSource<CSVFeatureManager> initDataSource(initDataset,
-		DataSource::notAllocateNumericTable,
-		DataSource::doDictionaryFromContext);
-	initData.reset(new HomogenNumericTable<float>(2, 0, NumericTable::notAllocate));
-	NumericTablePtr initMerge(new MergedNumericTable(initData));
-	initDataSource.loadDataBlock(initMerge.get());
+    NumericTablePtr initData;
+    FileDataSource<CSVFeatureManager> initDataSource(initDataset,
+        DataSource::notAllocateNumericTable,
+        DataSource::doDictionaryFromContext);
+    initData.reset(new HomogenNumericTable<float>(2, 0, NumericTable::notAllocate));
+    NumericTablePtr initMerge(new MergedNumericTable(initData));
+    initDataSource.loadDataBlock(initMerge.get());
 
     CSRNumericTablePtr pTable(createSparseTable<float>(pDataset));
 
-	int sizeIter[4] = { 1797, 205798, 300, 1000 }; // nSamples, nnz, nIterWithoutProgress, maxIter
-	float params[4] = { 12., 200., 1e-07, 0.5 }; // earlyExaggeration, learningRate, minGradNorm, angle
-	float results[3] = { 0., 0., 0. }; // curIter, divergence, gradNorm
+    int sizeIter[4] = { 1797, 205798, 300, 1000 }; // nSamples, nnz, nIterWithoutProgress, maxIter
+    float params[4] = { 12., 200., 1e-07, 0.5 }; // earlyExaggeration, learningRate, minGradNorm, angle
+    float results[3] = { 0., 0., 0. }; // curIter, divergence, gradNorm
 
-	NumericTablePtr sizeIterTable = HomogenNumericTable<int>::create(sizeIter, 1, 4);
-	NumericTablePtr paramTable = HomogenNumericTable<float>::create(params, 1, 4);
-	NumericTablePtr resultTable = HomogenNumericTable<float>::create(results, 1, 3);
+    NumericTablePtr sizeIterTable = HomogenNumericTable<int>::create(sizeIter, 1, 4);
+    NumericTablePtr paramTable = HomogenNumericTable<float>::create(params, 1, 4);
+    NumericTablePtr resultTable = HomogenNumericTable<float>::create(results, 1, 3);
 
-	tsneGradientDescent<int, float>(
-		initData,
-		pTable,
-		sizeIterTable,
-		paramTable,
-		resultTable);
+    tsneGradientDescent<int, float>(
+        initData,
+        pTable,
+        sizeIterTable,
+        paramTable,
+        resultTable);
 
-	cout << "Kullback-Leibler divergence = " << results[1] << endl;
+    cout << "Kullback-Leibler divergence = " << results[1] << endl;
 
-	return 0;
+    return 0;
 }
