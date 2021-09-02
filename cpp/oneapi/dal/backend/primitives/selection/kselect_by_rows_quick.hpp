@@ -87,13 +87,14 @@ private:
         const std::int64_t col_count = data.get_dimension(1);
         const std::int64_t row_count = data.get_dimension(0);
         const std::int64_t inp_stride = data.get_leading_stride();
+        const auto width = std::max(inp_stride, col_count);
         [[maybe_unused]] const std::int64_t out_ids_stride = indices.get_leading_stride();
         [[maybe_unused]] const std::int64_t out_dst_stride = selection.get_leading_stride();
 
         auto data_ptr = data.get_data();
         auto data_tmp_ptr = data_.get_mutable_data();
         auto cpy_event = queue.submit([&](sycl::handler& cgh) {
-            cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(Float) * row_count * col_count);
+            cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(Float) * row_count * width);
         });
 
         auto indices_tmp_ptr = indices_.get_mutable_data();
