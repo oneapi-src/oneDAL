@@ -128,7 +128,7 @@ public:
               base_ids_t(ids_str, ids_ptr) {}
 };
 
-template <typename Float, bool dst_out, bool ids_out, int sg_size>
+template <typename Float, bool dst_out, bool ids_out, int proposed_sg_size>
 class kernel_select_heap : public kernel_select_heap_base<Float, dst_out, ids_out> {
     using dst_t = Float;
     using idx_t = std::int32_t;
@@ -213,7 +213,7 @@ public:
         const std::int32_t rid = sid + item.get_group_linear_id() * sg.get_group_range().size();
 
         // Check for the case if sg_size != sg_width
-        if (sid * sg_size >= wg_width)
+        if (sid * proposed_sg_size >= wg_width)
             return;
 
         // Check that we are working in data boundaries
@@ -226,10 +226,10 @@ public:
 
         sel_t* const heaps = heaps_.get_pointer();
         sel_t* const curr_heap = heaps + (k_ + 1) * sid;
-        sel_t* const curr_heap_end = curr_heap + (k_ + 1);
+        //sel_t* const curr_heap_end = curr_heap + (k_ + 1);
 
         // Heap initialization
-        for (std::int32_t i = cid; i <= k_; i += sg_width) {
+        for (std::int32_t i = cid; i < k_; i += sg_width) {
             auto& values = curr_heap[i];
             values.idx = idx_default;
             values.dst = dst_default;
@@ -252,7 +252,7 @@ public:
                 const idx_t idx = block_start_col + sg_width * j;
                 const bool handle = idx < width_;
                 const dst_t val = handle ? *(row + idx) : dst_default;
-                pbuff_count += bool(val < worst_val || k_ >= k_written);
+                pbuff_count += bool(val < worst_val || k_written < k_);
                 pbuff_ids[prev_count] = idx;
                 pbuff_dst[prev_count] = val;
                 prev_count = pbuff_count;
@@ -271,7 +271,7 @@ public:
                         const auto curr_val = pbuff_dst[i];
                         const bool handle = curr_val < worst_val;
                         sel_t result{ std::move(curr_val), pbuff_ids[i] };
-                        if (k_ >= k_written) {
+                        if (k_written < k_) {
                             *(curr_heap + k_written) = std::move(result);
                             push_heap(curr_heap, curr_heap + k_written + 1);
                             ++k_written;
@@ -289,8 +289,7 @@ public:
         // Sorting heap before writing out
         // TODO: Think out if it can be performed in parallel
         if (cid == 0) {
-            //make_heap(curr_heap, curr_heap_end);
-            sort_heap(curr_heap, curr_heap_end);
+            sort_heap(curr_heap, curr_heap + k_);
         }
         sg.barrier();
 
