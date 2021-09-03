@@ -26,22 +26,19 @@ namespace de = dal::detail;
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-using sycl::ONEAPI::broadcast;
-using sycl::ONEAPI::reduce;
-using sycl::ONEAPI::plus;
-using sycl::ONEAPI::minimum;
-using sycl::ONEAPI::maximum;
-using sycl::ONEAPI::exclusive_scan;
+using sycl::ext::oneapi::plus;
+using sycl::ext::oneapi::minimum;
+using sycl::ext::oneapi::maximum;
 
 using alloc = sycl::usm::alloc;
 using address = sycl::access::address_space;
 
 template <typename T>
 inline T atomic_global_add(T* ptr, T operand) {
-    sycl::ONEAPI::atomic_ref<T,
-                             cl::sycl::ONEAPI::memory_order::relaxed,
-                             cl::sycl::ONEAPI::memory_scope::device,
-                             cl::sycl::access::address_space::global_device_space>
+    sycl::ext::oneapi::atomic_ref<T,
+                                  cl::sycl::ext::oneapi::memory_order::relaxed,
+                                  cl::sycl::ext::oneapi::memory_scope::device,
+                                  cl::sycl::access::address_space::global_device_space>
         atomic_var(*ptr);
     return atomic_var.fetch_add(operand);
 }
@@ -134,18 +131,20 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_g
                 Index mid_node =
                     (Index)(block_count <= big_node_low_border_blocks_num && block_count > 1);
 
-                big_node_count += reduce(sbg, big_node, plus<Index>());
-                mid_node_count += reduce(sbg, mid_node, plus<Index>());
+                big_node_count += sycl::reduce_over_group(sbg, big_node, plus<Index>());
+                mid_node_count += sycl::reduce_over_group(sbg, mid_node, plus<Index>());
                 max_big_block_count =
                     sycl::max(max_big_block_count, static_cast<Index>(big_node ? block_count : 0));
-                max_big_block_count = reduce(sbg, max_big_block_count, maximum<Index>());
+                max_big_block_count =
+                    sycl::reduce_over_group(sbg, max_big_block_count, maximum<Index>());
                 max_mid_block_count =
                     sycl::max(max_mid_block_count, static_cast<Index>(mid_node ? block_count : 0));
-                max_mid_block_count = reduce(sbg, max_mid_block_count, maximum<Index>());
+                max_mid_block_count =
+                    sycl::reduce_over_group(sbg, max_mid_block_count, maximum<Index>());
             }
 
-            big_node_count = broadcast(sbg, big_node_count, 0);
-            mid_node_count = broadcast(sbg, mid_node_count, 0);
+            big_node_count = sycl::group_broadcast(sbg, big_node_count, 0);
+            mid_node_count = sycl::group_broadcast(sbg, mid_node_count, 0);
 
             if (0 == local_id) {
                 node_groups_ptr[0] = big_node_count;
@@ -167,15 +166,17 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_g
                 Index mid_node =
                     (Index)(block_count <= big_node_low_border_blocks_num && block_count > 1);
 
-                Index boundary_big = sum_big + exclusive_scan(sbg, big_node, plus<Index>());
-                Index boundary_mid = sum_mid + exclusive_scan(sbg, mid_node, plus<Index>());
+                Index boundary_big =
+                    sum_big + sycl::exclusive_scan_over_group(sbg, big_node, plus<Index>());
+                Index boundary_mid =
+                    sum_mid + sycl::exclusive_scan_over_group(sbg, mid_node, plus<Index>());
                 Index pos_new = (big_node ? boundary_big
                                           : (mid_node ? big_node_count + boundary_mid
                                                       : big_node_count + mid_node_count + i -
                                                             boundary_big - boundary_mid));
                 node_indices_ptr[pos_new] = i;
-                sum_big += reduce(sbg, big_node, plus<Index>());
-                sum_mid += reduce(sbg, mid_node, plus<Index>());
+                sum_big += sycl::reduce_over_group(sbg, big_node, plus<Index>());
+                sum_mid += sycl::reduce_over_group(sbg, mid_node, plus<Index>());
             }
         });
     });
@@ -219,7 +220,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count
                 sum += Index(node_list_ptr[i * node_prop_count + impl_const_t::ind_fid] != bad_val);
             }
 
-            sum = reduce(sbg, sum, plus<Index>());
+            sum = sycl::reduce_over_group(sbg, sum, plus<Index>());
 
             if (local_id == 0) {
                 split_node_count_ptr[0] = sum;
@@ -321,7 +322,8 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
                             const Index to_right =
                                 Index(static_cast<Index>(data_ptr[id * column_count + feat_id]) >
                                       split_val);
-                            group_row_to_right_count += reduce(sbg, to_right, plus<Index>());
+                            group_row_to_right_count +=
+                                sycl::reduce_over_group(sbg, to_right, plus<Index>());
                         }
 
                         if (0 == sub_group_local_id) {
@@ -454,7 +456,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
                             const Index to_right =
                                 Index(static_cast<Index>(
                                           data_ptr[id * data_column_count + feat_id]) > feat_bin);
-                            group_row_to_right_count += reduce(sbg, to_right, plus<Index>());
+                            group_row_to_right_count +=
+                                sycl::reduce_over_group(sbg, to_right, plus<Index>());
                         }
 
                         if (0 == sub_group_local_id) {
@@ -464,8 +467,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
                             group_right_boundary =
                                 atomic_global_add(node_aux + 1, group_row_to_right_count);
                         }
-                        group_left_boundary = broadcast(sbg, group_left_boundary, 0);
-                        group_right_boundary = broadcast(sbg, group_right_boundary, 0);
+                        group_left_boundary = sycl::group_broadcast(sbg, group_left_boundary, 0);
+                        group_right_boundary = sycl::group_broadcast(sbg, group_right_boundary, 0);
                     }
 
                     Index group_row_to_right_count = 0;
@@ -476,12 +479,14 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
                             Index(static_cast<Index>(data_ptr[id * data_column_count + feat_id]) >
                                   feat_bin);
                         const Index boundary =
-                            group_row_to_right_count + exclusive_scan(sbg, to_right, plus<Index>());
+                            group_row_to_right_count +
+                            sycl::exclusive_scan_over_group(sbg, to_right, plus<Index>());
                         const Index pos_new =
                             (to_right ? left_ch_row_count + group_right_boundary + boundary
                                       : group_left_boundary + i - ind_start - boundary);
                         tree_order_buf_ptr[offset + pos_new] = id;
-                        group_row_to_right_count += reduce(sbg, to_right, plus<Index>());
+                        group_row_to_right_count +=
+                            sycl::reduce_over_group(sbg, to_right, plus<Index>());
                     }
                 }
             }
@@ -555,11 +560,12 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
                  node_idx += sub_group_size) {
                 Index split_ftr_id =
                     node_list_ptr[node_idx * node_prop_count + impl_const_t::ind_fid];
-                ftr_imp += reduce(sbg,
-                                  ((split_ftr_id != leaf_mark && ftr_id == split_ftr_id)
-                                       ? node_imp_decrease_list_ptr[node_idx]
-                                       : Float(0)),
-                                  plus<Float>());
+                ftr_imp +=
+                    sycl::reduce_over_group(sbg,
+                                            ((split_ftr_id != leaf_mark && ftr_id == split_ftr_id)
+                                                 ? node_imp_decrease_list_ptr[node_idx]
+                                                 : Float(0)),
+                                            plus<Float>());
             }
 
             if (0 == sub_group_local_id) {
@@ -577,7 +583,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
                 Float ftr_imp = (sub_group_local_id < n_sub_groups)
                                     ? buf[buf_idx + sub_group_local_id]
                                     : (Float)0;
-                Float total_ftr_imp = reduce(sbg, ftr_imp, plus<Float>());
+                Float total_ftr_imp = sycl::reduce_over_group(sbg, ftr_imp, plus<Float>());
 
                 if (0 == local_id) {
                     res_var_imp_ptr[ftr_id] += total_ftr_imp;
@@ -687,7 +693,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
                 sub_sum += Index(item_absent_mark == rows_buffer_ptr[row_count * tree_idx + i]);
             }
 
-            Index sum = reduce(sbg, sub_sum, plus<Index>());
+            Index sum = sycl::reduce_over_group(sbg, sub_sum, plus<Index>());
 
             if (local_id == 0) {
                 part_sum_list_ptr[group_id] = sum;
@@ -733,9 +739,9 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_to
 
             for (Index i = local_id; i < sbg_sum_count; i += local_size) {
                 Index value = part_sum_list_ptr[i];
-                Index boundary = exclusive_scan(sbg, value, plus<Index>());
+                Index boundary = sycl::exclusive_scan_over_group(sbg, value, plus<Index>());
                 part_pref_sum_list_ptr[sbg_sum_count * tree_idx + i] = sum + boundary;
-                sum += reduce(sbg, value, plus<Index>());
+                sum += sycl::reduce_over_group(sbg, value, plus<Index>());
             }
 
             if (local_id == 0) {
@@ -803,11 +809,12 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 Index oob_row =
                     Index(item_absent_mark == rows_buffer_ptr[row_count * tree_idx + i]);
-                Index pos = group_offset + sum + exclusive_scan(sbg, oob_row, plus<Index>());
+                Index pos = group_offset + sum +
+                            sycl::exclusive_scan_over_group(sbg, oob_row, plus<Index>());
                 if (oob_row) {
                     oob_row_list_ptr[oob_row_list_offset + pos] = i;
                 }
-                sum += reduce(sbg, oob_row, plus<Index>());
+                sum += sycl::reduce_over_group(sbg, oob_row, plus<Index>());
             }
         });
     });

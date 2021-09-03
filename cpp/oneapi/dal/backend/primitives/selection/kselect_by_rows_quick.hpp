@@ -161,10 +161,14 @@ private:
         std::int32_t ind = is_used ? indices[offset] : undefined_index;
         std::int32_t pos = undefined_index;
         for (std::int32_t step = 0; step < remainder; step++) {
-            Float min_val = reduce(sg, pos < 0 ? val : max_float, sycl::ONEAPI::minimum<Float>());
+            Float min_val = sycl::reduce_over_group(sg,
+                                                    pos < 0 ? val : max_float,
+                                                    sycl::ext::oneapi::minimum<Float>());
             bool is_mine = min_val == val && pos == undefined_index;
             std::int32_t min_id =
-                reduce(sg, is_mine ? local_id : local_size, sycl::ONEAPI::minimum<std::int32_t>());
+                sycl::reduce_over_group(sg,
+                                        is_mine ? local_id : local_size,
+                                        sycl::ext::oneapi::minimum<std::int32_t>());
             pos = min_id == local_id ? step : pos;
         }
         if (pos > undefined_index) {
