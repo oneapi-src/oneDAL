@@ -24,9 +24,8 @@ namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
 
-using sycl::ONEAPI::reduce;
-using sycl::ONEAPI::maximum;
-using sycl::ONEAPI::minimum;
+using sycl::ext::oneapi::maximum;
+using sycl::ext::oneapi::minimum;
 
 template <typename Data>
 using local_accessor_rw_t =
@@ -66,9 +65,9 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
     Float x = objective_func[local_id];
     std::uint32_t x_index = local_id;
 
-    Float res_max = reduce(sg, x, maximum<Float>());
+    Float res_max = sycl::reduce_over_group(sg, x, maximum<Float>());
 
-    std::uint32_t res_index = reduce(sg, res_max == x ? x_index : int_max, minimum<Float>());
+    std::uint32_t res_index = sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
 
     if (sg_local_id == 0) {
         sg_cache[sg_id].value = res_max;
@@ -80,17 +79,17 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
     if (sg_id == 0 && sg_local_id < sg_count) {
         x = sg_cache[sg_local_id].value;
         x_index = sg_cache[sg_local_id].index;
-        res_max = reduce(sg, x, maximum<Float>());
-        res_index = reduce(sg, res_max == x ? x_index : int_max, minimum<Float>());
+        res_max = sycl::reduce_over_group(sg, x, maximum<Float>());
+        res_index = sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
 
         for (std::uint32_t group_index = sg_size; group_index < sg_count; group_index += sg_size) {
             x = sg_cache[group_index + sg_local_id].value;
             x_index = sg_cache[group_index + sg_local_id].index;
 
-            const Float inner_max = reduce(sg, x, maximum<Float>());
+            const Float inner_max = sycl::reduce_over_group(sg, x, maximum<Float>());
             if (inner_max > res_max) {
                 res_max = inner_max;
-                res_index = reduce(sg, res_max == x ? x_index : int_max, minimum<Float>());
+                res_index = sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
             }
         }
 
