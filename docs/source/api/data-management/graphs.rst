@@ -122,7 +122,7 @@ Graph traits
 Graph traits is a data type that defines the data model, a set of types
 associated with the graph, used by processing and service functionality.
 
-Type graph_traits shall be specialized for each graph by following the pattern
+Type graph_traits is specialized for each graph by following the pattern
 below.
 
 .. code-block:: cpp
