@@ -36,7 +36,6 @@ public:
               lstride_{ lstride } {}
 
     void operator()(sycl::nd_item<2> it) const {
-        using sycl::ONEAPI::reduce;
         // Common for whole WG
         const auto col_idx = it.get_global_id(0);
         const auto loc_idx = it.get_local_id(1);
@@ -49,7 +48,7 @@ public:
         }
         // WG reduction
         auto grp = it.get_group();
-        output_[col_idx] = reduce(grp, acc, binary_.native);
+        output_[col_idx] = sycl::reduce_over_group(grp, acc, binary_.native);
     }
 
 private:
