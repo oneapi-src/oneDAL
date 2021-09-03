@@ -118,9 +118,9 @@ class dimension_keeper<Float, true, true> {
 public:
     dimension_keeper() = default;
     dimension_keeper(std::int32_t ids_str,
-                            std::int32_t dst_str,
-                            idx_t* const ids_ptr,
-                            dst_t* const dst_ptr)
+                     std::int32_t dst_str,
+                     idx_t* const ids_ptr,
+                     dst_t* const dst_ptr)
             : dk_dst_(dst_str, dst_ptr),
               dk_ids_(ids_str, ids_ptr) {}
 
@@ -146,7 +146,7 @@ private:
 };
 
 template <typename Float, bool dst_out, bool ids_out, int proposed_sg_size>
-class kernel_select_heap/* : public dimension_keeper<Float, dst_out, ids_out> */{
+class kernel_select_heap /* : public dimension_keeper<Float, dst_out, ids_out> */ {
     using dst_t = Float;
     using idx_t = std::int32_t;
     using sel_t = selection_pair<dst_t, idx_t>;
@@ -316,8 +316,7 @@ public:
                 *(dk_.get_indices_pointer() + dk_.get_indices_stride() * rid + i) = values.idx;
             }
             if constexpr (dst_out) {
-                *(dk_.get_selection_pointer() + dk_.get_selection_stride() * rid + i) =
-                    values.dst;
+                *(dk_.get_selection_pointer() + dk_.get_selection_stride() * rid + i) = values.dst;
             }
         }
     }
