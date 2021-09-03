@@ -109,9 +109,9 @@ The graph is accessed using the :ref:`service functions <api_graph_service>`.
   * - Default constructor
     - Constructs an empty graph object 
   * - Move constructor
-    - Swaps implementation  
+    - Creates a new graph instance and moves the implementation from another instance into this one  
   * - Move assignment
-    - Swaps implementation 
+    - Swaps the implementation of this object and another one 
 
 
 .. _api_graph_traits:
@@ -119,8 +119,8 @@ The graph is accessed using the :ref:`service functions <api_graph_service>`.
 Graph traits
 ------------
    
-Graph traits is a data type that defines the data model, a set of types
-associated with the graph, used by processing and service functionality.
+Graph traits is a data type that defines the data model and a set of types
+associated with the graph. Graph traits are used by processing and :txtref:`service functionality <api_graph_service>`.
 
 Type graph_traits is specialized for each graph by following the pattern
 below.
