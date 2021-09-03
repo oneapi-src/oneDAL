@@ -34,7 +34,7 @@ inline bool operator<(const selection_pair<Float, Index>& lhs,
 }
 
 std::int64_t get_max_local_alloc(const sycl::queue& q) {
-    return device_local_mem_size(q) / 2;
+    return device_local_mem_size(q) / 4;
 }
 
 std::int64_t get_preferred_sub_group(const sycl::queue& queue) {
@@ -53,22 +53,21 @@ std::int64_t get_heap_max_k(const sycl::queue& q) {
     using sel_t = selection_pair<Float, std::int32_t>;
     constexpr auto sel_size_v = sizeof(sel_t);
     const auto mem = get_max_local_alloc(q);
-    const auto max_elems = mem / sizeof(Float);
-    return max_elems / sel_size_v - 1;
+    return mem / sel_size_v - 1;
 }
 
 template <typename Float, bool dst_out, bool ids_out>
-class kernel_select_heap_base {
+class dimension_keeper {
     static_assert(dst_out || ids_out);
 };
 
 template <typename Float>
-class kernel_select_heap_base<Float, true, false> {
+class dimension_keeper<Float, true, false> {
     using dst_t = Float;
 
 public:
-    kernel_select_heap_base() = default;
-    kernel_select_heap_base(std::int32_t ids_str, dst_t* const ids_ptr)
+    dimension_keeper() = default;
+    dimension_keeper(std::int32_t ids_str, dst_t* const ids_ptr)
             : dst_str_(ids_str),
               dst_ptr_(ids_ptr) {}
 
@@ -86,12 +85,12 @@ private:
 };
 
 template <typename Float>
-class kernel_select_heap_base<Float, false, true> {
+class dimension_keeper<Float, false, true> {
     using idx_t = std::int32_t;
 
 public:
-    kernel_select_heap_base() = default;
-    kernel_select_heap_base(std::int32_t ids_str, idx_t* const ids_ptr)
+    dimension_keeper() = default;
+    dimension_keeper(std::int32_t ids_str, idx_t* const ids_ptr)
             : ids_str_(ids_str),
               ids_ptr_(ids_ptr) {}
 
@@ -109,27 +108,45 @@ private:
 };
 
 template <typename Float>
-class kernel_select_heap_base<Float, true, true>
-        : public kernel_select_heap_base<Float, true, false>,
-          public kernel_select_heap_base<Float, false, true> {
-    using base_dst_t = kernel_select_heap_base<Float, true, false>;
-    using base_ids_t = kernel_select_heap_base<Float, false, true>;
+class dimension_keeper<Float, true, true> {
+    using dk_dst_t = dimension_keeper<Float, true, false>;
+    using dk_ids_t = dimension_keeper<Float, false, true>;
 
     using idx_t = std::int32_t;
     using dst_t = Float;
 
 public:
-    kernel_select_heap_base() = default;
-    kernel_select_heap_base(std::int32_t ids_str,
+    dimension_keeper() = default;
+    dimension_keeper(std::int32_t ids_str,
                             std::int32_t dst_str,
                             idx_t* const ids_ptr,
                             dst_t* const dst_ptr)
-            : base_dst_t(dst_str, dst_ptr),
-              base_ids_t(ids_str, ids_ptr) {}
+            : dk_dst_(dst_str, dst_ptr),
+              dk_ids_(ids_str, ids_ptr) {}
+
+    const auto& get_indices_stride() const {
+        return dk_ids_.get_indices_stride();
+    }
+
+    auto* get_indices_pointer() const {
+        return dk_ids_.get_indices_pointer();
+    }
+
+    const auto& get_selection_stride() const {
+        return dk_dst_.get_selection_stride();
+    }
+
+    auto* get_selection_pointer() const {
+        return dk_dst_.get_selection_pointer();
+    }
+
+private:
+    dk_dst_t dk_dst_;
+    dk_ids_t dk_ids_;
 };
 
 template <typename Float, bool dst_out, bool ids_out, int proposed_sg_size>
-class kernel_select_heap : public kernel_select_heap_base<Float, dst_out, ids_out> {
+class kernel_select_heap/* : public dimension_keeper<Float, dst_out, ids_out> */{
     using dst_t = Float;
     using idx_t = std::int32_t;
     using sel_t = selection_pair<dst_t, idx_t>;
@@ -143,7 +160,7 @@ class kernel_select_heap : public kernel_select_heap_base<Float, dst_out, ids_ou
     using acc_t =
         sycl::accessor<sel_t, 1, sycl::access::mode::read_write, sycl::access::target::local>;
 
-    using base_t = kernel_select_heap_base<Float, dst_out, ids_out>;
+    using dimension_keeper_t = dimension_keeper<Float, dst_out, ids_out>;
 
 public:
     kernel_select_heap() = default;
@@ -157,13 +174,13 @@ public:
                        std::int32_t src_str,
                        std::int32_t ids_str,
                        acc_t heaps)
-            : base_t(ids_str, ids_ptr),
+            : dk_(ids_str, ids_ptr),
               src_str_(src_str),
               src_ptr_(src_ptr),
               k_(k),
               width_(width),
               height_(height),
-              heaps_(heaps) {}
+              heaps_(std::move(heaps)) {}
 
     template <bool dst_only = (dst_out && !ids_out), typename = std::enable_if_t<dst_only>>
     kernel_select_heap(const dst_t* const src_ptr,
@@ -174,13 +191,13 @@ public:
                        std::int32_t src_str,
                        std::int32_t dst_str,
                        acc_t heaps)
-            : base_t(dst_str, dst_ptr),
+            : dk_(dst_str, dst_ptr),
               src_str_(src_str),
               src_ptr_(src_ptr),
               k_(k),
               width_(width),
               height_(height),
-              heaps_(heaps) {}
+              heaps_(std::move(heaps)) {}
 
     template <bool both = (ids_out && dst_out), typename = std::enable_if_t<both>>
     kernel_select_heap(const dst_t* const src_ptr,
@@ -193,13 +210,13 @@ public:
                        std::int32_t ids_str,
                        std::int32_t dst_str,
                        acc_t heaps)
-            : base_t(ids_str, dst_str, ids_ptr, dst_ptr),
+            : dk_(ids_str, dst_str, ids_ptr, dst_ptr),
               src_str_(src_str),
               src_ptr_(src_ptr),
               k_(k),
               width_(width),
               height_(height),
-              heaps_(heaps) {}
+              heaps_(std::move(heaps)) {}
 
     void operator()(sycl::nd_item<1> item) const {
         using sycl::ONEAPI::reduce;
@@ -224,7 +241,7 @@ public:
         idx_t pbuff_ids[pbuff_size] = { idx_default };
         std::int32_t pbuff_count, prev_count;
 
-        sel_t* const heaps = heaps_.get_pointer();
+        sel_t* const heaps = heaps_.get_pointer().get();
         sel_t* const curr_heap = heaps + k_ * sid;
 
         // Heap initialization
@@ -296,16 +313,18 @@ public:
         for (std::int32_t i = cid; i < k_; i += sg_width) {
             const auto& values = curr_heap[i];
             if constexpr (ids_out) {
-                *(this->get_indices_pointer() + this->get_indices_stride() * rid + i) = values.idx;
+                *(dk_.get_indices_pointer() + dk_.get_indices_stride() * rid + i) = values.idx;
             }
             if constexpr (dst_out) {
-                *(this->get_selection_pointer() + this->get_selection_stride() * rid + i) =
+                *(dk_.get_selection_pointer() + dk_.get_selection_stride() * rid + i) =
                     values.dst;
             }
         }
     }
 
 private:
+    dimension_keeper_t dk_;
+
     std::int32_t src_str_;
     const dst_t* src_ptr_;
 
@@ -334,6 +353,9 @@ sycl::event select(sycl::queue& queue,
         ONEDAL_ASSERT(k < get_heap_max_k<Float>(queue));
         const auto width = data.get_dimension(1);
         const auto height = data.get_dimension(0);
+        ONEDAL_ASSERT(data.has_data());
+        ONEDAL_ASSERT(!ids_out || indices.has_mutable_data());
+        ONEDAL_ASSERT(!dst_out || selection.has_mutable_data());
         ONEDAL_ASSERT(!ids_out || indices.get_dimension(1) == k);
         ONEDAL_ASSERT(!dst_out || selection.get_dimension(1) == k);
         ONEDAL_ASSERT(!ids_out || indices.get_dimension(0) == height);
@@ -341,7 +363,7 @@ sycl::event select(sycl::queue& queue,
         const auto max_wkg = propose_wg_size(queue);
         const auto available_mem = get_max_local_alloc(queue);
         const auto mem_bound = available_mem / (k * sizeof(sel_t));
-        ONEDAL_ASSERT(mem_bound > 0);
+        ONEDAL_ASSERT(0 < mem_bound);
         const auto wkg_bound = max_wkg / pref_sbg;
         const auto wg_size = std::min<std::int64_t>(mem_bound, wkg_bound);
         const auto block_count = height / wg_size + bool(height % wg_size);
@@ -391,6 +413,7 @@ sycl::event select(sycl::queue& queue,
                         heaps));
             }
         });
+        return sycl::event();
     }
 
     if constexpr (sg_size > 0) {
