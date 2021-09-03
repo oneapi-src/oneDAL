@@ -43,7 +43,7 @@ The :txtref:`graph` concept is represented by the types with the ``_graph`` suff
 1. The instance stores pointers to the graph :capterm:`topology`
    and :capterm:`attributes <Attribute>` of vertices and edges.
 
-2. The reference count indicating how many graph objects refer to the same implementation.
+2. The reference count indicates how many graph objects refer to the same implementation.
 
 3. The graph increments the reference count
    for it to be equal to the number of graph objects sharing the same implementation.
@@ -65,8 +65,6 @@ The :txtref:`graph` types are defined as templated classes:
             typename Allocator>
   class [graph_name]_graph;
 
-.. .. namespace:: oneapi::dal::preview
-.. .. struct:: graph_traits
 
 .. list-table:: 
    :widths: 20 40 40 
@@ -76,30 +74,30 @@ The :txtref:`graph` types are defined as templated classes:
      - Description
      - Supported types
    * - ``VertexValue``
-     - Type of the vertex :capterm:`attribute <Attribute>` values
+     - The type of the vertex :capterm:`attribute <Attribute>` values
      - :ref:`Empty value <api_empty_value>`
    * - ``EdgeValue``
-     - Type of the edge :capterm:`attribute <Attribute>` values
+     - The type of the edge :capterm:`attribute <Attribute>` values
      - ``std::int32``, ``double``, :ref:`Empty value <api_empty_value>`  
    * - ``GraphValue``
-     - Type of the graph :capterm:`attribute <Attribute>` value
+     - The type of the graph :capterm:`attribute <Attribute>` value
      - :ref:`Empty value <api_empty_value>`  
    * - ``IndexType``
-     - Type of the :capterm:`vertex indices <Vertex index>`
+     - The type of the :capterm:`vertex indices <Vertex index>`
      - ``std::int32`` 
    * - ``Allocator``
-     - graph allocator type.
+     - The type of a graph allocator
      - C++17 (ISO/IEC 14882:2017) compliant allocator
 
 
 :ref:`Empty value <api_empty_value>` tag structure is used to define 
-the absence of specified attribute of graph.
+the absence of a specified attribute of a graph.
 
 .. _api_empty_value:
 
 .. onedal_class:: oneapi::dal::preview::empty_value
 
-Graph class contains default and move constructor, assignment.
+Graph class contains the default and the move constructor as well as the move assignment operator.
 The graph is accessed using the :ref:`service functions <api_graph_service>`.
 
 .. list-table:: 

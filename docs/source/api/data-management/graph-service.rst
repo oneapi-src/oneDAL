@@ -46,7 +46,7 @@ to ``graph_traits`` as shown below.
 Related types
 --------------
 
-Aliases are used for shorter access to the :txtref:`graph <api_graph_template_type>` types.
+Aliases is a way to access :txtref:`graph <api_graph_template_type>` types using shorter notation.
 
 .. list-table:: 
    :widths: 40 60 
@@ -138,7 +138,7 @@ Usage example
 
 
 -------------------------
-Specified graphs service
+Service functions for supported graphs
 -------------------------
 
 This section contains description of service functions

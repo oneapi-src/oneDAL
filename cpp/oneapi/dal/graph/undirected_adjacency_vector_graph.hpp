@@ -55,10 +55,10 @@ public:
     /// Destructs the graph
     virtual ~undirected_adjacency_vector_graph() = default;
 
-    /// Move constructor for graph
+    /// The move constructor for the graph
     undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&other) = default;
 
-    /// Move operator for undirected_adjacency_vector_graph
+    /// The move operator for the undirected_adjacency_vector_graph
     undirected_adjacency_vector_graph &operator=(undirected_adjacency_vector_graph &&other);
 
 private:

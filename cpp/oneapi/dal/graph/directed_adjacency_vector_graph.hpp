@@ -57,10 +57,10 @@ public:
     /// Destructs the graph
     ~directed_adjacency_vector_graph() = default;
 
-    /// Move the constructor for the graph
+    /// The move constructor for the graph
     directed_adjacency_vector_graph(directed_adjacency_vector_graph &&other) = default;
 
-    /// Move operator for graph
+    /// The move operator for the graph
     directed_adjacency_vector_graph &operator=(directed_adjacency_vector_graph &&other);
 
 private:
