@@ -137,9 +137,9 @@ Usage example
   std::cout << "The number of edges: " << oneapi::dal::preview::get_edge_count(g) << std::endl;
 
 
--------------------------
+---------------------------------------
 Service functions for supported graphs
--------------------------
+---------------------------------------
 
 This section contains description of service functions
 supported for the specified :txtref:`graph <api_graphs>` types.

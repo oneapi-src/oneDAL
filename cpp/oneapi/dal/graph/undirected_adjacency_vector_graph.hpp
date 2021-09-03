@@ -32,11 +32,11 @@ namespace oneapi::dal::preview {
 /// CSR format with ordered vertex keys within each row. Self-loops and multi-edges
 /// are not supported.
 ///
-/// @tparam VertexValue  Type of vertex properties
-/// @tparam EdgeValue    Type of edge properties
-/// @tparam GraphValue   Type of graph properties
-/// @tparam IndexType    Type of vertex indices
-/// @tparam Allocator    Type of the custom allocator (currently not supported)
+/// @tparam VertexValue  The type of the vertex :capterm:`attribute <Attribute>` values
+/// @tparam EdgeValue    The type of the edge :capterm:`attribute <Attribute>` values
+/// @tparam GraphValue   The type of the graph :capterm:`attribute <Attribute>` value
+/// @tparam IndexType    The type of the :capterm:`vertex indices <Vertex index>`
+/// @tparam Allocator    The type of a graph allocator
 template <typename VertexValue = empty_value,
           typename EdgeValue = empty_value,
           typename GraphValue = empty_value,
@@ -55,10 +55,10 @@ public:
     /// Destructs the graph
     virtual ~undirected_adjacency_vector_graph() = default;
 
-    /// The move constructor for the graph
+    /// Creates a new graph instance and moves the implementation from another instance into this one
     undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&other) = default;
 
-    /// The move operator for the undirected_adjacency_vector_graph
+    /// Swaps the implementation of this object and another one
     undirected_adjacency_vector_graph &operator=(undirected_adjacency_vector_graph &&other);
 
 private:
