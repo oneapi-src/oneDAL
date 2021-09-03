@@ -94,8 +94,6 @@ Any service function has the following pattern:
   template <typename Graph>
   return_type<Graph> get_[graph_element](const Graph& g, ...);
 
-.. .. namespace:: oneapi::dal::preview
-.. .. func:: graph_service_func
  
 
 .. _api_get_vertex_count: 
@@ -138,8 +136,6 @@ Usage example
   std::cout << "The number of vertices: " << oneapi::dal::preview::get_vertex_count(g) << std::endl;
   std::cout << "The number of edges: " << oneapi::dal::preview::get_edge_count(g) << std::endl;
 
-.. .. namespace:: oneapi::dal::preview
-.. .. example:: graph_service_example
 
 -------------------------
 Specified graphs service

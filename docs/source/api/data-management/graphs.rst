@@ -136,8 +136,6 @@ below.
       ...
    };
 
-.. .. namespace:: oneapi::dal::preview
-.. .. struct:: graph_traits
 
 The full list of types defined in ``graph_traits<G>`` is in the table below:
 
@@ -204,47 +202,47 @@ The full list of types defined in ``graph_traits<G>`` is in the table below:
      - ``std::int64_t``
      - ``std::int64_t``
    * - ``edge_user_value_type``
-     - Type of  edge :capterm:`attribute <Attribute>` 
+     - The type of edge :capterm:`attribute <Attribute>` 
      - ``EdgeValue`` :ref:`[1] <GraphTemplateTypes>`
      - ``EdgeValue`` :ref:`[1] <GraphTemplateTypes>`  
    * - ``vertex_edge_size_type``
-     - Type of the vertex neighbors indices 
+     - The type of the vertex neighbors indices 
      - ``std::int64_t``
      - *Not available*     
    * - ``vertex_outward_edge_size_type``
-     - Type of the vertex outward neighbors indices 
+     - The type of the vertex outward neighbors indices 
      - *Not available*
      - ``std::int64_t``
    * - ``vertex_edge_iterator_type``
-     - Type of the vertex neighbors iterator 
+     - The type of the vertex neighbors iterator 
      - ``IndexType*`` :ref:`[1] <GraphTemplateTypes>`
      - *Not available*    
    * - ``const_vertex_edge_iterator_type``
-     - Type of the vertex neighbors constant iterator 
+     - The type of the vertex neighbors constant iterator 
      - ``const IndexType*`` :ref:`[1] <GraphTemplateTypes>`
      - *Not available*    
    * - ``vertex_outward_edge_iterator_type``
-     - Type of the vertex outward neighbors iterator 
+     - The type of the vertex outward neighbors iterator 
      - *Not available*
      - ``IndexType*`` :ref:`[1] <GraphTemplateTypes>`    
    * - ``const_vertex_outward_edge_iterator_type``
-     - Type of the vertex outward neighbors constant iterator 
+     - The type of the vertex outward neighbors constant iterator 
      - *Not available*
      - ``const IndexType*`` :ref:`[1] <GraphTemplateTypes>`
    * - ``vertex_edge_range``
-     - Type of the range of vertex neighbors 
+     - The type of the range of vertex neighbors 
      - ``std::pair<IndexType*, IndexType*>`` :ref:`[1] <GraphTemplateTypes>`
      - *Not available*    
    * - ``const_vertex_edge_range``
-     - Type of the constant range of vertex neighbors 
+     - The type of the constant range of vertex neighbors 
      - ``std::pair<IndexType*, IndexType*>`` :ref:`[1] <GraphTemplateTypes>`
      - *Not available*    
    * - ``vertex_outward_edge_range``
-     - Type of the range of vertex outward neighbors 
+     - The type of the range of vertex outward neighbors 
      - *Not available*
      - ``std::pair<IndexType*, IndexType*>`` :ref:`[1] <GraphTemplateTypes>`    
    * - ``const_vertex_outward_edge_range``
-     - Type of the constant range of vertex outward neighbors 
+     - The type of the constant range of vertex outward neighbors 
      - *Not available*
      - ``std::pair<IndexType*, IndexType*>`` :ref:`[1] <GraphTemplateTypes>`
 

@@ -25,7 +25,7 @@ Class ``undirected_adjacency_vector_graph`` is the implementation of
 sparse graph concept with :capterm:`adjacency matrix` underneath for which the following
 is true:
 
-- The data within the graph are sparse and stored in :capterm:`CSR <CSR data>`.
+- The data within the graph is sparse and stored in :capterm:`CSR <CSR data>`.
 - The :ref:`specific graph traits <api_graph_traits>` are defined for this class.
 
 ---------------------
