@@ -146,7 +146,7 @@ private:
 };
 
 template <typename Float, bool dst_out, bool ids_out, int proposed_sg_size>
-class kernel_select_heap /* : public dimension_keeper<Float, dst_out, ids_out> */ {
+class kernel_select_heap {
     using dst_t = Float;
     using idx_t = std::int32_t;
     using sel_t = selection_pair<dst_t, idx_t>;
