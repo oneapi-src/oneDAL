@@ -155,7 +155,7 @@ class kernel_select_heap /* : public dimension_keeper<Float, dst_out, ids_out> *
     constexpr static inline idx_t idx_default = dal::detail::limits<idx_t>::min();
     constexpr static inline dst_t dst_default = dal::detail::limits<dst_t>::max();
 
-    constexpr static inline sycl::ONEAPI::maximum<std::int32_t> max_func{};
+    constexpr static inline sycl::ext::oneapi::maximum<std::int32_t> max_func{};
 
     using acc_t =
         sycl::accessor<sel_t, 1, sycl::access::mode::read_write, sycl::access::target::local>;
@@ -219,7 +219,7 @@ public:
               heaps_(std::move(heaps)) {}
 
     void operator()(sycl::nd_item<1> item) const {
-        using sycl::ONEAPI::reduce;
+        using reduce = sycl::ext::oneapi::reduce_over_group;
 
         auto sg = item.get_sub_group();
 
