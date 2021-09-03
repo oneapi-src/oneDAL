@@ -61,9 +61,6 @@ Machine learning terms
 
         **Examples:** a person's height, the price of the house
 
-    Dataset
-        A collection of :capterm:`observations <observation>`.
-
     Dimensionality reduction
         A problem of transforming a set of :capterm:`feature vectors <feature
         vector>` from a high-dimensional space into a low-dimensional space
@@ -208,6 +205,68 @@ Machine learning terms
         By default, the delimiter is a comma, but, generally, it can be any character.
         For more details, `see <https://en.wikipedia.org/wiki/Comma-separated_values>`_.
 
+Graph analytics terms
+======================
+
+.. glossary::
+    :sorted:
+
+    Adjacency
+        A vertex :math:`u` is adjacent to vertex :math:`v` if they are joined by
+        an edge.
+
+    Adjacency matrix
+        An :math:`n \times n` matrix :math:`A_G` for a graph :math:`G` whose vertices
+        are explicitly ordered :math:`(v_1, v_2, ..., v_n)`,
+
+        .. math::
+            \mathrm{A_G}=\begin{cases}
+               1, \text{where } v_i \text{ and } v_j \text{ adjacent} \\
+               0, \text{otherwise.}
+            \end{cases}
+
+    Attribute
+        A value assigned to :capterm:`graph`, vertex or edge.
+        Can be numerical (:capterm:`weight`), string or any other custom data type.
+
+    Edge index
+        The index :math:`i` of an edge :math:`e_i` in an edge set :math:`E=\{e_1, e_2,  ..., e_m\}`
+        of :capterm:`graph` :math:`G`. Can be an integer value.         
+
+    Directed graph
+        A :capterm:`graph` where each edge is an ordered pair :math:`(u, v)`
+        of vertices. :math:`v` is designated as the tail, and :math:`u` is designated
+        as the head.
+
+    Graph
+        An object :math:`G=(V;E)` that consists of two sets, :math:`V` and :math:`E`,
+        where :math:`V` is a finite nonempty set, :math:`E` is a finite set that may
+        be empty, and the elements of :math:`E` are two-element subsets of :math:`V`.
+        :math:`V` is called a set of vertices, :math:`E` is called a set of edges [Gross2014]_. 
+
+    Self-loop
+        An edge that joins a vertex to itself.
+
+    Topology
+        A :capterm:`graph` without :capterm:`attributes <Attribute>`.
+
+    Undirected graph
+        A :capterm:`graph` where each edge is an unordered pair :math:`(u, v)` of vertices.
+
+    Unweighted graph
+        A :capterm:`graph` where all vertices and all edges has no :capterm:`weights <Weight>`.
+
+    Vertex index
+        The index :math:`i` of a vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
+        of :capterm:`graph` :math:`G`. Can be an integer value. 
+
+    Weight
+        A numerical value assigned to vertex, edge or graph.
+
+    Weighted graph
+        A :capterm:`graph` where all vertices or all
+        edges have :capterm:`weights <Weight>.`
+
 |short_name| terms
 ======================
 
@@ -232,6 +291,12 @@ Machine learning terms
     Contiguous data
         Data that are stored as one contiguous memory block. One of the
         characteristics of a :capterm:`data format`.
+    
+    CSR data
+        A compressed sparse row (csr) data is the sparse matrix representation.
+        Data with values of a single :capterm:`data type` and the same set of
+        available operations defined on them. One of the characteristics of a
+        :capterm:`data format`.
 
     Data format
         Representation of the internal structure of the data.
@@ -252,6 +317,11 @@ Machine learning terms
 
         **Examples:** ``int32_t``, ``float``, ``double``
 
+    Dataset
+        A collection of data in a specific data format. 
+        
+        **Examples:** a collection of observations, a :capterm:`graph`
+
     Flat data
         A block of :capterm:`contiguous <contiguous data>` :capterm:`homogeneous
         <homogeneous data>` data.
@@ -264,7 +334,6 @@ Machine learning terms
         .. code-block:: cpp
 
             std::int64_t get_row_count() const;
-
 
     Heterogeneous data
         Data which contain values either of different :capterm:`data types <Data
@@ -284,6 +353,7 @@ Machine learning terms
         **Example:** A :capterm:`dataset` with 100
         :capterm:`observations <Observation>` of three  :capterm:`interval features <Interval
         feature>`, each of type float32
+
 
     Immutability
         The object is immutable if it is not possible to change its state after

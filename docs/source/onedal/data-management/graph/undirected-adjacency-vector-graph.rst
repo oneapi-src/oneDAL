@@ -14,13 +14,22 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Introduction
-************
+.. _undirected_adjacency_vector_graph:
 
-.. toctree::
-   :maxdepth: 1
+=================================
+Undirected adjacency vector graph
+=================================
 
-   get-started.rst
-   build_app/build-application.rst
-   glossary.rst
-   notations.rst
+Class ``undirected_adjacency_vector_graph`` is the implementation of
+:capterm:`undirected <Undirected graph>` :capterm:`weighted <Weighted graph>`
+sparse graph concept with :capterm:`adjacency matrix` underneath for which the following
+is true:
+
+- The data within the graph is sparse and stored in :capterm:`CSR <CSR data>`.
+- The :ref:`specific graph traits <api_graph_traits>` are defined for this class.
+
+---------------------
+Programming interface
+---------------------
+
+Refer to :ref:`API Reference: Undirected Adjacency Vector Graph <api_undirected_adjacency_vector_graph>`.
