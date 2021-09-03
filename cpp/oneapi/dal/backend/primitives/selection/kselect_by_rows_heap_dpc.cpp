@@ -219,8 +219,6 @@ public:
               heaps_(std::move(heaps)) {}
 
     void operator()(sycl::nd_item<1> item) const {
-        using reduce = sycl::ext::oneapi::reduce_over_group;
-
         auto sg = item.get_sub_group();
 
         const std::int32_t sid = sg.get_group_linear_id();
@@ -263,7 +261,7 @@ public:
             worst_val = curr_heap->dst;
 
             // Collecting temporary best values in private memory
-            k_written = reduce(sg, k_written, max_func);
+            k_written = sycl::reduce_over_group(sg, k_written, max_func);
             for (std::int32_t j = 0; j < pbuff_size; ++j) {
                 const idx_t idx = block_start_col + sg_width * j;
                 const bool handle = idx < width_;
@@ -279,8 +277,8 @@ public:
             std::int32_t cid_to_handle, handle_this;
             do {
                 handle_this = pbuff_count ? cid : -1;
-                k_written = reduce(sg, k_written, max_func);
-                cid_to_handle = reduce(sg, handle_this, max_func);
+                k_written = sycl::reduce_over_group(sg, k_written, max_func);
+                cid_to_handle = sycl::reduce_over_group(sg, handle_this, max_func);
                 if (cid_to_handle == cid) {
                     for (std::int32_t i = 0; i < pbuff_count; ++i) {
                         worst_val = curr_heap->dst;
