@@ -82,6 +82,8 @@ def get_cxx_inc_directories(repo_ctx, cc, lang_flag, additional_flags = []):
     inc_dirs = result.stderr[index1:index2].strip()
     return [ _prepare_include_path(repo_ctx, p) for p in inc_dirs.split("\n") ]
 
+def get_tmp_dpcpp_inc_directories(repo_ctx, tools):
+    return ["/tmp"] if tools.dpc_compiler_version >= "20210803" else []
 
 def is_compiler_option_supported(repo_ctx, cc, option):
     """Checks that `option` is supported by the C compiler."""
