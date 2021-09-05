@@ -47,23 +47,36 @@ namespace de = ::oneapi::dal::detail;
 namespace bk = ::oneapi::dal::backend;
 namespace pr = ::oneapi::dal::backend::primitives;
 
-template <typename Float>
-sycl::event sqrt(sycl::queue& q, array<Float>& data, const bk::event_vector& deps = {}) {
-    ONEDAL_ASSERT(data.has_mutable_data());
-    const auto length = data.get_count();
-    const auto range = bk::make_range_1d(length);
-    auto* const data_ptr = data.get_mutable_data();
+template <typename T1, typename T2>
+sycl::event copy_with_sqrt(sycl::queue& q,
+                           pr::ndview<T1, 2>& dst,
+                           const pr::ndview<T2, 2>& src,
+                           const bk::event_vector& deps = {}) {
+    ONEDAL_ASSERT(src.has_data());
+    ONEDAL_ASSERT(dst.has_mutable_data());
+    const pr::ndshape<2> dst_shape = dst.get_shape();
+    ONEDAL_ASSERT(dst_shape == src.get_shape());
+    T1* const dst_ptr = dst.get_mutable_data();
+    const T2* const src_ptr = src.get_data();
+    const auto dst_stride = dst.get_leading_stride();
+    const auto src_stride = src.get_leading_stride();
+    const auto cp_range = bk::make_range_2d(dst_shape[0], dst_shape[1]);
     return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
-        h.parallel_for(range, [=](sycl::id<1> idx) {
-            data_ptr[idx] = sycl::sqrt(data_ptr[idx]);
+        h.parallel_for(cp_range, [=](sycl::id<2> idx) {
+            T1& dst_ref = *(dst_ptr + idx[0] * dst_stride + idx[1]);
+            const T2& val_ref = *(src_ptr + idx[0] * src_stride + idx[1]);
+            dst_ref = sycl::sqrt(val_ref);
         });
     });
 }
 
 template <typename Float>
 class knn_callback {
-    using voting_t = std::unique_ptr<pr::uniform_voting<idx_t>>;
+    using dst_t = Float;
+
+    using uniform_voting_t = std::unique_ptr<pr::uniform_voting<idx_t>>;
+    using distance_voting_t = std::unique_ptr<pr::distance_voting<dst_t>>;
 
 public:
     knn_callback(sycl::queue& q,
@@ -82,6 +95,11 @@ public:
                                                             { query_block, k_neighbors },
                                                             sycl::usm::alloc::device);
         }
+    }
+
+    auto& do_sqrt(bool do_sqrt) {
+        this->copy_with_sqrt_ = do_sqrt;
+        return *this;
     }
 
     auto& set_inp_responses(const pr::ndview<idx_t, 1>& inp_responses) {
@@ -140,7 +158,12 @@ public:
 
         if (result_options_.test(result_options::distances)) {
             auto out_block = distances_.get_row_slice(from, to);
-            copy_distances = copy(queue_, out_block, inp_distances, deps);
+            if (this->copy_with_sqrt_) {
+                copy_distances = copy_with_sqrt(queue_, out_block, inp_distances, deps);
+            }
+            else {
+                copy_distances = copy(queue_, out_block, inp_distances, deps);
+            }
         }
 
         if (result_options_.test(result_options::responses)) {
@@ -165,7 +188,8 @@ private:
     pr::ndarray<idx_t, 1> responses_;
     pr::ndarray<Float, 2> distances_;
     pr::ndarray<idx_t, 2> indices_;
-    voting_t voting_;
+    uniform_voting_t voting_;
+    bool copy_with_sqrt_ = false;
 };
 
 template <typename Float, typename Task>
@@ -232,13 +256,11 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
         using dst_t = pr::squared_l2_distance<Float>;
         using search_t = pr::search_engine<Float, dst_t>;
 
+        callback.do_sqrt(true);
+
         const dst_t dist{ queue };
         const search_t search{ queue, train_data, train_block, dist };
-        auto last_event = search(query_data, callback, infer_block, neighbor_count);
-        if (desc.get_result_options().test(result_options::distances)) {
-            last_event = sqrt<Float>(queue, arr_distances, { last_event });
-        }
-        last_event.wait_and_throw();
+        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
     }
     else {
         using met_t = pr::lp_metric<Float>;
