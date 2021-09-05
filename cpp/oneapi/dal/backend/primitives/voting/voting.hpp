@@ -16,5 +16,25 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/voting/uniform.hpp"
-#include "oneapi/dal/backend/primitives/voting/distance.hpp"
+#include "oneapi/dal/backend/primitives/common.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/sort.hpp"
+
+namespace oneapi::dal::backend::primitives {
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+template <typename DistType, typename ClassType = std::int32_t>
+class voting {
+public:
+    virtual sycl::event operator()(const ndview<ClassType, 2>& responses,
+                                   const ndview<DistType, 2>& distances,
+                                   ndview<ClassType, 1>& results,
+                                   const event_vector& deps = {}) = 0;
+};
+
+
+
+#endif
+
+} // namespace oneapi::dal::backend::primitives
