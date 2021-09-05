@@ -23,7 +23,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename DistsType, typename IndexType>
+template <typename DistsType, typename IndexType>
 inline sycl::event distance_voting_kernel(sycl::queue& queue,
                                           std::int64_t class_count,
                                           const ndview<IndexType>& responses,
@@ -39,14 +39,13 @@ inline sycl::event distance_voting_kernel(sycl::queue& queue,
     ONEDAL_ASSERT(k == distances.get_dimension(1));
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
-        h.parallel_for(ndrange,[=](sycl::nd_item<1> item) {
+        h.parallel_for(ndrange, [=](sycl::nd_item<1> item) {
             auto sg = item.get_sub_group();
 
             const std::int32_t
         });
     });
 }
-
 
 #endif
 

@@ -183,19 +183,15 @@ public:
             auto s_event = select_indexed(queue_, inp_indices, inp_responses_, temp_resp, ndeps);
 
             if (uniform_voting_) {
-                comp_responses = uniform_voting_->operator()(temp_resp,
-                                                             out_block,
-                                                             { s_event });
+                comp_responses = uniform_voting_->operator()(temp_resp, out_block, { s_event });
             }
 
             if (distance_voting_) {
                 const auto out_dists = distances_.get_row_slice(from, to);
                 const pr::ndview<dst_t, 2> distances =
-                            this->copy_with_sqrt_ ? out_dists : inp_distances;
-                comp_responses = distance_voting_->operator()(temp_resp,
-                                                              distances,
-                                                              out_block,
-                                                              { s_event });
+                    this->copy_with_sqrt_ ? out_dists : inp_distances;
+                comp_responses =
+                    distance_voting_->operator()(temp_resp, distances, out_block, { s_event });
             }
         }
 
@@ -277,18 +273,16 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     callback.set_distances(arr_distances);
     callback.set_indices(arr_indices);
 
-    if (desc.get_result_options().test(result_options::responses) && (desc.get_voting_mode() == voting_mode::uniform)) {
+    if (desc.get_result_options().test(result_options::responses) &&
+        (desc.get_voting_mode() == voting_mode::uniform)) {
         callback.set_uniform_voting(
-            std::move(pr::make_uniform_voting(queue,
-                                              infer_block,
-                                              neighbor_count)));
+            std::move(pr::make_uniform_voting(queue, infer_block, neighbor_count)));
     }
 
-    if (desc.get_result_options().test(result_options::responses) && (desc.get_voting_mode() == voting_mode::distance)) {
-        callback.set_distance_voting(
-            std::move(pr::make_distance_voting<Float>(queue,
-                                                     infer_block,
-                                                     desc.get_neighbor_count())));
+    if (desc.get_result_options().test(result_options::responses) &&
+        (desc.get_voting_mode() == voting_mode::distance)) {
+        callback.set_distance_voting(std::move(
+            pr::make_distance_voting<Float>(queue, infer_block, desc.get_neighbor_count())));
     }
 
     if (distance_impl->get_degree() == 2.0) {

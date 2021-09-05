@@ -25,7 +25,8 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename DistType, typename ClassType>
 distance_voting<DistType, ClassType>::distance_voting(sycl::queue& queue, std::int64_t class_count)
-    : queue_{ queue }, class_count_{ class_count } {}
+        : queue_{ queue },
+          class_count_{ class_count } {}
 
 template <typename DistType, typename ClassType>
 distance_voting<DistType, ClassType>::~distance_voting() {
@@ -37,24 +38,24 @@ sycl::queue& distance_voting<DistType, ClassType>::get_queue() const {
     return this->queue_;
 }
 
-template <typename DistType,typename ClassType>
+template <typename DistType, typename ClassType>
 std::int64_t distance_voting<DistType, ClassType>::get_class_count() const {
     return this->class_count_;
 }
 
 template <typename DistType, typename ClassType>
-std::unique_ptr<distance_voting<DistType, ClassType>> make_distance_voting(sycl::queue& queue,
-                                                                           std::int64_t max_block,
-                                                                           std::int64_t class_count) {
+std::unique_ptr<distance_voting<DistType, ClassType>>
+make_distance_voting(sycl::queue& queue, std::int64_t max_block, std::int64_t class_count) {
     using naive_t = naive_distance_voting<DistType, ClassType>;
     return std::make_unique<naive_t>(queue, max_block, class_count);
 }
 
-#define INSTANTIATE(FLOAT, CLASS)                                                                           \
-    template class distance_voting<FLOAT, CLASS>;                                                           \
-    template std::unique_ptr<distance_voting<FLOAT, CLASS>> make_distance_voting<FLOAT, CLASS>(sycl::queue&,\
-                                                                                               std::int64_t,\
-                                                                                               std::int64_t);
+#define INSTANTIATE(FLOAT, CLASS)                                                               \
+    template class distance_voting<FLOAT, CLASS>;                                               \
+    template std::unique_ptr<distance_voting<FLOAT, CLASS>> make_distance_voting<FLOAT, CLASS>( \
+        sycl::queue&,                                                                           \
+        std::int64_t,                                                                           \
+        std::int64_t);
 
 INSTANTIATE(float, std::int32_t);
 INSTANTIATE(float, std::int64_t);
