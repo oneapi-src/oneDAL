@@ -345,11 +345,11 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k - k:3") {
+KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
-    constexpr double target_score = 0.81;
+    constexpr double target_score = 0.8;
 
     constexpr std::int64_t feature_count = 28;
     constexpr std::int64_t n_classes = 2;
