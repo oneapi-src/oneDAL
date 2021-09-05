@@ -23,7 +23,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename DistsType, typename IndexType>
+template <typename DistsType, typename IndexType>
 sycl::event distance_voting_kernel(sycl::queue& queue,
                                    const ndview<IndexType, 2>& responses,
                                    const ndview<DistsType, 2>& distances,
@@ -56,17 +56,17 @@ sycl::event distance_voting_kernel(sycl::queue& queue,
             auto* const prb_row = prb_ptr + item * prb_str;
             const auto* const dst_row = dst_ptr + item * dst_str;
             const auto* const ids_row = ids_ptr + item * ids_str;
-            for(std::int32_t i = 0; i < classes; ++i) {
+            for (std::int32_t i = 0; i < classes; ++i) {
                 prb_row[i] = 0;
             }
-            for(std::int32_t i = 0; i < k_resps; ++i) {
+            for (std::int32_t i = 0; i < k_resps; ++i) {
                 const auto dst = dst_row[i];
                 const auto idx = ids_row[i];
                 prb_row[idx] += (dst < eps) ? 0 : (1 / dst);
             }
             IndexType best_cls = -1;
             DistsType best_prb = -1;
-            for(std::int32_t i = 0; i < classes; ++i) {
+            for (std::int32_t i = 0; i < classes; ++i) {
                 const auto p = prb_row[i];
                 const bool handle = p > best_prb;
                 best_cls = handle ? i : best_cls;
@@ -81,10 +81,10 @@ template <typename DistType, typename ClassType>
 naive_distance_voting<DistType, ClassType>::naive_distance_voting(sycl::queue& queue,
                                                                   std::int64_t max_block,
                                                                   std::int64_t class_count)
-    : base_t(queue, class_count),
-      global_probas_(ndarray<DistType, 2>::empty(queue,
-                                                 { max_block, class_count },
-                                                 sycl::usm::alloc::device)) {}
+        : base_t(queue, class_count),
+          global_probas_(ndarray<DistType, 2>::empty(queue,
+                                                     { max_block, class_count },
+                                                     sycl::usm::alloc::device)) {}
 
 template <typename DistType, typename ClassType>
 ndview<DistType, 2>& naive_distance_voting<DistType, ClassType>::get_global_probas() {
@@ -92,18 +92,14 @@ ndview<DistType, 2>& naive_distance_voting<DistType, ClassType>::get_global_prob
 }
 
 template <typename DistType, typename ClassType>
-sycl::event naive_distance_voting<DistType, ClassType>::operator() (const ndview<ClassType, 2>& responses,
-                                                                    const ndview<DistType, 2>& distances,
-                                                                    ndview<ClassType, 1>& results,
-                                                                    const event_vector& deps) {
+sycl::event naive_distance_voting<DistType, ClassType>::operator()(
+    const ndview<ClassType, 2>& responses,
+    const ndview<DistType, 2>& distances,
+    ndview<ClassType, 1>& results,
+    const event_vector& deps) {
     const auto samples_count = results.get_dimension(0);
     auto p_slice = this->get_global_probas().get_row_slice(0, samples_count);
-    return distance_voting_kernel(this->get_queue(),
-                                  responses,
-                                  distances,
-                                  p_slice,
-                                  results,
-                                  deps);
+    return distance_voting_kernel(this->get_queue(), responses, distances, p_slice, results, deps);
 }
 
 #define INSTANTIATE(F, C) template class naive_distance_voting<F, C>;
