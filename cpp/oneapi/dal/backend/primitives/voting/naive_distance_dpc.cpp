@@ -19,6 +19,8 @@
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
+#include "oneapi/dal/backend/primitives/voting/distance.hpp"
+
 namespace oneapi::dal::backend::primitives {
 
 template<typename DistsType, typename IndexType>
@@ -37,7 +39,7 @@ sycl::event distance_voting_kernel(sycl::queue& queue,
     const auto samples = dal::detail::integral_cast<std::int32_t>(responses.get_dimension(0));
     const auto k_resps = dal::detail::integral_cast<std::int32_t>(responses.get_dimension(1));
     ONEDAL_ASSERT(samples >= probas.get_dimension(0));
-    onedal_ASSERT(samples == result.get_dimension(0));
+    ONEDAL_ASSERT(samples == result.get_dimension(0));
     ONEDAL_ASSERT(samples == distances.get_dimension(0));
     ONEDAL_ASSERT(k_resps == distances.get_dimension(1));
     const auto* const ids_ptr = responses.get_data();
@@ -60,13 +62,13 @@ sycl::event distance_voting_kernel(sycl::queue& queue,
             for(std::int32_t i = 0; i < k_resps; ++i) {
                 const auto dst = dst_row[i];
                 const auto idx = ids_row[i];
-                prb_row[idx] = (dst < eps) ? dst : 0;
+                prb_row[idx] += (dst < eps) ? 0 : (1 / dst);
             }
             IndexType best_cls = -1;
-            DistsType best_prb = 0;
+            DistsType best_prb = -1;
             for(std::int32_t i = 0; i < classes; ++i) {
                 const auto p = prb_row[i];
-                const bool handle = p < best_prb;
+                const bool handle = p > best_prb;
                 best_cls = handle ? i : best_cls;
                 best_prb = handle ? p : best_prb;
             }

@@ -47,7 +47,7 @@ template <typename DistType, typename ClassType = std::int32_t>
 class naive_distance_voting : public distance_voting<DistType, ClassType> {
     using base_t = distance_voting<DistType, ClassType>;
 public:
-    naive_distance_voting(sycl::queue queue,
+    naive_distance_voting(sycl::queue& queue,
                           std::int64_t max_block,
                           std::int64_t class_count);
     sycl::event operator()(const ndview<ClassType, 2>& responses,
