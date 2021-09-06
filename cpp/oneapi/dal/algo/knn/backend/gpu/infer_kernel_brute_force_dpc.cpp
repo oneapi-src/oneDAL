@@ -235,7 +235,10 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
 
     const std::int64_t infer_row_count = infer.get_row_count();
     const std::int64_t feature_count = train.get_column_count();
+
+    const std::int64_t class_count = desc.get_class_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
+
     ONEDAL_ASSERT(train.get_column_count() == infer.get_column_count());
 
     auto arr_responses = array<idx_t>{};
@@ -282,7 +285,7 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     if (desc.get_result_options().test(result_options::responses) &&
         (desc.get_voting_mode() == voting_mode::distance)) {
         callback.set_distance_voting(std::move(
-            pr::make_distance_voting<Float>(queue, infer_block, desc.get_neighbor_count())));
+            pr::make_distance_voting<Float>(queue, infer_block, class_count)));
     }
 
     if (distance_impl->get_degree() == 2.0) {

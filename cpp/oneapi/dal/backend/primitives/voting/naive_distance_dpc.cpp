@@ -62,7 +62,7 @@ sycl::event distance_voting_kernel(sycl::queue& queue,
             for (std::int32_t i = 0; i < k_resps; ++i) {
                 const auto dst = dst_row[i];
                 const auto idx = ids_row[i];
-                prb_row[idx] += (dst < eps) ? 0 : (1 / dst);
+                prb_row[idx] += (dst < eps) ? 1 : (1 / dst);
             }
             IndexType best_cls = -1;
             DistsType best_prb = -1;
