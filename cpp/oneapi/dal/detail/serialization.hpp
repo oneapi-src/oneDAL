@@ -17,6 +17,7 @@
 #pragma once
 
 #include <algorithm>
+#include <iostream>
 #include "oneapi/dal/detail/hash_map.hpp"
 
 #define __ONEDAL_REGISTER_SERIALIZABLE__VAR2__(name, unique) name##unique
@@ -338,6 +339,7 @@ private:
 
     bool register_factory(std::uint64_t serialization_id,
                           const serializable_factory_iface* factory) {
+        std::cout << "register id = " << serialization_id << std::endl;
         ONEDAL_ASSERT(factory);
         ONEDAL_ASSERT(!factories_.has(serialization_id),
                       "Factory with the provided serialization_id is already registered");
@@ -410,6 +412,7 @@ inline T* deserialize_polymorphic(input_archive& archive,
         }
     }
 
+    std::cout << "id = " << serialization_id << std::endl;
     T* object_ptr = serializable_registry::instance().make<T>(serialization_id);
     get_serializable(object_ptr).deserialize(archive);
     return object_ptr;

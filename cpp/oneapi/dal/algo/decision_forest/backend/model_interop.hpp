@@ -22,6 +22,9 @@
 #include <daal/include/algorithms/decision_forest/decision_forest_regression_training_types.h>
 
 #include "oneapi/dal/algo/decision_forest/common.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/archive.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -48,7 +51,8 @@ public:
 };
 
 template <typename DaalModel>
-class model_interop_impl : public model_interop {
+class model_interop_impl : public model_interop,
+                           public ONEDAL_SERIALIZABLE(decision_forest_model_interop_impl_id) {
 public:
     model_interop_impl(const DaalModel& model) : daal_model_(model) {}
 
@@ -58,6 +62,16 @@ public:
 
     void clear() override {
         daal_model_->clear();
+    }
+
+    void serialize(dal::detail::output_archive& ar) const override {
+        dal::backend::interop::daal_output_data_archive daal_ar(ar);
+        daal_ar.setSharedPtrObj(const_cast<DaalModel&>(daal_model_));
+    }
+
+    void deserialize(dal::detail::input_archive& ar) override {
+        dal::backend::interop::daal_input_data_archive daal_ar(ar);
+        daal_ar.setSharedPtrObj(daal_model_);
     }
 
 private:
