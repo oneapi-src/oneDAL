@@ -291,7 +291,7 @@ public:
                          float_t expected_dbi,
                          float_t expected_obj,
                          float_t obj_ref_tol = 1.0e-4,
-                         float_t dbi_ref_tol = 1.0e-4) {
+                         float_t dbi_ref_tol = 1.0e-3) {
         const te::dataframe data = te::dataframe_builder{ dataset_path }.build();
         const table x = data.get_table(this->get_homogen_table_id());
         this->dbi_deterministic_checks(x,
@@ -638,7 +638,7 @@ public:
         const auto [responses, objective_function] = unpack_result(result);
 
         INFO("check if there is no NaN in objective function values")
-        REQUIRE(!std::isnan(objective_function));
+        REQUIRE(te::has_no_nans(homogen_table::wrap(&objective_function, 1, 1)));
 
         INFO("check if there is no NaN in responses")
         REQUIRE(te::has_no_nans(responses));

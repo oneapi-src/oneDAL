@@ -71,9 +71,7 @@ Dataset
 --------
 
 The main data-related concept that |short_name| works with is a
-:capterm:`dataset`. It is a tabular view of data, where table rows represent the
-:capterm:`observations <observation>` and columns represent the
-:capterm:`features <feature>`.
+:capterm:`dataset`. It is a collection of data in a specific data format.
 
 .. image:: _static/dataset.png
   :width: 400
@@ -236,6 +234,46 @@ Once a table object is created, it can be used as an input in computations or as
 a parameter of some algorithm. The data in the table can be accessed via its own
 interface or via read-only accessor as shown on the diagram.
 
+.. _graph:
+
+Graph
+-----
+
+A graph is a concept of in-memory structured data that is organized
+as a :capterm:`graph` with several vertices and edges.
+Graphs can be :capterm:`directed <Directed graph>`, :capterm:`undirected <Undirected graph>`,
+:capterm:`weighted <Weighted graph>` and :capterm:`attributed <Attribute>`. Graphs are used
+at the data preparation and data processing stages to:
+
+- Be an in-memory representation of a :txtref:`dataset`.
+
+- Store graph data in sparse
+  :capterm:`data formats <data format>`.
+
+- Avoid unnecessary data copies during conversion from external data
+  representations.
+
+- Connect with the :txtref:`data-source` to convert data from an
+  out-of-memory representation into an in-memory representation.
+
+.. note::
+  For thread-safety reasons and better integration with external entities, a
+  graph provides a read-only access to the data within it, thus, a graph object
+  is :capterm:`immutable <immutability>`.
+
+The logical organization of a graph and the physical :capterm:`format of
+the data <data format>` are different:
+
+- Logically, a :capterm:`graph` contains :math:`|V|` vertices and :math:`|E|` edges.
+  All vertices of the :capterm:`graph` are described with the same data type and
+  respective operations on it. Similarly, the same is true for edges and :capterm:`attributes <Attribute>`
+  of the :capterm:`graph`. The data types of vertices, edges, and attributes can be different.
+
+- Physically, the :capterm:`topology` of a graph can be organized in :capterm:`CSR <CSR data>`
+  and others data formats.
+
+For details, see :txtref:`dm_graphs` section.
+
 Details
 =======
 
@@ -247,4 +285,5 @@ This section includes the detailed descriptions of all data management objects i
    array.rst
    accessors.rst
    data-sources.rst
+   graphs.rst
    tables.rst

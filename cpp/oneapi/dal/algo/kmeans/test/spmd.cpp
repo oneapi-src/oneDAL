@@ -246,6 +246,8 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
         this->test_on_dataset(epsilon_path, 512, iters, 6.9367580565, 50128.640625, 1.0e-3);
     }
 
+    // Disabled due to an issue
+    /*
     SECTION("clusters=1024") {
         this->test_on_dataset(epsilon_path, 1024, iters, 5.59003873, 49518.75, 1.0e-3);
     }
@@ -253,6 +255,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
     SECTION("cluster=2048") {
         this->test_on_dataset(epsilon_path, 2048, iters, 4.3202752143, 48437.6015625, 1.0e-3);
     }
+    */
 }
 
 } // namespace oneapi::dal::kmeans::test

@@ -40,7 +40,8 @@ template <typename Float, typename Task, typename Topology, typename... Param>
 struct afforest {
     vertex_partitioning_result<Task> operator()(const dal::detail::host_policy& ctx,
                                                 const detail::descriptor_base<Task>& desc,
-                                                const Topology& t) const;
+                                                const Topology& t,
+                                                byte_alloc_iface* alloc) const;
 };
 
 template <typename Float>
@@ -48,7 +49,8 @@ struct afforest<Float, task::vertex_partitioning, dal::preview::detail::topology
     vertex_partitioning_result<task::vertex_partitioning> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<task::vertex_partitioning>& desc,
-        const dal::preview::detail::topology<std::int32_t>& t) const;
+        const dal::preview::detail::topology<std::int32_t>& t,
+        byte_alloc_iface* alloc) const;
 };
 
 template <typename Allocator, typename Graph>
@@ -63,8 +65,15 @@ struct vertex_partitioning_kernel_cpu<method::afforest,
         const Graph& g) const {
         using topology_type = typename graph_traits<Graph>::impl_type::topology_type;
         const auto& t = dal::preview::detail::csr_topology_builder<Graph>()(g);
-
-        return afforest<float, task::vertex_partitioning, topology_type>{}(ctx, desc, t);
+        alloc_connector<Allocator> alloc_con(alloc);
+        const auto vertex_count = t.get_vertex_count();
+        if (vertex_count == 0) {
+            return vertex_partitioning_result<task::vertex_partitioning>();
+        }
+        return afforest<float, task::vertex_partitioning, topology_type>{}(ctx,
+                                                                           desc,
+                                                                           t,
+                                                                           &alloc_con);
     }
 };
 

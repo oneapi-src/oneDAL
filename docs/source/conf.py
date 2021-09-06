@@ -303,4 +303,16 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),
+
+    # graphs
+    ('cpp:identifier', 'vertex_size_type<Graph>'),
+    ('cpp:identifier', 'edge_size_type<Graph>'),
+    ('cpp:identifier', 'vertex_type<Graph>'),
+    ('cpp:identifier', 'vertex_edge_size_type<Graph>'),
+    ('cpp:identifier', 'const_vertex_edge_range_type<Graph>'),
+    ('cpp:identifier', 'vertex_outward_edge_size_type<Graph>'),
+    ('cpp:identifier', 'const_vertex_outward_edge_range_type<Graph>'),
+    ('cpp:identifier', 'edge_user_value_type<Graph>'),
+    ('cpp:identifier', 'directed_adjacency_vector_graph'),
+    ('cpp:identifier', 'undirected_adjacency_vector_graph'),
 ]

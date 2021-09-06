@@ -27,6 +27,23 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
+std::int64_t get_max_block_size_in_bytes(const sycl::queue& queue) {
+    constexpr std::int64_t mem_block_size_limit_ratio = 4; // To ensure all blocks fit in memory
+    const std::int64_t max_block_size_in_bytes =
+        std::min(bk::device_max_mem_alloc_size(queue),
+                 bk::device_global_mem_size(queue) / mem_block_size_limit_ratio);
+    return max_block_size_in_bytes;
+}
+
+bool can_use_cache_for_distance_matrix(const sycl::queue& queue,
+                                       std::int64_t cache_size_in_bytes,
+                                       std::int64_t column_count) {
+    // TODO optimization/dispatching
+    constexpr std::int64_t effective_cache_column_count_limit = 256;
+    bool use_cache = column_count < effective_cache_column_count_limit;
+    return use_cache;
+}
+
 inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
     // TODO optimization/dispatching
     return 16;
@@ -65,10 +82,18 @@ struct complete_distances {};
 
 template <typename Float>
 std::int64_t kernels_fp<Float>::get_block_size_in_rows(sycl::queue& queue,
-                                                       std::int64_t column_count) {
-    // TODO optimization
+                                                       std::int64_t column_count,
+                                                       std::int64_t cluster_count) {
     std::int64_t block_size_in_bytes = bk::device_global_mem_cache_size(queue);
-    std::int64_t block_size_in_rows = block_size_in_bytes / column_count / sizeof(Float);
+    bool use_cache = can_use_cache_for_distance_matrix(queue, block_size_in_bytes, column_count);
+    if (!use_cache) {
+        const auto max_block_size_in_bytes = get_max_block_size_in_bytes(queue);
+        const std::int64_t max_width = std::max(column_count, cluster_count);
+        std::int64_t block_size_in_rows = max_block_size_in_bytes / max_width / sizeof(Float);
+        ONEDAL_ASSERT(block_size_in_rows > 0);
+        return block_size_in_rows;
+    }
+    const std::int64_t block_size_in_rows = block_size_in_bytes / column_count / sizeof(Float);
     ONEDAL_ASSERT(block_size_in_rows > 0);
     return block_size_in_rows;
 }
@@ -78,10 +103,7 @@ std::int64_t kernels_fp<Float>::get_part_count_for_partial_centroids(sycl::queue
                                                                      std::int64_t column_count,
                                                                      std::int64_t cluster_count) {
     // TODO optimization
-    constexpr std::int64_t mem_block_count = 4; // To ensure all blocks fit in memory
-    const std::int64_t block_size_in_bytes =
-        std::min(bk::device_max_mem_alloc_size(queue),
-                 bk::device_global_mem_size(queue) / mem_block_count);
+    const std::int64_t block_size_in_bytes = get_max_block_size_in_bytes(queue);
     std::int64_t part_count = 128; // Number of partial centroids. Reasonable initial guess.
     dal::detail::check_mul_overflow(cluster_count, column_count);
     dal::detail::check_mul_overflow(cluster_count * column_count, part_count);
@@ -156,13 +178,18 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
 
                 sg.barrier();
 
-                const Float final_value = reduce(sg, value, sycl::ONEAPI::minimum<Float>());
+                const Float final_value =
+                    sycl::reduce_over_group(sg, value, sycl::ext::oneapi::minimum<Float>());
                 const bool present = (final_value == value);
                 const std::int32_t pos =
-                    exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
+                    sycl::exclusive_scan_over_group(sg,
+                                                    present ? 1 : 0,
+                                                    sycl::ext::oneapi::plus<std::int32_t>());
                 const bool owner = present && pos == 0;
                 const std::int32_t final_index =
-                    -reduce(sg, owner ? -index : 1, sycl::ONEAPI::minimum<std::int32_t>());
+                    -sycl::reduce_over_group(sg,
+                                             owner ? -index : 1,
+                                             sycl::ext::oneapi::minimum<std::int32_t>());
 
                 if (local_id == 0) {
                     indices_ptr[out_offset] = final_index;
@@ -267,7 +294,7 @@ sycl::event kernels_fp<Float>::merge_reduce_centroids(sycl::queue& queue,
                 for (std::int64_t i = local_id; i < part_count; i += local_range) {
                     sum += partial_centroids_ptr[i * cluster_count * column_count + sg_global_id];
                 }
-                sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
+                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
 
                 if (local_id == 0) {
                     auto count = counters_ptr[sg_cluster_id];
@@ -317,7 +344,8 @@ sycl::event kernels_fp<Float>::partial_reduce_centroids(
                     if (local_id == 0) {
                         cl = response_ptr[i];
                     }
-                    cl = reduce(sg, cl, sycl::ONEAPI::maximum<std::int32_t>());
+                    cl =
+                        sycl::reduce_over_group(sg, cl, sycl::ext::oneapi::maximum<std::int32_t>());
                     for (std::int64_t j = local_id; j < column_count; j += local_range) {
                         partial_centroids_ptr[sg_global_id * cluster_count * column_count +
                                               cl * column_count + j] +=
@@ -355,7 +383,7 @@ sycl::event kernels_fp<Float>::compute_objective_function(
                 for (std::int64_t i = local_id; i < row_count; i += local_range) {
                     sum += distance_ptr[i];
                 }
-                sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
+                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
                 if (local_id == 0) {
                     value_ptr[0] = sum;
                 }
@@ -378,28 +406,28 @@ sycl::event kernels_fp<Float>::compute_squares(sycl::queue& queue,
 
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
-                         [=](sycl::nd_item<2> item) {
-                             auto sg = item.get_sub_group();
-                             const std::uint32_t sg_id = sg.get_group_id()[0];
-                             if (sg_id > 0)
-                                 return;
-                             const std::uint64_t sg_local_id = sg.get_local_id()[0];
-                             const std::uint32_t sg_local_range = sg.get_local_range()[0];
-                             const std::uint64_t wg_id = item.get_global_id(1);
-                             const std::uint64_t offset = wg_id * column_count;
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::uint64_t sg_local_id = sg.get_local_id()[0];
+                const std::uint32_t sg_local_range = sg.get_local_range()[0];
+                const std::uint64_t wg_id = item.get_global_id(1);
+                const std::uint64_t offset = wg_id * column_count;
 
-                             Float sum = Float(0);
-                             for (std::int64_t i = sg_local_id; i < column_count;
-                                  i += sg_local_range) {
-                                 const Float value = data_ptr[offset + i];
-                                 sum += value * value;
-                             }
-                             sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
-                             if (sg_local_id == 0) {
-                                 squares_ptr[wg_id] = sum;
-                             }
-                         });
+                Float sum = Float(0);
+                for (std::int64_t i = sg_local_id; i < column_count; i += sg_local_range) {
+                    const Float value = data_ptr[offset + i];
+                    sum += value * value;
+                }
+                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                if (sg_local_id == 0) {
+                    squares_ptr[wg_id] = sum;
+                }
+            });
     });
 }
 
@@ -417,10 +445,12 @@ sycl::event kernels_fp<Float>::complete_closest_distances(sycl::queue& queue,
 
     auto complete_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for<complete_distances<Float>>(sycl::range<1>(elem_count),
-                                                    [=](sycl::id<1> idx) {
-                                                        values_ptr[idx] += squares_ptr[idx];
-                                                    });
+        cgh.parallel_for<complete_distances<Float>>(
+            sycl::range<1>(elem_count),
+            [=](sycl::id<1> idx) {
+                Float val = values_ptr[idx] + squares_ptr[idx];
+                values_ptr[idx] = val < Float(0) ? Float(0) : val;
+            });
     });
     return complete_event;
 }

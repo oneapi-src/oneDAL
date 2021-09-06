@@ -154,7 +154,7 @@ public:
             const auto l = gt_indices_row[0];
             const auto r = te_indices_row[0];
             if (l != r) {
-                CAPTURE(l, r);
+                CAPTURE(j, l, r);
                 FAIL("Indices of nearest neighbors are unequal");
             }
         }

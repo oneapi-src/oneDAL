@@ -222,7 +222,7 @@ static auto reduce_candidates(sycl::queue& queue,
         dal::detail::check_mul_overflow(comm.get_rank_count(), candidate_count);
 
     // Allgather candidates
-    const auto host_candidates = candidates.to_host(queue);
+    const auto host_candidates = candidates.to_host(queue, deps);
     auto host_all_candidates = pr::ndarray<Float, 3>::empty({ comm.get_rank_count(), //
                                                               candidate_count,
                                                               column_count });
@@ -316,7 +316,6 @@ static auto gather_scatter_candidates(sycl::queue& queue,
         sycl::usm::alloc::device);
 
     auto gather_event = gather_candidates(queue, data, candidates, gathered_candidates, deps);
-
     auto candidate_distances = candidates.get_distances();
     auto reduce_event = reduce_candidates(queue,
                                           comm,

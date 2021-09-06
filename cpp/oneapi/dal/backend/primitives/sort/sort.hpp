@@ -132,12 +132,18 @@ public:
     ///       Auxiliary buffers and variables are reset in case if number of elements in val
     ///       differs from the number of elements provided in constructor
     ///
-    /// @param[in]  val_in The [n x p] input array of vectors (row major format) to sort out
-    /// @param[out] val_out The [n x p] output array of sorted vectors
+    /// @param[in]  val_in The [n x p] input array of vectors (row major format) to sort out,
+    ///                    is also used for temporary data storage
+    /// @param[out] val_out The [n x p] output array of sorted vectors (row major format)
     /// @param[in]  sorted_elem_count The number of elements to sort in each vector
+    /// TODO: Extend interface with strided (not dense) input & output arrays
     sycl::event operator()(ndview<Integer, 2>& val_in,
                            ndview<Integer, 2>& val_out,
                            std::int64_t sorted_elem_count,
+                           const event_vector& deps = {});
+
+    sycl::event operator()(ndview<Integer, 2>& val_in,
+                           ndview<Integer, 2>& val_out,
                            const event_vector& deps = {});
 
 private:

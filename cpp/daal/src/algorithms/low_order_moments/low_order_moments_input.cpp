@@ -37,6 +37,11 @@ namespace interface1
 {
 Input::Input() : InputIface(lastInputId + 1) {}
 Input::Input(const Input & other) : InputIface(other) {}
+Input & Input::operator=(const Input & other)
+{
+    InputIface::operator=(other);
+    return *this;
+}
 
 /**
  * Returns the number of columns in the input data set
