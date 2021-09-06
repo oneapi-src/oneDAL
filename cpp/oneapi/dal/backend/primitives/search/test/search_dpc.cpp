@@ -42,14 +42,13 @@ class search_test : public te::float_algo_fixture<Float> {
     using idx_t = ndview<std::int32_t, 2>;
     using dst_t = ndview<Float, 2>;
     using search_t = search_engine<Float, squared_l2_distance<Float>>;
-    //using search_t = search_engine<Float, lp_distance<Float>>;
 
 public:
     void generate() {
         m_ = GENERATE(2, 11, 17, 32, 127);
-        n_ = GENERATE(3, 10, 17, 32, 129);
-        k_ = GENERATE(1, 3, 5, 7, 9, 31);
-        d_ = GENERATE(2, 28, 41, 131);
+        n_ = GENERATE(3, 10, 17, 32, 127);
+        k_ = GENERATE(1, 16, 32, 64, 127);
+        d_ = GENERATE(2, 28, 41, 77, 133);
         generate_data();
     }
 
@@ -93,7 +92,8 @@ public:
     void exact_nearest_indices_check(const table& train_data,
                                      const table& infer_data,
                                      const idx_t& result_ids,
-                                     const dst_t& result_dst) {
+                                     const dst_t& result_dst,
+                                     const Float threshold) {
         const auto gtruth = naive_knn_search(train_data, infer_data);
 
         INFO("check if data shape is expected");
@@ -101,22 +101,28 @@ public:
         REQUIRE(train_data.get_row_count() == gtruth.get_column_count());
         REQUIRE(infer_data.get_row_count() == gtruth.get_row_count());
 
-        auto indices = naive_knn_search(train_data, infer_data);
-        auto ind_arr = row_accessor<const std::int32_t>(indices).pull({ 0, n_ });
+        auto ind_arr = row_accessor<const std::int32_t>(gtruth).pull({ 0, n_ });
         const auto ind_ndarr = idx_t::wrap(ind_arr.get_data(), { n_, m_ });
+
+        auto dst_table = distances(train_data, infer_data);
+        auto dst_arr = row_accessor<const Float>(dst_table).pull({ 0, n_ });
+        const auto dst_ndarr = dst_t::wrap(dst_arr.get_data(), { n_, m_ });
 
         for (std::int64_t j = 0; j < n_; ++j) {
             for (std::int64_t i = 0; i < k_; ++i) {
                 const auto gtr_val = ind_ndarr.at(j, i);
+                const auto gtr_dst = dst_ndarr.at(j, gtr_val);
                 const auto res_val = result_ids.at(j, i);
-                [[maybe_unused]] const auto res_dst = result_dst.at(j, i);
-                CAPTURE(i, j, m_, n_, k_, d_, gtr_val, res_val, res_dst);
-                REQUIRE(gtr_val == res_val);
+                const auto res_dst = result_dst.at(j, i);
+                const bool close_dst = std::abs((gtr_dst / res_dst) - 1) < threshold;
+                CAPTURE(i, j, m_, n_, k_, d_, gtr_val, gtr_dst, res_val, res_dst, close_dst);
+                const bool is_valid = close_dst || (gtr_val == res_val);
+                REQUIRE(is_valid);
             }
         }
     }
 
-    void test_correctness() {
+    void test_correctness(const Float threshold = 1e-5) {
         check_if_initialized();
         if (m_ > k_) {
             const auto train = get_train_view();
@@ -133,7 +139,7 @@ public:
 
             engine(query, callbk, qblock, k_).wait_and_throw();
 
-            exact_nearest_indices_check(train_, query_, indices, distances);
+            exact_nearest_indices_check(train_, query_, indices, distances, threshold);
         }
     }
 
