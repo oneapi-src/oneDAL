@@ -34,6 +34,8 @@ namespace oneapi::dal::backend::primitives {
 // Performs k-selection using Quick Select algorithm which is based on row partitioning
 template <typename Float>
 class kselect_by_rows_quick : public kselect_by_rows_base<Float> {
+    static constexpr Float max_float = oneapi::dal::detail::limits<Float>::max();
+
 public:
     kselect_by_rows_quick() = delete;
     kselect_by_rows_quick(sycl::queue& queue, const ndshape<2>& shape)
@@ -140,6 +142,41 @@ private:
             *count = 0;
         return ret;
     }
+
+    static void finalize(sycl::nd_item<2> item,
+                         Float* values,
+                         std::int32_t* indices,
+                         std::int32_t partition_start,
+                         std::int32_t partition_end,
+                         std::int32_t remainder) {
+        auto sg = item.get_sub_group();
+        const std::int32_t local_id = sg.get_local_id()[0];
+        const std::int32_t local_size = sg.get_local_range()[0];
+
+        constexpr std::int32_t undefined_index = -1;
+        auto partition_size = partition_end - partition_start;
+        bool is_used = local_id < partition_size;
+        auto offset = partition_start + local_id;
+        Float val = is_used ? values[offset] : max_float;
+        std::int32_t ind = is_used ? indices[offset] : undefined_index;
+        std::int32_t pos = undefined_index;
+        for (std::int32_t step = 0; step < remainder; step++) {
+            Float min_val = sycl::reduce_over_group(sg,
+                                                    pos < 0 ? val : max_float,
+                                                    sycl::ext::oneapi::minimum<Float>());
+            bool is_mine = min_val == val && pos == undefined_index;
+            std::int32_t min_id =
+                sycl::reduce_over_group(sg,
+                                        is_mine ? local_id : local_size,
+                                        sycl::ext::oneapi::minimum<std::int32_t>());
+            pos = min_id == local_id ? step : pos;
+        }
+        if (pos > undefined_index) {
+            values[partition_start + pos] = val;
+            indices[partition_start + pos] = ind;
+        }
+    }
+
     template <bool selection_out, bool indices_out>
     static void kernel_select(sycl::nd_item<2> item,
                               std::int32_t num_rows,
@@ -183,21 +220,27 @@ private:
             std::int32_t pos = (std::int32_t)(rnd * (partition_end - partition_start - 1));
             pos = pos < 0 ? 0 : pos;
             const Float pivot = values[partition_start + pos];
-            std::int32_t split_index = row_partitioning_kernel(item,
-                                                               values,
-                                                               indices,
-                                                               partition_start,
-                                                               partition_end,
-                                                               pivot);
-
-            if ((split_index) == k)
+            auto partition_size = partition_end - partition_start;
+            if (partition_size > local_size) {
+                std::int32_t split_index = row_partitioning_kernel(item,
+                                                                   values,
+                                                                   indices,
+                                                                   partition_start,
+                                                                   partition_end,
+                                                                   pivot);
+                if ((split_index) == k)
+                    break;
+                if (split_index > k)
+                    partition_end = split_index;
+                if (split_index < k)
+                    partition_start = split_index;
+            }
+            else {
+                auto remainder = k - partition_start;
+                finalize(item, values, indices, partition_start, partition_end, remainder);
                 break;
-            if (split_index > k)
-                partition_end = split_index;
-            if (split_index < k)
-                partition_start = split_index;
+            }
         }
-        //assert(iteration_count < row_count);
         for (std::int32_t i = local_id; i < k; i += local_size) {
             if constexpr (indices_out) {
                 out_indices[offset_ids_out + i] = indices[i];

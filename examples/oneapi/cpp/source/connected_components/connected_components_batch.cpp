@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <memory>
-
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/connected_components.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
@@ -30,20 +28,15 @@ int main(int argc, char** argv) {
     using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
     const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
 
-    try {
-        // compute connected_components
-        const auto result_connected_components =
-            dal::preview::vertex_partitioning(dal::preview::connected_components::descriptor<>{},
-                                              graph);
+    // set algorithm parameters
+    const auto cc_desc = dal::preview::connected_components::descriptor<>();
 
-        // extract the result
-        std::cout << "Components' labels:\n"
-                  << result_connected_components.get_labels() << std::endl;
-        std::cout << "Number of connected components: "
-                  << result_connected_components.get_component_count() << std::endl;
-    }
-    catch (dal::unimplemented& e) {
-        std::cout << "  " << e.what() << std::endl;
-    }
+    // compute connected components
+    const auto result_connected_components = dal::preview::vertex_partitioning(cc_desc, graph);
+
+    // extract the result
+    std::cout << "Components' labels:\n" << result_connected_components.get_labels() << std::endl;
+    std::cout << "Number of connected components: "
+              << result_connected_components.get_component_count() << std::endl;
     return 0;
 }

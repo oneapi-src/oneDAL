@@ -57,7 +57,7 @@ struct sum {
     using tag_t = reduce_binary_op_tag;
     constexpr static inline T init_value = 0;
 #ifdef ONEDAL_DATA_PARALLEL
-    constexpr static inline sycl::ONEAPI::plus<T> native{};
+    constexpr static inline sycl::ext::oneapi::plus<T> native{};
 #else
     constexpr static inline std::plus<T> native{};
 #endif
@@ -71,7 +71,7 @@ struct max {
     using tag_t = reduce_binary_op_tag;
     constexpr static inline T init_value = std::numeric_limits<T>::min();
 #ifdef ONEDAL_DATA_PARALLEL
-    constexpr static inline sycl::ONEAPI::maximum<T> native{};
+    constexpr static inline sycl::ext::oneapi::maximum<T> native{};
 #else
     constexpr static inline auto native = [](const T& a, const T& b) {
         return std::max(a, b);
@@ -87,7 +87,7 @@ struct min {
     using tag_t = reduce_binary_op_tag;
     constexpr static inline T init_value = std::numeric_limits<T>::max();
 #ifdef ONEDAL_DATA_PARALLEL
-    constexpr static inline sycl::ONEAPI::minimum<T> native{};
+    constexpr static inline sycl::ext::oneapi::minimum<T> native{};
 #else
     constexpr static inline auto native = [](const T& a, const T& b) {
         return std::min(a, b);
