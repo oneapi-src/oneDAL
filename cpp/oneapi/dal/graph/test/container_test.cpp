@@ -34,8 +34,9 @@ struct CountingAllocator {
     template <class U>
     CountingAllocator(const CountingAllocator<U>& other) {}
 
-    auto operator=(const CountingAllocator<T>& other) {
-        return true;
+    template <class U>
+    auto operator=(const CountingAllocator<U>& other) {
+        return *this;
     }
 
     T* allocate(const size_t n) {
