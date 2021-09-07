@@ -516,10 +516,6 @@ protected:
             arch->setSharedPtrObj(_impurityTables);
             arch->setSharedPtrObj(_nNodeSampleTables);
         }
-        if ((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
-        {
-            arch->setSharedPtrObj(_probTbl);
-        }
 
         if (onDeserialize) _nTree.set(_serializationData->size());
 

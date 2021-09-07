@@ -329,6 +329,8 @@ template class ONEDAL_EXPORT model<task::regression>;
 
 ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::classification>)
 ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::regression>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_cls)
+ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_reg)
 
 } // namespace v1
 } // namespace oneapi::dal::decision_forest

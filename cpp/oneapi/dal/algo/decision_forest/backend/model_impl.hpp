@@ -39,15 +39,15 @@ struct daal_model_map<task::regression> {
     using daal_model_interop_t = backend::model_interop_reg;
 };
 
-#define KNN_SERIALIZABLE(Task, ClassificationId, RegressionId)         \
+#define DF_SERIALIZABLE(Task, ClassificationId, RegressionId)          \
     ONEDAL_SERIALIZABLE_MAP2(Task,                                     \
                              (task::classification, ClassificationId), \
                              (task::regression, RegressionId))
 
 template <typename Task>
-class detail::v1::model_impl : public KNN_SERIALIZABLE(Task,
-                                                       decision_forest_classification_model_impl_id,
-                                                       decision_forest_regression_model_impl_id) {
+class detail::v1::model_impl : public DF_SERIALIZABLE(Task,
+                                                      decision_forest_classification_model_impl_id,
+                                                      decision_forest_regression_model_impl_id) {
     static_assert(is_valid_task_v<Task>);
 
     using dtree_task_t = detail::decision_tree_task_map_t<Task>;

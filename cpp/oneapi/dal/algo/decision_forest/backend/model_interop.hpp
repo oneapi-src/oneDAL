@@ -50,10 +50,23 @@ public:
     virtual void clear() {}
 };
 
+#define DF_MODEL_INTEROP_SERIALIZABLE(model_t, ClassificationId, RegressionId)           \
+    ONEDAL_SERIALIZABLE_MAP2(                                                            \
+        model_t,                                                                         \
+        (daal::algorithms::decision_forest::classification::ModelPtr, ClassificationId), \
+        (daal::algorithms::decision_forest::regression::ModelPtr, RegressionId))
+
 template <typename DaalModel>
-class model_interop_impl : public model_interop,
-                           public ONEDAL_SERIALIZABLE(decision_forest_model_interop_impl_id) {
+class model_interop_impl
+        : public model_interop,
+          public DF_MODEL_INTEROP_SERIALIZABLE(DaalModel,
+                                               decision_forest_model_interop_impl_cls_id,
+                                               decision_forest_model_interop_impl_reg_id) {
+    using model_ptr_t = daal::services::SharedPtr<DaalModel>;
+
 public:
+    model_interop_impl() = default;
+
     model_interop_impl(const DaalModel& model) : daal_model_(model) {}
 
     const DaalModel get_model() const {

@@ -180,7 +180,8 @@ public:
     // Algorithms - Decision Forest
     ID(6010000000, decision_forest_classification_model_impl_id);
     ID(6020000000, decision_forest_regression_model_impl_id);
-    ID(6030000000, decision_forest_model_interop_impl_id);
+    ID(6030000000, decision_forest_model_interop_impl_cls_id);
+    ID(6040000000, decision_forest_model_interop_impl_reg_id);
 };
 
 #undef ID
