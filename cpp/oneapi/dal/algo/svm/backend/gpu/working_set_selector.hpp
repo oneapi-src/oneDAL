@@ -17,14 +17,13 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/misc.hpp"
 
 namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
 
 #ifdef ONEDAL_DATA_PARALLEL
-
-enum class ws_edge { up, low };
 
 inline std::int64_t propose_working_set_size(const sycl::queue& queue,
                                              const std::int64_t row_count) {
@@ -57,17 +56,8 @@ private:
         pr::ndview<std::uint32_t, 1>& ws_indices,
         const std::int64_t need_select_count,
         const std::int64_t left_to_select,
-        ws_edge edge,
+        violating_edge edge,
         const dal::backend::event_vector& deps = {});
-
-    sycl::event check_ws_edge(sycl::queue& queue,
-                              const pr::ndview<Float, 1>& y,
-                              const pr::ndview<Float, 1>& alpha,
-                              pr::ndview<std::uint8_t, 1>& indicator,
-                              const Float C,
-                              const std::int64_t n,
-                              ws_edge edge,
-                              const dal::backend::event_vector& deps = {});
 
     sycl::event sort_f_indices(sycl::queue& queue,
                                const pr::ndview<Float, 1>& f,

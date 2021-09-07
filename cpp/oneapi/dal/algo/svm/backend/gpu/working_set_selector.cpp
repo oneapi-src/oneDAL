@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/svm/backend/gpu/working_set_selector.hpp"
-#include "oneapi/dal/algo/svm/backend/gpu/misc.hpp"
 #include "oneapi/dal/backend/primitives/selection/select_flagged.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 
@@ -69,8 +68,12 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
     auto event = sort_f_indices(queue_, f, deps);
 
     const std::int64_t need_select_up = (ws_count_ - selected_count) / 2;
-    std::tie(selected_count, event) =
-        select_ws_edge(alpha, ws_indices, need_select_up, left_to_select, ws_edge::up, { event });
+    std::tie(selected_count, event) = select_ws_edge(alpha,
+                                                     ws_indices,
+                                                     need_select_up,
+                                                     left_to_select,
+                                                     violating_edge::up,
+                                                     { event });
     left_to_select -= selected_count;
 
     const std::int64_t need_select_count_low = ws_count_ - selected_count;
@@ -78,7 +81,7 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
                                                      ws_indices,
                                                      need_select_count_low,
                                                      left_to_select,
-                                                     ws_edge::low,
+                                                     violating_edge::low,
                                                      { event });
     left_to_select -= selected_count;
 
@@ -87,7 +90,7 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
                                                          ws_indices,
                                                          left_to_select,
                                                          left_to_select,
-                                                         ws_edge::up,
+                                                         violating_edge::up,
                                                          { event });
         left_to_select -= selected_count;
     }
@@ -130,10 +133,10 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
     pr::ndview<std::uint32_t, 1>& ws_indices,
     const std::int64_t need_select_count,
     const std::int64_t left_to_select,
-    ws_edge edge,
+    violating_edge edge,
     const dal::backend::event_vector& deps) {
     auto select_ws_edge_event =
-        check_ws_edge(queue_, labels_, alpha, indicator_, C_, row_count_, edge, deps);
+        check_violating_edge(queue_, labels_, alpha, indicator_, C_, edge, deps);
 
     const std::int64_t already_selected = ws_count_ - left_to_select;
 
@@ -157,7 +160,7 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
 
     if (select_count > 0) {
         std::int64_t offset = 0;
-        if (edge == ws_edge::low) {
+        if (edge == violating_edge::low) {
             offset = select_flagged_count - select_count;
         }
         select_ws_edge_event = dal::backend::copy(queue_,
@@ -168,52 +171,6 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
     }
 
     return { select_count, select_ws_edge_event };
-}
-
-template <typename Float>
-sycl::event working_set_selector<Float>::check_ws_edge(sycl::queue& queue,
-                                                       const pr::ndview<Float, 1>& y,
-                                                       const pr::ndview<Float, 1>& alpha,
-                                                       pr::ndview<std::uint8_t, 1>& indicator,
-                                                       const Float C,
-                                                       const std::int64_t n,
-                                                       ws_edge edge,
-                                                       const dal::backend::event_vector& deps) {
-    ONEDAL_ASSERT(y.get_dimension(0) == n);
-    ONEDAL_ASSERT(alpha.get_dimension(0) == n);
-    ONEDAL_ASSERT(indicator.get_dimension(0) == n);
-    ONEDAL_ASSERT(indicator.has_mutable_data());
-
-    const Float* y_ptr = y.get_data();
-    const Float* alpha_ptr = alpha.get_data();
-    std::uint8_t* indicator_ptr = indicator.get_mutable_data();
-
-    const auto wg_size = std::min(dal::backend::propose_wg_size(queue), n);
-    const auto range = dal::backend::make_multiple_nd_range_1d(n, wg_size);
-
-    sycl::event check_event;
-
-    if (edge == ws_edge::up) {
-        check_event = queue.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-
-            cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-                const std::uint32_t i = item.get_global_id(0);
-                indicator_ptr[i] = is_upper_edge<Float>(y_ptr[i], alpha_ptr[i], C);
-            });
-        });
-    }
-    else {
-        check_event = queue.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-
-            cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-                const std::uint32_t i = item.get_global_id(0);
-                indicator_ptr[i] = is_lower_edge<Float>(y_ptr[i], alpha_ptr[i], C);
-            });
-        });
-    }
-    return check_event;
 }
 
 template <typename Float>
