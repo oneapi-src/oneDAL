@@ -16,7 +16,7 @@
 
 .. default-domain:: cpp
 
-.. _alg_basic_statistics:
+.. _api_basic_statistics:
 
 ================
 Basic statistics
