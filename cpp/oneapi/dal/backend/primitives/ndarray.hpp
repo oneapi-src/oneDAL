@@ -513,8 +513,10 @@ public:
     }
 
     static ndarray empty(const shape_t& shape) {
-        T* ptr = detail::malloc<T>(detail::default_host_policy{}, shape.get_count());
-        return wrap(ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
+        T* ptr = dal::detail::malloc<T>(dal::detail::default_host_policy{}, shape.get_count());
+        return wrap(ptr,
+                    shape,
+                    dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
     }
 
     static ndarray copy(const T* data, const shape_t& shape) {
@@ -698,12 +700,12 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     ndarray to_host(sycl::queue& q, const event_vector& deps = {}) const {
-        T* host_ptr = detail::host_allocator<T>().allocate(this->get_count());
+        T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
         dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps)
             .wait_and_throw();
         return wrap(host_ptr,
                     this->get_shape(),
-                    detail::make_default_delete<T>(detail::default_host_policy{}));
+                    dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
     }
 #endif
 
