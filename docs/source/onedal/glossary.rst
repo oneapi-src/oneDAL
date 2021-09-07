@@ -133,12 +133,13 @@ Machine learning terms
 
 
     Result options:
-        Entities that mimic C++ enums. Serve to define which particular results
-        of algorithm should be computed. Result options usage can alternate
-        default algorithm flow and result in performance difference
-        (in general fewer count of results corresponds higher performance).
-        Invalid set of result options usage or access to the uncomputed algorithm
-        result leads to an error throwing.
+    Result options:
+        Result options are entities that mimic C++ enums. They are used to specify which results
+        of an algorithm should be computed. The use of result options may alter the
+        default algorithm flow and result in performance differences.
+        In general, fewer results to compute means faster performance.
+        An error is thrown when you use an invalid set of result options or try to access the results
+        that are not yet computed.
 
         **Example:** k-NN Classification algorithm can perform classification
         and also return indices and distances to the nearest observations as a
