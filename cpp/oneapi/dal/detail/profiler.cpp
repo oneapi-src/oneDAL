@@ -17,16 +17,18 @@
 #include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::detail {
-profiler_task profiler::start_task(const char * taskName) {
+profiler_task profiler::start_task(const char* taskName) {
     return profiler_task(taskName);
 }
 
-void profiler::end_task(const char * taskName) {}
+void profiler::end_task(const char* taskName) {}
 
-profiler_task::profiler_task(const char * taskName) : _taskName(taskName) {}
+profiler_task::profiler_task(const char* taskName) : _taskName(taskName) {}
 
 #ifdef ONEDAL_DATA_PARALLEL
-profiler_task::profiler_task(const char * taskName, sycl::queue& q) : _taskName(taskName), task_queue(q) {}
+profiler_task::profiler_task(const char* taskName, sycl::queue& q)
+        : _taskName(taskName),
+          task_queue(q) {}
 #endif
 
 profiler_task::~profiler_task() {

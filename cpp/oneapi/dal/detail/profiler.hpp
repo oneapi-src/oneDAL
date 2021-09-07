@@ -24,26 +24,26 @@ namespace oneapi::dal::detail {
 
 class profiler_task {
 public:
-    profiler_task(const char * taskName);
-    #ifdef ONEDAL_DATA_PARALLEL
-    profiler_task(const char * taskName,  sycl::queue& q);
-    #endif
+    profiler_task(const char* taskName);
+#ifdef ONEDAL_DATA_PARALLEL
+    profiler_task(const char* taskName, sycl::queue& q);
+#endif
     ~profiler_task();
 
 private:
-    const char * _taskName;
-    #ifdef ONEDAL_DATA_PARALLEL
+    const char* _taskName;
+#ifdef ONEDAL_DATA_PARALLEL
     sycl::queue task_queue;
-    #endif
+#endif
 };
 
 class profiler {
 public:
     static profiler_task start_task(const char*);
-    #ifdef ONEDAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     static profiler_task start_task(const char*, sycl::queue& q);
-    #endif
-    static void end_task(const char * taskName);
+#endif
+    static void end_task(const char* taskName);
 };
 
 } // namespace oneapi::dal::detail
