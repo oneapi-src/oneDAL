@@ -638,7 +638,7 @@ public:
         const auto [responses, objective_function] = unpack_result(result);
 
         INFO("check if there is no NaN in objective function values")
-        REQUIRE(!std::isnan(objective_function));
+        REQUIRE(te::has_no_nans(homogen_table::wrap(&objective_function, 1, 1)));
 
         INFO("check if there is no NaN in responses")
         REQUIRE(te::has_no_nans(responses));
