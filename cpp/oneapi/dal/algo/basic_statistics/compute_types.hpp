@@ -45,11 +45,12 @@ class compute_input : public base {
 public:
     using task_t = Task;
 
-    /// Creates a new instance of the class with the given :literal:`x` and :literal:`y`.
+    /// Creates a new instance of the class with the given :literal:`data`
+    /// property value
     compute_input(const table& data);
 
-    /// An $n1 \\times p$ table with the data x, where each row
-    /// stores one feature vector.
+    /// An $n \\times p$ table with the training data, where each row stores one
+    /// feature vector.
     /// @remark default = table{}
     const table& get_data() const;
 

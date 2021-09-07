@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,25 +14,16 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _dg_algorithms:
+.. tabs::
 
-Algorithms
-==========
+  .. group-tab:: oneAPI DPC++
 
-The Algorithms component consists of classes that implement algorithms
-for data analysis (data mining) and data modeling (training and prediction).
-These algorithms include matrix decompositions, clustering, classification,
-and regression algorithms, as well as association rules discovery.
+    Batch Processing:
+    
+    - :ref:`dpc_basic_statistics_dense_batch.cpp`
 
+  .. group-tab:: oneAPI C++
 
-.. toctree::
-   :maxdepth: 2
+    Batch Processing:
 
-   basic-statistics/index.rst
-   clustering/index.rst
-   decomposition/index.rst
-   ensembles/index.rst   
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   pairwise-distances/index.rst
-   svm/index.rst
+    - :ref:`cpp_basic_statistics_dense_batch.cpp`

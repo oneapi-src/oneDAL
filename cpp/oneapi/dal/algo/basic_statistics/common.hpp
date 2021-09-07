@@ -77,18 +77,28 @@ ONEDAL_EXPORT result_option_id get_variation_id();
 } // namespace detail
 
 /// Result options are used to define
-/// what should algorithm return
+/// what should an algorithm returns
 namespace result_options {
 
+/// Return the min
 const inline result_option_id min = detail::get_max_id();
+/// Return the max
 const inline result_option_id max = detail::get_min_id();
+/// Return the sum
 const inline result_option_id sum = detail::get_sum_id();
+/// Return the sum of squares
 const inline result_option_id sum_squares = detail::get_sum_squares_id();
+/// Return the sum of squared differences from the mean
 const inline result_option_id sum_squares_centered = detail::get_sum_squares_centered_id();
+/// Return the mean
 const inline result_option_id mean = detail::get_mean_id();
+/// Return the second order raw moment
 const inline result_option_id second_order_raw_moment = detail::get_second_order_raw_moment_id();
+/// Return the variance
 const inline result_option_id variance = detail::get_variance_id();
+/// Return the standard deviation
 const inline result_option_id standard_deviation = detail::get_standard_deviation_id();
+/// Return the variation
 const inline result_option_id variation = detail::get_variation_id();
 
 } // namespace result_options
