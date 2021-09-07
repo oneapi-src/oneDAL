@@ -133,7 +133,6 @@ Machine learning terms
 
 
     Result options:
-    Result options:
         Result options are entities that mimic C++ enums. They are used to specify which results
         of an algorithm should be computed. The use of result options may alter the
         default algorithm flow and result in performance differences.
