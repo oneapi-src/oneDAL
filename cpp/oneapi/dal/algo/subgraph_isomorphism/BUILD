@@ -22,7 +22,3 @@ dal_test_suite(
         ":subgraph_isomorphism",
     ],
 )
-
-dal_test_suite(
-    name = "mpi_tests",
-)

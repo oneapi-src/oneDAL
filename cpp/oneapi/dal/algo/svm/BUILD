@@ -37,7 +37,3 @@ dal_test_suite(
         ":interface_tests",
     ],
 )
-
-dal_test_suite(
-    name = "mpi_tests",
-)

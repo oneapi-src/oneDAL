@@ -17,7 +17,3 @@ dal_test_suite(
     name = "tests",
     tests = [],
 )
-
-dal_test_suite(
-    name = "mpi_tests",
-)

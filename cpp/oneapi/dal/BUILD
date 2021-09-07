@@ -126,18 +126,6 @@ dal_test_suite(
 )
 
 dal_collect_test_suites(
-    name = "mpi_tests",
-    root = "@onedal//cpp/oneapi/dal",
-    modules = [
-        "algo",
-    ],
-    target = "mpi_tests",
-    tests = [
-        ":mpi_communicator_test",
-    ],
-)
-
-dal_collect_test_suites(
     name = "tests",
     root = "@onedal//cpp/oneapi/dal",
     modules = [

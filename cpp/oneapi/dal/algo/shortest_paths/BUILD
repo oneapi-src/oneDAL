@@ -23,7 +23,3 @@ dal_test_suite(
         ":shortest_paths",
     ],
 )
-
-dal_test_suite(
-    name = "mpi_tests",
-)

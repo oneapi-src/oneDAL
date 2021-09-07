@@ -15,7 +15,3 @@ dal_module(
 dal_test_suite(
     name = "tests",
 )
-
-dal_test_suite(
-    name = "mpi_tests",
-)

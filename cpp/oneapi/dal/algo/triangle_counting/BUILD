@@ -24,7 +24,3 @@ dal_test_suite(
         ":triangle_counting",
     ],
 )
-
-dal_test_suite(
-    name = "mpi_tests",
-)
