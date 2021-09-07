@@ -31,7 +31,7 @@ static void check_if_pointer_matches_queue(const sycl::queue& q, const void* ptr
 
 #ifdef ONEDAL_DATA_PARALLEL
 static void wait_request(spmd_request_iface* request) {
-    if (request) {
+    if (request != nullptr) {
         request->wait();
     }
 }
@@ -164,13 +164,13 @@ auto spmd_communicator_via_host_impl::gatherv(sycl::queue& q,
     const std::int64_t rank_count = get_rank_count();
     std::int64_t total_recv_count = 0;
 
-    array<std::int64_t> displs_host_0;
+    array<std::int64_t> displs_host_root;
     if (get_rank() == root) {
-        displs_host_0.reset(rank_count);
-        std::int64_t* displs_host_0_ptr = displs_host_0.get_mutable_data();
+        displs_host_root.reset(rank_count);
+        std::int64_t* displs_host_root_ptr = displs_host_root.get_mutable_data();
 
         for (std::int64_t i = 0; i < rank_count; i++) {
-            displs_host_0_ptr[i] = total_recv_count;
+            displs_host_root_ptr[i] = total_recv_count;
             total_recv_count += recv_counts_host[i];
         }
     }
@@ -194,18 +194,18 @@ auto spmd_communicator_via_host_impl::gatherv(sycl::queue& q,
                          send_count,
                          recv_buf_host_ptr,
                          recv_counts_host,
-                         displs_host_0.get_data(),
+                         displs_host_root.get_data(),
                          dtype,
                          root));
 
     if (get_rank() == root) {
-        const std::int64_t* displs_host_0_ptr = displs_host_0.get_data();
-        ONEDAL_ASSERT(displs_host_0_ptr);
+        const std::int64_t* displs_host_root_ptr = displs_host_root.get_data();
+        ONEDAL_ASSERT(displs_host_root_ptr);
         ONEDAL_ASSERT(displs_host);
         ONEDAL_ASSERT(recv_counts_host);
 
         for (std::int64_t i = 0; i < rank_count; i++) {
-            const std::int64_t src_offset = check_mul_overflow(dtype_size, displs_host_0_ptr[i]);
+            const std::int64_t src_offset = check_mul_overflow(dtype_size, displs_host_root_ptr[i]);
             const std::int64_t dst_offset = check_mul_overflow(dtype_size, displs_host[i]);
             const std::int64_t copy_size = check_mul_overflow(dtype_size, recv_counts_host[i]);
 

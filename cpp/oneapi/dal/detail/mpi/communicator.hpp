@@ -16,8 +16,8 @@
 
 #pragma once
 
-// THIS FILE SHOULD NOT BE INCLUDED TO ANY OTHER NON-MPI HEADERS, OTHERWISE
-// IT CREATES DEPENDENCY ON MPI AT THE USER'S APPLICATION COMPILE TIME
+// IMPORTANT! This file should not be included to any other non-mpi header,
+// otherwise it creates dependeny on MPI at the user's application compile time
 // TODO: In the future this can be solved via __has_include C++17 feature
 
 #include <mpi.h>
