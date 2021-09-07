@@ -159,7 +159,7 @@ inline Float init_step(const dal::preview::detail::topology<IndexType>& t,
             }
         }
     }
-    ONEDAL_ASSERT(m > 0);
+    ONEDAL_ASSERT(ld.m > 0);
 
     Float modularity = 0;
     for (std::int64_t c = 0; c < community_count; c++) {
