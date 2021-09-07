@@ -140,8 +140,8 @@ Machine learning terms
         Invalid set of result options usage or access to the uncomputed algorithm
         result leads to an error throwing.
 
-        **Example:** k-NN Classificationalgorithm can perform classification
-        and also return indices and distances to the nearest observations as
+        **Example:** k-NN Classification algorithm can perform classification
+        and also return indices and distances to the nearest observations as a
         result option.
 
     Ordinal feature
