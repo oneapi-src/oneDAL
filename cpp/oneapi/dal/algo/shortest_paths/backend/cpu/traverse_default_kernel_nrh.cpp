@@ -29,14 +29,13 @@ namespace oneapi::dal::preview::shortest_paths::backend {
 using namespace oneapi::dal::preview::detail;
 using namespace oneapi::dal::preview::backend;
 
-template <typename EdgeValue>
 traverse_result<task::one_to_all>
-delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
+delta_stepping<dal::backend::cpu_dispatch_sse2, std::int32_t>::operator()(
     const detail::descriptor_base<task::one_to_all>& desc,
     const dal::preview::detail::topology<std::int32_t>& t,
-    const EdgeValue* vals,
+    const std::int32_t* vals,
     byte_alloc_iface* alloc_ptr) {
-    using value_type = EdgeValue;
+    using value_type = std::int32_t;
     using vertex_type = std::int32_t;
     using value_allocator_type = inner_alloc<value_type>;
     using vertex_allocator_type = inner_alloc<vertex_type>;
@@ -116,14 +115,13 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
         dal::detail::homogen_table_builder{}.reset(dist_arr, t.get_vertex_count(), 1).build());
 }
 
-template <typename EdgeValue>
 traverse_result<task::one_to_all>
-delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
+delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, std::int32_t>::operator()(
     const detail::descriptor_base<task::one_to_all>& desc,
     const dal::preview::detail::topology<std::int32_t>& t,
-    const EdgeValue* vals,
+    const std::int32_t* vals,
     byte_alloc_iface* alloc_ptr) {
-    using value_type = EdgeValue;
+    using value_type = std::int32_t;
     using vertex_type = std::int32_t;
     using vp_type = dist_pred<value_type, vertex_type>;
     using vp_allocator_type = inner_alloc<vp_type>;
