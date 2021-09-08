@@ -464,15 +464,6 @@ struct delta_stepping_with_pred {
     }
 };
 
-template <>
-struct delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, std::int32_t> {
-    traverse_result<task::one_to_all> operator()(
-        const detail::descriptor_base<task::one_to_all>& desc,
-        const dal::preview::detail::topology<std::int32_t>& t,
-        const std::int32_t* vals,
-        byte_alloc_iface* alloc_ptr);
-};
-
 template <typename Cpu>
 struct delta_stepping<Cpu, double> {
     traverse_result<task::one_to_all> operator()(
