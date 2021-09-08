@@ -256,6 +256,11 @@ nitpick_ignore = [
     ('cpp:identifier', 'error_metric_mode::none'),
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error'),
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error_per_observation'),
+    # basic statistics 
+    ('cpp:identifier', 'basic_statistics'),
+    ('cpp:identifier', 'basic_statistics::descriptor'),
+    ('cpp:identifier', 'basic_statistics::compute_result'),
+    ('cpp:identifier', 'basic_statistics::compute_input'),
     # common for algorithms
     ('cpp:identifier', 'result'),
     # common for result options
