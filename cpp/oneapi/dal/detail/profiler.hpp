@@ -20,6 +20,16 @@
 #include <CL/sycl.hpp>
 #endif
 
+#define ONEDAL_PROFILER_CONCAT2(x, y) x##y
+#define ONEDAL_PROFILER_CONCAT(x, y)  ONEDAL_PROFILER_CONCAT2(x, y)
+
+#define ONEDAL_PROFILER_UNIQUE_ID __LINE__
+
+#define ONEDAL_PROFILER_TASK(...)                                                           \
+    oneapi::dal::detail::profiler_task ONEDAL_PROFILER_CONCAT(__profiler_task__,            \
+                                                              ONEDAL_ITTNOTIFY_UNIQUE_ID) = \
+        oneapi::dal::detail::profiler::start_task(__VA_ARGS__);
+
 namespace oneapi::dal::detail {
 
 class profiler_task {

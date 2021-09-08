@@ -22,7 +22,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/detail/ittnotify.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::pca::backend {
 
