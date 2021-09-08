@@ -33,8 +33,8 @@ Mathematical formulation
 Computing
 ---------
 
-Given a set :math:`X` of :math:`n` feature vectors 
-:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of dimension :math:`p`, 
+Given a set :math:`X` of :math:`n` :math:`p`-dimensional feature vectors 
+:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`, 
 the problem is to compute the following sample characteristics for each feature in the data set:
 
 .. list-table::
