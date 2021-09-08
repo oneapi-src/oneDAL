@@ -9,6 +9,7 @@ dal_test_module(
     auto_exclude = [
         "gtest_main.cpp",
         "catch_main.cpp",
+        "mpi.*",
     ],
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
@@ -22,6 +23,22 @@ dal_test_module(
     extra_deps = [
         "@catch2//:catch2",
         "@fmt//:fmt",
+    ],
+)
+
+dal_test_module(
+    name = "mpi",
+    hdrs = [
+        "mpi.hpp",
+    ],
+    srcs = [
+        "mpi.cpp",
+    ],
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/detail/mpi",
+    ],
+    dal_test_deps = [
+        ":common",
     ],
 )
 

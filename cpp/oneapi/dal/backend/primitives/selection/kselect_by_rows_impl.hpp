@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
+#include "oneapi/dal/backend/primitives/selection/kselect_by_rows_heap.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_simd.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_quick.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_single_col.hpp"
@@ -68,9 +69,13 @@ kselect_by_rows<Float>::kselect_by_rows(sycl::queue& queue,
         }
         ONEDAL_ASSERT(false);
     }
-    else {
-        base_.reset(new kselect_by_rows_quick<Float>{ queue, shape });
+
+    if ((get_heap_min_k<Float>(queue) < k) && (k < get_heap_max_k<Float>(queue))) {
+        base_.reset(new kselect_by_rows_heap<Float>{});
+        return;
     }
+
+    { base_.reset(new kselect_by_rows_quick<Float>{ queue, shape }); }
 }
 
 #endif // ONEDAL_DATA_PARALLEL

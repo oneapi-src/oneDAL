@@ -31,12 +31,9 @@ namespace pr = dal::backend::primitives;
 using alloc = sycl::usm::alloc;
 using address = sycl::access::address_space;
 
-using sycl::ONEAPI::broadcast;
-using sycl::ONEAPI::reduce;
-using sycl::ONEAPI::plus;
-using sycl::ONEAPI::minimum;
-using sycl::ONEAPI::maximum;
-using sycl::ONEAPI::exclusive_scan;
+using sycl::ext::oneapi::plus;
+using sycl::ext::oneapi::minimum;
+using sycl::ext::oneapi::maximum;
 
 template <typename T>
 using enable_if_float_t = std::enable_if_t<detail::is_valid_float_v<T>>;
@@ -60,10 +57,10 @@ struct float_accuracy<double> {
 
 template <typename T>
 inline T atomic_global_add(T* ptr, T operand) {
-    sycl::ONEAPI::atomic_ref<T,
-                             cl::sycl::ONEAPI::memory_order::relaxed,
-                             cl::sycl::ONEAPI::memory_scope::device,
-                             cl::sycl::access::address_space::global_device_space>
+    sycl::ext::oneapi::atomic_ref<T,
+                                  cl::sycl::ext::oneapi::memory_order::relaxed,
+                                  cl::sycl::ext::oneapi::memory_scope::device,
+                                  cl::sycl::access::address_space::global_device_space>
         atomic_var(*ptr);
     return atomic_var.fetch_add(operand);
 }
@@ -83,7 +80,7 @@ std::int64_t train_kernel_hist_impl<Float, Bin, Index, Task>::get_part_hist_elem
     Index max_bin_count_among_ftrs,
     Index hist_prop_count) const {
     // mul overflow for selected_ftr_count * max_bin_count_among_ftrs and for hist_prop_count were checked before kernel call in compute
-    return selected_ftr_count * max_bin_count_among_ftrs * hist_prop_count * sizeof(hist_type_t);
+    return selected_ftr_count * max_bin_count_among_ftrs * hist_prop_count;
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
@@ -2130,9 +2127,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_hist
             }
 
             if (local_id == 0) {
-                merge_stat(node_hist_ptr + binId * hist_prop_count,
-                           buf_ptr + local_id * hist_prop_count,
-                           hist_prop_count);
+                for (Index i = 0; i < hist_prop_count; ++i) {
+                    (node_hist_ptr + binId * hist_prop_count)[i] =
+                        (buf_ptr + local_id * hist_prop_count)[i];
+                }
             }
         });
     });
@@ -2382,7 +2380,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
                 Index split_node = Index(
                     node_list_ptr[node_id * node_prop_count + impl_const_t::ind_fid] != bad_val);
                 Index new_left_node_pos =
-                    created_node_count + exclusive_scan(sbg, split_node, plus<Index>()) * 2;
+                    created_node_count +
+                    sycl::exclusive_scan_over_group(sbg, split_node, plus<Index>()) * 2;
                 if (split_node) {
                     // split parent node on left and right nodes
                     const Index* node_prn = node_list_ptr + node_id * node_prop_count;
@@ -2425,7 +2424,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
                                                           node_id,
                                                           new_left_node_pos);
                 }
-                created_node_count += reduce(sbg, split_node, plus<Index>()) * 2;
+                created_node_count += sycl::reduce_over_group(sbg, split_node, plus<Index>()) * 2;
             }
         });
     });
@@ -2604,11 +2603,9 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
             pr::rng<Index> rn_gen;
 
             for (Index column_idx = 0; column_idx < ctx.column_count_; ++column_idx) {
-                rn_gen
-                    .shuffle(oob_row_count,
-                             permutation_ptr,
-                             engine_arr[built_tree_count + tree_idx_in_block].get_state())
-                    .wait_and_throw();
+                rn_gen.shuffle(oob_row_count,
+                               permutation_ptr,
+                               engine_arr[built_tree_count + tree_idx_in_block].get_state());
                 const Float oob_err_perm = compute_oob_error_perm(ctx,
                                                                   model_manager,
                                                                   data_host,

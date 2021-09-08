@@ -31,12 +31,9 @@ namespace pr = dal::backend::primitives;
 using alloc = sycl::usm::alloc;
 using address = sycl::access::address_space;
 
-using sycl::ONEAPI::broadcast;
-using sycl::ONEAPI::reduce;
-using sycl::ONEAPI::plus;
-using sycl::ONEAPI::minimum;
-using sycl::ONEAPI::maximum;
-using sycl::ONEAPI::exclusive_scan;
+using sycl::ext::oneapi::plus;
+using sycl::ext::oneapi::minimum;
+using sycl::ext::oneapi::maximum;
 
 using bin_map_t = std::uint64_t;
 constexpr inline std::int32_t bin_block_count =
@@ -431,16 +428,16 @@ struct split_smp {
         const Index sub_group_local_id = sbg.get_local_id();
         const Index valNotFound = index_max;
 
-        const Float bestImpDec = reduce(sbg, bs_imp_dec_, maximum<Float>());
+        const Float bestImpDec = sycl::reduce_over_group(sbg, bs_imp_dec_, maximum<Float>());
 
         const Index impDecIsBest = float_eq(bestImpDec, bs_imp_dec_);
 
         const Index bestFeatureId =
-            reduce(sbg, impDecIsBest ? bs_ftr_id_ : valNotFound, minimum<Index>());
-        const Index bestFeatureValue =
-            reduce(sbg,
-                   (bestFeatureId == bs_ftr_id_ && impDecIsBest) ? bs_ftr_bin_ : valNotFound,
-                   minimum<Index>());
+            sycl::reduce_over_group(sbg, impDecIsBest ? bs_ftr_id_ : valNotFound, minimum<Index>());
+        const Index bestFeatureValue = sycl::reduce_over_group(
+            sbg,
+            (bestFeatureId == bs_ftr_id_ && impDecIsBest) ? bs_ftr_bin_ : valNotFound,
+            minimum<Index>());
 
         const bool noneSplitFoundBySubGroup =
             ((impl_const_t::leaf_mark_ == bestFeatureId) && (0 == sub_group_local_id));
@@ -455,10 +452,10 @@ struct split_smp {
 
             if (update_imp_dec_required) {
                 if constexpr (std::is_same_v<task_t, task::classification>) {
-                    node_imp_decr_ptr[0] = bs_imp_dec_;
+                    node_imp_decr_ptr[node_id] = bs_imp_dec_;
                 }
                 else {
-                    node_imp_decr_ptr[0] = bs_imp_dec_ / node_ptr[impl_const_t::ind_grc];
+                    node_imp_decr_ptr[node_id] = bs_imp_dec_ / node_ptr[impl_const_t::ind_grc];
                 }
             }
 

@@ -32,11 +32,11 @@ namespace oneapi::dal::preview {
 /// CSR format with ordered vertex keys within each row. Self-loops and multi-edges
 /// are not supported.
 ///
-/// @tparam VertexValue  Type of vertex properties
-/// @tparam EdgeValue    Type of edge properties
-/// @tparam GraphValue   Type of graph properties
-/// @tparam IndexType    Type of vertex indices
-/// @tparam Allocator    Type of the custom allocator (currently not supported)
+/// @tparam VertexValue  The type of the vertex :capterm:`attribute <Attribute>` values
+/// @tparam EdgeValue    The type of the edge :capterm:`attribute <Attribute>` values
+/// @tparam GraphValue   The type of the graph :capterm:`attribute <Attribute>` value
+/// @tparam IndexType    The type of the :capterm:`vertex indices <Vertex index>`
+/// @tparam Allocator    The type of a graph allocator
 template <typename VertexValue = empty_value,
           typename EdgeValue = empty_value,
           typename GraphValue = empty_value,
@@ -51,23 +51,16 @@ public:
     static_assert(detail::is_valid_edge_value_v<EdgeValue>,
                   "Use empty_value, double or int32_t for edge value type");
 
-    /// Constructs an empty directed_adjacency_vector_graph
+    /// Constructs an empty graph
     directed_adjacency_vector_graph();
 
+    /// Destructs the graph
     ~directed_adjacency_vector_graph() = default;
 
-    /// Move constructor for directed_adjacency_vector_graph
+    /// Creates a new graph instance and moves the implementation from another instance into this one
     directed_adjacency_vector_graph(directed_adjacency_vector_graph &&other) = default;
 
-    /// Constructs an empty directed_adjacency_vector_graph with specified graph properties
-    /// and allocator
-    directed_adjacency_vector_graph(const GraphValue &value, Allocator allocator = Allocator()){};
-
-    /// Constructs an empty directed_adjacency_vector_graph with move graph properties and
-    /// allocator
-    directed_adjacency_vector_graph(GraphValue &&value, Allocator allocator = Allocator()){};
-
-    /// Move operator for directed_adjacency_vector_graph
+    /// Swaps the implementation of this object and another one
     directed_adjacency_vector_graph &operator=(directed_adjacency_vector_graph &&other);
 
 private:
