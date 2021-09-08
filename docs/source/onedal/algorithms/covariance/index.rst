@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -13,26 +13,15 @@
 .. * See the License for the specific language governing permissions and
 .. * limitations under the License.
 .. *******************************************************************************/
-
-.. _dg_algorithms:
-
-Algorithms
+==========
+Covariance
 ==========
 
-The Algorithms component consists of classes that implement algorithms
-for data analysis (data mining) and data modeling (training and prediction).
-These algorithms include matrix decompositions, clustering, classification,
-and regression algorithms, as well as association rules discovery.
-
-
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
-   clustering/index.rst
-   covariance/index.rst
-   decomposition/index.rst
-   ensembles/index.rst   
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   pairwise-distances/index.rst
-   svm/index.rst
+   covariance.rst
+
+.. rubric:: Examples: Covariance
+
+.. include::  ../../../includes/covariance/covariance-examples.rst
