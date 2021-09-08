@@ -15,7 +15,7 @@
 .. *******************************************************************************/
 
 ================
-Basic statistics
+Basic Statistics
 ================
 
 This chapter describes programming interfaces of the basic statistics algorithm implemented in |short_name|:
