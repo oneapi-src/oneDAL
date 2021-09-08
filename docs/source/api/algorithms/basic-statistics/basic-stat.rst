@@ -36,7 +36,7 @@ Programming Interface
 All types and functions in this section are declared in the
 ``oneapi::dal::basic_statistics`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/basic_statistics.hpp`` header file.
-                   
+
 Descriptor
 ----------
 .. onedal_class:: oneapi::dal::basic_statistics::descriptor
@@ -72,7 +72,7 @@ Operation
               basic_statistics::compute_result compute(const Descriptor& desc, \
                                       const basic_statistics::compute_input& input)
 
-   :param desc: Linear Kernel algorithm descriptor :expr:`basic_statistics::descriptor`.
+   :param desc: Basic statistics algorithm descriptor :expr:`basic_statistics::descriptor`.
    :param input: Input data for the computing operation
 
    Preconditions

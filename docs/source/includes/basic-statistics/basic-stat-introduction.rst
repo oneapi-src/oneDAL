@@ -26,11 +26,11 @@ Basic statistics algorithm computes the following set of quantitative dataset ch
 - standard deviations
 - variations
 
-.. |c_math| replace::   `dense <basic_statistics_c_math_>`_
-.. |c_dense| replace::  `dense <basic_statistics_c_math_dense_>`_
-.. |c_input| replace::  `compute_input <basic_statistics_c_api_input_>`_
-.. |c_result| replace:: `compute_result <basic_statistics_c_api_result_>`_
-.. |c_op| replace::     `compute(...) <basic_statistics_c_api_>`_
+.. |c_math| replace::   :ref:`dense <basic_statistics_c_math>`
+.. |c_dense| replace::  :ref:`dense <basic_statistics_c_math_dense>`
+.. |c_input| replace::  :ref:`compute_input <basic_statistics_c_api_input>`
+.. |c_result| replace:: :ref:`compute_result <basic_statistics_c_api_result>`
+.. |c_op| replace::     :ref:`compute(...) <basic_statistics_c_api>`
 
 =============  ===============  =========  =============  ===========
 **Operation**  **Computational  methods**  **Programming  Interface**
