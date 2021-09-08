@@ -22,7 +22,7 @@
 Basic statistics
 ================
 
-.. include::  ../../../includes/basic-statistics/basic-statistics-introduction.rst
+.. include::  ../../../includes/basic-statistics/basic-stat-introduction.rst
 
 ------------------------
 Mathematical formulation

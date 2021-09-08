@@ -24,7 +24,7 @@ Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of
 .. toctree::
    :maxdepth: 2
 
-   basic_statistics/index.rst
+   basic-statistics/index.rst
    clustering/index.rst
    decomposition/index.rst
    ensembles/index.rst   
