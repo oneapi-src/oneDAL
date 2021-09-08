@@ -162,11 +162,6 @@ public:
         if constexpr (std::is_same_v<task_t, df::task::classification>) {
             ONEDAL_ASSERT(class_count_ > 0);
             desc.set_class_count(class_count_);
-
-            // const auto infer_mode_val = df::infer_mode::class_responses | df::infer_mode::class_probabilities;
-            //     // GENERATE_COPY(df::infer_mode::class_responses,
-            //     //               df::infer_mode::class_responses | df::infer_mode::class_probabilities);
-            // desc.set_infer_mode(infer_mode_val);
         }
 
         return desc;

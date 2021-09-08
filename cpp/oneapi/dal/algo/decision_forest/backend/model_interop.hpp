@@ -62,8 +62,6 @@ class model_interop_impl
           public DF_MODEL_INTEROP_SERIALIZABLE(DaalModel,
                                                decision_forest_model_interop_impl_cls_id,
                                                decision_forest_model_interop_impl_reg_id) {
-    using model_ptr_t = daal::services::SharedPtr<DaalModel>;
-
 public:
     model_interop_impl() = default;
 
