@@ -19,7 +19,7 @@
 .. _alg_basic_statistics:
 
 ================
-Basic statistics
+Basic Statistics
 ================
 
 .. include::  ../../../includes/basic-statistics/basic-stat-introduction.rst
