@@ -72,7 +72,7 @@ Operation
               basic_statistics::compute_result compute(const Descriptor& desc, \
                                       const basic_statistics::compute_input& input)
 
-   :param desc: Basic statistics algorithm descriptor :expr:`basic_statistics::descriptor`.
+   :param desc: Basic statistics algorithm descriptor :expr:`basic_statistics::descriptor`
    :param input: Input data for the computing operation
 
    Preconditions
