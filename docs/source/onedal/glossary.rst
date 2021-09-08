@@ -131,6 +131,19 @@ Machine learning terms
 
         **Synonyms:** instance, sample
 
+
+    Result options:
+        Result options are entities that mimic C++ enums. They are used to specify which results
+        of an algorithm should be computed. The use of result options may alter the
+        default algorithm flow and result in performance differences.
+        In general, fewer results to compute means faster performance.
+        An error is thrown when you use an invalid set of result options or try to access the results
+        that are not yet computed.
+
+        **Example:** k-NN Classification algorithm can perform classification
+        and also return indices and distances to the nearest observations as a
+        result option.
+
     Ordinal feature
         A :capterm:`categorical feature` with defined operations of equality and
         ordering between values.
