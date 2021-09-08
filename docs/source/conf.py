@@ -261,10 +261,13 @@ nitpick_ignore = [
     ('cpp:identifier', 'basic_statistics::descriptor'),
     ('cpp:identifier', 'basic_statistics::compute_result'),
     ('cpp:identifier', 'basic_statistics::compute_input'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics'),
     ('cpp:identifier', 'oneapi::dal::basic_statistics::task'),
     ('cpp:identifier', 'oneapi::dal::basic_statistics::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::task::v1::compute'),
     ('cpp:identifier', 'oneapi::dal::basic_statistics::method'),
     ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1::dense'),
     # common for algorithms
     ('cpp:identifier', 'result'),
     # common for result options
