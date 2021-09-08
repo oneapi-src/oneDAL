@@ -23,4 +23,4 @@ This chapter describes programming interfaces of the basic statistics algorithm 
 .. toctree::
    :titlesonly:
 
-   basic-stat.rst
+   basic-statistics.rst

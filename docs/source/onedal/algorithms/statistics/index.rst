@@ -21,7 +21,7 @@ Basic Statistics
 .. toctree::
    :titlesonly:
 
-   basic-stat.rst
+   basic-statistics.rst
 
 .. rubric:: Examples: Basic statistics
 

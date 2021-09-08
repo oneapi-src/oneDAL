@@ -24,11 +24,11 @@ Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of
 .. toctree::
    :maxdepth: 2
 
-   basic-statistics/index.rst
    clustering/index.rst
    decomposition/index.rst
    ensembles/index.rst   
    kernel-functions/index.rst
    nearest-neighbors/index.rst
    pairwise-distances/index.rst
+   statistics/index.rst
    svm/index.rst
