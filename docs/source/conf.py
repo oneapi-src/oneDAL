@@ -261,6 +261,8 @@ nitpick_ignore = [
     ('cpp:identifier', 'basic_statistics::descriptor'),
     ('cpp:identifier', 'basic_statistics::compute_result'),
     ('cpp:identifier', 'basic_statistics::compute_input'),
+    ('cpp:identifier', 'basic_statistics::task'),
+    ('cpp:identifier', 'basic_statistics::method'),
     # common for algorithms
     ('cpp:identifier', 'result'),
     # common for result options
