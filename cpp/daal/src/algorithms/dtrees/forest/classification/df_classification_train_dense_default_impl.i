@@ -956,6 +956,7 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
     DAAL_CHECK_BLOCK_STATUS(y);
     Atomic<size_t> nPredicted(0);
     Atomic<size_t> nError(0);
+    const algorithmFPType eps = services::internal::EpsilonVal<algorithmFPType>::get();
     daal::threader_for(nSamples, nSamples, [&](size_t i) {
         const OOBClassificationData * ptr = ((const OOBClassificationData *)this->oobBuf) + i * _nClasses;
         const size_t classLabel(y.get()[i]);
@@ -971,12 +972,12 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
                 maxIdx = j;
             }
         }
-        sum = (sum > algorithmFPType(0)) ? sum : algorithmFPType(1);
         if (resDecisionFunction)
         {
             for (size_t j = 0; j < _nClasses; ++j)
             {
-                resDecisionFunction[i * _nClasses + j] = static_cast<algorithmFPType>(ptr[j]) / sum;
+                resDecisionFunction[i * _nClasses + j] =
+                    static_cast<algorithmFPType>(ptr[j]) / services::internal::max<cpu, algorithmFPType>(sum, eps);
             }
         }
         if (maxVal == 0)

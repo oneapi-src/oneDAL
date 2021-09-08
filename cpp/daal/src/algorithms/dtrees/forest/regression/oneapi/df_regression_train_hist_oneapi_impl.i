@@ -693,10 +693,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finali
             if (resPrediction) resPrediction[i] = value;
             sumMeanDiff += (y[i] - yMean) * (y[i] - yMean);
         }
-        else if (resPerObs)
-            resPerObs[i] = algorithmFPType(-1); //was not in OOB set of any tree and hence not predicted
-        else if (resPrediction)
-            resPrediction[i] = algorithmFPType(0);
+        else
+        {
+            if (resPerObs) resPerObs[i] = algorithmFPType(-1); //was not in OOB set of any tree and hence not predicted
+            if (resPrediction) resPrediction[i] = algorithmFPType(0);
+        }
     }
 
     if (res) *res = (0 < nPredicted) ? _res / algorithmFPType(nPredicted) : 0;

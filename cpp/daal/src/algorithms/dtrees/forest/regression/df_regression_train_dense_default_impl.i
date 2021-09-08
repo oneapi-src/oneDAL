@@ -821,13 +821,10 @@ public:
                 if (resPrediction) resPrediction[i] = ptr[i].value;
                 sumMeanDiff += (py[i] - yMean) * (py[i] - yMean);
             }
-            else if (resPerObs)
+            else
             {
-                resPerObs[i] = algorithmFPType(-1); //was not in OOB set of any tree and hence not predicted
-            }
-            else if (resPrediction)
-            {
-                resPrediction[i] = algorithmFPType(0);
+                if (resPerObs) resPerObs[i] = algorithmFPType(-1); //was not in OOB set of any tree and hence not predicted
+                if (resPrediction) resPrediction[i] = algorithmFPType(0);
             }
         }
         if (res) *res = _res / algorithmFPType(nPredicted);
