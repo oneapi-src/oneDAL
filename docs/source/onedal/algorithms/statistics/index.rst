@@ -25,4 +25,4 @@ Statistics
 
 .. rubric:: Examples: Basic statistics
 
-.. include::  ../../../includes/basic-statistics/basic-stat-examples.rst
+.. include::  ../../../includes/statistics/basic-statistics-examples.rst
