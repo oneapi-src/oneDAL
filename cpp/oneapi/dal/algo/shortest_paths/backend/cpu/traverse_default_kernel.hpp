@@ -464,14 +464,14 @@ struct delta_stepping_with_pred {
     }
 };
 
-template <typename Cpu>
-struct delta_stepping<Cpu, double> {
+template <typename Cpu, typename EdgeValue>
+struct delta_stepping_sequential {
     traverse_result<task::one_to_all> operator()(
         const detail::descriptor_base<task::one_to_all>& desc,
         const dal::preview::detail::topology<std::int32_t>& t,
-        const double* vals,
+        const EdgeValue* vals,
         byte_alloc_iface* alloc_ptr) {
-        using value_type = double;
+        using value_type = EdgeValue;
         using vertex_type = std::int32_t;
         using value_allocator_type = inner_alloc<value_type>;
         using vertex_allocator_type = inner_alloc<vertex_type>;
@@ -550,6 +550,17 @@ struct delta_stepping<Cpu, double> {
         deallocate(value_allocator, dist, vertex_count);
         return traverse_result<task::one_to_all>().set_distances(
             dal::detail::homogen_table_builder{}.reset(dist_arr, t.get_vertex_count(), 1).build());
+    }
+};
+
+template <typename Cpu>
+struct delta_stepping<Cpu, double> {
+    traverse_result<task::one_to_all> operator()(
+        const detail::descriptor_base<task::one_to_all>& desc,
+        const dal::preview::detail::topology<std::int32_t>& t,
+        const double* vals,
+        byte_alloc_iface* alloc_ptr) {
+        return delta_stepping_sequential<Cpu, double>()(desc, t, vals, alloc_ptr);
     }
 };
 
