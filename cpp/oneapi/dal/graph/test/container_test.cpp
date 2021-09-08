@@ -130,7 +130,7 @@ void check_construct_empty_with_custom_allocator() {
         REQUIRE(vec.size() == 0);
         REQUIRE(vec.capacity() == 1);
     }
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 template <typename T>
@@ -153,8 +153,7 @@ void check_construct_given_size_with_custom_allocator(std::int64_t n) {
         REQUIRE(vec.size() == n);
         REQUIRE(vec.capacity() == lower_bound_pow(n));
     }
-    // TODO: Uncomment after the memory leak fix
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 template <typename T>
@@ -286,25 +285,15 @@ TEST("can construct empty vector_container of std::containers") {
 
 TEST("can construct empty vector_container of primitive type with custom allocator") {
     check_construct_empty_with_custom_allocator<std::int32_t>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can construct empty vector_container of vector_container with custom allocator") {
-    // TODO: Fix memory leak
     check_construct_empty_with_custom_allocator<
         vector_container<std::int32_t, CountingAllocator<std::int32_t>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can construct empty vector_container of std::container with custom allocator") {
     check_construct_empty_with_custom_allocator<std::vector<std::int32_t>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can construct vector_container of given size of primitives") {
@@ -321,26 +310,16 @@ TEST("can construct vector_container of given size of std::containers") {
 
 TEST("can construct vector_container of given size of primitive type with custom allocator") {
     check_construct_given_size_with_custom_allocator<std::int32_t>(10);
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST(
     "can construct vector_container of given size of vector_containers type with custom allocator") {
-    // TODO: Fix memory leak
     check_construct_given_size_with_custom_allocator<
         vector_container<std::int32_t, CountingAllocator<std::int32_t>>>(10);
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can construct vector_container of given size of std::containers type with custom allocator") {
     check_construct_given_size_with_custom_allocator<std::vector<std::int32_t>>(10);
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST(

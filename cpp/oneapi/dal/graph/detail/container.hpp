@@ -154,6 +154,10 @@ public:
 
     virtual ~vector_container() {
         if (impl_->has_mutable_data()) {
+            T* data = impl_->get_mutable_data();
+            for(std::int64_t i=0;i<capacity_;++i){
+                data[i].~T();
+            }
             oneapi::dal::preview::detail::deallocate(allocator_,
                                                      impl_->get_mutable_data(),
                                                      capacity_);
@@ -218,6 +222,11 @@ public:
             T* old_data_ptr = impl_->get_mutable_data();
             preview::detail::copy(old_data_ptr, old_data_ptr + count_, data_ptr);
             impl_->reset(data_ptr, new_capacity, empty_delete{});
+            if (impl_->has_mutable_data()) {
+                for(std::int64_t i=0;i<capacity_;++i){
+                    old_data_ptr[i].~T();
+                }
+            }
             // TODO: move deallocation to dal array deleter.
             oneapi::dal::preview::detail::deallocate(allocator_, old_data_ptr, capacity_);
             capacity_ = new_capacity;
