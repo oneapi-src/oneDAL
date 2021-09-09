@@ -71,14 +71,14 @@ public:
 
     template <typename Distance = default_distance_t>
     float_t classification(const table& train_data,
-                         const table& train_responses,
-                         const table& infer_data,
-                         const table& infer_responses,
-                         const std::int64_t n_classes,
-                         const std::int64_t n_neighbors,
-                         const Distance distance = Distance{},
-                         const voting_t voting = default_voting,
-                         const float_t tolerance = float_t(1.e-5)) {
+                           const table& train_responses,
+                           const table& infer_data,
+                           const table& infer_responses,
+                           const std::int64_t n_classes,
+                           const std::int64_t n_neighbors,
+                           const Distance distance = Distance{},
+                           const voting_t voting = default_voting,
+                           const float_t tolerance = float_t(1.e-5)) {
         INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
         REQUIRE(train_responses.get_column_count() == 1);
@@ -93,7 +93,8 @@ public:
         auto infer_result = this->infer(knn_desc, infer_data, train_model);
         auto [prediction] = this->unpack_result(infer_result);
 
-        const auto score_table = te::accuracy_score<float_t>(infer_responses, prediction, tolerance);
+        const auto score_table =
+            te::accuracy_score<float_t>(infer_responses, prediction, tolerance);
         const auto score = row_accessor<const float_t>(score_table).pull({ 0, -1 })[0];
         return score;
     }

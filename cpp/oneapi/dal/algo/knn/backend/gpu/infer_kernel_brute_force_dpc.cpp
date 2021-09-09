@@ -284,8 +284,8 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
 
     if (desc.get_result_options().test(result_options::responses) &&
         (desc.get_voting_mode() == voting_mode::distance)) {
-        callback.set_distance_voting(std::move(
-            pr::make_distance_voting<Float>(queue, infer_block, class_count)));
+        callback.set_distance_voting(
+            std::move(pr::make_distance_voting<Float>(queue, infer_block, class_count)));
     }
 
     if (distance_impl->get_degree() == 2.0) {
