@@ -139,6 +139,15 @@ public:
 
     vector_container<T, Allocator> operator=(const vector_container<T, Allocator>& other) {
         pimpl tmp_impl(new impl_t());
+        if (impl_->has_mutable_data()) {
+            T* data = impl_->get_mutable_data();
+            for(std::int64_t i=0;i<capacity_;++i){
+                data[i].~T();
+            }
+            oneapi::dal::preview::detail::deallocate(allocator_,
+                                                     impl_->get_mutable_data(),
+                                                     capacity_);
+        }
         std::swap(this->impl_, tmp_impl);
         this->allocator_ = other.get_allocator();
         capacity_ = other.capacity();
