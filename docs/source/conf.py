@@ -268,7 +268,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::covariance::method'),
     ('cpp:identifier', 'oneapi::dal::covariance::method::v1'),
     ('cpp:identifier', 'oneapi::dal::covariance::method::v1::dense'),
-    # basic statistics 
+    # basic statistics
     ('cpp:identifier', 'basic_statistics'),
     ('cpp:identifier', 'basic_statistics::descriptor'),
     ('cpp:identifier', 'basic_statistics::compute_result'),
