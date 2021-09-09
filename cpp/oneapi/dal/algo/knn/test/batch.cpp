@@ -39,76 +39,46 @@ namespace la = te::linalg;
 template <typename TestType>
 class knn_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
-    using Float = std::tuple_element_t<0, TestType>;
-    using Method = std::tuple_element_t<1, TestType>;
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
 
-    auto get_descriptor(std::int64_t override_class_count,
-                        std::int64_t override_neighbor_count) const {
-        return knn::descriptor<Float, Method, knn::task::classification>(override_class_count,
-                                                                         override_neighbor_count)
-            .set_result_options(knn::result_options::responses | knn::result_options::indices |
-                                knn::result_options::distances);
-    }
+    using default_distance_t = oneapi::dal::minkowski_distance::descriptor<>;
 
-    template <typename Distance,
-              typename M = Method,
-              typename = oneapi::dal::knn::detail::enable_if_brute_force_t<M>>
+    using voting_t = oneapi::dal::knn::voting_mode;
+    constexpr static inline voting_t default_voting = voting_t::uniform;
+
+    template <typename Distance = default_distance_t>
     auto get_descriptor(std::int64_t override_class_count,
                         std::int64_t override_neighbor_count,
-                        const Distance& distance) const {
+                        Distance distance = Distance{},
+                        voting_t voting = default_voting) const {
         return knn::
-            descriptor<Float, knn::method::brute_force, knn::task::classification, Distance>(
+            descriptor<float_t, knn::method::brute_force, knn::task::classification, Distance>(
                    override_class_count,
                    override_neighbor_count,
                    distance)
                 .set_result_options(knn::result_options::responses | knn::result_options::indices |
-                                    knn::result_options::distances);
+                                    knn::result_options::distances)
+                .set_voting_mode(voting);
     }
 
-    static constexpr bool is_kd_tree = std::is_same_v<Method, knn::method::kd_tree>;
-    static constexpr bool is_brute_force = std::is_same_v<Method, knn::method::brute_force>;
+    static constexpr bool is_kd_tree = std::is_same_v<method_t, knn::method::kd_tree>;
+    static constexpr bool is_brute_force = std::is_same_v<method_t, knn::method::brute_force>;
 
     bool not_available_on_device() {
         return (this->get_policy().is_gpu() && is_kd_tree);
     }
 
-    Float classification(const table& train_data,
-                         const table& train_responses,
-                         const table& infer_data,
-                         const table& infer_responses,
-                         const std::int64_t n_classes,
-                         const std::int64_t n_neighbors = 1,
-                         const Float tolerance = Float(1.e-5)) {
-        INFO("check if data shape is expected")
-        REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
-        REQUIRE(train_responses.get_column_count() == 1);
-        REQUIRE(infer_responses.get_column_count() == 1);
-        REQUIRE(infer_data.get_row_count() == infer_responses.get_row_count());
-        REQUIRE(train_data.get_row_count() == train_responses.get_row_count());
-
-        const auto knn_desc = this->get_descriptor(n_classes, n_neighbors);
-
-        auto train_result = this->train(knn_desc, train_data, train_responses);
-        auto train_model = train_result.get_model();
-        auto infer_result = this->infer(knn_desc, infer_data, train_model);
-        auto [prediction] = this->unpack_result(infer_result);
-
-        const auto score_table = te::accuracy_score<Float>(infer_responses, prediction, tolerance);
-        const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
-        return score;
-    }
-
-    template <typename Distance,
-              typename M = Method,
-              typename = oneapi::dal::knn::detail::enable_if_brute_force_t<M>>
-    Float classification(const table& train_data,
+    template <typename Distance = default_distance_t>
+    float_t classification(const table& train_data,
                          const table& train_responses,
                          const table& infer_data,
                          const table& infer_responses,
                          const std::int64_t n_classes,
                          const std::int64_t n_neighbors,
-                         const Distance& distance,
-                         const Float tolerance = Float(1.e-5)) {
+                         const Distance distance = Distance{},
+                         const voting_t voting = default_voting,
+                         const float_t tolerance = float_t(1.e-5)) {
         INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
         REQUIRE(train_responses.get_column_count() == 1);
@@ -116,15 +86,15 @@ public:
         REQUIRE(infer_data.get_row_count() == infer_responses.get_row_count());
         REQUIRE(train_data.get_row_count() == train_responses.get_row_count());
 
-        const auto knn_desc = this->get_descriptor(n_classes, n_neighbors, distance);
+        const auto knn_desc = this->get_descriptor(n_classes, n_neighbors, distance, voting);
 
         auto train_result = this->train(knn_desc, train_data, train_responses);
         auto train_model = train_result.get_model();
         auto infer_result = this->infer(knn_desc, infer_data, train_model);
         auto [prediction] = this->unpack_result(infer_result);
 
-        const auto score_table = te::accuracy_score<Float>(infer_responses, prediction, tolerance);
-        const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
+        const auto score_table = te::accuracy_score<float_t>(infer_responses, prediction, tolerance);
+        const auto score = row_accessor<const float_t>(score_table).pull({ 0, -1 })[0];
         return score;
     }
 
@@ -149,8 +119,8 @@ public:
         const auto indices = naive_knn_search(train_data, infer_data);
 
         for (std::int64_t j = 0; j < m; ++j) {
-            const auto gt_indices_row = row_accessor<const Float>(indices).pull({ j, j + 1 });
-            const auto te_indices_row = row_accessor<const Float>(responses).pull({ j, j + 1 });
+            const auto gt_indices_row = row_accessor<const float_t>(indices).pull({ j, j + 1 });
+            const auto te_indices_row = row_accessor<const float_t>(responses).pull({ j, j + 1 });
             const auto l = gt_indices_row[0];
             const auto r = te_indices_row[0];
             if (l != r) {
@@ -172,13 +142,13 @@ public:
         const auto n = infer_data.get_row_count();
         const auto d = infer_data.get_column_count();
 
-        auto distances_arr = array<Float>::zeros(m * n);
+        auto distances_arr = array<float_t>::zeros(m * n);
         auto* distances_ptr = distances_arr.get_mutable_data();
 
         for (std::int64_t j = 0; j < n; ++j) {
-            const auto queue_row = row_accessor<const Float>(infer_data).pull({ j, j + 1 });
+            const auto queue_row = row_accessor<const float_t>(infer_data).pull({ j, j + 1 });
             for (std::int64_t i = 0; i < m; ++i) {
-                const auto train_row = row_accessor<const Float>(train_data).pull({ i, i + 1 });
+                const auto train_row = row_accessor<const float_t>(train_data).pull({ i, i + 1 });
                 for (std::int64_t s = 0; s < d; ++s) {
                     const auto diff = queue_row[s] - train_row[s];
                     distances_ptr[j * m + i] += diff * diff;
@@ -195,7 +165,7 @@ public:
         auto indices = array<std::int32_t>::zeros(m * n);
         auto indices_ptr = indices.get_mutable_data();
         for (std::int64_t j = 0; j < n; ++j) {
-            const auto dist_row = row_accessor<const Float>(distances).pull({ j, j + 1 });
+            const auto dist_row = row_accessor<const float_t>(distances).pull({ j, j + 1 });
             auto idcs_row = &indices_ptr[j * m];
             std::iota(idcs_row, idcs_row + m, std::int32_t(0));
             const auto compare = [&](std::int32_t x, std::int32_t y) -> bool {
@@ -381,7 +351,51 @@ KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
     REQUIRE(score >= target_score);
 }
 
+KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with distance voting)") {
+    SKIP_IF(this->is_kd_tree);
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    constexpr double target_score = 0.8;
+
+    constexpr std::int64_t feature_count = 28;
+    constexpr std::int64_t n_classes = 2;
+    constexpr std::int64_t n_neighbors = 3;
+
+    const te::dataframe train_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_50t_test.csv" });
+
+    const te::dataframe infer_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
+
+    const table x_train_table =
+        train_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
+    const table x_infer_table =
+        infer_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
+
+    const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(feature_count, feature_count + 1));
+    const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(feature_count, feature_count + 1));
+
+    using distance_t = oneapi::dal::minkowski_distance::descriptor<>;
+    constexpr double minkowski_degree = 2.0;
+    const auto distance_desc = distance_t(minkowski_degree);
+    constexpr auto voting = oneapi::dal::knn::voting_mode::distance;
+    const auto score = this->classification(x_train_table,
+                                            y_train_table,
+                                            x_infer_table,
+                                            y_infer_table,
+                                            n_classes,
+                                            n_neighbors,
+                                            distance_desc,
+                                            voting);
+    CAPTURE(score);
+    REQUIRE(score >= target_score);
+}
+
 KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance (p = 2.5)") {
+    SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
@@ -422,8 +436,10 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance
 }
 
 KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Chebyshev distance") {
-    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->is_kd_tree);
+    SKIP_IF(this->get_policy().is_gpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->not_available_on_device());
 
     constexpr double target_score = 0.8;
 
