@@ -30,4 +30,5 @@ Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of
    kernel-functions/index.rst
    nearest-neighbors/index.rst
    pairwise-distances/index.rst
+   statistics/index.rst
    svm/index.rst
