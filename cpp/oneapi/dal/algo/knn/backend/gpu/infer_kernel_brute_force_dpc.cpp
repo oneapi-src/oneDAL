@@ -43,6 +43,8 @@ using dal::backend::context_gpu;
 template <typename Task>
 using descriptor_t = detail::descriptor_base<Task>;
 
+using voting_t = ::oneapi::dal::knn::voting_mode;
+
 namespace de = ::oneapi::dal::detail;
 namespace bk = ::oneapi::dal::backend;
 namespace pr = ::oneapi::dal::backend::primitives;
@@ -97,7 +99,7 @@ public:
     }
 
     auto& do_sqrt(bool do_sqrt) {
-        this->copy_with_sqrt_ = do_sqrt;
+        this->compute_sqrt_ = do_sqrt;
         return *this;
     }
 
@@ -151,8 +153,8 @@ public:
     }
 
     sycl::event operator()(std::int64_t qb_id,
-                           const pr::ndview<idx_t, 2>& inp_indices,
-                           const pr::ndview<Float, 2>& inp_distances,
+                           pr::ndview<idx_t, 2>& inp_indices,
+                           pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
         sycl::event copy_indices, copy_distances, comp_responses;
         const auto blocking = this->get_blocking();
@@ -167,7 +169,7 @@ public:
 
         if (result_options_.test(result_options::distances)) {
             auto out_block = distances_.get_row_slice(from, to);
-            if (this->copy_with_sqrt_) {
+            if (this->compute_sqrt_) {
                 copy_distances = copy_with_sqrt(queue_, out_block, inp_distances, deps);
             }
             else {
@@ -187,11 +189,14 @@ public:
             }
 
             if (distance_voting_) {
-                const auto out_dists = distances_.get_row_slice(from, to);
-                const pr::ndview<dst_t, 2> distances =
-                    this->copy_with_sqrt_ ? out_dists : inp_distances;
+                sycl::event sqrt_event;
+
+                if (this->compute_sqrt_) {
+                    sqrt_event = copy_with_sqrt(queue_, inp_distances, inp_distances, deps);
+                }
+
                 comp_responses =
-                    distance_voting_->operator()(temp_resp, distances, out_block, { s_event });
+                    distance_voting_->operator()(temp_resp, inp_distances, out_block, { sqrt_event, s_event });
             }
         }
 
@@ -210,7 +215,7 @@ private:
     pr::ndarray<idx_t, 2> indices_;
     uniform_voting_t uniform_voting_;
     distance_voting_t distance_voting_;
-    bool copy_with_sqrt_ = false;
+    bool compute_sqrt_ = false;
 };
 
 template <typename Float, typename Task>
@@ -225,6 +230,10 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     else if (distance_impl->get_daal_distance_type() != detail::v1::daal_distance_t::minkowski) {
         throw internal_error{ de::error_messages::distance_is_not_supported_for_gpu() };
     }
+
+    const bool is_euclidean_distance =
+        (distance_impl->get_daal_distance_type() == detail::v1::daal_distance_t::minkowski)
+        && (distance_impl->get_degree() ==  2.0);
 
     auto& queue = ctx.get_queue();
     bk::interop::execution_context_guard guard(queue);
@@ -246,7 +255,7 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
         arr_responses = array<idx_t>::empty(queue, infer_row_count, sycl::usm::alloc::device);
     }
     auto arr_distances = array<Float>{};
-    if (desc.get_result_options().test(result_options::distances)) {
+    if (desc.get_result_options().test(result_options::distances) || (desc.get_voting_mode() == voting_t::distance)) {
         const auto length = de::check_mul_overflow(infer_row_count, neighbor_count);
         arr_distances = array<Float>::empty(queue, length, sycl::usm::alloc::device);
     }
@@ -288,7 +297,7 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
             std::move(pr::make_distance_voting<Float>(queue, infer_block, class_count)));
     }
 
-    if (distance_impl->get_degree() == 2.0) {
+    if (is_euclidean_distance) {
         using dst_t = pr::squared_l2_distance<Float>;
         using search_t = pr::search_engine<Float, dst_t>;
 
