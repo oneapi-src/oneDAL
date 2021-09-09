@@ -27,7 +27,7 @@ namespace oneapi::dal::covariance {
 namespace task {
 namespace v1 {
 
-/// Tag-type that parameterizes entities that are used to compute statistics, distance, and so on.
+/// Tag-type that parameterizes entities that are used to compute statistics.
 struct compute {};
 /// Alias tag-type for the compute task.
 using by_default = compute;
@@ -40,10 +40,12 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-
+/// Tag-type that denotes dense computational method.
 struct dense {};
-/// Alias tag-type for the dense method.
+
+/// Alias tag-type for the dense computational method.
 using by_default = dense;
+
 } // namespace v1
 
 using v1::dense;
@@ -69,11 +71,14 @@ ONEDAL_EXPORT result_option_id get_means_id();
 } // namespace detail
 
 /// Result options are used to define
-/// what should algorithm return
+/// what should an algorithm return
 namespace result_options {
 
+/// Return covariance matrix
 const inline result_option_id cov_matrix = detail::get_cov_matrix_id();
+/// Return correlation matrix
 const inline result_option_id cor_matrix = detail::get_cor_matrix_id();
+/// Return means
 const inline result_option_id means = detail::get_means_id();
 
 } // namespace result_options

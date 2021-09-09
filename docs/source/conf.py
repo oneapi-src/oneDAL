@@ -256,6 +256,18 @@ nitpick_ignore = [
     ('cpp:identifier', 'error_metric_mode::none'),
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error'),
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error_per_observation'),
+    # covariance 
+    ('cpp:identifier', 'covariance'),
+    ('cpp:identifier', 'covariance::descriptor'),
+    ('cpp:identifier', 'covariance::compute_result'),
+    ('cpp:identifier', 'covariance::compute_input'),
+    ('cpp:identifier', 'oneapi::dal::covariance'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task::v1::compute'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method::v1'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method::v1::dense'),
     # basic statistics
     ('cpp:identifier', 'basic_statistics'),
     ('cpp:identifier', 'basic_statistics::descriptor'),
