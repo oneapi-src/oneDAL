@@ -52,8 +52,8 @@ auto compute_correlation(sycl::queue& q,
                          const pr::ndview<Float, 2>& data,
                          const pr::ndview<Float, 1>& sums,
                          const dal::backend::event_vector& deps = {}) {
-    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
     ONEDAL_PROFILER_TASK(compute_correlation, q);
+    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
 
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
@@ -73,8 +73,8 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
                                   pr::ndarray<Float, 2>&& corr,
                                   std::int64_t component_count,
                                   const dal::backend::event_vector& deps = {}) {
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1));
     ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1));
     const std::int64_t column_count = corr.get_dimension(0);
 
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });

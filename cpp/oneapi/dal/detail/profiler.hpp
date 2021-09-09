@@ -48,7 +48,7 @@ public:
     ~profiler_task();
 
 private:
-    const char* _taskName;
+    const char* task_name_;
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::queue task_queue;
 #endif
@@ -60,7 +60,7 @@ public:
 #ifdef ONEDAL_DATA_PARALLEL
     static profiler_task start_task(const char*, sycl::queue& q);
 #endif
-    static void end_task(const char* taskName);
+    static void end_task(const char* task_name);
 };
 
 } // namespace oneapi::dal::detail
