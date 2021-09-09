@@ -63,6 +63,7 @@ dal_public_includes(
     dal_deps = [
         ":core",
         ":optional",
+        "@onedal//cpp/oneapi/dal/detail/mpi",
     ],
 )
 
@@ -105,8 +106,23 @@ dal_test_suite(
     framework = "catch2",
     srcs = glob([
         "test/*.cpp",
+    ], exclude=[
+        "test/mpi_*.cpp"
     ]),
     dal_deps = [ ":common" ],
+)
+
+dal_test_suite(
+    name = "mpi_communicator_test",
+    mpi = True,
+    mpi_ranks = 2,
+    framework = "catch2",
+    srcs = glob([
+        "test/mpi_*.cpp"
+    ]),
+    dal_deps = [
+        ":common",
+    ],
 )
 
 dal_collect_test_suites(

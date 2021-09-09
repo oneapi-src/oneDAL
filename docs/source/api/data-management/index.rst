@@ -25,4 +25,6 @@ Refer to :ref:`Developer Guide: Data Management <dg_data_management>`.
    array.rst
    accessors.rst
    data-sources.rst
+   graphs.rst
+   graph-service.rst
    tables.rst
