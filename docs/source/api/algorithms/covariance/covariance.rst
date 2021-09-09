@@ -71,7 +71,7 @@ Operation
               covariance::compute_result compute(const Descriptor& desc, \
                                       const covariance::compute_input& input)
 
-   :param desc: Covariance algorithm descriptor :expr:`covariance::descriptor`.
+   :param desc: Covariance algorithm descriptor :expr:`covariance::descriptor`
    :param input: Input data for the computing operation
 
    Preconditions

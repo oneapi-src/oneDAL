@@ -18,7 +18,7 @@
 Covariance
 =============
 
-This chapter describes programming interfaces of the covariance algorithms implemented in |short_name|:
+This chapter describes programming interfaces of the covariance algorithm implemented in |short_name|:
 
 .. toctree::
    :titlesonly:

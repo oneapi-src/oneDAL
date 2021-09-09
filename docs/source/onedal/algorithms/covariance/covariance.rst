@@ -32,8 +32,8 @@ Mathematical formulation
 Computing
 ---------
 
-Given a set :math:`X` of :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of
-dimension :math:`p`, the problem is to compute the sample means or
+Given a set :math:`X` of :math:`n` :math:`p`-dimensional feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`,
+the problem is to compute the sample means or
 covariance matrix or correlation matrix:
 
 .. list-table::
@@ -54,8 +54,8 @@ covariance matrix or correlation matrix:
 
 Computation method: *dense*
 ---------------------------
-The method computes the means or
-variance-covariance matrix or correlation matrix
+The method computes the means or the
+variance-covariance matrix or the correlation matrix
 
 ---------------------
 Programming Interface

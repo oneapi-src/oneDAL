@@ -71,7 +71,7 @@ ONEDAL_EXPORT result_option_id get_means_id();
 } // namespace detail
 
 /// Result options are used to define
-/// what should an algorithm returns
+/// what should an algorithm return
 namespace result_options {
 
 /// Return covariance matrix
