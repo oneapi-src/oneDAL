@@ -195,8 +195,10 @@ public:
                     sqrt_event = copy_with_sqrt(queue_, inp_distances, inp_distances, deps);
                 }
 
-                comp_responses =
-                    distance_voting_->operator()(temp_resp, inp_distances, out_block, { sqrt_event, s_event });
+                comp_responses = distance_voting_->operator()(temp_resp,
+                                                              inp_distances,
+                                                              out_block,
+                                                              { sqrt_event, s_event });
             }
         }
 
@@ -232,8 +234,8 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     }
 
     const bool is_euclidean_distance =
-        (distance_impl->get_daal_distance_type() == detail::v1::daal_distance_t::minkowski)
-        && (distance_impl->get_degree() ==  2.0);
+        (distance_impl->get_daal_distance_type() == detail::v1::daal_distance_t::minkowski) &&
+        (distance_impl->get_degree() == 2.0);
 
     auto& queue = ctx.get_queue();
     bk::interop::execution_context_guard guard(queue);
@@ -255,7 +257,8 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
         arr_responses = array<idx_t>::empty(queue, infer_row_count, sycl::usm::alloc::device);
     }
     auto arr_distances = array<Float>{};
-    if (desc.get_result_options().test(result_options::distances) || (desc.get_voting_mode() == voting_t::distance)) {
+    if (desc.get_result_options().test(result_options::distances) ||
+        (desc.get_voting_mode() == voting_t::distance)) {
         const auto length = de::check_mul_overflow(infer_row_count, neighbor_count);
         arr_distances = array<Float>::empty(queue, length, sycl::usm::alloc::device);
     }
