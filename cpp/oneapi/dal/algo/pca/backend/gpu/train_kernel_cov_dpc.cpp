@@ -39,7 +39,7 @@ template <typename Float>
 auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
                   const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK("compute_sums", q);
+    ONEDAL_PROFILER_TASK(compute_sums, q);
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto reduce_event =
@@ -53,7 +53,7 @@ auto compute_correlation(sycl::queue& q,
                          const pr::ndview<Float, 1>& sums,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
-    ONEDAL_PROFILER_TASK("compute_correlation", q);
+    ONEDAL_PROFILER_TASK(compute_correlation, q);
 
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
@@ -74,7 +74,7 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
                                   std::int64_t component_count,
                                   const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1));
-    ONEDAL_PROFILER_TASK("compute_eigenvectors_on_host");
+    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
     const std::int64_t column_count = corr.get_dimension(0);
 
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });

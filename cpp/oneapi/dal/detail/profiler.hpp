@@ -25,10 +25,17 @@
 
 #define ONEDAL_PROFILER_UNIQUE_ID __LINE__
 
+#define ONEDAL_PROFILER_MACRO_1(name)                       oneapi::dal::detail::profiler::start_task(#name)
+#define ONEDAL_PROFILER_MACRO_2(name, queue)                oneapi::dal::detail::profiler::start_task(#name, queue)
+#define ONEDAL_PROFILER_GET_MACRO(arg_1, arg_2, MACRO, ...) MACRO
+
 #define ONEDAL_PROFILER_TASK(...)                                                           \
     oneapi::dal::detail::profiler_task ONEDAL_PROFILER_CONCAT(__profiler_task__,            \
                                                               ONEDAL_ITTNOTIFY_UNIQUE_ID) = \
-        oneapi::dal::detail::profiler::start_task(__VA_ARGS__);
+        ONEDAL_PROFILER_GET_MACRO(__VA_ARGS__,                                              \
+                                  ONEDAL_PROFILER_MACRO_2,                                  \
+                                  ONEDAL_PROFILER_MACRO_1,                                  \
+                                  FICTIVE)(__VA_ARGS__)
 
 namespace oneapi::dal::detail {
 
