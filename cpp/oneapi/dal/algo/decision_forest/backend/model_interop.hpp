@@ -56,18 +56,18 @@ public:
         (daal::algorithms::decision_forest::classification::ModelPtr, ClassificationId), \
         (daal::algorithms::decision_forest::regression::ModelPtr, RegressionId))
 
-template <typename DaalModel>
+template <typename model_ptr_t>
 class model_interop_impl
         : public model_interop,
-          public DF_MODEL_INTEROP_SERIALIZABLE(DaalModel,
+          public DF_MODEL_INTEROP_SERIALIZABLE(model_ptr_t,
                                                decision_forest_model_interop_impl_cls_id,
                                                decision_forest_model_interop_impl_reg_id) {
 public:
     model_interop_impl() = default;
 
-    model_interop_impl(const DaalModel& model) : daal_model_(model) {}
+    model_interop_impl(const model_ptr_t& model) : daal_model_(model) {}
 
-    const DaalModel get_model() const {
+    const model_ptr_t get_model() const {
         return daal_model_;
     }
 
@@ -77,7 +77,7 @@ public:
 
     void serialize(dal::detail::output_archive& ar) const override {
         dal::backend::interop::daal_output_data_archive daal_ar(ar);
-        daal_ar.setSharedPtrObj(const_cast<DaalModel&>(daal_model_));
+        daal_ar.setSharedPtrObj(const_cast<model_ptr_t&>(daal_model_));
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
@@ -86,7 +86,7 @@ public:
     }
 
 private:
-    DaalModel daal_model_;
+    model_ptr_t daal_model_;
 };
 
 using model_interop_cls =
