@@ -15,9 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/covariance/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
@@ -30,13 +28,13 @@ namespace pr = oneapi::dal::backend::primitives;
 
 using dal::backend::context_cpu;
 using dal::backend::context_gpu;
-using input_t = train_input<task::dim_reduction>;
-using result_t = train_result<task::dim_reduction>;
+using input_t = compute_input<task::compute>;
+using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
 
 template <typename Float>
-inline auto compute_means(sycl::queue& queue,
+inline auto compute_means(sycl::queue& q,
                           const pr::ndview<Float, 2>& data,
                           const pr::ndview<Float, 1>& means,
                           const dal::backend::event_vector& deps = {}) {
@@ -56,12 +54,12 @@ inline auto compute_means(sycl::queue& queue,
     const Float eps = std::numeric_limits<Float>::epsilon();
 
     return q.submit([&](sycl::handler& cgh) {
-        const auto range = make_multiple_nd_range_1d(p, device_max_wg_size(q));
+        const auto range = ::oneapi::dal::backend::make_multiple_nd_range_1d(column_count, ::oneapi::dal::backend::device_max_wg_size(q));
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
             const std::int64_t i = id.get_global_id();
-            if (i < p) {
+            if (i < column_count) {
                 const Float s = sums_ptr[i];
                 means_ptr[i] = inv_n * s;
             }
@@ -70,7 +68,7 @@ inline auto compute_means(sycl::queue& queue,
 }
 
 template <typename Float>
-inline auto compute_covariance(sycl::queue& queue,
+inline auto compute_covariance(sycl::queue& q,
                                const pr::ndview<Float, 2>& data,
                                const pr::ndview<Float, 1>& means,
                                const pr::ndview<Float, 2>& covariance,
@@ -86,18 +84,18 @@ inline auto compute_covariance(sycl::queue& queue,
     const Float inv_n1 = (row_count > 1.0f) ? Float(1.0 / double(row_count - 1)) : 1.0f;
 
     const Float* sums_ptr = sums.get_data();
-    const Float* corr_ptr = corr.get_mutable_data();
+    const Float* corr_ptr = data.get_mutable_data();
     Float* means_ptr = means.get_mutable_data();
 
     const Float eps = std::numeric_limits<Float>::epsilon();
 
     return q.submit([&](sycl::handler& cgh) {
-        const auto range = make_multiple_nd_range_1d(p, device_max_wg_size(q));
+        const auto range = ::oneapi::dal::backend::make_multiple_nd_range_1d(column_count, ::oneapi::dal::backend::device_max_wg_size(q));
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
             const std::int64_t i = id.get_global_id();
-            if (i < p) {
+            if (i < column_count) {
                 const Float s = sums_ptr[i];
                 means_ptr[i] = inv_n * s;
             }
