@@ -34,24 +34,6 @@ namespace oneapi::dal::backend::primitives {
 /// @param[out] vars  The [p] variances for each feature
 /// @param[out] tmp   The [p] temporary buffer
 template <typename Float>
-sycl::event means(sycl::queue& queue,
-                        const ndview<Float, 2>& data,
-                        const ndview<Float, 1>& sums,
-                        ndview<Float, 2>& corr,
-                        ndview<Float, 1>& means,
-                        ndview<Float, 1>& vars,
-                        ndview<Float, 1>& tmp,
-                        const event_vector& deps = {});
-template <typename Float>
-sycl::event covariance(sycl::queue& queue,
-                        const ndview<Float, 2>& data,
-                        const ndview<Float, 1>& sums,
-                        ndview<Float, 2>& corr,
-                        ndview<Float, 1>& means,
-                        ndview<Float, 1>& vars,
-                        ndview<Float, 1>& tmp,
-                        const event_vector& deps = {});
-template <typename Float>
 sycl::event correlation(sycl::queue& queue,
                         const ndview<Float, 2>& data,
                         const ndview<Float, 1>& sums,
