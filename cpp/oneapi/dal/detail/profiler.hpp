@@ -43,7 +43,7 @@ class profiler_task {
 public:
     profiler_task(const char* task_name);
 #ifdef ONEDAL_DATA_PARALLEL
-    profiler_task(const char* task_name, sycl::queue& task_queue);
+    profiler_task(const char* task_name, const sycl::queue& task_queue);
 #endif
     ~profiler_task();
 
@@ -58,7 +58,7 @@ class profiler {
 public:
     static profiler_task start_task(const char* task_name);
 #ifdef ONEDAL_DATA_PARALLEL
-    static profiler_task start_task(const char* task_name, sycl::queue& task_queue);
+    static profiler_task start_task(const char* task_name, const sycl::queue& task_queue);
 #endif
     static void end_task(const char* task_name);
 };
