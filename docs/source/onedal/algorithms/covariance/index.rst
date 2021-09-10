@@ -13,23 +13,15 @@
 .. * See the License for the specific language governing permissions and
 .. * limitations under the License.
 .. *******************************************************************************/
-
-.. api_algorithms:
-
-Algorithms
+==========
+Covariance
 ==========
 
-Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of the algorithms.
-
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
-   clustering/index.rst
-   covariance/index.rst
-   decomposition/index.rst
-   ensembles/index.rst   
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   pairwise-distances/index.rst
-   statistics/index.rst
-   svm/index.rst
+   covariance.rst
+
+.. rubric:: Examples: Covariance
+
+.. include::  ../../../includes/covariance/covariance-examples.rst
