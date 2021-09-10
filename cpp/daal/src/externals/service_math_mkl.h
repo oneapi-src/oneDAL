@@ -38,12 +38,6 @@
 
 #if defined(_WIN64) || defined(__x86_64__)
 
-    #if (defined(__x86_64__) && !defined(__APPLE__))
-        #define __DAAL_MKLVML_AVX512_MIC B3
-    #else
-        #define __DAAL_MKLVML_AVX512_MIC L9
-    #endif
-
     #if defined(__APPLE__)
         #define __DAAL_MKLVML_SSE2  H8
         #define __DAAL_MKLVML_SSSE3 H8
@@ -56,11 +50,6 @@
         if (avx512 == cpu)                                          \
         {                                                           \
             VMLFN(Z0, f_name, f_suff) f_args;                       \
-            return;                                                 \
-        }                                                           \
-        if (avx512_mic == cpu)                                      \
-        {                                                           \
-            VMLFN(__DAAL_MKLVML_AVX512_MIC, f_name, f_suff) f_args; \
             return;                                                 \
         }                                                           \
         if (avx2 == cpu)                                            \
@@ -95,11 +84,6 @@
         if (avx512 == cpu)                      \
         {                                       \
             VMLFN(X0, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (avx512_mic == cpu)                  \
-        {                                       \
-            VMLFN(S9, f_name, f_suff) f_args;   \
             return;                             \
         }                                       \
         if (avx2 == cpu)                        \
