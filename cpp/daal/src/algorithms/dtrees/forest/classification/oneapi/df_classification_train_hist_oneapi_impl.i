@@ -33,7 +33,7 @@
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "src/algorithms/dtrees/forest/classification/oneapi/df_classification_tree_helper_impl.i"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/externals/service_rng.h"
 #include "src/externals/service_math.h" //will remove after migrating finalize MDA to GPU
 #include "services/internal/buffer.h"

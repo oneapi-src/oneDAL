@@ -17,7 +17,7 @@
 
 #include "src/sycl/sorter.h"
 #include "services/internal/execution_context.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 
 namespace daal
 {
@@ -40,8 +40,6 @@ services::String GetIntegerTypeForFPType(const TypeId & vectorTypeId)
         return " -D radixIntType=ulong ";
     }
 }
-
-DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.select.select_indexed);
 
 services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId)
 {

@@ -30,10 +30,8 @@
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels_distr_steps.cl"
 #include "src/data_management/service_numeric_table.h"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 //#include <iostream>
-
-DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.distr.step2.oneapi);
 
 using namespace daal::internal;
 using namespace daal::services::internal;

@@ -33,7 +33,7 @@
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_tree_helper_impl.i"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/externals/service_rng.h"
 #include "src/externals/service_math.h" //will remove after migrating finalize MDA to GPU
 #include "services/internal/buffer.h"

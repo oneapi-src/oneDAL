@@ -21,6 +21,17 @@
 //--
 */
 
+#ifndef __SERVICE_PROFILER_H__
+#define __SERVICE_PROFILER_H__
+
+#define DAAL_ITTNOTIFY_CONCAT2(x, y) x##y
+#define DAAL_ITTNOTIFY_CONCAT(x, y)  DAAL_ITTNOTIFY_CONCAT2(x, y)
+
+#define DAAL_ITTNOTIFY_UNIQUE_ID __LINE__
+
+#define DAAL_ITTNOTIFY_SCOPED_TASK(name) \
+    daal::internal::ProfilerTask DAAL_ITTNOTIFY_CONCAT(__profiler_taks__, DAAL_ITTNOTIFY_UNIQUE_ID) = daal::internal::Profiler::startTask(#name);
+
 namespace daal
 {
 namespace internal
@@ -45,3 +56,5 @@ public:
 
 } // namespace internal
 } // namespace daal
+
+#endif // __SERVICE_PROFILER_H__

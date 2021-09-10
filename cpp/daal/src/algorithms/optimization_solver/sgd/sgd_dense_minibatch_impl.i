@@ -30,12 +30,10 @@
 #include "src/externals/service_math.h"
 #include "src/services/service_utils.h"
 #include "src/services/service_data_utils.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 
 using namespace daal::internal;
 using namespace daal::services;
-
-DAAL_ITTNOTIFY_DOMAIN(sgd.dense.minibatch);
 
 namespace daal
 {

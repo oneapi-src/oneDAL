@@ -24,9 +24,7 @@
 #include "src/sycl/math_service_types.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/objective_function/cross_entropy_loss/oneapi/cl_kernel/cross_entropy_loss_dense_default.cl"
-#include "src/externals/service_ittnotify.h"
-
-DAAL_ITTNOTIFY_DOMAIN(optimization_solver.cross_entropy_loss.batch.oneapi);
+#include "src/externals/service_profiler.h"
 
 namespace daal
 {
