@@ -281,7 +281,11 @@ struct delta_stepping {
             using v2a_t = inner_alloc<v2v_t>;
             using v3v_t = vector_container<v2v_t, v2a_t>;
             v2a_t v2a(alloc_ptr);
-            v3v_t local_bins(1, v2a);
+            v3v_t local_bins(thread_cnt, v2a);
+            local_bins[0].reserve(t.get_vertex_degree(source));
+
+            vertex_type* local_processing_bins =
+                allocate(vertex_allocator, max_elements_in_bin * thread_cnt);
 
             std::int64_t iter = 0;
 
@@ -307,20 +311,17 @@ struct delta_stepping {
                     while (curr_bin_index < local_bins[thread_id].size() &&
                            !local_bins[thread_id][curr_bin_index].empty() &&
                            local_bins[thread_id][curr_bin_index].size() < max_elements_in_bin) {
-                        vector_container<vertex_type> curr_bin_copy(
-                            local_bins[thread_id][curr_bin_index].size());
+                        //vector_container<vertex_type> curr_bin_copy(
+                        //local_bins[thread_id][curr_bin_index].size());
+                        auto copy_begin = local_processing_bins + max_elements_in_bin * thread_id;
                         copy(local_bins[thread_id][curr_bin_index].begin(),
                              local_bins[thread_id][curr_bin_index].end(),
-                             curr_bin_copy.begin());
-
+                             copy_begin);
+                        std::int64_t copy_count = local_bins[thread_id][curr_bin_index].size();
                         local_bins[thread_id][curr_bin_index].resize(0);
-                        for (std::int64_t j = 0; j < curr_bin_copy.size(); ++j)
-                            relax_edges(t,
-                                        vals,
-                                        curr_bin_copy[j],
-                                        delta,
-                                        dist,
-                                        local_bins[thread_id]);
+                        for (std::int64_t j = 0; j < copy_count; ++j) {
+                            relax_edges(t, vals, copy_begin[j], delta, dist, local_bins[thread_id]);
+                        }
                     }
                 });
 
@@ -330,6 +331,8 @@ struct delta_stepping {
 
                 iter++;
             }
+
+            deallocate(vertex_allocator, local_processing_bins, max_elements_in_bin * thread_cnt);
 
             auto dist_arr = array<value_type>::empty(vertex_count);
             value_type* dist_ = dist_arr.get_mutable_data();
