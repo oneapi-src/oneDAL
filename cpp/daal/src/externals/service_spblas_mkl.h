@@ -60,10 +60,6 @@
     {                                                           \
         __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;           \
     }                                                           \
-    if (avx512_mic == cpu)                                      \
-    {                                                           \
-        __DAAL_MKLFN(__DAAL_MKLFPK_KNL, f_pref, f_name) f_args; \
-    }                                                           \
     if (avx2 == cpu)                                            \
     {                                                           \
         __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;             \
@@ -89,10 +85,6 @@
     if (avx512 == cpu)                                                 \
     {                                                                  \
         return __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;           \
-    }                                                                  \
-    if (avx512_mic == cpu)                                             \
-    {                                                                  \
-        return __DAAL_MKLFN(__DAAL_MKLFPK_KNL, f_pref, f_name) f_args; \
     }                                                                  \
     if (avx2 == cpu)                                                   \
     {                                                                  \

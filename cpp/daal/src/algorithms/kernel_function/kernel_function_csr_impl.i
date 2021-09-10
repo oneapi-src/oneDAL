@@ -84,197 +84,6 @@ algorithmFPType KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct(const
 
     #if defined(__DAAL_IA32e)
 
-        #if (__CPUID__(DAAL_CPU) == __avx512_mic__)
-
-template <>
-double KernelCSRImplBase<double, avx512_mic>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const double * valuesA,
-                                                                const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                                const double * valuesB, const size_t * indicesB)
-{
-    size_t offsetA = startIndexA;
-    size_t offsetB = startIndexB;
-    double sum     = 0.0;
-
-    if (offsetA + 8 <= endIndexA && offsetB + 8 <= endIndexB && !(endIndexA & 0xffffffff00000000) && !(endIndexB & 0xffffffff00000000))
-    {
-        const __m512i all_31 = _mm512_set1_epi32(31);
-        const __m512i all_f  = _mm512_set1_epi32(0xffffffff);
-        const __m512i upcon  = _mm512_set_epi32(0, 7, 0, 6, 0, 5, 0, 4, 0, 3, 0, 2, 0, 1, 0, 0);
-        const __m256i idx    = _mm256_set_epi32(14, 12, 10, 8, 6, 4, 2, 0);
-        /* Block of 8 indices */
-        __m256i iA = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
-        __m256i iB = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
-        /* Block of 8 values */
-        __m512d valA = _mm512_loadu_pd(valuesA + offsetA);
-        __m512d valB = _mm512_loadu_pd(valuesB + offsetB);
-        __m512d vSum = _mm512_setzero_pd();
-
-        while (1)
-        {
-            __m512i concatenated = _mm512_inserti64x4(_mm512_castsi256_si512(iA), iB, 1);                                   // put b above a
-            __m512i matches    = _mm512_castsi256_si512(_mm512_extracti64x4_epi64(_mm512_conflict_epi32(concatenated), 1)); // take top half of result
-            __m512i perm_idx   = _mm512_sub_epi32(all_31, _mm512_lzcnt_epi32(matches));
-            __m512i perm_idx64 = _mm512_mask_permutevar_epi32(_mm512_setzero_epi32(), 0x5555, upcon, perm_idx);
-            __mmask8 have_match  = (__mmask8)_mm512_test_epi32_mask(matches, all_f);
-            __m512d matched_vals = _mm512_maskz_permutexvar_pd(have_match, perm_idx64, valA);
-            vSum                 = _mm512_fmadd_pd(matched_vals, valB, vSum);
-
-            const int * aidx = (const int *)(&iA);
-            const int * bidx = (const int *)(&iB);
-            int a7           = aidx[7];
-            int b7           = bidx[7];
-            if (a7 == b7)
-            {
-                offsetA += 8;
-                offsetB += 8;
-                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB)
-                {
-                    break;
-                }
-                iA   = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
-                iB   = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
-                valA = _mm512_loadu_pd(valuesA + offsetA);
-                valB = _mm512_loadu_pd(valuesB + offsetB);
-            }
-            else if (a7 > b7)
-            {
-                offsetB += 8;
-                if (offsetB + 8 > endIndexB)
-                {
-                    break;
-                }
-                iB   = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
-                valB = _mm512_loadu_pd(valuesB + offsetB);
-            }
-            else // (a7 < b7)
-            {
-                offsetA += 8;
-                if (offsetA + 8 > endIndexA)
-                {
-                    break;
-                }
-                iA   = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
-                valA = _mm512_loadu_pd(valuesA + offsetA);
-            }
-        }
-
-        double partialSum[8];
-        _mm512_storeu_pd(partialSum, vSum);
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (int i = 0; i < 8; i++)
-        {
-            sum += partialSum[i];
-        }
-    }
-
-    /* Process tail elements in scalar loop */
-    sum += computeDotProductBaseline<double, avx512_mic>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
-
-    return sum;
-}
-
-template <>
-float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const float * valuesA,
-                                                              const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                              const float * valuesB, const size_t * indicesB)
-{
-    size_t offsetA = startIndexA;
-    size_t offsetB = startIndexB;
-    double sum     = 0.0;
-
-    if (offsetA + 8 <= endIndexA && offsetB + 8 <= endIndexB && !(endIndexA & 0xffffffff00000000) && !(endIndexB & 0xffffffff00000000))
-    {
-        const __m512i all_31 = _mm512_set1_epi32(31);
-        const __m512i all_f  = _mm512_set1_epi32(0xffffffff);
-        const __m512i upcon  = _mm512_set_epi32(0, 7, 0, 6, 0, 5, 0, 4, 0, 3, 0, 2, 0, 1, 0, 0);
-        const __m256i idx    = _mm256_set_epi32(14, 12, 10, 8, 6, 4, 2, 0);
-        /* Block of 8 indices */
-        __m256i iA = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
-        __m256i iB = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
-        /* Block of 8 values */
-        __m256 valFloatA = _mm256_loadu_ps(valuesA + offsetA);
-        __m256 valFloatB = _mm256_loadu_ps(valuesB + offsetB);
-        __m512d valA     = _mm512_cvt_roundps_pd(valFloatA, _MM_FROUND_NO_EXC);
-        __m512d valB     = _mm512_cvt_roundps_pd(valFloatB, _MM_FROUND_NO_EXC);
-        __m512d vSum     = _mm512_setzero_pd();
-
-        while (1)
-        {
-            __m512i concatenated = _mm512_inserti64x4(_mm512_castsi256_si512(iA), iB, 1);                                   // put b above a
-            __m512i matches    = _mm512_castsi256_si512(_mm512_extracti64x4_epi64(_mm512_conflict_epi32(concatenated), 1)); // take top half of result
-            __m512i perm_idx   = _mm512_sub_epi32(all_31, _mm512_lzcnt_epi32(matches));
-            __m512i perm_idx64 = _mm512_mask_permutevar_epi32(_mm512_setzero_epi32(), 0x5555, upcon, perm_idx);
-            __mmask8 have_match  = (__mmask8)_mm512_test_epi32_mask(matches, all_f);
-            __m512d matched_vals = _mm512_maskz_permutexvar_pd(have_match, perm_idx64, valA);
-            vSum                 = _mm512_fmadd_pd(matched_vals, valB, vSum);
-
-            const int * aidx = (const int *)(&iA);
-            const int * bidx = (const int *)(&iB);
-            int a7           = aidx[7];
-            int b7           = bidx[7];
-            if (a7 == b7)
-            {
-                offsetA += 8;
-                offsetB += 8;
-                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB)
-                {
-                    break;
-                }
-                iA = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
-                iB = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
-
-                valFloatA = _mm256_loadu_ps(valuesA + offsetA);
-                valFloatB = _mm256_loadu_ps(valuesB + offsetB);
-                valA      = _mm512_cvt_roundps_pd(valFloatA, _MM_FROUND_NO_EXC);
-                valB      = _mm512_cvt_roundps_pd(valFloatB, _MM_FROUND_NO_EXC);
-            }
-            else if (a7 > b7)
-            {
-                offsetB += 8;
-                if (offsetB + 8 > endIndexB)
-                {
-                    break;
-                }
-                iB = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
-
-                valFloatB = _mm256_loadu_ps(valuesB + offsetB);
-                valB      = _mm512_cvt_roundps_pd(valFloatB, _MM_FROUND_NO_EXC);
-            }
-            else // (a7 < b7)
-            {
-                offsetA += 8;
-                if (offsetA + 8 > endIndexA)
-                {
-                    break;
-                }
-                iA = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
-
-                valFloatA = _mm256_loadu_ps(valuesA + offsetA);
-                valA      = _mm512_cvt_roundps_pd(valFloatA, _MM_FROUND_NO_EXC);
-            }
-        }
-
-        double partialSum[8];
-        _mm512_storeu_pd(partialSum, vSum);
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (int i = 0; i < 8; i++)
-        {
-            sum += partialSum[i];
-        }
-    }
-
-    /* Process tail elements in scalar loop */
-    sum += computeDotProductBaseline<float, avx512_mic>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
-
-    return (float)sum;
-}
-
-        #endif // __CPUID__(DAAL_CPU) == __avx512_mic__
-
         #if (__CPUID__(DAAL_CPU) == __avx512__)
 
 template <>
@@ -378,7 +187,7 @@ double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIn
     }
 
     /* Process tail elements in scalar loop */
-    sum += computeDotProductBaseline<double, avx512_mic>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
+    sum += computeDotProductBaseline<double, avx512>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
 
     return sum;
 }
@@ -489,7 +298,7 @@ float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t startInde
     }
 
     /* Process tail elements in scalar loop */
-    sum += computeDotProductBaseline<float, avx512_mic>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
+    sum += computeDotProductBaseline<float, avx512>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
 
     return (float)sum;
 }

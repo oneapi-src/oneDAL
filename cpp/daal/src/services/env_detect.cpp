@@ -96,14 +96,7 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
             }
             else
             {
-                if (daal::avx512_mic == cpuid && daal::avx512_mic != host_cpuid)
-                {
-                    _cpu_detect(daal::services::Environment::avx512_mic_e1);
-                }
-                else
-                {
-                    _env.cpuid = cpuid;
-                }
+                _env.cpuid = cpuid;
             }
         }
 

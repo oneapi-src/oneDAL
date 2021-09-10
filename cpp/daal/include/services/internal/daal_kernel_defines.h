@@ -134,26 +134,6 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_AVX2_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
-#if defined(DAAL_KERNEL_AVX512_MIC)
-    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
-    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID                 daal::avx512_mic
-    #define DAAL_KERNEL_AVX512_MIC_ONLY(something)                   , something
-    #define DAAL_KERNEL_AVX512_MIC_ONLY_CODE(...)                    __VA_ARGS__
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...) \
-        extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__);
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, avx512_mic, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, ...) \
-        DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, avx512_mic, __VA_ARGS__)
-#else
-    #define DAAL_KERNEL_AVX512_MIC_ONLY(something)
-    #define DAAL_KERNEL_AVX512_MIC_ONLY_CODE(...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
-#endif
-
 #if defined(DAAL_KERNEL_AVX512)
     #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
     #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID             daal::avx512
