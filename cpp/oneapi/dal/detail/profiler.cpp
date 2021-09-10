@@ -26,6 +26,10 @@ void profiler::end_task(const char* task_name) {}
 profiler_task::profiler_task(const char* task_name) : task_name_(task_name) {}
 
 #ifdef ONEDAL_DATA_PARALLEL
+profiler_task profiler::start_task(const char* task_name, sycl::queue& task_queue) {
+    return profiler_task(task_name, task_queue);
+}
+
 profiler_task::profiler_task(const char* task_name, sycl::queue& task_queue)
         : task_name_(task_name),
           task_queue_(task_queue) {}
