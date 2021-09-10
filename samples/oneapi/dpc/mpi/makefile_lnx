@@ -57,7 +57,7 @@ ifneq ($(mode),build)
 endif
 
 ifndef DAALROOT
-    DAALROOT = ./../../..
+    DAALROOT = ./../../../..
 endif
 DAAL_PATH = $(DAALROOT)/lib/intel64
 
@@ -108,7 +108,7 @@ LOPTS := -L"$(DAAL_PATH)" \
 	 -L"$(MPI_PATH)"/lib\
          $(LIBS)
 
-COPTS := -I$(MPI_PATH)/include
+COPTS := -I$(MPI_PATH)/include -I"$(DAALROOT)/include"
 RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 
 EXT_LIB := -L$(MPI_PATH) -lmpicxx -lmpi $(addprefix -L,$(TBB_PATH)) $(LIBS)

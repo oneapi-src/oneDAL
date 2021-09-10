@@ -406,7 +406,7 @@ release.CONF = deploy/local/config.txt
 
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
-spat = %.scala %.java %.cpp %.h %.txt %.csv %.html %.png %.parquet %.blob
+spat = %.scala %.java %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob
 spat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln,%_$(_OS).lst %makefile_$(_OS) %.sh)
 release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \

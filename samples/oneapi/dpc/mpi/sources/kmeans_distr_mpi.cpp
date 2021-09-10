@@ -32,9 +32,36 @@
 
 namespace dal = oneapi::dal;
 
+template <typename Float>
+inline std::vector<dal::table> split_table_by_rows(const dal::detail::data_parallel_policy& p,
+                                              const dal::table& t,
+                                              std::int64_t split_count) {
+    ONEDAL_ASSERT(split_count > 0);
+    ONEDAL_ASSERT(split_count <= t.get_row_count());
+
+    const std::int64_t row_count = t.get_row_count();
+    const std::int64_t column_count = t.get_column_count();
+    const std::int64_t block_size_regular = row_count / split_count;
+    const std::int64_t block_size_tail = row_count % split_count;
+
+    std::vector<dal::table> result(split_count);
+
+    std::int64_t row_offset = 0;
+    for (std::int64_t i = 0; i < split_count; i++) {
+        const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
+        const std::int64_t block_size = block_size_regular + tail;
+
+        const auto row_range = dal::range{ row_offset, row_offset + block_size };
+        const auto block = dal::row_accessor<const Float>{ t }.pull(p.get_queue(), row_range, sycl::usm::alloc::device);
+        result[i] = dal::homogen_table::wrap(block, block_size, column_count);
+        row_offset += block_size;
+    }
+
+    return result;
+}
+
 void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
     const auto train_data_file_name = get_data_path("data/kmeans_dense_train_data.csv");
-    std::cout << train_data_file_name << std::endl;
     const auto initial_centroids_file_name = get_data_path("data/kmeans_dense_train_centroids.csv");
 
     const auto x_train = dal::read<dal::table>(policy.get_local(), dal::csv::data_source{ train_data_file_name });
@@ -46,13 +73,19 @@ void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
                                  .set_max_iteration_count(5)
                                  .set_accuracy_threshold(0.001);
 
-    const auto result_train = dal::train(policy, kmeans_desc, x_train, initial_centroids);
-	auto comm = policy.get_communicator();
+    auto comm = policy.get_communicator();
+    auto rank_id = comm.get_rank();
+    auto rank_count = comm.get_rank_count();
+
+    auto input_vec = split_table_by_rows<float>(policy.get_local(), x_train, rank_count);
+    dal::kmeans::train_input local_input { input_vec[rank_id], initial_centroids };
+
+    const auto result_train = dal::train(policy, kmeans_desc, local_input);
  	if(comm.get_rank() == 0) {
-    std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
-    std::cout << "Objective function value: " << result_train.get_objective_function_value()
-              << std::endl;
-    std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
+        std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
+        std::cout << "Objective function value: " << result_train.get_objective_function_value()
+                << std::endl;
+        std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
 	}
 }
 
