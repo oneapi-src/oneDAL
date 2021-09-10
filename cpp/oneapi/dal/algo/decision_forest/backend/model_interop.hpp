@@ -22,6 +22,9 @@
 #include <daal/include/algorithms/decision_forest/decision_forest_regression_training_types.h>
 
 #include "oneapi/dal/algo/decision_forest/common.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/archive.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -47,12 +50,24 @@ public:
     virtual void clear() {}
 };
 
-template <typename DaalModel>
-class model_interop_impl : public model_interop {
-public:
-    model_interop_impl(const DaalModel& model) : daal_model_(model) {}
+#define DF_MODEL_INTEROP_SERIALIZABLE(model_t, ClassificationId, RegressionId)           \
+    ONEDAL_SERIALIZABLE_MAP2(                                                            \
+        model_t,                                                                         \
+        (daal::algorithms::decision_forest::classification::ModelPtr, ClassificationId), \
+        (daal::algorithms::decision_forest::regression::ModelPtr, RegressionId))
 
-    const DaalModel get_model() const {
+template <typename model_ptr_t>
+class model_interop_impl
+        : public model_interop,
+          public DF_MODEL_INTEROP_SERIALIZABLE(model_ptr_t,
+                                               decision_forest_model_interop_impl_cls_id,
+                                               decision_forest_model_interop_impl_reg_id) {
+public:
+    model_interop_impl() = default;
+
+    model_interop_impl(const model_ptr_t& model) : daal_model_(model) {}
+
+    const model_ptr_t get_model() const {
         return daal_model_;
     }
 
@@ -60,8 +75,18 @@ public:
         daal_model_->clear();
     }
 
+    void serialize(dal::detail::output_archive& ar) const override {
+        dal::backend::interop::daal_output_data_archive daal_ar(ar);
+        daal_ar.setSharedPtrObj(const_cast<model_ptr_t&>(daal_model_));
+    }
+
+    void deserialize(dal::detail::input_archive& ar) override {
+        dal::backend::interop::daal_input_data_archive daal_ar(ar);
+        daal_ar.setSharedPtrObj(daal_model_);
+    }
+
 private:
-    DaalModel daal_model_;
+    model_ptr_t daal_model_;
 };
 
 using model_interop_cls =
