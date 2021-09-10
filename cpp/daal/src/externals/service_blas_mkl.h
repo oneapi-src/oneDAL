@@ -49,12 +49,6 @@
 #define __DAAL_MKLFN_CALL(f_pref, f_name, f_args)        __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)
 #define __DAAL_MKLFN_CALL_RETURN(f_pref, f_name, f_args) __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)
 
-#if (defined(__x86_64__) && !defined(__APPLE__))
-    #define __DAAL_MKLFPK_KNL avx512_
-#else
-    #define __DAAL_MKLFPK_KNL avx2_
-#endif
-
 #define __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)              \
     if (avx512 == cpu)                                          \
     {                                                           \

@@ -83,7 +83,7 @@
     DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                    \
     DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                    \
     DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                      \
-    DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                           \
+    DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \
     DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                   \
     namespace interface1                                                                                                                            \
     {                                                                                                                                               \
