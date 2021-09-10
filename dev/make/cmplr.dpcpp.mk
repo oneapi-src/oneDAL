@@ -46,5 +46,4 @@ mc_OPT.dpcpp   = -march=core2
 mc3_OPT.dpcpp  = -march=nehalem
 avx_OPT.dpcpp  = -march=sandybridge
 avx2_OPT.dpcpp = -march=haswell
-knl_OPT.dpcpp  = -march=knl
 skx_OPT.dpcpp  = -march=skx

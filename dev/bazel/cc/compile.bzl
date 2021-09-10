@@ -31,7 +31,6 @@ _CPU_SUFFIX_TO_ISA_MAP = {
     "_snb": "avx",
     "_hsw": "avx2",
     "_skx": "avx512",
-    "_knl": "avx512_mic",
 }
 _CPU_SUFFIX_TO_ISA_BACK_MAP = {
     "sse2":       "_nrh",
@@ -40,7 +39,6 @@ _CPU_SUFFIX_TO_ISA_BACK_MAP = {
     "avx":        "_snb",
     "avx2":       "_hsw",
     "avx512":     "_skx",
-    "avx512_mic": "_knl",
 }
 _CPU_SUFFIXES = _CPU_SUFFIX_TO_ISA_MAP.keys()
 _CPU_ISA_IDS = _CPU_SUFFIX_TO_ISA_MAP.values()

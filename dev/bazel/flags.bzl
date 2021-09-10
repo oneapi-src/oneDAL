@@ -86,7 +86,6 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         sse42 = ["-march=nehalem"]
         avx = ["-march=sandybridge"]
         avx2 = ["-march=haswell"]
-        avx512_mic = ["-march=knl"]
         avx512 = ["-march=skx"]
     return {
         "sse2": sse2,
