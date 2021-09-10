@@ -1,6 +1,5 @@
-/* file: dbscan_dense_default_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,29 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of DBSCAN algorithm.
-//--
-*/
+#pragma once
 
-#include "src/algorithms/dbscan/dbscan_container.h"
-#include "src/algorithms/dbscan/dbscan_dense_default_batch_impl.i"
-
-namespace daal
-{
-namespace algorithms
-{
-namespace dbscan
-{
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface1
-namespace internal
-{
-template class DAAL_EXPORT DBSCANBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace internal
-} // namespace dbscan
-} // namespace algorithms
-} // namespace daal
+#include "oneapi/dal/algo/dbscan/compute.hpp"

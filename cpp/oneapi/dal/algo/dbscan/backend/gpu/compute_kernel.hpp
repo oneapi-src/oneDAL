@@ -1,6 +1,5 @@
-/* file: dbscan_dense_default_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,29 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of DBSCAN algorithm.
-//--
-*/
+#pragma once
 
-#include "src/algorithms/dbscan/dbscan_container.h"
-#include "src/algorithms/dbscan/dbscan_dense_default_batch_impl.i"
+#include "oneapi/dal/algo/dbscan/compute_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace dbscan
-{
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface1
-namespace internal
-{
-template class DAAL_EXPORT DBSCANBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace internal
-} // namespace dbscan
-} // namespace algorithms
-} // namespace daal
+namespace oneapi::dal::dbscan::backend {
+
+template <typename Float, typename Method, typename Task>
+struct compute_kernel_gpu {
+    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                    const detail::descriptor_base<Task>& params,
+                                    const compute_input<Task>& input) const;
+};
+
+} // namespace oneapi::dal::dbscan::backend

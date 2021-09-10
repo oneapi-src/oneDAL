@@ -288,6 +288,11 @@ MSG(invalid_value_for_observations_per_tree_fraction,
     "Invalid value for observations per tree fraction")
 MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
 
+/* DBSCAN */
+MSG(weight_dimension_doesnt_match_data_dimension,
+    "Weights dimensions doesn't match data dimensions")
+MSG(weights_column_count_ne_1, "Weights is not a single-column table")
+
 /* Louvain */
 MSG(negative_resolution, "Resolution parameter is lower than zero")
 MSG(input_initial_partition_table_rc_neq_vertex_count,
