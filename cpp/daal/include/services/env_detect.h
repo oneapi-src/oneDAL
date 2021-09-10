@@ -48,9 +48,7 @@ enum CpuType
     avx        = 3, /*!< Intel(R) Advanced Vector Extensions (Intel(R) AVX) */
     avx2       = 4, /*!< Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2) */
     avx512     = 6, /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
-    avx512_mic_e1 =
-        7, /*!< Intel(R) Xeon Phi(TM) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups. Should be used as parameter for setCpuId function only. Can`t be received as return value of setCpuId, getCpuId and enableInstructionsSet functions. */
-    lastCpuType = avx512_mic_e1
+    lastCpuType = avx512
 };
 
 namespace services
@@ -96,8 +94,6 @@ public:
     {
         cpu_default = 0, /*!< Default processor type */
         avx512 = 2, /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
-        avx512_mic_e1 =
-            4 /*!< Intel(R) Xeon Phi(TM) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups */
     };
 
     /**

@@ -314,10 +314,10 @@ struct MergeGHSums
         #define SSE42_ALL sse42
     #endif
 
-    #if __CPUID__(DAAL_CPU) >= __avx512_mic_e1__
+    #if __CPUID__(DAAL_CPU) >= __avx512
         #define AVX512_ALL DAAL_CPU
     #else
-        #define AVX512_ALL avx512_mic_e1
+        #define AVX512_ALL avx512
     #endif
 
     #if __CPUID__(DAAL_CPU) >= __avx__
