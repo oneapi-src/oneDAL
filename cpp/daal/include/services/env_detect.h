@@ -93,7 +93,7 @@ public:
     enum CpuTypeEnable
     {
         cpu_default = 0, /*!< Default processor type */
-        avx512 = 2, /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
+        avx512 = 2 /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
     };
 
     /**
