@@ -58,6 +58,81 @@ inline void validate_input(const sycl::queue& q,
 }
 
 template <typename Float>
+inline sycl::event compute_means(sycl::queue& q,
+                                 const ndview<Float, 2>& data,
+                                 const ndview<Float, 1>& sums,
+                                 ndview<Float, 1>& means,
+                                 const event_vector& deps) {
+    const std::int64_t column_count = data.get_dimension(1);
+    const std::int64_t row_count = data.get_dimension(0);
+   
+    const Float inv_n = Float(1.0 / double(row_count));
+
+    const Float* sums_ptr = sums.get_data();
+    Float* means_ptr = means.get_mutable_data();
+
+    const Float eps = std::numeric_limits<Float>::epsilon();
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = ::oneapi::dal::backend::make_multiple_nd_range_1d(column_count, ::oneapi::dal::backend::device_max_wg_size(q));
+
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
+            const std::int64_t i = id.get_global_id();
+            if (i < column_count) {
+                const Float s = sums_ptr[i];
+                means_ptr[i] = inv_n * s;
+            }
+        });
+    });
+}
+
+template <typename Float>
+inline sycl::event prepare_covariance(sycl::queue& q,
+                                       std::int64_t row_count,
+                                       const ndview<Float, 1>& sums,
+                                       const ndview<Float, 2>& cov,
+                                       ndview<Float, 1>& means,
+                                       ndview<Float, 1>& vars,
+                                       ndview<Float, 1>& tmp,
+                                       const event_vector& deps) {
+    const std::int64_t n = row_count;
+    const std::int64_t p = sums.get_count();
+    const Float inv_n = Float(1.0 / double(n));
+    const Float inv_n1 = (n > 1.0f) ? Float(1.0 / double(n - 1)) : 1.0f;
+
+    const Float* sums_ptr = sums.get_data();
+    const Float* cov_ptr = cov.get_mutable_data();
+    Float* means_ptr = means.get_mutable_data();
+    Float* vars_ptr = vars.get_mutable_data();
+    Float* tmp_ptr = tmp.get_mutable_data();
+
+    const Float eps = std::numeric_limits<Float>::epsilon();
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = make_multiple_nd_range_1d(p, device_max_wg_size(q));
+
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
+            const std::int64_t i = id.get_global_id();
+            if (i < p) {
+                const Float s = sums_ptr[i];
+                const Float m = inv_n * s * s;
+                const Float c = cov_ptr[i * p + i];
+                const Float v = c - m;
+
+                means_ptr[i] = inv_n * s;
+                vars_ptr[i] = inv_n1 * v;
+
+                // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
+                // to avoid NaN/Inf in the resulting correlation matrix
+                tmp_ptr[i] = v + eps * Float(v < eps);
+            }
+        });
+    });
+}
+
+template <typename Float>
 inline sycl::event prepare_correlation(sycl::queue& q,
                                        std::int64_t row_count,
                                        const ndview<Float, 1>& sums,
@@ -136,6 +211,43 @@ inline sycl::event finalize_correlation(sycl::queue& q,
             }
         });
     });
+}
+
+template <typename Float>
+sycl::event means(sycl::queue& q,
+                  const ndview<Float, 2>& data,
+                  const ndview<Float, 1>& sums,
+                  ndview<Float, 1>& means,
+                  const event_vector& deps) {
+    //validate_input(q, data, sums, corr, means, vars, tmp);
+
+    //auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
+
+    auto finalize_event =
+        compute_means(q, data, sums, means);
+
+    return finalize_event;
+}
+
+template <typename Float>
+sycl::event covariance(sycl::queue& q,
+                        const ndview<Float, 2>& data,
+                        const ndview<Float, 1>& sums,
+                        ndview<Float, 2>& cov,
+                        ndview<Float, 1>& means,
+                        ndview<Float, 1>& vars,
+                        ndview<Float, 1>& tmp,
+                        const event_vector& deps) {
+    //validate_input(q, data, sums, corr, means, vars, tmp);
+
+    //auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
+
+    auto prepare_event =
+        prepare_covariance(q, data.get_dimension(0), sums, cov, means, vars, tmp);
+
+    
+
+    return prepare_event;
 }
 
 template <typename Float>

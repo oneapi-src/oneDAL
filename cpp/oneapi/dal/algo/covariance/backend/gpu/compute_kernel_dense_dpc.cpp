@@ -32,187 +32,122 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-
 template <typename Float>
-inline auto compute_means(sycl::queue& q,
-                          const pr::ndview<Float, 2>& data,
-                          const pr::ndview<Float, 1>& means,
-                          const dal::backend::event_vector& deps = {}) {
-    
+auto compute_sums(sycl::queue& q,
+                  const pr::ndview<Float, 2>& data,
+                  const dal::backend::event_vector& deps = {}) {
     const std::int64_t column_count = data.get_dimension(1);
-    const std::int64_t row_count = data.get_dimension(0);
-
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto reduce_event =
         pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-    
-    const Float inv_n = Float(1.0 / double(row_count));
-
-    const Float* sums_ptr = sums.get_data();
-    Float* means_ptr = means.get_mutable_data();
-
-    const Float eps = std::numeric_limits<Float>::epsilon();
-
-    return q.submit([&](sycl::handler& cgh) {
-        const auto range = ::oneapi::dal::backend::make_multiple_nd_range_1d(column_count, ::oneapi::dal::backend::device_max_wg_size(q));
-
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-            const std::int64_t i = id.get_global_id();
-            if (i < column_count) {
-                const Float s = sums_ptr[i];
-                means_ptr[i] = inv_n * s;
-            }
-        });
-    });
+    return std::make_tuple(sums, reduce_event);
 }
+
+// template <typename Float>
+// inline auto compute_means(sycl::queue& q,
+//                           const pr::ndview<Float, 2>& data,
+//                           const ndview<Float, 1>& sums,
+//                           const pr::ndview<Float, 1>& means,
+//                           const dal::backend::event_vector& deps = {}) {
+    
+
+//     auto means_event = pr::means(q, data, sums, means, deps);
+
+//     auto smart_event = dal::backend::smart_event{ means_event };
+//     return std::make_tuple(means, smart_event);
+// }
 
 template <typename Float>
 inline auto compute_covariance(sycl::queue& q,
                                const pr::ndview<Float, 2>& data,
-                               const pr::ndview<Float, 1>& means,
-                               const pr::ndview<Float, 2>& covariance,
+                               const pr::ndview<Float, 1>& sums,
                                const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+
     const std::int64_t column_count = data.get_dimension(1);
-    const std::int64_t row_count = data.get_dimension(0);
+    auto cov =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
-    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto reduce_event =
-        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-    
-    const Float inv_n = Float(1.0 / double(row_count));
-    const Float inv_n1 = (row_count > 1.0f) ? Float(1.0 / double(row_count - 1)) : 1.0f;
+    auto cov_event = pr::covariance(q, data, sums, cov, means, vars, tmp, deps);
 
-    const Float* sums_ptr = sums.get_data();
-    const Float* corr_ptr = data.get_mutable_data();
-    Float* means_ptr = means.get_mutable_data();
-
-    const Float eps = std::numeric_limits<Float>::epsilon();
-
-    return q.submit([&](sycl::handler& cgh) {
-        const auto range = ::oneapi::dal::backend::make_multiple_nd_range_1d(column_count, ::oneapi::dal::backend::device_max_wg_size(q));
-
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-            const std::int64_t i = id.get_global_id();
-            if (i < column_count) {
-                const Float s = sums_ptr[i];
-                means_ptr[i] = inv_n * s;
-            }
-        });
-    });
+    auto smart_event = dal::backend::smart_event{ cov_event }.attach(tmp);
+    return std::make_tuple(cov, means, vars, smart_event);
 }
+
+template <typename Float>
+auto compute_correlation(sycl::queue& q,
+                         const pr::ndview<Float, 2>& data,
+                         const pr::ndview<Float, 1>& sums,
+                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+
+    const std::int64_t column_count = data.get_dimension(1);
+    auto corr =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+
+    auto corr_event = pr::correlation(q, data, sums, corr, means, vars, tmp, deps);
+
+    auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
+    return std::make_tuple(corr, means, vars, smart_event);
+}
+
 template <typename Float, typename Task>
-static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
+static compute_result<Task> compute(const context_gpu& ctx,
                                              const descriptor_t& desc,
-                                             const table& data) {
-    bool is_mean_computed = false;
+                                             const input_t& input) {
+    //bool is_mean_computed = false;
+    auto result = result_t{};
+    auto& q = ctx.get_queue();
+    const auto data = input.get_data();
 
-    auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
-
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = data.get_column_count();
+    dal::detail::check_mul_overflow(row_count, column_count);
+    dal::detail::check_mul_overflow(column_count, column_count);
+    dal::detail::check_mul_overflow(component_count, column_count);
 
-    daal_covariance::Parameter daal_parameter;
-    daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
+    const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
 
-    dal::detail::check_mul_overflow(component_count, component_count);
-
-    const auto daal_data = interop::convert_to_daal_table(queue, data);
-
-    auto arr_means = array<Float>::empty(queue, component_count, sycl::usm::alloc::device);
-    const auto daal_means = interop::convert_to_daal_table(queue, arr_means, 1, component_count);
-
-    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
+    auto [sums, sums_event] = compute_sums(q, data_nd);
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto arr_cov_matrix =
-            array<Float>::empty(queue, component_count * component_count, sycl::usm::alloc::device);
-        const auto daal_cov_matrix =
-            interop::convert_to_daal_table(queue, arr_cov_matrix, component_count, component_count);
-
-        interop::status_to_exception(
-            daal_covariance_kernel_t<Float>().compute(daal_data.get(),
-                                                      daal_cov_matrix.get(),
-                                                      daal_means.get(),
-                                                      &daal_parameter));
-        is_mean_computed = true;
+        auto [cov, means, vars, cov_event] = compute_covariance(q, data_nd, sums, { sums_event });
+        //is_mean_computed = true;
 
         result.set_cov_matrix(
-            homogen_table::wrap(arr_cov_matrix, component_count, component_count));
+            (homogen_table::wrap(cov.flatten(q), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
-        auto arr_cor_matrix =
-            array<Float>::empty(queue, component_count * component_count, sycl::usm::alloc::device);
-        const auto daal_cor_matrix =
-            interop::convert_to_daal_table(queue, arr_cor_matrix, component_count, component_count);
-        daal_parameter.outputMatrixType = daal_covariance::correlationMatrix;
+        auto [corr, means, vars, corr_event] = compute_correlation(q, data_nd, sums, { sums_event });
 
-        interop::status_to_exception(
-            daal_covariance_kernel_t<Float>().compute(daal_data.get(),
-                                                      daal_cor_matrix.get(),
-                                                      daal_means.get(),
-                                                      &daal_parameter));
-        is_mean_computed = true;
+        //is_mean_computed = true;
 
         result.set_cor_matrix(
-            homogen_table::wrap(arr_cor_matrix, component_count, component_count));
+            (homogen_table::wrap(corr.flatten(q), column_count, column_count)));
     }
-    if (desc.get_result_options().test(result_options::means)) {
-        if (!is_mean_computed) {
-            auto arr_cov_matrix = array<Float>::empty(queue,
-                                                      component_count * component_count,
-                                                      sycl::usm::alloc::device);
-
-            const auto daal_cov_matrix = interop::convert_to_daal_table(queue,
-                                                                        arr_cov_matrix,
-                                                                        component_count,
-                                                                        component_count);
-
-            interop::status_to_exception(
-                daal_covariance_kernel_t<Float>().compute(daal_data.get(),
-                                                          daal_cov_matrix.get(),
-                                                          daal_means.get(),
-                                                          &daal_parameter));
-        }
-        result.set_means(homogen_table::wrap(arr_means, 1, component_count));
-    }
+    // if (desc.get_result_options().test(result_options::means)) {
+    //     if (!is_mean_computed) {
+    //         auto [means, means_event] = compute_means(q, data_nd, sums, { sums_event });
+    //     }
+    //     result.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
+    // }
     return result;
 }
 
-template <typename Float>
-static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    const auto x = input.get_x();
-    const auto y = input.get_y();
-
-    auto& queue = ctx.get_queue();
-
-    const std::int64_t x_row_count = x.get_row_count();
-    const std::int64_t y_row_count = y.get_row_count();
-
-    ONEDAL_ASSERT(x.get_column_count() == y.get_column_count());
-    dal::detail::check_mul_overflow(x_row_count, y_row_count);
-
-    const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
-    const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
-
-    auto res_nd =
-        pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
-
-    auto compute_rbf_event = compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
-
-    const auto res_array = res_nd.flatten(queue, { compute_rbf_event });
-    auto res_table = homogen_table::wrap(res_array, x_row_count, y_row_count);
-
-    return result_t{}.set_values(res_table);
-}
 
 template <typename Float>
 struct compute_kernel_gpu<Float, method::dense, task::compute> {
-    result_t operator()(const context_gpu& ctx,
+    compute_result<task::compute> operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return compute<Float>(ctx, desc, input);
+        return compute<Float, task::compute >(ctx, desc, input);
     }
 };
 
