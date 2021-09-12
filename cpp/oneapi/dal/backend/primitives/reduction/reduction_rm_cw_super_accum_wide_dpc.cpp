@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/reduction/common.hpp"
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw_dpc.hpp"
 #include "oneapi/dal/backend/primitives/super_accumulator/super_accumulator.hpp"
@@ -273,16 +274,16 @@ sycl::event reduction_rm_cw_super_accum_wide<Float, BinaryOp, UnaryOp>::operator
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
+    using oneapi::dal::backend::operator+;
     using super_accums = super_accumulators<float, false>;
-    const auto bins_size = width * super_accums::nbins * super_accums::binsize;
-    auto* const bins = sycl::malloc_device<std::int64_t>(bins_size, q_);
-    std::vector<sycl::event> new_deps(deps.size() + 1);
-    new_deps[0] = q_.fill<std::int64_t>(bins, 0ul, bins_size);
-    std::copy(deps.cbegin(), deps.cend(), ++(new_deps.begin()));
+    constexpr auto places_per_feature = super_accums::nbins * super_accums::binsize;
+    auto [bins, fill_event] =
+        ndarray<std::int64_t, 2>::zeros(this->q_, { width, places_per_feature });
+    const auto new_deps = deps + fill_event;
+    auto* const bins_ptr = bins.get_mutable_data();
     auto reduction_event =
-        this->operator()(input, output, width, height, stride, bins, binary, unary, new_deps);
+        this->operator()(input, output, width, height, stride, bins_ptr, binary, unary, new_deps);
     reduction_event.wait_and_throw();
-    sycl::free(bins, q_);
     return reduction_event;
 }
 
