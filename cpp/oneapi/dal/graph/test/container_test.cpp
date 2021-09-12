@@ -39,6 +39,15 @@ struct CountingAllocator {
         return *this;
     }
 
+    template <class U>
+    bool operator!=(const CountingAllocator<U>& other) {
+        return true;
+    }
+
+    bool operator!=(const CountingAllocator<T>& other) {
+        return false;
+    }
+
     T* allocate(const size_t n) {
         allocated_bytes_count += n * sizeof(T);
         if (n > static_cast<size_t>(-1) / sizeof(T)) {
@@ -289,7 +298,8 @@ TEST("can construct empty vector_container of vector_container with custom alloc
 }
 
 TEST("can construct empty vector_container of std::container with custom allocator") {
-    check_construct_empty_with_custom_allocator<std::vector<std::int32_t>>();
+    check_construct_empty_with_custom_allocator<
+        std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST("can construct vector_container of given size of primitives") {
@@ -315,7 +325,8 @@ TEST(
 }
 
 TEST("can construct vector_container of given size of std::containers type with custom allocator") {
-    check_construct_given_size_with_custom_allocator<std::vector<std::int32_t>>(10);
+    check_construct_given_size_with_custom_allocator<
+        std::vector<std::int32_t, CountingAllocator<std::int32_t>>>(10);
 }
 
 TEST(
@@ -342,9 +353,11 @@ TEST(
     "can construct vector_container of given size with value of std::containers type with custom allocator") {
     allocated_bytes_count = 0;
     {
-        std::vector<float> vec(10);
+        CountingAllocator<std::int32_t> alloc;
+        std::vector<std::int32_t, CountingAllocator<std::int32_t>> vec(10, alloc);
         fill_content(vec);
-        check_construct_given_size_with_value_with_custom_allocator<std::vector<float>>(10, vec);
+        check_construct_given_size_with_value_with_custom_allocator<
+            std::vector<std::int32_t, CountingAllocator<std::int32_t>>>(10, vec);
     }
     REQUIRE(allocated_bytes_count == 0);
 }
@@ -360,7 +373,7 @@ TEST(
 
 TEST(
     "can create vector_container of std::containers from another vector_container using copy constructor") {
-    check_copy_constructor<std::vector<std::int32_t>>();
+    check_copy_constructor<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST(
@@ -375,7 +388,7 @@ TEST(
 
 TEST(
     "can create vector_container of std::containers from another vector_container using copy assignment") {
-    check_copy_assignment<std::vector<std::int32_t>>();
+    check_copy_assignment<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST("can copy vector_container of primitives with begin(), end() iterators") {
@@ -387,7 +400,7 @@ TEST("can copy vector_container of vector_containers with begin(), end() iterato
 }
 
 TEST("can copy vector_container of std::containers with begin(), end() iterators") {
-    check_begin_end_copy<std::vector<std::int32_t>>();
+    check_begin_end_copy<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST("can copy vector_container of tuples primitives with begin(), end() iterators") {
@@ -402,9 +415,9 @@ TEST("can copy vector_container of tuples vector_containers with begin(), end() 
 }
 
 TEST("can copy vector_container of tuples std::containers with begin(), end() iterators") {
-    check_begin_end_copy<std::tuple<std::vector<std::int32_t>,
-                                    std::vector<std::int32_t>,
-                                    std::vector<std::int64_t>>>();
+    check_begin_end_copy<std::tuple<std::vector<float, CountingAllocator<float>>,
+                                    std::vector<std::int32_t, CountingAllocator<std::int32_t>>,
+                                    std::vector<std::int64_t, CountingAllocator<std::int64_t>>>>();
 }
 
 TEST("can copy vector_container of primitives") {
@@ -416,7 +429,7 @@ TEST("can copy vector_container of vector_containers") {
 }
 
 TEST("can copy vector_container of std::contaier") {
-    check_copy<std::vector<std::int32_t>>();
+    check_copy<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST("can copy vector_container of tuples of primitives") {
@@ -430,8 +443,9 @@ TEST("can copy vector_container of tuples of vector_containers") {
 }
 
 TEST("can copy vector_container of tuples of std::contaier") {
-    check_copy<
-        std::tuple<std::vector<float>, std::vector<std::int32_t>, std::vector<std::int64_t>>>();
+    check_copy<std::tuple<std::vector<float, CountingAllocator<float>>,
+                          std::vector<std::int32_t, CountingAllocator<std::int32_t>>,
+                          std::vector<std::int64_t, CountingAllocator<std::int64_t>>>>();
 }
 
 TEST("can fill vector_container of primitives with value") {
@@ -454,9 +468,10 @@ TEST("can fill vector_container of vector_container with value") {
 TEST("can fill vector_container of std::contaiers with value") {
     allocated_bytes_count = 0;
     {
-        std::vector<std::int32_t> vec(10);
+        CountingAllocator<std::int32_t> alloc;
+        std::vector<std::int32_t, CountingAllocator<std::int32_t>> vec(10, alloc);
         fill_content(vec);
-        check_fill<std::vector<std::int32_t>>(vec);
+        check_fill<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>(vec);
     }
     REQUIRE(allocated_bytes_count == 0);
 }

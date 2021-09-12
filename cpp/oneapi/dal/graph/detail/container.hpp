@@ -92,6 +92,16 @@ struct construct<vector_container<T, InnerAlloc>, OuterAlloc> {
     }
 };
 
+template <typename T, typename Alloc>
+struct destroy {
+    void operator()(T* data_ptr, std::int64_t capacity, Alloc& a) {
+        for (std::int64_t i = 0; i < capacity; ++i) {
+            data_ptr[i].~T();
+        }
+        oneapi::dal::preview::detail::deallocate(a, data_ptr, capacity);
+    }
+};
+
 template <typename T, typename Allocator>
 class vector_container {
 public:
@@ -140,13 +150,7 @@ public:
     vector_container<T, Allocator> operator=(const vector_container<T, Allocator>& other) {
         pimpl tmp_impl(new impl_t());
         if (impl_->has_mutable_data()) {
-            T* data = impl_->get_mutable_data();
-            for(std::int64_t i=0;i<capacity_;++i){
-                data[i].~T();
-            }
-            oneapi::dal::preview::detail::deallocate(allocator_,
-                                                     impl_->get_mutable_data(),
-                                                     capacity_);
+            destroy<data_t, allocator_type>{}(impl_->get_mutable_data(), capacity_, allocator_);
         }
         std::swap(this->impl_, tmp_impl);
         this->allocator_ = other.get_allocator();
@@ -163,13 +167,7 @@ public:
 
     virtual ~vector_container() {
         if (impl_->has_mutable_data()) {
-            T* data = impl_->get_mutable_data();
-            for(std::int64_t i=0;i<capacity_;++i){
-                data[i].~T();
-            }
-            oneapi::dal::preview::detail::deallocate(allocator_,
-                                                     impl_->get_mutable_data(),
-                                                     capacity_);
+            destroy<data_t, allocator_type>{}(impl_->get_mutable_data(), capacity_, allocator_);
         }
     }
 
@@ -231,13 +229,8 @@ public:
             T* old_data_ptr = impl_->get_mutable_data();
             preview::detail::copy(old_data_ptr, old_data_ptr + count_, data_ptr);
             impl_->reset(data_ptr, new_capacity, empty_delete{});
-            if (impl_->has_mutable_data()) {
-                for(std::int64_t i=0;i<capacity_;++i){
-                    old_data_ptr[i].~T();
-                }
-            }
             // TODO: move deallocation to dal array deleter.
-            oneapi::dal::preview::detail::deallocate(allocator_, old_data_ptr, capacity_);
+            destroy<data_t, allocator_type>{}(old_data_ptr, capacity_, allocator_);
             capacity_ = new_capacity;
         }
     }
