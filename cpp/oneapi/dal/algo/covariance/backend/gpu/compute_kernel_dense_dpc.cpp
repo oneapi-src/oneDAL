@@ -21,7 +21,7 @@
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-
+#include <iostream>
 namespace oneapi::dal::covariance::backend {
 
 namespace pr = oneapi::dal::backend::primitives;
@@ -64,6 +64,7 @@ inline auto compute_covariance(sycl::queue& q,
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
 
     const std::int64_t column_count = data.get_dimension(1);
+    std::cout<<"hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"<<std::endl;
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
