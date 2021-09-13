@@ -43,19 +43,18 @@ auto compute_sums(sycl::queue& q,
     return std::make_tuple(sums, reduce_event);
 }
 
-// template <typename Float>
-// inline auto compute_means(sycl::queue& q,
-//                           const pr::ndview<Float, 2>& data,
-//                           const ndview<Float, 1>& sums,
-//                           const pr::ndview<Float, 1>& means,
-//                           const dal::backend::event_vector& deps = {}) {
-    
+template <typename Float>
+inline auto compute_means(sycl::queue& q,
+                         const pr::ndview<Float, 2>& data,
+                         const pr::ndview<Float, 1>& sums,
+                         const dal::backend::event_vector& deps = {}) {
+    const std::int64_t column_count = data.get_dimension(1);
+    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto means_event = pr::means(q, data, sums, means, deps);
 
-//     auto means_event = pr::means(q, data, sums, means, deps);
-
-//     auto smart_event = dal::backend::smart_event{ means_event };
-//     return std::make_tuple(means, smart_event);
-// }
+    auto smart_event = dal::backend::smart_event{ means_event };
+    return std::make_tuple(means, smart_event);
+}
 
 template <typename Float>
 inline auto compute_covariance(sycl::queue& q,
@@ -102,7 +101,7 @@ static compute_result<Task> compute(const context_gpu& ctx,
                                              const descriptor_t& desc,
                                              const input_t& input) {
     //bool is_mean_computed = false;
-    auto result = result_t{};
+    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
     auto& q = ctx.get_queue();
     const auto data = input.get_data();
 
@@ -132,12 +131,12 @@ static compute_result<Task> compute(const context_gpu& ctx,
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q), column_count, column_count)));
     }
-    // if (desc.get_result_options().test(result_options::means)) {
-    //     if (!is_mean_computed) {
-    //         auto [means, means_event] = compute_means(q, data_nd, sums, { sums_event });
-    //     }
-    //     result.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
-    // }
+    if (desc.get_result_options().test(result_options::means)) {
+        //if (!is_mean_computed) {
+            auto [means, means_event] = compute_means(q, data_nd, sums, { sums_event });
+        //}
+        result.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
+    }
     return result;
 }
 

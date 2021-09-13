@@ -34,6 +34,7 @@ namespace oneapi::dal::backend::primitives {
 template <typename Float>
 sycl::event means(sycl::queue& queue,
                         const ndview<Float, 2>& data,
+                        const ndview<Float, 1>& sums,
                         ndview<Float, 1>& means,
                         const event_vector& deps = {});
 

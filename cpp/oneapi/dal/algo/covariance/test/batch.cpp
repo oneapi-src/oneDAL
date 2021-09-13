@@ -28,6 +28,7 @@
 #include "oneapi/dal/test/engine/linalg/matrix.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
+#include <iostream>
 
 namespace oneapi::dal::covariance::test {
 
@@ -43,7 +44,6 @@ public:
 
     void general_checks(const te::dataframe& input, const te::table_id& input_table_id) {
         const table data = input.get_table(this->get_policy(), input_table_id);
-
         INFO("create descriptor cov cor means")
         auto cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
@@ -52,7 +52,6 @@ public:
         INFO("run compute optional: cov cor means");
         auto compute_result = this->compute(cov_desc, data);
         check_compute_result(data, compute_result);
-
         INFO("create descriptor cov")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
@@ -60,7 +59,6 @@ public:
         INFO("run compute optional: cov");
         compute_result = this->compute(cov_desc, data);
         check_compute_result(data, compute_result);
-
         INFO("create descriptor cor")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
@@ -68,7 +66,6 @@ public:
         INFO("run compute optional: cor");
         compute_result = this->compute(cov_desc, data);
         check_compute_result(data, compute_result);
-
         INFO("create descriptor means")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
@@ -160,7 +157,7 @@ public:
 
     void check_cov_matrix_values(const table& data, const table& cov_matrix) {
         const auto reference_cov = compute_reference_cov(data);
-        const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
+        const double tol = te::get_tolerance<Float>(14000000, 1000000);
         const double diff = te::abs_error(reference_cov, cov_matrix);
         CHECK(diff < tol);
     }
