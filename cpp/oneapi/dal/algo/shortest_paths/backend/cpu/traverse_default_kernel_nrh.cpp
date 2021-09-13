@@ -41,6 +41,119 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, std::int32_t>::operator()(
                                                                                       alloc_ptr);
 }
 
+template <typename EdgeValue>
+traverse_result<task::one_to_all>
+delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
+    const detail::descriptor_base<task::one_to_all>& desc,
+    const dal::preview::detail::topology<std::int32_t>& t,
+    const EdgeValue* vals,
+    byte_alloc_iface* alloc_ptr) {
+    using value_type = EdgeValue;
+    using vertex_type = std::int32_t;
+    using vp_type = dist_pred<value_type, vertex_type>;
+    using vp_allocator_type = inner_alloc<vp_type>;
+    using vertex_allocator_type = inner_alloc<vertex_type>;
+
+    vertex_allocator_type vertex_allocator(alloc_ptr);
+    vp_allocator_type vp_allocator(alloc_ptr);
+
+    const auto source = dal::detail::integral_cast<std::int32_t>(desc.get_source());
+
+    const value_type delta = desc.get_delta();
+
+    const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
+    const std::int64_t max_elements_in_bin = 1000;
+    const auto vertex_count = t.get_vertex_count();
+    const value_type max_dist = std::numeric_limits<value_type>::max();
+
+    vp_type* dp = allocate(vp_allocator, vertex_count);
+    for (std::int64_t i = 0; i < vertex_count; ++i) {
+        new (dp + i) dist_pred<value_type, vertex_type>(max_dist, -1);
+    }
+
+    dp[source] = dist_pred<value_type, vertex_type>(0, -1);
+
+    vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
+                                                                    vertex_allocator);
+
+    shared_bin[0] = source;
+    std::int64_t curr_bin_index = 0;
+    std::int64_t vertex_count_in_shared_bin = 1;
+
+    using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
+    using v1a_t = inner_alloc<v1v_t>;
+
+    using v2v_t = vector_container<v1v_t, v1a_t>;
+    using v2a_t = inner_alloc<v2v_t>;
+    using v3v_t = vector_container<v2v_t, v2a_t>;
+
+    v2a_t v2a(alloc_ptr);
+    v3v_t local_bins(1, v2a);
+
+    while (curr_bin_index != max_bin_count) {
+        for (std::int64_t i = 0; i < vertex_count_in_shared_bin; ++i) {
+            vertex_type u = shared_bin[i];
+            if (dp[u].dist >= delta * static_cast<value_type>(curr_bin_index)) {
+                relax_edges_with_pred_seq(t, vals, u, delta, dp, local_bins[0]);
+            }
+        }
+
+        while (curr_bin_index < local_bins[0].size() &&
+                !local_bins[0][curr_bin_index].empty() &&
+                local_bins[0][curr_bin_index].size() < max_elements_in_bin) {
+            vector_container<vertex_type> curr_bin_copy(local_bins[0][curr_bin_index].size());
+            copy(local_bins[0][curr_bin_index].begin(),
+                    local_bins[0][curr_bin_index].end(),
+                    curr_bin_copy.begin());
+
+            local_bins[0][curr_bin_index].resize(0);
+            for (std::int64_t j = 0; j < curr_bin_copy.size(); ++j) {
+                relax_edges_with_pred_seq(t, vals, curr_bin_copy[j], delta, dp, local_bins[0]);
+            }
+        }
+
+        find_next_bin_index_seq(curr_bin_index, local_bins);
+
+        vertex_count_in_shared_bin =
+            reduce_to_common_bin_seq(curr_bin_index, local_bins, shared_bin);
+    }
+
+    if (desc.get_optional_results() & optional_results::distances) {
+        auto dist_arr = array<value_type>::empty(vertex_count);
+        auto pred_arr = array<vertex_type>::empty(vertex_count);
+        value_type* dist_ = dist_arr.get_mutable_data();
+        vertex_type* pred_ = pred_arr.get_mutable_data();
+        for (std::int64_t i = 0; i < vertex_count; ++i) {
+            const auto dp_i = dp[i];
+            dist_[i] = dp_i.dist;
+            pred_[i] = dp_i.pred;
+        }
+
+        deallocate(vp_allocator, dp, vertex_count);
+        return traverse_result<task::one_to_all>()
+            .set_distances(dal::detail::homogen_table_builder{}
+                                .reset(dist_arr, t.get_vertex_count(), 1)
+                                .build())
+            .set_predecessors(dal::detail::homogen_table_builder{}
+                                    .reset(pred_arr, t.get_vertex_count(), 1)
+                                    .build());
+    }
+    else {
+        auto pred_arr = array<vertex_type>::empty(vertex_count);
+        vertex_type* pred_ = pred_arr.get_mutable_data();
+        for (std::int64_t i = 0; i < vertex_count; ++i) {
+            const auto dp_i = dp[i];
+            pred_[i] = dp_i.pred;
+        }
+
+        deallocate(vp_allocator, dp, vertex_count);
+        return traverse_result<task::one_to_all>().set_predecessors(
+            dal::detail::homogen_table_builder{}
+                .reset(pred_arr, t.get_vertex_count(), 1)
+                .build());
+    }
+}
+
 template struct delta_stepping<dal::backend::cpu_dispatch_sse2, double>;
 
 template struct delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, std::int32_t>;

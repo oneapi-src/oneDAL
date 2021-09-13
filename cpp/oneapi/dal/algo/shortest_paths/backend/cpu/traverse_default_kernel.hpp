@@ -19,6 +19,8 @@
 
 #include <atomic>
 
+#include <iostream>
+
 #include "oneapi/dal/algo/shortest_paths/common.hpp"
 #include "oneapi/dal/algo/shortest_paths/traverse_types.hpp"
 #include "oneapi/dal/backend/common.hpp"
@@ -28,6 +30,8 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/graph/detail/container.hpp"
+
+using namespace std;
 
 namespace oneapi::dal::preview::shortest_paths::backend {
 using namespace oneapi::dal::preview::detail;
@@ -97,15 +101,16 @@ struct dist_pred {
     VT pred = 0;
 };
 
+/*
 template <class T1, class T2>
 bool operator==(const dist_pred<T1, T2>& lhs, const dist_pred<T1, T2>& rhs) {
-    return lhs.first == rhs.first && lhs.second == rhs.second;
+    return lhs.dist == rhs.dist && lhs.pred == rhs.pred;
 }
 
 template <class T1, class T2>
 bool operator!=(const dist_pred<T1, T2>& lhs, const dist_pred<T1, T2>& rhs) {
     return !(lhs == rhs);
-}
+}*/
 
 template <typename Topology, typename EdgeValue, typename DP, typename BinsVector>
 inline void relax_edges_with_pred_seq(const Topology& t,
@@ -346,7 +351,7 @@ struct delta_stepping_with_pred {
         byte_alloc_iface* alloc_ptr) {
         using value_type = EdgeValue;
         using vertex_type = std::int32_t;
-        using vp_type = dist_pred<value_type, vertex_type>;
+        using vp_type = std::atomic<dist_pred<value_type, vertex_type>>;
         using vp_allocator_type = inner_alloc<vp_type>;
         using vertex_allocator_type = inner_alloc<vertex_type>;
 
@@ -363,11 +368,11 @@ struct delta_stepping_with_pred {
         const value_type max_dist = std::numeric_limits<value_type>::max();
 
         vp_type* dp = allocate(vp_allocator, vertex_count);
-        for (std::int64_t i = 0; i < vertex_count; ++i) {
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
             new (dp + i) dist_pred<value_type, vertex_type>(max_dist, -1);
-        }
+        });
 
-        dp[source] = dist_pred<value_type, vertex_type>(0, -1);
+        dp[source].store(dist_pred<value_type, vertex_type>(0, -1));
 
         vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
                                                                         vertex_allocator);
@@ -375,43 +380,63 @@ struct delta_stepping_with_pred {
         shared_bin[0] = source;
         std::int64_t curr_bin_index = 0;
         std::int64_t vertex_count_in_shared_bin = 1;
+        std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
 
         using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
         using v1a_t = inner_alloc<v1v_t>;
-
         using v2v_t = vector_container<v1v_t, v1a_t>;
         using v2a_t = inner_alloc<v2v_t>;
         using v3v_t = vector_container<v2v_t, v2a_t>;
-
         v2a_t v2a(alloc_ptr);
-        v3v_t local_bins(1, v2a);
+        v3v_t local_bins(thread_cnt, v2a);
+        local_bins[0].reserve(t.get_vertex_degree(source));
+
+        vertex_type* local_processing_bins =
+            allocate(vertex_allocator, max_elements_in_bin * thread_cnt);
 
         while (curr_bin_index != max_bin_count) {
-            for (std::int64_t i = 0; i < vertex_count_in_shared_bin; ++i) {
-                vertex_type u = shared_bin[i];
-                if (dp[u].dist >= delta * static_cast<value_type>(curr_bin_index)) {
-                    relax_edges_with_pred_seq(t, vals, u, delta, dp, local_bins[0]);
+            dal::detail::threader_for(
+                vertex_count_in_shared_bin,
+                vertex_count_in_shared_bin,
+                [&](std::int64_t i) {
+                    vertex_type u = shared_bin[i];
+                    if (dp[u].load().dist >= delta * static_cast<value_type>(curr_bin_index)) {
+                        relax_edges_with_pred(
+                            t,
+                            vals,
+                            u,
+                            delta,
+                            dp,
+                            local_bins[dal::detail::threader_get_current_thread_index()]);
+                    }
+                });
+
+            dal::detail::threader_for(thread_cnt, thread_cnt, [&](std::int64_t i) {
+                const std::int64_t thread_id = dal::detail::threader_get_current_thread_index();
+                while (curr_bin_index < local_bins[thread_id].size() &&
+                        !local_bins[thread_id][curr_bin_index].empty() &&
+                        local_bins[thread_id][curr_bin_index].size() < max_elements_in_bin) {
+                    auto copy_begin = local_processing_bins + max_elements_in_bin * thread_id;
+                    copy(local_bins[thread_id][curr_bin_index].begin(),
+                            local_bins[thread_id][curr_bin_index].end(),
+                            copy_begin);
+                    std::int64_t copy_count = local_bins[thread_id][curr_bin_index].size();
+                    local_bins[thread_id][curr_bin_index].resize(0);
+                    for (std::int64_t j = 0; j < copy_count; ++j) {
+                        relax_edges_with_pred(t,
+                                        vals,
+                                        copy_begin[j],
+                                        delta,
+                                        dp,
+                                        local_bins[thread_id]);
+                    }
                 }
-            }
+            });
 
-            while (curr_bin_index < local_bins[0].size() &&
-                   !local_bins[0][curr_bin_index].empty() &&
-                   local_bins[0][curr_bin_index].size() < max_elements_in_bin) {
-                vector_container<vertex_type> curr_bin_copy(local_bins[0][curr_bin_index].size());
-                copy(local_bins[0][curr_bin_index].begin(),
-                     local_bins[0][curr_bin_index].end(),
-                     curr_bin_copy.begin());
-
-                local_bins[0][curr_bin_index].resize(0);
-                for (std::int64_t j = 0; j < curr_bin_copy.size(); ++j) {
-                    relax_edges_with_pred_seq(t, vals, curr_bin_copy[j], delta, dp, local_bins[0]);
-                }
-            }
-
-            find_next_bin_index_seq(curr_bin_index, local_bins);
+            find_next_bin_index_thr(curr_bin_index, local_bins);
 
             vertex_count_in_shared_bin =
-                reduce_to_common_bin_seq(curr_bin_index, local_bins, shared_bin);
+                reduce_to_common_bin_thr(curr_bin_index, local_bins, shared_bin);
         }
 
         if (desc.get_optional_results() & optional_results::distances) {
@@ -420,7 +445,7 @@ struct delta_stepping_with_pred {
             value_type* dist_ = dist_arr.get_mutable_data();
             vertex_type* pred_ = pred_arr.get_mutable_data();
             for (std::int64_t i = 0; i < vertex_count; ++i) {
-                const auto dp_i = dp[i];
+                const auto dp_i = dp[i].load();
                 dist_[i] = dp_i.dist;
                 pred_[i] = dp_i.pred;
             }
@@ -438,7 +463,7 @@ struct delta_stepping_with_pred {
             auto pred_arr = array<vertex_type>::empty(vertex_count);
             vertex_type* pred_ = pred_arr.get_mutable_data();
             for (std::int64_t i = 0; i < vertex_count; ++i) {
-                const auto dp_i = dp[i];
+                const auto dp_i = dp[i].load();
                 pred_[i] = dp_i.pred;
             }
 
@@ -553,6 +578,15 @@ struct delta_stepping<dal::backend::cpu_dispatch_sse2, std::int32_t> {
         const detail::descriptor_base<task::one_to_all>& desc,
         const dal::preview::detail::topology<std::int32_t>& t,
         const std::int32_t* vals,
+        byte_alloc_iface* alloc_ptr);
+};
+
+template <typename EdgeValue>
+struct delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue> {
+    traverse_result<task::one_to_all> operator()(
+        const detail::descriptor_base<task::one_to_all>& desc,
+        const dal::preview::detail::topology<std::int32_t>& t,
+        const EdgeValue* vals,
         byte_alloc_iface* alloc_ptr);
 };
 
