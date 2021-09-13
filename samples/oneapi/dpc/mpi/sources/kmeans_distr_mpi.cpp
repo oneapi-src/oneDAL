@@ -97,7 +97,7 @@ int main(int argc, char const *argv[]) {
 
     auto device = sycl::gpu_selector{}.select_device();
     std::cout << "Running on " << device.get_info<sycl::info::device::name>() << std::endl;
-    auto q = sycl::queue{ device };
+    sycl::queue q{ device };
 
     dal::detail::mpi_communicator comm{ MPI_COMM_WORLD };
     dal::detail::data_parallel_policy local_policy{ q };
