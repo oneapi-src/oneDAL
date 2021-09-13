@@ -160,11 +160,9 @@ def _configure_cpu_features(ctx, toolchain, cpus):
     return cpu_feature_configs
 
 def _compile(name, ctx, toolchain, feature_config, compilation_contexts=[],
-             cpus=[], fpts=[], cpu_defines={}, fpt_defines={}, disable_mic=False,
+             cpus=[], fpts=[], cpu_defines={}, fpt_defines={},
              srcs=[], local_defines=[], includes=[], system_includes=[],
              quote_includes=[], **kwargs):
-    if disable_mic:
-        cpus = utils.filter_out(cpus, ["avx512_mic"])
 
     sources_by_category = _categorize_sources(srcs)
     dep_compilation_context = onedal_cc_common.merge_compilation_contexts(compilation_contexts)
