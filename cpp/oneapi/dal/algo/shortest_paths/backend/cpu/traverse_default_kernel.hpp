@@ -69,12 +69,12 @@ inline void relax_edges_seq(const Topology& t,
 }
 
 template <typename Topology, typename EdgeValue, typename BinsVector>
-inline void relax_edges(const Topology& t,
-                        const EdgeValue* vals,
-                        typename Topology::vertex_type u,
-                        EdgeValue delta,
-                        std::atomic<EdgeValue>* dist,
-                        BinsVector& local_bins) {
+inline void relax_edges_thr(const Topology& t,
+                            const EdgeValue* vals,
+                            typename Topology::vertex_type u,
+                            EdgeValue delta,
+                            std::atomic<EdgeValue>* dist,
+                            BinsVector& local_bins) {
     for (std::int64_t v_ = t._rows_ptr[u]; v_ < t._rows_ptr[u + 1]; v_++) {
         const auto v = t._cols_ptr[v_];
         const auto v_w = vals[v_];
@@ -149,29 +149,23 @@ inline void relax_edges_with_pred(const Topology& t,
 }
 
 template <typename BinsVector>
-inline bool find_next_bin_index_seq(std::int64_t& curr_bin_index, const BinsVector& local_bins) {
+inline void find_next_bin_index_seq(std::int64_t& curr_bin_index, const BinsVector& local_bins) {
     const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
-    bool is_queue_empty = true;
+    std::int64_t min_nonempty_bucket_index = max_bin_count;
     for (std::int64_t i = curr_bin_index; i < local_bins[0].size(); i++) {
         if (!local_bins[0][i].empty()) {
-            if (i < max_bin_count) {
-                curr_bin_index = i;
-            }
-            else {
-                curr_bin_index = max_bin_count;
-            }
-            is_queue_empty = false;
+            min_nonempty_bucket_index = std::min(max_bin_count, i);
             break;
         }
     }
-    return is_queue_empty;
+    curr_bin_index = min_nonempty_bucket_index;
 }
 
 template <typename BinsVector>
-inline bool find_next_bin_index(std::int64_t& curr_bin_index, const BinsVector& local_bins) {
+inline void find_next_bin_index_thr(std::int64_t& curr_bin_index, const BinsVector& local_bins) {
     const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
     bool is_queue_empty = true;
-    auto total = oneapi::dal::detail::parallel_reduce_int32_int64_t(
+    curr_bin_index = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         (std::int64_t)local_bins.size(),
         (std::int64_t)max_bin_count,
         [&](std::int64_t begin, std::int64_t end, std::int64_t thread_min_index) -> std::int64_t {
@@ -188,48 +182,44 @@ inline bool find_next_bin_index(std::int64_t& curr_bin_index, const BinsVector& 
         [&](std::int64_t x, std::int64_t y) -> std::int64_t {
             return std::min(x, y);
         });
-
-    if (total < max_bin_count) {
-        curr_bin_index = total;
-        is_queue_empty = false;
-    }
-    return is_queue_empty;
 }
 
 template <typename SharedBinContainer, typename BinsVector>
 inline std::int64_t reduce_to_common_bin_seq(const std::int64_t& curr_bin_index,
                                              BinsVector& local_bins,
                                              SharedBinContainer& shared_bin) {
-    std::int64_t curr_shared_bin_tail = 0;
-
+    std::int64_t vertex_count_in_shared_bin = 0;
     if (curr_bin_index < local_bins[0].size()) {
-        std::int64_t copy_start = curr_shared_bin_tail;
-        curr_shared_bin_tail += local_bins[0][curr_bin_index].size();
-        copy(local_bins[0][curr_bin_index].begin(),
-             local_bins[0][curr_bin_index].end(),
-             shared_bin.get_mutable_data() + copy_start);
-        local_bins[0][curr_bin_index].resize(0);
+        if (local_bins[0][curr_bin_index].size() != 0) {
+            vertex_count_in_shared_bin = local_bins[0][curr_bin_index].size();
+            copy(local_bins[0][curr_bin_index].begin(),
+                 local_bins[0][curr_bin_index].end(),
+                 shared_bin.get_mutable_data());
+            local_bins[0][curr_bin_index].resize(0);
+        }
     }
-    return curr_shared_bin_tail;
+    return vertex_count_in_shared_bin;
 }
 
 template <typename SharedBinContainer, typename BinsVector>
-inline std::int64_t reduce_to_common_bin(const std::int64_t& curr_bin_index,
-                                         BinsVector& local_bins,
-                                         SharedBinContainer& shared_bin) {
-    std::atomic<std::int64_t> curr_shared_bin_tail = 0;
+inline std::int64_t reduce_to_common_bin_thr(const std::int64_t& curr_bin_index,
+                                             BinsVector& local_bins,
+                                             SharedBinContainer& shared_bin) {
+    std::atomic<std::int64_t> vertex_count_in_shared_bin = 0;
     dal::detail::threader_for(local_bins.size(), local_bins.size(), [&](std::int64_t i) {
         int thread_id = dal::detail::threader_get_current_thread_index();
         if (curr_bin_index < local_bins[thread_id].size()) {
-            std::int64_t copy_start =
-                curr_shared_bin_tail.fetch_add(local_bins[thread_id][curr_bin_index].size());
-            copy(local_bins[thread_id][curr_bin_index].begin(),
-                 local_bins[thread_id][curr_bin_index].end(),
-                 shared_bin.get_mutable_data() + copy_start);
-            local_bins[thread_id][curr_bin_index].resize(0);
+            if (local_bins[thread_id][curr_bin_index].size() != 0) {
+                std::int64_t copy_start = vertex_count_in_shared_bin.fetch_add(
+                    local_bins[thread_id][curr_bin_index].size());
+                copy(local_bins[thread_id][curr_bin_index].begin(),
+                     local_bins[thread_id][curr_bin_index].end(),
+                     shared_bin.get_mutable_data() + copy_start);
+                local_bins[thread_id][curr_bin_index].resize(0);
+            }
         }
     });
-    return curr_shared_bin_tail.load();
+    return vertex_count_in_shared_bin.load();
 }
 
 template <typename Cpu, typename EdgeValue>
@@ -271,8 +261,7 @@ struct delta_stepping {
 
             shared_bin[0] = source;
             std::int64_t curr_bin_index = 0;
-            std::int64_t curr_shared_bin_tail = 1;
-            bool empty_queue = false;
+            std::int64_t vertex_count_in_shared_bin = 1;
             std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
 
             using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
@@ -287,16 +276,14 @@ struct delta_stepping {
             vertex_type* local_processing_bins =
                 allocate(vertex_allocator, max_elements_in_bin * thread_cnt);
 
-            std::int64_t iter = 0;
-
-            while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
+            while (curr_bin_index != max_bin_count) {
                 dal::detail::threader_for(
-                    curr_shared_bin_tail,
-                    curr_shared_bin_tail,
+                    vertex_count_in_shared_bin,
+                    vertex_count_in_shared_bin,
                     [&](std::int64_t i) {
                         vertex_type u = shared_bin[i];
                         if (dist[u].load() >= delta * static_cast<value_type>(curr_bin_index)) {
-                            relax_edges(
+                            relax_edges_thr(
                                 t,
                                 vals,
                                 u,
@@ -311,8 +298,6 @@ struct delta_stepping {
                     while (curr_bin_index < local_bins[thread_id].size() &&
                            !local_bins[thread_id][curr_bin_index].empty() &&
                            local_bins[thread_id][curr_bin_index].size() < max_elements_in_bin) {
-                        //vector_container<vertex_type> curr_bin_copy(
-                        //local_bins[thread_id][curr_bin_index].size());
                         auto copy_begin = local_processing_bins + max_elements_in_bin * thread_id;
                         copy(local_bins[thread_id][curr_bin_index].begin(),
                              local_bins[thread_id][curr_bin_index].end(),
@@ -320,16 +305,20 @@ struct delta_stepping {
                         std::int64_t copy_count = local_bins[thread_id][curr_bin_index].size();
                         local_bins[thread_id][curr_bin_index].resize(0);
                         for (std::int64_t j = 0; j < copy_count; ++j) {
-                            relax_edges(t, vals, copy_begin[j], delta, dist, local_bins[thread_id]);
+                            relax_edges_thr(t,
+                                            vals,
+                                            copy_begin[j],
+                                            delta,
+                                            dist,
+                                            local_bins[thread_id]);
                         }
                     }
                 });
 
-                empty_queue = find_next_bin_index(curr_bin_index, local_bins);
+                find_next_bin_index_thr(curr_bin_index, local_bins);
 
-                curr_shared_bin_tail = reduce_to_common_bin(curr_bin_index, local_bins, shared_bin);
-
-                iter++;
+                vertex_count_in_shared_bin =
+                    reduce_to_common_bin_thr(curr_bin_index, local_bins, shared_bin);
             }
 
             deallocate(vertex_allocator, local_processing_bins, max_elements_in_bin * thread_cnt);
@@ -386,8 +375,7 @@ struct delta_stepping_with_pred {
 
         shared_bin[0] = source;
         std::int64_t curr_bin_index = 0;
-        std::int64_t curr_shared_bin_tail = 1;
-        bool empty_queue = false;
+        std::int64_t vertex_count_in_shared_bin = 1;
 
         using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
         using v1a_t = inner_alloc<v1v_t>;
@@ -399,10 +387,8 @@ struct delta_stepping_with_pred {
         v2a_t v2a(alloc_ptr);
         v3v_t local_bins(1, v2a);
 
-        std::int64_t iter = 0;
-
-        while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
-            for (std::int64_t i = 0; i < curr_shared_bin_tail; ++i) {
+        while (curr_bin_index != max_bin_count) {
+            for (std::int64_t i = 0; i < vertex_count_in_shared_bin; ++i) {
                 vertex_type u = shared_bin[i];
                 if (dp[u].dist >= delta * static_cast<value_type>(curr_bin_index)) {
                     relax_edges_with_pred_seq(t, vals, u, delta, dp, local_bins[0]);
@@ -423,11 +409,10 @@ struct delta_stepping_with_pred {
                 }
             }
 
-            empty_queue = find_next_bin_index_seq(curr_bin_index, local_bins);
+            find_next_bin_index_seq(curr_bin_index, local_bins);
 
-            curr_shared_bin_tail = reduce_to_common_bin_seq(curr_bin_index, local_bins, shared_bin);
-
-            iter++;
+            vertex_count_in_shared_bin =
+                reduce_to_common_bin_seq(curr_bin_index, local_bins, shared_bin);
         }
 
         if (desc.get_optional_results() & optional_results::distances) {
@@ -502,8 +487,7 @@ struct delta_stepping_sequential {
 
         shared_bin[0] = source;
         std::int64_t curr_bin_index = 0;
-        std::int64_t curr_shared_bin_tail = 1;
-        bool empty_queue = false;
+        std::int64_t vertex_count_in_shared_bin = 1;
 
         using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
         using v1a_t = inner_alloc<v1v_t>;
@@ -513,10 +497,8 @@ struct delta_stepping_sequential {
         v2a_t v2a(alloc_ptr);
         v3v_t local_bins(1, v2a);
 
-        std::int64_t iter = 0;
-
-        while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
-            for (std::int64_t i = 0; i < curr_shared_bin_tail; ++i) {
+        while (curr_bin_index != max_bin_count) {
+            for (std::int64_t i = 0; i < vertex_count_in_shared_bin; ++i) {
                 vertex_type u = shared_bin[i];
                 if (dist[u] >= delta * static_cast<value_type>(curr_bin_index)) {
                     relax_edges_seq(t, vals, u, delta, dist, local_bins[0]);
@@ -537,11 +519,10 @@ struct delta_stepping_sequential {
                 }
             }
 
-            empty_queue = find_next_bin_index_seq(curr_bin_index, local_bins);
+            find_next_bin_index_seq(curr_bin_index, local_bins);
 
-            curr_shared_bin_tail = reduce_to_common_bin_seq(curr_bin_index, local_bins, shared_bin);
-
-            iter++;
+            vertex_count_in_shared_bin =
+                reduce_to_common_bin_seq(curr_bin_index, local_bins, shared_bin);
         }
 
         auto dist_arr = array<value_type>::empty(vertex_count);
