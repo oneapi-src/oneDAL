@@ -92,28 +92,18 @@ struct construct<vector_container<T, InnerAlloc>, OuterAlloc> {
     }
 };
 
-template <typename T, typename Alloc>
-struct destroy {
-    void operator()(T* data_ptr, std::int64_t capacity, Alloc& a) {
-        for (std::int64_t i = 0; i < capacity; ++i) {
-            data_ptr[i].~T();
-        }
-        oneapi::dal::preview::detail::deallocate(a, data_ptr, capacity);
-    }
-};
-
 template <typename T, typename Allocator>
 class vector_container {
 public:
     using data_t = T;
     using impl_t = array<data_t>;
     using allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
-    using empty_delete = dal::detail::empty_delete<const T>;
+    using destroy_delete = dal::detail::v1::destroy_delete<T, allocator_type>;
 
     vector_container() : impl_(new impl_t()), allocator_(allocator_type()) {
         T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, capacity_);
         construct<data_t, allocator_type>{}(data_ptr, capacity_, allocator_);
-        impl_->reset(data_ptr, capacity_, empty_delete{});
+        impl_->reset(data_ptr, capacity_, destroy_delete(capacity_, allocator_));
     }
 
     vector_container(int64_t count, const allocator_type& a) : vector_container(a) {
@@ -127,7 +117,7 @@ public:
     vector_container(const allocator_type& a) : impl_(new impl_t()), allocator_(a) {
         T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, capacity_);
         construct<data_t, allocator_type>{}(data_ptr, capacity_, allocator_);
-        impl_->reset(data_ptr, capacity_, empty_delete{});
+        impl_->reset(data_ptr, capacity_, destroy_delete(capacity_, allocator_));
     }
 
     vector_container(int64_t count, const T& value, const allocator_type& a)
@@ -144,14 +134,11 @@ public:
         construct<data_t, allocator_type>{}(data_ptr, capacity_, allocator_);
         const T* other_data_ptr = other.get_data();
         preview::detail::copy(other_data_ptr, other_data_ptr + count_, data_ptr);
-        impl_->reset(data_ptr, capacity_, empty_delete{});
+        impl_->reset(data_ptr, capacity_, destroy_delete(capacity_, allocator_));
     }
 
     vector_container<T, Allocator> operator=(const vector_container<T, Allocator>& other) {
         pimpl tmp_impl(new impl_t());
-        if (impl_->has_mutable_data()) {
-            destroy<data_t, allocator_type>{}(impl_->get_mutable_data(), capacity_, allocator_);
-        }
         std::swap(this->impl_, tmp_impl);
         this->allocator_ = other.get_allocator();
         capacity_ = other.capacity();
@@ -160,16 +147,12 @@ public:
         construct<data_t, allocator_type>{}(data_ptr, capacity_, allocator_);
         const T* other_data_ptr = other.get_data();
         preview::detail::copy(other_data_ptr, other_data_ptr + count_, data_ptr);
-        impl_->reset(data_ptr, capacity_, empty_delete{});
+        impl_->reset(data_ptr, capacity_, destroy_delete(capacity_, allocator_));
 
         return *this;
     }
 
-    virtual ~vector_container() {
-        if (impl_->has_mutable_data()) {
-            destroy<data_t, allocator_type>{}(impl_->get_mutable_data(), capacity_, allocator_);
-        }
-    }
+    virtual ~vector_container() {}
 
     const T& operator[](std::int64_t index) const noexcept {
         //TODO: add check for index
@@ -228,9 +211,7 @@ public:
             construct<data_t, allocator_type>{}(data_ptr, new_capacity, allocator_);
             T* old_data_ptr = impl_->get_mutable_data();
             preview::detail::copy(old_data_ptr, old_data_ptr + count_, data_ptr);
-            impl_->reset(data_ptr, new_capacity, empty_delete{});
-            // TODO: move deallocation to dal array deleter.
-            destroy<data_t, allocator_type>{}(old_data_ptr, capacity_, allocator_);
+            impl_->reset(data_ptr, new_capacity, destroy_delete(new_capacity, allocator_));
             capacity_ = new_capacity;
         }
     }

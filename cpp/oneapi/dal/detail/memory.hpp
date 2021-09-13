@@ -44,6 +44,23 @@ private:
     std::remove_reference_t<Policy> policy_;
 };
 
+template <typename T, typename Allocator>
+class destroy_delete {
+public:
+    explicit destroy_delete(std::int64_t count, Allocator& alloc) : count_(count), alloc_(alloc) {}
+
+    void operator()(T* data) {
+        for (std::int64_t i = 0; i < count_; ++i) {
+            data[i].~T();
+        }
+        oneapi::dal::preview::detail::deallocate(alloc_, data, count_);
+    }
+
+private:
+    std::int64_t count_;
+    Allocator alloc_;
+};
+
 template <typename T>
 inline auto make_default_delete(const detail::default_host_policy& policy) {
     return default_delete<T, detail::default_host_policy>{ policy };
