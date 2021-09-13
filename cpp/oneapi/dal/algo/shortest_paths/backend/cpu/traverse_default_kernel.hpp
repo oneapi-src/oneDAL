@@ -164,7 +164,6 @@ inline void find_next_bin_index_seq(std::int64_t& curr_bin_index, const BinsVect
 template <typename BinsVector>
 inline void find_next_bin_index_thr(std::int64_t& curr_bin_index, const BinsVector& local_bins) {
     const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
-    bool is_queue_empty = true;
     curr_bin_index = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         (std::int64_t)local_bins.size(),
         (std::int64_t)max_bin_count,
