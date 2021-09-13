@@ -94,9 +94,12 @@ COPTS := -std=c++17 \
          -Wno-unused-parameter \
          -fsycl-device-code-split=per_kernel \
          -I./source \
+         -I$(MPI_PATH)/include \
          -I"$(DAALROOT)/include"
 
 LIBS := $(ONEDAL_LIBS) \
+        -lmpicxx \
+        -lmpi \
         -ltbb \
         -ltbbmalloc \
         -lpthread \
@@ -105,13 +108,12 @@ LIBS := $(ONEDAL_LIBS) \
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
-	 -L"$(MPI_PATH)"/lib\
+         -L"$(MPI_PATH)" \
          $(LIBS)
 
-COPTS := -I$(MPI_PATH)/include -I"$(DAALROOT)/include"
 RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 
-EXT_LIB := -L$(MPI_PATH) -lmpicxx -lmpi $(addprefix -L,$(TBB_PATH)) $(LIBS)
+EXT_LIB := $(LOPTS) $(LIBS)
 
 override proc = 4
 
@@ -119,7 +121,7 @@ RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(
 
 CC = dpcpp 
 CRUN = mpirun
-RUNOPTS = -n $(proc) -ppn 2
+RUNOPTS = -n $(proc) -ppn $(proc)
 
 
 .SECONDARY:
@@ -129,7 +131,7 @@ $(RES_DIR)/%.exe: ./sources/%.cpp | $(RES_DIR)/.
 $(RES_DIR)/%.res: $(RES_DIR)/%.exe
 	$(CRUN) $(RUNOPTS) $< > $@
 
-LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
+LOPTS := -Wl,--start-group $(EXT_LIB) -Wl,--end-group
 
 _make_ex: $(RES)
 

@@ -33,7 +33,7 @@
 namespace dal = oneapi::dal;
 
 template <typename Float>
-inline std::vector<dal::table> split_table_by_rows(const dal::detail::data_parallel_policy& p,
+std::vector<dal::table> split_table_by_rows(const dal::detail::data_parallel_policy& p,
                                               const dal::table& t,
                                               std::int64_t split_count) {
     ONEDAL_ASSERT(split_count > 0);
@@ -81,12 +81,12 @@ void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
     dal::kmeans::train_input local_input { input_vec[rank_id], initial_centroids };
 
     const auto result_train = dal::train(policy, kmeans_desc, local_input);
- 	if(comm.get_rank() == 0) {
+    if(comm.get_rank() == 0) {
         std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
         std::cout << "Objective function value: " << result_train.get_objective_function_value()
                 << std::endl;
         std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
-	}
+    }
 }
 
 int main(int argc, char const *argv[]) {
