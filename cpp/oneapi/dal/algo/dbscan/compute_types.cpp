@@ -38,6 +38,8 @@ public:
     table core_observation_indices;
     table core_observations;
     std::int64_t cluster_count = 0;
+
+    result_option_id result_options;
 };
 
 using detail::v1::compute_input_impl;
@@ -74,27 +76,53 @@ compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) 
 
 template <typename Task>
 const table& compute_result<Task>::get_responses() const {
+    using msg = dal::detail::error_messages;
+    if (!bool(get_result_options() & result_options::responses)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }    
     return impl_->responses;
 }
 
 template <typename Task>
 const table& compute_result<Task>::get_core_flags() const {
+    using msg = dal::detail::error_messages;
+    if (!bool(get_result_options() & result_options::core_flags)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }    
     return impl_->core_flags;
 }
 
 template <typename Task>
 const table& compute_result<Task>::get_core_observation_indices() const {
+    using msg = dal::detail::error_messages;
+    if (!bool(get_result_options() & result_options::core_observation_indices)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }    
     return impl_->core_observation_indices;
 }
 
 template <typename Task>
 const table& compute_result<Task>::get_core_observations() const {
+    using msg = dal::detail::error_messages;
+    if (!bool(get_result_options() & result_options::core_observations)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     return impl_->core_observations;
 }
 
 template <typename Task>
 std::int64_t compute_result<Task>::get_cluster_count() const {
     return impl_->cluster_count;
+}
+
+template <typename Task>
+const result_option_id& compute_result<Task>::get_result_options() const {
+    return impl_->result_options;
+}
+
+template <typename Task>
+void compute_result<Task>::set_result_options_impl(const result_option_id& value) {
+    impl_->result_options = value;
 }
 
 template <typename Task>

@@ -53,7 +53,15 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     daal_dbscan::Parameter par(epsilon, dal::detail::integral_cast<std::size_t>(min_observations));
     par.memorySavingMode = desc.get_mem_save_mode();
-    par.resultsToCompute = daal_dbscan::computeCoreIndices | daal_dbscan::computeCoreObservations;
+    if (desc.get_result_options() & result_options::core_observation_indices) {
+        par.resultsToCompute = daal_dbscan::computeCoreIndices;
+    }
+    else if (desc.get_result_options() & result_options::core_observations) {
+        par.resultsToCompute = daal_dbscan::computeCoreObservations;
+    }
+    if (desc.get_result_options() & result_options::core_observations) {
+        par.resultsToCompute |= daal_dbscan::computeCoreObservations;
+    }
 
     const auto daal_data = interop::convert_to_daal_table(queue, data);
     const auto daal_weights = interop::convert_to_daal_table(queue, weights);
@@ -81,14 +89,28 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         interop::convert_from_daal_homogen_table<std::int32_t>(daal_core_observation_indices);
     auto core_observations =
         interop::convert_from_daal_homogen_table<Float>(daal_core_observations);
-    auto arr_core_flags = fill_core_flags(core_observation_indices, row_count);
 
-    return result_t()
-        .set_responses(dal::homogen_table::wrap(arr_responses, row_count, 1))
-        .set_core_flags(dal::homogen_table::wrap(arr_core_flags, row_count, 1))
-        .set_core_observation_indices(core_observation_indices)
-        .set_core_observations(core_observations)
-        .set_cluster_count(static_cast<std::int64_t>(to_host_sync(arr_cluster_count)[0]));
+    auto results = result_t()
+        .set_cluster_count(to_host_sync(arr_cluster_count)[0])
+        .set_result_options(desc.get_result_options());
+
+    if(desc.get_result_options() & result_options::responses) {
+        results.set_responses(dal::homogen_table::wrap(arr_responses, row_count, 1));
+    }
+    if(desc.get_result_options() & result_options::core_flags) {
+        auto arr_core_flags = fill_core_flags(core_observation_indices, row_count);
+        results.set_core_flags(dal::homogen_table::wrap(arr_core_flags, row_count, 1));
+    }
+
+    if (desc.get_result_options() & result_options::core_observation_indices) {
+        results.set_core_observation_indices(core_observation_indices);
+    }
+
+    if (desc.get_result_options() & result_options::core_observations) {
+        results.set_core_observations(core_observations);
+    }
+
+    return results;
 }
 
 template <typename Float>

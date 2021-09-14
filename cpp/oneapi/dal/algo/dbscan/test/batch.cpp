@@ -30,14 +30,19 @@ namespace oneapi::dal::dbscan::test {
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 
+constexpr inline std::uint64_t mask_full = 0xffffffffffffffff;
+
 template <typename TestType>
 class dbscan_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
+    using result_t = compute_result<task::clustering>;
 
     auto get_descriptor(Float epsilon, std::int64_t min_observations) const {
-        return dbscan::descriptor<Float, Method>(epsilon, min_observations).set_mem_save_mode(true);
+        return dbscan::descriptor<Float, Method>(epsilon, min_observations)
+            .set_mem_save_mode(true)
+            .set_result_options(result_options::responses);
     }
 
     void run_checks(const table& data,
@@ -100,9 +105,66 @@ public:
         CAPTURE(val, ref_val, fabs(val - ref_val) / max_abs, ref_tol);
         return fabs(val - ref_val) / max_abs < ref_tol;
     }
+
+    void mode_checks(result_option_id compute_mode,
+                    const table& data,
+                    const table& weights,
+                    Float epsilon,
+                    std::int64_t min_observations) {
+        CAPTURE(epsilon, min_observations);
+
+        INFO("create descriptor")
+        const auto dbscan_desc = get_descriptor(epsilon, min_observations).set_result_options(compute_mode);
+
+
+        INFO("run compute");
+        const auto compute_result =
+            oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data, weights);
+
+        INFO("check mode");
+        check_for_exception_for_non_requested_results(compute_mode, compute_result);
+    }
+
+    void check_for_exception_for_non_requested_results(result_option_id compute_mode,
+                                                       const result_t& result) {
+        if (!compute_mode.test(result_options::responses)) {
+            REQUIRE_THROWS_AS(result.get_responses(), domain_error);
+        }
+        if (!compute_mode.test(result_options::core_flags)) {
+            REQUIRE_THROWS_AS(result.get_core_flags(), domain_error);
+        }
+        if (!compute_mode.test(result_options::core_observations)) {
+            REQUIRE_THROWS_AS(result.get_core_observations(), domain_error);
+        }
+        if (!compute_mode.test(result_options::core_observation_indices)) {
+            REQUIRE_THROWS_AS(result.get_core_observation_indices(), domain_error);
+        }
+    }
 };
 
 using dbscan_types = COMBINE_TYPES((float, double), (dbscan::method::brute_force));
+
+TEMPLATE_LIST_TEST_M(dbscan_batch_test,
+                     "dbscan compute mode check",
+                     "[dbscan][batch]",
+                     dbscan_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
+    Float data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0, 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
+    const auto x = homogen_table::wrap(data, 3, 5);
+
+    const double epsilon = 0.01;
+    const std::int64_t min_observations = 1;
+
+    result_option_id res_all = result_option_id(dal::result_option_id_base(mask_full));
+
+    const result_option_id compute_mode = GENERATE_COPY(result_options::responses,
+                                                        result_options::core_flags,
+                                                        result_options::core_observations,
+                                                        result_options::core_observation_indices, res_all);
+
+    this->mode_checks(compute_mode, x, table{}, epsilon, min_observations);
+}
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "dbscan degenerated test",
