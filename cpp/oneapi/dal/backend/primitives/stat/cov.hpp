@@ -30,13 +30,12 @@ namespace oneapi::dal::backend::primitives {
 /// @param[in]  data  The [n x p] input dataset
 /// @param[in]  sums  The [p] sums computed along each column of the data
 /// @param[out] means The [p] means for each feature
-/// @param[out] tmp   The [p] temporary buffer
 template <typename Float>
 sycl::event means(sycl::queue& queue,
-                        const ndview<Float, 2>& data,
-                        const ndview<Float, 1>& sums,
-                        ndview<Float, 1>& means,
-                        const event_vector& deps = {});
+                  const ndview<Float, 2>& data,
+                  const ndview<Float, 1>& sums,
+                  ndview<Float, 1>& means,
+                  const event_vector& deps = {});
 
 /// Computes covariance matrix
 ///
@@ -48,16 +47,14 @@ sycl::event means(sycl::queue& queue,
 /// @param[out] corr  The [p x p] correlation matrix
 /// @param[out] means The [p] means for each feature
 /// @param[out] vars  The [p] variances for each feature
-/// @param[out] tmp   The [p] temporary buffer
 template <typename Float>
 sycl::event covariance(sycl::queue& queue,
-                        const ndview<Float, 2>& data,
-                        const ndview<Float, 1>& sums,
-                        ndview<Float, 2>& cov,
-                        ndview<Float, 1>& means,
-                        ndview<Float, 1>& vars,
-                        ndview<Float, 1>& tmp,
-                        const event_vector& deps = {});
+                       const ndview<Float, 2>& data,
+                       const ndview<Float, 1>& sums,
+                       ndview<Float, 2>& cov,
+                       ndview<Float, 1>& means,
+                       ndview<Float, 1>& vars,
+                       const event_vector& deps = {});
 
 /// Computes correlation matrix and variances
 ///
