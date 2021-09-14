@@ -21,7 +21,7 @@
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <iostream>
+
 namespace oneapi::dal::covariance::backend {
 
 namespace pr = oneapi::dal::backend::primitives;
