@@ -28,7 +28,6 @@
 #include "oneapi/dal/test/engine/linalg/matrix.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include <iostream>
 
 namespace oneapi::dal::covariance::test {
 
@@ -44,6 +43,7 @@ public:
 
     void general_checks(const te::dataframe& input, const te::table_id& input_table_id) {
         const table data = input.get_table(this->get_policy(), input_table_id);
+
         INFO("create descriptor cov cor means")
         auto cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
@@ -52,6 +52,7 @@ public:
         INFO("run compute optional: cov cor means");
         auto compute_result = this->compute(cov_desc, data);
         check_compute_result(data, compute_result);
+
         INFO("create descriptor cov")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
@@ -59,6 +60,7 @@ public:
         INFO("run compute optional: cov");
         compute_result = this->compute(cov_desc, data);
         check_compute_result(data, compute_result);
+
         INFO("create descriptor cor")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
@@ -66,6 +68,7 @@ public:
         INFO("run compute optional: cor");
         compute_result = this->compute(cov_desc, data);
         check_compute_result(data, compute_result);
+
         INFO("create descriptor means")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
@@ -202,20 +205,7 @@ public:
                     std::sqrt(reference_cov.get(i, i) * reference_cov.get(j, j));
             }
         }
-                std::cout<<"my reference"<<std::endl;
-        for (std::int64_t i = 0; i < reference_cor.get_row_count(); i++) {
-            for (std::int64_t j = 0; j < reference_cor.get_column_count(); j++) {
-                std::cout<<reference_cor.get(i, j);
-            }
-            std::cout<<std::endl;
-        }
-        std::cout<<"my data"<<std::endl;
-        for (std::int64_t i = 0; i < data_matrix.get_row_count(); i++) {
-            for (std::int64_t j = 0; j < data_matrix.get_column_count(); j++) {
-                std::cout<<data_matrix.get(i, j);
-            }
-            std::cout<<std::endl;
-        }
+
         return reference_cor;
     }
 };
@@ -230,9 +220,9 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
 
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 4, 4 }.fill_normal(0, 1, 7777),
-                        //    te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
-                        //    te::dataframe_builder{ 10, 20 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 4, 4 }.fill_normal(0, 1, 7777));
+                           te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 250, 250 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
@@ -260,12 +250,12 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe input =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 4, 4 }.fill_uniform(-30, 30, 7777),
-                        //    te::dataframe_builder{ 16, 16 }.fill_uniform(-5, 5, 7777),
-                        //    te::dataframe_builder{ 10, 10 }.fill_uniform(0, 1, 7777),
-                        //    te::dataframe_builder{ 10, 10 }.fill_uniform(-10, 10, 7777),
-                        //    te::dataframe_builder{ 10, 40 }.fill_uniform(-100, 100, 7777),
-                           te::dataframe_builder{ 4, 4 }.fill_uniform(0, 1, 7777));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1000, 20 }.fill_uniform(-30, 30, 7777),
+                           te::dataframe_builder{ 16, 16 }.fill_uniform(-5, 5, 7777),
+                           te::dataframe_builder{ 100, 10 }.fill_uniform(0, 1, 7777),
+                           te::dataframe_builder{ 100, 10 }.fill_uniform(-10, 10, 7777),
+                           te::dataframe_builder{ 500, 40 }.fill_uniform(-100, 100, 7777),
+                           te::dataframe_builder{ 500, 250 }.fill_uniform(0, 1, 7777));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
@@ -279,9 +269,9 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe input =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 4, 4 }.fill_uniform(-30, 30, 7777),
-                           //te::dataframe_builder{ 10, 200 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 4, 4 }.fill_uniform(-0.5, 0.5, 7777));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 5000, 20 }.fill_uniform(-30, 30, 7777),
+                           te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777),
+                           te::dataframe_builder{ 1000000, 20 }.fill_uniform(-0.5, 0.5, 7777));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();

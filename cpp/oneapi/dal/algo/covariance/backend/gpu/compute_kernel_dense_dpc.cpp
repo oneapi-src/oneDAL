@@ -64,7 +64,6 @@ inline auto compute_covariance(sycl::queue& q,
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
 
     const std::int64_t column_count = data.get_dimension(1);
-    std::cout<<"hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"<<std::endl;
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
@@ -73,7 +72,7 @@ inline auto compute_covariance(sycl::queue& q,
 
     auto cov_event = pr::covariance(q, data, sums, cov, means, vars, tmp, deps);
 
-    auto smart_event = dal::backend::smart_event{ cov_event }.attach(tmp);
+    auto smart_event = dal::backend::smart_event{ cov_event };
     return std::make_tuple(cov, means, vars, smart_event);
 }
 
