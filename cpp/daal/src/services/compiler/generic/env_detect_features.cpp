@@ -220,7 +220,6 @@ DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
 
 DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
-
 #if defined(__APPLE__)
     __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif

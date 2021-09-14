@@ -40,7 +40,6 @@
 #define _CALLOC_    service_calloc
 #define _FREE_      service_free
 
-
 using namespace daal::services::internal;
 using namespace daal::internal;
 

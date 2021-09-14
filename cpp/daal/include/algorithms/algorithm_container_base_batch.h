@@ -142,17 +142,11 @@ protected:
  * \tparam avx2Container        Implementation for Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2)
  * \tparam avx512Container      Implementation for Intel(R) Xeon(R) processors based on Intel AVX-512
  */
-template <typename sse2Container DAAL_KERNEL_SSSE3_ONLY(typename ssse3Container)
-              DAAL_KERNEL_SSE42_ONLY(typename sse42Container)
-              DAAL_KERNEL_AVX_ONLY(typename avxContainer)
-              DAAL_KERNEL_AVX2_ONLY(typename avx2Container)
-              DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
-class DAAL_EXPORT AlgorithmDispatchContainer<batch, sse2Container DAAL_KERNEL_SSSE3_ONLY(ssse3Container)
-              DAAL_KERNEL_SSE42_ONLY(sse42Container)
-              DAAL_KERNEL_AVX_ONLY(avxContainer)
-              DAAL_KERNEL_AVX2_ONLY(avx2Container)
-              DAAL_KERNEL_AVX512_ONLY(avx512Container)>
-    : public AlgorithmContainerImpl<batch>
+template <typename sse2Container DAAL_KERNEL_SSSE3_ONLY(typename ssse3Container) DAAL_KERNEL_SSE42_ONLY(typename sse42Container) DAAL_KERNEL_AVX_ONLY(
+    typename avxContainer) DAAL_KERNEL_AVX2_ONLY(typename avx2Container) DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
+class DAAL_EXPORT AlgorithmDispatchContainer<batch, sse2Container DAAL_KERNEL_SSSE3_ONLY(ssse3Container) DAAL_KERNEL_SSE42_ONLY(sse42Container)
+                                                        DAAL_KERNEL_AVX_ONLY(avxContainer) DAAL_KERNEL_AVX2_ONLY(avx2Container)
+                                                            DAAL_KERNEL_AVX512_ONLY(avx512Container)> : public AlgorithmContainerImpl<batch>
 {
 public:
     /**
