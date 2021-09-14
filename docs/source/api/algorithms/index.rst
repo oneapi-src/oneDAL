@@ -25,6 +25,7 @@ Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of
    :maxdepth: 2
 
    clustering/index.rst
+   covariance/index.rst
    decomposition/index.rst
    ensembles/index.rst   
    kernel-functions/index.rst

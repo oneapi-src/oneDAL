@@ -36,7 +36,7 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 } // namespace interface1
 namespace internal
 {
-template class DBSCANBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+template class DAAL_EXPORT DBSCANBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 } // namespace internal
 } // namespace dbscan
 } // namespace algorithms

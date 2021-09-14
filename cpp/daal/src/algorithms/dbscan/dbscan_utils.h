@@ -36,7 +36,6 @@
 #include "src/algorithms/service_error_handling.h"
 
 using namespace daal::internal;
-using namespace daal::services::internal;
 using namespace daal::algorithms::internal;
 
 namespace daal
@@ -68,7 +67,7 @@ public:
     {
         if (_data)
         {
-            service_free<T, cpu>(_data);
+            daal::services::internal::service_free<T, cpu>(_data);
             _data = nullptr;
         }
     }
@@ -121,13 +120,13 @@ private:
         int result = 0;
         _capacity  = (_capacity == 0 ? defaultSize : _capacity * 2);
 
-        T * const newData = service_malloc<T, cpu>(_capacity);
+        T * const newData = daal::services::internal::service_malloc<T, cpu>(_capacity);
         DAAL_CHECK_MALLOC(newData);
 
         if (_data != nullptr)
         {
             result = services::internal::daal_memcpy_s(newData, _tail * sizeof(T), _data, _tail * sizeof(T));
-            service_free<T, cpu>(_data);
+            daal::services::internal::service_free<T, cpu>(_data);
             _data = nullptr;
         }
 
@@ -229,7 +228,7 @@ public:
     {
         if (_values)
         {
-            service_scalable_free<size_t, cpu>(_values);
+            daal::services::internal::service_scalable_free<size_t, cpu>(_values);
             _values = nullptr;
         }
         _capacity = _size = 0;
@@ -296,7 +295,7 @@ private:
         scale        = _capacity < 128 ? 64 : scale;
 
         _capacity                = (_capacity == 0 ? defaultSize : _capacity * scale);
-        size_t * const newValues = service_scalable_malloc<size_t, cpu>(_capacity);
+        size_t * const newValues = daal::services::internal::service_scalable_malloc<size_t, cpu>(_capacity);
 
         if (!newValues)
         {
@@ -307,7 +306,7 @@ private:
         if (_values != nullptr)
         {
             result = services::internal::daal_memcpy_s(newValues, _size * sizeof(size_t), _values, _size * sizeof(size_t));
-            service_scalable_free<size_t, cpu>(_values);
+            daal::services::internal::service_scalable_free<size_t, cpu>(_values);
             _values = nullptr;
         }
         _values = newValues;
@@ -464,7 +463,7 @@ public:
         TArray<FPType, cpu> onesWeightsArray(outBlockSize);
         FPType * onesWeights = onesWeightsArray.get();
         DAAL_CHECK_MALLOC(onesWeights);
-        service_memset_seq<FPType, cpu>(onesWeights, FPType(1), outBlockSize);
+        daal::services::internal::service_memset_seq<FPType, cpu>(onesWeights, FPType(1), outBlockSize);
 
         daal::threader_for(nInBlocks, nInBlocks, [&](size_t inBlock) {
             size_t i1    = inBlock * inBlockSize;
@@ -666,7 +665,7 @@ FPType findKthStatistic(FPType * values, size_t nElements, size_t k)
             }
             if (i <= j)
             {
-                swap<cpu, FPType>(values[i], values[j]);
+                daal::services::internal::swap<cpu, FPType>(values[i], values[j]);
                 i++;
                 j--;
             }

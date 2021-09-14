@@ -22,6 +22,7 @@ ONEDAL = basic_statistics_dense_batch      \
          column_accessor_homogen           \
          cor_dense_batch                   \
          cov_dense_batch                   \
+         dbscan_brute_force_batch          \
          df_cls_hist_batch                 \
          df_cls_traverse_model             \
          df_reg_hist_batch                 \

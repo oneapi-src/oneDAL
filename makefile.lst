@@ -203,6 +203,7 @@ CORE.SERVICES       := compression            \
 # Dependencies between oneAPI and core (CPU-only) algorithms
 ONEAPI.ALGOS.basic_statistics := CORE.moments
 ONEAPI.ALGOS.covariance    := CORE.covariance
+ONEAPI.ALGOS.dbscan := CORE.dbscan
 ONEAPI.ALGOS.decision_forest := CORE.decision_forest decision_tree
 ONEAPI.ALGOS.kmeans := CORE.kmeans
 ONEAPI.ALGOS.kmeans_init := CORE.kmeans
@@ -221,6 +222,7 @@ ONEAPI.ALGOS :=          \
     chebyshev_distance   \
     cosine_distance      \
     covariance           \
+    dbscan               \
     decision_forest      \
     decision_tree        \
     kmeans               \
