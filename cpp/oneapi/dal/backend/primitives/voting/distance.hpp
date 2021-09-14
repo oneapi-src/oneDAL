@@ -32,7 +32,6 @@ public:
                                    const event_vector& deps = {}) = 0;
     virtual ~distance_voting();
 
-protected:
     distance_voting(sycl::queue& queue, std::int64_t class_count);
 
     sycl::queue& get_queue() const;
@@ -54,7 +53,6 @@ public:
                            ndview<ClassType, 1>& results,
                            const event_vector& deps = {}) final;
 
-protected:
     ndview<DistType, 2>& get_global_probas();
 
 private:

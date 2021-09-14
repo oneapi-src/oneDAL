@@ -49,11 +49,15 @@ namespace de = ::oneapi::dal::detail;
 namespace bk = ::oneapi::dal::backend;
 namespace pr = ::oneapi::dal::backend::primitives;
 
+using daal_distance_t = daal::algorithms::internal::PairwiseDistanceType;
+
 template <typename T1, typename T2>
 sycl::event copy_with_sqrt(sycl::queue& q,
-                           pr::ndview<T1, 2>& dst,
                            const pr::ndview<T2, 2>& src,
+                           pr::ndview<T1, 2>& dst,
                            const bk::event_vector& deps = {}) {
+    static_assert(de::is_floating_point<T1>());
+    static_assert(de::is_floating_point<T2>());
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     const pr::ndshape<2> dst_shape = dst.get_shape();
@@ -98,8 +102,8 @@ public:
         }
     }
 
-    auto& do_sqrt(bool do_sqrt) {
-        this->compute_sqrt_ = do_sqrt;
+    auto& set_euclidean_distance(bool is_euclidean_distance) {
+        this->compute_sqrt_ = is_euclidean_distance;
         return *this;
     }
 
@@ -152,6 +156,8 @@ public:
         return bk::uniform_blocking(query_length_, query_block_);
     }
 
+    // Note: `inp_distances` can be modified if
+    // metric is Euclidean
     sycl::event operator()(std::int64_t qb_id,
                            pr::ndview<idx_t, 2>& inp_indices,
                            pr::ndview<Float, 2>& inp_distances,
@@ -170,7 +176,7 @@ public:
         if (result_options_.test(result_options::distances)) {
             auto out_block = distances_.get_row_slice(from, to);
             if (this->compute_sqrt_) {
-                copy_distances = copy_with_sqrt(queue_, out_block, inp_distances, deps);
+                copy_distances = copy_with_sqrt(queue_, inp_distances, out_block, deps);
             }
             else {
                 copy_distances = copy(queue_, out_block, inp_distances, deps);
@@ -183,6 +189,11 @@ public:
             const auto ndeps = deps + copy_indices + copy_distances;
             auto temp_resp = temp_resp_.get_row_slice(0, to - from);
             auto s_event = select_indexed(queue_, inp_indices, inp_responses_, temp_resp, ndeps);
+
+            // At least one of the following voting functors should be initialized
+            ONEDAL_ASSERT(bool(distance_voting_) || bool(uniform_voting_));
+            // Only one functor can be initialized
+            ONEDAL_ASSERT(!(bool(distance_voting_) && bool(uniform_voting_)));
 
             if (uniform_voting_) {
                 comp_responses = uniform_voting_->operator()(temp_resp, out_block, { s_event });
@@ -229,12 +240,12 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     if (!distance_impl) {
         throw internal_error{ de::error_messages::unknown_distance_type() };
     }
-    else if (distance_impl->get_daal_distance_type() != detail::v1::daal_distance_t::minkowski) {
+    else if (distance_impl->get_daal_distance_type() != daal_distance_t::minkowski) {
         throw internal_error{ de::error_messages::distance_is_not_supported_for_gpu() };
     }
 
     const bool is_euclidean_distance =
-        (distance_impl->get_daal_distance_type() == detail::v1::daal_distance_t::minkowski) &&
+        (distance_impl->get_daal_distance_type() == daal_distance_t::minkowski) &&
         (distance_impl->get_degree() == 2.0);
 
     auto& queue = ctx.get_queue();
@@ -304,7 +315,7 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
         using dst_t = pr::squared_l2_distance<Float>;
         using search_t = pr::search_engine<Float, dst_t>;
 
-        callback.do_sqrt(true);
+        callback.set_euclidean_distance(true);
 
         const dst_t dist{ queue };
         const search_t search{ queue, train_data, train_block, dist };
