@@ -101,13 +101,13 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto core_observations =
         interop::convert_from_daal_homogen_table<Float>(daal_core_observations);
     auto results = result_t()
-        .set_cluster_count(arr_cluster_count[0])
-        .set_result_options(desc.get_result_options());
+                       .set_cluster_count(arr_cluster_count[0])
+                       .set_result_options(desc.get_result_options());
 
-    if(desc.get_result_options() & result_options::responses) {
+    if (desc.get_result_options() & result_options::responses) {
         results.set_responses(dal::homogen_table::wrap(arr_responses, row_count, 1));
     }
-    if(desc.get_result_options() & result_options::core_flags) {
+    if (desc.get_result_options() & result_options::core_flags) {
         auto arr_core_flags = fill_core_flags(core_observation_indices, row_count);
         results.set_core_flags(dal::homogen_table::wrap(arr_core_flags, row_count, 1));
     }

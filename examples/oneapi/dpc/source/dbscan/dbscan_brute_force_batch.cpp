@@ -36,7 +36,7 @@ void run(sycl::queue &q) {
 
     auto dbscan_desc = dal::dbscan::descriptor<>(epsilon, min_observations);
     dbscan_desc.set_result_options(dal::dbscan::result_options::responses);
-    
+
     const auto result_compute = dal::compute(q, dbscan_desc, x_data);
 
     std::cout << "Cluster count: " << result_compute.get_cluster_count() << std::endl;

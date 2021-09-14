@@ -107,15 +107,15 @@ public:
     }
 
     void mode_checks(result_option_id compute_mode,
-                    const table& data,
-                    const table& weights,
-                    Float epsilon,
-                    std::int64_t min_observations) {
+                     const table& data,
+                     const table& weights,
+                     Float epsilon,
+                     std::int64_t min_observations) {
         CAPTURE(epsilon, min_observations);
 
         INFO("create descriptor")
-        const auto dbscan_desc = get_descriptor(epsilon, min_observations).set_result_options(compute_mode);
-
+        const auto dbscan_desc =
+            get_descriptor(epsilon, min_observations).set_result_options(compute_mode);
 
         INFO("run compute");
         const auto compute_result =
@@ -161,7 +161,8 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
     const result_option_id compute_mode = GENERATE_COPY(result_options::responses,
                                                         result_options::core_flags,
                                                         result_options::core_observations,
-                                                        result_options::core_observation_indices, res_all);
+                                                        result_options::core_observation_indices,
+                                                        res_all);
 
     this->mode_checks(compute_mode, x, table{}, epsilon, min_observations);
 }
