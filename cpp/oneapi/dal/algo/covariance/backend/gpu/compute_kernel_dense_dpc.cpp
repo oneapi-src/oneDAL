@@ -52,8 +52,7 @@ inline auto compute_means(sycl::queue& q,
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto means_event = pr::means(q, data, sums, means, deps);
 
-    auto smart_event = dal::backend::smart_event{ means_event };
-    return std::make_tuple(means, smart_event);
+    return std::make_tuple(means, means_event);
 }
 
 template <typename Float>
@@ -71,8 +70,7 @@ inline auto compute_covariance(sycl::queue& q,
 
     auto cov_event = pr::covariance(q, data, sums, cov, means, vars, deps);
 
-    auto smart_event = dal::backend::smart_event{ cov_event };
-    return std::make_tuple(cov, means, vars, smart_event);
+    return std::make_tuple(cov, means, vars, cov_event);
 }
 
 template <typename Float>
@@ -119,7 +117,7 @@ static compute_result<Task> compute(const context_gpu& ctx,
         auto [cov, means, vars, cov_event] = compute_covariance(q, data_nd, sums, { sums_event });
         //is_mean_computed = true;
         //cov_event.wait_and_throw();
-        result.set_cov_matrix((homogen_table::wrap(cov.flatten(q), column_count, column_count)));
+        result.set_cov_matrix((homogen_table::wrap(cov.flatten(q, {cov_event}), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
         auto [corr, means, vars, corr_event] =
@@ -127,14 +125,14 @@ static compute_result<Task> compute(const context_gpu& ctx,
         //corr_event.wait_and_throw();
         //is_mean_computed = true;
 
-        result.set_cor_matrix((homogen_table::wrap(corr.flatten(q), column_count, column_count)));
+        result.set_cor_matrix((homogen_table::wrap(corr.flatten(q, {corr_event}), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::means)) {
         //if (!is_mean_computed) {
         auto [means, means_event] = compute_means(q, data_nd, sums, { sums_event });
         //means_event.wait_and_throw();
         //}
-        result.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
+        result.set_means(homogen_table::wrap(means.flatten(q, {means_event}), 1, column_count));
     }
     return result;
 }
