@@ -216,8 +216,8 @@ The quality metric algorithm calculates the result described below. Pass the ``R
      - Pointer to the :math:`\text{nClasses} \times \text{nClasses}` numeric table with the confusion matrix.
 
        .. note::
-         By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object
-         of any class derived from NumericTable except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+          By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object
+          of any class derived from NumericTable except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
    * - ``multiClassMetrics``
      - Pointer to the :math:`1 \times 8` numeric table that contains quality metrics, which you can access by an appropriate Multi-class Metrics ID:
 
@@ -231,8 +231,8 @@ The quality metric algorithm calculates the result described below. Pass the ``R
        - ``macroFscore`` - macro F-score
 
        .. note::
-         By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object
-         of any class derived from NumericTable except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+          By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object
+          of any class derived from NumericTable except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
 Examples
 ********

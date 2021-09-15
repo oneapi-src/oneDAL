@@ -79,23 +79,21 @@ For more details, see :ref:`algorithms`.
 
        .. note:: The input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
 
-.. note::
+If you do not provide at least one of the ``location``, ``scatter``, ``threshold`` inputs,
+the library will initialize all of them with the following default values:
 
-    If you do not provide at least one of the ``location``, ``scatter``, ``threshold`` inputs,
-    the library will initialize all of them with the following default values:
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
 
-    .. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+.. list-table:: Default Values for Algorithm Input of Univariate Outlier Detection (Batch Processing)
+    :widths: 10 20
+    :class: longtable
 
-    .. list-table:: Default Values for Algorithm Input of Univariate Outlier Detection (Batch Processing)
-        :widths: 10 20
-        :class: longtable
-
-        * - ``location``
-          - A set of :math:`0.0`
-        * - ``scatter``
-          - A set of :math:`1.0`
-        * - ``threshold``
-          - A set of :math:`3.0`
+    * - ``location``
+      - A set of :math:`0.0`
+    * - ``scatter``
+      - A set of :math:`1.0`
+    * - ``threshold``
+      - A set of :math:`3.0`
 
 Algorithm Parameters
 --------------------
@@ -140,9 +138,9 @@ For more details, see :ref:`algorithms`.
 
        .. note::
 
-            By default, the result is an object of the ``HomogenNumericTable`` class,
-            but you can define the result as an object of any class derived from ``NumericTable``
-            except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``СSRNumericTable``.
+          By default, the result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``СSRNumericTable``.
 
 Examples
 ********

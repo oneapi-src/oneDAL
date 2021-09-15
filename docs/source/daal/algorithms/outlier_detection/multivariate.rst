@@ -73,23 +73,21 @@ For more details, see :ref:`algorithms`.
      - Pointer to the :math:`1 \times 1` numeric table with the non-negative number that defines the outlier region.
        The input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
 
-.. note::
+If you do not provide at least one of the ``location``, ``scatter``, ``threshold`` inputs,
+the library will initialize all of them with the following default values:
 
-    If you do not provide at least one of the ``location``, ``scatter``, ``threshold`` inputs,
-    the library will initialize all of them with the following default values:
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
 
-    .. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+.. list-table:: Default Values for Algorithm Input of Multivariate Outlier Detection (Batch Processing)
+    :widths: 10 20
+    :class: longtable
 
-    .. list-table:: Default Values for Algorithm Input of Multivariate Outlier Detection (Batch Processing)
-        :widths: 10 20
-        :class: longtable
-
-        * - ``location``
-          - A set of :math:`0.0`
-        * - ``scatter``
-          - A numeric table with diagonal elements equal to :math:`1.0` and non-diagonal elements equal to :math:`0.0`
-        * - ``threshold``
-          - :math:`3.0`
+    * - ``location``
+      - A set of :math:`0.0`
+    * - ``scatter``
+      - A numeric table with diagonal elements equal to :math:`1.0` and non-diagonal elements equal to :math:`0.0`
+    * - ``threshold``
+      - :math:`3.0`
 
 Algorithm Parameters
 --------------------

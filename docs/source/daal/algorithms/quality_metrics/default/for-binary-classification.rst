@@ -78,13 +78,13 @@ For more details of these metrics, including the evaluation focus, refer to [Sok
 
 The confusion matrix is defined as follows:
 
-.. tabularcolumns::  |\Y{0.5}|\Y{0.5}|
+.. tabularcolumns::  |\Y{0.3}|\Y{0.4}|\Y{0.3}|
 
 .. list-table:: Confusion Matrix for Binary Classification Algorithms
     :header-rows: 1
     :stub-columns: 1
 
-    * -
+    * - 
       - Classified as Class :math:`C_1`
       - Classified as Class :math:`C_2`
     * - Actual Class :math:`C_1`
