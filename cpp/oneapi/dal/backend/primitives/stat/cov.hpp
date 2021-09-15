@@ -52,7 +52,7 @@ sycl::event covariance(sycl::queue& queue,
                        const ndview<Float, 2>& data,
                        const ndview<Float, 1>& sums,
                        ndview<Float, 2>& cov,
-                       ndview<Float, 1>& means,
+                       const ndview<Float, 1>& means,
                        ndview<Float, 1>& vars,
                        const event_vector& deps = {});
 
@@ -72,7 +72,7 @@ sycl::event correlation(sycl::queue& queue,
                         const ndview<Float, 2>& data,
                         const ndview<Float, 1>& sums,
                         ndview<Float, 2>& corr,
-                        ndview<Float, 1>& means,
+                        const ndview<Float, 1>& means,
                         ndview<Float, 1>& vars,
                         ndview<Float, 1>& tmp,
                         const event_vector& deps = {});

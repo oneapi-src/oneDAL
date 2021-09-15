@@ -138,7 +138,7 @@ inline sycl::event prepare_covariance(sycl::queue& q,
                                       std::int64_t row_count,
                                       const ndview<Float, 1>& sums,
                                       const ndview<Float, 2>& cov,
-                                      ndview<Float, 1>& means,
+                                      const ndview<Float, 1>& means,
                                       ndview<Float, 1>& vars,
                                       const event_vector& deps) {
     const auto n = row_count;
@@ -203,7 +203,7 @@ inline sycl::event prepare_correlation(sycl::queue& q,
                                        std::int64_t row_count,
                                        const ndview<Float, 1>& sums,
                                        const ndview<Float, 2>& corr,
-                                       ndview<Float, 1>& means,
+                                       const ndview<Float, 1>& means,
                                        ndview<Float, 1>& vars,
                                        ndview<Float, 1>& tmp,
                                        const event_vector& deps) {
@@ -296,7 +296,7 @@ sycl::event covariance(sycl::queue& q,
                        const ndview<Float, 2>& data,
                        const ndview<Float, 1>& sums,
                        ndview<Float, 2>& cov,
-                       ndview<Float, 1>& means,
+                       const ndview<Float, 1>& means,
                        ndview<Float, 1>& vars,
                        const event_vector& deps) {
     validate_input_cov(q, data, sums, cov, means, vars);
@@ -317,7 +317,7 @@ sycl::event correlation(sycl::queue& q,
                         const ndview<Float, 2>& data,
                         const ndview<Float, 1>& sums,
                         ndview<Float, 2>& corr,
-                        ndview<Float, 1>& means,
+                        const ndview<Float, 1>& means,
                         ndview<Float, 1>& vars,
                         ndview<Float, 1>& tmp,
                         const event_vector& deps) {
@@ -349,7 +349,7 @@ INSTANTIATE_MEANS(double)
                                                      const ndview<F, 2>&, \
                                                      const ndview<F, 1>&, \
                                                      ndview<F, 2>&,       \
-                                                     ndview<F, 1>&,       \
+                                                     const ndview<F, 1>&, \
                                                      ndview<F, 1>&,       \
                                                      const event_vector&);
 
@@ -361,7 +361,7 @@ INSTANTIATE_COV(double)
                                                       const ndview<F, 2>&, \
                                                       const ndview<F, 1>&, \
                                                       ndview<F, 2>&,       \
-                                                      ndview<F, 1>&,       \
+                                                      const ndview<F, 1>&, \
                                                       ndview<F, 1>&,       \
                                                       ndview<F, 1>&,       \
                                                       const event_vector&);

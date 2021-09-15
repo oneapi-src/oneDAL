@@ -32,36 +32,38 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-template <typename Float>
-auto compute_sums(sycl::queue& q,
-                  const pr::ndview<Float, 2>& data,
-                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_ASSERT(data.has_data());
-    const std::int64_t column_count = data.get_dimension(1);
-    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto reduce_event =
-        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-    return std::make_tuple(sums, reduce_event);
-}
+// template <typename Float>
+// auto compute_sums(sycl::queue& q,
+//                   const pr::ndview<Float, 2>& data,
+//                   const dal::backend::event_vector& deps = {}) {
+//     ONEDAL_ASSERT(data.has_data());
+//     const std::int64_t column_count = data.get_dimension(1);
+//     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+//     auto reduce_event =
+//         pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
+//     return std::make_tuple(sums, reduce_event);
+// }
 
 template <typename Float>
 auto compute_means(sycl::queue& q,
                    const pr::ndview<Float, 2>& data,
-                   const pr::ndview<Float, 1>& sums,
                    const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
     const std::int64_t column_count = data.get_dimension(1);
+    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto reduce_event =
+        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
     auto means_event = pr::means(q, data, sums, means, deps);
 
-    return std::make_tuple(means, means_event);
+    return std::make_tuple(means, sums, means_event);
 }
 
 template <typename Float>
 auto compute_covariance(sycl::queue& q,
                         const pr::ndview<Float, 2>& data,
                         const pr::ndview<Float, 1>& sums,
+                        pr::ndview<Float, 1>& means,
                         const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
@@ -69,18 +71,19 @@ auto compute_covariance(sycl::queue& q,
     const std::int64_t column_count = data.get_dimension(1);
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    //auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
     auto cov_event = pr::covariance(q, data, sums, cov, means, vars, deps);
 
-    return std::make_tuple(cov, means, vars, cov_event);
+    return std::make_tuple(cov, vars, cov_event);
 }
 
 template <typename Float>
 auto compute_correlation(sycl::queue& q,
                          const pr::ndview<Float, 2>& data,
                          const pr::ndview<Float, 1>& sums,
+                         pr::ndview<Float, 1>& means,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
@@ -88,14 +91,14 @@ auto compute_correlation(sycl::queue& q,
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    //auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
     auto corr_event = pr::correlation(q, data, sums, corr, means, vars, tmp, deps);
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
-    return std::make_tuple(corr, means, vars, smart_event);
+    return std::make_tuple(corr, vars, smart_event);
 }
 
 template <typename Float, typename Task>
@@ -116,18 +119,18 @@ static compute_result<Task> compute(const context_gpu& ctx,
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
 
-    auto [sums, sums_event] = compute_sums(q, data_nd);
+    auto [means, sums, means_event] = compute_means(q, data_nd);
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, means, vars, cov_event] = compute_covariance(q, data_nd, sums, { sums_event });
+        auto [cov, vars, cov_event] = compute_covariance(q, data_nd, sums, means, { means_event });
         //is_mean_computed = true;
         //cov_event.wait_and_throw();
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q, { cov_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
-        auto [corr, means, vars, corr_event] =
-            compute_correlation(q, data_nd, sums, { sums_event });
+        auto [corr, vars, corr_event] =
+            compute_correlation(q, data_nd, sums, means, { means_event });
         //corr_event.wait_and_throw();
         //is_mean_computed = true;
 
@@ -136,7 +139,7 @@ static compute_result<Task> compute(const context_gpu& ctx,
     }
     if (desc.get_result_options().test(result_options::means)) {
         //if (!is_mean_computed) {
-        auto [means, means_event] = compute_means(q, data_nd, sums, { sums_event });
+        //auto [means, means_event] = compute_means(q, data_nd, sums, { sums_event });
         //means_event.wait_and_throw();
         //}
         result.set_means(homogen_table::wrap(means.flatten(q, { means_event }), 1, column_count));
