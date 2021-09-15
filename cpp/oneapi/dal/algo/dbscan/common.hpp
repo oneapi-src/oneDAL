@@ -70,10 +70,10 @@ ONEDAL_EXPORT result_option_id get_core_flags_id();
 /// what should algorithm return
 namespace result_options {
 
-const result_option_id responses = detail::get_responses_id();
-const result_option_id core_observation_indices = detail::get_core_observation_indices_id();
-const result_option_id core_observations = detail::get_core_observations_id();
-const result_option_id core_flags = detail::get_core_flags_id();
+const inline result_option_id responses = detail::get_responses_id();
+const inline result_option_id core_observation_indices = detail::get_core_observation_indices_id();
+const inline result_option_id core_observations = detail::get_core_observations_id();
+const inline result_option_id core_flags = detail::get_core_flags_id();
 
 } // namespace result_options
 
