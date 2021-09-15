@@ -77,7 +77,7 @@ compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) 
 template <typename Task>
 const table& compute_result<Task>::get_responses() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options() & result_options::responses)) {
+    if (!get_result_options().test(result_options::responses)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     return impl_->responses;
