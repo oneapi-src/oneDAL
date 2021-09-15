@@ -86,7 +86,7 @@ const table& compute_result<Task>::get_responses() const {
 template <typename Task>
 const table& compute_result<Task>::get_core_flags() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options() & result_options::core_flags)) {
+    if (!get_result_options().test(result_options::core_flags)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     return impl_->core_flags;
@@ -95,7 +95,7 @@ const table& compute_result<Task>::get_core_flags() const {
 template <typename Task>
 const table& compute_result<Task>::get_core_observation_indices() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options() & result_options::core_observation_indices)) {
+    if (!get_result_options().test(result_options::core_observation_indices)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     return impl_->core_observation_indices;
@@ -104,7 +104,7 @@ const table& compute_result<Task>::get_core_observation_indices() const {
 template <typename Task>
 const table& compute_result<Task>::get_core_observations() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options() & result_options::core_observations)) {
+    if (!get_result_options().test(result_options::core_observations)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     return impl_->core_observations;

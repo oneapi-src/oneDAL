@@ -53,13 +53,13 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     daal_dbscan::Parameter par(epsilon, dal::detail::integral_cast<std::size_t>(min_observations));
     par.memorySavingMode = desc.get_mem_save_mode();
-    if (desc.get_result_options() & result_options::core_observation_indices) {
+    if (desc.get_result_options().test(result_options::core_observation_indices)) {
         par.resultsToCompute = daal_dbscan::computeCoreIndices;
     }
-    else if (desc.get_result_options() & result_options::core_observations) {
+    else if (desc.get_result_options().test(result_options::core_observations)) {
         par.resultsToCompute = daal_dbscan::computeCoreObservations;
     }
-    if (desc.get_result_options() & result_options::core_observations) {
+    if (desc.get_result_options().test(result_options::core_observations)) {
         par.resultsToCompute |= daal_dbscan::computeCoreObservations;
     }
 
@@ -94,19 +94,19 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                        .set_cluster_count(to_host_sync(arr_cluster_count)[0])
                        .set_result_options(desc.get_result_options());
 
-    if (desc.get_result_options() & result_options::responses) {
+    if (desc.get_result_options().test(result_options::responses)) {
         results.set_responses(dal::homogen_table::wrap(arr_responses, row_count, 1));
     }
-    if (desc.get_result_options() & result_options::core_flags) {
+    if (desc.get_result_options().test(result_options::core_flags)) {
         auto arr_core_flags = fill_core_flags(core_observation_indices, row_count);
         results.set_core_flags(dal::homogen_table::wrap(arr_core_flags, row_count, 1));
     }
 
-    if (desc.get_result_options() & result_options::core_observation_indices) {
+    if (desc.get_result_options().test(result_options::core_observation_indices)) {
         results.set_core_observation_indices(core_observation_indices);
     }
 
-    if (desc.get_result_options() & result_options::core_observations) {
+    if (desc.get_result_options().test(result_options::core_observations)) {
         results.set_core_observations(core_observations);
     }
 
