@@ -204,7 +204,7 @@ void HeapMemoryAllocator<NodeType>::free(typename NodeType::Base * n)
     delete n;
 }
 
-class MemoryManager
+class DAAL_EXPORT MemoryManager
 {
 public:
     MemoryManager(size_t chunkSize) : _chunkSize(chunkSize), _posInChunk(0), _iCurChunk(-1) {}
@@ -275,7 +275,7 @@ void deleteNode(typename NodeType::Base * n, Allocator & a)
     a.free(n);
 }
 
-class Tree : public Base
+class DAAL_EXPORT Tree : public Base
 {
 public:
     Tree() {}
@@ -515,10 +515,6 @@ protected:
         {
             arch->setSharedPtrObj(_impurityTables);
             arch->setSharedPtrObj(_nNodeSampleTables);
-        }
-        if ((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
-        {
-            arch->setSharedPtrObj(_probTbl);
         }
 
         if (onDeserialize) _nTree.set(_serializationData->size());

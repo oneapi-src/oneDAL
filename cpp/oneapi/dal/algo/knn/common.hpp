@@ -98,8 +98,14 @@ ONEDAL_EXPORT result_option_id get_responses_id();
 /// what should algorithm return
 namespace result_options {
 
+/// Return the indices of the nearest neighbors
 const inline result_option_id indices = detail::get_indices_id();
+
+/// Return the distances to the nearest neighbors
 const inline result_option_id distances = detail::get_distances_id();
+
+/// Return the :expr<classification> results
+/// **Note:** This result is not available for the :expr<search> task.
 const inline result_option_id responses = detail::get_responses_id();
 
 } // namespace result_options

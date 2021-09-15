@@ -21,11 +21,26 @@ load("@onedal//dev/bazel:utils.bzl",
 )
 
 _ModuleInfo = provider(
-    fields=[
+    fields = [
         "compilation_context",
         "tagged_linking_contexts",
     ]
 )
+
+_EnvInfo = provider(
+    fields = [
+        "var",
+        "value",
+    ]
+)
+
+def _collect_env(deps):
+    env_dict = {}
+    for dep in deps:
+        if _EnvInfo in dep:
+            env_info = dep[_EnvInfo]
+            env_dict[env_info.var] = env_info.value
+    return env_dict;
 
 def _collect_compilation_contexts(deps):
     dep_compilation_contexts = []
@@ -132,6 +147,8 @@ def _override_tags(tagged_linking_contexts, tag):
 
 common = struct(
     ModuleInfo = _ModuleInfo,
+    EnvInfo = _EnvInfo,
+    collect_env = _collect_env,
     collect_compilation_contexts = _collect_compilation_contexts,
     merge_compilation_contexts = _merge_compilation_contexts,
     collect_and_merge_compilation_contexts = _collect_and_merge_compilation_contexts,

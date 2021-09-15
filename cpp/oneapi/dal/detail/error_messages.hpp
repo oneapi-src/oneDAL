@@ -129,6 +129,10 @@ public:
     MSG(invalid_range_of_columns);
     MSG(column_index_out_of_range);
 
+    /* RNG */
+    MSG(rng_engine_does_not_support_parallelization_techniques);
+    MSG(rng_engine_is_not_supported);
+
     /* Graphs */
     MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count);
     MSG(negative_vertex_id);
@@ -136,6 +140,7 @@ public:
 
     /* I/O */
     MSG(file_not_found);
+    MSG(unsupported_read_mode);
 
     /* Serialization */
     MSG(object_is_not_serializable);
@@ -164,6 +169,12 @@ public:
     MSG(invalid_number_of_trees);
     MSG(invalid_number_of_classes);
     MSG(input_model_is_not_initialized);
+    MSG(invalid_number_of_min_observations_in_leaf_node);
+    MSG(invalid_number_of_feature_per_node);
+    MSG(invalid_number_of_max_bins);
+    MSG(invalid_value_for_min_bin_size);
+    MSG(invalid_value_for_observations_per_tree_fraction);
+    MSG(not_enough_memory_to_build_one_tree);
     MSG(input_model_tree_has_invalid_size);
 
     /* Jaccard */
@@ -213,6 +224,13 @@ public:
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
 
+    /* Louvain */
+    MSG(negative_resolution);
+    MSG(input_initial_partition_table_rc_neq_vertex_count);
+    MSG(input_initial_partition_table_has_wrong_cc_expect_one);
+    MSG(negative_initial_partition_label);
+    MSG(initial_partition_label_gte_vertex_count);
+
     /* Minkowski distance */
     MSG(invalid_minkowski_degree);
 
@@ -257,6 +275,10 @@ public:
     MSG(tau_leq_zero);
     MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);
+
+    /* DBSCAN */
+    MSG(weight_dimension_doesnt_match_data_dimension);
+    MSG(weights_column_count_ne_1);
 };
 
 #undef MSG

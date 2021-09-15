@@ -277,10 +277,18 @@ private:
     std::vector<buffer_info> send_buffers_;
 };
 
-class thread_communicator_impl : public dal::detail::spmd_communicator_iface {
+class thread_communicator_impl : public dal::detail::spmd_communicator_via_host_impl {
 public:
     using base_t = dal::detail::spmd_communicator_iface;
     using request_t = dal::detail::spmd_request_iface;
+
+    // Explicitly declare all virtual functions with overloads to workaround Clang warning
+    // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
+    using spmd_communicator_iface::bcast;
+    using spmd_communicator_iface::gather;
+    using spmd_communicator_iface::gatherv;
+    using spmd_communicator_iface::allgather;
+    using spmd_communicator_iface::allreduce;
 
     class collective_operation_guard {
     public:
@@ -328,30 +336,12 @@ public:
                      const data_type& dtype,
                      std::int64_t root) override;
 
-#ifdef ONEDAL_DATA_PARALLEL
-    request_t* bcast(sycl::queue& q,
-                     byte_t* send_buf,
-                     std::int64_t count,
-                     const data_type& dtype,
-                     std::int64_t root) override;
-#endif
-
     request_t* gather(const byte_t* send_buf,
                       std::int64_t send_count,
                       byte_t* recv_buf,
                       std::int64_t recv_count,
                       const data_type& dtype,
                       std::int64_t root) override;
-
-#ifdef ONEDAL_DATA_PARALLEL
-    request_t* gather(sycl::queue& q,
-                      const byte_t* send_buf,
-                      std::int64_t send_count,
-                      byte_t* recv_buf,
-                      std::int64_t recv_count,
-                      const data_type& dtype,
-                      std::int64_t root) override;
-#endif
 
     request_t* gatherv(const byte_t* send_buf,
                        std::int64_t send_count,
@@ -361,46 +351,17 @@ public:
                        const data_type& dtype,
                        std::int64_t root) override;
 
-#ifdef ONEDAL_DATA_PARALLEL
-    request_t* gatherv(sycl::queue& q,
-                       const byte_t* send_buf,
-                       std::int64_t send_count,
-                       byte_t* recv_buf,
-                       const std::int64_t* recv_counts_host,
-                       const std::int64_t* displs_host,
-                       const data_type& dtype,
-                       std::int64_t root) override;
-#endif
-
     request_t* allreduce(const byte_t* send_buf,
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
                          const dal::detail::spmd_reduce_op& op) override;
 
-#ifdef ONEDAL_DATA_PARALLEL
-    request_t* allreduce(sycl::queue& q,
-                         const byte_t* send_buf,
-                         byte_t* recv_buf,
-                         std::int64_t count,
-                         const data_type& dtype,
-                         const dal::detail::spmd_reduce_op& op) override;
-#endif
-
     request_t* allgather(const byte_t* send_buf,
                          std::int64_t send_count,
                          byte_t* recv_buf,
                          std::int64_t recv_count,
                          const data_type& dtype) override;
-
-#ifdef ONEDAL_DATA_PARALLEL
-    request_t* allgather(sycl::queue& q,
-                         const byte_t* send_buf,
-                         std::int64_t send_count,
-                         byte_t* recv_buf,
-                         std::int64_t recv_count,
-                         const data_type& dtype) override;
-#endif
 
 private:
     thread_communicator_context ctx_;
@@ -410,10 +371,6 @@ private:
     thread_communicator_gatherv gatherv_;
     thread_communicator_allreduce allreduce_;
     thread_communicator_allgather allgather_;
-
-#ifdef ONEDAL_DATA_PARALLEL
-    void check_if_pointer_matches_queue(const sycl::queue& q, const void* pointer);
-#endif
 };
 
 class thread_communicator : public dal::detail::spmd_communicator {

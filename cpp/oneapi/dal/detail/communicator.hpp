@@ -62,6 +62,7 @@ public:
                                       byte_t* send_buf,
                                       std::int64_t count,
                                       const data_type& dtype,
+                                      const std::vector<sycl::event>& deps,
                                       std::int64_t root) = 0;
 #endif
 
@@ -79,6 +80,7 @@ public:
                                        byte_t* recv_buf,
                                        std::int64_t recv_count,
                                        const data_type& dtype,
+                                       const std::vector<sycl::event>& deps,
                                        std::int64_t root) = 0;
 
 #endif
@@ -99,6 +101,7 @@ public:
                                         const std::int64_t* recv_counts_host,
                                         const std::int64_t* displs_host,
                                         const data_type& dtype,
+                                        const std::vector<sycl::event>& deps,
                                         std::int64_t root) = 0;
 #endif
 
@@ -114,7 +117,8 @@ public:
                                           std::int64_t send_count,
                                           byte_t* recv_buf,
                                           std::int64_t recv_count,
-                                          const data_type& dtype) = 0;
+                                          const data_type& dtype,
+                                          const std::vector<sycl::event>& deps) = 0;
 #endif
 
     virtual spmd_request_iface* allreduce(const byte_t* send_buf,
@@ -129,7 +133,74 @@ public:
                                           byte_t* recv_buf,
                                           std::int64_t count,
                                           const data_type& dtype,
-                                          const spmd_reduce_op& op) = 0;
+                                          const spmd_reduce_op& op,
+                                          const std::vector<sycl::event>& deps) = 0;
+#endif
+};
+
+/// Implementation of the low-level SPMD communicator interface
+/// that uses host-only functions to exchange USM data
+class spmd_communicator_via_host_impl : public spmd_communicator_iface {
+public:
+    // Explicitly declare all virtual functions with overloads to workaround Clang warning
+    // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
+    using spmd_communicator_iface::bcast;
+    using spmd_communicator_iface::gather;
+    using spmd_communicator_iface::gatherv;
+    using spmd_communicator_iface::allgather;
+    using spmd_communicator_iface::allreduce;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* bcast(sycl::queue& q,
+                              byte_t* send_buf,
+                              std::int64_t count,
+                              const data_type& dtype,
+                              const std::vector<sycl::event>& deps,
+                              std::int64_t root) override;
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* gather(sycl::queue& q,
+                               const byte_t* send_buf,
+                               std::int64_t send_count,
+                               byte_t* recv_buf,
+                               std::int64_t recv_count,
+                               const data_type& dtype,
+                               const std::vector<sycl::event>& deps,
+                               std::int64_t root) override;
+
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* gatherv(sycl::queue& q,
+                                const byte_t* send_buf,
+                                std::int64_t send_count,
+                                byte_t* recv_buf,
+                                const std::int64_t* recv_counts_host,
+                                const std::int64_t* displs_host,
+                                const data_type& dtype,
+                                const std::vector<sycl::event>& deps,
+                                std::int64_t root) override;
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* allgather(sycl::queue& q,
+                                  const byte_t* send_buf,
+                                  std::int64_t send_count,
+                                  byte_t* recv_buf,
+                                  std::int64_t recv_count,
+                                  const data_type& dtype,
+                                  const std::vector<sycl::event>& deps) override;
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* allreduce(sycl::queue& q,
+                                  const byte_t* send_buf,
+                                  byte_t* recv_buf,
+                                  std::int64_t count,
+                                  const data_type& dtype,
+                                  const spmd_reduce_op& op,
+                                  const std::vector<sycl::event>& deps) override;
 #endif
 };
 
@@ -227,6 +298,7 @@ public:
                        byte_t* buf,
                        std::int64_t count,
                        const data_type& dtype,
+                       const std::vector<sycl::event>& deps = {},
                        std::int64_t root = -1) const;
 #endif
 
@@ -237,8 +309,12 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T, enable_if_primitive_t<T>* = nullptr>
-    spmd_request bcast(sycl::queue& q, T* buf, std::int64_t count, std::int64_t root = -1) const {
-        return bcast(q, reinterpret_cast<byte_t*>(buf), count, make_data_type<T>(), root);
+    spmd_request bcast(sycl::queue& q,
+                       T* buf,
+                       std::int64_t count,
+                       const std::vector<sycl::event>& deps = {},
+                       std::int64_t root = -1) const {
+        return bcast(q, reinterpret_cast<byte_t*>(buf), count, make_data_type<T>(), deps, root);
     }
 #endif
 
@@ -264,7 +340,7 @@ public:
             // root rank does not modify the values
             __ONEDAL_IF_QUEUE__(ary.get_queue(), {
                 auto q = ary.get_queue().value();
-                request = bcast(q, const_cast<T*>(ary.get_data()), count, root);
+                request = bcast(q, const_cast<T*>(ary.get_data()), count, {}, root);
             });
 
             __ONEDAL_IF_NO_QUEUE__(ary.get_queue(), { //
@@ -276,7 +352,7 @@ public:
 
             __ONEDAL_IF_QUEUE__(ary.get_queue(), {
                 auto q = ary.get_queue().value();
-                request = bcast(q, ary.get_mutable_data(), count, root);
+                request = bcast(q, ary.get_mutable_data(), count, {}, root);
             });
 
             __ONEDAL_IF_NO_QUEUE__(ary.get_queue(), { //
@@ -316,6 +392,7 @@ public:
                         byte_t* recv_buf,
                         std::int64_t recv_count,
                         const data_type& dtype,
+                        const std::vector<sycl::event>& deps = {},
                         std::int64_t root = -1) const;
 #endif
 
@@ -340,6 +417,7 @@ public:
                         std::int64_t send_count,
                         T* recv_buf,
                         std::int64_t recv_count,
+                        const std::vector<sycl::event>& deps = {},
                         std::int64_t root = -1) const {
         return gather(q,
                       reinterpret_cast<const byte_t*>(send_buf),
@@ -347,6 +425,7 @@ public:
                       reinterpret_cast<byte_t*>(recv_buf),
                       recv_count,
                       make_data_type<T>(),
+                      deps,
                       root);
     }
 #endif
@@ -415,6 +494,7 @@ public:
                 send.get_count(),
                 recv_ptr,
                 send.get_count(),
+                {},
                 root);
         });
 
@@ -455,7 +535,7 @@ public:
                          const std::int64_t* recv_counts,
                          const std::int64_t* displs,
                          const data_type& dtype,
-                         std::int64_t root) const;
+                         std::int64_t root = -1) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
     /// `gatherv` that accepts USM pointers
@@ -468,7 +548,8 @@ public:
                          const std::int64_t* recv_counts_host,
                          const std::int64_t* displs_host,
                          const data_type& dtype,
-                         std::int64_t root) const;
+                         const std::vector<sycl::event>& deps = {},
+                         std::int64_t root = -1) const;
 #endif
 
     template <typename T, enable_if_primitive_t<T>* = nullptr>
@@ -495,6 +576,7 @@ public:
                          T* recv_buf,
                          const std::int64_t* recv_counts,
                          const std::int64_t* displs,
+                         const std::vector<sycl::event>& deps = {},
                          std::int64_t root = -1) const {
         return gatherv(q,
                        reinterpret_cast<const byte_t*>(send_buf),
@@ -503,6 +585,7 @@ public:
                        recv_counts,
                        displs,
                        make_data_type<T>(),
+                       deps,
                        root);
     }
 #endif
@@ -529,7 +612,8 @@ public:
                            std::int64_t send_count,
                            byte_t* recv_buf,
                            std::int64_t recv_count,
-                           const data_type& dtype) const;
+                           const data_type& dtype,
+                           const std::vector<sycl::event>& deps = {}) const;
 #endif
 
     template <typename T, enable_if_primitive_t<T>* = nullptr>
@@ -550,18 +634,20 @@ public:
                            const T* send_buf,
                            std::int64_t send_count,
                            T* recv_buf,
-                           std::int64_t recv_count) const {
+                           std::int64_t recv_count,
+                           const std::vector<sycl::event>& deps = {}) const {
         return allgather(q,
                          reinterpret_cast<const byte_t*>(send_buf),
                          send_count,
                          reinterpret_cast<byte_t*>(recv_buf),
                          recv_count,
-                         make_data_type<T>());
+                         make_data_type<T>(),
+                         deps);
     }
 #endif
 
     template <typename T, enable_if_primitive_t<T>* = nullptr>
-    spmd_request allgather(const array<T>& send, const array<T>& recv) {
+    spmd_request allgather(const array<T>& send, const array<T>& recv) const {
 #ifdef ONEDAL_ENABLE_ASSERT
         check_if_same_send_count(send.get_count(), get_default_root_rank());
 
@@ -627,7 +713,8 @@ public:
                            byte_t* recv_buf,
                            std::int64_t count,
                            const data_type& dtype,
-                           const spmd_reduce_op& op = spmd_reduce_op::sum) const;
+                           const spmd_reduce_op& op = spmd_reduce_op::sum,
+                           const std::vector<sycl::event>& deps = {}) const;
 #endif
 
     template <typename T, enable_if_primitive_t<T>* = nullptr>
@@ -648,13 +735,15 @@ public:
                            const T* send_buf,
                            T* recv_buf,
                            std::int64_t count,
-                           const spmd_reduce_op& op = spmd_reduce_op::sum) const {
+                           const spmd_reduce_op& op = spmd_reduce_op::sum,
+                           const std::vector<sycl::event>& deps = {}) const {
         return allreduce(q,
                          reinterpret_cast<const byte_t*>(send_buf),
                          reinterpret_cast<byte_t*>(recv_buf),
                          count,
                          make_data_type<T>(),
-                         op);
+                         op,
+                         deps);
     }
 #endif
 
@@ -735,6 +824,7 @@ using v1::communication_error;
 using v1::spmd_reduce_op;
 using v1::spmd_request_iface;
 using v1::spmd_communicator_iface;
+using v1::spmd_communicator_via_host_impl;
 using v1::spmd_request;
 using v1::spmd_communicator;
 

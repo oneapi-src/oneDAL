@@ -25,14 +25,13 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
-using namespace oneapi::dal::preview::subgraph_isomorphism::backend;
 
 template <typename Cpu>
 oneapi::dal::homogen_table si(const graph<Cpu>& pattern,
                               const graph<Cpu>& target,
                               kind isomorphism_kind,
                               std::int64_t max_match_count,
-                              detail::byte_alloc_iface* alloc_ptr) {
+                              byte_alloc_iface_t* alloc_ptr) {
     inner_alloc local_allocator(alloc_ptr);
 
     sorter<Cpu> sorter_graph(&target, local_allocator);
@@ -87,7 +86,7 @@ template <typename Cpu>
 subgraph_isomorphism::graph_matching_result<task::compute> si_call_kernel(
     const kind& si_kind,
     std::int64_t max_match_count,
-    detail::byte_alloc_iface* alloc_ptr,
+    byte_alloc_iface_t* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
     std::int64_t* vv_t,

@@ -127,7 +127,6 @@ public:
     }
 
     /// Result options that indicates availability of the properties
-    /// @remark default = default_result_options<Task>
     const result_option_id& get_result_options() const;
 
     auto& set_result_options(const result_option_id& value) {

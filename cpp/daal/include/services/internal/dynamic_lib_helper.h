@@ -33,7 +33,7 @@
     #elif defined(_WIN32) || defined(_WIN64)
 
         #define NOMINMAX
-        #include <windows.h>
+        #include "services/internal/daal_load_win_dynamic_lib.h"
 
     #endif // __linux__
 
@@ -63,7 +63,7 @@ public:
     #ifdef __linux__
         _handle = dlopen(libName, flag);
     #elif defined(_WIN32) || defined(_WIN64)
-        _handle = LoadLibraryA(libName);
+        _handle = _daal_load_win_dynamic_lib(libName);
     #endif
         if (!_handle)
         {

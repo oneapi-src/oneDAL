@@ -158,6 +158,9 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Yoav Freund. An adaptive version of the boost by majority algorithm.
    Machine Learning (43), pp. 293-318, 2001.
 
+.. [Gross2014]
+   J. Gross, J. Yellen, P. Zhang, Handbook of Graph Theory, Second Edition, 2014.
+
 .. [Hastie2009]
    Trevor Hastie, Robert Tibshirani, Jerome Friedman. *The Elements
    of Statistical Learning: Data Mining, Inference, and Prediction*.

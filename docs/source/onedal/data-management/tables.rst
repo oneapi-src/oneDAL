@@ -63,8 +63,8 @@ Each implementation of :txtref:`table` concept:
 
 #. Is :term:`reference-counted <Reference-counted object>`.
 
-#. Every new :cpp:expr:`oneapi::dal::table` sub-type defines a unique id number - the "kind"
-   that represents objects of that type in runtime.
+#. Defines a unique id number: the "kind" that represents objects of that
+   type in runtime.
 
 The following listing provides an example of table API to illustrate table kinds
 and copy-assignment operation:

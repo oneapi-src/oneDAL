@@ -383,10 +383,10 @@ public:
                       typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
                   std::allocator<char> local_char_alloc; //WRONG
                   t_allocator_type local_allocator(local_char_alloc);
-                  using t_allocator_traits =
+                  using allocator_traits_t =
                       typename std::allocator_traits<Allocator>::template rebind_traits<T>;
-                  typename t_allocator_traits::pointer ptr =
-                      t_allocator_traits::allocate(local_allocator, count);
+                  typename allocator_traits_t::pointer ptr =
+                      allocator_traits_t::allocate(local_allocator, count);
                   if (ptr == nullptr) {
                       throw host_bad_alloc();
                   }
@@ -394,18 +394,18 @@ public:
               }),
               _count(count) {
         Allocator allocator;
-        _alloc = allocator;
+        alloc_ = allocator;
     }
 
     ~tls_mem() {
         super::reduce([&](T *ptr) -> void {
             using t_allocator_type =
                 typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
-            t_allocator_type t_allocator(_alloc);
-            using t_allocator_traits =
+            t_allocator_type t_allocator(alloc_);
+            using allocator_traits_t =
                 typename std::allocator_traits<Allocator>::template rebind_traits<T>;
             if (ptr != nullptr) {
-                t_allocator_traits::deallocate(t_allocator, ptr, _count);
+                allocator_traits_t::deallocate(t_allocator, ptr, _count);
             }
         });
     }
@@ -414,7 +414,7 @@ public:
     using reference = ptr_t;
 
 private:
-    Allocator _alloc;
+    Allocator alloc_;
     size_t _count;
 };
 

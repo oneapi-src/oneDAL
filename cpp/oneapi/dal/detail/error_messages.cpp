@@ -109,6 +109,11 @@ MSG(invalid_range_of_rows, "Invalid range of rows")
 MSG(invalid_range_of_columns, "Invalid range of columns")
 MSG(column_index_out_of_range, "Column index out of range")
 
+/* RNG */
+MSG(rng_engine_does_not_support_parallelization_techniques,
+    "Random number generation engine doesn't support parallelization techniques")
+MSG(rng_engine_is_not_supported, "Random number generation engine isn't supported")
+
 /* Graphs */
 MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
     "Vertex index is out of range, expect index in [0, vertex_count)")
@@ -117,6 +122,7 @@ MSG(unimplemented_sorting_procedure, "Unimplemented sorting procedure")
 
 /* IO */
 MSG(file_not_found, "File not found")
+MSG(unsupported_read_mode, "Unsupported read mode")
 
 /* Serialization */
 MSG(object_is_not_serializable, "Object is not serializable")
@@ -270,9 +276,32 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 MSG(input_model_is_not_initialized, "Input model is not initialized")
-MSG(invalid_number_of_trees, "Invalid number of trees in model")
+MSG(not_enough_memory_to_build_one_tree, "There isn't enough memory to build one tree")
+MSG(invalid_number_of_trees, "Invalid number of trees")
+MSG(invalid_number_of_min_observations_in_leaf_node,
+    "Invalid number of min observations in leaf node")
+MSG(invalid_number_of_feature_per_node, "Invalid number of features per node")
+MSG(invalid_number_of_max_bins, "Invalid max number of bins")
+MSG(invalid_value_for_min_bin_size, "Invalid value for min bin size")
 MSG(invalid_number_of_classes, "Invalid number of classes")
+MSG(invalid_value_for_observations_per_tree_fraction,
+    "Invalid value for observations per tree fraction")
 MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
+
+/* DBSCAN */
+MSG(weight_dimension_doesnt_match_data_dimension,
+    "Weights dimensions doesn't match data dimensions")
+MSG(weights_column_count_ne_1, "Weights is not a single-column table")
+
+/* Louvain */
+MSG(negative_resolution, "Resolution parameter is lower than zero")
+MSG(input_initial_partition_table_rc_neq_vertex_count,
+    "Input initial partition table row count is not equal to vertex count")
+MSG(input_initial_partition_table_has_wrong_cc_expect_one,
+    "Input initial partition table has wrong column count, one column is expected")
+MSG(negative_initial_partition_label, "Input initial partition label is negative")
+MSG(initial_partition_label_gte_vertex_count,
+    "Input initial partition label is greater than or equal to vertex count")
 
 } // namespace v1
 } // namespace oneapi::dal::detail

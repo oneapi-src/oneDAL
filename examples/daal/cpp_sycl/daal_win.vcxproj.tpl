@@ -83,6 +83,7 @@
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <SpecifyDevCmplAdditionalOptions>-fsycl-device-code-split=per_kernel</SpecifyDevCmplAdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.threaded|x64'">
@@ -102,6 +103,7 @@
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <SpecifyDevCmplAdditionalOptions>-fsycl-device-code-split=per_kernel</SpecifyDevCmplAdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.threaded|x64'">
@@ -121,6 +123,7 @@
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_sycld.lib;onedal_cored_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <SpecifyDevCmplAdditionalOptions>-fsycl-device-code-split=per_kernel</SpecifyDevCmplAdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'">
@@ -140,6 +143,7 @@
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_sycld.lib;onedal_cored.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <SpecifyDevCmplAdditionalOptions>-fsycl-device-code-split=per_kernel</SpecifyDevCmplAdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
