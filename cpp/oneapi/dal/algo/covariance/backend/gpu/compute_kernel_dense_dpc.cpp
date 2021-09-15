@@ -36,6 +36,7 @@ template <typename Float>
 auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
                   const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.has_data());
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto reduce_event =
@@ -44,10 +45,11 @@ auto compute_sums(sycl::queue& q,
 }
 
 template <typename Float>
-inline auto compute_means(sycl::queue& q,
-                          const pr::ndview<Float, 2>& data,
-                          const pr::ndview<Float, 1>& sums,
-                          const dal::backend::event_vector& deps = {}) {
+auto compute_means(sycl::queue& q,
+                   const pr::ndview<Float, 2>& data,
+                   const pr::ndview<Float, 1>& sums,
+                   const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.has_data());
     const std::int64_t column_count = data.get_dimension(1);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto means_event = pr::means(q, data, sums, means, deps);
@@ -56,10 +58,11 @@ inline auto compute_means(sycl::queue& q,
 }
 
 template <typename Float>
-inline auto compute_covariance(sycl::queue& q,
-                               const pr::ndview<Float, 2>& data,
-                               const pr::ndview<Float, 1>& sums,
-                               const dal::backend::event_vector& deps = {}) {
+auto compute_covariance(sycl::queue& q,
+                        const pr::ndview<Float, 2>& data,
+                        const pr::ndview<Float, 1>& sums,
+                        const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
 
     const std::int64_t column_count = data.get_dimension(1);
@@ -78,6 +81,7 @@ auto compute_correlation(sycl::queue& q,
                          const pr::ndview<Float, 2>& data,
                          const pr::ndview<Float, 1>& sums,
                          const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
 
     const std::int64_t column_count = data.get_dimension(1);

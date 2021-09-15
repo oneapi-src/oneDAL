@@ -24,13 +24,13 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-inline void validate_input(const sycl::queue& q,
-                           const ndview<Float, 2>& data,
-                           const ndview<Float, 1>& sums,
-                           const ndview<Float, 2>& corr,
-                           const ndview<Float, 1>& means,
-                           const ndview<Float, 1>& vars,
-                           const ndview<Float, 1>& tmp) {
+inline void validate_input_cor(const sycl::queue& q,
+                               const ndview<Float, 2>& data,
+                               const ndview<Float, 1>& sums,
+                               const ndview<Float, 2>& corr,
+                               const ndview<Float, 1>& means,
+                               const ndview<Float, 1>& vars,
+                               const ndview<Float, 1>& tmp) {
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
@@ -86,12 +86,29 @@ inline void validate_input_cov(const sycl::queue& q,
 }
 
 template <typename Float>
+inline void validate_input_means(const sycl::queue& q,
+                                 const ndview<Float, 2>& data,
+                                 const ndview<Float, 1>& sums,
+                                 const ndview<Float, 1>& means) {
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(means.has_mutable_data());
+    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
+                  "Element count of sums must match feature count");
+    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
+                  "Element count of means must match feature count");
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+}
+
+template <typename Float>
 inline sycl::event compute_means(sycl::queue& q,
                                  const ndview<Float, 2>& data,
                                  const ndview<Float, 1>& sums,
                                  ndview<Float, 1>& means,
                                  const event_vector& deps) {
-    const std::int64_t column_count = data.get_dimension(1);
+    const auto column_count = data.get_dimension(1);
     const std::int64_t row_count = data.get_dimension(0);
 
     const Float inv_n = Float(1.0 / double(row_count));
@@ -100,9 +117,10 @@ inline sycl::event compute_means(sycl::queue& q,
     Float* means_ptr = means.get_mutable_data();
 
     return q.submit([&](sycl::handler& cgh) {
-        const auto range = ::oneapi::dal::backend::make_multiple_nd_range_1d(
-            column_count,
-            ::oneapi::dal::backend::device_max_wg_size(q));
+        const auto wg = propose_wg_size(q);
+        const auto bcount = (column_count / wg) + bool(column_count % wg);
+        const auto fcount = wg * bcount;
+        const auto range = make_multiple_nd_range_1d(fcount, wg);
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
@@ -137,17 +155,14 @@ inline sycl::event prepare_covariance(sycl::queue& q,
         const auto range = make_multiple_nd_range_1d(p, device_max_wg_size(q));
 
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-            const std::int64_t i = id.get_global_id();
-            if (i < p) {
-                const Float s = sums_ptr[i];
-                const Float m = inv_n * s * s;
-                const Float c = cov_ptr[i * p + i];
-                const Float v = c - m;
+        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            const Float s = sums_ptr[idx];
+            const Float m = inv_n * s * s;
+            const Float c = cov_ptr[idx * p + idx];
+            const Float v = c - m;
 
-                means_ptr[i] = inv_n * s;
-                vars_ptr[i] = inv_n1 * v;
-            }
+            means_ptr[idx] = inv_n * s;
+            vars_ptr[idx] = inv_n1 * v;
         });
     });
 }
@@ -270,7 +285,7 @@ sycl::event means(sycl::queue& q,
                   const ndview<Float, 1>& sums,
                   ndview<Float, 1>& means,
                   const event_vector& deps) {
-    //validate_input(q, data, sums, cov, means, vars, tmp);
+    validate_input_means(q, data, sums, means);
     auto finalize_event = compute_means(q, data, sums, means, deps);
 
     return finalize_event;
@@ -306,7 +321,7 @@ sycl::event correlation(sycl::queue& q,
                         ndview<Float, 1>& vars,
                         ndview<Float, 1>& tmp,
                         const event_vector& deps) {
-    validate_input(q, data, sums, corr, means, vars, tmp);
+    validate_input_cor(q, data, sums, corr, means, vars, tmp);
 
     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
 
