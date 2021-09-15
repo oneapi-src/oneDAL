@@ -334,6 +334,27 @@ sycl::event correlation(sycl::queue& q,
     return finalize_event;
 }
 
+template <typename Float>
+sycl::event correlation_with_covariance(sycl::queue& q,
+                                        const ndview<Float, 2>& data,
+                                        const ndview<Float, 1>& sums,
+                                        const ndview<Float, 2>& cov,
+                                        ndview<Float, 2>& corr,
+                                        ndview<Float, 1>& tmp,
+                                        const event_vector& deps) {
+    //validate_input_cor(q, data, sums, corr, means, vars, tmp);
+
+    auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
+
+    //auto prepare_event =
+    //prepare_correlation(q, data.get_dimension(0), sums, corr, means, vars, tmp, { gemm_event });
+
+    //auto finalize_event =
+    //finalize_correlation(q, data.get_dimension(0), sums, tmp, corr, { prepare_event });
+
+    return gemm_event;
+}
+
 #define INSTANTIATE_MEANS(F)                                         \
     template ONEDAL_EXPORT sycl::event means<F>(sycl::queue&,        \
                                                 const ndview<F, 2>&, \
@@ -368,5 +389,17 @@ INSTANTIATE_COV(double)
 
 INSTANTIATE_COR(float)
 INSTANTIATE_COR(double)
+
+#define INSTANTIATE_COR_WITH_COV(F)                                                        \
+    template ONEDAL_EXPORT sycl::event correlation_with_covariance<F>(sycl::queue&,        \
+                                                                      const ndview<F, 2>&, \
+                                                                      const ndview<F, 1>&, \
+                                                                      const ndview<F, 2>&, \
+                                                                      ndview<F, 2>&,       \
+                                                                      ndview<F, 1>&,       \
+                                                                      const event_vector&);
+
+INSTANTIATE_COR_WITH_COV(float)
+INSTANTIATE_COR_WITH_COV(double)
 
 } // namespace oneapi::dal::backend::primitives

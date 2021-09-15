@@ -77,6 +77,26 @@ sycl::event correlation(sycl::queue& queue,
                         ndview<Float, 1>& tmp,
                         const event_vector& deps = {});
 
+/// Computes correlation matrix and variances
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  data  The [n x p] input dataset
+/// @param[in]  sums  The [p] sums computed along each column of the data
+/// @param[out] corr  The [p x p] correlation matrix
+/// @param[out] means The [p] means for each feature
+/// @param[out] vars  The [p] variances for each feature
+/// @param[out] tmp   The [p] temporary buffer
+template <typename Float>
+sycl::event correlation_with_covariance(sycl::queue& queue,
+                                        const ndview<Float, 2>& data,
+                                        const ndview<Float, 1>& sums,
+                                        const ndview<Float, 2>& cov,
+                                        ndview<Float, 2>& corr,
+                                        ndview<Float, 1>& tmp,
+                                        const event_vector& deps = {});
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives
