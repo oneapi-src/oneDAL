@@ -109,7 +109,7 @@ inline sycl::event compute_means(sycl::queue& q,
                                  ndview<Float, 1>& means,
                                  const event_vector& deps) {
     const auto column_count = data.get_dimension(1);
-    const std::int64_t row_count = data.get_dimension(0);
+    const auto row_count = data.get_dimension(0);
 
     const Float inv_n = Float(1.0 / double(row_count));
 
@@ -141,8 +141,8 @@ inline sycl::event prepare_covariance(sycl::queue& q,
                                       ndview<Float, 1>& means,
                                       ndview<Float, 1>& vars,
                                       const event_vector& deps) {
-    const std::int64_t n = row_count;
-    const std::int64_t p = sums.get_count();
+    const auto n = row_count;
+    const auto p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
     const Float inv_n1 = (n > 1.0f) ? Float(1.0 / double(n - 1)) : 1.0f;
 
@@ -207,8 +207,8 @@ inline sycl::event prepare_correlation(sycl::queue& q,
                                        ndview<Float, 1>& vars,
                                        ndview<Float, 1>& tmp,
                                        const event_vector& deps) {
-    const std::int64_t n = row_count;
-    const std::int64_t p = sums.get_count();
+    const auto n = row_count;
+    const auto p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
     const Float inv_n1 = (n > 1.0f) ? Float(1.0 / double(n - 1)) : 1.0f;
 
@@ -250,8 +250,8 @@ inline sycl::event finalize_correlation(sycl::queue& q,
                                         const ndview<Float, 1>& tmp,
                                         ndview<Float, 2>& corr,
                                         const event_vector& deps) {
-    const std::int64_t n = row_count;
-    const std::int64_t p = sums.get_count();
+    const auto n = row_count;
+    const auto p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
 
     const Float* sums_ptr = sums.get_data();
