@@ -118,13 +118,13 @@ static compute_result<Task> compute(const context_gpu& ctx,
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         auto [cov, means, vars, cov_event] = compute_covariance(q, data_nd, sums, { sums_event });
         //is_mean_computed = true;
-
+        //cov_event.wait_and_throw();
         result.set_cov_matrix((homogen_table::wrap(cov.flatten(q), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
         auto [corr, means, vars, corr_event] =
             compute_correlation(q, data_nd, sums, { sums_event });
-
+        //corr_event.wait_and_throw();
         //is_mean_computed = true;
 
         result.set_cor_matrix((homogen_table::wrap(corr.flatten(q), column_count, column_count)));
@@ -132,6 +132,7 @@ static compute_result<Task> compute(const context_gpu& ctx,
     if (desc.get_result_options().test(result_options::means)) {
         //if (!is_mean_computed) {
         auto [means, means_event] = compute_means(q, data_nd, sums, { sums_event });
+        //means_event.wait_and_throw();
         //}
         result.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
     }

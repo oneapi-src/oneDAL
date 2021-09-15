@@ -58,6 +58,34 @@ inline void validate_input(const sycl::queue& q,
 }
 
 template <typename Float>
+inline void validate_input_cov(const sycl::queue& q,
+                               const ndview<Float, 2>& data,
+                               const ndview<Float, 1>& sums,
+                               const ndview<Float, 2>& cov,
+                               const ndview<Float, 1>& means,
+                               const ndview<Float, 1>& vars) {
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(cov.has_mutable_data());
+    ONEDAL_ASSERT(means.has_mutable_data());
+    ONEDAL_ASSERT(vars.has_mutable_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+    ONEDAL_ASSERT(cov.get_dimension(0) == data.get_dimension(1),
+                  "Dimensions of covariance matrix must match feature count");
+    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
+                  "Element count of sums must match feature count");
+    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
+                  "Element count of vars must match feature count");
+    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
+                  "Element count of means must match feature count");
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
+}
+
+template <typename Float>
 inline sycl::event compute_means(sycl::queue& q,
                                  const ndview<Float, 2>& data,
                                  const ndview<Float, 1>& sums,
@@ -256,7 +284,7 @@ sycl::event covariance(sycl::queue& q,
                        ndview<Float, 1>& means,
                        ndview<Float, 1>& vars,
                        const event_vector& deps) {
-    //validate_input(q, data, sums, cov, means, vars, tmp);
+    validate_input_cov(q, data, sums, cov, means, vars);
 
     auto gemm_event = gemm(q, data.t(), data, cov, Float(1), Float(0), deps);
 
