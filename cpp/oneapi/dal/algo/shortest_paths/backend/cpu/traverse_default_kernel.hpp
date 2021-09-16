@@ -19,8 +19,6 @@
 
 #include <atomic>
 
-#include <iostream>
-
 #include "oneapi/dal/algo/shortest_paths/common.hpp"
 #include "oneapi/dal/algo/shortest_paths/traverse_types.hpp"
 #include "oneapi/dal/backend/common.hpp"
@@ -30,8 +28,6 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/graph/detail/container.hpp"
-
-using namespace std;
 
 namespace oneapi::dal::preview::shortest_paths::backend {
 using namespace oneapi::dal::preview::detail;
