@@ -54,6 +54,7 @@ sycl::event covariance(sycl::queue& queue,
                        ndview<Float, 2>& cov,
                        const ndview<Float, 1>& means,
                        ndview<Float, 1>& vars,
+                       ndview<Float, 1>& tmp,
                        const event_vector& deps = {});
 
 /// Computes correlation matrix and variances

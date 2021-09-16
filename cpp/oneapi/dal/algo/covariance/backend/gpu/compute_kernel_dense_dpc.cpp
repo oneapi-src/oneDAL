@@ -73,10 +73,10 @@ auto compute_covariance(sycl::queue& q,
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
     //auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto cov_event = pr::covariance(q, data, sums, cov, means, vars, tmp, deps);
 
-    auto cov_event = pr::covariance(q, data, sums, cov, means, vars, deps);
-
-    return std::make_tuple(cov, vars, cov_event);
+    return std::make_tuple(cov, tmp, cov_event);
 }
 
 template <typename Float>
@@ -101,11 +101,33 @@ auto compute_correlation(sycl::queue& q,
     return std::make_tuple(corr, vars, smart_event);
 }
 
+template <typename Float>
+auto compute_correlation_with_covariance(sycl::queue& q,
+                                         const pr::ndview<Float, 2>& data,
+                                         const pr::ndview<Float, 2>& cov,
+                                         pr::ndview<Float, 1>& sums,
+                                         pr::ndview<Float, 1>& tmp,
+                                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+
+    const std::int64_t column_count = data.get_dimension(1);
+    auto corr =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+    //auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    //auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    //auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+
+    auto corr_event = pr::correlation_with_covariance(q, data, sums, cov, corr, tmp, deps);
+
+    return std::make_tuple(corr, corr_event);
+}
+
 template <typename Float, typename Task>
 static compute_result<Task> compute(const context_gpu& ctx,
                                     const descriptor_t& desc,
                                     const input_t& input) {
-    //bool is_mean_computed = false;
+    bool is_corr_computed = false;
     auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
     auto& q = ctx.get_queue();
     const auto data = input.get_data();
@@ -122,18 +144,23 @@ static compute_result<Task> compute(const context_gpu& ctx,
     auto [means, sums, means_event] = compute_means(q, data_nd);
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, vars, cov_event] = compute_covariance(q, data_nd, sums, means, { means_event });
+        auto [cov, tmp, cov_event] = compute_covariance(q, data_nd, sums, means, { means_event });
         //is_mean_computed = true;
         //cov_event.wait_and_throw();
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q, { cov_event }), column_count, column_count)));
+
+        if (desc.get_result_options().test(result_options::cor_matrix)) {
+            is_corr_computed = true;
+            auto [corr, corr_event] =
+                compute_correlation_with_covariance(q, data_nd, cov, sums, tmp, { cov_event });
+            result.set_cor_matrix(
+                (homogen_table::wrap(corr.flatten(q, { corr_event }), column_count, column_count)));
+        }
     }
-    if (desc.get_result_options().test(result_options::cor_matrix)) {
+    if (desc.get_result_options().test(result_options::cor_matrix) && !is_corr_computed) {
         auto [corr, vars, corr_event] =
             compute_correlation(q, data_nd, sums, means, { means_event });
-        //corr_event.wait_and_throw();
-        //is_mean_computed = true;
-
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q, { corr_event }), column_count, column_count)));
     }
