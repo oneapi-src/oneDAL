@@ -121,17 +121,28 @@ private:
 struct ResultData
 {
 public:
-    ResultData(const Parameter & par, NumericTable * _varImp, NumericTable * _oobError, NumericTable * _oobErrorPerObs)
+    ResultData(const Parameter & par, NumericTable * _varImp, NumericTable * _oobError, NumericTable * _oobErrorPerObs,
+               NumericTable * _oobErrorAccuracy, NumericTable * _oobErrorR2, NumericTable * _oobErrorDecisionFunction,
+               NumericTable * _oobErrorPrediction)
     {
         if (par.varImportance != decision_forest::training::none) varImp = _varImp;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagError) oobError = _oobError;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorAccuracy) oobErrorAccuracy = _oobErrorAccuracy;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorR2) oobErrorR2 = _oobErrorR2;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation) oobErrorPerObs = _oobErrorPerObs;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorDecisionFunction)
+            oobErrorDecisionFunction = _oobErrorDecisionFunction;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPrediction) oobErrorPrediction = _oobErrorPrediction;
     }
-    NumericTable * varImp         = nullptr; //if needed then allocated outside kernel
-    NumericTable * oobError       = nullptr; //if needed then allocated outside kernel
-    NumericTable * oobErrorPerObs = nullptr; //if needed then allocated outside kernel
-    NumericTablePtr oobIndices;              //if needed then allocated in kernel
-    engines::EnginePtr updatedEngine;        // engine updated after simulations
+    NumericTable * varImp                   = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobError                 = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorAccuracy         = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorR2               = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorPerObs           = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorDecisionFunction = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorPrediction       = nullptr; //if needed then allocated outside kernel
+    NumericTablePtr oobIndices;                        //if needed then allocated in kernel
+    engines::EnginePtr updatedEngine;                  // engine updated after simulations
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -445,15 +456,30 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     if (varImpBD.get()) mainCtx.finalizeVarImp(par.varImportance, nFeatures);
 
     //OOB error
-    if (par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation))
+    if (par.resultsToCompute
+        & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+           | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction))
     {
         WriteOnlyRows<algorithmFPType, cpu> oobErr(res.oobError, 0, 1);
         if (par.resultsToCompute & computeOutOfBagError) DAAL_CHECK_BLOCK_STATUS(oobErr);
 
+        WriteOnlyRows<algorithmFPType, cpu> oobErrAccuracy(res.oobErrorAccuracy, 0, 1);
+        if (par.resultsToCompute & computeOutOfBagErrorAccuracy) DAAL_CHECK_BLOCK_STATUS(oobErrAccuracy);
+
+        WriteOnlyRows<algorithmFPType, cpu> oobErrR2(res.oobErrorR2, 0, 1);
+        if (par.resultsToCompute & computeOutOfBagErrorR2) DAAL_CHECK_BLOCK_STATUS(oobErrR2);
+
         WriteOnlyRows<algorithmFPType, cpu> oobErrPerObs(res.oobErrorPerObs, 0, nRows);
         if (par.resultsToCompute & computeOutOfBagErrorPerObservation) DAAL_CHECK_BLOCK_STATUS(oobErrPerObs);
 
-        s = mainCtx.finalizeOOBError(y, oobErr.get(), oobErrPerObs.get());
+        WriteOnlyRows<algorithmFPType, cpu> oobErrDecisionFunction(res.oobErrorDecisionFunction, 0, nRows);
+        if (par.resultsToCompute & computeOutOfBagErrorDecisionFunction) DAAL_CHECK_BLOCK_STATUS(oobErrDecisionFunction);
+
+        WriteOnlyRows<algorithmFPType, cpu> oobErrPrediction(res.oobErrorPrediction, 0, nRows);
+        if (par.resultsToCompute & computeOutOfBagErrorPrediction) DAAL_CHECK_BLOCK_STATUS(oobErrPrediction);
+
+        s = mainCtx.finalizeOOBError(y, oobErr.get(), oobErrPerObs.get(), oobErrAccuracy.get(), oobErrR2.get(), oobErrDecisionFunction.get(),
+                                     oobErrPrediction.get());
     }
     return s;
 }
@@ -735,7 +761,11 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
         _threadCtx.nTrees++;
     }
 
-    if (s && ((_par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation)) || (_par.varImportance > MDI)))
+    if (s
+        && ((_par.resultsToCompute
+             & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+                | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction))
+            || (_par.varImportance > MDI)))
         s = computeResults(_tree);
     if (s) pTree = &_tree;
     return s;
@@ -1205,7 +1235,10 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     DAAL_CHECK_MALLOC(oobIndices.get());
     _helper.getOOBIndices(oobIndices.get());
     const bool bMDA(_par.varImportance == training::MDA_Raw || _par.varImportance == training::MDA_Scaled);
-    if (_par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation) || bMDA)
+    if (_par.resultsToCompute
+            & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+               | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction)
+        || bMDA)
     {
         const algorithmFPType oobError = computeOOBError(t, nOOB, oobIndices.get());
         if (bMDA)

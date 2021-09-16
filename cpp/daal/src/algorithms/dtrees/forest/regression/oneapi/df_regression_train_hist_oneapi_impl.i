@@ -656,7 +656,8 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute
 template <typename algorithmFPType>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finalizeOOBError(const algorithmFPType * y, const UniversalBuffer & oobBuf,
                                                                                            const size_t nRows, algorithmFPType * res,
-                                                                                           algorithmFPType * resPerObs)
+                                                                                           algorithmFPType * resPerObs, algorithmFPType * resR2,
+                                                                                           algorithmFPType * resPrediction)
 {
     services::Status status;
 
@@ -666,8 +667,15 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finali
     auto oobBufHost = oobBuf.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    size_t nPredicted    = 0;
-    algorithmFPType _res = algorithmFPType(0);
+    size_t nPredicted           = 0;
+    algorithmFPType _res        = algorithmFPType(0);
+    algorithmFPType yMean       = algorithmFPType(0);
+    algorithmFPType sumMeanDiff = algorithmFPType(0);
+
+    for (size_t i = 0; i < nRows; i++)
+    {
+        yMean += y[i];
+    }
 
     for (size_t i = 0; i < nRows; i++)
     {
@@ -681,12 +689,19 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finali
             if (resPerObs) resPerObs[i] = oobForObs;
             _res += oobForObs;
             nPredicted++;
+
+            if (resPrediction) resPrediction[i] = value;
+            sumMeanDiff += (y[i] - yMean) * (y[i] - yMean);
         }
-        else if (resPerObs)
-            resPerObs[i] = algorithmFPType(-1); //was not in OOB set of any tree and hence not predicted
+        else
+        {
+            if (resPerObs) resPerObs[i] = algorithmFPType(-1); //was not in OOB set of any tree and hence not predicted
+            if (resPrediction) resPrediction[i] = algorithmFPType(0);
+        }
     }
 
     if (res) *res = (0 < nPredicted) ? _res / algorithmFPType(nPredicted) : 0;
+    if (resR2) *resR2 = (0 < nPredicted) ? algorithmFPType(1) - _res / sumMeanDiff : 0;
 
     return status;
 }
@@ -1120,7 +1135,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     }
 
     /* Finalize results */
-    if (par.resultsToCompute & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation))
+    if (par.resultsToCompute
+        & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation
+           | decision_forest::training::computeOutOfBagErrorR2 | decision_forest::training::computeOutOfBagErrorPrediction))
     {
         BlockDescriptor<algorithmFPType> responseBlock;
         DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(y)->getBlockOfRows(0, _nRows, readOnly, responseBlock));
@@ -1130,13 +1147,23 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagError)
             DAAL_CHECK_STATUS_VAR(oobErrPtr->getBlockOfRows(0, 1, writeOnly, oobErrBlock));
 
+        NumericTablePtr oobErrR2Ptr = res.get(outOfBagErrorR2);
+        BlockDescriptor<algorithmFPType> oobErrR2Block;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorR2)
+            DAAL_CHECK_STATUS_VAR(oobErrR2Ptr->getBlockOfRows(0, 1, writeOnly, oobErrR2Block));
+
         NumericTablePtr oobErrPerObsPtr = res.get(outOfBagErrorPerObservation);
         BlockDescriptor<algorithmFPType> oobErrPerObsBlock;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
             DAAL_CHECK_STATUS_VAR(oobErrPerObsPtr->getBlockOfRows(0, _nRows, writeOnly, oobErrPerObsBlock));
 
-        DAAL_CHECK_STATUS_VAR(
-            finalizeOOBError(responseBlock.getBlockPtr(), oobBufferPerObs, _nRows, oobErrBlock.getBlockPtr(), oobErrPerObsBlock.getBlockPtr()));
+        NumericTablePtr oobErrPredictionPtr = res.get(outOfBagErrorPrediction);
+        BlockDescriptor<algorithmFPType> oobErrPredictionBlock;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPrediction)
+            DAAL_CHECK_STATUS_VAR(oobErrPredictionPtr->getBlockOfRows(0, _nRows, writeOnly, oobErrPredictionBlock));
+
+        DAAL_CHECK_STATUS_VAR(finalizeOOBError(responseBlock.getBlockPtr(), oobBufferPerObs, _nRows, oobErrBlock.getBlockPtr(),
+                                               oobErrPerObsBlock.getBlockPtr(), oobErrR2Block.getBlockPtr(), oobErrPredictionBlock.getBlockPtr()));
 
         if (oobErrPtr) DAAL_CHECK_STATUS_VAR(oobErrPtr->releaseBlockOfRows(oobErrBlock));
 
