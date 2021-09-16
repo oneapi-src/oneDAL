@@ -70,7 +70,7 @@ Prediction Stage
 The regression decision tree follows the algorithmic framework of
 decision tree prediction described in :ref:`decision_tree`.
 
-Given the regression decision tree and vectors :math:`x_1, \ldots, x_r`, 
+Given the regression decision tree and vectors :math:`x_1, \ldots, x_r`,
 the problem is to calculate the responses for those vectors.
 
 Batch Processing
@@ -85,10 +85,13 @@ Training
 At the training stage, decision tree regression has the following
 parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Decision Forest Regression (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -130,10 +133,13 @@ Prediction
 At the prediction stage, decision tree regression has the following
 parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Decision Forest Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -158,7 +164,7 @@ Examples
     - :cpp_example:`dt_reg_dense_batch.cpp <decision_tree/dt_reg_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

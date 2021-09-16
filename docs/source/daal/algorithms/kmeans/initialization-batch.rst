@@ -17,11 +17,6 @@
 Batch Processing
 ****************
 
-.. contents::
-    :local:
-    :depth: 1
-
-
 Input
 +++++
 
@@ -29,7 +24,9 @@ Centroid initialization for K-Means clustering accepts the input
 described below. Pass the ``Input ID`` as a parameter to the methods
 that provide input for your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for K-Means Initialization (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -49,11 +46,13 @@ The following table lists parameters of centroid initialization
 for K-Means clustering, which depend on the initialization method
 parameter method.
 
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
 
-.. list-table::
+.. list-table:: Algorithm Parameters for K-Means Initialization (Batch Processing)
    :widths: 10 10 10 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - method
@@ -125,7 +124,9 @@ Centroid initialization for K-Means clustering calculates the
 result described below. Pass the ``Result ID`` as a parameter to the
 methods that access the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for K-Means Initialization (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left

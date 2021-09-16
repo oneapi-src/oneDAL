@@ -26,9 +26,9 @@ LogitBoost within |short_name| implements a multi-class classifier.
 Details
 *******
 
-Given :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p` 
+Given :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p`
 and a vector of class labels :math:`y= (y_1, \ldots, y_n)`, where :math:`y_i \in K = \{0, \ldots, J-1\}`
-describes the class to which the feature vector :math:`x_i` belongs and :math:`J` is the number of classes, 
+describes the class to which the feature vector :math:`x_i` belongs and :math:`J` is the number of classes,
 the problem is to build a multi-class LogitBoost classifier.
 
 Training Stage
@@ -43,7 +43,7 @@ The scheme below, which uses the stump weak learner, shows the major steps of th
 #. For :math:`m = 1, \ldots, M`:
 
    Do
-   
+
      For :math:`j = 1, \ldots, J`
 
      Do
@@ -59,7 +59,7 @@ The scheme below, which uses the stump weak learner, shows the major steps of th
      #. Fit the function :math:`f_{mj}(x)` by a weighted least-squares regression of :math:`z_{ij}` to
         :math:`x_i` with weights :math:`w_{ij}` using the stump-based approach.
 
-     End do 
+     End do
 
      :math:`f_{mj}(x) = \frac {J-1}{J} (f_{mj}(x) - \frac{1}{J} \sum _{k=1}^{J} f_{mk}(x))`
 
@@ -90,10 +90,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the training stage, a LogitBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for LogitBoost Classifier (Batch Processing)
    :header-rows: 1
-   :widths: 10 20 30  
+   :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -141,10 +144,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the prediction stage, a LogitBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for LogitBoost Classifier (Batch Processing)
    :header-rows: 1
-   :widths: 10 20 30  
+   :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -184,7 +190,7 @@ Examples
     - :cpp_example:`logitboost_dense_batch.cpp <boosting/logitboost_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

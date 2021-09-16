@@ -131,13 +131,13 @@ Working subset of α updated on each iteration of the algorithm is
 based on the Working Set Selection (WSS) 3 scheme [Fan05]_.
 The scheme can be optimized using one of these techniques or both:
 
-      -  **Cache**:
-         the implementation can allocate a predefined amount of memory
-         to store intermediate results of the kernel computation.
+- **Cache**:
+  the implementation can allocate a predefined amount of memory
+  to store intermediate results of the kernel computation.
 
-      -  **Shrinking**:
-         the implementation can try to decrease the amount of kernel
-         related computations (see [Joachims99]_).
+- **Shrinking**:
+  the implementation can try to decrease the amount of kernel
+  related computations (see [Joachims99]_).
 
 The solution of the problem defines the separating hyperplane and
 corresponding decision function :math:`D(x)= \sum_{k} {y_k \alpha_k K(x_k, x)} + b`,

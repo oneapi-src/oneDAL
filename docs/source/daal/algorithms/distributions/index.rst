@@ -28,18 +28,20 @@ of memory according to the required CDF.
 
 .. toctree::
    :maxdepth: 1
-    
+
    uniform.rst
    normal.rst
    bernoulli.rst
 
 .. rubric:: Algorithm Input
 
-Distribution algorithms accept the input described below. 
-Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
+Distribution algorithms accept the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Distributions
    :widths: 10 60
    :header-rows: 1
 
@@ -57,9 +59,11 @@ For more details, see :ref:`algorithms`.
 
 Distribution algorithms have the following common parameter:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.10}|\Y{0.6}|\Y{0.3}|
+
+.. list-table:: Algorithm Parameters for Distributions
    :header-rows: 1
-   :widths: 10 30 30   
+   :widths: 10 30 30
    :align: left
 
    * - Parameter
@@ -71,19 +75,21 @@ Distribution algorithms have the following common parameter:
 
 .. rubric:: Algorithm Output
 
-Distribution algorithms calculate the result described below. 
+Distribution algorithms calculate the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Distributions
    :widths: 10 60
    :header-rows: 1
 
    * - Result ID
      - Result
    * - ``randomNumbers``
-     - Pointer to the :math:`n \times p` numeric table with algorithm results. 
-     
+     - Pointer to the :math:`n \times p` numeric table with algorithm results.
+
        In |short_name|, distribution algorithms are in-place,
        which means that the algorithm does not allocate memory for the distribution result,
        but returns pointer to the filled input.

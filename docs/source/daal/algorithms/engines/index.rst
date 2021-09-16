@@ -18,7 +18,7 @@ Engines
 =======
 
 Random number engines are used for uniformly distributed random numbers generation by using a seed - the initial
-value that allows to select a particular random number sequence. 
+value that allows to select a particular random number sequence.
 Initialization is an engine-specific procedure.
 
 .. rubric:: Algorithm Input
@@ -27,7 +27,9 @@ Engines accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Engines
    :widths: 10 60
    :header-rows: 1
 
@@ -38,7 +40,7 @@ For more details, see :ref:`algorithms`.
 
        This input can be an object of any class derived from ``NumericTable``
        except ``CSRNumericTable``, ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``,
-       and ``MergedNumericTable`` when it holds one of the above table types.  
+       and ``MergedNumericTable`` when it holds one of the above table types.
 
 .. rubric:: Algorithm Output
 
@@ -46,7 +48,9 @@ Engines calculate the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Engines
    :widths: 10 60
    :header-rows: 1
 
@@ -54,7 +58,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``randomNumbers``
      - Pointer to the :math:`n \times p` numeric table with generated random floating-point values of single or double precision.
-     
+
        In |short_name|, engines are in-place, which means that the algorithm does not allocate memory for the distribution result,
        but returns pointer to the filled input.
 
@@ -67,29 +71,38 @@ The following methods that support generation of sequences of random numbers in 
 Family
     Engines follow the same algorithmic scheme with different algorithmic parameters.
     The set of the parameters guarantee independence of random number sequences produced by the engines.
-    
+
     The example below demonstrates the idea for the case when 2 engines from the same family are used to generate 2 random sequences:
 
-    .. image:: images/englines-family-method-example.jpg
+    .. figure:: images/englines-family-method-example.jpg
         :width: 300
+        :alt: Generating two sequences independently with two engines
+
+        Family method of random sequence generation
 
 SkipAhead
     This method skips ``nskip`` elements of the original random sequence.
     This method allows to produce ``nThreads`` non-overlapping subsequences.
-    
+
     The example below demonstrates the idea for the case when 2 subsequences are used from the random sequence:
 
-    .. image:: images/englines-skipahead-method-example.jpg
+    .. figure:: images/englines-skipahead-method-example.jpg
         :width: 300
+        :alt: Generating a subsequence by skipping nSkip elements
+
+        SkipAhead method of random sequence generation
 
 LeapFrog
-    This method generates random numbers with a stride of ``nThreads``. 
+    This method generates random numbers with a stride of ``nThreads``.
     ``threadIdx`` is an index of the current thread.
-    
+
     The example below demonstrates the idea for the case when 2 subsequences are used from the random sequence:
 
-    .. image:: images/englines-leapfrog-method-example.jpg
+    .. figure:: images/englines-leapfrog-method-example.jpg
         :width: 300
+        :alt: Generating a subsequence with stride=2
+
+        LeapFrog method of random sequence generation
 
 These methods are represented with member functions of classes that represent functionality described in the Engines section. See API References for details.
 
@@ -97,7 +110,7 @@ These methods are represented with member functions of classes that represent fu
 
 .. toctree::
     :maxdepth: 1
-    
+
     mt19937.rst
     mcg59.rst
     mt2203.rst

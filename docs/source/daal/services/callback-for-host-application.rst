@@ -28,10 +28,13 @@ pointer to an instance of Algorithm class.
 
 Following methods of the Algorithm class are used:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Algorithm class methods
    :widths: 20 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Name
      - Description
@@ -43,7 +46,9 @@ Following methods of the Algorithm class are used:
 
 HostAppIface class includes following methods:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: HostAppIface class Methods
    :widths: 20 60
    :header-rows: 1
    :align: left
@@ -55,10 +60,10 @@ HostAppIface class includes following methods:
         Enables computation cancelling. The method is called by the
         owning algorithm when computation is in progress. If the method
         returns true then computation stops and returns
-        ErrorUserCancelled status. Since the method can be called from     
-        parallel threads when running with |short_name| threaded version, it is 
-        application responsibility to make its implementation thread-safe. It is not           
-        recommended for this method to throw exceptions.                 
+        ErrorUserCancelled status. Since the method can be called from
+        parallel threads when running with |short_name| threaded version, it is
+        application responsibility to make its implementation thread-safe. It is not
+        recommended for this method to throw exceptions.
 
 
 Currently HostAppIface is supported in C++ only, cancelling is

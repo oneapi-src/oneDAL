@@ -25,7 +25,7 @@ and algorithm-specific vector :math:`U` and power :math:`d` of `Lebesgue space <
 
 .. math::
     S_t = {G_t}
-    
+
     G_t = (G_{t, i})_{i = 1, \ldots, p}
 
     G_0 \equiv 0
@@ -36,8 +36,8 @@ and algorithm-specific vector :math:`U` and power :math:`d` of `Lebesgue space <
    where :math:`g_i(\theta_{t - 1})` is the :math:`i`-th coordinate of the gradient :math:`g(\theta_{t - 1})`
 
 #. :math:`\theta_t = \theta_{t - 1} - \frac {\eta}{\sqrt{G_t + \varepsilon}} g(\theta_{t - 1})`,
-   where 
-   
+   where
+
    .. math::
         \frac {\eta}{\sqrt{G_t + \varepsilon}} g(\theta_{t - 1}) =
         \{\frac {\eta}{\sqrt{G_{t, 1} + \varepsilon}} g_1(\theta_{t - 1}), \ldots, \frac {\eta}{\sqrt{G_{t, 1} + \varepsilon}} g_p(\theta_{t - 1})\}
@@ -56,7 +56,9 @@ Algorithm Input
 In addition to the :ref:`input of the iterative solver <iterative_solver_computation_input>`,
 the AdaGrad method accepts the following optional input:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Adaptive Subgradient Method Computaion
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -73,10 +75,13 @@ Algorithm Parameters
 In addition to :ref:`parameters of the iterative solver <iterative_solver_computation_parameters>`,
 the AdaGrad method has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for Adaptive Subgradient Method Computaion
    :header-rows: 1
    :align: left
    :widths: 10 10 30
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -90,13 +95,13 @@ the AdaGrad method has the following parameters:
    * - ``batchIndices``
      - ``NULL``
      - A numeric table of size :math:`\text{nIterations} \times \text{batchSize}` for the ``defaultDense`` method
-       that represents 32-bit integer indices of terms in the objective function. 
+       that represents 32-bit integer indices of terms in the objective function.
        If no indices are provided, the algorithm generates random indices.
    * - ``batchSize``
      - :math:`128`
-     - The number of batch indices to compute the stochastic gradient. 
-       
-       If ``batchSize`` equals the number of terms in the objective function, no random sampling is performed, 
+     - The number of batch indices to compute the stochastic gradient.
+
+       If ``batchSize`` equals the number of terms in the objective function, no random sampling is performed,
        and all terms are used to calculate the gradient.
 
        The algorithm ignores this parameter if the ``batchIndices`` parameter is provided.
@@ -120,7 +125,9 @@ Algorithm Output
 In addition to the :ref:`output of the iterative solver <iterative_solver_computation_output>`,
 the AdaGrad method calculates the following optional result:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Adaptive Subgradient Method Computaion
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -142,7 +149,7 @@ Examples
     - :cpp_example:`adagrad_opt_res_dense_batch.cpp <optimization_solvers/adagrad_opt_res_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`AdagradDenseBatch.java <optimization_solvers/AdagradDenseBatch.java>`

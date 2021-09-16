@@ -24,10 +24,6 @@ The Stochastic Average Gradient Accelerated (SAGA) [Defazio2014]_ follows
 
 The default method (``defaultDense``) of SAGA algorithm is a particular case of the iterative solver method with the batch size :math:`b = 1`.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Details
 *******
 
@@ -40,7 +36,7 @@ and power :math:`d` of `Lebesgue space <https://en.wikipedia.org/wiki/Lp_space>`
 
 .. math::
     G^t = (G_i^t)_{i = 1, \ldots, n}
-    
+
 .. math::
     G^0 \equiv (G_i^0)_{i = 1, \ldots, n} \equiv F_i'(\theta_0)_{i = 1, \ldots, n}
 
@@ -52,7 +48,7 @@ and power :math:`d` of `Lebesgue space <https://en.wikipedia.org/wiki/Lp_space>`
 :math:`T(\theta_{t-1}, F_j'(\theta_{t-1}), S_{t-1}, M(\theta_{t-1}))`:
 
 #. :math:`W_t = \theta_{t-1} - \eta_j \left[ F_j'(\theta_{t-1}) - G_j^{t-1} + \frac{1}{n} \sum_{i=1}^{n} G_i^{t-1}\right]`
-    
+
 #. :math:`\theta_t = \mathrm{prox}_{\eta}^{M} (W_t)`
 
 Update of the set of intrinsic parameters :math:`S_t`:
@@ -79,17 +75,15 @@ Computation
 The stochastic average gradient (SAGA) algorithm is a special case of an iterative solver.
 For parameters, input, and output of iterative solvers, see :ref:`Iterative Solver > Computation <iterative_solver>`.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Input
 ---------------
 
 In addition to the :ref:`input of the iterative solver <iterative_solver_computation_input>`,
 the SAGA optimization solver has the following optional input:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Input for Stochastic Average Gradient Accelerated Method Computaion
    :widths: 10 10 60
    :align: left
 
@@ -113,10 +107,13 @@ Algorithm Parameters
 
 In addition to parameters of the iterative solver, the SAGA optimization solver has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Stochastic Average Gradient Accelerated Method Computaion
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -156,7 +153,9 @@ Algorithm Output
 In addition to the :ref:`output of the iterative solver <iterative_solver_computation_output>`,
 the SAGA optimization solver calculates the following optional result:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Output for Stochastic Average Gradient Accelerated Method Computaion
    :widths: 10 10 60
    :align: left
 
@@ -183,7 +182,7 @@ Examples
     - :cpp_example:`saga_logistic_loss_dense_batch.cpp <optimization_solvers/saga_logistic_loss_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

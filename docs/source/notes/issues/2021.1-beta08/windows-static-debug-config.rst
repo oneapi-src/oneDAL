@@ -17,7 +17,7 @@
 Static debug configuration not working
 **************************************
 
-On Windows*, the static debug configuration of the library does not work. 
+On Windows*, the static debug configuration of the library does not work.
 An example of the error you will see:
 
 .. code-block:: text

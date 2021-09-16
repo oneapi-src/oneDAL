@@ -55,7 +55,7 @@ and power :math:`d` of `Lebesgue space <https://en.wikipedia.org/wiki/Lp_space>`
         \begin{cases}
             (\theta_{t-1})_j - \lambda \frac{1}{\eta}, & (\theta_{t-1})_j > \lambda \frac{1}{\eta}\\
             0, & |(\theta_{t-1})_j| \leq \lambda \frac{1}{\eta}\\
-            (\theta_{t-1})_j + \lambda \frac{1}{\eta}, & (\theta_{t-1})_j < -\lambda \frac{1}{\eta}    
+            (\theta_{t-1})_j + \lambda \frac{1}{\eta}, & (\theta_{t-1})_j < -\lambda \frac{1}{\eta}
         \end{cases}
 
 Convergence check is performed each :math:`p` iterations:
@@ -72,15 +72,18 @@ Computation
 Coordinate Descent algorithm is a special case of an iterative solver.
 For parameters, input, and output of iterative solvers, see :ref:`Iterative Solver > Computation <iterative_solver_computation>`.
 
-Algorithm parameters
+Algorithm Parameters
 --------------------
 
 In addition to the input of a iterative solver, Coordinate Descent algorithm accepts the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Coordinate Descent Computaion
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -102,7 +105,7 @@ In addition to the input of a iterative solver, Coordinate Descent algorithm acc
      - ``cyclic``
      - Value that specifies the strategy of certain coordinate selection on each iteration.
        Except for default ``cyclic`` value, Coordinate Descent also supports:
-       
+
        - ``random`` – on each iteration the index of coordinate is selected randomly by the engine.
    * - ``skipTheFirstComponents``
      - ``false``
@@ -118,7 +121,7 @@ Examples
     - :cpp_example:`cd_dense_batch.cpp <optimization_solvers/cd_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`CDDenseBatch.java <optimization_solvers/CDDenseBatch.java>`

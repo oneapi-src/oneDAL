@@ -14,9 +14,12 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for DBSCAN (Distributed Processing, Step 5)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
