@@ -34,11 +34,11 @@ where :math:`F(\theta)` is a smooth and :math:`M(\theta)` is a non-smooth functi
 - The Hessian of :math:`F(\theta)`:
 
   .. math::
-    H =  = \nabla^2 F(\theta) = 
+    H =  = \nabla^2 F(\theta) =
 	{\nabla }^{2}{F}_{i}=\left[\begin{array}{ccc}\frac{\partial {F}_{i}}
     {\partial {\theta }_{1}\partial {\theta }_{1}}& \cdots & \frac{\partial {F}_{i}}
-    {\partial {\theta }_{1}\partial {\theta }_{p}}\\ ⋮& \ddots & ⋮\\ 
-    \frac{\partial {F}_{i}}{\partial p\partial {\theta }_{1}}& \cdots & 
+    {\partial {\theta }_{1}\partial {\theta }_{p}}\\ ⋮& \ddots & ⋮\\
+    \frac{\partial {F}_{i}}{\partial p\partial {\theta }_{1}}& \cdots &
     \frac{\partial {F}_{i}}{\partial {\theta }_{p}\partial {\theta }_{p}}\end{array}\right]
 
 - The objective function specific projection of proximal operator (see [MSE, Log-Loss, Cross-Entropy] for details):
@@ -61,5 +61,5 @@ where :math:`F(\theta)` is a smooth and :math:`M(\theta)` is a non-smooth functi
    objective-functions/with-precomputed-characteristics.rst
    objective-functions/logistic-loss.rst
    objective-functions/cross-entropy.rst
-  
+
 .. note:: On GPU, only :ref:`logistic_loss` and :ref:`cross_entropy_loss` are supported, :ref:`mse` is not supported.

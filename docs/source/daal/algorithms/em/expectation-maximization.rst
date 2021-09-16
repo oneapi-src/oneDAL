@@ -112,30 +112,25 @@ for :math:`i = 1, \ldots, n` and :math:`j=1, \ldots, k`.
 
 #. Maximization step: in the :math:`j`-th step, for all :math:`r=1, \ldots, k` compute:
 
-	a.
-	   The mixture weights :math:`{\alpha }_{r}^{\left(j+1\right)}=\frac{{n}_{r}}{n}`, where :math:`{n}_{r}=\sum _{i=1}^{n}{w}_{ir}`
-	   is the "amount" of the feature vectors that are assigned
-	   to the :math:`r`-th mixture component
+   a.
+     The mixture weights :math:`{\alpha }_{r}^{\left(j+1\right)}=\frac{{n}_{r}}{n}`, where :math:`{n}_{r}=\sum _{i=1}^{n}{w}_{ir}`
+     is the "amount" of the feature vectors that are assigned
+     to the :math:`r`-th mixture component
 
-	b. Mean estimates :math:`{m}_{r}^{\left(j+1\right)}=\frac{1}{{n}_{r}}\sum _{i=1}^{n}{w}_{ir}{x}_{i}`
+   b. Mean estimates :math:`{m}_{r}^{\left(j+1\right)}=\frac{1}{{n}_{r}}\sum _{i=1}^{n}{w}_{ir}{x}_{i}`
+
+   c.
+     Covariance estimate :math:`\sum _{r}^{(j+1)}=({\sigma }_{r,hg}^{(j+1)})`
+     of size :math:`p \times p` with :math:`\sigma_{r,hg}^{(j+1)}=\frac{1}{n_r}\sum_{l=1}^{n}{w}_{lr}(x_{lh}-m_{r,h}^{(j+1)})(x_{lg}-m_{r,g}^{(j+1)})`
 
 
-	c.
-	   Covariance estimate :math:`\sum _{r}^{(j+1)}=({\sigma }_{r,hg}^{(j+1)})`
-	   of size :math:`p \times p` with :math:`\sigma_{r,hg}^{(j+1)}=\frac{1}{n_r}\sum_{l=1}^{n}{w}_{lr}(x_{lh}-m_{r,h}^{(j+1)})(x_{lg}-m_{r,g}^{(j+1)})`
+#. Repeat steps 2 and 3 until any of these conditions is met:
 
+   - :math:`|\log({\theta }^{(j+1)}-{\theta }^{(j)})|<\epsilon`, where the likelihood function is:
 
-#.
-
-  Repeat steps 2 and 3 until any of these conditions is met:
-
-   - :math:`|\log({\theta }^{(j+1)}-{\theta }^{(j)})|<\epsilon`, where the likelihood function is: 
-   
      :math:`\log(\theta)=\sum_{i=1}^{n}\log(\sum _{j=1}^{k}{pd(x}_{i}|{z}_{j},{\theta }_{j}){\alpha }_{j})`
 
-
    - The number of iterations exceeds the predefined level.
-
 
 Initialization
 ++++++++++++++
@@ -147,23 +142,15 @@ weights, vectors of means, and variance-covariance
 The EM initialization algorithm for GMM includes the following
 steps:
 
-#.
+#. Perform nTrials starts of the EM algorithm with nIterations
+   iterations and start values:
 
- Perform nTrials starts of the EM algorithm with nIterations
- iterations and start values:
+   - Initial means - :math:`k` different random observations from the input data set
+   - Initial weights - the values of :math:`1/k`
+   - Initial covariance matrices - the covariance of the input data
 
-	- Initial means - :math:`k` different random observations from the input data set
-
-	- Initial weights - the values of :math:`1/k`
-
-	- Initial covariance matrices - the covariance of the input data
-
-#.
-
- Regard the result of the best EM algorithm in terms of the
- likelihood function values as the result of initialization
-
-
+#. Regard the result of the best EM algorithm in terms of the
+   likelihood function values as the result of initialization
 
 Initialization
 ==============
@@ -183,7 +170,9 @@ The EM for GMM initialization algorithm accepts the input
 described below. Pass the ``Input ID`` as a parameter to the methods
 that provide input for your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Expectation-Maximization Initialization (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -200,10 +189,13 @@ Algorithm Parameters
 
 The EM for GMM initialization algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for Expectation-Maximization Initialization (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -246,10 +238,13 @@ Algorithm Output
 The EM for GMM initialization algorithm calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Expectation-Maximization Initialization (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
@@ -257,7 +252,7 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
      - Pointer to the :math:`1 \times k` numeric table with mixture weights.
 
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -265,9 +260,9 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
    * - ``means``
      - Pointer to the :math:`k \times p` numeric table with each row containing the estimate
        of the means for the :math:`i`-th mixture component, where :math:`i=0, 1, \ldots, k-1`.
-       
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -276,11 +271,11 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
        each with the :math:`p \times p` variance-covariance matrix for the :math:`i`-th mixture
        component of size:
 
-        + :math:`p \times p` - for the full covariance matrix storage scheme
-        + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
+       + :math:`p \times p` - for the full covariance matrix storage scheme
+       + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
 
        .. note::
-       
+
           By default, the collection contains objects of the ``HomogenNumericTable`` class,
           but you can define them as objects of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
@@ -297,10 +292,13 @@ Algorithm Input
 The EM for GMM algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Expectation-Maximization Computaion (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -318,8 +316,8 @@ Pass the ``Input ID`` as a parameter to the methods that provide input for your 
      - Pointer to the ``DataCollection`` object that contains :math:`k` numeric tables,
        each with the :math:`p \times p` variance-covariance matrix for the :math:`i`-th mixture component of size:
 
-        + :math:`p \times p` - for the full covariance matrix storage scheme
-        + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
+       + :math:`p \times p` - for the full covariance matrix storage scheme
+       + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
 
        The collection can contain objects of any class derived from NumericTable.
 
@@ -335,10 +333,13 @@ Algorithm Parameters
 
 The EM for GMM algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Algorithm Parameters for Expectation-Maximization Computaion (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -361,9 +362,9 @@ The EM for GMM algorithm has the following parameters:
    * - ``covariance``
      - Pointer to an object of the BatchIface class
      - Pointer to the algorithm that computes the covariance matrix.
-     
+
        .. note::
-          
+
           By default, the respective |product| algorithm is used,
           implemented in the class derived from ``BatchIface``.
    * - ``regularizationFactor``
@@ -373,11 +374,11 @@ The EM for GMM algorithm has the following parameters:
      - ``full``
      - Covariance matrix storage scheme in the Gaussian Mixture Model:
 
-        + ``full`` - covariance matrices are stored as numeric tables of size :math:`p \times p`.
-          All elements of the matrix are updated during the processing.
+       + ``full`` - covariance matrices are stored as numeric tables of size :math:`p \times p`.
+         All elements of the matrix are updated during the processing.
 
-        + ``diagonal`` - covariance matrices are stored as numeric tables of size :math:`1 \times p`.
-          Only diagonal elements of the matrix are updated during the processing, and the rest are assumed to be zero.
+       + ``diagonal`` - covariance matrices are stored as numeric tables of size :math:`1 \times p`.
+         Only diagonal elements of the matrix are updated during the processing, and the rest are assumed to be zero.
 
 
 Algorithm Output
@@ -387,18 +388,21 @@ The EM for GMM algorithm calculates the results described below. Pass
 the ``Result ID`` as a parameter to the methods that access the results
 of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Expectation-Maximization Computaion (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
    * - ``weights``
      - Pointer to the :math:`1 \times k` numeric table with mixture weights.
-     
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -407,7 +411,7 @@ of your algorithm.
        of the means for the :math:`i`-th mixture component, where :math:`i=0, 1, \ldots, k-1`.
 
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -416,8 +420,8 @@ of your algorithm.
      - Pointer to the DataCollection object that contains :math:`k` numeric tables,
        each with the :math:`p \times p` variance-covariance matrix for the :math:`i`-th mixture component of size:
 
-        + :math:`p \times p` - for the full covariance matrix storage scheme
-        + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
+       + :math:`p \times p` - for the full covariance matrix storage scheme
+       + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
 
 
        .. note::
@@ -429,7 +433,7 @@ of your algorithm.
    * - ``goalFunction``
      - Pointer to the :math:`1 \times 1` numeric table with the value of the logarithm of
        the likelihood function after the last iteration.
-       
+
        .. note:: By default, this result is an object of the ``HomogenNumericTable`` class.
    * - ``nIterations``
      - Pointer to the :math:`1 \times 1` numeric table with the number of iterations
@@ -449,7 +453,7 @@ Examples
     - :cpp_example:`em_gmm_dense_batch.cpp <em/em_gmm_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

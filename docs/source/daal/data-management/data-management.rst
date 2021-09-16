@@ -58,8 +58,9 @@ a set of Observations of size n. |short_name| defines a tabular view
 of a data set where table rows represent observations and columns
 represent features.
 
-.. image:: ./images/data-set.png
+.. figure:: ./images/data-set.png
   :width: 400
+  :alt: Dataset
 
 An observation corresponds to a particular measurement of an observed
 object, and therefore when measurements are done, at distinct moments

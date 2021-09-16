@@ -32,7 +32,7 @@ the problem is to compute :math:`z_{ik}` that meets the following conditions:
 
 .. math::
     P\{\xi_i > z_{ik} \} \leq 1 - \beta_k
-    
+
 In the equations above:
 
 - :math:`x_i = (x_{1i}, \ldots, x_{ni})` are observations of a random variable :math:`\xi_i` that represents the :math:`i`-th feature
@@ -50,7 +50,9 @@ The quantile algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Quantile (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -65,9 +67,12 @@ Algorithm Parameters
 
 The quantile algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Quantile (Batch Processing)
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -89,15 +94,17 @@ The quantile algorithm calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Quantile (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
    * - Result ID
      - Result
    * - ``quantiles``
-     - Pointer to the :math:`p \times m` numeric table with the quantiles. 
-     
+     - Pointer to the :math:`p \times m` numeric table with the quantiles.
+
        By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
        derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
@@ -113,7 +120,7 @@ Examples
     - :cpp_example:`quantiles_dense_batch.cpp <quantiles/quantiles_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

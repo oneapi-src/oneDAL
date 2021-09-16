@@ -35,9 +35,12 @@ For a description of the input and output, refer to :ref:`regression_usage_model
 
 At the training stage, a regression decision stump has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Regression Stump (Batch Processing)
    :widths: 20 20 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -59,9 +62,12 @@ For a description of the input and output, refer to :ref:`regression_usage_model
 
 At the prediction stage, a regression stump has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for Regression Stump (Batch Processing)
    :widths: 20 20 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -85,11 +91,11 @@ Examples
     :cpp_example:`stump_reg_mse_dense_batch.cpp <stump/stump_reg_mse_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
-    
+
     :java_example:`StumpRegMseDenseBatch.java <stump/StumpRegMseDenseBatch.java>`
 
   .. tab:: Python*

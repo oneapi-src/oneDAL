@@ -107,7 +107,7 @@ Examples
     - :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing
@@ -129,10 +129,13 @@ Training
 At the training stage, a multi-class classifier has the following
 parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.25}|\Y{0.3}|\Y{0.45}|
+
+.. list-table:: Training Parameters for  Multi-class Classifier (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -157,10 +160,13 @@ Prediction
 
 At the prediction stage, a multi-class classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
+
+.. list-table:: Prediction Parameters for  Multi-class Classifier (Batch Processing)
    :widths: 10 10 10 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Method
@@ -203,8 +209,8 @@ At the prediction stage, a multi-class classifier has the following parameters:
      - ``voteBased``
      - ``computeClassLabels``
      - The 64-bit integer flag that specifies which extra characteristics of the decision function to compute.
-       
-       Provide one of the following values to request a single characteristic 
+
+       Provide one of the following values to request a single characteristic
        or use bitwise OR to request a combination of the characteristics:
 
        - ``computeClassLabels`` for `prediction`
@@ -217,7 +223,9 @@ In addition to classifier output, multiclass classifier calculates the result de
 Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for  Multi-class Classifier (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -252,7 +260,7 @@ Examples
     -  :cpp_example:`svm_multi_class_thunder_dense_batch.cpp <svm/svm_multi_class_thunder_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

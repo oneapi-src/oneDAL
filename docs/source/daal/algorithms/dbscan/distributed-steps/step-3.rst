@@ -22,23 +22,26 @@ In this step, the DBSCAN algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for DBSCAN (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
    * - ``partialData``
      - Pointer to the collection of numeric tables with :math:`p` columns and arbitrary number of rows, containing observations to be clustered.
-    
+
        .. include:: ./../../includes/input_data_collection.rst
 
    * - ``step3PartialBoundingBoxes``
      - Pointer to the collection of the :math:`2 \times p` numeric tables containing bounding boxes computed on :ref:`step 2 <dbscan_step_2>` and collected from all nodes
        participating in current iteration of geometric repartitioning process.
-       
-       .. note:: 
-         
+
+       .. note::
+
          The numeric tables in collection can be an object of any class
          derived from ``NumericTable`` except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
@@ -49,7 +52,9 @@ In this step, the DBSCAN algorithms calculates the partial results described bel
 Pass the ``Partial Result ID`` as a parameter to the methods that access the partial result of your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for DBSCAN (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
 
@@ -57,5 +62,5 @@ For more details, :ref:`algorithms`.
      - Result
    * - ``split``
      - Pointer to the :math:`1 \times 2` numeric table containing information about split for current iteration of geometric repartitioning.
-       
+
        .. include:: ./../../includes/default_result_numeric_table.rst

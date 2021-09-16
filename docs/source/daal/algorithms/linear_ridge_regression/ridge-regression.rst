@@ -39,9 +39,9 @@ Let |x_vector| be a vector of input variables and
 :math:`y = (y_1, \ldots, y_k)` be the response. For each :math:`j=1, \ldots, k`,
 the ridge regression model has the form similar to the linear
 regression model [Hoerl70]_, except that the coefficients are estimated by minimizing a
-different objective function [James2013]_: 
+different objective function [James2013]_:
 
-.. math:: 
+.. math::
   y_j = \beta_{0j} + \beta_{1j}x_1 + \ldots + \beta_{pj}x_p
 
 Here :math:`x_i`, :math:`i=1, \ldots, p`, are referred to as independent
@@ -51,7 +51,7 @@ or responses.
 Training Stage
 ----------------
 
-Let :math:`(x_{11}, \ldots, x_{1p}, y_{11}, \ldots, y_{1k}), \ldots, (x_{n1}, \ldots, x_{np}, y_{n1}, \ldots, y_{nk})` 
+Let :math:`(x_{11}, \ldots, x_{1p}, y_{11}, \ldots, y_{1k}), \ldots, (x_{n1}, \ldots, x_{np}, y_{n1}, \ldots, y_{nk})`
 be a set of training data, :math:`n \gg p`. The matrix :math:`X` of size :math:`n \times p`
 contains observations :math:`x_ij`, :math:`i=1, \ldots, n`, :math:`j=1, \ldots, p`, of
 independent variables.
@@ -69,5 +69,5 @@ where :math:`λ_j \geq 0` are ridge parameters [Hoerl70]_, [James2013]_.
 Prediction Stage
 ----------------
 
-Ridge regression based prediction is done for input vector |x_vector| using the 
+Ridge regression based prediction is done for input vector |x_vector| using the
 equation :math:`y_j = \beta_{0j} + \beta_{1j}x_1 + \ldots + \beta_{pj}x_p` for each :math:`j=1, \ldots, k`.

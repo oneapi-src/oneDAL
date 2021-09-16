@@ -26,7 +26,7 @@ For a multi-class case, use :ref:`svm_multi_class` framework of the library.
 Details
 *******
 
-Given :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p` 
+Given :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p`
 and a vector of class labels :math:`y= (y_1, \ldots, y_n)`, where :math:`y_i \in K = \{-1, 1\}` describes the class
 to which the feature vector :math:`x_i` belongs, and a weak learner algorithm,
 the problem is to build a two-class BrownBoost classifier.
@@ -41,17 +41,17 @@ The model is trained using the Freund method [Freund01]_ as follows:
    - :math:`\mathrm{erfinv}(x)` is an inverse error function,
    - :math:`\varepsilon` is a target classification error of the algorithm defined as
      :math:`\frac {1}{n} \sum _{i=1}^{n} |p(x_i) - y_i|`
-   - :math:`p(x) = \text{erf} \left(\frac {\sum _{i=1}^{M} \alpha_i h_i(x)}{\sqrt{c}}\right)`     
+   - :math:`p(x) = \text{erf} \left(\frac {\sum _{i=1}^{M} \alpha_i h_i(x)}{\sqrt{c}}\right)`
    - :math:`\mathrm{erf}(x)` is the error function,
    - :math:`h_i(x)` is a hypothesis formulated by the :math:`i`-th weak learner, :math:`i = 1, \ldots, M`,
-   - :math:`\alpha_i` is the weight of the hypothesis. 
+   - :math:`\alpha_i` is the weight of the hypothesis.
 #. Set initial prediction values: :math:`r_1(x, y) = 0`.
 #. Set "remaining timing": :math:`s_1 = c`.
 #. Do for :math:`i=1, 2, \ldots` until :math:`s_{i+1} \leq 0`
 
    #. With each feature vector and its label of positive weight, associate :math:`W_i(x, y) = e^{\frac {-(r_i(x, y) + s_i)^2}{c}}`.
    #. Call the weak learner with the distribution defined by normalizing Lmath:`W_i(x, y)` to receive a hypothesis :math:`h_i(x)`.
-   #. Solve the differential equation 
+   #. Solve the differential equation
 
       .. math::
         \frac {dt}{d\alpha} = \gamma =
@@ -71,7 +71,7 @@ The result of the model training is the array of :math:`M` weak learners :math:`
 Prediction Stage
 ----------------
 
-Given the BrownBoost classifier and :math:`r` feature vectors :math:`x_1, \ldots, x_r`, 
+Given the BrownBoost classifier and :math:`r` feature vectors :math:`x_1, \ldots, x_r`,
 the problem is to calculate the final classification confidence, a number from the interval :math:`[-1, 1]`, using the rule:
 
 .. math::
@@ -89,10 +89,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the training stage, a BrownBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for BrownBoost Classifier (Batch Processing)
    :header-rows: 1
-   :widths: 10 20 30  
+   :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -143,10 +146,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the prediction stage, a BrownBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for BrownBoost Classifier (Batch Processing)
    :header-rows: 1
-   :widths: 10 20 30  
+   :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -183,7 +189,7 @@ Examples
     - :cpp_example:`brownboost_dense_batch.cpp <boosting/brownboost_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
