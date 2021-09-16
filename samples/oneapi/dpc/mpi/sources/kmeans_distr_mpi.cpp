@@ -102,7 +102,7 @@ int main(int argc, char const *argv[]) {
     dal::detail::mpi_communicator comm{ MPI_COMM_WORLD };
     dal::detail::data_parallel_policy local_policy{ q };
     dal::detail::spmd_policy spmd_policy{ local_policy, comm };
-    
+
     run(spmd_policy);
 
     status = MPI_Finalize();
