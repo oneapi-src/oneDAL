@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <array>
+#include <iostream>
 
 #include "oneapi/dal/algo/shortest_paths/traverse.hpp"
 #include "oneapi/dal/graph/detail/directed_adjacency_vector_graph_builder.hpp"
@@ -22,6 +23,8 @@
 #include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
+
+using namespace std;
 
 namespace oneapi::dal::algo::shortest_paths::test {
 
@@ -696,6 +699,17 @@ public:
         }
         for (size_t index = 0; index < true_distances.size(); ++index) {
             if (!compare_distances(true_distances[index], distances[index])) {
+                cout << "dists: " << endl;
+                for (auto u : distances) {
+                    cout << u << " ";
+                }
+                cout << endl;
+                cout << "true dists: " << endl;
+                for (auto u : true_distances) {
+                    cout << u << " ";
+                }
+                cout << endl;
+                cout << index << " " << true_distances[index] << " " << distances[index];
                 return false;
             }
         }
@@ -709,9 +723,11 @@ public:
                             int64_t source) {
         EdgeValueType unreachable_distance = std::numeric_limits<EdgeValueType>::max();
         if (predecessors.size() != distances.size()) {
+            cout << "HERE";
             return false;
         }
         if (distances[source] != 0) {
+            cout << "HERE2";
             return false;
         }
         for (size_t index = 0; index < predecessors.size(); ++index) {
@@ -723,6 +739,7 @@ public:
                 if (!compare_distances(distances[predecessor] +
                                            oneapi::dal::preview::get_edge_value(graph, from, to),
                                        distances[index])) {
+                    cout << "HERE3";
                     return false;
                 }
             }
