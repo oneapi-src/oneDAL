@@ -24,85 +24,6 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-inline void validate_input_cor(const sycl::queue& q,
-                               const ndview<Float, 2>& data,
-                               const ndview<Float, 1>& sums,
-                               const ndview<Float, 2>& corr,
-                               const ndview<Float, 1>& means,
-                               const ndview<Float, 1>& vars,
-                               const ndview<Float, 1>& tmp) {
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(vars.has_mutable_data());
-    ONEDAL_ASSERT(tmp.has_mutable_data());
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
-                  "Correlation matrix must be square");
-    ONEDAL_ASSERT(corr.get_dimension(0) == data.get_dimension(1),
-                  "Dimensions of correlation matrix must match feature count");
-    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
-                  "Element count of sums must match feature count");
-    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
-                  "Element count of vars must match feature count");
-    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
-                  "Element count of means must match feature count");
-    ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
-                  "Element count of temporary buffer must match feature count");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
-}
-
-template <typename Float>
-inline void validate_input_cov(const sycl::queue& q,
-                               const ndview<Float, 2>& data,
-                               const ndview<Float, 1>& sums,
-                               const ndview<Float, 2>& cov,
-                               const ndview<Float, 1>& means,
-                               const ndview<Float, 1>& vars) {
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(cov.has_mutable_data());
-    ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(vars.has_mutable_data());
-    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-    ONEDAL_ASSERT(cov.get_dimension(0) == data.get_dimension(1),
-                  "Dimensions of covariance matrix must match feature count");
-    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
-                  "Element count of sums must match feature count");
-    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
-                  "Element count of vars must match feature count");
-    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
-                  "Element count of means must match feature count");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
-}
-
-template <typename Float>
-inline void validate_input_means(const sycl::queue& q,
-                                 const ndview<Float, 2>& data,
-                                 const ndview<Float, 1>& sums,
-                                 const ndview<Float, 1>& means) {
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
-                  "Element count of sums must match feature count");
-    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
-                  "Element count of means must match feature count");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-}
-
-template <typename Float>
 inline sycl::event compute_means(sycl::queue& q,
                                  const ndview<Float, 2>& data,
                                  const ndview<Float, 1>& sums,
@@ -132,42 +53,6 @@ inline sycl::event compute_means(sycl::queue& q,
         });
     });
 }
-
-// template <typename Float>
-// inline sycl::event prepare_covariance(sycl::queue& q,
-//                                       std::int64_t row_count,
-//                                       const ndview<Float, 1>& sums,
-//                                       const ndview<Float, 2>& cov,
-//                                       const ndview<Float, 1>& means,
-//                                       ndview<Float, 1>& vars,
-//                                       const event_vector& deps) {
-//     const auto n = row_count;
-//     const auto p = sums.get_count();
-//     const Float inv_n = Float(1.0 / double(n));
-//     const Float inv_n1 = (n > 1.0f) ? Float(1.0 / double(n - 1)) : 1.0f;
-
-//     const Float* sums_ptr = sums.get_data();
-//     const Float* cov_ptr = cov.get_mutable_data();
-//     Float* means_ptr = means.get_mutable_data();
-//     Float* vars_ptr = vars.get_mutable_data();
-//     Float* tmp_ptr = tmp.get_mutable_data();
-
-//     return q.submit([&](sycl::handler& cgh) {
-//         const auto range = make_multiple_nd_range_1d(p, device_max_wg_size(q));
-
-//         cgh.depends_on(deps);
-//         cgh.parallel_for(range, [=](sycl::id<1> idx) {
-//             const Float s = sums_ptr[idx];
-//             const Float m = inv_n * s * s;
-//             const Float c = cov_ptr[idx * p + idx];
-//             const Float v = c - m;
-
-//             means_ptr[idx] = inv_n * s;
-//             vars_ptr[idx] = inv_n1 * v;
-//             tmp_ptr[i] = v + eps * Float(v < eps);
-//         });
-//     });
-// }
 
 template <typename Float>
 inline sycl::event finalize_covariance(sycl::queue& q,
@@ -248,16 +133,13 @@ inline sycl::event prepare_correlation(sycl::queue& q,
 template <typename Float>
 inline sycl::event finalize_correlation_with_covariance(sycl::queue& q,
                                                         std::int64_t row_count,
-                                                        const ndview<Float, 1>& sums,
                                                         const ndview<Float, 2>& cov,
                                                         const ndview<Float, 1>& tmp,
                                                         ndview<Float, 2>& corr,
                                                         const event_vector& deps) {
     const auto n = row_count;
-    const auto p = sums.get_count();
-    //const Float inv_n = Float(1.0 / double(n));
+    const auto p = cov.get_dimension(1);
     const Float inv_n1 = (n > 1.0f) ? Float(1.0 / double(n - 1)) : 1.0f;
-    //const Float* sums_ptr = sums.get_data();
     const Float* tmp_ptr = tmp.get_mutable_data();
     Float* corr_ptr = corr.get_mutable_data();
     Float* cov_ptr = cov.get_mutable_data();
@@ -275,7 +157,6 @@ inline sycl::event finalize_correlation_with_covariance(sycl::queue& q,
 
                 Float c = cov_ptr[gi];
                 c = c / inv_n1;
-                //c -= inv_n * sums_ptr[i] * sums_ptr[j];
                 c *= sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
                 corr_ptr[gi] = c * (Float(1.0) - is_diag) + is_diag;
             }
@@ -325,7 +206,17 @@ sycl::event means(sycl::queue& q,
                   const ndview<Float, 1>& sums,
                   ndview<Float, 1>& means,
                   const event_vector& deps) {
-    validate_input_means(q, data, sums, means);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(means.has_mutable_data());
+    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
+                  "Element count of sums must match feature count");
+    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
+                  "Element count of means must match feature count");
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+
     auto finalize_event = compute_means(q, data, sums, means, deps);
 
     return finalize_event;
@@ -340,7 +231,29 @@ sycl::event covariance(sycl::queue& q,
                        ndview<Float, 1>& vars,
                        ndview<Float, 1>& tmp,
                        const event_vector& deps) {
-    validate_input_cor(q, data, sums, cov, means, vars, tmp);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(cov.has_mutable_data());
+    ONEDAL_ASSERT(means.has_mutable_data());
+    ONEDAL_ASSERT(vars.has_mutable_data());
+    ONEDAL_ASSERT(tmp.has_mutable_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+    ONEDAL_ASSERT(cov.get_dimension(0) == data.get_dimension(1),
+                  "Dimensions of covariance matrix must match feature count");
+    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
+                  "Element count of sums must match feature count");
+    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
+                  "Element count of vars must match feature count");
+    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
+                  "Element count of means must match feature count");
+    ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
+                  "Element count of temporary buffer must match feature count");
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
     auto gemm_event = gemm(q, data.t(), data, cov, Float(1), Float(0), deps);
 
@@ -362,7 +275,30 @@ sycl::event correlation(sycl::queue& q,
                         ndview<Float, 1>& vars,
                         ndview<Float, 1>& tmp,
                         const event_vector& deps) {
-    validate_input_cor(q, data, sums, corr, means, vars, tmp);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(corr.has_mutable_data());
+    ONEDAL_ASSERT(means.has_mutable_data());
+    ONEDAL_ASSERT(vars.has_mutable_data());
+    ONEDAL_ASSERT(tmp.has_mutable_data());
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
+                  "Correlation matrix must be square");
+    ONEDAL_ASSERT(corr.get_dimension(0) == data.get_dimension(1),
+                  "Dimensions of correlation matrix must match feature count");
+    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
+                  "Element count of sums must match feature count");
+    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
+                  "Element count of vars must match feature count");
+    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
+                  "Element count of means must match feature count");
+    ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
+                  "Element count of temporary buffer must match feature count");
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
 
@@ -378,20 +314,30 @@ sycl::event correlation(sycl::queue& q,
 template <typename Float>
 sycl::event correlation_with_covariance(sycl::queue& q,
                                         const ndview<Float, 2>& data,
-                                        const ndview<Float, 1>& sums,
                                         const ndview<Float, 2>& cov,
                                         ndview<Float, 2>& corr,
                                         ndview<Float, 1>& tmp,
                                         const event_vector& deps) {
-    //validate_input_cor(q, data, sums, corr, means, vars, tmp);
-
-    //auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-
-    //auto prepare_event =
-    //prepare_correlation(q, data.get_dimension(0), sums, corr, means, vars, tmp, { gemm_event });
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(cov.has_mutable_data());
+    ONEDAL_ASSERT(corr.has_mutable_data());
+    ONEDAL_ASSERT(tmp.has_mutable_data());
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
+                  "Correlation matrix must be square");
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+    ONEDAL_ASSERT(corr.get_dimension(0) == data.get_dimension(1),
+                  "Dimensions of correlation matrix must match feature count");
+    ONEDAL_ASSERT(cov.get_dimension(0) == data.get_dimension(1),
+                  "Dimensions of covariance matrix must match feature count");
+    ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
+                  "Element count of temporary buffer must match feature count");
+    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
     auto finalize_event =
-        finalize_correlation_with_covariance(q, data.get_dimension(0), sums, cov, tmp, corr, deps);
+        finalize_correlation_with_covariance(q, data.get_dimension(0), cov, tmp, corr, deps);
 
     return finalize_event;
 }
@@ -435,7 +381,6 @@ INSTANTIATE_COR(double)
 #define INSTANTIATE_COR_WITH_COV(F)                                                        \
     template ONEDAL_EXPORT sycl::event correlation_with_covariance<F>(sycl::queue&,        \
                                                                       const ndview<F, 2>&, \
-                                                                      const ndview<F, 1>&, \
                                                                       const ndview<F, 2>&, \
                                                                       ndview<F, 2>&,       \
                                                                       ndview<F, 1>&,       \

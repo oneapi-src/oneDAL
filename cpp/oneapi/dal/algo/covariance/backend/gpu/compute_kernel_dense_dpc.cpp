@@ -32,23 +32,12 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-// template <typename Float>
-// auto compute_sums(sycl::queue& q,
-//                   const pr::ndview<Float, 2>& data,
-//                   const dal::backend::event_vector& deps = {}) {
-//     ONEDAL_ASSERT(data.has_data());
-//     const std::int64_t column_count = data.get_dimension(1);
-//     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-//     auto reduce_event =
-//         pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-//     return std::make_tuple(sums, reduce_event);
-// }
-
 template <typename Float>
 auto compute_means(sycl::queue& q,
                    const pr::ndview<Float, 2>& data,
                    const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
+
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
@@ -67,11 +56,11 @@ auto compute_covariance(sycl::queue& q,
                         const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+    ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
 
     const std::int64_t column_count = data.get_dimension(1);
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    //auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto cov_event = pr::covariance(q, data, sums, cov, means, vars, tmp, deps);
@@ -87,38 +76,33 @@ auto compute_correlation(sycl::queue& q,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+    ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
 
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    //auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
     auto corr_event = pr::correlation(q, data, sums, corr, means, vars, tmp, deps);
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
-    return std::make_tuple(corr, vars, smart_event);
+    return std::make_tuple(corr, smart_event);
 }
 
 template <typename Float>
 auto compute_correlation_with_covariance(sycl::queue& q,
                                          const pr::ndview<Float, 2>& data,
                                          const pr::ndview<Float, 2>& cov,
-                                         pr::ndview<Float, 1>& sums,
                                          pr::ndview<Float, 1>& tmp,
                                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
 
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    //auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    //auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    //auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
-    auto corr_event = pr::correlation_with_covariance(q, data, sums, cov, corr, tmp, deps);
+    auto corr_event = pr::correlation_with_covariance(q, data, cov, corr, tmp, deps);
 
     return std::make_tuple(corr, corr_event);
 }
@@ -145,30 +129,27 @@ static compute_result<Task> compute(const context_gpu& ctx,
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         auto [cov, tmp, cov_event] = compute_covariance(q, data_nd, sums, means, { means_event });
-        //is_mean_computed = true;
-        //cov_event.wait_and_throw();
+
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q, { cov_event }), column_count, column_count)));
 
         if (desc.get_result_options().test(result_options::cor_matrix)) {
             is_corr_computed = true;
+
             auto [corr, corr_event] =
-                compute_correlation_with_covariance(q, data_nd, cov, sums, tmp, { cov_event });
+                compute_correlation_with_covariance(q, data_nd, cov, tmp, { cov_event });
+
             result.set_cor_matrix(
                 (homogen_table::wrap(corr.flatten(q, { corr_event }), column_count, column_count)));
         }
     }
     if (desc.get_result_options().test(result_options::cor_matrix) && !is_corr_computed) {
-        auto [corr, vars, corr_event] =
-            compute_correlation(q, data_nd, sums, means, { means_event });
+        auto [corr, corr_event] = compute_correlation(q, data_nd, sums, means, { means_event });
+
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q, { corr_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::means)) {
-        //if (!is_mean_computed) {
-        //auto [means, means_event] = compute_means(q, data_nd, sums, { sums_event });
-        //means_event.wait_and_throw();
-        //}
         result.set_means(homogen_table::wrap(means.flatten(q, { means_event }), 1, column_count));
     }
     return result;
