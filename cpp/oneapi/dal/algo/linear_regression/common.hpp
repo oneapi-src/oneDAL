@@ -52,21 +52,6 @@ using v1::by_default;
 
 } // namespace method
 
-/// Represents result option flag
-/// Behaves like a regular :expr`enum`.
-class result_option_id : public result_option_id_base {
-public:
-    constexpr result_option_id() = default;
-    constexpr explicit result_option_id(const result_option_id_base& base)
-            : result_option_id_base{ base } {}
-};
-
-/// Result options are used to define
-/// what should algorithm return
-namespace result_options {
-
-} // namespace result_options
-
 namespace detail {
 namespace v1 {
 
@@ -94,8 +79,6 @@ class descriptor_base : public base {
 
 public:
     descriptor_base();
-
-    result_option_id get_result_options() const;
 
     bool get_compute_intercept();
 
@@ -153,7 +136,7 @@ public:
     }
 
     /// Creates a new instance of the class with default parameters
-    explicit descriptor() : descriptor(true) {}
+    explicit descriptor() : base_t(true) {}
 
     /// Defines should intercept be taken into consideration.
     bool get_compute_intercept() const {
@@ -162,16 +145,6 @@ public:
 
     auto& get_compute_intercept(bool compute_intercept) const {
         base_t::set_compute_intercept(compute_intercept);
-        return *this;
-    }
-
-    /// Choose which results should be computed and returned.
-    result_option_id get_result_options() const {
-        return base_t::get_result_options();
-    }
-
-    auto& set_result_options(const result_option_id& value) {
-        base_t::set_result_options_impl(value);
         return *this;
     }
 };

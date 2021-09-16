@@ -14,129 +14,29 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/knn/common.hpp"
-#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+#include "oneapi/dal/algo/linear_regression/common.hpp"
+#include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-namespace oneapi::dal::knn {
+namespace oneapi::dal::linear_regression {
 
 namespace detail {
-
-result_option_id get_responses_id() {
-    return result_option_id{ result_option_id::make_by_index(0) };
-}
-
-result_option_id get_indices_id() {
-    return result_option_id{ result_option_id::make_by_index(1) };
-}
-
-result_option_id get_distances_id() {
-    return result_option_id{ result_option_id::make_by_index(2) };
-}
-
-template <typename Task>
-result_option_id get_default_result_options() {
-    return result_option_id{};
-}
-
-template <>
-result_option_id get_default_result_options<task::search>() {
-    return get_indices_id() | get_distances_id();
-}
-
-template <>
-result_option_id get_default_result_options<task::classification>() {
-    return get_responses_id();
-}
 
 namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
-    explicit descriptor_impl(const detail::distance_ptr& distance) : distance(distance) {}
+    explicit descriptor_impl() = default;
 
-    std::int64_t class_count = 2;
-    std::int64_t neighbor_count = 1;
-    voting_mode voting_mode_value = voting_mode::uniform;
-    detail::distance_ptr distance;
-    result_option_id result_options = get_default_result_options<Task>();
+    bool compute_intercept = false;
 };
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base()
-        : impl_(new descriptor_impl<Task>{ std::make_shared<
-              detail::distance<oneapi::dal::minkowski_distance::descriptor<float_t>>>(
-              oneapi::dal::minkowski_distance::descriptor<float_t>(2.0)) }) {}
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
-template <typename Task>
-descriptor_base<Task>::descriptor_base(const detail::distance_ptr& distance)
-        : impl_(new descriptor_impl<Task>{ distance }) {}
 
-template <typename Task>
-std::int64_t descriptor_base<Task>::get_class_count() const {
-    return impl_->class_count;
-}
 
-template <typename Task>
-void descriptor_base<Task>::set_class_count_impl(std::int64_t value) {
-    if (value < 2) {
-        throw domain_error(dal::detail::error_messages::class_count_leq_one());
-    }
-    impl_->class_count = value;
-}
-
-template <typename Task>
-std::int64_t descriptor_base<Task>::get_neighbor_count() const {
-    return impl_->neighbor_count;
-}
-
-template <typename Task>
-void descriptor_base<Task>::set_neighbor_count_impl(std::int64_t value) {
-    if (value < 1) {
-        throw domain_error(dal::detail::error_messages::neighbor_count_lt_one());
-    }
-    impl_->neighbor_count = value;
-}
-
-template <typename Task>
-voting_mode descriptor_base<Task>::get_voting_mode() const {
-    return impl_->voting_mode_value;
-}
-
-template <typename Task>
-void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
-    impl_->voting_mode_value = value;
-}
-
-template <typename Task>
-const detail::distance_ptr& descriptor_base<Task>::get_distance_impl() const {
-    return impl_->distance;
-}
-
-template <typename Task>
-void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distance) {
-    impl_->distance = distance;
-}
-
-template <typename Task>
-result_option_id descriptor_base<Task>::get_result_options() const {
-    return impl_->result_options;
-}
-
-template <typename Task>
-void descriptor_base<Task>::set_result_options_impl(const result_option_id& value) {
-    using msg = dal::detail::error_messages;
-    if (!bool(value)) {
-        throw domain_error(msg::empty_set_of_result_options());
-    }
-    else if (std::is_same_v<Task, task::search> && value.test(result_options::responses)) {
-        throw domain_error(msg::invalid_set_of_result_options_to_search());
-    }
-    impl_->result_options = value;
-}
-
-template class ONEDAL_EXPORT descriptor_base<task::classification>;
-template class ONEDAL_EXPORT descriptor_base<task::search>;
+template class ONEDAL_EXPORT descriptor_base<task::regression>;
 
 } // namespace v1
 } // namespace detail
@@ -166,4 +66,4 @@ template class ONEDAL_EXPORT model<task::regression>;
 ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::classification>)
 
 } // namespace v1
-} // namespace oneapi::dal::knn
+} // namespace oneapi::dal::linear_regression
