@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,13 +14,21 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Introduction
-************
+.. _api_directed_adjacency_vector_graph:
 
-.. toctree::
-   :maxdepth: 1
+===============================
+Directed adjacency vector graph
+===============================
 
-   get-started.rst
-   build_app/build-application.rst
-   glossary.rst
-   notations.rst
+Refer to :ref:`Developer Guide: Directed adjacency vector graph
+<directed_adjacency_vector_graph>`.
+
+---------------------
+Programming interface
+---------------------
+
+All types and functions in this section are declared in the
+``oneapi::dal::preview`` namespace and are available via inclusion of the
+``oneapi/dal/graph/directed_adjacency_vector_graph.hpp`` header file. 
+
+.. onedal_class:: oneapi::dal::preview::directed_adjacency_vector_graph
