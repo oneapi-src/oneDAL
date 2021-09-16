@@ -363,7 +363,8 @@ inline T load_atomic(const std::atomic<AtomicT>& a) {
 template <>
 inline double load_atomic(const std::atomic<std::int64_t>& a) {
     std::int64_t a_int = a.load();
-    return *reinterpret_cast<double*>(&a_int);
+    std::int64_t* a_int_ptr = &a_int;
+    return *reinterpret_cast<double*>(a_int_ptr);
 }
 
 template <typename T, typename AtomicT>
@@ -385,8 +386,10 @@ template <>
 inline bool compare_exchange_strong_atomic(std::atomic<std::int64_t>& a,
                                            double old_value,
                                            double new_value) {
-    std::int64_t old_value_int_representation = *reinterpret_cast<std::int64_t*>(&old_value);
-    std::int64_t new_value_int_representation = *reinterpret_cast<std::int64_t*>(&new_value);
+    double* old_value_ptr = &old_value;
+    double* new_value_ptr = &new_value;
+    std::int64_t old_value_int_representation = *reinterpret_cast<std::int64_t*>(old_value_ptr);
+    std::int64_t new_value_int_representation = *reinterpret_cast<std::int64_t*>(new_value_ptr);
     return a.compare_exchange_strong(old_value_int_representation, new_value_int_representation);
 }
 
