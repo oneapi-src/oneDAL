@@ -94,42 +94,6 @@ inline void relax_edges_thr(const Topology& t,
     }
 }
 
-template <typename EV, typename VT>
-struct dist_pred {
-    dist_pred(const EV& dist_, const VT& pred_) : dist(dist_), pred(pred_) {}
-    EV dist = 0;
-    VT pred = 0;
-};
-
-template <class T1, class T2>
-bool operator==(const dist_pred<T1, T2>& lhs, const dist_pred<T1, T2>& rhs) {
-    return lhs.dist == rhs.dist && lhs.pred == rhs.pred;
-}
-
-template <class T1, class T2>
-bool operator!=(const dist_pred<T1, T2>& lhs, const dist_pred<T1, T2>& rhs) {
-    return !(lhs == rhs);
-}
-
-template <typename Topology, typename EdgeValue, typename DP, typename BinsVector>
-inline void relax_edges_with_pred_seq(const Topology& t,
-                                      const EdgeValue* vals,
-                                      typename Topology::vertex_type u,
-                                      EdgeValue delta,
-                                      DP* dp,
-                                      BinsVector& local_bins) {
-    for (std::int64_t v_ = t._rows_ptr[u]; v_ < t._rows_ptr[u + 1]; v_++) {
-        const auto v = t._cols_ptr[v_];
-        const auto v_w = vals[v_];
-        auto old_dp = dp[v];
-        const EdgeValue new_dist = dp[u].dist + v_w;
-        if (new_dist < old_dp.dist) {
-            dp[v] = dist_pred(new_dist, u);
-            update_bins(v, new_dist, delta, local_bins);
-        }
-    }
-}
-
 template <typename BinsVector>
 inline void find_next_bin_index_seq(std::int64_t& curr_bin_index, const BinsVector& local_bins) {
     const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
@@ -210,108 +174,103 @@ struct delta_stepping {
         const dal::preview::detail::topology<std::int32_t>& t,
         const EdgeValue* vals,
         byte_alloc_iface* alloc_ptr) {
-        {
-            using value_type = EdgeValue;
-            using vertex_type = std::int32_t;
-            using value_allocator_type = inner_alloc<value_type>;
-            using vertex_allocator_type = inner_alloc<vertex_type>;
+        using value_type = EdgeValue;
+        using vertex_type = std::int32_t;
+        using value_allocator_type = inner_alloc<value_type>;
+        using vertex_allocator_type = inner_alloc<vertex_type>;
 
-            using atomic_value_allocator_type = inner_alloc<std::atomic<value_type>>;
+        using atomic_value_allocator_type = inner_alloc<std::atomic<value_type>>;
 
-            vertex_allocator_type vertex_allocator(alloc_ptr);
-            value_allocator_type value_allocator(alloc_ptr);
-            atomic_value_allocator_type atomic_value_allocator(alloc_ptr);
+        vertex_allocator_type vertex_allocator(alloc_ptr);
+        value_allocator_type value_allocator(alloc_ptr);
+        atomic_value_allocator_type atomic_value_allocator(alloc_ptr);
 
-            const auto source = dal::detail::integral_cast<std::int32_t>(desc.get_source());
-            const value_type delta = desc.get_delta();
+        const auto source = dal::detail::integral_cast<std::int32_t>(desc.get_source());
+        const value_type delta = desc.get_delta();
 
-            const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
-            const std::int64_t max_elements_in_bin = 1000;
-            const auto vertex_count = t.get_vertex_count();
-            const value_type max_dist = std::numeric_limits<value_type>::max();
+        const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
+        const std::int64_t max_elements_in_bin = 1000;
+        const auto vertex_count = t.get_vertex_count();
+        const value_type max_dist = std::numeric_limits<value_type>::max();
 
-            std::atomic<value_type>* dist = allocate(atomic_value_allocator, vertex_count);
-            dist = new (dist) std::atomic<value_type>[vertex_count]();
-            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-                dist[i] = max_dist;
-            });
-            dist[source].store(0);
+        std::atomic<value_type>* dist = allocate(atomic_value_allocator, vertex_count);
+        dist = new (dist) std::atomic<value_type>[vertex_count]();
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+            dist[i] = max_dist;
+        });
+        dist[source].store(0);
 
-            vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
-                                                                            vertex_allocator);
+        vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
+                                                                        vertex_allocator);
 
-            shared_bin[0] = source;
-            std::int64_t curr_bin_index = 0;
-            std::int64_t vertex_count_in_shared_bin = 1;
-            std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
+        shared_bin[0] = source;
+        std::int64_t curr_bin_index = 0;
+        std::int64_t vertex_count_in_shared_bin = 1;
+        std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
 
-            using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
-            using v1a_t = inner_alloc<v1v_t>;
-            using v2v_t = vector_container<v1v_t, v1a_t>;
-            using v2a_t = inner_alloc<v2v_t>;
-            using v3v_t = vector_container<v2v_t, v2a_t>;
-            v2a_t v2a(alloc_ptr);
-            v3v_t local_bins(thread_cnt, v2a);
-            local_bins[0].reserve(t.get_vertex_degree(source));
+        using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
+        using v1a_t = inner_alloc<v1v_t>;
+        using v2v_t = vector_container<v1v_t, v1a_t>;
+        using v2a_t = inner_alloc<v2v_t>;
+        using v3v_t = vector_container<v2v_t, v2a_t>;
+        v2a_t v2a(alloc_ptr);
+        v3v_t local_bins(thread_cnt, v2a);
+        local_bins[0].reserve(t.get_vertex_degree(source));
 
-            vertex_type* local_processing_bins =
-                allocate(vertex_allocator, max_elements_in_bin * thread_cnt);
+        vertex_type* local_processing_bins =
+            allocate(vertex_allocator, max_elements_in_bin * thread_cnt);
 
-            while (curr_bin_index != max_bin_count) {
-                dal::detail::threader_for(
-                    vertex_count_in_shared_bin,
-                    vertex_count_in_shared_bin,
-                    [&](std::int64_t i) {
-                        vertex_type u = shared_bin[i];
-                        if (dist[u].load() >= delta * static_cast<value_type>(curr_bin_index)) {
-                            relax_edges_thr(
-                                t,
-                                vals,
-                                u,
-                                delta,
-                                dist,
-                                local_bins[dal::detail::threader_get_current_thread_index()]);
-                        }
-                    });
-
-                dal::detail::threader_for(thread_cnt, thread_cnt, [&](std::int64_t i) {
-                    const std::int64_t thread_id = dal::detail::threader_get_current_thread_index();
-                    auto& local_bin = local_bins[thread_id];
-                    while (curr_bin_index < local_bin.size() &&
-                           !local_bin[curr_bin_index].empty() &&
-                           local_bin[curr_bin_index].size() < max_elements_in_bin) {
-                        auto copy_begin = local_processing_bins + max_elements_in_bin * thread_id;
-                        copy(local_bin[curr_bin_index].begin(),
-                             local_bin[curr_bin_index].end(),
-                             copy_begin);
-                        const std::int64_t copy_count = local_bin[curr_bin_index].size();
-                        local_bin[curr_bin_index].resize(0);
-                        for (std::int64_t j = 0; j < copy_count; ++j) {
-                            relax_edges_thr(t, vals, copy_begin[j], delta, dist, local_bin);
-                        }
+        while (curr_bin_index != max_bin_count) {
+            dal::detail::threader_for(
+                vertex_count_in_shared_bin,
+                vertex_count_in_shared_bin,
+                [&](std::int64_t i) {
+                    vertex_type u = shared_bin[i];
+                    if (dist[u].load() >= delta * static_cast<value_type>(curr_bin_index)) {
+                        relax_edges_thr(
+                            t,
+                            vals,
+                            u,
+                            delta,
+                            dist,
+                            local_bins[dal::detail::threader_get_current_thread_index()]);
                     }
                 });
 
-                find_next_bin_index_thr(curr_bin_index, local_bins);
-
-                vertex_count_in_shared_bin =
-                    reduce_to_common_bin_thr(curr_bin_index, local_bins, shared_bin);
-            }
-
-            deallocate(vertex_allocator, local_processing_bins, max_elements_in_bin * thread_cnt);
-
-            auto dist_arr = array<value_type>::empty(vertex_count);
-            value_type* dist_ = dist_arr.get_mutable_data();
-            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-                dist_[i] = dist[i].load();
+            dal::detail::threader_for(thread_cnt, thread_cnt, [&](std::int64_t i) {
+                const std::int64_t thread_id = dal::detail::threader_get_current_thread_index();
+                auto& local_bin = local_bins[thread_id];
+                while (curr_bin_index < local_bin.size() && !local_bin[curr_bin_index].empty() &&
+                       local_bin[curr_bin_index].size() < max_elements_in_bin) {
+                    auto copy_begin = local_processing_bins + max_elements_in_bin * thread_id;
+                    copy(local_bin[curr_bin_index].begin(),
+                         local_bin[curr_bin_index].end(),
+                         copy_begin);
+                    const std::int64_t copy_count = local_bin[curr_bin_index].size();
+                    local_bin[curr_bin_index].resize(0);
+                    for (std::int64_t j = 0; j < copy_count; ++j) {
+                        relax_edges_thr(t, vals, copy_begin[j], delta, dist, local_bin);
+                    }
+                }
             });
 
-            deallocate(atomic_value_allocator, dist, vertex_count);
-            return traverse_result<task::one_to_all>().set_distances(
-                dal::detail::homogen_table_builder{}
-                    .reset(dist_arr, t.get_vertex_count(), 1)
-                    .build());
+            find_next_bin_index_thr(curr_bin_index, local_bins);
+
+            vertex_count_in_shared_bin =
+                reduce_to_common_bin_thr(curr_bin_index, local_bins, shared_bin);
         }
+
+        deallocate(vertex_allocator, local_processing_bins, max_elements_in_bin * thread_cnt);
+
+        auto dist_arr = array<value_type>::empty(vertex_count);
+        value_type* dist_ = dist_arr.get_mutable_data();
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+            dist_[i] = dist[i].load();
+        });
+
+        deallocate(atomic_value_allocator, dist, vertex_count);
+        return traverse_result<task::one_to_all>().set_distances(
+            dal::detail::homogen_table_builder{}.reset(dist_arr, t.get_vertex_count(), 1).build());
     }
 };
 
@@ -400,6 +359,63 @@ struct delta_stepping_sequential {
     }
 };
 
+template <typename T, typename AtomicT>
+inline T load_atomic(const std::atomic<AtomicT>& a) {
+    return a.load();
+}
+
+template <>
+inline double load_atomic(const std::atomic<std::int64_t>& a) {
+    std::int64_t a_int = a.load();
+    return *reinterpret_cast<double*>(&a_int);
+}
+
+template <typename T, typename AtomicT>
+inline void store_atomic(std::atomic<AtomicT>& a, const T& value) {
+    a.store(value);
+}
+
+template <>
+inline void store_atomic(std::atomic<std::int64_t>& a, const double& value) {
+    a.store(*reinterpret_cast<const std::int64_t*>(&value));
+}
+
+template <typename T, typename AtomicT>
+inline bool compare_exchange_strong_atomic(std::atomic<AtomicT>& a, T old_value, T new_value) {
+    return a.compare_exchange_strong(old_value, new_value);
+}
+
+template <>
+inline bool compare_exchange_strong_atomic(std::atomic<std::int64_t>& a,
+                                           double old_value,
+                                           double new_value) {
+    std::int64_t old_value_int_representation = *reinterpret_cast<std::int64_t*>(&old_value);
+    std::int64_t new_value_int_representation = *reinterpret_cast<std::int64_t*>(&new_value);
+    return a.compare_exchange_strong(old_value_int_representation, new_value_int_representation);
+}
+
+template <typename Topology, typename BinsVector>
+inline void relax_edges_thr_double(const Topology& t,
+                                   const double* vals,
+                                   typename Topology::vertex_type u,
+                                   double delta,
+                                   std::atomic<std::int64_t>* dist,
+                                   BinsVector& local_bins) {
+    for (std::int64_t v_ = t._rows_ptr[u]; v_ < t._rows_ptr[u + 1]; v_++) {
+        const auto v = t._cols_ptr[v_];
+        const auto v_w = vals[v_];
+        double old_dist = load_atomic<double>(dist[v]);
+        const double new_dist = load_atomic<double>(dist[u]) + v_w;
+        while (new_dist < old_dist) {
+            if (compare_exchange_strong_atomic<double>(dist[v], old_dist, new_dist)) {
+                update_bins(v, new_dist, delta, local_bins);
+                break;
+            }
+            old_dist = load_atomic<double>(dist[v]);
+        }
+    }
+}
+
 template <typename Cpu>
 struct delta_stepping<Cpu, double> {
     traverse_result<task::one_to_all> operator()(
@@ -407,7 +423,110 @@ struct delta_stepping<Cpu, double> {
         const dal::preview::detail::topology<std::int32_t>& t,
         const double* vals,
         byte_alloc_iface* alloc_ptr) {
-        return delta_stepping_sequential<Cpu, double>()(desc, t, vals, alloc_ptr);
+        //return delta_stepping_sequential<Cpu, double>()(desc, t, vals, alloc_ptr);
+        using value_type = double;
+        using vertex_type = std::int32_t;
+        using value_allocator_type = inner_alloc<std::int64_t>;
+        using vertex_allocator_type = inner_alloc<vertex_type>;
+
+        using atomic_value_allocator_type = inner_alloc<std::atomic<std::int64_t>>;
+
+        vertex_allocator_type vertex_allocator(alloc_ptr);
+        value_allocator_type value_allocator(alloc_ptr);
+        atomic_value_allocator_type atomic_value_allocator(alloc_ptr);
+
+        const auto source = dal::detail::integral_cast<std::int32_t>(desc.get_source());
+        const value_type delta = desc.get_delta();
+
+        const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
+        const std::int64_t max_elements_in_bin = 1000;
+        const auto vertex_count = t.get_vertex_count();
+        const value_type max_dist = std::numeric_limits<value_type>::max();
+
+        std::atomic<std::int64_t>* dist = allocate(atomic_value_allocator, vertex_count);
+        dist = new (dist) std::atomic<std::int64_t>[vertex_count]();
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+            store_atomic<value_type>(
+                dist[i],
+                max_dist); //dist[i] = *reinterpret_cast<const std::int64_t*>(&max_dist);
+        });
+
+        //const value_type zero_dist = 0;
+        store_atomic<value_type>(dist[source], 0);
+        //dist[source] = *reinterpret_cast<const std::int64_t*>(&zero_dist);
+
+        vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
+                                                                        vertex_allocator);
+
+        shared_bin[0] = source;
+        std::int64_t curr_bin_index = 0;
+        std::int64_t vertex_count_in_shared_bin = 1;
+        std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
+
+        using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
+        using v1a_t = inner_alloc<v1v_t>;
+        using v2v_t = vector_container<v1v_t, v1a_t>;
+        using v2a_t = inner_alloc<v2v_t>;
+        using v3v_t = vector_container<v2v_t, v2a_t>;
+        v2a_t v2a(alloc_ptr);
+        v3v_t local_bins(thread_cnt, v2a);
+        local_bins[0].reserve(t.get_vertex_degree(source));
+
+        vertex_type* local_processing_bins =
+            allocate(vertex_allocator, max_elements_in_bin * thread_cnt);
+
+        while (curr_bin_index != max_bin_count) {
+            dal::detail::threader_for(
+                vertex_count_in_shared_bin,
+                vertex_count_in_shared_bin,
+                [&](std::int64_t i) {
+                    vertex_type u = shared_bin[i];
+                    if (load_atomic<value_type>(dist[u]) >=
+                        delta * static_cast<value_type>(curr_bin_index)) {
+                        relax_edges_thr_double(
+                            t,
+                            vals,
+                            u,
+                            delta,
+                            dist,
+                            local_bins[dal::detail::threader_get_current_thread_index()]);
+                    }
+                });
+
+            dal::detail::threader_for(thread_cnt, thread_cnt, [&](std::int64_t i) {
+                const std::int64_t thread_id = dal::detail::threader_get_current_thread_index();
+                auto& local_bin = local_bins[thread_id];
+                while (curr_bin_index < local_bin.size() && !local_bin[curr_bin_index].empty() &&
+                       local_bin[curr_bin_index].size() < max_elements_in_bin) {
+                    auto copy_begin = local_processing_bins + max_elements_in_bin * thread_id;
+                    copy(local_bin[curr_bin_index].begin(),
+                         local_bin[curr_bin_index].end(),
+                         copy_begin);
+                    const std::int64_t copy_count = local_bin[curr_bin_index].size();
+                    local_bin[curr_bin_index].resize(0);
+                    for (std::int64_t j = 0; j < copy_count; ++j) {
+                        relax_edges_thr_double(t, vals, copy_begin[j], delta, dist, local_bin);
+                    }
+                }
+            });
+
+            find_next_bin_index_thr(curr_bin_index, local_bins);
+
+            vertex_count_in_shared_bin =
+                reduce_to_common_bin_thr(curr_bin_index, local_bins, shared_bin);
+        }
+
+        deallocate(vertex_allocator, local_processing_bins, max_elements_in_bin * thread_cnt);
+
+        auto dist_arr = array<value_type>::empty(vertex_count);
+        value_type* dist_ = dist_arr.get_mutable_data();
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+            dist_[i] = load_atomic<value_type>(dist[i]);
+        });
+
+        deallocate(atomic_value_allocator, dist, vertex_count);
+        return traverse_result<task::one_to_all>().set_distances(
+            dal::detail::homogen_table_builder{}.reset(dist_arr, t.get_vertex_count(), 1).build());
     }
 };
 
@@ -419,6 +538,42 @@ struct delta_stepping<dal::backend::cpu_dispatch_sse2, std::int32_t> {
         const std::int32_t* vals,
         byte_alloc_iface* alloc_ptr);
 };
+
+template <typename EV, typename VT>
+struct dist_pred {
+    dist_pred(const EV& dist_, const VT& pred_) : dist(dist_), pred(pred_) {}
+    EV dist = 0;
+    VT pred = 0;
+};
+
+template <class T1, class T2>
+bool operator==(const dist_pred<T1, T2>& lhs, const dist_pred<T1, T2>& rhs) {
+    return lhs.dist == rhs.dist && lhs.pred == rhs.pred;
+}
+
+template <class T1, class T2>
+bool operator!=(const dist_pred<T1, T2>& lhs, const dist_pred<T1, T2>& rhs) {
+    return !(lhs == rhs);
+}
+
+template <typename Topology, typename EdgeValue, typename DP, typename BinsVector>
+inline void relax_edges_with_pred_seq(const Topology& t,
+                                      const EdgeValue* vals,
+                                      typename Topology::vertex_type u,
+                                      EdgeValue delta,
+                                      DP* dp,
+                                      BinsVector& local_bins) {
+    for (std::int64_t v_ = t._rows_ptr[u]; v_ < t._rows_ptr[u + 1]; v_++) {
+        const auto v = t._cols_ptr[v_];
+        const auto v_w = vals[v_];
+        auto old_dp = dp[v];
+        const EdgeValue new_dist = dp[u].dist + v_w;
+        if (new_dist < old_dp.dist) {
+            dp[v] = dist_pred(new_dist, u);
+            update_bins(v, new_dist, delta, local_bins);
+        }
+    }
+}
 
 template <typename Cpu, typename EdgeValue>
 struct delta_stepping_with_pred_sequential {
