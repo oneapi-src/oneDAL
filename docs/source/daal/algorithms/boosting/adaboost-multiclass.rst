@@ -28,10 +28,10 @@ Details
 *******
 
 Given :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots x_n = (x_{n1}, \ldots, x_{np})`
-of size :math:`p`, a vector of class labels :math:`y = (y_1, \ldots, y_n)` 
+of size :math:`p`, a vector of class labels :math:`y = (y_1, \ldots, y_n)`
 where :math:`y_i \in K = \{-1, 1\}` in case of binary classification and
 :math:`y_i \in K = \{ 0, \ldots, C-1 \}`, where :math:`C` is a number of classes,
-describes the class :math:`t` the feature vector :math:`x_i` belongs to, 
+describes the class :math:`t` the feature vector :math:`x_i` belongs to,
 and :math:`h_t` is a weak learner algorithm, the problem is to build an AdaBoost classifier.
 
 Training Stage
@@ -65,10 +65,10 @@ Training Stage
 
         #. Initialize weights :math:`D_1(i) = \frac{1}{n}` for :math:`i = 1, \ldots, n`
         #. For :math:`t = 1, \ldots, T`:
-        
+
            - Train the weak learner :math:`h_t(i)` using weights :math:`D_t`.
            - Receive the weighed class probability estimates from weak learner:
-            
+
              .. math::
                 p_k^t(x) = \mathrm{Prob}_w \{ c = k | x\},
                 k = 0, \ldots, C-1
@@ -89,7 +89,7 @@ Training Stage
              :math:`z_{ik} = \begin{cases}
              1, & k = y_i \\ - \frac{1}{K-1}, & k \neq y_i \end{cases}`
 
-        #. Output the final hypothesis:         
+        #. Output the final hypothesis:
 
            .. math::
                 H(x) = \underset{k} {\mathrm{argmax}} \sum_{t=1}^{T} s_k^t(x)
@@ -128,10 +128,13 @@ Training
 For a description of the input and output, refer to :ref:`classification_usage_model`.
 At the training stage, an AdaBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for AdaBoost Multiclass Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -172,11 +175,13 @@ At the training stage, an AdaBoost classifier has the following parameters:
 Output
 ------
 
-In addition to classifier output, AdaBoostcalculates the result described below.
+In addition to classifier output, AdaBoost calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for AdaBoost Multiclass Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -186,7 +191,7 @@ For more details, see :ref:`algorithms`.
    * - ``weakLearnersErrors``
      - A numeric table :math:`1 \times \mathrm{maxIterations}` containing weak learner's classification errors
        computed when the ``computeWeakLearnersErrors`` option is on.
-       
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define the result as an object of any class derived from ``NumericTable``.
@@ -197,10 +202,13 @@ Prediction
 For a description of the input and output, refer to :ref:`classification_usage_model`.
 At the prediction stage, an AdaBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for AdaBoost Multiclass Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -234,7 +242,7 @@ Examples
     - :cpp_example:`adaboost_sammer_multi_class_batch.cpp <boosting/adaboost_sammer_multi_class_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

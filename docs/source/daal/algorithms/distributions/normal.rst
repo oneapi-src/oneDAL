@@ -39,10 +39,13 @@ Batch Processing
 
 Normal distribution algorithm has the following parameters in addition to the common parameters specified in :ref:`distributions`:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Normal Distribution (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

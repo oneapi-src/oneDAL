@@ -22,9 +22,9 @@ Min-max normalization is an algorithm to linearly scale the observations by each
 Problem Statement
 *****************
 
-Given a set :math:`X` of :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` 
+Given a set :math:`X` of :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`
 of dimension :math:`p`, the problem is to compute the matrix :math:`Y = (y_{ij})_{n \times p}` where the :math:`j`-th column
-:math:`(Y)_j = (y_{ij})_{i = 1, \ldots, n}` is obtained as a result of normalizing the column 
+:math:`(Y)_j = (y_{ij})_{i = 1, \ldots, n}` is obtained as a result of normalizing the column
 :math:`(X)_j = (x_{ij})_{i = 1, \ldots, n}`  of the original matrix as:
 
 .. math::
@@ -35,7 +35,7 @@ where:
 
 .. math::
     \min(j) = \min _{i = 1, \ldots, n} x_{ij},
-    
+
 .. math::
     \max(j) = \max _{i = 1, \ldots, n} x_{ij},
 
@@ -48,18 +48,20 @@ Algorithm Input
 ---------------
 
 The min-max normalization algorithm accepts the input described below.
-Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Min-max (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the numeric table of size :math:`n \times p`. 
-     
+     - Pointer to the numeric table of size :math:`n \times p`.
+
        .. note:: This table can be an object of any class derived from ``NumericTable``.
 
 Algorithm Parameters
@@ -67,10 +69,13 @@ Algorithm Parameters
 
 The min-max normalization algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Min-max (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -100,7 +105,9 @@ The min-max normalization algorithm calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see ``Algorithms``.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Min-max (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -108,10 +115,10 @@ For more details, see ``Algorithms``.
      - Result
    * - ``normalizedData``
      - Pointer to the :math:`n \times p` numeric table that stores the result of normalization.
-     
+
        .. note::
-       
-          By default, the result is an object of the ``HomogenNumericTable`` class, 
+
+          By default, the result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
@@ -127,7 +134,7 @@ Examples
     - :cpp_example:`minmax_dense_batch.cpp <normalization/minmax_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

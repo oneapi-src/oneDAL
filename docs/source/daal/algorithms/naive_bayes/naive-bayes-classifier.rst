@@ -50,9 +50,9 @@ Training Stage
 
 The Training stage involves calculation of these parameters:
 
-- :math:`\mathrm{log}\left({\theta }_{jk}\right)=\mathrm{log}\left(\frac{{N}_{jk}+{\alpha }_{k}}{{N}_{j}+\alpha }\right)`, where 
-  :math:`N_{jk}` is the number of occurrences of the feature :math:`k` in the class :math:`j`, 
-  :math:`N_j` is the total number of occurrences of all features in the class, 
+- :math:`\mathrm{log}\left({\theta }_{jk}\right)=\mathrm{log}\left(\frac{{N}_{jk}+{\alpha }_{k}}{{N}_{j}+\alpha }\right)`, where
+  :math:`N_{jk}` is the number of occurrences of the feature :math:`k` in the class :math:`j`,
+  :math:`N_j` is the total number of occurrences of all features in the class,
   the :math:`\alpha_k`the parameter is the imagined number of occurrences of the feature :math:`k`
   (for example, :math:`\alpha_k = 1`), and :math:`\alpha` is the sum of all :math:`\alpha_k`.
 
@@ -73,7 +73,7 @@ The following computation modes are available:
 
 .. toctree::
    :maxdepth: 1
-   
+
    computation-batch.rst
    computation-online.rst
    computation-distributed.rst
@@ -90,7 +90,7 @@ Examples
       -  :cpp_example:`mn_naive_bayes_dense_batch.cpp <naive_bayes/mn_naive_bayes_dense_batch.cpp>`
       -  :cpp_example:`mn_naive_bayes_csr_batch.cpp <naive_bayes/mn_naive_bayes_csr_batch.cpp>`
 
-      Online Processing:  
+      Online Processing:
 
       - :cpp_example:`mn_naive_bayes_dense_online.cpp <naive_bayes/mn_naive_bayes_dense_online.cpp>`
       - :cpp_example:`mn_naive_bayes_csr_online.cpp <naive_bayes/mn_naive_bayes_csr_online.cpp>`
@@ -101,14 +101,14 @@ Examples
       - :cpp_example:`mn_naive_bayes_csr_distr.cpp <naive_bayes/mn_naive_bayes_csr_distr.cpp>`
 
    .. tab:: Java*
-  
+
       .. note:: There is no support for Java on GPU.
 
       Batch Processing:
-    
+
       -  :java_example:`MnNaiveBayesDenseBatch.java <naive_bayes/MnNaiveBayesDenseBatch.java>`
       -  :java_example:`MnNaiveBayesCSRBatch.java <naive_bayes/MnNaiveBayesCSRBatch.java>`
-    
+
       Online Processing:
 
       - :java_example:`MnNaiveBayesDenseOnline.java <naive_bayes/MnNaiveBayesDenseOnline.java>`
@@ -143,14 +143,14 @@ Training Stage
 To get the best overall performance at the Naïve Bayes classifier
 training stage:
 
--  If input data is homogeneous:
+- If input data is homogeneous:
 
-    -  For the training data set, use a homogeneous numeric table
-       of the same type as specified in the algorithmFPType class
-       template parameter.
-    -  For class labels, use a homogeneous numeric table of type int.
+  -  For the training data set, use a homogeneous numeric table
+     of the same type as specified in the algorithmFPType class
+     template parameter.
+  -  For class labels, use a homogeneous numeric table of type int.
 
--  If input data is non-homogeneous, use AOS layout rather than SOA layout.
+- If input data is non-homogeneous, use AOS layout rather than SOA layout.
 
 The training stage of the Naïve Bayes classifier algorithm is
 memory access bound in most cases. Therefore, use efficient data

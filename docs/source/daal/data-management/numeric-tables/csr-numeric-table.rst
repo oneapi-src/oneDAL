@@ -26,11 +26,17 @@ of a homogeneous numeric table that encodes sparse data, that is,
 the data with a significant number of zero elements. The library
 uses the Condensed Sparse Row (CSR) format for encoding:
 
-.. image:: ./images/zero-based-csr.png
+.. figure:: ./images/zero-based-csr.png
   :width: 600
+  :alt:
 
-.. image:: ./images/one-based-csr.png
+  Condensed Sparse Row (CSR) 0-Based Encoding
+
+.. figure:: ./images/one-based-csr.png
   :width: 600
+  :alt:
+
+  Condensed Sparse Row (CSR) 1-Based Encoding
 
 Three arrays describe the sparse matrix M as follows:
 

@@ -24,9 +24,12 @@ Algorithm Parameters
 
 The low order moments algorithm in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Low Order Moments (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -45,26 +48,26 @@ The low order moments algorithm in the distributed processing mode has the follo
      - ``defaultDense``
      - Available methods for computation of low order moments:
 
-        defaultDense
-            default performance-oriented method
+       defaultDense
+           default performance-oriented method
 
-        singlePassDense
-            implementation of the single-pass algorithm proposed by D.H.D. West
+       singlePassDense
+           implementation of the single-pass algorithm proposed by D.H.D. West
 
-        sumDense
-            implementation of the algorithm in the cases where the basic statistics associated with
-            the numeric table are pre-computed sums; returns an error if pre-computed sums are not defined
+       sumDense
+           implementation of the algorithm in the cases where the basic statistics associated with
+           the numeric table are pre-computed sums; returns an error if pre-computed sums are not defined
 
-        fastCSR
-            performance-oriented method for CSR numeric tables
+       fastCSR
+           performance-oriented method for CSR numeric tables
 
-        singlePassCSR
-            implementation of the single-pass algorithm proposed by D.H.D. West; optimized for CSR numeric tables
+       singlePassCSR
+           implementation of the single-pass algorithm proposed by D.H.D. West; optimized for CSR numeric tables
 
-        sumCSR
-            implementation of the algorithm in the cases where the basic statistics associated with
-            the numeric table are pre-computed sums; optimized for CSR numeric tables;
-            returns an error if pre-computed sums are not defined
+       sumCSR
+           implementation of the algorithm in the cases where the basic statistics associated with
+           the numeric table are pre-computed sums; optimized for CSR numeric tables;
+           returns an error if pre-computed sums are not defined
 
    * - ``estimatesToCompute``
      - ``estimatesAll``
@@ -85,15 +88,17 @@ In this step, the low order moments algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Low Order Moments (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the numeric table of size :math:`n_i \times p` that represents the :math:`i`-th data block on the local node. 
-     
+     - Pointer to the numeric table of size :math:`n_i \times p` that represents the :math:`i`-th data block on the local node.
+
        While the input for ``defaultDense``, ``singlePassDense``, or ``sumDense`` method can be an object of any class derived
        from ``NumericTable``, the input for ``fastCSR``, ``singlePassCSR``, or ``sumCSR`` method can only be an object of
        the ``CSRNumericTable`` class.
@@ -102,15 +107,17 @@ In this step, the low order moments algorithm calculates the results described b
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Low Order Moments (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
    * - Result ID
      - Result
    * - ``nObservations``
-     - Pointer to the :math:`1 \times 1` numeric table that contains the number of observations processed so far on the local node. 
-     
+     - Pointer to the :math:`1 \times 1` numeric table that contains the number of observations processed so far on the local node.
+
        By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result
        as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
 
@@ -118,9 +125,12 @@ Partial characteristics computed so far on the local node, each in a :math:`1 \t
 By default, each table is an object of the ``HomogenNumericTable`` class, but you can define the tables as objects
 of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Characteristics for Low Order Moments (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
@@ -144,7 +154,9 @@ In this step, the low order moments algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Low Order Moments (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -165,9 +177,12 @@ For more details, see :ref:`algorithms`.
     but you can define each table as an object of any class derived from ``NumericTable``
     except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Low Order Moments (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Characteristic

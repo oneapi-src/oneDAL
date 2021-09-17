@@ -19,7 +19,7 @@ Sorting
 
 In |short_name| sorting is an algorithm to sort the observations by each feature (column) in the ascending order.
 
-The result of the sorting algorithm applied to the matrix 
+The result of the sorting algorithm applied to the matrix
 :math:`X = (x_{ij})_{n \times p}` is the matrix :math:`Y = (y_{ij})_{n \times p}`
 where the :math:`j`-th column :math:`(Y)_j = ( y_{ij} )`, :math:`i = 1, \ldots, n`,
 is the column :math:`(X)_j = ( x_{ij} )`, :math:`i = 1, \ldots, n`, sorted in the ascending order.
@@ -34,7 +34,9 @@ The sorting algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Sorting (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -42,7 +44,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``data``
      - Pointer to the :math:`n \times p` numeric table that contains the input data set.
-     
+
        This table can be an object of any class derived from ``NumericTable`` except
        ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
@@ -51,10 +53,13 @@ Algorithm Parameters
 
 The sorting algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Sorting (Batch Processing)
    :header-rows: 1
    :align: left
    :widths: 10 10 60
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -65,7 +70,7 @@ The sorting algorithm has the following parameters:
    * - ``method``
      - ``defaultDense``
      - The radix method for sorting a data set, the only method supported by the algorithm.
-     
+
 
 Algorithm Output
 ----------------
@@ -74,7 +79,9 @@ The sorting algorithm function calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Sorting (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -100,7 +107,7 @@ Examples
     - :cpp_example:`sorting_dense_batch.cpp <sorting/sorting_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
