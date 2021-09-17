@@ -406,13 +406,20 @@ release.CONF = deploy/local/config.txt
 
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
-spat = %.scala %.java %.cpp %.h %.txt %.csv %.html %.png %.parquet %.blob
+spat = %.scala %.java %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob
 spat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln,%_$(_OS).lst %makefile_$(_OS) %.sh)
 release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -not -wholename '*mpi*' -type f))   \
                           ,                                                                                              \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -type f))                           \
+                          )                                                                                              \
+                        )
+release.SAMPLES.ONEDAL.DPC  := $(if $(wildcard $(SAMPLES.srcdir)/oneapi/dpc/*),                                          \
+                          $(if $(OS_is_mac),                                                                             \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/oneapi/dpc -not -wholename '*mpi*' -type f)) \
+                          ,                                                                                              \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/oneapi/dpc -type f))                         \
                           )                                                                                              \
                         )
 release.SAMPLES.JAVA := $(if $(wildcard $(SAMPLES.srcdir)/daal/java/*),                                                  \
@@ -1133,6 +1140,7 @@ $2: $1 | $(dir $2)/. ; $(value cpy)
 	$(if $(filter %.sh %.bat,$2),chmod +x $$@)
 endef
 $(foreach d,$(release.SAMPLES.CPP),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_c)))
+$(foreach d,$(release.SAMPLES.ONEDAL.DPC),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),onedal_dpc)))
 $(foreach d,$(release.SAMPLES.JAVA),  $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 $(foreach d,$(release.SAMPLES.SCALA), $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 
