@@ -73,7 +73,7 @@ The result of the solver is the argument :math:`\theta_{.}` and a set of paramet
    :caption: Iterative solvers
 
    solvers/computation.rst
-   solvers/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.rst
+   solvers/lbfgs.rst
    solvers/stochastic-gradient-descent-algorithm.rst
    solvers/adaptive-subgradient-method.rst
    solvers/coordinate-descent.rst
