@@ -38,18 +38,11 @@ inline sycl::event compute_means(sycl::queue& q,
     Float* means_ptr = means.get_mutable_data();
 
     return q.submit([&](sycl::handler& cgh) {
-        const auto wg = propose_wg_size(q);
-        const auto bcount = (column_count / wg) + bool(column_count % wg);
-        const auto fcount = wg * bcount;
-        const auto range = make_multiple_nd_range_1d(fcount, wg);
-
+        const auto range = make_range_1d(column_count);
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-            const std::int64_t i = id.get_global_id();
-            if (i < column_count) {
-                const Float s = sums_ptr[i];
-                means_ptr[i] = inv_n * s;
-            }
+        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            const Float s = sums_ptr[idx];
+            means_ptr[idx] = inv_n * s;
         });
     });
 }
@@ -140,6 +133,7 @@ inline sycl::event finalize_correlation_with_covariance(sycl::queue& q,
     const auto n = row_count;
     const auto p = cov.get_dimension(1);
     const Float inv_n1 = (n > 1.0f) ? Float(1.0 / double(n - 1)) : 1.0f;
+    //const Float inv_n = Float(1.0 / double(row_count));
     const Float* tmp_ptr = tmp.get_mutable_data();
     Float* corr_ptr = corr.get_mutable_data();
     Float* cov_ptr = cov.get_mutable_data();
@@ -155,9 +149,7 @@ inline sycl::event finalize_correlation_with_covariance(sycl::queue& q,
             if (i < p && j < p) {
                 const Float is_diag = Float(i == j);
 
-                Float c = cov_ptr[gi];
-                c = c / inv_n1;
-                c *= sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
+                const Float c = cov_ptr[gi] / inv_n1 * sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
                 corr_ptr[gi] = c * (Float(1.0) - is_diag) + is_diag;
             }
         });
@@ -226,8 +218,8 @@ template <typename Float>
 sycl::event covariance(sycl::queue& q,
                        const ndview<Float, 2>& data,
                        const ndview<Float, 1>& sums,
-                       ndview<Float, 2>& cov,
                        const ndview<Float, 1>& means,
+                       ndview<Float, 2>& cov,
                        ndview<Float, 1>& vars,
                        ndview<Float, 1>& tmp,
                        const event_vector& deps) {
@@ -270,8 +262,8 @@ template <typename Float>
 sycl::event correlation(sycl::queue& q,
                         const ndview<Float, 2>& data,
                         const ndview<Float, 1>& sums,
-                        ndview<Float, 2>& corr,
                         const ndview<Float, 1>& means,
+                        ndview<Float, 2>& corr,
                         ndview<Float, 1>& vars,
                         ndview<Float, 1>& tmp,
                         const event_vector& deps) {
@@ -356,8 +348,8 @@ INSTANTIATE_MEANS(double)
     template ONEDAL_EXPORT sycl::event covariance<F>(sycl::queue&,        \
                                                      const ndview<F, 2>&, \
                                                      const ndview<F, 1>&, \
-                                                     ndview<F, 2>&,       \
                                                      const ndview<F, 1>&, \
+                                                     ndview<F, 2>&,       \
                                                      ndview<F, 1>&,       \
                                                      ndview<F, 1>&,       \
                                                      const event_vector&);
@@ -369,8 +361,8 @@ INSTANTIATE_COV(double)
     template ONEDAL_EXPORT sycl::event correlation<F>(sycl::queue&,        \
                                                       const ndview<F, 2>&, \
                                                       const ndview<F, 1>&, \
-                                                      ndview<F, 2>&,       \
                                                       const ndview<F, 1>&, \
+                                                      ndview<F, 2>&,       \
                                                       ndview<F, 1>&,       \
                                                       ndview<F, 1>&,       \
                                                       const event_vector&);

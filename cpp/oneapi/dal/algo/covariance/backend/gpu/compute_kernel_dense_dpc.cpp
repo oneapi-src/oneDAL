@@ -63,7 +63,7 @@ auto compute_covariance(sycl::queue& q,
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto cov_event = pr::covariance(q, data, sums, cov, means, vars, tmp, deps);
+    auto cov_event = pr::covariance(q, data, sums, means, cov, vars, tmp, deps);
 
     return std::make_tuple(cov, tmp, cov_event);
 }
@@ -84,7 +84,7 @@ auto compute_correlation(sycl::queue& q,
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
-    auto corr_event = pr::correlation(q, data, sums, corr, means, vars, tmp, deps);
+    auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, deps);
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
