@@ -59,7 +59,7 @@ auto compute_correlation(sycl::queue& q,
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
-    auto corr_event = pr::correlation(q, data, sums, corr, means, vars, tmp, deps);
+    auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, deps);
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, means, vars, smart_event);
