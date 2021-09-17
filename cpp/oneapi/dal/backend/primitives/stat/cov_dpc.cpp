@@ -73,7 +73,7 @@ inline sycl::event finalize_covariance(sycl::queue& q,
     const std::int64_t n = row_count;
     const std::int64_t p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
-    const Float inv_n1 = (n > 1.0f) ? Float(1.0 / double(n - 1)) : 1.0f;
+    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
     const Float* sums_ptr = sums.get_data();
     Float* cov_ptr = cov.get_mutable_data();
 
@@ -119,7 +119,7 @@ inline sycl::event prepare_correlation(sycl::queue& q,
     const auto n = row_count;
     const auto p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
-    const Float inv_n1 = (n > 1.0f) ? Float(1.0 / double(n - 1)) : 1.0f;
+    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
 
     const Float* sums_ptr = sums.get_data();
     const Float* corr_ptr = corr.get_mutable_data();
@@ -130,24 +130,21 @@ inline sycl::event prepare_correlation(sycl::queue& q,
     const Float eps = std::numeric_limits<Float>::epsilon();
 
     return q.submit([&](sycl::handler& cgh) {
-        const auto range = make_multiple_nd_range_1d(p, device_max_wg_size(q));
+        const auto range = dal::backend::make_range_1d(p);
 
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-            const std::int64_t i = id.get_global_id();
-            if (i < p) {
-                const Float s = sums_ptr[i];
-                const Float m = inv_n * s * s;
-                const Float c = corr_ptr[i * p + i];
-                const Float v = c - m;
+        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            const Float s = sums_ptr[idx];
+            const Float m = inv_n * s * s;
+            const Float c = corr_ptr[idx * p + idx];
+            const Float v = c - m;
 
-                means_ptr[i] = inv_n * s;
-                vars_ptr[i] = inv_n1 * v;
+            means_ptr[idx] = inv_n * s;
+            vars_ptr[idx] = inv_n1 * v;
 
-                // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
-                // to avoid NaN/Inf in the resulting correlation matrix
-                tmp_ptr[i] = v + eps * Float(v < eps);
-            }
+            // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
+            // to avoid NaN/Inf in the resulting correlation matrix
+            tmp_ptr[idx] = v + eps * Float(v < eps);
         });
     });
 }
@@ -171,7 +168,7 @@ inline sycl::event finalize_correlation_with_covariance(sycl::queue& q,
 
     const auto n = row_count;
     const auto p = cov.get_dimension(1);
-    const Float inv_n1 = (n > 1.0f) ? Float(1.0 / double(n - 1)) : 1.0f;
+    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
     const Float* tmp_ptr = tmp.get_mutable_data();
     Float* corr_ptr = corr.get_mutable_data();
     Float* cov_ptr = cov.get_mutable_data();
@@ -179,17 +176,14 @@ inline sycl::event finalize_correlation_with_covariance(sycl::queue& q,
         const auto range = make_range_2d(p, p);
 
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<2> id) {
-            const std::int64_t gi = id.get_linear_id();
-            const std::int64_t i = id.get_id(0);
-            const std::int64_t j = id.get_id(1);
+        cgh.parallel_for(range, [=](sycl::id<2> idx) {
+            const std::int64_t i = idx[0];
+            const std::int64_t j = idx[1];
+            const std::int64_t gi = i * p + j;
+            const Float is_diag = Float(i == j);
 
-            if (i < p && j < p) {
-                const Float is_diag = Float(i == j);
-
-                const Float c = cov_ptr[gi] / inv_n1 * sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
-                corr_ptr[gi] = c * (Float(1.0) - is_diag) + is_diag;
-            }
+            const Float c = cov_ptr[gi] / inv_n1 * sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
+            corr_ptr[gi] = c * (Float(1.0) - is_diag) + is_diag;
         });
     });
 }
@@ -218,19 +212,17 @@ inline sycl::event finalize_correlation(sycl::queue& q,
         const auto range = make_range_2d(p, p);
 
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<2> id) {
-            const std::int64_t gi = id.get_linear_id();
-            const std::int64_t i = id.get_id(0);
-            const std::int64_t j = id.get_id(1);
+        cgh.parallel_for(range, [=](sycl::id<2> idx) {
+            const std::int64_t i = idx[0];
+            const std::int64_t j = idx[1];
+            const std::int64_t gi = i * p + j;
 
-            if (i < p && j < p) {
-                const Float is_diag = Float(i == j);
+            const Float is_diag = Float(i == j);
 
-                Float c = corr_ptr[gi];
-                c -= inv_n * sums_ptr[i] * sums_ptr[j];
-                c *= sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
-                corr_ptr[gi] = c * (Float(1.0) - is_diag) + is_diag;
-            }
+            Float c = corr_ptr[gi];
+            c -= inv_n * sums_ptr[i] * sums_ptr[j];
+            c *= sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
+            corr_ptr[gi] = c * (Float(1.0) - is_diag) + is_diag;
         });
     });
 }
