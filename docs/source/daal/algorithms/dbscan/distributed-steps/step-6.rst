@@ -16,9 +16,12 @@
 
 In this step, the DBSCAN algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for DBSCAN (Distributed Processing, Step 6)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -47,7 +50,7 @@ In this step, the DBSCAN algorithm has the following parameters:
    * - ``memorySavingMode``
      - ``false``
      - If flag is set to false, all neighborhoods will be computed and stored prior to clustering.
-       It will require up to :math:`O(|\text{sum of sizes of neighborhoods}|)` of additional memory, 
+       It will require up to :math:`O(|\text{sum of sizes of neighborhoods}|)` of additional memory,
        which in worst case can be :math:`O(|\text{number of observations}|^2)`. However, in general, performance may be better.
 
 
@@ -55,9 +58,12 @@ In this step, the DBSCAN algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for DBSCAN (Distributed Processing, Step 6)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -74,16 +80,16 @@ For more details, :ref:`algorithms`.
 
    * - ``haloDataIndices``
      - Pointer to the collection of numeric tables with :math:`1` column and arbitrary number of rows,
-       containing indices for halo observations for current node computed on :ref:`step 5 <dbscan_step_5>`. 
-       
+       containing indices for halo observations for current node computed on :ref:`step 5 <dbscan_step_5>`.
+
        Size of this collection should be equal to the size of collection for ``haloData``'s ``Input ID``.
 
        .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
    * - ``haloDataBlocks``
      - Pointer to the collection of :math:`1 \times 1` numeric tables containing identifiers of initial block for halo observations
-       for current node computed on :ref:`step 5 <dbscan_step_5>`. 
-       
+       for current node computed on :ref:`step 5 <dbscan_step_5>`.
+
        Size of this collection should be equal to the size of collection for ``haloData``'s ``Input ID``.
 
        .. include:: ./../../includes/input_data_collection_with_exceptions.rst
@@ -95,9 +101,12 @@ In this step, the DBSCAN algorithms calculates the partial results described bel
 Pass the ``Partial Result ID`` as a parameter to the methods that access the partial result of your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for DBSCAN (Distributed Processing, Step 6)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Partial Result ID
      - Result

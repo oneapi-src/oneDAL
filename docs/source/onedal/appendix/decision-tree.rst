@@ -33,13 +33,16 @@ the figure below, where:
    test
 -  Each external node (leaf) denotes the mentioned simple model
 
-.. image:: images/decision-tree-structure.png
+.. figure:: images/decision-tree-structure.png
   :width: 600
+  :alt:
+
+  Decision Tree Structure
 
 A test is a rule for partitioning the feature space. A test
 depends on feature values. Each outcome of a test represents an
 appropriate hypercube associated with both the test and one of the
-descending branches. 
+descending branches.
 
 If a test is a Boolean expression (for
 example, :math:`f < c` or :math:`f = c`, where :math:`f` is a feature and :math:`c` is a constant fitted

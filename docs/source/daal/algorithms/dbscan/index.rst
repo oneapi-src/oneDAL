@@ -23,7 +23,7 @@
 Density-Based Spatial Clustering of Applications with Noise
 ===========================================================
 
-Density-based spatial clustering of applications with noise (DBSCAN) is a data clustering algorithm proposed in [Ester96]_. 
+Density-based spatial clustering of applications with noise (DBSCAN) is a data clustering algorithm proposed in [Ester96]_.
 It is a density-based clustering non-parametric algorithm: given a set of observations in some space,
 it groups together observations that are closely packed together (observations with many nearby neighbors),
 marking as outliers observations that lie alone in low-density regions (whose nearest neighbors are too far away).
@@ -31,7 +31,7 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 Details
 *******
 
-Given the set :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\}` 
+Given the set :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\}`
 of :math:`n` :math:`p`-dimensional feature vectors (further referred as observations),
 a positive floating-point number ``epsilon`` and a positive integer ``minObservations``,
 the problem is to get clustering assignments for each input observation, based on the definitions below [Ester96]_:
@@ -43,11 +43,11 @@ the problem is to get clustering assignments for each input observation, based o
       input observations (including |x|) are within distance ``epsilon`` from observation |x|;
 
    directly reachable
-      An observation |y| is directly reachable from |x| if |y| is within distance ``epsilon`` from :term:`core observation` |x|. 
+      An observation |y| is directly reachable from |x| if |y| is within distance ``epsilon`` from :term:`core observation` |x|.
       Observations are only said to be directly reachable from :term:`core observations <core observation>`.
 
    reachable
-      An observation |y| is reachable from an observation |x| if there is a path :math:`x_1, \ldots, x_m` 
+      An observation |y| is reachable from an observation |x| if there is a path :math:`x_1, \ldots, x_m`
       with :math:`x_1 = x` and :math:`x_m = y`, where each :math:`x_{i+1}` is :term:`directly reachable` from :math:`x_i`.
       This implies that all observations on the path must be :term:`core observations <core observation>`, with the possible exception of |y|.
 
@@ -55,11 +55,11 @@ the problem is to get clustering assignments for each input observation, based o
       Noise observations are observations that are :term:`not reachable <reachable>` from any other observation.
 
    cluster
-      Two observations |x| and |y| are considered to be in the same cluster if there is a :term:`core observation` :math:`z`, 
+      Two observations |x| and |y| are considered to be in the same cluster if there is a :term:`core observation` :math:`z`,
       and |x| and |y| are both :term:`reachable` from :math:`z`.
 
 Each cluster gets a unique identifier, an integer number from :math:`0` to :math:`\text{total number of clusters } – 1`.
-Each observation is assigned an identifier of the :term:`cluster` it belongs to, 
+Each observation is assigned an identifier of the :term:`cluster` it belongs to,
 or :math:`-1` if the observation considered to be a :term:`noise observation`.
 
 Computation
@@ -69,7 +69,7 @@ The following computation modes are available:
 
 .. toctree::
    :maxdepth: 1
-   
+
    computation-batch.rst
    computation-distributed.rst
 
@@ -109,9 +109,9 @@ Examples
   .. tab:: Python*
 
    Batch Processing:
-   
+
    - :daal4py_example:`dbscan_batch.py`
 
    Distributed Processing:
-   
+
    - :daal4py_example:`dbscan_spmd.py`

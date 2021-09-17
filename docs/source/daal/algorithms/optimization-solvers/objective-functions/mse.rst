@@ -21,10 +21,6 @@ Mean Squared Error Algorithm
 
 .. note:: Mean Squared Error Algorithm is not supported on GPU.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Details
 *******
 
@@ -56,7 +52,7 @@ the value and the gradient of the sum of functions in the argument :math:`x` res
     F_I(\theta; x, y) = \frac {1}{2m} \sum_{i_k \in I} (y_{i_k} - h(\theta, x_{i_k}))^2
 
 .. math::
-    \nabla F_I(\theta; x, y) = 
+    \nabla F_I(\theta; x, y) =
     \left\{ \frac{\partial F_I}{\partial \theta_0}, \ldots, \frac{\partial F_I}{\partial \theta_p} \right\}
 
 where
@@ -74,10 +70,6 @@ where
 Computation
 ***********
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Input
 ---------------
 
@@ -85,9 +77,12 @@ The mean squared error algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for MSE Computaion
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -105,9 +100,12 @@ The mean squared error algorithm accepts the optional input described below.
 Pass the Optional ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Optional Algorithm Input for MSE Computaion
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -116,14 +114,14 @@ For more details, see :ref:`algorithms`.
        Pointer to the :math:`1 \times n` numeric table with weights of samples.
        The input can be an object of any class derived from ``NumericTable``
        except for ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
-       
+
        By default, all weights are equal to :math:`1`.
    * - ``gramMatrix``
      - Optional input.
        Pointer to the :mathL`p \times p` numeric table with pre-computed Gram matrix.
        The input can be an object of any class derived from ``NumericTable``
        except for ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
-       
+
        By default, the table is set to empty numeric table.
 
 Algorithm Parameters
@@ -132,9 +130,12 @@ Algorithm Parameters
 The mean squared error algorithm has the following parameters.
 Some of them are required only for specific values of the computation method parameter method:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for MSE Computaion
    :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default value
@@ -161,14 +162,14 @@ Some of them are required only for specific values of the computation method par
      - Not applicable
      - The numeric table of size :math:`1 \times m`, where :math:`m` is the batch size, with a batch of indices to be used to compute the function results.
        If no indices are provided, the implementation uses all the terms in the computation.
-       
+
        .. note::
             This parameter can be an object of any class derived from ``NumericTable``
             except for ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
    * - ``resultsToCompute``
      - ``gradient``
      - The 64-bit integer flag that specifies which characteristics of the objective function to compute.
-       
+
        Provide one of the following values to request a single characteristic or use bitwise OR to request a combination of the characteristics:
 
        value
@@ -199,7 +200,7 @@ Examples
     - :cpp_example:`mse_dense_batch.cpp <optimization_solvers/mse_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`MSEDenseBatch.java <optimization_solvers/MSEDenseBatch.java>`

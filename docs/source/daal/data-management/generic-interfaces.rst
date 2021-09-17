@@ -34,8 +34,11 @@ these steps applies to different types of numeric tables supported in
 the library, such as CSR, with appropriate changes in the method
 names and respective arguments.
 
-.. image:: images/numeric-table-lifecycle.png
+.. figure:: images/numeric-table-lifecycle.png
   :width: 400
+  :alt:
+
+  Numeric Table Lifecycle
 
 Initialize
 **********
@@ -93,7 +96,7 @@ are available for use of constructors:
 To allocate or reallocate the memory after construction of the
 numeric table, use service methods:
 
--  resize().
+- ``resize()``
 
   This method modifies the number of rows in the table according
   to the provided parameter and operates according to the description below:
@@ -118,10 +121,10 @@ After initialization or re-initialization of a numeric table, you
 can use the following methods for the numeric table to access the
 data:
 
-- getBlockOfRows() and releaseBlockOfRows().
+- ``getBlockOfRows()`` and ``releaseBlockOfRows()``
 
-  The getBlockOfRows() method provides access to a data block
-  stored in the numeric table. The rwflag argument specifies read
+  The ``getBlockOfRows()`` method provides access to a data block
+  stored in the numeric table. The ``rwflag`` argument specifies read
   or write access. Provide the object of the BlockDescriptor type
   to the method to interface the requested block of rows. This
   object, the block descriptor, represents the data in the
@@ -134,18 +137,18 @@ data:
   data with the float data type, while the block descriptor
   represents the requested data in double. You can specify the
   required data type during the construction of the block
-  descriptor object. Make sure to call the releaseBlockOfRows()
-  method after a call to getBlockOfRows(). The data types of the
+  descriptor object. Make sure to call the ``releaseBlockOfRows()``
+  method after a call to ``getBlockOfRows()``. The data types of the
   numeric table and block descriptor, as well as the rwflag
-  argument of the getBlockOfRows() method, define the behavior of releaseBlockOfRows():
+  argument of the ``getBlockOfRows()`` method, define the behavior of ``releaseBlockOfRows()``:
 
-  - If rwflag is set to writeOnly or readWrite,
-    releaseBlockOfRows() writes the data from the block
+  - If ``rwflag`` is set to ``writeOnly`` or ``readWrite``,
+    ``releaseBlockOfRows()`` writes the data from the block
     descriptor back to the numeric table.
 
   - If the numeric table and block descriptor use different data
-    types or memory layouts, releaseBlockOfRows() deallocates
-    the allocated buffers regardless of the value of rwflag.
+    types or memory layouts, ``releaseBlockOfRows()`` deallocates
+    the allocated buffers regardless of the value of ``rwflag``.
 
     ::
 
@@ -163,37 +166,37 @@ data:
       }
       table.releaseBlockOfRows(block);
 
-  - getBlockOfColumnValues() and releaseBlockOfColumnValues().
+  - ``getBlockOfColumnValues()`` and ``releaseBlockOfColumnValues()``
 
     These methods provide access to values in the specific column
-    of a numeric table, similarly to getBlockOfRows() and releaseBlockOfRows().
+    of a numeric table, similarly to ``getBlockOfRows()`` and ``releaseBlockOfRows()``.
 
-  - getNumberOfRows() and getNumberOfColumns().
+  - ``getNumberOfRows()`` and ``getNumberOfColumns()``
 
     Call these methods to determine the number of rows and columns,
     respectively, associated with a given numeric table.
 
-  - getDictionary() and resetDictionary(), as well as
-    getFeatureType() and getNumberOfCategories().
+  - ``getDictionary()`` and ``resetDictionary()``, as well as
+    ``getFeatureType()`` and ``getNumberOfCategories()``.
 
     These methods provide access to the data dictionary associated
     with a given numeric table. See Data
     Dictionaries for more details.
 
-  - getDataMemoryStatus().
+  - ``getDataMemoryStatus()``
 
     Call this method to determine whether the memory is allocated
-    by the allocateDataMemory() method, a user provided a pointer
+    by the ``allocateDataMemory()`` method, a user provided a pointer
     to the allocated data, or no data is currently associated with
-    the numeric table. Additionally, the getArray() method is
-    complimentary to setArray() and provides access to the data
+    the numeric table. Additionally, the ``getArray()`` method is
+    complimentary to ``setArray()`` and provides access to the data
     associated with a given table of a given layout.
 
-  - serialize and deserialize().
+  - ``serialize()`` and ``deserialize()``
 
-    The serialize() method enables you to serialize the numeric
-    table. Call the deserialization method deserialize() after each
-    call to serialize(), but before a call to other data access
+    The ``serialize()`` method enables you to serialize the numeric
+    table. Call the deserialization method ``deserialize()`` after each
+    call to ``serialize()``, but before a call to other data access
     methods.
 
 Deinitialize

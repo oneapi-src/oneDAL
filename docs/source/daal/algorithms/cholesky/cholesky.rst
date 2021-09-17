@@ -37,11 +37,13 @@ Batch Processing
 Algorithm Input
 ---------------
 
-Cholesky decomposition accepts the input described below. 
-Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
+Cholesky decomposition accepts the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Cholesky Decomposition (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -59,9 +61,11 @@ Algorithm Parameters
 
 Cholesky decomposition has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Cholesky Decomposition (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60  
+   :widths: 10 10 60
    :align: left
 
    * - Parameter
@@ -77,11 +81,13 @@ Cholesky decomposition has the following parameters:
 Algorithm Output
 ----------------
 
-Cholesky decomposition calculates the result described below. 
-Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
+Cholesky decomposition calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Cholesky Decomposition (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -89,7 +95,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``choleskyFactor``
      - Pointer to the :math:`p \times p` numeric table that represents the lower triangular matrix :math:`L` (Cholesky factor).
-     
+
        By default, the result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
        derived from ``NumericTable`` except the ``PackedSymmetricMatrix`` class, ``СSRNumericTable`` class, and ``PackedTriangularMatrix`` class
        with the ``upperPackedTriangularMatrix`` layout.
@@ -106,11 +112,11 @@ Examples
     - :cpp_example:`cholesky_dense_batch.cpp <cholesky/cholesky_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
-    
+
     - :java_example:`CholeskyDenseBatch.java <cholesky/CholeskyDenseBatch.java>`
 
   .. tab:: Python*

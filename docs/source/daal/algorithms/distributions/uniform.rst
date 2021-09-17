@@ -28,19 +28,19 @@ that are uniformly distributed on the interval :math:`[a, b)`, where :math:`a, b
 The probability density is given by:
 
 .. math::
-    f_{a, b}(x) = 
-    \begin{cases} 
+    f_{a, b}(x) =
+    \begin{cases}
       \frac {1}{b - a}, & x \in [a, b)\\
-      0, & x \notin [a, b) 
+      0, & x \notin [a, b)
     \end{cases}
 
 The cumulative distribution function is as follows:
 
 .. math::
-    F_{a, b}(x) = 
-    \begin{cases} 0, & x < a \\ 
-      \frac {x - a}{b - a}, & a \leq x < b \\ 
-      1, & x \geq b 
+    F_{a, b}(x) =
+    \begin{cases} 0, & x < a \\
+      \frac {x - a}{b - a}, & a \leq x < b \\
+      1, & x \geq b
     \end{cases}
 
 Batch Processing
@@ -50,10 +50,13 @@ Batch Processing
 
 Uniform distribution algorithm has the following parameters in addition to the common parameters specified in :ref:`distributions`:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Uniform Distribution (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

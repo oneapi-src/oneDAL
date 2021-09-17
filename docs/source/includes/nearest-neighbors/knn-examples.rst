@@ -21,7 +21,7 @@
     Batch Processing:
 
     - :ref:`dpc_knn_cls_brute_force_dense_batch.cpp`
-  
+
   .. group-tab:: oneAPI C++
 
     Batch Processing:
