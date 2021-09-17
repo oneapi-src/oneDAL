@@ -83,9 +83,7 @@ public:
     bool get_compute_intercept();
 
 protected:
-    explicit descriptor_base(const detail::distance_ptr& distance);
-
-    void set_result_options_impl(const result_option_id& value);
+    explicit descriptor_base();
 
     void set_compute_intercept_impl(bool compute_intercept);
 
