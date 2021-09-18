@@ -234,7 +234,7 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
     auto sums_event = sums.fill(this->get_queue(), diag_element);
 
     INFO("run correlation");
-    correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
+    correlation(this->get_queue(), data, sums, means, corr, vars, tmp, { sums_event })
         .wait_and_throw();
 
     // The upper part of data matrix is diagonal. In diagonal matrix each column
@@ -276,7 +276,7 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     auto sums_event = sums.assign(this->get_queue(), data.get_data(), column_count);
 
     INFO("run correlation");
-    correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
+    correlation(this->get_queue(), data, sums, means, corr, vars, tmp, { sums_event })
         .wait_and_throw();
 
     INFO("check if there is no NaNs in correlation matrix");
@@ -300,7 +300,7 @@ TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
     auto [_, corr, means, vars, tmp] = this->allocate_arrays(data.get_dimension(1));
 
     INFO("run correlation");
-    correlation(this->get_queue(), data, sums, corr, means, vars, tmp).wait_and_throw();
+    correlation(this->get_queue(), data, sums, means, corr, vars, tmp).wait_and_throw();
 
     this->check_gold_results(corr, means, vars);
 }
