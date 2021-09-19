@@ -133,12 +133,22 @@ public:
         return *this;
     }
 
+    /// Result options that indicates availability of the properties
+    /// @remark default = default_result_options<Task>
+    const result_option_id& get_result_options() const;
+
+    auto& set_result_options(const result_option_id& value) {
+        set_result_options_impl(value);
+        return *this;
+    }
+
 protected:
     void set_cluster_count_impl(std::int64_t);
     void set_responses_impl(const table&);
     void set_core_flags_impl(const table&);
     void set_core_observation_indices_impl(const table&);
     void set_core_observations_impl(const table&);
+    void set_result_options_impl(const result_option_id&);
 
 private:
     dal::detail::pimpl<detail::compute_result_impl<Task>> impl_;

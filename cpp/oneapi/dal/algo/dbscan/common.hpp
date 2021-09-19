@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/util/result_option_id.hpp"
 
 namespace oneapi::dal::dbscan {
 
@@ -47,6 +48,34 @@ using v1::brute_force;
 using v1::by_default;
 
 } // namespace method
+
+/// Represents result option flag
+/// Behaves like a regular :expr`enum`.
+class result_option_id : public result_option_id_base {
+public:
+    result_option_id() : result_option_id_base{} {}
+    result_option_id(const result_option_id_base& base) : result_option_id_base{ base } {}
+};
+
+namespace detail {
+
+ONEDAL_EXPORT result_option_id get_responses_id();
+ONEDAL_EXPORT result_option_id get_core_observation_indices_id();
+ONEDAL_EXPORT result_option_id get_core_observations_id();
+ONEDAL_EXPORT result_option_id get_core_flags_id();
+
+} // namespace detail
+
+/// Result options are used to define
+/// what should algorithm return
+namespace result_options {
+
+const inline result_option_id responses = detail::get_responses_id();
+const inline result_option_id core_observation_indices = detail::get_core_observation_indices_id();
+const inline result_option_id core_observations = detail::get_core_observations_id();
+const inline result_option_id core_flags = detail::get_core_flags_id();
+
+} // namespace result_options
 
 namespace detail {
 namespace v1 {
@@ -78,11 +107,13 @@ public:
     double get_epsilon() const;
     std::int64_t get_min_observations() const;
     bool get_mem_save_mode() const;
+    result_option_id get_result_options() const;
 
 protected:
     void set_min_observations_impl(std::int64_t);
     void set_epsilon_impl(double);
     void set_mem_save_mode_impl(bool);
+    void set_result_options_impl(const result_option_id& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -158,6 +189,16 @@ public:
 
     auto& set_mem_save_mode(bool value) {
         base_t::set_mem_save_mode_impl(value);
+        return *this;
+    }
+
+    /// Choose which results should be computed and returned.
+    result_option_id get_result_options() const {
+        return base_t::get_result_options();
+    }
+
+    auto& set_result_options(const result_option_id& value) {
+        base_t::set_result_options_impl(value);
         return *this;
     }
 };
