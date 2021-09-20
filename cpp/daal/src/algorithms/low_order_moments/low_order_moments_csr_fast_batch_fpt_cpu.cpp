@@ -21,8 +21,7 @@
 //--
 */
 
-#include "src/externals/service_ittnotify.h"
-DAAL_ITTNOTIFY_DOMAIN(lom.csr.fast.batch);
+#include "src/externals/service_profiler.h"
 
 #include "src/algorithms/low_order_moments/low_order_moments_container.h"
 #include "src/algorithms/low_order_moments/low_order_moments_batch_impl.i"

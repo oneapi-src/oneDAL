@@ -24,9 +24,7 @@
 
 #include "src/services/service_data_utils.h"
 #include "src/sycl/sorter.h"
-#include "src/externals/service_ittnotify.h"
-
-DAAL_ITTNOTIFY_DOMAIN(df.common.oneapi);
+#include "src/externals/service_profiler.h"
 
 using namespace daal::services::internal::sycl;
 using namespace daal::services::internal;

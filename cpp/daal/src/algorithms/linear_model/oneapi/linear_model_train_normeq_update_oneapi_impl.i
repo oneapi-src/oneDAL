@@ -24,7 +24,7 @@
 #include "src/algorithms/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
 #include "src/sycl/blas_gpu.h"
 #include "services/internal/execution_context.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/reduce_results.cl"
 #include "src/services/service_data_utils.h"
 

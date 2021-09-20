@@ -28,11 +28,9 @@
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step1_kernel_ucapi.h"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 
 constexpr size_t maxInt32AsSizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
-
-DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.distr.step1.oneapi);
 
 using namespace daal::internal;
 using namespace daal::services::internal;
