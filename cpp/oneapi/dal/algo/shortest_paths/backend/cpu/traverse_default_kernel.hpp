@@ -447,16 +447,13 @@ struct delta_stepping<Cpu, double> {
         dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
             store_atomic<value_type>(
                 dist[i],
-                max_dist); //dist[i] = *reinterpret_cast<const std::int64_t*>(&max_dist);
+                max_dist);
         });
 
-        //const value_type zero_dist = 0;
         store_atomic<value_type>(dist[source], 0);
-        //dist[source] = *reinterpret_cast<const std::int64_t*>(&zero_dist);
 
         vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
                                                                         vertex_allocator);
-
         shared_bin[0] = source;
         std::int64_t curr_bin_index = 0;
         std::int64_t vertex_count_in_shared_bin = 1;

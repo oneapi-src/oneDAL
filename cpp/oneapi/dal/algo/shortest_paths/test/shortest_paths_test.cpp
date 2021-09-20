@@ -694,6 +694,11 @@ public:
         if (true_distances.size() != distances.size()) {
             return false;
         }
+        for (size_t index = 0; index < true_distances.size(); ++index) {
+            if (!compare_distances(true_distances[index], distances[index])) {
+                return false;
+            }
+        }
         return true;
     }
 
