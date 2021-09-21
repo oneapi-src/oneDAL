@@ -148,9 +148,9 @@ public:
     }
 
 private:
+    const std::int64_t vertex_count;
     const value_type max_dist;
     atomic_value_allocator_type atomic_value_allocator;
-    const std::int64_t vertex_count;
     atomic_type* distances;
 };
 
