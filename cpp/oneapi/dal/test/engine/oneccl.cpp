@@ -55,4 +55,3 @@ REGISTER_GLOBAL_SETUP(oneccl_communicator, oneccl_communicator_global_setup)
 
 } // namespace oneapi::dal::test::engine
 #endif
-
