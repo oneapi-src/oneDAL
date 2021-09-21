@@ -25,6 +25,7 @@
 
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/regression.hpp"
 #include "oneapi/dal/backend/primitives/search.hpp"
 #include "oneapi/dal/backend/primitives/selection.hpp"
 #include "oneapi/dal/backend/primitives/voting.hpp"
@@ -50,6 +51,24 @@ namespace bk = ::oneapi::dal::backend;
 namespace pr = ::oneapi::dal::backend::primitives;
 
 using daal_distance_t = daal::algorithms::internal::PairwiseDistanceType;
+
+template<typename Task>
+struct task_to_response_map {
+    using type = int;
+};
+
+template<>
+struct task_to_response_map<task::regression> {
+    using type = float;
+};
+
+template<>
+struct task_to_response_map<task::classification> {
+    using type = std::int32_t;
+};
+
+template<typename Task>
+using response_t = typename task_to_response_map<Task>::type;
 
 template <typename T1, typename T2>
 sycl::event copy_with_sqrt(sycl::queue& q,
@@ -77,12 +96,15 @@ sycl::event copy_with_sqrt(sycl::queue& q,
     });
 }
 
-template <typename Float>
+template <typename Float, typename Task>
 class knn_callback {
     using dst_t = Float;
+    using idx_t = std::int32_t;
+    using res_t = response_t<Task>;
 
-    using uniform_voting_t = std::unique_ptr<pr::uniform_voting<idx_t>>;
+    using uniform_voting_t = std::unique_ptr<pr::uniform_voting<res_t>>;
     using distance_voting_t = std::unique_ptr<pr::distance_voting<dst_t>>;
+    using uniform_regression_t = std::unique_ptr<pr::uniform_regression<res_t>>;
 
 public:
     knn_callback(sycl::queue& q,
@@ -96,7 +118,7 @@ public:
               query_length_(query_length),
               k_neighbors_(k_neighbors) {
         if (result_options_.test(result_options::responses)) {
-            this->temp_resp_ = pr::ndarray<idx_t, 2>::empty(q,
+            this->temp_resp_ = pr::ndarray<res_t, 2>::empty(q,
                                                             { query_block, k_neighbors },
                                                             sycl::usm::alloc::device);
         }
@@ -107,27 +129,35 @@ public:
         return *this;
     }
 
-    auto& set_inp_responses(const pr::ndview<idx_t, 1>& inp_responses) {
+    auto& set_inp_responses(const pr::ndview<res_t, 1>& inp_responses) {
         if (result_options_.test(result_options::responses)) {
             this->inp_responses_ = inp_responses;
         }
         return *this;
     }
 
+    template<typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_uniform_voting(uniform_voting_t voting) {
         this->uniform_voting_ = std::move(voting);
         return *this;
     }
 
+    template<typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_distance_voting(distance_voting_t voting) {
         this->distance_voting_ = std::move(voting);
         return *this;
     }
 
-    auto& set_responses(const array<idx_t>& responses) {
+    template<typename T = Task, typename = detail::enable_if_regression_t<T>>
+    auto& set_uniform_regression(uniform_regression_t regression) {
+        this->uniform_regression_ = std::move(regression);
+        return *this;
+    }
+
+    auto& set_responses(const array<res_t>& responses) {
         if (result_options_.test(result_options::responses)) {
             ONEDAL_ASSERT(responses.get_count() == query_length_);
-            this->responses_ = pr::ndarray<idx_t, 1>::wrap_mutable(responses, query_length_);
+            this->responses_ = pr::ndarray<res_t, 1>::wrap_mutable(responses, query_length_);
         }
         return *this;
     }
@@ -190,26 +220,34 @@ public:
             auto temp_resp = temp_resp_.get_row_slice(0, to - from);
             auto s_event = select_indexed(queue_, inp_indices, inp_responses_, temp_resp, ndeps);
 
-            // At least one of the following voting functors should be initialized
-            ONEDAL_ASSERT(bool(distance_voting_) || bool(uniform_voting_));
             // Only one functor can be initialized
-            ONEDAL_ASSERT(!(bool(distance_voting_) && bool(uniform_voting_)));
+            ONEDAL_ASSERT((bool(distance_voting_) + bool(uniform_voting_) + bool(uniform_regression_)) == 1);
 
-            if (uniform_voting_) {
-                comp_responses = uniform_voting_->operator()(temp_resp, out_block, { s_event });
-            }
-
-            if (distance_voting_) {
-                sycl::event sqrt_event;
-
-                if (this->compute_sqrt_) {
-                    sqrt_event = copy_with_sqrt(queue_, inp_distances, inp_distances, deps);
+            if constexpr (std::is_same_v<Task, task::classification>) {
+                if (uniform_voting_) {
+                    comp_responses = uniform_voting_->operator()(temp_resp, out_block, { s_event });
                 }
 
-                comp_responses = distance_voting_->operator()(temp_resp,
-                                                              inp_distances,
-                                                              out_block,
-                                                              { sqrt_event, s_event });
+                if (distance_voting_) {
+                    sycl::event sqrt_event;
+
+                    if (this->compute_sqrt_) {
+                        sqrt_event = copy_with_sqrt(queue_, inp_distances, inp_distances, deps);
+                    }
+
+                    comp_responses = distance_voting_->operator()(temp_resp,
+                                                                  inp_distances,
+                                                                  out_block,
+                                                                  { sqrt_event, s_event });
+                }
+            }
+
+            if constexpr (std::is_same_v<Task, task::regression>) {
+                if (uniform_regression_) {
+                    comp_responses = uniform_regression_->operator()(temp_resp,
+                                                                     out_block,
+                                                                     { s_event });
+                }
             }
         }
 
@@ -221,13 +259,14 @@ private:
     sycl::queue& queue_;
     const result_option_id result_options_;
     const std::int64_t query_block_, query_length_, k_neighbors_;
-    pr::ndview<idx_t, 1> inp_responses_;
-    pr::ndarray<idx_t, 2> temp_resp_;
-    pr::ndarray<idx_t, 1> responses_;
+    pr::ndview<res_t, 1> inp_responses_;
+    pr::ndarray<res_t, 2> temp_resp_;
+    pr::ndarray<res_t, 1> responses_;
     pr::ndarray<Float, 2> distances_;
     pr::ndarray<idx_t, 2> indices_;
     uniform_voting_t uniform_voting_;
     distance_voting_t distance_voting_;
+    uniform_regression_t uniform_regression_;
     bool compute_sqrt_ = false;
 };
 
@@ -236,6 +275,8 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
                                       const descriptor_t<Task>& desc,
                                       const table& infer,
                                       const model<Task>& m) {
+    using res_t = response_t<Task>;
+
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
         throw internal_error{ de::error_messages::unknown_distance_type() };
@@ -263,9 +304,9 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
 
     ONEDAL_ASSERT(train.get_column_count() == infer.get_column_count());
 
-    auto arr_responses = array<idx_t>{};
+    auto arr_responses = array<res_t>{};
     if (desc.get_result_options().test(result_options::responses)) {
-        arr_responses = array<idx_t>::empty(queue, infer_row_count, sycl::usm::alloc::device);
+        arr_responses = array<res_t>::empty(queue, infer_row_count, sycl::usm::alloc::device);
     }
     auto arr_distances = array<Float>{};
     if (desc.get_result_options().test(result_options::distances) ||
@@ -282,13 +323,13 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     auto train_data = pr::table2ndarray<Float>(queue, train, sycl::usm::alloc::device);
     auto query_data = pr::table2ndarray<Float>(queue, infer, sycl::usm::alloc::device);
     auto resps_data = desc.get_result_options().test(result_options::responses)
-                          ? pr::table2ndarray_1d<idx_t>(queue, resps, sycl::usm::alloc::device)
-                          : pr::ndarray<idx_t, 1>{};
+                          ? pr::table2ndarray_1d<res_t>(queue, resps, sycl::usm::alloc::device)
+                          : pr::ndarray<res_t, 1>{};
 
     const std::int64_t infer_block = pr::propose_query_block<Float>(queue, feature_count);
     const std::int64_t train_block = pr::propose_train_block<Float>(queue, feature_count);
 
-    knn_callback<Float> callback(queue,
+    knn_callback<Float, Task> callback(queue,
                                  desc.get_result_options(),
                                  infer_block,
                                  infer_row_count,
@@ -299,16 +340,25 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     callback.set_distances(arr_distances);
     callback.set_indices(arr_indices);
 
-    if (desc.get_result_options().test(result_options::responses) &&
-        (desc.get_voting_mode() == voting_mode::uniform)) {
-        callback.set_uniform_voting(
-            std::move(pr::make_uniform_voting(queue, infer_block, neighbor_count)));
+    if constexpr (std::is_same_v<Task, task::classification>) {
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::uniform)) {
+            callback.set_uniform_voting(
+                std::move(pr::make_uniform_voting(queue, infer_block, neighbor_count)));
+        }
+
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::distance)) {
+            callback.set_distance_voting(
+                std::move(pr::make_distance_voting<Float>(queue, infer_block, class_count)));
+        }
     }
 
-    if (desc.get_result_options().test(result_options::responses) &&
-        (desc.get_voting_mode() == voting_mode::distance)) {
-        callback.set_distance_voting(
-            std::move(pr::make_distance_voting<Float>(queue, infer_block, class_count)));
+    if constexpr (std::is_same_v<Task, task::regression>) {
+        if (desc.get_result_options().test(result_options::responses)) {
+            callback.set_uniform_regression(
+                std::move(pr::make_uniform_regression<res_t>(queue, infer_block, neighbor_count)));
+        }
     }
 
     if (is_euclidean_distance) {
@@ -334,7 +384,7 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 
     if (desc.get_result_options().test(result_options::responses)) {
-        if constexpr (std::is_same_v<Task, task::classification>) {
+        if constexpr (detail::is_not_search_v<Task>) {
             result = result.set_responses(homogen_table::wrap(arr_responses, infer_row_count, 1));
         }
     }
@@ -370,6 +420,8 @@ struct infer_kernel_gpu<Float, method::brute_force, Task> {
 
 template struct infer_kernel_gpu<float, method::brute_force, task::classification>;
 template struct infer_kernel_gpu<double, method::brute_force, task::classification>;
+template struct infer_kernel_gpu<float, method::brute_force, task::regression>;
+template struct infer_kernel_gpu<double, method::brute_force, task::regression>;
 template struct infer_kernel_gpu<float, method::brute_force, task::search>;
 template struct infer_kernel_gpu<double, method::brute_force, task::search>;
 

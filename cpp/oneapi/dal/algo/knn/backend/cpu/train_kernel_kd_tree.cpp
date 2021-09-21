@@ -27,6 +27,8 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#include "oneapi/dal/exceptions.hpp"
+
 namespace oneapi::dal::knn::backend {
 
 using daal::services::Status;
@@ -44,6 +46,10 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
                                            const table& responses) {
+    if constexpr (std::is_same_v<Task, task::regression>) {
+        throw unimplemented(dal::detail::error_messages::knn_regression_task_is_not_implemented_for_cpu());
+    }
+
     using model_t = model<Task>;
     using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
@@ -103,6 +109,8 @@ struct train_kernel_cpu<Float, method::kd_tree, Task> {
 
 template struct train_kernel_cpu<float, method::kd_tree, task::classification>;
 template struct train_kernel_cpu<double, method::kd_tree, task::classification>;
+template struct train_kernel_cpu<float, method::kd_tree, task::regression>;
+template struct train_kernel_cpu<double, method::kd_tree, task::regression>;
 template struct train_kernel_cpu<float, method::kd_tree, task::search>;
 template struct train_kernel_cpu<double, method::kd_tree, task::search>;
 

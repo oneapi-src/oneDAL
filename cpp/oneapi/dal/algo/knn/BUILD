@@ -13,6 +13,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/algo:chebyshev_distance",
         "@onedal//cpp/oneapi/dal/algo:cosine_distance",
         "@onedal//cpp/oneapi/dal/backend/primitives:distance",
+        "@onedal//cpp/oneapi/dal/backend/primitives:regression",
         "@onedal//cpp/oneapi/dal/backend/primitives:search",
         "@onedal//cpp/oneapi/dal/backend/primitives:selection",
         "@onedal//cpp/oneapi/dal/backend/primitives:voting",

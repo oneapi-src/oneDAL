@@ -174,6 +174,7 @@ MSG(objective_function_value_lt_zero, "Objective function value is lower than ze
 /* k-NN */
 MSG(knn_kd_tree_method_is_not_implemented_for_gpu,
     "k-NN k-d tree method is not implemented for GPU")
+MSG(knn_regression_task_is_not_implemented_for_cpu, "k-NN regression task is not implemented for CPU")
 MSG(knn_search_task_is_not_implemented_for_gpu, "k-NN search task is not implemented for GPU")
 MSG(neighbor_count_lt_one, "Neighbor count lower than one")
 MSG(unknown_distance_type,
