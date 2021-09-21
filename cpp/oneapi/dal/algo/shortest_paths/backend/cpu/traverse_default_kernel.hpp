@@ -445,9 +445,7 @@ struct delta_stepping<Cpu, double> {
         std::atomic<std::int64_t>* dist = allocate(atomic_value_allocator, vertex_count);
         dist = new (dist) std::atomic<std::int64_t>[vertex_count]();
         dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-            store_atomic<value_type>(
-                dist[i],
-                max_dist);
+            store_atomic<value_type>(dist[i], max_dist);
         });
 
         store_atomic<value_type>(dist[source], 0);
