@@ -380,3 +380,4 @@ using v1::oneccl_communicator;
 } // namespace oneapi::dal::detail
 
 #endif
+
