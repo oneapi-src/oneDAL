@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
+#include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::linear_regression {
