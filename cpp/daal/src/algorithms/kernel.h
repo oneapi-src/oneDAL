@@ -70,11 +70,24 @@
 #define __DAAL_CALL_KERNEL_STATUS_SYCL(env, KernelClass, templateArguments, method, ...) \
     ((KernelClass<templateArguments> *)(_kernel))->method(__VA_ARGS__);
 
-#define __DAAL_GET_CPUID int cpuid = daalEnv->cpuid;
+#define __DAAL_GET_CPUID                       \
+    int cpuid = daalEnv->cpuid;                \
+    switch (cpuid)                             \
+    {                                          \
+    case avx512_mic: cpuid = avx512; break;    \
+    case avx512_mic_e1: cpuid = avx512; break; \
+    default: cpuid = cpuid; break;             \
+    }
 
-#define __DAAL_GET_CPUID_SAFE \
-    int cpuid = daal::sse2;   \
-    DAAL_SAFE_CPU_CALL((cpuid = daalEnv->cpuid), (cpuid = daal::sse2))
+#define __DAAL_GET_CPUID_SAFE                  \
+    int cpuid = daal::sse2;                    \
+    switch (cpuid)                             \
+    {                                          \
+    case avx512_mic: cpuid = avx512; break;    \
+    case avx512_mic_e1: cpuid = avx512; break; \
+    default: cpuid = daalEnv->cpuid; break;    \
+    }                                          \
+    DAAL_SAFE_CPU_CALL((cpuid = cpuid), (cpuid = daal::sse2))
 
 #define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
 
