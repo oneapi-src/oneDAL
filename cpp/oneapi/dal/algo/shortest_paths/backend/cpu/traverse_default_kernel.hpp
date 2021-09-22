@@ -126,7 +126,7 @@ public:
                              std::is_same_v<atomic_value_type, std::int64_t>,
                          bool> = true>
     inline void store(Vertex u, double value) {
-        distances[u].store(*reinterpret_cast<const std::int64_t*>(&value));
+        distances[u].store(*reinterpret_cast<std::int64_t*>(&value));
     }
 
     template <
