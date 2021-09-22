@@ -45,7 +45,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const table& data,
                                            const model<Task>& m) {
     if constexpr (std::is_same_v<Task, task::regression>) {
-        throw unimplemented(dal::detail::error_messages::knn_regression_task_is_not_implemented_for_cpu());
+        throw unimplemented(
+            dal::detail::error_messages::knn_regression_task_is_not_implemented_for_cpu());
     }
 
     auto distance_impl = detail::get_distance_impl(desc);

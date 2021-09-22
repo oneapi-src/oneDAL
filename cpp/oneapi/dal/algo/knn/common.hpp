@@ -132,7 +132,8 @@ constexpr bool is_valid_method_v =
     dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification, task::regression, task::search>;
+constexpr bool is_valid_task_v =
+    dal::detail::is_one_of_v<Task, task::classification, task::regression, task::search>;
 
 template <typename Distance>
 constexpr bool is_valid_distance_v =
@@ -141,20 +142,17 @@ constexpr bool is_valid_distance_v =
                                  chebyshev_distance::detail::descriptor_tag,
                                  cosine_distance::detail::descriptor_tag>;
 
-
 template <typename T>
 constexpr bool is_not_search_v = !std::is_same_v<T, task::search>;
 
 template <typename T>
 constexpr bool is_not_classification_v = !std::is_same_v<T, task::classification>;
 
-
 template <typename T>
 using enable_if_search_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::search>>;
 
 template <typename T>
-using enable_if_regression_t =
-    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::regression>>;
+using enable_if_regression_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::regression>>;
 
 template <typename T>
 using enable_if_classification_t =

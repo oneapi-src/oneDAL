@@ -41,9 +41,9 @@ public:
         const auto r = responses.get_dimension(0);
         const auto k = responses.get_dimension(1);
         auto res = ndarray<res_t, 1>::empty(this->get_queue(), { r });
-        for(std::int32_t i = 0; i < r; ++i) {
+        for (std::int32_t i = 0; i < r; ++i) {
             res_t acc = 0;
-            for(std::int32_t j = 0; j < k; ++j) {
+            for (std::int32_t j = 0; j < k; ++j) {
                 acc += responses.at(i, j);
             }
             res.at(i) = acc / double(k);

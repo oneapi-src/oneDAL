@@ -52,22 +52,22 @@ namespace pr = ::oneapi::dal::backend::primitives;
 
 using daal_distance_t = daal::algorithms::internal::PairwiseDistanceType;
 
-template<typename Task>
+template <typename Task>
 struct task_to_response_map {
     using type = int;
 };
 
-template<>
+template <>
 struct task_to_response_map<task::regression> {
     using type = float;
 };
 
-template<>
+template <>
 struct task_to_response_map<task::classification> {
     using type = std::int32_t;
 };
 
-template<typename Task>
+template <typename Task>
 using response_t = typename task_to_response_map<Task>::type;
 
 template <typename T1, typename T2>
@@ -136,19 +136,19 @@ public:
         return *this;
     }
 
-    template<typename T = Task, typename = detail::enable_if_classification_t<T>>
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_uniform_voting(uniform_voting_t voting) {
         this->uniform_voting_ = std::move(voting);
         return *this;
     }
 
-    template<typename T = Task, typename = detail::enable_if_classification_t<T>>
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_distance_voting(distance_voting_t voting) {
         this->distance_voting_ = std::move(voting);
         return *this;
     }
 
-    template<typename T = Task, typename = detail::enable_if_regression_t<T>>
+    template <typename T = Task, typename = detail::enable_if_regression_t<T>>
     auto& set_uniform_regression(uniform_regression_t regression) {
         this->uniform_regression_ = std::move(regression);
         return *this;
@@ -221,7 +221,8 @@ public:
             auto s_event = select_indexed(queue_, inp_indices, inp_responses_, temp_resp, ndeps);
 
             // Only one functor can be initialized
-            ONEDAL_ASSERT((bool(distance_voting_) + bool(uniform_voting_) + bool(uniform_regression_)) == 1);
+            ONEDAL_ASSERT(
+                (bool(distance_voting_) + bool(uniform_voting_) + bool(uniform_regression_)) == 1);
 
             if constexpr (std::is_same_v<Task, task::classification>) {
                 if (uniform_voting_) {
@@ -244,9 +245,8 @@ public:
 
             if constexpr (std::is_same_v<Task, task::regression>) {
                 if (uniform_regression_) {
-                    comp_responses = uniform_regression_->operator()(temp_resp,
-                                                                     out_block,
-                                                                     { s_event });
+                    comp_responses =
+                        uniform_regression_->operator()(temp_resp, out_block, { s_event });
                 }
             }
         }
@@ -330,10 +330,10 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     const std::int64_t train_block = pr::propose_train_block<Float>(queue, feature_count);
 
     knn_callback<Float, Task> callback(queue,
-                                 desc.get_result_options(),
-                                 infer_block,
-                                 infer_row_count,
-                                 neighbor_count);
+                                       desc.get_result_options(),
+                                       infer_block,
+                                       infer_row_count,
+                                       neighbor_count);
 
     callback.set_inp_responses(resps_data);
     callback.set_responses(arr_responses);

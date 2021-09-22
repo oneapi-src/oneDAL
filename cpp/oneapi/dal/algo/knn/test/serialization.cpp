@@ -147,7 +147,7 @@ public:
 #endif
             REQUIRE(act.get_shape() == ref.get_shape());
             const auto count = act.get_dimension(0);
-            for(std::int32_t i = 0; i < count; ++i) {
+            for (std::int32_t i = 0; i < count; ++i) {
                 const auto res = act.at(i);
                 const auto gtr = ref.at(i);
                 const auto diff = std::abs(res - gtr);
@@ -167,8 +167,7 @@ public:
 
         if constexpr (is_regression) {
             INFO("compare responses") {
-                check_if_tables_close(actual.get_responses(),
-                                      reference.get_responses());
+                check_if_tables_close(actual.get_responses(), reference.get_responses());
             }
         }
 
@@ -203,7 +202,9 @@ private:
 
 using knn_types = COMBINE_TYPES((float, double),
                                 (knn::method::kd_tree, knn::method::brute_force),
-                                (knn::task::classification, knn::task::search, knn::task::regression));
+                                (knn::task::classification,
+                                 knn::task::search,
+                                 knn::task::regression));
 
 TEMPLATE_LIST_TEST_M(knn_serialization_test,
                      "serialize/deserialize knn models",

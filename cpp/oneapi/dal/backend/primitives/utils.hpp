@@ -38,8 +38,9 @@ inline ndarray<Type, 1> table2ndarray_1d(const table& table) {
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Type>
-inline ndarray<Type, 2> table2ndarray(sycl::queue& q, const table& table,
-                                        sycl::usm::alloc alloc = sycl::usm::alloc::shared) {
+inline ndarray<Type, 2> table2ndarray(sycl::queue& q,
+                                      const table& table,
+                                      sycl::usm::alloc alloc = sycl::usm::alloc::shared) {
     row_accessor<const Type> accessor{ table };
     const auto data = accessor.pull(q, { 0, -1 }, alloc);
     return ndarray<Type, 2>::wrap(data, { table.get_row_count(), table.get_column_count() });
@@ -47,8 +48,8 @@ inline ndarray<Type, 2> table2ndarray(sycl::queue& q, const table& table,
 
 template <typename Type>
 inline ndarray<Type, 1> table2ndarray_1d(sycl::queue& q,
-                                          const table& table,
-                                          sycl::usm::alloc alloc = sycl::usm::alloc::shared) {
+                                         const table& table,
+                                         sycl::usm::alloc alloc = sycl::usm::alloc::shared) {
     row_accessor<const Type> accessor{ table };
     const auto data = accessor.pull(q, { 0, -1 }, alloc);
     return ndarray<Type, 1>::wrap(data, { data.get_count() });

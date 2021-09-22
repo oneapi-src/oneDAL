@@ -53,9 +53,8 @@ public:
                         D distance = D{},
                         voting_t voting = default_voting,
                         T task = T{}) const {
-        auto desc = knn::descriptor<float_t, method_t, T, D>(
-                   override_class_count,
-                   override_neighbor_count)
+        auto desc =
+            knn::descriptor<float_t, method_t, T, D>(override_class_count, override_neighbor_count)
                 .set_result_options(knn::result_options::responses | knn::result_options::indices |
                                     knn::result_options::distances)
                 .set_voting_mode(voting);
@@ -104,7 +103,7 @@ public:
         return score;
     }
 
-    template<typename Task>
+    template <typename Task>
     void exact_nearest_indices_check(const table& train_data,
                                      const table& infer_data,
                                      const knn::infer_result<Task>& result) {
@@ -194,7 +193,7 @@ public:
         return arange(0, to);
     }
 
-    template<typename Task>
+    template <typename Task>
     void check_nans(const knn::infer_result<Task>& result) {
         const auto [responses] = unpack_result(result);
 
@@ -202,7 +201,7 @@ public:
         REQUIRE(te::has_no_nans(responses));
     }
 
-    template<typename Task>
+    template <typename Task>
     static auto unpack_result(const knn::infer_result<Task>& result) {
         const auto responses = result.get_responses();
         return std::make_tuple(responses);
@@ -322,11 +321,7 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform using regression 513x
     constexpr auto voting = oneapi::dal::knn::voting_mode::distance;
     constexpr knn::task::regression task{};
 
-    const auto knn_desc = this->get_descriptor(train_row_count,
-                                               1,
-                                               distance_desc,
-                                               voting,
-                                               task);
+    const auto knn_desc = this->get_descriptor(train_row_count, 1, distance_desc, voting, task);
 
     auto train_result = this->train(knn_desc, x_train_table, y_train_table);
     auto infer_result = this->infer(knn_desc, x_infer_table, train_result.get_model());

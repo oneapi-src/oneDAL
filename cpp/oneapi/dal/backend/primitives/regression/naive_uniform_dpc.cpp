@@ -25,8 +25,7 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename ResponseType>
-naive_uniform_regression<ResponseType>::naive_uniform_regression(sycl::queue& q)
-        : base_t{ q } {}
+naive_uniform_regression<ResponseType>::naive_uniform_regression(sycl::queue& q) : base_t{ q } {}
 
 template <typename ResponseType>
 sycl::event normalize(sycl::queue& queue,
@@ -46,23 +45,17 @@ sycl::event normalize(sycl::queue& queue,
 }
 
 template <typename ResponseType>
-sycl::event naive_uniform_regression<ResponseType>::operator()(const ndview<ResponseType, 2>& responses,
-                                                               ndview<ResponseType, 1>& results,
-                                                               const event_vector& deps) {
+sycl::event naive_uniform_regression<ResponseType>::operator()(
+    const ndview<ResponseType, 2>& responses,
+    ndview<ResponseType, 1>& results,
+    const event_vector& deps) {
     constexpr sum<ResponseType> binary_op{};
     constexpr identity<ResponseType> unary_op{};
     ONEDAL_ASSERT(results.get_dimension(0) == responses.get_dimension(0));
-    auto reduction_event = reduce_by_rows(this->get_queue(),
-                                          responses,
-                                          results,
-                                          binary_op,
-                                          unary_op,
-                                          deps);
+    auto reduction_event =
+        reduce_by_rows(this->get_queue(), responses, results, binary_op, unary_op, deps);
     const auto n_responses = responses.get_dimension(1);
-    return normalize(this->get_queue(),
-                     n_responses,
-                     results,
-                     { reduction_event });
+    return normalize(this->get_queue(), n_responses, results, { reduction_event });
 }
 
 #define INSTANTIATE(RESPONSE) template class naive_uniform_regression<RESPONSE>;

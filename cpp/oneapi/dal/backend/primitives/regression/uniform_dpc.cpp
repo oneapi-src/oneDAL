@@ -45,11 +45,12 @@ std::unique_ptr<uniform_regression<ResponseType>> make_uniform_regression(sycl::
     return std::make_unique<naive>(queue);
 }
 
-#define INSTANTIATE(RESPONSE)                                                                               \
-    template class uniform_regression<RESPONSE>;                                                            \
-    template std::unique_ptr<uniform_regression<RESPONSE>> make_uniform_regression<RESPONSE>(sycl::queue&,  \
-                                                                                             std::int64_t,  \
-                                                                                             std::int64_t);
+#define INSTANTIATE(RESPONSE)                                                                 \
+    template class uniform_regression<RESPONSE>;                                              \
+    template std::unique_ptr<uniform_regression<RESPONSE>> make_uniform_regression<RESPONSE>( \
+        sycl::queue&,                                                                         \
+        std::int64_t,                                                                         \
+        std::int64_t);
 
 INSTANTIATE(float);
 INSTANTIATE(double);

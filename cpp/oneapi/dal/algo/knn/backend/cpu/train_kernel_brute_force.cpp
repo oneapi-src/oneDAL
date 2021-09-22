@@ -45,7 +45,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const table& data,
                                            const table& responses) {
     if constexpr (std::is_same_v<Task, task::regression>) {
-        throw unimplemented(dal::detail::error_messages::knn_regression_task_is_not_implemented_for_cpu());
+        throw unimplemented(
+            dal::detail::error_messages::knn_regression_task_is_not_implemented_for_cpu());
     }
 
     using model_t = model<Task>;
