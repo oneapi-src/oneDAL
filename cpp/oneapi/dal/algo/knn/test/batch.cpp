@@ -124,16 +124,14 @@ public:
 
         constexpr knn::task::regression task{};
 
-        const auto knn_desc = this->get_descriptor(
-                            42, n_neighbors, distance, voting, task);
+        const auto knn_desc = this->get_descriptor(42, n_neighbors, distance, voting, task);
 
         auto train_result = this->train(knn_desc, train_data, train_responses);
         auto train_model = train_result.get_model();
         auto infer_result = this->infer(knn_desc, infer_data, train_model);
         auto [prediction] = this->unpack_result(infer_result);
 
-        const auto score_table =
-            te::mse_score<float_t>(infer_responses, prediction);
+        const auto score_table = te::mse_score<float_t>(infer_responses, prediction);
         const auto score = row_accessor<const float_t>(score_table).pull({ 0, -1 })[0];
         return score;
     }
@@ -497,11 +495,8 @@ KNN_EXTERNAL_TEST("knn uniform regression hepmass 50kx10k") {
     const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
                                                           range(feature_count, feature_count + 1));
 
-    const auto score = this->regression(x_train_table,
-                                        y_train_table,
-                                        x_infer_table,
-                                        y_infer_table,
-                                        n_neighbors);
+    const auto score =
+        this->regression(x_train_table, y_train_table, x_infer_table, y_infer_table, n_neighbors);
 
     CAPTURE(score, target_score);
     REQUIRE(score < target_score);

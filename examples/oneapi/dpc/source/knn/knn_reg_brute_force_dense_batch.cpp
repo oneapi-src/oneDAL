@@ -50,11 +50,15 @@ void run(sycl::queue& q) {
     const auto train_result_uniform = dal::train(q, knn_desc_uniform, x_train, y_train);
     const auto train_result_distance = dal::train(q, knn_desc_distance, x_train, y_train);
 
-    const auto test_result_uniform = dal::infer(q, knn_desc_uniform, x_test, train_result_uniform.get_model());
-    const auto test_result_distance = dal::infer(q, knn_desc_distance, x_test, train_result_distance.get_model());
+    const auto test_result_uniform =
+        dal::infer(q, knn_desc_uniform, x_test, train_result_uniform.get_model());
+    const auto test_result_distance =
+        dal::infer(q, knn_desc_distance, x_test, train_result_distance.get_model());
 
-    std::cout << "Test results (uniform voting):\n" << test_result_uniform.get_responses() << std::endl;
-    std::cout << "Test results (distance voting):\n" << test_result_distance.get_responses() << std::endl;
+    std::cout << "Test results (uniform regression):\n"
+              << test_result_uniform.get_responses() << std::endl;
+    std::cout << "Test results (distance regression):\n"
+              << test_result_distance.get_responses() << std::endl;
     std::cout << "True responses:\n" << y_test << std::endl;
 }
 

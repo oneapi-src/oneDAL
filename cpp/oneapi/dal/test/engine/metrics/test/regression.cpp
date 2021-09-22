@@ -34,12 +34,12 @@ TEST("Simple accuracy check", "[regression][accuracy]") {
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t element_count = row_count * column_count;
 
-    constexpr std::array<Float, element_count> groundtruth = { 3.5, -1.0,  7.0,   8.0, -2.0,
-                                                              -8.0, -9.0, 13.0, 128.0,  0.0 };
+    constexpr std::array<Float, element_count> groundtruth = { 3.5,  -1.0, 7.0,  8.0,   -2.0,
+                                                               -8.0, -9.0, 13.0, 128.0, 0.0 };
     const auto gt_table = homogen_table::wrap(groundtruth.data(), row_count, column_count);
 
-    constexpr std::array<Float, element_count> prediction = { 3.7, -2.0,  0.0,   8.0, -2.0,
-                                                             -8.0, -9.0, 13.0, 128.0,  3.0 };
+    constexpr std::array<Float, element_count> prediction = { 3.7,  -2.0, 0.0,  8.0,   -2.0,
+                                                              -8.0, -9.0, 13.0, 128.0, 3.0 };
     const auto pr_table = homogen_table::wrap(prediction.data(), row_count, column_count);
 
     constexpr std::array<Float, column_count> gt_res = { 9.808, 2.0 };

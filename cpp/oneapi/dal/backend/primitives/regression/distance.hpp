@@ -50,7 +50,6 @@ public:
                            const ndview<DistType, 2>& distances,
                            ndview<ResponseType, 1>& results,
                            const event_vector& deps = {}) final;
-
 };
 
 template <typename DistType, typename ResponseType = float>

@@ -228,8 +228,8 @@ public:
             auto s_event = select_indexed(queue_, inp_indices, inp_responses_, temp_resp, ndeps);
 
             // Only one functor can be initialized
-            ONEDAL_ASSERT(
-                (bool(distance_voting_) + bool(uniform_voting_) + bool(distance_regression_) + bool(uniform_regression_)) == 1);
+            ONEDAL_ASSERT((bool(distance_voting_) + bool(uniform_voting_) +
+                           bool(distance_regression_) + bool(uniform_regression_)) == 1);
 
             if constexpr (std::is_same_v<Task, task::classification>) {
                 if (uniform_voting_) {

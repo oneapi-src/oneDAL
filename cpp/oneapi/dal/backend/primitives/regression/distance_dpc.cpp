@@ -44,12 +44,10 @@ make_distance_regression(sycl::queue& queue, std::int64_t max_block, std::int64_
     return std::make_unique<naive_t>(queue);
 }
 
-#define INSTANTIATE(DISTANCE, RESPONSE)                                                                             \
-    template class distance_regression<DISTANCE, RESPONSE>;                                                         \
-    template std::unique_ptr<distance_regression<DISTANCE, RESPONSE>> make_distance_regression<DISTANCE, RESPONSE>( \
-        sycl::queue&,                                                                                               \
-        std::int64_t,                                                                                               \
-        std::int64_t);
+#define INSTANTIATE(DISTANCE, RESPONSE)                               \
+    template class distance_regression<DISTANCE, RESPONSE>;           \
+    template std::unique_ptr<distance_regression<DISTANCE, RESPONSE>> \
+    make_distance_regression<DISTANCE, RESPONSE>(sycl::queue&, std::int64_t, std::int64_t);
 
 INSTANTIATE(float, float);
 INSTANTIATE(float, double);

@@ -25,10 +25,10 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename DistType, typename RespType>
 sycl::event distance_regression_kernel(sycl::queue& queue,
-                                   const ndview<RespType, 2>& responses,
-                                   const ndview<DistType, 2>& distances,
-                                   ndview<RespType, 1>& result,
-                                   const event_vector& deps) {
+                                       const ndview<RespType, 2>& responses,
+                                       const ndview<DistType, 2>& distances,
+                                       ndview<RespType, 1>& result,
+                                       const event_vector& deps) {
     constexpr auto eps = dal::detail::limits<DistType>::epsilon();
     ONEDAL_ASSERT(distances.has_data());
     ONEDAL_ASSERT(responses.has_data());
@@ -50,12 +50,12 @@ sycl::event distance_regression_kernel(sycl::queue& queue,
             const auto* const dst_row = dst_ptr + item * dst_str;
             const auto* const inp_row = inp_ptr + item * inp_str;
             DistType denom = 0;
-            for(std::int32_t i = 0; i < k_resps; ++i) {
+            for (std::int32_t i = 0; i < k_resps; ++i) {
                 const auto& dst = dst_row[i];
                 denom += (dst < eps) ? 1 : (1 / dst);
             }
             RespType proto = 0;
-            for(std::int32_t i = 0; i < k_resps; ++i) {
+            for (std::int32_t i = 0; i < k_resps; ++i) {
                 const auto& dst = dst_row[i];
                 const auto weight = (dst < eps) ? 1 : (1 / dst);
                 proto += (weight * inp_row[i]);
@@ -68,7 +68,6 @@ sycl::event distance_regression_kernel(sycl::queue& queue,
 template <typename DistType, typename ResponseType>
 naive_distance_regression<DistType, ResponseType>::naive_distance_regression(sycl::queue& queue)
         : base_t(queue) {}
-
 
 template <typename DistType, typename ResponseType>
 sycl::event naive_distance_regression<DistType, ResponseType>::operator()(
