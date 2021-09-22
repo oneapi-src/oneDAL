@@ -53,9 +53,9 @@ template <typename Cpu, typename Vertex, typename Value, typename AtomicT>
 class data_to_relax_base<Cpu, mode::distances, Vertex, Value, AtomicT> {
 public:
     using value_type = Value;
-    using atomic_type = AtomicT;
-    using atomic_value_type = typename AtomicT::value_type;
-    using atomic_value_allocator_type = inner_alloc<AtomicT>;
+    using atomic_type = std::atomic<AtomicT>;
+    using atomic_value_type = AtomicT;
+    using atomic_value_allocator_type = inner_alloc<atomic_type>;
     using vertex_type = Vertex;
 
     data_to_relax_base(const std::int64_t& vertex_count,
@@ -107,7 +107,7 @@ public:
               std::enable_if_t<is_class_params_the_same_v<V, AV, value_type, atomic_value_type>,
                                bool> = true>
     inline bool compare_exchange_strong(const Vertex& u,
-                                        value_type& old_value,
+                                        value_type old_value,
                                         value_type new_value) {
         return distances[u].compare_exchange_strong(old_value, new_value);
     }
@@ -138,7 +138,7 @@ public:
                              std::is_same_v<value_type, double> &&
                              std::is_same_v<atomic_value_type, std::int64_t>,
                          bool> = true>
-    inline bool compare_exchange_strong(const Vertex& u, double& old_value, double new_value) {
+    inline bool compare_exchange_strong(const Vertex& u, double old_value, double new_value) {
         double* old_value_ptr = &old_value;
         double* new_value_ptr = &new_value;
         std::int64_t old_value_int_representation = *reinterpret_cast<std::int64_t*>(old_value_ptr);
@@ -155,23 +155,18 @@ private:
 };
 
 template <typename Cpu, typename Mode, typename Vertex, typename Value>
-class data_to_relax : public data_to_relax_base<Cpu, Mode, Vertex, Value, std::atomic<Value>> {};
+class data_to_relax : public data_to_relax_base<Cpu, Mode, Vertex, Value, Value> {};
 
 template <typename Cpu, typename Vertex, typename Value>
 class data_to_relax<Cpu, mode::distances, Vertex, Value>
-        : public data_to_relax_base<Cpu, mode::distances, Vertex, Value, std::atomic<Value>> {
-    using data_to_relax_base<Cpu, mode::distances, Vertex, Value, std::atomic<Value>>::
-        data_to_relax_base;
+        : public data_to_relax_base<Cpu, mode::distances, Vertex, Value, Value> {
+    using data_to_relax_base<Cpu, mode::distances, Vertex, Value, Value>::data_to_relax_base;
 };
 
 template <typename Cpu, typename Vertex>
 class data_to_relax<Cpu, mode::distances, Vertex, double>
-        : public data_to_relax_base<Cpu,
-                                    mode::distances,
-                                    Vertex,
-                                    double,
-                                    std::atomic<std::int64_t>> {
-    using data_to_relax_base<Cpu, mode::distances, Vertex, double, std::atomic<std::int64_t>>::
+        : public data_to_relax_base<Cpu, mode::distances, Vertex, double, std::int64_t> {
+    using data_to_relax_base<Cpu, mode::distances, Vertex, double, std::int64_t>::
         data_to_relax_base;
 };
 
