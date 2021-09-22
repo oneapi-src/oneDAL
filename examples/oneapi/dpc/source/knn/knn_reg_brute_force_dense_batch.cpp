@@ -39,16 +39,22 @@ void run(sycl::queue& q) {
     using float_t = float;
     using method_t = dal::knn::method::by_default;
     using task_t = dal::knn::task::regression;
+    using descriptor_t = dal::knn::descriptor<float_t, method_t, task_t>;
 
-    const auto knn_desc = dal::knn::descriptor<float_t, method_t, task_t>(5);
+    const auto knn_desc_uniform = descriptor_t(5);
+    const auto knn_desc_distance = descriptor_t(5).set_voting_mode(dal::knn::voting_mode::distance);
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
 
-    const auto train_result = dal::train(q, knn_desc, x_train, y_train);
-    const auto test_result = dal::infer(q, knn_desc, x_test, train_result.get_model());
+    const auto train_result_uniform = dal::train(q, knn_desc_uniform, x_train, y_train);
+    const auto train_result_distance = dal::train(q, knn_desc_distance, x_train, y_train);
 
-    std::cout << "Test results:\n" << test_result.get_responses() << std::endl;
+    const auto test_result_uniform = dal::infer(q, knn_desc_uniform, x_test, train_result_uniform.get_model());
+    const auto test_result_distance = dal::infer(q, knn_desc_distance, x_test, train_result_distance.get_model());
+
+    std::cout << "Test results (uniform voting):\n" << test_result_uniform.get_responses() << std::endl;
+    std::cout << "Test results (distance voting):\n" << test_result_distance.get_responses() << std::endl;
     std::cout << "True responses:\n" << y_test << std::endl;
 }
 

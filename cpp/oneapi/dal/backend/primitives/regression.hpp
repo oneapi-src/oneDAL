@@ -17,3 +17,4 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/regression/uniform.hpp"
+#include "oneapi/dal/backend/primitives/regression/distance.hpp"

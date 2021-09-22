@@ -105,6 +105,7 @@ class knn_callback {
     using uniform_voting_t = std::unique_ptr<pr::uniform_voting<res_t>>;
     using distance_voting_t = std::unique_ptr<pr::distance_voting<dst_t>>;
     using uniform_regression_t = std::unique_ptr<pr::uniform_regression<res_t>>;
+    using distance_regression_t = std::unique_ptr<pr::distance_regression<dst_t>>;
 
 public:
     knn_callback(sycl::queue& q,
@@ -151,6 +152,12 @@ public:
     template <typename T = Task, typename = detail::enable_if_regression_t<T>>
     auto& set_uniform_regression(uniform_regression_t regression) {
         this->uniform_regression_ = std::move(regression);
+        return *this;
+    }
+
+    template <typename T = Task, typename = detail::enable_if_regression_t<T>>
+    auto& set_distance_regression(distance_regression_t regression) {
+        this->distance_regression_ = std::move(regression);
         return *this;
     }
 
@@ -222,7 +229,7 @@ public:
 
             // Only one functor can be initialized
             ONEDAL_ASSERT(
-                (bool(distance_voting_) + bool(uniform_voting_) + bool(uniform_regression_)) == 1);
+                (bool(distance_voting_) + bool(uniform_voting_) + bool(distance_regression_) + bool(uniform_regression_)) == 1);
 
             if constexpr (std::is_same_v<Task, task::classification>) {
                 if (uniform_voting_) {
@@ -248,6 +255,19 @@ public:
                     comp_responses =
                         uniform_regression_->operator()(temp_resp, out_block, { s_event });
                 }
+
+                if (distance_regression_) {
+                    sycl::event sqrt_event;
+
+                    if (this->compute_sqrt_) {
+                        sqrt_event = copy_with_sqrt(queue_, inp_distances, inp_distances, deps);
+                    }
+
+                    comp_responses = distance_regression_->operator()(temp_resp,
+                                                                      inp_distances,
+                                                                      out_block,
+                                                                      { sqrt_event, s_event });
+                }
             }
         }
 
@@ -267,6 +287,7 @@ private:
     uniform_voting_t uniform_voting_;
     distance_voting_t distance_voting_;
     uniform_regression_t uniform_regression_;
+    distance_regression_t distance_regression_;
     bool compute_sqrt_ = false;
 };
 
@@ -355,9 +376,16 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     }
 
     if constexpr (std::is_same_v<Task, task::regression>) {
-        if (desc.get_result_options().test(result_options::responses)) {
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::uniform)) {
             callback.set_uniform_regression(
                 std::move(pr::make_uniform_regression<res_t>(queue, infer_block, neighbor_count)));
+        }
+
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::distance)) {
+            callback.set_distance_regression(
+                std::move(pr::make_distance_regression<Float>(queue, infer_block, neighbor_count)));
         }
     }
 
