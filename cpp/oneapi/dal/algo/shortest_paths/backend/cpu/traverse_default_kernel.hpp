@@ -58,9 +58,9 @@ public:
     using atomic_value_allocator_type = inner_alloc<atomic_type>;
     using vertex_type = Vertex;
 
-    data_to_relax_base(const std::int64_t& vertex_count,
-                       const Vertex& source,
-                       const value_type& max_dist,
+    data_to_relax_base(std::int64_t vertex_count,
+                       Vertex source,
+                       value_type max_dist,
                        byte_alloc_iface* alloc_ptr)
             : vertex_count(vertex_count),
               max_dist(max_dist),
@@ -81,24 +81,19 @@ public:
         return distances;
     }
 
-    template <
-        typename V = value_type,
-        typename AV = atomic_value_type,
-        std::enable_if_t<is_not_class_params_the_same_v<V, AV, value_type, atomic_value_type> &&
-                             std::is_same_v<value_type, double> &&
-                             std::is_same_v<atomic_value_type, std::int64_t>,
-                         bool> = true>
-    inline double load(const Vertex& u) {
-        std::int64_t a_int = distances[u].load();
-        std::int64_t* a_int_ptr = &a_int;
-        return *reinterpret_cast<double*>(a_int_ptr);
+    template <typename V = value_type,
+              typename AV = atomic_value_type,
+              std::enable_if_t<is_class_params_the_same_v<V, AV, value_type, atomic_value_type>,
+                               bool> = true>
+    inline value_type load(Vertex u) const {
+        return distances[u].load();
     }
 
     template <typename V = value_type,
               typename AV = atomic_value_type,
               std::enable_if_t<is_class_params_the_same_v<V, AV, value_type, atomic_value_type>,
                                bool> = true>
-    inline void store(const Vertex& u, const value_type& value) {
+    inline void store(Vertex u, value_type value) {
         distances[u].store(value);
     }
 
@@ -106,18 +101,22 @@ public:
               typename AV = atomic_value_type,
               std::enable_if_t<is_class_params_the_same_v<V, AV, value_type, atomic_value_type>,
                                bool> = true>
-    inline bool compare_exchange_strong(const Vertex& u,
-                                        value_type old_value,
-                                        value_type new_value) {
+    inline bool compare_exchange_strong(Vertex u, value_type& old_value, value_type new_value) {
         return distances[u].compare_exchange_strong(old_value, new_value);
     }
 
-    template <typename V = value_type,
-              typename AV = atomic_value_type,
-              std::enable_if_t<is_class_params_the_same_v<V, AV, value_type, atomic_value_type>,
-                               bool> = true>
-    inline value_type load(const Vertex& u) {
-        return distances[u].load();
+    //#if defined(__APPLE__)
+    template <
+        typename V = value_type,
+        typename AV = atomic_value_type,
+        std::enable_if_t<is_not_class_params_the_same_v<V, AV, value_type, atomic_value_type> &&
+                             std::is_same_v<value_type, double> &&
+                             std::is_same_v<atomic_value_type, std::int64_t>,
+                         bool> = true>
+    inline double load(Vertex u) const {
+        std::int64_t a_int = distances[u].load();
+        std::int64_t* a_int_ptr = &a_int;
+        return *reinterpret_cast<double*>(a_int_ptr);
     }
 
     template <
@@ -127,7 +126,7 @@ public:
                              std::is_same_v<value_type, double> &&
                              std::is_same_v<atomic_value_type, std::int64_t>,
                          bool> = true>
-    inline void store(const Vertex& u, const double& value) {
+    inline void store(Vertex u, double value) {
         distances[u].store(*reinterpret_cast<const std::int64_t*>(&value));
     }
 
@@ -138,7 +137,7 @@ public:
                              std::is_same_v<value_type, double> &&
                              std::is_same_v<atomic_value_type, std::int64_t>,
                          bool> = true>
-    inline bool compare_exchange_strong(const Vertex& u, double old_value, double new_value) {
+    inline bool compare_exchange_strong(Vertex u, double& old_value, double new_value) {
         double* old_value_ptr = &old_value;
         double* new_value_ptr = &new_value;
         std::int64_t old_value_int_representation = *reinterpret_cast<std::int64_t*>(old_value_ptr);
@@ -146,8 +145,15 @@ public:
         return distances[u].compare_exchange_strong(old_value_int_representation,
                                                     new_value_int_representation);
     }
+    //#endif
+
+    inline value_type operator[](Vertex u) const {
+        return load(u);
+    }
 
 private:
+    data_to_relax_base(const data_to_relax_base&) = delete;
+    data_to_relax_base(data_to_relax_base&&) = delete;
     const std::int64_t vertex_count;
     const value_type max_dist;
     atomic_value_allocator_type atomic_value_allocator;
@@ -163,12 +169,14 @@ class data_to_relax<Cpu, mode::distances, Vertex, Value>
     using data_to_relax_base<Cpu, mode::distances, Vertex, Value, Value>::data_to_relax_base;
 };
 
+//#if defined(__APPLE__)
 template <typename Cpu, typename Vertex>
 class data_to_relax<Cpu, mode::distances, Vertex, double>
         : public data_to_relax_base<Cpu, mode::distances, Vertex, double, std::int64_t> {
     using data_to_relax_base<Cpu, mode::distances, Vertex, double, std::int64_t>::
         data_to_relax_base;
 };
+//#endif
 
 template <typename Vertex, typename EdgeValue, typename BinsVector>
 inline void update_bins(const Vertex& v,
@@ -196,14 +204,14 @@ inline void relax_edges(const Topology& t,
     for (std::int64_t v_ = t._rows_ptr[u]; v_ < t._rows_ptr[u + 1]; v_++) {
         const auto v = t._cols_ptr[v_];
         const auto v_w = vals[v_];
-        EdgeValue old_dist = dist.load(v);
-        EdgeValue new_dist = dist.load(u) + v_w;
+        EdgeValue old_dist = dist[v];
+        const EdgeValue new_dist = dist[u] + v_w;
         while (new_dist < old_dist) {
             if (dist.compare_exchange_strong(v, old_dist, new_dist)) {
                 update_bins(v, new_dist, delta, local_bins);
                 break;
             }
-            old_dist = dist.load(v);
+            old_dist = dist[v];
         }
     }
 }
@@ -335,7 +343,7 @@ struct delta_stepping {
                 vertex_count_in_shared_bin,
                 [&](std::int64_t i) {
                     const vertex_type& u = shared_bin[i];
-                    if (dist.load(u) >= delta * static_cast<value_type>(curr_bin_index)) {
+                    if (dist[u] >= delta * static_cast<value_type>(curr_bin_index)) {
                         relax_edges(t,
                                     vals,
                                     u,
@@ -373,7 +381,7 @@ struct delta_stepping {
         auto dist_arr = array<value_type>::empty(vertex_count);
         value_type* dist_ = dist_arr.get_mutable_data();
         dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-            dist_[i] = dist.load(i);
+            dist_[i] = dist[i];
         });
 
         return traverse_result<task::one_to_all>().set_distances(
