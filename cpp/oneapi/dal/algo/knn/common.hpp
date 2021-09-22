@@ -230,7 +230,7 @@ namespace v1 {
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
 ///                     be :expr:`method::brute_force` or :expr:`method::kd_tree`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
-///                     be :expr:`task::classification`, :expr:`task::regression`
+///                     be :expr:`task::classification`, :expr:`task::regression`,
 ///                     or :expr:`task::search`.
 /// @tparam Distance    The descriptor of the distance used for computations. Can be
 ///                     :expr:`minkowski_distance::descriptor` or
