@@ -15,20 +15,18 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
 
 namespace oneapi::dal::pca::backend {
 
 namespace pr = oneapi::dal::backend::primitives;
 
-using dal::backend::context_cpu;
 using dal::backend::context_gpu;
 using model_t = model<task::dim_reduction>;
 using input_t = infer_input<task::dim_reduction>;
@@ -44,19 +42,22 @@ static infer_result<Task> infer(const context_gpu& ctx,
     auto model = input.get_model();
     auto eigenvectors = model.get_eigenvectors();
     const std::int64_t row_count = data.get_row_count();
-    const std::int64_t column_count = eigenvectors.get_row_count();
-    dal::detail::check_mul_overflow(row_count, column_count);
-    dal::detail::check_mul_overflow(column_count, column_count);
+    const std::int64_t component_count = get_component_count(desc, data);
+    dal::detail::check_mul_overflow(row_count, component_count);
+    dal::detail::check_mul_overflow(component_count, component_count);
     const auto data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
     const auto eigenvectors_nd =
         pr::table2ndarray<Float>(queue, eigenvectors, sycl::usm::alloc::device);
-    auto result_arr =
-        pr::ndarray<Float, 2>::empty(queue, { row_count, column_count }, sycl::usm::alloc::device);
+    auto result_arr = pr::ndarray<Float, 2>::empty(queue,
+                                                   { row_count, component_count },
+                                                   sycl::usm::alloc::device);
     auto gemm_event =
         pr::gemm(queue, data_nd, eigenvectors_nd.t(), result_arr, Float(1.0), Float(0.0));
     const auto res_array = result_arr.flatten(queue, { gemm_event });
     return result_t{}.set_transformed_data(
-        (homogen_table::wrap(result_arr.flatten(queue, { gemm_event }), row_count, column_count)));
+        (homogen_table::wrap(result_arr.flatten(queue, { gemm_event }),
+                             row_count,
+                             component_count)));
 }
 
 template <typename Float>
