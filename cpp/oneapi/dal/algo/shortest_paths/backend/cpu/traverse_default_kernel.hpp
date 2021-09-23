@@ -164,15 +164,11 @@ struct delta_stepping {
         byte_alloc_iface* alloc_ptr) {
         using value_type = EdgeValue;
         using vertex_type = std::int32_t;
-        using value_allocator_type = inner_alloc<value_type>;
         using vertex_allocator_type = inner_alloc<vertex_type>;
 
         vertex_allocator_type vertex_allocator(alloc_ptr);
-        value_allocator_type value_allocator(alloc_ptr);
-
         const auto source = dal::detail::integral_cast<std::int32_t>(desc.get_source());
         const value_type delta = desc.get_delta();
-
         const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
         const std::int64_t max_elements_in_bin = 1000;
         const auto vertex_count = t.get_vertex_count();
@@ -183,7 +179,6 @@ struct delta_stepping {
                                                                     source,
                                                                     max_dist,
                                                                     alloc_ptr);
-
         vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
                                                                         vertex_allocator);
 
