@@ -86,7 +86,6 @@ public:
             : vertex_count(vertex_count),
               atomic_value_allocator(alloc_ptr) {
         distances = allocate(atomic_value_allocator, vertex_count);
-        //distances = new (distances) atomic_type[vertex_count];
         dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
             new (distances + i) relaxing_data_type(max_dist, -1);
         });
