@@ -24,28 +24,23 @@
 #include "oneapi/dal/test/engine/tables.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
-
 namespace oneapi::dal::knn::test {
 
 namespace te = dal::test::engine;
-namespace pr = dal::backend::primitives;
 
-
-#ifdef ONEDAL_DATA_PARSLLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename Type>
-inline ndarray<Type, 1> table2ndarray_1d(sycl::queue& q,
-                                         const table& table,
-                                         sycl::usm::alloc alloc = sycl::usm::alloc::shared) {
+inline array<Type> table2array_1d(sycl::queue& q,
+                                  const table& table,
+                                  sycl::usm::alloc alloc = sycl::usm::alloc::shared) {
     row_accessor<const Type> accessor{ table };
-    const auto data = accessor.pull(q, { 0, -1 }, alloc);
-    return ndarray<Type, 1>::wrap(data, { data.get_count() });
+    return accessor.pull(q, { 0, -1 }, alloc);
 }
 #else
 template <typename Type>
-inline ndarray<Type, 1> table2ndarray_1d(const table& table) {
+inline array<Type> table2array_1d(const table& table) {
     row_accessor<const Type> accessor{ table };
-    const auto data = accessor.pull({ 0, -1 });
-    return ndarray<Type, 1>::wrap(data, { data.get_count() });
+    return accessor.pull({ 0, -1 });
 }
 #endif
 
@@ -157,17 +152,17 @@ public:
                                const double tol = 1e-7) {
         if constexpr (is_regression) {
 #ifdef ONEDAL_DATA_PARALLEL
-            const auto act = table2ndarray_1d<float>(this->get_queue(), actual);
-            const auto ref = table2ndarray_1d<float>(this->get_queue(), reference);
+            const auto act = table2array_1d<float>(this->get_queue(), actual);
+            const auto ref = table2array_1d<float>(this->get_queue(), reference);
 #else
-            const auto act = table2ndarray_1d<float>(actual);
-            const auto ref = table2ndarray_1d<float>(reference);
+            const auto act = table2array_1d<float>(actual);
+            const auto ref = table2array_1d<float>(reference);
 #endif
-            REQUIRE(act.get_shape() == ref.get_shape());
-            const auto count = act.get_dimension(0);
+            const auto count = act.get_count();
+            REQUIRE(count == ref.get_count());
             for (std::int32_t i = 0; i < count; ++i) {
-                const auto res = act.at(i);
-                const auto gtr = ref.at(i);
+                const auto res = act[i];
+                const auto gtr = ref[i];
                 const auto diff = std::abs(res - gtr);
                 REQUIRE(diff < tol);
             }
