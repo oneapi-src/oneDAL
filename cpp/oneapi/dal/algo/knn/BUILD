@@ -32,7 +32,6 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":knn",
-        "@onedal//cpp/oneapi/dal/backend/primitives:common",
     ],
 )
 
