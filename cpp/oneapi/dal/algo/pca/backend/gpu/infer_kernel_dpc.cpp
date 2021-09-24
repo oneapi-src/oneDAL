@@ -16,12 +16,12 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::pca::backend {
 
@@ -33,10 +33,8 @@ using input_t = infer_input<task::dim_reduction>;
 using result_t = infer_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
-template <typename Float, typename Task>
-static infer_result<Task> infer(const context_gpu& ctx,
-                                const descriptor_t& desc,
-                                const input_t& input) {
+template <typename Float>
+static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     auto& queue = ctx.get_queue();
     const auto data = input.get_data();
     auto model = input.get_model();
@@ -44,7 +42,7 @@ static infer_result<Task> infer(const context_gpu& ctx,
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t component_count = get_component_count(desc, data);
     dal::detail::check_mul_overflow(row_count, component_count);
-    dal::detail::check_mul_overflow(component_count, component_count);
+
     const auto data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
     const auto eigenvectors_nd =
         pr::table2ndarray<Float>(queue, eigenvectors, sycl::usm::alloc::device);
@@ -53,7 +51,7 @@ static infer_result<Task> infer(const context_gpu& ctx,
                                                    sycl::usm::alloc::device);
     auto gemm_event =
         pr::gemm(queue, data_nd, eigenvectors_nd.t(), result_arr, Float(1.0), Float(0.0));
-    const auto res_array = result_arr.flatten(queue, { gemm_event });
+
     return result_t{}.set_transformed_data(
         (homogen_table::wrap(result_arr.flatten(queue, { gemm_event }),
                              row_count,
@@ -62,10 +60,10 @@ static infer_result<Task> infer(const context_gpu& ctx,
 
 template <typename Float>
 struct infer_kernel_gpu<Float, task::dim_reduction> {
-    infer_result<task::dim_reduction> operator()(const context_gpu& ctx,
-                                                 const descriptor_t& desc,
-                                                 const input_t& input) const {
-        return infer<Float, task::dim_reduction>(ctx, desc, input);
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return infer<Float>(ctx, desc, input);
     }
 };
 
