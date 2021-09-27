@@ -51,11 +51,9 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
                                                    sycl::usm::alloc::device);
     auto gemm_event =
         pr::gemm(queue, data_nd, eigenvectors_nd.t(), result_arr, Float(1.0), Float(0.0));
-
+    gemm_event.wait_and_throw();
     return result_t{}.set_transformed_data(
-        (homogen_table::wrap(result_arr.flatten(queue, { gemm_event }),
-                             row_count,
-                             component_count)));
+        (homogen_table::wrap(result_arr.flatten(queue), row_count, component_count)));
 }
 
 template <typename Float>
