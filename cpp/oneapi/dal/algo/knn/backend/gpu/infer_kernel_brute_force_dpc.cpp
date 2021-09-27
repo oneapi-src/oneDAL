@@ -227,7 +227,7 @@ public:
             auto temp_resp = temp_resp_.get_row_slice(0, to - from);
             auto s_event = select_indexed(queue_, inp_indices, inp_responses_, temp_resp, ndeps);
 
-            // Only one functor can be initialized
+            // One and only one functor can be initialized
             ONEDAL_ASSERT((bool(distance_voting_) + bool(uniform_voting_) +
                            bool(distance_regression_) + bool(uniform_regression_)) == 1);
 

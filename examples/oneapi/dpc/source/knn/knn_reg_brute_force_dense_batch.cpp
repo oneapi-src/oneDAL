@@ -66,7 +66,13 @@ int main(int argc, char const* argv[]) {
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
         auto q = sycl::queue{ d };
-        run(q);
+        // TODO: Should be deleted after regression algorithm introduction on CPU
+        try {
+            run(q);
+        }
+        catch (const dal::unimplemented& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
     return 0;
 }
