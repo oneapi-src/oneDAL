@@ -127,7 +127,6 @@ static compute_result<Task> compute(const context_gpu& ctx,
 
     auto [means, sums, means_event] = compute_means(q, data_nd);
     means_event.wait_and_throw();
-
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         auto [cov, tmp, cov_event] = compute_covariance(q, data_nd, sums, means);
         cov_event.wait_and_throw();
