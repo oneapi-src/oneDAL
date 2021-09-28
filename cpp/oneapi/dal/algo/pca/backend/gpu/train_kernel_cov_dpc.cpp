@@ -28,7 +28,6 @@ namespace oneapi::dal::pca::backend {
 
 namespace pr = oneapi::dal::backend::primitives;
 
-using dal::backend::context_cpu;
 using dal::backend::context_gpu;
 using model_t = model<task::dim_reduction>;
 using input_t = train_input<task::dim_reduction>;
@@ -73,7 +72,7 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
                                   pr::ndarray<Float, 2>&& corr,
                                   std::int64_t component_count,
                                   const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
+    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host, q);
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1));
     const std::int64_t column_count = corr.get_dimension(0);
 
