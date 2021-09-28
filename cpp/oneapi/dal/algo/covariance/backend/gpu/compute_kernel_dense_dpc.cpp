@@ -21,12 +21,12 @@
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::covariance::backend {
 
 namespace pr = oneapi::dal::backend::primitives;
 
-using dal::backend::context_cpu;
 using dal::backend::context_gpu;
 using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
@@ -37,13 +37,13 @@ auto compute_means(sycl::queue& q,
                    const pr::ndview<Float, 2>& data,
                    const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
-
+    ONEDAL_PROFILER_TASK(compute_means, q);
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto reduce_event =
         pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-    auto means_event = pr::means(q, data, sums, means, deps);
+    auto means_event = pr::means(q, data, sums, means, { reduce_event });
 
     return std::make_tuple(means, sums, means_event);
 }
@@ -111,10 +111,10 @@ template <typename Float, typename Task>
 static compute_result<Task> compute(const context_gpu& ctx,
                                     const descriptor_t& desc,
                                     const input_t& input) {
-    bool is_corr_computed = false;
-    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
     auto& q = ctx.get_queue();
     const auto data = input.get_data();
+    bool is_corr_computed = false;
+    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
 
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
@@ -126,31 +126,31 @@ static compute_result<Task> compute(const context_gpu& ctx,
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
 
     auto [means, sums, means_event] = compute_means(q, data_nd);
-    means_event.wait_and_throw();
+
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, tmp, cov_event] = compute_covariance(q, data_nd, sums, means);
-        cov_event.wait_and_throw();
-        result.set_cov_matrix((homogen_table::wrap(cov.flatten(q), column_count, column_count)));
+        auto [cov, tmp, cov_event] = compute_covariance(q, data_nd, sums, means, { means_event });
+
+        result.set_cov_matrix(
+            (homogen_table::wrap(cov.flatten(q, { cov_event }), column_count, column_count)));
 
         if (desc.get_result_options().test(result_options::cor_matrix)) {
             is_corr_computed = true;
 
             auto [corr, corr_event] =
                 compute_correlation_with_covariance(q, data_nd, cov, tmp, { cov_event });
-            corr_event.wait_and_throw();
 
             result.set_cor_matrix(
-                (homogen_table::wrap(corr.flatten(q), column_count, column_count)));
+                (homogen_table::wrap(corr.flatten(q, { corr_event }), column_count, column_count)));
         }
     }
     if (desc.get_result_options().test(result_options::cor_matrix) && !is_corr_computed) {
-        auto [corr, corr_event] = compute_correlation(q, data_nd, sums, means);
-        corr_event.wait_and_throw();
+        auto [corr, corr_event] = compute_correlation(q, data_nd, sums, means, { means_event });
 
-        result.set_cor_matrix((homogen_table::wrap(corr.flatten(q), column_count, column_count)));
+        result.set_cor_matrix(
+            (homogen_table::wrap(corr.flatten(q, { corr_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::means)) {
-        result.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
+        result.set_means(homogen_table::wrap(means.flatten(q, { means_event }), 1, column_count));
     }
     return result;
 }
