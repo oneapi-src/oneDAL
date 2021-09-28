@@ -102,7 +102,7 @@ public:
     /// @remark default = table{}
     const table& get_responses() const;
 
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    template <typename T = Task, typename = detail::enable_if_not_search_t<T>>
     auto& set_responses(const table& value) {
         set_responses_impl(value);
         return *this;

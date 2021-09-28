@@ -29,6 +29,7 @@ dal_collect_modules(
         "intersection",
         "lapack",
         "reduction",
+        "regression",
         "rng",
         "search",
         "selection",

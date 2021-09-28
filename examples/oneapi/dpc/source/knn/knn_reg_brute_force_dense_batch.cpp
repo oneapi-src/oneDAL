@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,18 +27,22 @@
 namespace dal = oneapi::dal;
 
 void run(sycl::queue& q) {
-    const auto train_data_file_name = get_data_path("k_nearest_neighbors_train_data.csv");
-    const auto train_response_file_name = get_data_path("k_nearest_neighbors_train_label.csv");
-    const auto test_data_file_name = get_data_path("k_nearest_neighbors_test_data.csv");
-    const auto test_response_file_name = get_data_path("k_nearest_neighbors_test_label.csv");
+    const auto train_data_file_name = get_data_path("knn_regression_train_data.csv");
+    const auto train_response_file_name = get_data_path("knn_regression_train_responses.csv");
+    const auto test_data_file_name = get_data_path("knn_regression_test_data.csv");
+    const auto test_response_file_name = get_data_path("knn_regression_test_responses.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
     const auto y_train =
         dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
 
-    const auto knn_desc_uniform = dal::knn::descriptor(5, 1);
-    const auto knn_desc_distance =
-        dal::knn::descriptor(5, 1).set_voting_mode(dal::knn::voting_mode::distance);
+    using float_t = float;
+    using method_t = dal::knn::method::by_default;
+    using task_t = dal::knn::task::regression;
+    using descriptor_t = dal::knn::descriptor<float_t, method_t, task_t>;
+
+    const auto knn_desc_uniform = descriptor_t(5);
+    const auto knn_desc_distance = descriptor_t(5).set_voting_mode(dal::knn::voting_mode::distance);
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
@@ -51,9 +55,9 @@ void run(sycl::queue& q) {
     const auto test_result_distance =
         dal::infer(q, knn_desc_distance, x_test, train_result_distance.get_model());
 
-    std::cout << "Test results (uniform voting):\n"
+    std::cout << "Test results (uniform regression):\n"
               << test_result_uniform.get_responses() << std::endl;
-    std::cout << "Test results (distance voting):\n"
+    std::cout << "Test results (distance regression):\n"
               << test_result_distance.get_responses() << std::endl;
     std::cout << "True responses:\n" << y_test << std::endl;
 }
@@ -62,7 +66,13 @@ int main(int argc, char const* argv[]) {
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
         auto q = sycl::queue{ d };
-        run(q);
+        // TODO: Should be deleted after regression algorithm introduction on CPU
+        try {
+            run(q);
+        }
+        catch (const dal::unimplemented& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
     return 0;
 }

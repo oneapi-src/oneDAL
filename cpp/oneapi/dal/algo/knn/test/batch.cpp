@@ -25,10 +25,14 @@
 
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+
 #include "oneapi/dal/table/detail/table_builder.hpp"
+
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
+
 #include "oneapi/dal/test/engine/metrics/classification.hpp"
+#include "oneapi/dal/test/engine/metrics/regression.hpp"
 
 namespace oneapi::dal::knn::test {
 
@@ -47,19 +51,23 @@ public:
     using voting_t = oneapi::dal::knn::voting_mode;
     constexpr static inline voting_t default_voting = voting_t::uniform;
 
-    template <typename Distance = default_distance_t>
+    template <typename D = default_distance_t, typename T = knn::task::by_default>
     auto get_descriptor(std::int64_t override_class_count,
                         std::int64_t override_neighbor_count,
-                        Distance distance = Distance{},
-                        voting_t voting = default_voting) const {
-        return knn::
-            descriptor<float_t, knn::method::brute_force, knn::task::classification, Distance>(
-                   override_class_count,
-                   override_neighbor_count,
-                   distance)
+                        D distance = D{},
+                        voting_t voting = default_voting,
+                        T task = T{}) const {
+        auto desc =
+            knn::descriptor<float_t, method_t, T, D>(override_class_count, override_neighbor_count)
                 .set_result_options(knn::result_options::responses | knn::result_options::indices |
                                     knn::result_options::distances)
                 .set_voting_mode(voting);
+
+        if constexpr (is_brute_force) {
+            desc.set_distance(distance);
+        }
+
+        return desc;
     }
 
     static constexpr bool is_kd_tree = std::is_same_v<method_t, knn::method::kd_tree>;
@@ -99,9 +107,39 @@ public:
         return score;
     }
 
+    template <typename Distance = default_distance_t>
+    float_t regression(const table& train_data,
+                       const table& train_responses,
+                       const table& infer_data,
+                       const table& infer_responses,
+                       const std::int64_t n_neighbors,
+                       const Distance distance = Distance{},
+                       const voting_t voting = default_voting) {
+        INFO("check if data shape is expected")
+        REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
+        REQUIRE(train_responses.get_column_count() == 1);
+        REQUIRE(infer_responses.get_column_count() == 1);
+        REQUIRE(infer_data.get_row_count() == infer_responses.get_row_count());
+        REQUIRE(train_data.get_row_count() == train_responses.get_row_count());
+
+        constexpr knn::task::regression task{};
+
+        const auto knn_desc = this->get_descriptor(42, n_neighbors, distance, voting, task);
+
+        auto train_result = this->train(knn_desc, train_data, train_responses);
+        auto train_model = train_result.get_model();
+        auto infer_result = this->infer(knn_desc, infer_data, train_model);
+        auto [prediction] = this->unpack_result(infer_result);
+
+        const auto score_table = te::mse_score<float_t>(infer_responses, prediction);
+        const auto score = row_accessor<const float_t>(score_table).pull({ 0, -1 })[0];
+        return score;
+    }
+
+    template <typename Task>
     void exact_nearest_indices_check(const table& train_data,
                                      const table& infer_data,
-                                     const knn::infer_result<>& result) {
+                                     const knn::infer_result<Task>& result) {
         check_nans(result);
 
         const auto [responses] = unpack_result(result);
@@ -188,14 +226,16 @@ public:
         return arange(0, to);
     }
 
-    void check_nans(const knn::infer_result<>& result) {
+    template <typename Task>
+    void check_nans(const knn::infer_result<Task>& result) {
         const auto [responses] = unpack_result(result);
 
         INFO("check if there is no NaN in responses")
         REQUIRE(te::has_no_nans(responses));
     }
 
-    static auto unpack_result(const knn::infer_result<>& result) {
+    template <typename Task>
+    static auto unpack_result(const knn::infer_result<Task>& result) {
         const auto responses = result.get_responses();
         return std::make_tuple(responses);
     }
@@ -288,6 +328,40 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 513x301x17") {
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
+KNN_SYNTHETIC_TEST("knn nearest points test random uniform using regression 513x301x17") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+
+    constexpr std::int64_t train_row_count = 513;
+    constexpr std::int64_t infer_row_count = 301;
+    constexpr std::int64_t column_count = 17;
+
+    CAPTURE(train_row_count, infer_row_count, column_count);
+
+    const auto train_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ train_row_count, column_count }.fill_uniform(-0.2, 0.5));
+    const table x_train_table = train_dataframe.get_table(this->get_homogen_table_id());
+    const auto infer_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ infer_row_count, column_count }.fill_uniform(-0.3, 1.));
+    const table x_infer_table = infer_dataframe.get_table(this->get_homogen_table_id());
+
+    const table y_train_table = this->arange(train_row_count);
+
+    using distance_t = oneapi::dal::minkowski_distance::descriptor<>;
+    constexpr double minkowski_degree = 2.0;
+    const auto distance_desc = distance_t(minkowski_degree);
+    constexpr auto voting = oneapi::dal::knn::voting_mode::uniform;
+    constexpr knn::task::regression task{};
+
+    const auto knn_desc = this->get_descriptor(train_row_count, 1, distance_desc, voting, task);
+
+    auto train_result = this->train(knn_desc, x_train_table, y_train_table);
+    auto infer_result = this->infer(knn_desc, x_infer_table, train_result.get_model());
+
+    this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
+}
+
 KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -350,6 +424,82 @@ KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
                                             n_neighbors);
     CAPTURE(score);
     REQUIRE(score >= target_score);
+}
+
+KNN_EXTERNAL_TEST("knn distance regression hepmass 50kx10k") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+
+    constexpr double target_score = 0.072;
+
+    constexpr std::int64_t feature_count = 28;
+    constexpr std::int64_t n_neighbors = 3;
+
+    const te::dataframe train_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_50t_test.csv" });
+
+    const te::dataframe infer_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
+
+    const table x_train_table =
+        train_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
+    const table x_infer_table =
+        infer_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
+
+    const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(feature_count, feature_count + 1));
+    const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(feature_count, feature_count + 1));
+
+    using distance_t = oneapi::dal::minkowski_distance::descriptor<>;
+    constexpr double minkowski_degree = 2.0;
+    const auto distance_desc = distance_t(minkowski_degree);
+    constexpr auto voting = oneapi::dal::knn::voting_mode::distance;
+
+    const auto score = this->regression(x_train_table,
+                                        y_train_table,
+                                        x_infer_table,
+                                        y_infer_table,
+                                        n_neighbors,
+                                        distance_desc,
+                                        voting);
+
+    CAPTURE(score, target_score);
+    REQUIRE(score < target_score);
+}
+
+KNN_EXTERNAL_TEST("knn uniform regression hepmass 50kx10k") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+
+    constexpr double target_score = 0.072;
+
+    constexpr std::int64_t feature_count = 28;
+    constexpr std::int64_t n_neighbors = 3;
+
+    const te::dataframe train_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_50t_test.csv" });
+
+    const te::dataframe infer_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
+
+    const table x_train_table =
+        train_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
+    const table x_infer_table =
+        infer_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
+
+    const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(feature_count, feature_count + 1));
+    const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(feature_count, feature_count + 1));
+
+    const auto score =
+        this->regression(x_train_table, y_train_table, x_infer_table, y_infer_table, n_neighbors);
+
+    CAPTURE(score, target_score);
+    REQUIRE(score < target_score);
 }
 
 KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with distance voting)") {

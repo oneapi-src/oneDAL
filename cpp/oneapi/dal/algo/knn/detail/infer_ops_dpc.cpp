@@ -47,6 +47,10 @@ INSTANTIATE(float, method::kd_tree, task::search)
 INSTANTIATE(double, method::kd_tree, task::search)
 INSTANTIATE(float, method::brute_force, task::search)
 INSTANTIATE(double, method::brute_force, task::search)
+INSTANTIATE(float, method::kd_tree, task::regression)
+INSTANTIATE(double, method::kd_tree, task::regression)
+INSTANTIATE(float, method::brute_force, task::regression)
+INSTANTIATE(double, method::brute_force, task::regression)
 
 } // namespace v1
 } // namespace oneapi::dal::knn::detail

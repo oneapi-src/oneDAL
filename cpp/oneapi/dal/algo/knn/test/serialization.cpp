@@ -28,6 +28,22 @@ namespace oneapi::dal::knn::test {
 
 namespace te = dal::test::engine;
 
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename Type>
+inline array<Type> table2array_1d(sycl::queue& q,
+                                  const table& table,
+                                  sycl::usm::alloc alloc = sycl::usm::alloc::shared) {
+    row_accessor<const Type> accessor{ table };
+    return accessor.pull(q, { 0, -1 }, alloc);
+}
+#else
+template <typename Type>
+inline array<Type> table2array_1d(const table& table) {
+    row_accessor<const Type> accessor{ table };
+    return accessor.pull({ 0, -1 });
+}
+#endif
+
 template <typename TestType>
 class knn_serialization_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
@@ -39,10 +55,13 @@ public:
     static constexpr bool is_kd_tree = std::is_same_v<method_t, knn::method::kd_tree>;
     static constexpr bool is_brute_force = std::is_same_v<method_t, knn::method::brute_force>;
     static constexpr bool is_classification = std::is_same_v<task_t, knn::task::classification>;
+    static constexpr bool is_regression = std::is_same_v<task_t, knn::task::regression>;
     static constexpr bool is_search = std::is_same_v<task_t, knn::task::search>;
 
     bool not_available_on_device() {
-        return (this->get_policy().is_gpu() && is_kd_tree);
+        const bool gpu_kd_tree = this->get_policy().is_gpu() && is_kd_tree;
+        const bool cpu_regression = this->get_policy().is_cpu() && is_regression;
+        return gpu_kd_tree || cpu_regression;
     }
 
     void set_class_count(std::int64_t class_count) {
@@ -128,6 +147,28 @@ public:
         return this->infer(this->get_descriptor(), this->get_test_data(), m);
     }
 
+    void check_if_tables_close(const table& actual,
+                               const table& reference,
+                               const double tol = 1e-7) {
+        if constexpr (is_regression) {
+#ifdef ONEDAL_DATA_PARALLEL
+            const auto act = table2array_1d<float>(this->get_queue(), actual);
+            const auto ref = table2array_1d<float>(this->get_queue(), reference);
+#else
+            const auto act = table2array_1d<float>(actual);
+            const auto ref = table2array_1d<float>(reference);
+#endif
+            const auto count = act.get_count();
+            REQUIRE(count == ref.get_count());
+            for (std::int32_t i = 0; i < count; ++i) {
+                const auto res = act[i];
+                const auto gtr = ref[i];
+                const auto diff = std::abs(res - gtr);
+                REQUIRE(diff < tol);
+            }
+        }
+    }
+
     void compare_infer_results(const infer_result<task_t>& actual,
                                const infer_result<task_t>& reference) {
         if constexpr (is_classification) {
@@ -136,6 +177,13 @@ public:
                                                    reference.get_responses());
             }
         }
+
+        if constexpr (is_regression) {
+            INFO("compare responses") {
+                check_if_tables_close(actual.get_responses(), reference.get_responses());
+            }
+        }
+
         if constexpr (is_search) {
             INFO("compare indices") {
                 te::check_if_tables_equal<float_t>(actual.get_indices(), reference.get_indices());
@@ -167,11 +215,13 @@ private:
 
 using knn_types = COMBINE_TYPES((float, double),
                                 (knn::method::kd_tree, knn::method::brute_force),
-                                (knn::task::classification, knn::task::search));
+                                (knn::task::classification,
+                                 knn::task::search,
+                                 knn::task::regression));
 
 TEMPLATE_LIST_TEST_M(knn_serialization_test,
                      "serialize/deserialize knn models",
-                     "[cls]",
+                     "[cls][reg][search]",
                      knn_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->not_available_on_device());

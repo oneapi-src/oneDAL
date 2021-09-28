@@ -27,6 +27,8 @@
 #include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h>
 #include <algorithms/k_nearest_neighbors/bf_knn_classification_model.h>
 
+#include "oneapi/dal/exceptions.hpp"
+
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_cpu;
@@ -42,6 +44,11 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
                                            const table& responses) {
+    if constexpr (std::is_same_v<Task, task::regression>) {
+        throw unimplemented(
+            dal::detail::error_messages::knn_regression_task_is_not_implemented_for_cpu());
+    }
+
     using model_t = model<Task>;
     const std::int64_t column_count = data.get_column_count();
 
@@ -92,6 +99,8 @@ struct train_kernel_cpu<Float, method::brute_force, Task> {
 
 template struct train_kernel_cpu<float, method::brute_force, task::classification>;
 template struct train_kernel_cpu<double, method::brute_force, task::classification>;
+template struct train_kernel_cpu<float, method::brute_force, task::regression>;
+template struct train_kernel_cpu<double, method::brute_force, task::regression>;
 template struct train_kernel_cpu<float, method::brute_force, task::search>;
 template struct train_kernel_cpu<double, method::brute_force, task::search>;
 

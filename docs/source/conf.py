@@ -172,6 +172,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::infer_input'),
     ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
     ('cpp:identifier', 'detail::enable_if_search_t<T>'),
+    ('cpp:identifier', 'detail::enable_if_not_classification_t<T>'),
     # minkowski_distance
     ('cpp:identifier', 'minkowski_distance'),
     ('cpp:identifier', 'minkowski_distance::descriptor'),
