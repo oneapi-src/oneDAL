@@ -244,7 +244,7 @@ sycl::event means(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
 
     auto finalize_event = compute_means(q, data, sums, means, deps);
-
+    finalize_event.wait_and_throw();
     return finalize_event;
 }
 
@@ -281,10 +281,8 @@ sycl::event covariance(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
     auto gemm_event = gemm(q, data.t(), data, cov, Float(1), Float(0), deps);
-    gemm_event.wait_and_throw();
     auto prepare_event =
         prepare_correlation(q, data.get_dimension(0), sums, cov, means, vars, tmp, { gemm_event });
-    prepare_event.wait_and_throw();
     auto finalize_event =
         finalize_covariance(q, data.get_dimension(0), sums, cov, { prepare_event });
     finalize_event.wait_and_throw();
@@ -326,10 +324,8 @@ sycl::event correlation(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-    gemm_event.wait_and_throw();
     auto prepare_event =
         prepare_correlation(q, data.get_dimension(0), sums, corr, means, vars, tmp, { gemm_event });
-    prepare_event.wait_and_throw();
     auto finalize_event =
         finalize_correlation(q, data.get_dimension(0), sums, tmp, corr, { prepare_event });
     finalize_event.wait_and_throw();
