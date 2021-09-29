@@ -322,7 +322,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
     }
     Float mrgsum = Float(0);
     Float mrgsum2 = Float(0);
-    Float mrgVectors = Float(0);
+    Float mrgvectors = Float(0);
     Float mrgsum2cent = Float(0);
     Float mrgmean = Float(0);
 
@@ -353,11 +353,11 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
             sum2 = bsum2_ptr[offset];
         }
-        std::int64_t nVec = 1;
+        std::int64_t rcnt = 1;
         if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                           bs_list::stdev | bs_list::vart,
                                       List)) {
-            nVec = brc_ptr[offset];
+            rcnt = brc_ptr[offset];
         }
         Float sum2cent = Float(0);
         if constexpr (check_mask_flag(
@@ -365,21 +365,21 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
                           List)) {
             sum2cent = bsum2cent_ptr[offset];
         }
-        Float mean = sum / static_cast<Float>(nVec);
+        Float mean = sum / static_cast<Float>(rcnt);
 
-        Float sumN1N2 = mrgVectors + static_cast<Float>(nVec);
-        Float mulN1N2 = mrgVectors * static_cast<Float>(nVec);
-        Float deltaScale = mulN1N2 / sumN1N2;
-        Float meanScale = Float(1) / sumN1N2;
+        Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
+        Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
+        Float delta_scale = mul_n1n2 / sum_n1n2;
+        Float mean_scale = Float(1) / sum_n1n2;
         Float delta = mean - mrgmean;
 
         mrgmin = sycl::fmin(min, mrgmin);
         mrgmax = sycl::fmax(max, mrgmax);
         mrgsum += sum;
         mrgsum2 += sum2;
-        mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * deltaScale;
-        mrgmean = (mrgmean * mrgVectors + mean * static_cast<Float>(nVec)) * meanScale;
-        mrgVectors = sumN1N2;
+        mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
+        mrgmean = (mrgmean * mrgvectors + mean * static_cast<Float>(rcnt)) * mean_scale;
+        mrgvectors = sum_n1n2;
 
         if constexpr (check_mask_flag(bs_list::min, List)) {
             lmin_ptr[id] = mrgmin;
@@ -398,7 +398,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                           bs_list::stdev | bs_list::vart,
                                       List)) {
-            lrc_ptr[id] += nVec;
+            lrc_ptr[id] += rcnt;
         }
         if constexpr (check_mask_flag(
                           bs_list::sum2cent | bs_list::varc | bs_list::stdev | bs_list::vart,
@@ -436,11 +436,11 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
             if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
                 sum2 = lsum2_ptr[offset];
             }
-            std::int64_t nVec = 1;
+            std::int64_t rcnt = 1;
             if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                               bs_list::stdev | bs_list::vart,
                                           List)) {
-                nVec = lrc_ptr[offset];
+                rcnt = lrc_ptr[offset];
             }
             Float sum2cent = Float(0);
             if constexpr (check_mask_flag(
@@ -455,19 +455,19 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
                 mean = lmean_ptr[offset];
             }
 
-            Float sumN1N2 = mrgVectors + static_cast<Float>(nVec);
-            Float mulN1N2 = mrgVectors * static_cast<Float>(nVec);
-            Float deltaScale = mulN1N2 / sumN1N2;
-            Float meanScale = Float(1) / sumN1N2;
+            Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
+            Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
+            Float delta_scale = mul_n1n2 / sum_n1n2;
+            Float mean_scale = Float(1) / sum_n1n2;
             Float delta = mean - mrgmean;
 
             mrgmin = sycl::fmin(min, mrgmin);
             mrgmax = sycl::fmax(max, mrgmax);
             mrgsum += sum;
             mrgsum2 += sum2;
-            mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * deltaScale;
-            mrgmean = (mrgmean * mrgVectors + mean * static_cast<Float>(nVec)) * meanScale;
-            mrgVectors = sumN1N2;
+            mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
+            mrgmean = (mrgmean * mrgvectors + mean * static_cast<Float>(rcnt)) * mean_scale;
+            mrgvectors = sum_n1n2;
 
             // item 0 collects all results in private vars
             // but all others need to store it
@@ -489,7 +489,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
                 if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                                   bs_list::stdev | bs_list::vart,
                                               List)) {
-                    lrc_ptr[id] += nVec;
+                    lrc_ptr[id] += rcnt;
                 }
                 if constexpr (check_mask_flag(bs_list::sum2cent | bs_list::varc | bs_list::stdev |
                                                   bs_list::vart,
@@ -527,16 +527,16 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         }
 
         if constexpr (!DefferedFin) {
-            Float mrgVariance = mrgsum2cent / (mrgVectors - Float(1));
-            Float mrgstdev = (Float)sqrt(mrgVariance);
+            Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
+            Float mrgstdev = (Float)sqrt(mrgvariance);
             if constexpr (check_mask_flag(bs_list::mean, List)) {
                 rmean_ptr[group_id] = mrgmean;
             }
             if constexpr (check_mask_flag(bs_list::sorm, List)) {
-                rsorm_ptr[group_id] = mrgsum2 / mrgVectors;
+                rsorm_ptr[group_id] = mrgsum2 / mrgvectors;
             }
             if constexpr (check_mask_flag(bs_list::varc, List)) {
-                rvarc_ptr[group_id] = mrgVariance;
+                rvarc_ptr[group_id] = mrgvariance;
             }
             if constexpr (check_mask_flag(bs_list::stdev, List)) {
                 rstdev_ptr[group_id] = mrgstdev;
@@ -703,7 +703,7 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
         cgh.parallel_for(range, [=](sycl::id<1> id) {
             Float mrgsum = Float(0);
 
-            Float mrgVectors = Float(0);
+            Float mrgvectors = Float(0);
             Float mrgsum2cent = Float(0);
             Float mrgmean = Float(0);
 
@@ -717,26 +717,26 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
                     sum = bsum_ptr[offset];
                 }
 
-                Float nVec = static_cast<Float>(brc_ptr[i]);
+                Float rcnt = static_cast<Float>(brc_ptr[i]);
                 Float sum2cent = Float(0);
                 if constexpr (check_mask_flag(bs_list::sum2cent | bs_list::varc | bs_list::stdev |
                                                   bs_list::vart,
                                               List)) {
                     sum2cent = bsum2cent_ptr[offset];
                 }
-                Float mean = sum / nVec;
+                Float mean = sum / rcnt;
 
-                Float sumN1N2 = mrgVectors + nVec;
-                Float mulN1N2 = mrgVectors * nVec;
-                Float deltaScale = mulN1N2 / sumN1N2;
-                Float meanScale = Float(1) / sumN1N2;
+                Float sum_n1n2 = mrgvectors + rcnt;
+                Float mul_n1n2 = mrgvectors * rcnt;
+                Float delta_scale = mul_n1n2 / sum_n1n2;
+                Float mean_scale = Float(1) / sum_n1n2;
                 Float delta = mean - mrgmean;
 
                 mrgsum += sum;
 
-                mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * deltaScale;
-                mrgmean = (mrgmean * mrgVectors + mean * nVec) * meanScale;
-                mrgVectors = sumN1N2;
+                mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
+                mrgmean = (mrgmean * mrgvectors + mean * rcnt) * mean_scale;
+                mrgvectors = sum_n1n2;
             }
 
             if constexpr (check_mask_flag(bs_list::sum, List)) {
@@ -749,14 +749,14 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
                 rmean_ptr[id] = mrgmean;
             }
             if constexpr (check_mask_flag(bs_list::sorm, List)) {
-                rsorm_ptr[id] = rsum2_ptr[id] / mrgVectors;
+                rsorm_ptr[id] = rsum2_ptr[id] / mrgvectors;
             }
 
-            Float mrgVariance = mrgsum2cent / (mrgVectors - Float(1));
-            Float mrgstdev = sycl::sqrt(mrgVariance);
+            Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
+            Float mrgstdev = sycl::sqrt(mrgvariance);
 
             if constexpr (check_mask_flag(bs_list::varc, List)) {
-                rvarc_ptr[id] = mrgVariance;
+                rvarc_ptr[id] = mrgvariance;
             }
             if constexpr (check_mask_flag(bs_list::stdev, List)) {
                 rstdev_ptr[id] = mrgstdev;
