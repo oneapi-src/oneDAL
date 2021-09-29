@@ -62,8 +62,8 @@ std::int64_t compute_kernel_dense_impl<Float, List>::get_row_block_count(std::in
 template <typename Float, bs_list List>
 std::int64_t compute_kernel_dense_impl<Float, List>::get_column_block_count(
     std::int64_t column_count) {
-    //auto max_work_group_size = q_.get_device().get_info<sycl::info::device::max_work_group_size>();
-    auto max_work_group_size = 256;
+    std::int64_t max_work_group_size =
+        q_.get_device().get_info<sycl::info::device::max_work_group_size>();
     return (column_count + max_work_group_size - 1) / max_work_group_size;
 }
 
@@ -133,8 +133,8 @@ inline void single_pass_block_processor(const Float* data_ptr,
                                         const std::int64_t column_block_count,
                                         const std::int64_t tid,
                                         const std::int64_t tnum) {
-    const std::int64_t colOffset = col_block_idx * tnum;
-    const std::int64_t x = tid + colOffset;
+    const std::int64_t col_offset = col_block_idx * tnum;
+    const std::int64_t x = tid + col_offset;
 
     if (x < column_count) {
         std::int64_t row_block_size = row_count;
@@ -144,21 +144,21 @@ inline void single_pass_block_processor(const Float* data_ptr,
 
         Float sum = Float(0);
         Float sum2 = Float(0);
-        Float sum2Cent = Float(0);
+        Float sum2cent = Float(0);
         Float mean = Float(0);
 
         for (std::int64_t row = 0; row < row_block_size; ++row) {
             const std::int64_t y = row * column_count;
             const Float el = data_ptr[y + x];
-            Float invN = Float(1) / (row + 1);
+            Float inv_n = Float(1) / (row + 1);
             Float delta = el - mean;
 
             min = sycl::fmin(el, min);
             max = sycl::fmax(el, max);
             sum += el;
             sum2 += el * el;
-            mean += delta * invN;
-            sum2Cent += delta * (el - mean);
+            mean += delta * inv_n;
+            sum2cent += delta * (el - mean);
         }
 
         if constexpr (check_mask_flag(bs_list::min, List)) {
@@ -180,12 +180,12 @@ inline void single_pass_block_processor(const Float* data_ptr,
         if constexpr (check_mask_flag(bs_list::sum2cent, List) ||
                       (DefferedFin &&
                        check_mask_flag(bs_list::varc | bs_list::stdev | bs_list::vart, List))) {
-            rsum2cent_ptr[x] = sum2Cent;
+            rsum2cent_ptr[x] = sum2cent;
         }
 
         // common vars calculation
-        Float variance = sum2Cent / (row_block_size - Float(1));
-        Float stDev = (Float)sqrt(variance);
+        Float variance = sum2cent / (row_block_size - Float(1));
+        Float stdev = (Float)sqrt(variance);
 
         // output assignment
         if constexpr (!DefferedFin && check_mask_flag(bs_list::mean, List)) {
@@ -198,10 +198,10 @@ inline void single_pass_block_processor(const Float* data_ptr,
             rvarc_ptr[x] = variance;
         }
         if constexpr (!DefferedFin && check_mask_flag(bs_list::stdev, List)) {
-            rstdev_ptr[x] = stDev;
+            rstdev_ptr[x] = stdev;
         }
         if constexpr (!DefferedFin && check_mask_flag(bs_list::vart, List)) {
-            rvart_ptr[x] = stDev / mean;
+            rvart_ptr[x] = stdev / mean;
         }
     }
 }
@@ -209,12 +209,12 @@ inline void single_pass_block_processor(const Float* data_ptr,
 /* block processing kernel for device execution */
 template <typename Float, bs_list List>
 inline void block_processor(const Float* data_ptr,
-                            std::int64_t* bNVec,
-                            Float* bMin,
-                            Float* bMax,
-                            Float* bSum,
-                            Float* bSum2,
-                            Float* bSum2Cent,
+                            std::int64_t* brc_ptr,
+                            Float* bmin_ptr,
+                            Float* bmax_ptr,
+                            Float* bsum_ptr,
+                            Float* bsum2_ptr,
+                            Float* bsum2cent_ptr,
                             std::int64_t row_count,
                             std::int64_t row_block_idx,
                             std::int64_t row_block_count,
@@ -223,61 +223,61 @@ inline void block_processor(const Float* data_ptr,
                             std::int64_t column_block_count,
                             std::int64_t tid,
                             std::int64_t tnum) {
-    const std::int64_t colOffset = column_block_idx * tnum;
-    const std::int64_t x = tid + colOffset;
+    const std::int64_t col_offset = column_block_idx * tnum;
+    const std::int64_t x = tid + col_offset;
 
     if (x < column_count) {
         std::int64_t row_block_size = (row_count + row_block_count - 1) / row_block_count;
-        const std::int64_t rowOffset = row_block_size * row_block_idx;
+        const std::int64_t row_offset = row_block_size * row_block_idx;
 
-        if (row_block_size + rowOffset > row_count) {
-            row_block_size = row_count - rowOffset;
+        if (row_block_size + row_offset > row_count) {
+            row_block_size = row_count - row_offset;
         }
 
-        Float min = data_ptr[rowOffset * column_count + x];
-        Float max = data_ptr[rowOffset * column_count + x];
+        Float min = data_ptr[row_offset * column_count + x];
+        Float max = data_ptr[row_offset * column_count + x];
         Float sum = Float(0);
         Float sum2 = Float(0);
-        Float sum2Cent = Float(0);
+        Float sum2cent = Float(0);
         Float mean = Float(0);
 
         for (std::int64_t row = 0; row < row_block_size; ++row) {
-            const std::int64_t y = (row + rowOffset) * column_count;
+            const std::int64_t y = (row + row_offset) * column_count;
             const Float el = data_ptr[y + x];
-            Float invN = Float(1) / (row + 1);
+            Float inv_n = Float(1) / (row + 1);
             Float delta = el - mean;
 
             min = sycl::fmin(el, min);
             max = sycl::fmax(el, max);
             sum += el;
             sum2 += el * el;
-            mean += delta * invN;
-            sum2Cent += delta * (el - mean);
+            mean += delta * inv_n;
+            sum2cent += delta * (el - mean);
         }
 
         if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                           bs_list::stdev | bs_list::vart,
                                       List)) {
-            bNVec[x * row_block_count + row_block_idx] = row_block_size;
+            brc_ptr[x * row_block_count + row_block_idx] = row_block_size;
         }
         if constexpr (check_mask_flag(bs_list::min, List)) {
-            bMin[x * row_block_count + row_block_idx] = min;
+            bmin_ptr[x * row_block_count + row_block_idx] = min;
         }
         if constexpr (check_mask_flag(bs_list::max, List)) {
-            bMax[x * row_block_count + row_block_idx] = max;
+            bmax_ptr[x * row_block_count + row_block_idx] = max;
         }
         if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | bs_list::sum2cent |
                                           bs_list::varc | bs_list::stdev | bs_list::vart,
                                       List)) {
-            bSum[x * row_block_count + row_block_idx] = sum;
+            bsum_ptr[x * row_block_count + row_block_idx] = sum;
         }
         if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
-            bSum2[x * row_block_count + row_block_idx] = sum2;
+            bsum2_ptr[x * row_block_count + row_block_idx] = sum2;
         }
         if constexpr (check_mask_flag(
                           bs_list::sum2cent | bs_list::varc | bs_list::stdev | bs_list::vart,
                           List)) {
-            bSum2Cent[x * row_block_count + row_block_idx] = sum2Cent;
+            bsum2cent_ptr[x * row_block_count + row_block_idx] = sum2cent;
         }
     }
 }
@@ -285,19 +285,19 @@ inline void block_processor(const Float* data_ptr,
 /* block processing kernel for device execution */
 template <typename Float, bs_list List, bool DefferedFin>
 inline void merge_blocks_kernel(sycl::nd_item<1> item,
-                                const std::int64_t* bNVec,
-                                const Float* bMin,
-                                const Float* bMax,
-                                const Float* bSum,
-                                const Float* bSum2,
-                                const Float* bSum2Cent,
-                                std::int64_t* lNVec,
-                                Float* lMin,
-                                Float* lMax,
-                                Float* lSum,
-                                Float* lSum2,
-                                Float* lSum2Cent,
-                                Float* lMean,
+                                const std::int64_t* brc_ptr,
+                                const Float* bmin_ptr,
+                                const Float* bmax_ptr,
+                                const Float* bsum_ptr,
+                                const Float* bsum2_ptr,
+                                const Float* bsum2cent_ptr,
+                                std::int64_t* lrc_ptr,
+                                Float* lmin_ptr,
+                                Float* lmax_ptr,
+                                Float* lsum_ptr,
+                                Float* lsum2_ptr,
+                                Float* lsum2cent_ptr,
+                                Float* lmean_ptr,
                                 Float* rmin_ptr,
                                 Float* rmax_ptr,
                                 Float* rsum_ptr,
@@ -312,64 +312,58 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
                                 std::int64_t group_id,
                                 std::int64_t local_size,
                                 std::int64_t block_count) {
-    std::int64_t itemId = id;
-    std::int64_t groupId = group_id;
-    std::int64_t localSize = local_size;
-    std::int64_t globalDim = block_count;
-    std::int64_t localDim = 1;
-
-    Float mrgMin = Float(0);
+    Float mrgmin = Float(0);
     if constexpr (check_mask_flag(bs_list::min, List)) {
-        mrgMin = bMin[groupId * globalDim + itemId * localDim];
+        mrgmin = bmin_ptr[group_id * block_count + id];
     }
-    Float mrgMax = Float(0);
+    Float mrgmax = Float(0);
     if constexpr (check_mask_flag(bs_list::max, List)) {
-        mrgMax = bMax[groupId * globalDim + itemId * localDim];
+        mrgmax = bmax_ptr[group_id * block_count + id];
     }
-    Float mrgSum = Float(0);
-    Float mrgSum2 = Float(0);
+    Float mrgsum = Float(0);
+    Float mrgsum2 = Float(0);
     Float mrgVectors = Float(0);
-    Float mrgSum2Cent = Float(0);
-    Float mrgMean = Float(0);
+    Float mrgsum2cent = Float(0);
+    Float mrgmean = Float(0);
 
     if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                       bs_list::stdev | bs_list::vart,
                                   List)) {
-        lNVec[itemId] = 0;
+        lrc_ptr[id] = 0;
     }
 
-    for (std::int64_t i = itemId; i < block_count; i += localSize) {
-        std::int64_t offset = groupId * globalDim + i * localDim;
+    for (std::int64_t i = id; i < block_count; i += local_size) {
+        std::int64_t offset = group_id * block_count + i;
 
         Float min = Float(0);
         if constexpr (check_mask_flag(bs_list::min, List)) {
-            min = bMin[offset];
+            min = bmin_ptr[offset];
         }
         Float max = Float(0);
         if constexpr (check_mask_flag(bs_list::max, List)) {
-            max = bMax[offset];
+            max = bmax_ptr[offset];
         }
         Float sum = Float(0);
         if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | bs_list::sum2cent |
                                           bs_list::varc | bs_list::stdev | bs_list::vart,
                                       List)) {
-            sum = bSum[offset];
+            sum = bsum_ptr[offset];
         }
         Float sum2 = Float(0);
         if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
-            sum2 = bSum2[offset];
+            sum2 = bsum2_ptr[offset];
         }
         std::int64_t nVec = 1;
         if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                           bs_list::stdev | bs_list::vart,
                                       List)) {
-            nVec = bNVec[offset];
+            nVec = brc_ptr[offset];
         }
-        Float sum2Cent = Float(0);
+        Float sum2cent = Float(0);
         if constexpr (check_mask_flag(
                           bs_list::sum2cent | bs_list::varc | bs_list::stdev | bs_list::vart,
                           List)) {
-            sum2Cent = bSum2Cent[offset];
+            sum2cent = bsum2cent_ptr[offset];
         }
         Float mean = sum / static_cast<Float>(nVec);
 
@@ -377,178 +371,178 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         Float mulN1N2 = mrgVectors * static_cast<Float>(nVec);
         Float deltaScale = mulN1N2 / sumN1N2;
         Float meanScale = Float(1) / sumN1N2;
-        Float delta = mean - mrgMean;
+        Float delta = mean - mrgmean;
 
-        mrgMin = sycl::fmin(min, mrgMin);
-        mrgMax = sycl::fmax(max, mrgMax);
-        mrgSum += sum;
-        mrgSum2 += sum2;
-        mrgSum2Cent = mrgSum2Cent + sum2Cent + delta * delta * deltaScale;
-        mrgMean = (mrgMean * mrgVectors + mean * static_cast<Float>(nVec)) * meanScale;
+        mrgmin = sycl::fmin(min, mrgmin);
+        mrgmax = sycl::fmax(max, mrgmax);
+        mrgsum += sum;
+        mrgsum2 += sum2;
+        mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * deltaScale;
+        mrgmean = (mrgmean * mrgVectors + mean * static_cast<Float>(nVec)) * meanScale;
         mrgVectors = sumN1N2;
 
         if constexpr (check_mask_flag(bs_list::min, List)) {
-            lMin[itemId] = mrgMin;
+            lmin_ptr[id] = mrgmin;
         }
         if constexpr (check_mask_flag(bs_list::max, List)) {
-            lMax[itemId] = mrgMax;
+            lmax_ptr[id] = mrgmax;
         }
         if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | bs_list::sum2cent |
                                           bs_list::varc | bs_list::stdev | bs_list::vart,
                                       List)) {
-            lSum[itemId] = mrgSum;
+            lsum_ptr[id] = mrgsum;
         }
         if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
-            lSum2[itemId] = mrgSum2;
+            lsum2_ptr[id] = mrgsum2;
         }
         if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                           bs_list::stdev | bs_list::vart,
                                       List)) {
-            lNVec[itemId] += nVec;
+            lrc_ptr[id] += nVec;
         }
         if constexpr (check_mask_flag(
                           bs_list::sum2cent | bs_list::varc | bs_list::stdev | bs_list::vart,
                           List)) {
-            lSum2Cent[itemId] = mrgSum2Cent;
+            lsum2cent_ptr[id] = mrgsum2cent;
         }
         if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                           bs_list::stdev | bs_list::vart,
                                       List)) {
-            lMean[itemId] = mrgMean;
+            lmean_ptr[id] = mrgmean;
         }
     }
 
-    for (std::int64_t stride = sycl::min(localSize, block_count) / 2; stride > 0; stride /= 2) {
+    for (std::int64_t stride = sycl::min(local_size, block_count) / 2; stride > 0; stride /= 2) {
         item.barrier(sycl::access::fence_space::local_space);
 
-        if (stride > itemId) {
-            std::int64_t offset = itemId + stride;
+        if (stride > id) {
+            std::int64_t offset = id + stride;
 
             Float min = Float(0);
             if constexpr (check_mask_flag(bs_list::min, List)) {
-                min = lMin[offset];
+                min = lmin_ptr[offset];
             }
             Float max = Float(0);
             if constexpr (check_mask_flag(bs_list::max, List)) {
-                max = lMax[offset];
+                max = lmax_ptr[offset];
             }
             Float sum = Float(0);
             if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | bs_list::sum2cent |
                                               bs_list::varc | bs_list::stdev | bs_list::vart,
                                           List)) {
-                sum = lSum[offset];
+                sum = lsum_ptr[offset];
             }
             Float sum2 = Float(0);
             if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
-                sum2 = lSum2[offset];
+                sum2 = lsum2_ptr[offset];
             }
             std::int64_t nVec = 1;
             if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                               bs_list::stdev | bs_list::vart,
                                           List)) {
-                nVec = lNVec[offset];
+                nVec = lrc_ptr[offset];
             }
-            Float sum2Cent = Float(0);
+            Float sum2cent = Float(0);
             if constexpr (check_mask_flag(
                               bs_list::sum2cent | bs_list::varc | bs_list::stdev | bs_list::vart,
                               List)) {
-                sum2Cent = lSum2Cent[offset];
+                sum2cent = lsum2cent_ptr[offset];
             }
             Float mean = Float(0);
             if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                               bs_list::stdev | bs_list::vart,
                                           List)) {
-                mean = lMean[offset];
+                mean = lmean_ptr[offset];
             }
 
             Float sumN1N2 = mrgVectors + static_cast<Float>(nVec);
             Float mulN1N2 = mrgVectors * static_cast<Float>(nVec);
             Float deltaScale = mulN1N2 / sumN1N2;
             Float meanScale = Float(1) / sumN1N2;
-            Float delta = mean - mrgMean;
+            Float delta = mean - mrgmean;
 
-            mrgMin = sycl::fmin(min, mrgMin);
-            mrgMax = sycl::fmax(max, mrgMax);
-            mrgSum += sum;
-            mrgSum2 += sum2;
-            mrgSum2Cent = mrgSum2Cent + sum2Cent + delta * delta * deltaScale;
-            mrgMean = (mrgMean * mrgVectors + mean * static_cast<Float>(nVec)) * meanScale;
+            mrgmin = sycl::fmin(min, mrgmin);
+            mrgmax = sycl::fmax(max, mrgmax);
+            mrgsum += sum;
+            mrgsum2 += sum2;
+            mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * deltaScale;
+            mrgmean = (mrgmean * mrgVectors + mean * static_cast<Float>(nVec)) * meanScale;
             mrgVectors = sumN1N2;
 
             // item 0 collects all results in private vars
             // but all others need to store it
-            if (0 < itemId) {
+            if (0 < id) {
                 if constexpr (check_mask_flag(bs_list::min, List)) {
-                    lMin[itemId] = mrgMin;
+                    lmin_ptr[id] = mrgmin;
                 }
                 if constexpr (check_mask_flag(bs_list::max, List)) {
-                    lMax[itemId] = mrgMax;
+                    lmax_ptr[id] = mrgmax;
                 }
                 if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | bs_list::sum2cent |
                                                   bs_list::varc | bs_list::stdev | bs_list::vart,
                                               List)) {
-                    lSum[itemId] = mrgSum;
+                    lsum_ptr[id] = mrgsum;
                 }
                 if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
-                    lSum2[itemId] = mrgSum2;
+                    lsum2_ptr[id] = mrgsum2;
                 }
                 if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                                   bs_list::stdev | bs_list::vart,
                                               List)) {
-                    lNVec[itemId] += nVec;
+                    lrc_ptr[id] += nVec;
                 }
                 if constexpr (check_mask_flag(bs_list::sum2cent | bs_list::varc | bs_list::stdev |
                                                   bs_list::vart,
                                               List)) {
-                    lSum2Cent[itemId] = mrgSum2Cent;
+                    lsum2cent_ptr[id] = mrgsum2cent;
                 }
                 if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
                                                   bs_list::stdev | bs_list::vart,
                                               List)) {
-                    lMean[itemId] = mrgMean;
+                    lmean_ptr[id] = mrgmean;
                 }
             }
         }
     }
 
-    if (0 == itemId) {
+    if (0 == id) {
         if constexpr (check_mask_flag(bs_list::min, List)) {
-            rmin_ptr[groupId] = mrgMin;
+            rmin_ptr[group_id] = mrgmin;
         }
         if constexpr (check_mask_flag(bs_list::max, List)) {
-            rmax_ptr[groupId] = mrgMax;
+            rmax_ptr[group_id] = mrgmax;
         }
         if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | bs_list::sum2cent |
                                           bs_list::varc | bs_list::stdev | bs_list::vart,
                                       List)) {
-            rsum_ptr[groupId] = mrgSum;
+            rsum_ptr[group_id] = mrgsum;
         }
         if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
-            rsum2_ptr[groupId] = mrgSum2;
+            rsum2_ptr[group_id] = mrgsum2;
         }
         if constexpr (check_mask_flag(
                           bs_list::sum2cent | bs_list::varc | bs_list::stdev | bs_list::vart,
                           List)) {
-            rsum2cent_ptr[groupId] = mrgSum2Cent;
+            rsum2cent_ptr[group_id] = mrgsum2cent;
         }
 
         if constexpr (!DefferedFin) {
-            Float mrgVariance = mrgSum2Cent / (mrgVectors - Float(1));
-            Float mrgStDev = (Float)sqrt(mrgVariance);
+            Float mrgVariance = mrgsum2cent / (mrgVectors - Float(1));
+            Float mrgstdev = (Float)sqrt(mrgVariance);
             if constexpr (check_mask_flag(bs_list::mean, List)) {
-                rmean_ptr[groupId] = mrgMean;
+                rmean_ptr[group_id] = mrgmean;
             }
             if constexpr (check_mask_flag(bs_list::sorm, List)) {
-                rsorm_ptr[groupId] = mrgSum2 / mrgVectors;
+                rsorm_ptr[group_id] = mrgsum2 / mrgVectors;
             }
             if constexpr (check_mask_flag(bs_list::varc, List)) {
-                rvarc_ptr[groupId] = mrgVariance;
+                rvarc_ptr[group_id] = mrgVariance;
             }
             if constexpr (check_mask_flag(bs_list::stdev, List)) {
-                rstdev_ptr[groupId] = mrgStDev;
+                rstdev_ptr[group_id] = mrgstdev;
             }
             if constexpr (check_mask_flag(bs_list::vart, List)) {
-                rvart_ptr[groupId] = mrgStDev / mrgMean;
+                rvart_ptr[group_id] = mrgstdev / mrgmean;
             }
         }
     }
@@ -560,12 +554,12 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_blocks(
     ndresult<Float, List>& ndres,
     const std::int64_t block_count,
     const bk::event_vector& deps) {
-    const std::int64_t* bNVec = ndbuf.get_row_count().get_data();
-    const Float* bMin = ndbuf.get_min().get_data();
-    const Float* bMax = ndbuf.get_max().get_data();
-    const Float* bSum = ndbuf.get_sum().get_data();
-    const Float* bSum2 = ndbuf.get_sum2().get_data();
-    const Float* bSum2Cent = ndbuf.get_sum2cent().get_data();
+    const std::int64_t* brc_ptr = ndbuf.get_row_count().get_data();
+    const Float* bmin_ptr = ndbuf.get_min().get_data();
+    const Float* bmax_ptr = ndbuf.get_max().get_data();
+    const Float* bsum_ptr = ndbuf.get_sum().get_data();
+    const Float* bsum2_ptr = ndbuf.get_sum2().get_data();
+    const Float* bsum2cent_ptr = ndbuf.get_sum2cent().get_data();
     Float* rmin_ptr = ndres.get_min().get_mutable_data();
     Float* rmax_ptr = ndres.get_max().get_mutable_data();
     Float* rsum_ptr = ndres.get_sum().get_mutable_data();
@@ -589,42 +583,42 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_blocks(
     std::int64_t local_buffer_size = local_size;
     auto last_event = q_.submit([&](cl::sycl::handler& cgh) {
         cgh.depends_on(deps);
-        local_accessor_rw_t<std::int64_t> lNVec_buf(local_buffer_size, cgh);
-        local_accessor_rw_t<Float> lMin_buf(local_buffer_size, cgh);
-        local_accessor_rw_t<Float> lMax_buf(local_buffer_size, cgh);
-        local_accessor_rw_t<Float> lSum_buf(local_buffer_size, cgh);
-        local_accessor_rw_t<Float> lSum2_buf(local_buffer_size, cgh);
-        local_accessor_rw_t<Float> lSum2Cent_buf(local_buffer_size, cgh);
-        local_accessor_rw_t<Float> lMean_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<std::int64_t> lrc_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lmin_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lmax_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lsum_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lsum2_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lsum2cent_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lmean_buf(local_buffer_size, cgh);
 
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             const std::int64_t local_size = item.get_local_range()[0];
             const std::int64_t id = item.get_local_id()[0];
             const std::int64_t group_id = item.get_group().get_id(0);
 
-            std::int64_t* lNVec = lNVec_buf.get_pointer().get();
-            Float* lMin = lMin_buf.get_pointer().get();
-            Float* lMax = lMax_buf.get_pointer().get();
-            Float* lSum = lSum_buf.get_pointer().get();
-            Float* lSum2 = lSum2_buf.get_pointer().get();
-            Float* lSum2Cent = lSum2Cent_buf.get_pointer().get();
-            Float* lMean = lMean_buf.get_pointer().get();
+            std::int64_t* lrc_ptr = lrc_buf.get_pointer().get();
+            Float* lmin_ptr = lmin_buf.get_pointer().get();
+            Float* lmax_ptr = lmax_buf.get_pointer().get();
+            Float* lsum_ptr = lsum_buf.get_pointer().get();
+            Float* lsum2_ptr = lsum2_buf.get_pointer().get();
+            Float* lsum2cent_ptr = lsum2cent_buf.get_pointer().get();
+            Float* lmean_ptr = lmean_buf.get_pointer().get();
 
             if (distr_mode) {
                 merge_blocks_kernel<Float, List, deffered_fin_true>(item,
-                                                                    bNVec,
-                                                                    bMin,
-                                                                    bMax,
-                                                                    bSum,
-                                                                    bSum2,
-                                                                    bSum2Cent,
-                                                                    lNVec,
-                                                                    lMin,
-                                                                    lMax,
-                                                                    lSum,
-                                                                    lSum2,
-                                                                    lSum2Cent,
-                                                                    lMean,
+                                                                    brc_ptr,
+                                                                    bmin_ptr,
+                                                                    bmax_ptr,
+                                                                    bsum_ptr,
+                                                                    bsum2_ptr,
+                                                                    bsum2cent_ptr,
+                                                                    lrc_ptr,
+                                                                    lmin_ptr,
+                                                                    lmax_ptr,
+                                                                    lsum_ptr,
+                                                                    lsum2_ptr,
+                                                                    lsum2cent_ptr,
+                                                                    lmean_ptr,
                                                                     rmin_ptr,
                                                                     rmax_ptr,
                                                                     rsum_ptr,
@@ -642,19 +636,19 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_blocks(
             }
             else {
                 merge_blocks_kernel<Float, List, deffered_fin_false>(item,
-                                                                     bNVec,
-                                                                     bMin,
-                                                                     bMax,
-                                                                     bSum,
-                                                                     bSum2,
-                                                                     bSum2Cent,
-                                                                     lNVec,
-                                                                     lMin,
-                                                                     lMax,
-                                                                     lSum,
-                                                                     lSum2,
-                                                                     lSum2Cent,
-                                                                     lMean,
+                                                                     brc_ptr,
+                                                                     bmin_ptr,
+                                                                     bmax_ptr,
+                                                                     bsum_ptr,
+                                                                     bsum2_ptr,
+                                                                     bsum2cent_ptr,
+                                                                     lrc_ptr,
+                                                                     lmin_ptr,
+                                                                     lmax_ptr,
+                                                                     lsum_ptr,
+                                                                     lsum2_ptr,
+                                                                     lsum2cent_ptr,
+                                                                     lmean_ptr,
                                                                      rmin_ptr,
                                                                      rmax_ptr,
                                                                      rsum_ptr,
@@ -688,7 +682,6 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
     std::int64_t block_stride, // distance between first elemments of blocks',
     // it can be > column_count for example in case if alignment is ussed
     const bk::event_vector& deps) {
-    _P("merge distr blocks");
     Float* rsum_ptr = ndres.get_sum().get_mutable_data();
     Float* rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
     Float* rmean_ptr = ndres.get_mean().get_mutable_data();
@@ -699,20 +692,20 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
 
     const Float* rsum2_ptr = ndres.get_sum2().get_mutable_data();
 
-    const std::int64_t* bNVec = com_row_count.get_data();
-    const Float* bSum = com_sum.get_data();
-    const Float* bSum2Cent = com_sum2cent.get_data();
+    const std::int64_t* brc_ptr = com_row_count.get_data();
+    const Float* bsum_ptr = com_sum.get_data();
+    const Float* bsum2cent_ptr = com_sum2cent.get_data();
 
     const sycl::range<1> range{ de::integral_cast<size_t>(column_count) };
 
     auto last_event = q_.submit([&](cl::sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> id) {
-            Float mrgSum = Float(0);
+            Float mrgsum = Float(0);
 
             Float mrgVectors = Float(0);
-            Float mrgSum2Cent = Float(0);
-            Float mrgMean = Float(0);
+            Float mrgsum2cent = Float(0);
+            Float mrgmean = Float(0);
 
             for (std::int64_t i = 0; i < block_count; ++i) {
                 std::int64_t offset = id + i * block_stride;
@@ -721,15 +714,15 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
                 if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | bs_list::sum2cent |
                                                   bs_list::varc | bs_list::stdev | bs_list::vart,
                                               List)) {
-                    sum = bSum[offset];
+                    sum = bsum_ptr[offset];
                 }
 
-                Float nVec = static_cast<Float>(bNVec[i]);
-                Float sum2Cent = Float(0);
+                Float nVec = static_cast<Float>(brc_ptr[i]);
+                Float sum2cent = Float(0);
                 if constexpr (check_mask_flag(bs_list::sum2cent | bs_list::varc | bs_list::stdev |
                                                   bs_list::vart,
                                               List)) {
-                    sum2Cent = bSum2Cent[offset];
+                    sum2cent = bsum2cent_ptr[offset];
                 }
                 Float mean = sum / nVec;
 
@@ -737,39 +730,39 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
                 Float mulN1N2 = mrgVectors * nVec;
                 Float deltaScale = mulN1N2 / sumN1N2;
                 Float meanScale = Float(1) / sumN1N2;
-                Float delta = mean - mrgMean;
+                Float delta = mean - mrgmean;
 
-                mrgSum += sum;
+                mrgsum += sum;
 
-                mrgSum2Cent = mrgSum2Cent + sum2Cent + delta * delta * deltaScale;
-                mrgMean = (mrgMean * mrgVectors + mean * nVec) * meanScale;
+                mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * deltaScale;
+                mrgmean = (mrgmean * mrgVectors + mean * nVec) * meanScale;
                 mrgVectors = sumN1N2;
             }
 
             if constexpr (check_mask_flag(bs_list::sum, List)) {
-                rsum_ptr[id] = mrgSum;
+                rsum_ptr[id] = mrgsum;
             }
             if constexpr (check_mask_flag(bs_list::sum2cent, List)) {
-                rsum2cent_ptr[id] = mrgSum2Cent;
+                rsum2cent_ptr[id] = mrgsum2cent;
             }
             if constexpr (check_mask_flag(bs_list::mean, List)) {
-                rmean_ptr[id] = mrgMean;
+                rmean_ptr[id] = mrgmean;
             }
             if constexpr (check_mask_flag(bs_list::sorm, List)) {
                 rsorm_ptr[id] = rsum2_ptr[id] / mrgVectors;
             }
 
-            Float mrgVariance = mrgSum2Cent / (mrgVectors - Float(1));
-            Float mrgStDev = sycl::sqrt(mrgVariance);
+            Float mrgVariance = mrgsum2cent / (mrgVectors - Float(1));
+            Float mrgstdev = sycl::sqrt(mrgVariance);
 
             if constexpr (check_mask_flag(bs_list::varc, List)) {
                 rvarc_ptr[id] = mrgVariance;
             }
             if constexpr (check_mask_flag(bs_list::stdev, List)) {
-                rstdev_ptr[id] = mrgStDev;
+                rstdev_ptr[id] = mrgstdev;
             }
             if constexpr (check_mask_flag(bs_list::vart, List)) {
-                rvart_ptr[id] = mrgStDev / mrgMean;
+                rvart_ptr[id] = mrgstdev / mrgmean;
             }
         });
     });

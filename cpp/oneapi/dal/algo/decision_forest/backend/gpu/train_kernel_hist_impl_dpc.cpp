@@ -839,6 +839,37 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
         local_buf_size = local_size * impl_const_t::hist_prop_count_;
     }
 
+    else {
+        DAAL_CHECK_STATUS_VAR(status);
+        {
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nColsBlocks, workItemsPerGroup);
+            KernelRange localRange(workItemsPerGroup);
+            KernelRange globalRange(nColsBlocks * workItemsPerGroup);
+
+            KernelNDRange range(1);
+            range.global(globalRange, status);
+            DAAL_CHECK_STATUS_VAR(status);
+            range.local(localRange, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nResults, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            uint32_t argsI = 0;
+            DAAL_ASSERT(dataBD.getBuffer().size() == nVectors * nFeatures);
+            args.set(argsI++, dataBD.getBuffer(), AccessModeIds::read);
+            args.set(argsI++, nFeatures);
+            args.set(argsI++, nVectors);
+            for (uint32_t i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++) {
+                DAAL_ASSERT(resultBD[i].getBuffer().size() == nFeatures);
+                args.set(argsI++, resultBD[i].getBuffer(), AccessModeIds::readwrite);
+            }
+
+            context.run(range, kSinglePass, args, status);
+            DAAL_CHECK_STATUS_VAR(status);
+        }
+    }
+
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.depends_on(fill_event);
