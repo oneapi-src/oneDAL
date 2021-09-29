@@ -18,7 +18,6 @@
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/loops.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
 
 namespace oneapi::dal::backend::primitives {
@@ -281,15 +280,12 @@ sycl::event covariance(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
-
     auto gemm_event = gemm(q, data.t(), data, cov, Float(1), Float(0), deps);
-
     auto prepare_event =
         prepare_correlation(q, data.get_dimension(0), sums, cov, means, vars, tmp, { gemm_event });
-
     auto finalize_event =
         finalize_covariance(q, data.get_dimension(0), sums, cov, { prepare_event });
-
+    finalize_event.wait_and_throw();
     return finalize_event;
 }
 
@@ -328,13 +324,11 @@ sycl::event correlation(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-
     auto prepare_event =
         prepare_correlation(q, data.get_dimension(0), sums, corr, means, vars, tmp, { gemm_event });
-
     auto finalize_event =
         finalize_correlation(q, data.get_dimension(0), sums, tmp, corr, { prepare_event });
-
+    finalize_event.wait_and_throw();
     return finalize_event;
 }
 
@@ -365,7 +359,7 @@ sycl::event correlation_with_covariance(sycl::queue& q,
 
     auto finalize_event =
         finalize_correlation_with_covariance(q, data.get_dimension(0), cov, tmp, corr, deps);
-
+    finalize_event.wait_and_throw();
     return finalize_event;
 }
 

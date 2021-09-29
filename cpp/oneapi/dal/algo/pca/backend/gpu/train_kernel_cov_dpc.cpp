@@ -28,7 +28,6 @@ namespace oneapi::dal::pca::backend {
 
 namespace pr = oneapi::dal::backend::primitives;
 
-using dal::backend::context_cpu;
 using dal::backend::context_gpu;
 using model_t = model<task::dim_reduction>;
 using input_t = train_input<task::dim_reduction>;

@@ -46,16 +46,16 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     const auto data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
     const auto eigenvectors_nd =
         pr::table2ndarray<Float>(queue, eigenvectors, sycl::usm::alloc::device);
-    auto result_arr = pr::ndarray<Float, 2>::empty(queue,
-                                                   { row_count, component_count },
-                                                   sycl::usm::alloc::device);
-    auto gemm_event =
-        pr::gemm(queue, data_nd, eigenvectors_nd.t(), result_arr, Float(1.0), Float(0.0));
 
-    return result_t{}.set_transformed_data(
-        (homogen_table::wrap(result_arr.flatten(queue, { gemm_event }),
-                             row_count,
-                             component_count)));
+    auto res_nd = pr::ndarray<Float, 2>::empty(queue,
+                                               { row_count, component_count },
+                                               sycl::usm::alloc::device);
+    auto gemm_event = pr::gemm(queue, data_nd, eigenvectors_nd.t(), res_nd, Float(1.0), Float(0.0));
+
+    const auto res_array = res_nd.flatten(queue, { gemm_event });
+    auto res_table = homogen_table::wrap(res_array, row_count, component_count);
+
+    return result_t{}.set_transformed_data(res_table);
 }
 
 template <typename Float>
