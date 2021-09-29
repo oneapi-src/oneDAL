@@ -88,6 +88,9 @@ TEMPLATE_LIST_TEST_M(basic_statistics_spmd_test,
                      "basic_statistics common flow",
                      "[basic_statistics][integration][spmd]",
                      basic_statistics_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 200, 20 }.fill_normal(-30, 30, 7777),

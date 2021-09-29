@@ -56,6 +56,7 @@ private:
                                                           std::int64_t row_block_count);
     sycl::event merge_blocks(const ndbuffer_t&& ndbuf,
                              ndresult_t& ndres,
+                             std::int64_t column_count,
                              std::int64_t block_count,
                              const bk::event_vector& deps = {});
     sycl::event merge_distr_blocks(const pr::ndarray<std::int64_t, 1>& com_row_count,
@@ -68,17 +69,17 @@ private:
                                    const bk::event_vector& deps = {});
 
     std::tuple<ndresult_t, sycl::event> finalize(ndresult_t&& ndres,
+                                                 std::int64_t row_count,
+                                                 std::int64_t column_count,
                                                  const bk::event_vector& deps = {});
 
     result_t get_result(const descriptor_t& desc,
                         const ndresult_t& ndres,
+                        std::int64_t column_count,
                         const bk::event_vector& deps = {});
 
     sycl::queue q_;
     comm_t comm_;
-
-    std::int64_t row_count_;
-    std::int64_t column_count_;
 };
 
 } // namespace oneapi::dal::basic_statistics::backend

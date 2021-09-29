@@ -48,11 +48,14 @@ inline constexpr bs_list operator|(bs_list value_left, bs_list value_right) {
     return bitwise_or(value_left, value_right);
 }
 
-constexpr bs_list bs_mode_min_max = (bs_list::min | bs_list::max);
-constexpr bs_list bs_mode_mean_variance = (bs_list::mean | bs_list::varc);
-constexpr bs_list bs_mode_all =
+constexpr inline bs_list bs_mode_min_max = (bs_list::min | bs_list::max);
+constexpr inline bs_list bs_mode_mean_variance = (bs_list::mean | bs_list::varc);
+constexpr inline bs_list bs_mode_all =
     (bs_list::min | bs_list::max | bs_list::sum | bs_list::sum2 | bs_list::sum2cent |
      bs_list::mean | bs_list::sorm | bs_list::varc | bs_list::stdev | bs_list::vart);
+
+constexpr inline bs_list sum2cent_based_stat =
+    bs_list::sum2cent | bs_list::varc | bs_list::stdev | bs_list::vart;
 
 template <typename Float, bs_list List>
 class ndresult {
@@ -69,9 +72,7 @@ public:
             res.rmax_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         }
         if (check_mask_flag(bs_list::sum, List) ||
-            (deffered_fin && check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
-                                                 bs_list::stdev | bs_list::vart,
-                                             List))) {
+            (deffered_fin && check_mask_flag(bs_list::mean | sum2cent_based_stat, List))) {
             res.rsum_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         }
         if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
@@ -155,9 +156,7 @@ class ndbuffer {
 public:
     static own_t empty(sycl::queue& q, std::int64_t count) {
         own_t res;
-        if constexpr (check_mask_flag(bs_list::mean | bs_list::sum2cent | bs_list::varc |
-                                          bs_list::stdev | bs_list::vart,
-                                      List)) {
+        if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
             res.rrow_count_ = pr::ndarray<std::int64_t, 1>::empty(q, { count }, alloc::device);
         }
         if constexpr (check_mask_flag(bs_list::min, List)) {
@@ -166,23 +165,20 @@ public:
         if constexpr (check_mask_flag(bs_list::max, List)) {
             res.rmax_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         }
-        if (check_mask_flag(bs_list::sum | bs_list::mean | bs_list::sum2cent | bs_list::varc |
-                                bs_list::stdev | bs_list::vart,
-                            List)) {
+        if (check_mask_flag(bs_list::sum | bs_list::mean | sum2cent_based_stat, List)) {
             res.rsum_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         }
         if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
             res.rsum2_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         }
-        if (check_mask_flag(bs_list::sum2cent | bs_list::varc | bs_list::stdev | bs_list::vart,
-                            List)) {
+        if (check_mask_flag(sum2cent_based_stat, List)) {
             res.rsum2cent_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         }
 
         return res;
     }
 
-    auto& get_row_count() const {
+    auto& get_rc_list() const {
         return rrow_count_;
     }
     auto& get_min() const {
