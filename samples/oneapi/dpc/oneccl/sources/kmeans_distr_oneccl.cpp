@@ -24,7 +24,7 @@
 #endif
 
 #include "oneapi/dal/algo/kmeans.hpp"
-#include "oneapi/dal/detail/mpi/communicator.hpp"
+#include "oneapi/dal/detail/oneccl/communicator.hpp"
 #include "oneapi/dal/detail/spmd_policy.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -98,6 +98,7 @@ void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
 }
 
 int main(int argc, char const *argv[]) {
+  ccl::init();
   int status = MPI_Init(nullptr, nullptr);
   if (status != MPI_SUCCESS) {
     throw std::runtime_error{"Problem occurred during MPI init"};
@@ -106,9 +107,9 @@ int main(int argc, char const *argv[]) {
   auto device = sycl::gpu_selector{}.select_device();
   std::cout << "Running on " << device.get_info<sycl::info::device::name>()
             << std::endl;
-  sycl::queue q{device};
+  auto q = sycl::queue{device};
 
-  dal::detail::mpi_communicator comm{MPI_COMM_WORLD};
+  dal::detail::oneccl_communicator comm{q};
   dal::detail::data_parallel_policy local_policy{q};
   dal::detail::spmd_policy spmd_policy{local_policy, comm};
 
