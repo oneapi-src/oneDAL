@@ -36,8 +36,8 @@ template <typename Float>
 auto compute_means(sycl::queue& q,
                    const pr::ndview<Float, 2>& data,
                    const dal::backend::event_vector& deps = {}) {
-    ONEDAL_ASSERT(data.has_data());
     ONEDAL_PROFILER_TASK(compute_means, q);
+    ONEDAL_ASSERT(data.has_data());
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
@@ -54,10 +54,10 @@ auto compute_covariance(sycl::queue& q,
                         const pr::ndview<Float, 1>& sums,
                         pr::ndview<Float, 1>& means,
                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
     ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
-    ONEDAL_PROFILER_TASK(compute_covariance, q);
     const std::int64_t column_count = data.get_dimension(1);
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
@@ -74,10 +74,10 @@ auto compute_correlation(sycl::queue& q,
                          const pr::ndview<Float, 1>& sums,
                          pr::ndview<Float, 1>& means,
                          const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_correlation, q);
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
     ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
-    ONEDAL_PROFILER_TASK(compute_correlation, q);
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
@@ -96,8 +96,8 @@ auto compute_correlation_with_covariance(sycl::queue& q,
                                          const pr::ndview<Float, 2>& cov,
                                          pr::ndview<Float, 1>& tmp,
                                          const dal::backend::event_vector& deps = {}) {
-    ONEDAL_ASSERT(data.has_data());
     ONEDAL_PROFILER_TASK(compute_correlation_with_covariance, q);
+    ONEDAL_ASSERT(data.has_data());
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);

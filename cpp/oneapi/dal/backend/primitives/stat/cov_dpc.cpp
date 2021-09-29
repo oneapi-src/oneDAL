@@ -244,7 +244,7 @@ sycl::event means(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
 
     auto finalize_event = compute_means(q, data, sums, means, deps);
-    finalize_event.wait_and_throw();
+    //finalize_event.wait_and_throw();
     return finalize_event;
 }
 
