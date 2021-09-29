@@ -216,19 +216,19 @@ private:
 };
 
 //Specialisation for dist_pred atomic through lock, unlock mutex
-template <typename Cpu>
+template <typename Cpu, typename Vertex, typename Value>
 class data_to_relax_base<Cpu,
                          mode::distances_predecessors,
-                         std::int32_t,
-                         dist_pred<double, std::int32_t>,
-                         dist_pred<double, std::int32_t>> {
+                         Vertex,
+                         dist_pred<Value, Vertex>,
+                         dist_pred<Value, Vertex>> {
 public:
-    using relaxing_data_type = dist_pred<double, std::int32_t>;
+    using vertex_type = Vertex;
+    using distance_value_type = Value;
+    using relaxing_data_type = dist_pred<distance_value_type, vertex_type>;
     using relaxing_data_allocator_type = inner_alloc<relaxing_data_type>;
     using mutex_type = oneapi::dal::detail::mutex;
     using mutex_allocator_type = inner_alloc<mutex_type>;
-    using vertex_type = std::int32_t;
-    using distance_value_type = double;
     using mode_type = mode::distances_predecessors;
 
     data_to_relax_base(std::int64_t vertex_count,
@@ -316,21 +316,18 @@ class data_to_relax<Cpu, Mode, Vertex, double>
     data_to_relax(data_to_relax&&) = delete;
 };
 
-template <typename Cpu>
-class data_to_relax<Cpu,
-                    mode::distances_predecessors,
-                    std::int32_t,
-                    dist_pred<double, std::int32_t>>
+template <typename Cpu, typename Vertex, typename Value>
+class data_to_relax<Cpu, mode::distances_predecessors, Vertex, dist_pred<Value, Vertex>>
         : public data_to_relax_base<Cpu,
                                     mode::distances_predecessors,
-                                    std::int32_t,
-                                    dist_pred<double, std::int32_t>,
-                                    dist_pred<double, std::int32_t>> {
+                                    Vertex,
+                                    dist_pred<Value, Vertex>,
+                                    dist_pred<Value, Vertex>> {
     using data_to_relax_base<Cpu,
                              mode::distances_predecessors,
-                             std::int32_t,
-                             dist_pred<double, std::int32_t>,
-                             dist_pred<double, std::int32_t>>::data_to_relax_base;
+                             Vertex,
+                             dist_pred<Value, Vertex>,
+                             dist_pred<Value, Vertex>>::data_to_relax_base;
     data_to_relax(const data_to_relax&) = delete;
     data_to_relax(data_to_relax&&) = delete;
 };
