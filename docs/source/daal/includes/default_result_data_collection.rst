@@ -16,6 +16,6 @@
 
 .. note::
 
-    By default, this result is an object of the ``DataCollection`` class. 
+    By default, this result is an object of the ``DataCollection`` class.
     The numeric tables in the collection can be an object of any class derived from ``NumericTable`
     except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.

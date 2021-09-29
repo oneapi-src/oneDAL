@@ -114,10 +114,13 @@ gradient descent algorithm has the following parameters. Some of
 them are required only for specific values of the computation
 method parameter method:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
+
+.. list-table:: Algorithm Parameters for Stochastic Gradient Descent Algorithm Computaion
    :widths: 10 10 10 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - method
@@ -160,7 +163,7 @@ method parameter method:
      - ``miniBatch``,``momentum``
      - :math:`128`
      - The number of batch indices to compute the stochastic gradient.
-     
+
        If ``batchSize`` equals the number of terms in the objective function, no random sampling
        is performed, and all terms are used to calculate the gradient.
 
@@ -175,8 +178,8 @@ method parameter method:
      - The numeric table of size :math:`1 \times \text{nIterations}` or :math:`1 \times 1`. The contents of the
        table depend on its size:
 
-        - size = :math:`1 \times \text{nIterations}`: values of the conservative coefficient sequence :math:`\gamma^k` for :math:`k = 1, \ldots, \text{nIterations}`.
-        - size = :math:`1 \times 1` the value of conservative coefficient at each iteration :math:`\gamma^1 = \ldots = \gamma^\text{nIterations}`.
+       - size = :math:`1 \times \text{nIterations}`: values of the conservative coefficient sequence :math:`\gamma^k` for :math:`k = 1, \ldots, \text{nIterations}`.
+       - size = :math:`1 \times 1` the value of conservative coefficient at each iteration :math:`\gamma^1 = \ldots = \gamma^\text{nIterations}`.
 
        .. include: ../../../includes/parameter_numeric_table
 
@@ -190,8 +193,8 @@ method parameter method:
      - The numeric table of size :math:`1 \times \text{nIterations}` or :math:`1 \times 1`. The contents of the
        table depend on its size:
 
-        - size = :math:`1 \times \text{nIterations}`: values of the learning rate sequence :math:`\eta^k` for :math:`k = 1, \ldots, \text{nIterations}`.
-        - size = :math:`1 \times 1`: the value of learning rate at each iteration :math:`\eta^1 = \ldots = \eta^\text{nIterations}`.
+       - size = :math:`1 \times \text{nIterations}`: values of the learning rate sequence :math:`\eta^k` for :math:`k = 1, \ldots, \text{nIterations}`.
+       - size = :math:`1 \times 1`: the value of learning rate at each iteration :math:`\eta^1 = \ldots = \eta^\text{nIterations}`.
 
        .. include: ../../../includes/parameter_numeric_table
 
@@ -220,7 +223,7 @@ Examples
     - :cpp_example:`sgd_moment_opt_res_dense_batch.cpp <optimization_solvers/sgd_moment_opt_res_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

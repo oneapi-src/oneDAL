@@ -30,16 +30,22 @@ For a list of these parameters, refer to the description of an appropriate regre
 Training Stage
 **************
 
-.. image:: images/training-stage-regression.png
+.. figure:: images/training-stage-regression.png
     :width: 600
+    :alt:
 
-At the training stage, regression algorithms accept the input described below. 
+    Regression Usage Model: Training Stage
+
+At the training stage, regression algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Regression Algorithms
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -58,7 +64,9 @@ At the training stage, regression algorithms calculate the result described belo
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Regression Algorithms
    :widths: 10 60
    :header-rows: 1
 
@@ -70,16 +78,22 @@ For more details, see :ref:`algorithms`.
 Prediction Stage
 ****************
 
-.. image:: images/prediction-stage-regression.png
+.. figure:: images/prediction-stage-regression.png
     :width: 600
+    :alt:
+
+    Regression Usage Model: Prediction Stage
 
 At the prediction stage, regression algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Input for Regression Algorithms
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -94,15 +108,17 @@ At the prediction stage, regression algorithms calculate the result described be
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Output for Regression Algorithms
    :widths: 10 60
    :header-rows: 1
 
    * - Result ID
      - Result
    * - ``prediction``
-     - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables). 
-     
+     - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables).
+
        By default, this table is an object of the ``HomogenNumericTable`` class,
        but you can define it as an object of any class derived from ``NumericTable``
        except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.

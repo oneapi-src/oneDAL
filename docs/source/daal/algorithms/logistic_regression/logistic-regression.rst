@@ -42,8 +42,8 @@ train a logistic regression model.
 
 The logistic regression model is the set of vectors :math:`\beta =\left\{ {\beta }_{0}=\left({\beta }_{00}\dots {\beta }_{0p}\right), {..\beta }_{K-1}=\left({\beta }_{K-10}\dots {\beta }_{K-1p}\right)\right\}` that gives the posterior probability
 
-	.. math::
-		 {P\left\{y=k|x\right\}= p}_{k}\left(x, \beta \right)=\mathrm{ }\frac{{e}^{{f}_{k}\left(x, \beta \right)}}{\sum _{i=0}^{K-1}{e}^{{f}_{i}\left(x, \beta \right)}}, \text{where} {f}_{k}\left(x, \beta \right)= {\beta }_{k0}+ \sum _{j=1}^{p}{\beta }_{kj}*{x}_{j}
+.. math::
+   {P\left\{y=k|x\right\}= p}_{k}\left(x, \beta \right)=\mathrm{ }\frac{{e}^{{f}_{k}\left(x, \beta \right)}}{\sum _{i=0}^{K-1}{e}^{{f}_{i}\left(x, \beta \right)}}, \text{where} {f}_{k}\left(x, \beta \right)= {\beta }_{k0}+ \sum _{j=1}^{p}{\beta }_{kj}*{x}_{j}
 
 for a given feature vector :math:`x = (x_1, \ldots, x_p)` and class
 label :math:`y \in \{0, 1, \ldots, K - 1\}` for each :math:`k = 0, \ldots, K-1`. See [Hastie2009]_.
@@ -95,8 +95,8 @@ complete the following steps:
 - Use the ``setBeta`` method to add the set of pre-calculated coefficients to the model.
   Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7]_.
 
-  .. note:: 
-  
+  .. note::
+
     If your set of coefficients does not contain an intercept, interceptFlag is automatically set to ``False``, and to ``True``, otherwise.
 
 - Use the ``getModel`` method to get the trained Logistic Regression model.
@@ -105,7 +105,7 @@ complete the following steps:
   that describe the problems API encountered (in case of API runtime failure).
 
 .. note::
-  
+
   If after calling the ``getModel`` method you use the ``setBeta`` method to update coefficients,
   the initial model will be automatically updated with the new :math:`\beta` coefficients.
 
@@ -119,7 +119,7 @@ Examples
     - :cpp_example:`log_reg_model_builder.cpp <logistic_regression/log_reg_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`LogRegModelBuilder.java <logistic_regression/LogRegModelBuilder.java>`
@@ -142,10 +142,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 In addition to the parameters of classifier described in :ref:`classification_usage_model`,
 the logistic regression batch training algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Logistic Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -188,10 +191,13 @@ For a description of the input, refer to :ref:`classification_usage_model`.
 
 At the prediction stage logistic regression batch algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Logistic Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -225,10 +231,13 @@ Output
 In addition to classifier output, logistic regression prediction calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Output for Logistic Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
@@ -268,7 +277,7 @@ Examples
     -  :cpp_example:`log_reg_binary_dense_batch.cpp <logistic_regression/log_reg_binary_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
@@ -288,4 +297,4 @@ Examples
     Batch Processing:
 
     - :daal4py_example:`log_reg_dense_batch.py`
-    - :daal4py_example:`log_reg_binary_dense_batch.py` 
+    - :daal4py_example:`log_reg_binary_dense_batch.py`

@@ -30,7 +30,7 @@
 
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "src/data_management/service_numeric_table.h"

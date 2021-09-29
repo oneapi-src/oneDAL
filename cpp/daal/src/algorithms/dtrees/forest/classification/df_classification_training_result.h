@@ -65,11 +65,25 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
             set(outOfBagError, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
                                    1, 1, data_management::NumericTable::doAllocate, status)));
         }
+        if (parameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorAccuracy)
+        {
+            set(outOfBagErrorAccuracy, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                           1, 1, data_management::NumericTable::doAllocate, status)));
+        }
         if (parameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
         {
             const size_t nObs = inp->get(classifier::training::data)->getNumberOfRows();
             set(outOfBagErrorPerObservation, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
                                                  1, nObs, data_management::NumericTable::doAllocate, status)));
+        }
+        if (parameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorDecisionFunction)
+        {
+            const decision_forest::classification::training::Parameter * parameter3 =
+                dynamic_cast<const decision_forest::classification::training::Parameter *>(prm);
+            const size_t nClasses = parameter3->nClasses;
+            const size_t nObs     = inp->get(classifier::training::data)->getNumberOfRows();
+            set(outOfBagErrorDecisionFunction, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                                   nClasses, nObs, data_management::NumericTable::doAllocate, status)));
         }
         if (parameter2->varImportance != decision_forest::training::none)
         {

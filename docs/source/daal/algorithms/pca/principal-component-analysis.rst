@@ -46,7 +46,7 @@ Details
 *******
 
 Given a set :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\}` of :math:`p`-dimensional
-feature vectors or a :math:`p \times p` correlation matrix and the number of principal components :math:`p_r`, 
+feature vectors or a :math:`p \times p` correlation matrix and the number of principal components :math:`p_r`,
 the problem is to compute :math:`p_r` principal directions
 (eigenvectors) for the data set. The library returns the
 transformation matrix :math:`T` of size :math:`p_r \times p`, which contains
@@ -62,19 +62,19 @@ Eigenvectors computed by PCA are not uniquely defined due to sign
 ambiguity. PCA supports fast ad-hoc "sign flip" technique described
 in the paper [Bro07]_. It modifies the signs of eigenvectors shown below:
 
-   .. math::
-	\hat{T_i} = T_i \cdot sgn(\max_{1 \leq j \leq p } |{T}_{i,j}|), i=1, \ldots ,p_r
+.. math::
+   \hat{T_i} = T_i \cdot sgn(\max_{1 \leq j \leq p } |{T}_{i,j}|), i=1, \ldots ,p_r
 
 where :math:`T`-transformation matrix is computed by PCA, :math:`T_i` - :math:`i`-th
 row in the matrix, :math:`j` - column number, :math:`sgn` - signum function:
 
-   .. math::
-	   sgn(x) = 
-     \begin{cases}
-        -1, & x < 0,\\
-		    0, & x = 0, \\
-        1, & x > 0
-     \end{cases}
+.. math::
+   sgn(x) =
+   \begin{cases}
+      -1, & x < 0,\\
+         0, & x = 0, \\
+      1, & x > 0
+   \end{cases}
 
 You can provide these types of input data to the PCA algorithms of
 the library:
@@ -92,7 +92,7 @@ The following computation modes are available:
 
 .. toctree::
    :maxdepth: 1
-   
+
    computation-batch.rst
    computation-online.rst
    computation-distributed.rst
@@ -135,7 +135,7 @@ Examples
       - :cpp_example:`pca_svd_dense_distr.cpp <pca/pca_svd_dense_distr.cpp>`
 
    .. tab:: Java*
-  
+
       .. note:: There is no support for Java on GPU.
 
       Batch Processing:
@@ -152,9 +152,9 @@ Examples
 
       Distributed Processing:
 
-      - :java_example:`PCACorDenseDistr.java <pca/PCACorDenseDistr.java>`    
-      - :java_example:`PCACorCSRDistr.java <pca/PCACorCSRDistr.java>`    
-      - :java_example:`PCASVDDenseDistr.java <pca/PCASVDDenseDistr.java>`    
+      - :java_example:`PCACorDenseDistr.java <pca/PCACorDenseDistr.java>`
+      - :java_example:`PCACorCSRDistr.java <pca/PCACorCSRDistr.java>`
+      - :java_example:`PCASVDDenseDistr.java <pca/PCASVDDenseDistr.java>`
 
    .. tab:: Python* with DPC++ support
 

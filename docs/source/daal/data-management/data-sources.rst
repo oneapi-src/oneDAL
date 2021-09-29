@@ -51,18 +51,18 @@ the getNumberOfColumns() method. To retrieve the number of rows
 getNumberOfAvailableRows() method. The getStatus() method returns the
 current status of the data source:
 
--  
+-
 
    readyForLoad - the data is available for the load operation.
 
--  
+-
 
    waitingForData - the data source is waiting for new data to arrive
    later; designated for data sources that deal with asynchronous
    data streaming, that is, the data arriving in blocks at different
    points in time.
 
--  
+-
 
    endOfData- all the data is already loaded.
 
@@ -83,22 +83,25 @@ collection associated with the corresponding feature in the data
 source. In the case you have several data sets with same data
 structure and you want to use continuous indexing, do the following:
 
-#. 
+#.
 
    Retrieve the data dictionary from the last data source using the
    getDictionary() method.
 
-#. 
+#.
 
    Assign this dictionary to the next data source using the
    setDictionary() method.
 
-#. 
+#.
 
    Repeat these steps for each next data source.
 
-.. image:: ./images/data-source.png
+.. figure:: ./images/data-source.png
   :width: 600
+  :alt:
+
+  Reading from a Data Source
 
 |short_name| implements classes for some popular types of data
 sources. Each of these classes takes a feature manager class as the
@@ -210,8 +213,8 @@ table. In general case, feature modifier is able to process arbitrary
 number of input features to arbitrary number of output features.
 Let's assume that we added m modifiers along with the features
 subsets :math:`F_1, \ldots, F_m` and the :math:`j`-th modifier has the
-:math:`C_j` output columns, where :math:`F_j = (f_{i_1}^j, \ldots, f_{i_{n_j}}^j)` 
-are specified input features of interest, :math:`f_i^j \in \{f_1, \ldots, f_p\}`, 
+:math:`C_j` output columns, where :math:`F_j = (f_{i_1}^j, \ldots, f_{i_{n_j}}^j)`
+are specified input features of interest, :math:`f_i^j \in \{f_1, \ldots, f_p\}`,
 :math:`f_1, \ldots, f_p` are all possible features, :math:`p` is the
 number of features in the input data. The output numeric table will
 contain :math:`C_1 + C_2 + \ldots + C_m` columns. The :math:`j`-th feature modifier writes result to
@@ -225,9 +228,12 @@ columns 1, 2 in the output numeric table. *Feature Modifier 2*
 behaves similarly, but processes features :math:`f_2, f_5` and
 has 3 output features.
 
-.. image:: ./images/data-source-2.png
+.. figure:: ./images/data-source-2.png
   :width: 600
-   
+  :alt:
+
+  Feature Modifiers
+
 The |short_name| has several predefined feature modifiers available
 for CSV and SQL feature managers.
 
@@ -252,20 +258,20 @@ of user-defined feature modifier is shown in the code block bellow:
 
 ::
 
-   class MyFeatureModifier : public modifiers::csv::FeatureModifierBase 
+   class MyFeatureModifier : public modifiers::csv::FeatureModifierBase
    {
    public:
       virtual void initialize(modifiers::csv::Config &config);
       virtual void apply(modifiers::csv::Context &context);
       virtual void finalize(modifiers::csv::Config &config);
-   }; 
+   };
 
 Use the addModifier(…) method to add the user-defined modifier to the
 feature manager:
 
 ::
 
-   ds.getFeatureManager().addModifier( 
+   ds.getFeatureManager().addModifier(
       features::list(0, 3), modifiers::custom<MyFeatureModifier>()
    );
 

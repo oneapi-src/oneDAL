@@ -18,7 +18,7 @@
 #ifndef __KERNEL_FUNCTION_HELPER_ONEAPI_H__
 #define __KERNEL_FUNCTION_HELPER_ONEAPI_H__
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/externals/service_math.h"
 #include "src/services/service_data_utils.h"
 #include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"

@@ -31,9 +31,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/sycl/blas_gpu.h"
 
-#include "src/externals/service_ittnotify.h"
-
-DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.batch.oneapi);
+#include "src/externals/service_profiler.h"
 
 using namespace daal::services;
 using namespace daal::services::internal::sycl;

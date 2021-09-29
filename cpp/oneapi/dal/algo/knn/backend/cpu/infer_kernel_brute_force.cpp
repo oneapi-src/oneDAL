@@ -25,6 +25,8 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
 
+#include "oneapi/dal/exceptions.hpp"
+
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_cpu;
@@ -42,6 +44,11 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
                                            const model<Task>& m) {
+    if constexpr (std::is_same_v<Task, task::regression>) {
+        throw unimplemented(
+            dal::detail::error_messages::knn_regression_task_is_not_implemented_for_cpu());
+    }
+
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
@@ -148,6 +155,8 @@ struct infer_kernel_cpu<Float, method::brute_force, Task> {
 
 template struct infer_kernel_cpu<float, method::brute_force, task::classification>;
 template struct infer_kernel_cpu<double, method::brute_force, task::classification>;
+template struct infer_kernel_cpu<float, method::brute_force, task::regression>;
+template struct infer_kernel_cpu<double, method::brute_force, task::regression>;
 template struct infer_kernel_cpu<float, method::brute_force, task::search>;
 template struct infer_kernel_cpu<double, method::brute_force, task::search>;
 

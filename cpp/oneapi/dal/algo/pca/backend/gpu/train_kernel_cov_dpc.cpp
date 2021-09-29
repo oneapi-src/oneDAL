@@ -22,6 +22,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::pca::backend {
 
@@ -38,6 +39,7 @@ template <typename Float>
 auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
                   const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_sums, q);
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto reduce_event =
@@ -50,6 +52,7 @@ auto compute_correlation(sycl::queue& q,
                          const pr::ndview<Float, 2>& data,
                          const pr::ndview<Float, 1>& sums,
                          const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_correlation, q);
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
 
     const std::int64_t column_count = data.get_dimension(1);
@@ -59,7 +62,7 @@ auto compute_correlation(sycl::queue& q,
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
-    auto corr_event = pr::correlation(q, data, sums, corr, means, vars, tmp, deps);
+    auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, deps);
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, means, vars, smart_event);
@@ -70,6 +73,7 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
                                   pr::ndarray<Float, 2>&& corr,
                                   std::int64_t component_count,
                                   const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1));
     const std::int64_t column_count = corr.get_dimension(0);
 

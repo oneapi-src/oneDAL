@@ -39,6 +39,15 @@ struct CountingAllocator {
         return *this;
     }
 
+    template <class U>
+    bool operator!=(const CountingAllocator<U>& other) {
+        return true;
+    }
+
+    bool operator!=(const CountingAllocator<T>& other) {
+        return false;
+    }
+
     T* allocate(const size_t n) {
         allocated_bytes_count += n * sizeof(T);
         if (n > static_cast<size_t>(-1) / sizeof(T)) {
@@ -59,7 +68,7 @@ struct CountingAllocator {
 
 std::int64_t lower_bound_pow(std::int64_t value) {
     int n = 1;
-    while (n < value) {
+    while (n <= value) {
         n <<= 1;
     }
     return n;
@@ -130,7 +139,7 @@ void check_construct_empty_with_custom_allocator() {
         REQUIRE(vec.size() == 0);
         REQUIRE(vec.capacity() == 1);
     }
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 template <typename T>
@@ -153,8 +162,7 @@ void check_construct_given_size_with_custom_allocator(std::int64_t n) {
         REQUIRE(vec.size() == n);
         REQUIRE(vec.capacity() == lower_bound_pow(n));
     }
-    // TODO: Uncomment after the memory leak fix
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 template <typename T>
@@ -189,8 +197,7 @@ void check_copy_constructor() {
         }
         REQUIRE(equal_content);
     }
-    // TODO: Uncomment after the memory leak fix
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 template <typename T>
@@ -211,8 +218,7 @@ void check_copy_assignment() {
         }
         REQUIRE(equal_content);
     }
-    // TODO: Uncomment after the memory leak fix
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 template <typename T>
@@ -230,8 +236,7 @@ void check_begin_end_copy() {
         }
         REQUIRE(equal_content);
     }
-    // TODO: Uncomment after the memory leak fix
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 template <typename T>
@@ -252,8 +257,7 @@ void check_copy() {
         }
         REQUIRE(equal_content);
     }
-    // TODO: Uncomment after the memory leak fix
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 template <typename T>
@@ -286,25 +290,16 @@ TEST("can construct empty vector_container of std::containers") {
 
 TEST("can construct empty vector_container of primitive type with custom allocator") {
     check_construct_empty_with_custom_allocator<std::int32_t>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can construct empty vector_container of vector_container with custom allocator") {
-    // TODO: Fix memory leak
     check_construct_empty_with_custom_allocator<
         vector_container<std::int32_t, CountingAllocator<std::int32_t>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can construct empty vector_container of std::container with custom allocator") {
-    check_construct_empty_with_custom_allocator<std::vector<std::int32_t>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
+    check_construct_empty_with_custom_allocator<
+        std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST("can construct vector_container of given size of primitives") {
@@ -321,26 +316,17 @@ TEST("can construct vector_container of given size of std::containers") {
 
 TEST("can construct vector_container of given size of primitive type with custom allocator") {
     check_construct_given_size_with_custom_allocator<std::int32_t>(10);
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST(
     "can construct vector_container of given size of vector_containers type with custom allocator") {
-    // TODO: Fix memory leak
     check_construct_given_size_with_custom_allocator<
         vector_container<std::int32_t, CountingAllocator<std::int32_t>>>(10);
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can construct vector_container of given size of std::containers type with custom allocator") {
-    check_construct_given_size_with_custom_allocator<std::vector<std::int32_t>>(10);
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
+    check_construct_given_size_with_custom_allocator<
+        std::vector<std::int32_t, CountingAllocator<std::int32_t>>>(10);
 }
 
 TEST(
@@ -352,7 +338,6 @@ TEST(
 
 TEST(
     "can construct vector_container of given size with value of vector_containers type with custom allocator") {
-    // TODO: Fix memory leak
     allocated_bytes_count = 0;
     {
         CountingAllocator<std::int32_t> alloc;
@@ -361,169 +346,106 @@ TEST(
         check_construct_given_size_with_value_with_custom_allocator<
             vector_container<std::int32_t, CountingAllocator<std::int32_t>>>(10, vec);
     }
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST(
     "can construct vector_container of given size with value of std::containers type with custom allocator") {
     allocated_bytes_count = 0;
     {
-        std::vector<float> vec(10);
+        CountingAllocator<std::int32_t> alloc;
+        std::vector<std::int32_t, CountingAllocator<std::int32_t>> vec(10, alloc);
         fill_content(vec);
-        check_construct_given_size_with_value_with_custom_allocator<std::vector<float>>(10, vec);
+        check_construct_given_size_with_value_with_custom_allocator<
+            std::vector<std::int32_t, CountingAllocator<std::int32_t>>>(10, vec);
     }
     REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can create vector_container of primitives from another vector_container") {
     check_copy_constructor<std::int32_t>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST(
     "can create vector_container of vector_containers from another vector_container using copy constructor") {
-    // TODO: Fix memory leak
     check_copy_constructor<vector_container<std::int32_t, CountingAllocator<std::int32_t>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST(
     "can create vector_container of std::containers from another vector_container using copy constructor") {
-    check_copy_constructor<std::vector<std::int32_t>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
+    check_copy_constructor<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST(
     "can create vector_container of primitives from another vector_container using copy assignment") {
-    // TODO: Fix memory leak
     check_copy_assignment<std::int32_t>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST(
     "can create vector_container of vector_containers from another vector_container using copy assignment") {
-    // TODO: Fix memory leak
     check_copy_assignment<vector_container<std::int32_t, CountingAllocator<std::int32_t>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST(
     "can create vector_container of std::containers from another vector_container using copy assignment") {
-    // TODO: Fix memory leak
-    check_copy_assignment<std::vector<std::int32_t>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
+    check_copy_assignment<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST("can copy vector_container of primitives with begin(), end() iterators") {
     check_begin_end_copy<std::int32_t>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can copy vector_container of vector_containers with begin(), end() iterators") {
-    // TODO: Fix memory leak
     check_begin_end_copy<vector_container<std::int32_t, CountingAllocator<std::int32_t>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can copy vector_container of std::containers with begin(), end() iterators") {
-    check_begin_end_copy<std::vector<std::int32_t>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
+    check_begin_end_copy<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST("can copy vector_container of tuples primitives with begin(), end() iterators") {
     check_begin_end_copy<std::tuple<float, std::int32_t, std::int64_t>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can copy vector_container of tuples vector_containers with begin(), end() iterators") {
-    // TODO: Fix memory leak
     check_begin_end_copy<
         std::tuple<vector_container<float, CountingAllocator<float>>,
                    vector_container<std::int32_t, CountingAllocator<std::int32_t>>,
                    vector_container<std::int64_t, CountingAllocator<std::int64_t>>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can copy vector_container of tuples std::containers with begin(), end() iterators") {
-    check_begin_end_copy<std::tuple<std::vector<std::int32_t>,
-                                    std::vector<std::int32_t>,
-                                    std::vector<std::int64_t>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    REQUIRE(allocated_bytes_count == 0);
+    check_begin_end_copy<std::tuple<std::vector<float, CountingAllocator<float>>,
+                                    std::vector<std::int32_t, CountingAllocator<std::int32_t>>,
+                                    std::vector<std::int64_t, CountingAllocator<std::int64_t>>>>();
 }
 
 TEST("can copy vector_container of primitives") {
-    // TODO: Fix memory leak
     check_copy<std::int32_t>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can copy vector_container of vector_containers") {
-    // TODO: Fix memory leak
     check_copy<vector_container<std::int32_t, CountingAllocator<std::int32_t>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can copy vector_container of std::contaier") {
-    // TODO: Fix memory leak
-    check_copy<std::vector<std::int32_t>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
+    check_copy<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>();
 }
 
 TEST("can copy vector_container of tuples of primitives") {
-    // TODO: Fix memory leak
     check_copy<std::tuple<float, std::int32_t, std::int64_t>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can copy vector_container of tuples of vector_containers") {
-    // TODO: Fix memory leak
     check_copy<std::tuple<vector_container<float, CountingAllocator<float>>,
                           vector_container<std::int32_t, CountingAllocator<std::int32_t>>,
                           vector_container<std::int64_t, CountingAllocator<std::int64_t>>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can copy vector_container of tuples of std::contaier") {
-    // TODO: Fix memory leak
-    check_copy<
-        std::tuple<std::vector<float>, std::vector<std::int32_t>, std::vector<std::int64_t>>>();
-    // TODO: Remove this check after memory leaks will be fixed and the corresponding
-    // check in the testing function will be uncommented
-    // REQUIRE(allocated_bytes_count == 0);
+    check_copy<std::tuple<std::vector<float, CountingAllocator<float>>,
+                          std::vector<std::int32_t, CountingAllocator<std::int32_t>>,
+                          std::vector<std::int64_t, CountingAllocator<std::int64_t>>>>();
 }
 
 TEST("can fill vector_container of primitives with value") {
@@ -533,7 +455,6 @@ TEST("can fill vector_container of primitives with value") {
 }
 
 TEST("can fill vector_container of vector_container with value") {
-    // TODO: Fix memory leak
     allocated_bytes_count = 0;
     {
         CountingAllocator<std::int32_t> alloc;
@@ -541,16 +462,16 @@ TEST("can fill vector_container of vector_container with value") {
         fill_content(vec);
         check_fill<vector_container<std::int32_t, CountingAllocator<std::int32_t>>>(vec);
     }
-    // TODO: Remove this check after memory leak will be fixed
-    // REQUIRE(allocated_bytes_count == 0);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
 TEST("can fill vector_container of std::contaiers with value") {
     allocated_bytes_count = 0;
     {
-        std::vector<std::int32_t> vec(10);
+        CountingAllocator<std::int32_t> alloc;
+        std::vector<std::int32_t, CountingAllocator<std::int32_t>> vec(10, alloc);
         fill_content(vec);
-        check_fill<std::vector<std::int32_t>>(vec);
+        check_fill<std::vector<std::int32_t, CountingAllocator<std::int32_t>>>(vec);
     }
     REQUIRE(allocated_bytes_count == 0);
 }
@@ -605,6 +526,21 @@ TEST("can reserve new_capacity > old_capacity") {
     {
         CountingAllocator<std::int32_t> alloc;
         vector_container<std::int32_t, CountingAllocator<std::int32_t>> vec(4, alloc);
+        REQUIRE(vec.capacity() == 8);
+        REQUIRE(vec.size() == 4);
+        vec.reserve(9);
+        REQUIRE(vec.capacity() == 9);
+        REQUIRE(vec.size() == 4);
+    }
+    REQUIRE(allocated_bytes_count == 0);
+}
+
+TEST("can reserve new_capacity > old_capacity with vector_container of vector_containers") {
+    allocated_bytes_count = 0;
+    {
+        using vc_t = vector_container<std::int32_t, CountingAllocator<std::int32_t>>;
+        CountingAllocator<vc_t> alloc;
+        vector_container<vc_t, CountingAllocator<vc_t>> vec(4, alloc);
         REQUIRE(vec.capacity() == 8);
         REQUIRE(vec.size() == 4);
         vec.reserve(9);

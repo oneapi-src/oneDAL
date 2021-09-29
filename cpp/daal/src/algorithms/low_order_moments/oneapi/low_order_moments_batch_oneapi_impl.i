@@ -30,7 +30,7 @@
 #include "services/error_indexes.h"
 #include "src/algorithms/low_order_moments/oneapi/cl_kernels/low_order_moments_kernels_all.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "services/internal/execution_context.h"
 #include "services/daal_defines.h"
 

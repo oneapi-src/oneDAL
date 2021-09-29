@@ -34,7 +34,7 @@ Training
 --------
 
 Given :math:`n` feature vectors :math:`X=\{x_1=(x_{11},\ldots,x_{1p}),\ldots,x_n=(x_{n1},\ldots,x_{np})\}` of
-size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}` and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`, 
+size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}` and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`,
 
 .. tabs::
 
@@ -44,7 +44,7 @@ size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n
 
   .. group-tab:: Regression
 
-    - :math:`y_i \in \mathbb{R}` 
+    - :math:`y_i \in \mathbb{R}`
 
 the problem is to build a decision forest classification or regression model.
 
@@ -73,7 +73,7 @@ corresponding to their children, :math:`t_L` and :math:`t_R`.
 Training method: *Dense*
 ++++++++++++++++++++++++
 
-In *dense* training method, all possible splits for each feature are taken from the subset of selected features for the current node and evaluated 
+In *dense* training method, all possible splits for each feature are taken from the subset of selected features for the current node and evaluated
 for best split computation.
 
 .. _df_t_math_hist:
@@ -81,8 +81,8 @@ for best split computation.
 Training method: *Hist*
 +++++++++++++++++++++++
 
-In *hist* training method, only a selected subset of splits is considered for best split computation. 
-This subset of splits is computed for each feature at the initialization stage of the algorithm. 
+In *hist* training method, only a selected subset of splits is considered for best split computation.
+This subset of splits is computed for each feature at the initialization stage of the algorithm.
 After computing the subset of splits, each value from the initially provided data is substituted
 with the value of the corresponding bin.
 Bins are continuous intervals between selected splits.
@@ -99,38 +99,44 @@ the subset :math:`D_t` in the node :math:`t`.
   .. group-tab:: Classification
 
    *Gini index* is an impurity metric for classification, calculated as follows:
-   
+
    .. math::
    	{I}_{Gini}\left(D\right)=1-\sum _{i=0}^{C-1}{p}_{i}^{2}
-   
-   where 
-   
+
+   where
+
    - :math:`D` is a set of observations that reach the node;
    - :math:`p_i` is specified in the table below:
-   
-   .. list-table::
+
+   .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+   .. list-table:: Decision Forest Split Criteria Calculation
       :widths: 10 10
       :header-rows: 1
       :align: left
-   
+      :class: longtable
+
       * - Without sample weights
         - With sample weights
       * - :math:`p_i` is the observed fraction of observations that belong to class :math:`i` in :math:`D`
         - :math:`p_i` is the observed weighted fraction of observations that belong to class :math:`i` in :math:`D`:
-   
+
           .. math::
-   
+
              p_i = \frac{\sum_{d \in \{d \in D | y_d = i \}} W_d}{\sum_{d \in D} W_d}
-   
+
   .. group-tab:: Regression
 
    *MSE* is an impurity metric for regression, calculated as follows:
-   
-   .. list-table::
+
+   .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+   .. list-table:: MSE Impurity Metric
       :widths: 10 10
       :header-rows: 1
       :align: left
-   
+      :class: longtable
+
       * - Without sample weights
         - With sample weights
       * - :math:`I_{\mathrm{MSE}}\left(D\right) = \frac{1}{W(D)} \sum _{i=1}^{W(D)}{\left(y_i - \frac{1}{W(D)} \sum _{j=1}^{W(D)} y_j \right)}^{2}`
@@ -171,7 +177,7 @@ Maximal number of leaf nodes
   Grow trees with positive maximal number of leaf nodes in a :ref:`best-first <df_t_best_first_strategy>` fashion.
   Best nodes are defined by relative reduction in impurity.
   If maximal number of leaf nodes equals zero, then this criterion does not limit the number of leaf nodes,
-  and trees grow in a :ref:`depth-first <df_t_depth_first_strategy>` fashion. 
+  and trees grow in a :ref:`depth-first <df_t_depth_first_strategy>` fashion.
 
 Tree Building Strategies
 ++++++++++++++++++++++++
@@ -185,7 +191,7 @@ Depth-first Strategy
 ~~~~~~~~~~~~~~~~~~~~
 
 If maximal number of leaf nodes equals zero, a :ref:`decision tree <dt>` is built using depth-first strategy.
-In each terminal node :math:`t`, the following recursive procedure is applied: 
+In each terminal node :math:`t`, the following recursive procedure is applied:
 
 - Stop if the termination criteria are met.
 - Choose randomly without replacement :math:`m` feature indices :math:`J_t \in \{0, 1, \ldots, p-1\}`.
@@ -225,7 +231,7 @@ Inference
 ---------
 
 Given decision forest classification or regression model and vectors :math:`x_1, \ldots, x_r`,
-the problem is to calculate the responses for those vectors. 
+the problem is to calculate the responses for those vectors.
 
 .. _df_i_math_dense_hist:
 
@@ -299,38 +305,38 @@ Variable Importance
 
 There are two main types of variable importance measures:
 
--  *Mean Decrease Impurity* importance (MDI)
+- *Mean Decrease Impurity* importance (MDI)
 
- Importance of the :math:`j`-th variable for predicting :math:`Y` is the sum of
- weighted impurity decreases :math:`p(t) \Delta i(s_t, t)` for all nodes
- :math:`t` that use :math:`x_j`, averaged over all :math:`B` trees in the
- forest:
+  Importance of the :math:`j`-th variable for predicting :math:`Y` is the sum of
+  weighted impurity decreases :math:`p(t) \Delta i(s_t, t)` for all nodes
+  :math:`t` that use :math:`x_j`, averaged over all :math:`B` trees in the
+  forest:
 
- .. math::
-	MDI\left(j\right)=\frac{1}{B}\sum _{b=1}^{B} \sum _{t\in {T}_{b}:v\left({s}_{t}\right)=j}p\left(t\right)\Delta i\left({s}_{t},t\right),
+  .. math::
+    MDI\left(j\right)=\frac{1}{B}\sum _{b=1}^{B} \sum _{t\in {T}_{b}:v\left({s}_{t}\right)=j}p\left(t\right)\Delta i\left({s}_{t},t\right),
 
- where :math:`p\left(t\right)=\frac{|{D}_{t}|}{|D|}` is the fraction of observations reaching node :math:`t`
- in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
- variable used in split :math:`s_t`.
+  where :math:`p\left(t\right)=\frac{|{D}_{t}|}{|D|}` is the fraction of observations reaching node :math:`t`
+  in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
+  variable used in split :math:`s_t`.
 
--  *Mean Decrease Accuracy* (MDA)
+- *Mean Decrease Accuracy* (MDA)
 
- Importance of the :math:`j`-th variable for predicting :math:`Y` is the average
- increase in the OOB error over all trees in the forest when the
- values of the :math:`j`-th variable are randomly permuted in the OOB
- set. For that reason, this latter measure is also known as
- *permutation importance*.
+  Importance of the :math:`j`-th variable for predicting :math:`Y` is the average
+  increase in the OOB error over all trees in the forest when the
+  values of the :math:`j`-th variable are randomly permuted in the OOB
+  set. For that reason, this latter measure is also known as
+  *permutation importance*.
 
- In more details, the library calculates MDA importance as
- follows:
+  In more details, the library calculates MDA importance as
+  follows:
 
- -  Let :math:`\pi (X,j)` be the set of feature vectors where the :math:`j`-th variable is randomly permuted over all vectors in the set.
- -  Let :math:`E_b` be the OOB error calculated for :math:`T_b:` on its out-of-bag dataset :math:`\overline{D_b}`.
- -  Let :math:`E_{b,j}` be the OOB error calculated for :math:`T_b:` using :math:`\pi \left(\overline{{X}_{b}},j\right)`, and its out-of-bag dataset :math:`\overline{D_b}` is permuted on the :math:`j`-th variable. Then
+  - Let :math:`\pi (X,j)` be the set of feature vectors where the :math:`j`-th variable is randomly permuted over all vectors in the set.
+  - Let :math:`E_b` be the OOB error calculated for :math:`T_b:` on its out-of-bag dataset :math:`\overline{D_b}`.
+  - Let :math:`E_{b,j}` be the OOB error calculated for :math:`T_b:` using :math:`\pi \left(\overline{{X}_{b}},j\right)`, and its out-of-bag dataset :math:`\overline{D_b}` is permuted on the :math:`j`-th variable. Then
 
-	* :math:`{\delta }_{b,j}={E}_{b}-{E}_{b,j}` is the OOB error increase for the tree :math:`T_b`.
-	* :math:`Raw MDA\left(j\right)=\frac{1}{B}\sum _{b=1}^{B}{\delta }_{b,j}` is MDA importance.
-	* :math:`Scaled MDA\left(j\right)=\frac{Raw MDA\left({x}_{j}\right)}{\frac{{\sigma }_{j}}{\sqrt{B}}}`, where :math:`{\sigma }_{j}^{2}` is the variance of :math:`D_{b,j}`
+    * :math:`{\delta }_{b,j}={E}_{b}-{E}_{b,j}` is the OOB error increase for the tree :math:`T_b`.
+    * :math:`Raw MDA\left(j\right)=\frac{1}{B}\sum _{b=1}^{B}{\delta }_{b,j}` is MDA importance.
+    * :math:`Scaled MDA\left(j\right)=\frac{Raw MDA\left({x}_{j}\right)}{\frac{{\sigma }_{j}}{\sqrt{B}}}`, where :math:`{\sigma }_{j}^{2}` is the variance of :math:`D_{b,j}`
 
 ---------------------
 Programming Interface
