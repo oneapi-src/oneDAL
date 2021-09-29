@@ -74,7 +74,7 @@ CpuInfo = provider(
     ],
 )
 
-_ISA_EXTENSIONS = ["sse2", "ssse3", "sse42", "avx", "avx2", "avx512"]
+_ISA_EXTENSIONS = ["sse2", "ssse3", "sse42", "avx", "avx2", "avx512", "avx512_mic"]
 _ISA_EXTENSIONS_MODERN = ["sse2", "avx", "avx2", "avx512"]
 _ISA_EXTENSION_AUTO_DEFAULT = "avx2"
 
