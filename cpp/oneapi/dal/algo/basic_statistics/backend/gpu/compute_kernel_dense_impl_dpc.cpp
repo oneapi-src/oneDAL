@@ -19,6 +19,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -545,6 +546,8 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
     std::int64_t column_count,
     std::int64_t block_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(merge_blocks, q_);
+
     ONEDAL_ASSERT(column_count > 0);
     ONEDAL_ASSERT(block_count > 0);
 
@@ -850,6 +853,8 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
 template <typename Float, bs_list List>
 std::tuple<ndresult<Float, List>, sycl::event>
 compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Float, 2> data) {
+    ONEDAL_PROFILER_TASK(process_single_block, q_);
+
     ONEDAL_ASSERT(data.has_data());
 
     constexpr bool deffered_fin_true = true;
@@ -1027,32 +1032,36 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Floa
 
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(global_size, local_size);
 
-    auto last_event = q_.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
-            const std::int64_t tid = item.get_local_id()[0];
-            const std::int64_t tnum = item.get_local_range()[0];
-            const std::int64_t gid = item.get_group().get_id(0);
+    sycl::event last_event;
+    {
+        ONEDAL_PROFILER_TASK(process_blocks, q_);
+        last_event = q_.submit([&](sycl::handler& cgh) {
+            cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
+                const std::int64_t tid = item.get_local_id()[0];
+                const std::int64_t tnum = item.get_local_range()[0];
+                const std::int64_t gid = item.get_group().get_id(0);
 
-            const std::int64_t row_block_idx = gid / column_block_count;
-            const std::int64_t col_block_idx = gid - row_block_idx * column_block_count;
+                const std::int64_t row_block_idx = gid / column_block_count;
+                const std::int64_t col_block_idx = gid - row_block_idx * column_block_count;
 
-            block_processor<Float, List>(data_ptr,
-                                         ablock_rc_ptr,
-                                         amin_ptr,
-                                         amax_ptr,
-                                         asum_ptr,
-                                         asum2_ptr,
-                                         asum2cent_ptr,
-                                         row_count,
-                                         row_block_idx,
-                                         row_block_count,
-                                         column_count,
-                                         col_block_idx,
-                                         column_block_count,
-                                         tid,
-                                         tnum);
+                block_processor<Float, List>(data_ptr,
+                                             ablock_rc_ptr,
+                                             amin_ptr,
+                                             amax_ptr,
+                                             asum_ptr,
+                                             asum2_ptr,
+                                             asum2cent_ptr,
+                                             row_count,
+                                             row_block_idx,
+                                             row_block_count,
+                                             column_count,
+                                             col_block_idx,
+                                             column_block_count,
+                                             tid,
+                                             tnum);
+            });
         });
-    });
+    }
 
     auto [ndres, merge_event] =
         merge_blocks(std::move(ndbuf), column_count, row_block_count, { last_event });
@@ -1066,6 +1075,8 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
     std::int64_t row_count,
     std::int64_t column_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(finalize, q_);
+
     const bool distr_mode = comm_.get_rank_count() > 1;
     // ndres asserts
     ASSERT_IF(bs_list::min, ndres.get_min().get_count() == column_count);

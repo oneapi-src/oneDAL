@@ -44,15 +44,12 @@ static result_t compute(const bk::context_gpu& ctx,
 
     if ((res_op.test(res_min_max) && res_op.test(~res_min_max)) ||
         (res_op.test(res_mean_varc) && res_op.test(~res_mean_varc))) {
-        _P("mode all");
         return compute_kernel_dense_impl<Float, bs_mode_all>(ctx)(desc, input);
     }
     else if (res_op.test(res_min_max)) {
-        _P("mode min max");
         return compute_kernel_dense_impl<Float, bs_mode_min_max>(ctx)(desc, input);
     }
     else if (res_op.test(res_mean_varc)) {
-        _P("mode mean varc");
         return compute_kernel_dense_impl<Float, bs_mode_mean_variance>(ctx)(desc, input);
     }
 
