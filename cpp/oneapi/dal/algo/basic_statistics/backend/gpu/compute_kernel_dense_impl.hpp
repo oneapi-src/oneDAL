@@ -38,8 +38,8 @@ class compute_kernel_dense_impl {
     using comm_t = bk::communicator;
     using input_t = compute_input<task_t>;
     using result_t = compute_result<task_t>;
-    using ndresult_t = ndresult<Float, List>;
-    using ndbuffer_t = ndbuffer<Float, List>;
+    using local_result_t = local_result<Float, List>;
+    using local_buffer_list_t = local_buffer_list<Float, List>;
     using descriptor_t = detail::descriptor_base<task_t>;
 
 public:
@@ -51,30 +51,30 @@ public:
 private:
     std::int64_t get_row_block_count(std::int64_t row_count);
     std::int64_t get_column_block_count(std::int64_t column_count);
-    std::tuple<ndresult_t, sycl::event> compute_single_pass(const pr::ndarray<Float, 2> data);
-    std::tuple<ndresult_t, sycl::event> compute_by_blocks(const pr::ndarray<Float, 2> data,
-                                                          std::int64_t row_block_count);
-    std::tuple<ndresult_t, sycl::event> merge_blocks(ndbuffer_t&& ndbuf,
-                                                     std::int64_t column_count,
-                                                     std::int64_t block_count,
-                                                     const bk::event_vector& deps = {});
-    std::tuple<ndresult_t, sycl::event> merge_distr_blocks(
+    std::tuple<local_result_t, sycl::event> compute_single_pass(const pr::ndarray<Float, 2> data);
+    std::tuple<local_result_t, sycl::event> compute_by_blocks(const pr::ndarray<Float, 2> data,
+                                                              std::int64_t row_block_count);
+    std::tuple<local_result_t, sycl::event> merge_blocks(local_buffer_list_t&& ndbuf,
+                                                         std::int64_t column_count,
+                                                         std::int64_t block_count,
+                                                         const bk::event_vector& deps = {});
+    std::tuple<local_result_t, sycl::event> merge_distr_blocks(
         const pr::ndarray<std::int64_t, 1>& com_row_count,
         const pr::ndarray<Float, 1>& com_sum,
         const pr::ndarray<Float, 1>& com_sum2cent,
-        ndresult_t&& ndres,
+        local_result_t&& ndres,
         std::int64_t block_count,
         std::int64_t column_count,
         std::int64_t block_stride,
         const bk::event_vector& deps = {});
 
-    std::tuple<ndresult_t, sycl::event> finalize(ndresult_t&& ndres,
-                                                 std::int64_t row_count,
-                                                 std::int64_t column_count,
-                                                 const bk::event_vector& deps = {});
+    std::tuple<local_result_t, sycl::event> finalize(local_result_t&& ndres,
+                                                     std::int64_t row_count,
+                                                     std::int64_t column_count,
+                                                     const bk::event_vector& deps = {});
 
     result_t get_result(const descriptor_t& desc,
-                        const ndresult_t& ndres,
+                        const local_result_t& ndres,
                         std::int64_t column_count,
                         const bk::event_vector& deps = {});
 

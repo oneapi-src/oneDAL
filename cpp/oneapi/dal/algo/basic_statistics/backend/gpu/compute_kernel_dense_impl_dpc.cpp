@@ -93,7 +93,7 @@ std::int64_t compute_kernel_dense_impl<Float, List>::get_column_block_count(
 
 template <typename Float, bs_list List>
 result_t compute_kernel_dense_impl<Float, List>::get_result(const descriptor_t& desc,
-                                                            const ndresult<Float, List>& ndres,
+                                                            const local_result<Float, List>& ndres,
                                                             std::int64_t column_count,
                                                             const bk::event_vector& deps) {
     ONEDAL_ASSERT(column_count > 0);
@@ -541,18 +541,18 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
 }
 
 template <typename Float, bs_list List>
-std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, List>::merge_blocks(
-    ndbuffer<Float, List>&& ndbuf,
-    std::int64_t column_count,
-    std::int64_t block_count,
-    const bk::event_vector& deps) {
+std::tuple<local_result<Float, List>, sycl::event>
+compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, List>&& ndbuf,
+                                                     std::int64_t column_count,
+                                                     std::int64_t block_count,
+                                                     const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(merge_blocks, q_);
 
     ONEDAL_ASSERT(column_count > 0);
     ONEDAL_ASSERT(block_count > 0);
 
     const bool distr_mode = comm_.get_rank_count() > 1;
-    auto ndres = ndresult<Float, List>::empty(q_, column_count, distr_mode);
+    auto ndres = local_result<Float, List>::empty(q_, column_count, distr_mode);
 
     // ndres asserts
     ASSERT_IF(bs_list::min, ndres.get_min().get_count() == column_count);
@@ -732,12 +732,12 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
 
 /* merge distributed blocks kernel */
 template <typename Float, bs_list List>
-std::tuple<ndresult<Float, List>, sycl::event>
+std::tuple<local_result<Float, List>, sycl::event>
 compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
     const pr::ndarray<std::int64_t, 1>& com_row_count,
     const pr::ndarray<Float, 1>& com_sum,
     const pr::ndarray<Float, 1>& com_sum2cent,
-    ndresult<Float, List>&& ndres,
+    local_result<Float, List>&& ndres,
     std::int64_t block_count,
     std::int64_t column_count,
     std::int64_t block_stride, // distance between first elemments of blocks',
@@ -859,11 +859,11 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
         // there is an issue in opencl backend with keeping memory dependencies in events.
         last_event.wait_and_throw();
     }
-    return std::make_tuple(std::forward<ndresult_t>(ndres), last_event);
+    return std::make_tuple(std::forward<local_result_t>(ndres), last_event);
 }
 
 template <typename Float, bs_list List>
-std::tuple<ndresult<Float, List>, sycl::event>
+std::tuple<local_result<Float, List>, sycl::event>
 compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Float, 2> data) {
     ONEDAL_PROFILER_TASK(process_single_block, q_);
 
@@ -877,7 +877,7 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
 
     const bool distr_mode = comm_.get_rank_count() > 1;
 
-    auto ndres = ndresult<Float, List>::empty(q_, column_count, distr_mode);
+    auto ndres = local_result<Float, List>::empty(q_, column_count, distr_mode);
 
     ASSERT_IF(bs_list::min, ndres.get_min().get_count() == column_count);
     ASSERT_IF(bs_list::max, ndres.get_max().get_count() == column_count);
@@ -997,7 +997,7 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
 }
 
 template <typename Float, bs_list List>
-std::tuple<ndresult<Float, List>, sycl::event>
+std::tuple<local_result<Float, List>, sycl::event>
 compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Float, 2> data,
                                                           std::int64_t row_block_count) {
     ONEDAL_ASSERT(data.has_data());
@@ -1008,7 +1008,7 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Floa
     const auto column_block_count = get_column_block_count(column_count);
     const auto aux_buf_size = de::check_mul_overflow(row_block_count, column_count);
 
-    auto ndbuf = ndbuffer<Float, List>::empty(q_, aux_buf_size);
+    auto ndbuf = local_buffer_list<Float, List>::empty(q_, aux_buf_size);
 
     // ndbuf asserts
     ASSERT_IF(bs_list::mean | sum2cent_based_stat, ndbuf.get_rc_list().get_count() == aux_buf_size);
@@ -1082,8 +1082,8 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Floa
 }
 
 template <typename Float, bs_list List>
-std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, List>::finalize(
-    ndresult_t&& ndres,
+std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Float, List>::finalize(
+    local_result_t&& ndres,
     std::int64_t row_count,
     std::int64_t column_count,
     const bk::event_vector& deps) {
@@ -1193,7 +1193,7 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
             auto [merge_res, merge_event] = merge_distr_blocks(com_row_count,
                                                                com_sum,
                                                                com_sum2cent,
-                                                               std::forward<ndresult_t>(ndres),
+                                                               std::forward<local_result_t>(ndres),
                                                                comm_.get_rank_count(),
                                                                column_count,
                                                                column_count);
@@ -1205,7 +1205,7 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
         sycl::event::wait_and_throw(deps);
     }
 
-    return std::make_tuple(std::forward<ndresult_t>(ndres), std::move(last_event));
+    return std::make_tuple(std::forward<local_result_t>(ndres), std::move(last_event));
 }
 
 template <typename Float, bs_list List>

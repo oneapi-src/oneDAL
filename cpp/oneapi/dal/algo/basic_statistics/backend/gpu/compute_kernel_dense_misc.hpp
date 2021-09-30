@@ -58,9 +58,9 @@ constexpr inline bs_list sum2cent_based_stat =
     bs_list::sum2cent | bs_list::varc | bs_list::stdev | bs_list::vart;
 
 template <typename Float, bs_list List>
-class ndresult {
+class local_result {
     using alloc = sycl::usm::alloc;
-    using own_t = ndresult<Float, List>;
+    using own_t = local_result<Float, List>;
 
 public:
     static own_t empty(sycl::queue& q, std::int64_t count, bool deffered_fin = false) {
@@ -134,7 +134,7 @@ public:
     }
 
 private:
-    ndresult() = default;
+    local_result() = default;
 
     pr::ndarray<Float, 1> rmin_;
     pr::ndarray<Float, 1> rmax_;
@@ -149,9 +149,9 @@ private:
 };
 
 template <typename Float, bs_list List>
-class ndbuffer {
+class local_buffer_list {
     using alloc = sycl::usm::alloc;
-    using own_t = ndbuffer<Float, List>;
+    using own_t = local_buffer_list<Float, List>;
 
 public:
     static own_t empty(sycl::queue& q, std::int64_t count) {
@@ -198,7 +198,7 @@ public:
     }
 
 private:
-    ndbuffer() = default;
+    local_buffer_list() = default;
 
     pr::ndarray<std::int64_t, 1> rrow_count_;
 
