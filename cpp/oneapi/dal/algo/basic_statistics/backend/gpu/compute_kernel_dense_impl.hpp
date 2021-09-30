@@ -54,19 +54,19 @@ private:
     std::tuple<ndresult_t, sycl::event> compute_single_pass(const pr::ndarray<Float, 2> data);
     std::tuple<ndresult_t, sycl::event> compute_by_blocks(const pr::ndarray<Float, 2> data,
                                                           std::int64_t row_block_count);
-    sycl::event merge_blocks(const ndbuffer_t&& ndbuf,
-                             ndresult_t& ndres,
-                             std::int64_t column_count,
-                             std::int64_t block_count,
-                             const bk::event_vector& deps = {});
-    sycl::event merge_distr_blocks(const pr::ndarray<std::int64_t, 1>& com_row_count,
-                                   const pr::ndarray<Float, 1>& com_sum,
-                                   const pr::ndarray<Float, 1>& com_sum2cent,
-                                   ndresult_t& ndres,
-                                   std::int64_t block_count,
-                                   std::int64_t column_count,
-                                   std::int64_t block_stride,
-                                   const bk::event_vector& deps = {});
+    std::tuple<ndresult_t, sycl::event> merge_blocks(ndbuffer_t&& ndbuf,
+                                                     std::int64_t column_count,
+                                                     std::int64_t block_count,
+                                                     const bk::event_vector& deps = {});
+    std::tuple<ndresult_t, sycl::event> merge_distr_blocks(
+        const pr::ndarray<std::int64_t, 1>& com_row_count,
+        const pr::ndarray<Float, 1>& com_sum,
+        const pr::ndarray<Float, 1>& com_sum2cent,
+        ndresult_t&& ndres,
+        std::int64_t block_count,
+        std::int64_t column_count,
+        std::int64_t block_stride,
+        const bk::event_vector& deps = {});
 
     std::tuple<ndresult_t, sycl::event> finalize(ndresult_t&& ndres,
                                                  std::int64_t row_count,

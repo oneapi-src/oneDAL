@@ -31,6 +31,17 @@ namespace oneapi::dal::basic_statistics::backend {
         }                                                        \
     } while (0)
 
+#define DECLSET_IF(type, var, cond, value)       \
+    type var = nullptr;                          \
+    if constexpr (check_mask_flag(cond, List)) { \
+        var = value;                             \
+    }
+
+#define SET_IF(var, cond, value)                 \
+    if constexpr (check_mask_flag(cond, List)) { \
+        var = value;                             \
+    }
+
 namespace de = dal::detail;
 namespace be = dal::backend;
 namespace pr = dal::backend::primitives;
@@ -529,13 +540,17 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
 }
 
 template <typename Float, bs_list List>
-sycl::event compute_kernel_dense_impl<Float, List>::merge_blocks(
-    const ndbuffer<Float, List>&& ndbuf,
-    ndresult<Float, List>& ndres,
+std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, List>::merge_blocks(
+    ndbuffer<Float, List>&& ndbuf,
     std::int64_t column_count,
     std::int64_t block_count,
     const bk::event_vector& deps) {
+    ONEDAL_ASSERT(column_count > 0);
+    ONEDAL_ASSERT(block_count > 0);
+
     const bool distr_mode = comm_.get_rank_count() > 1;
+    auto ndres = ndresult<Float, List>::empty(q_, column_count, distr_mode);
+
     // ndres asserts
     ASSERT_IF(bs_list::min, ndres.get_min().get_count() == column_count);
     ASSERT_IF(bs_list::max, ndres.get_max().get_count() == column_count);
@@ -560,16 +575,15 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_blocks(
     ASSERT_IF(bs_list::vart, ndres.get_vart().get_count() == column_count);
 
     // ndbuf asserts
-    ASSERT_IF(bs_list::mean | sum2cent_based_stat, ndbuf.get_rc_list().get_count() == column_count);
-    ASSERT_IF(bs_list::min, ndbuf.get_min().get_count() == column_count);
-    ASSERT_IF(bs_list::max, ndbuf.get_max().get_count() == column_count);
+    ASSERT_IF(bs_list::mean | sum2cent_based_stat,
+              ndbuf.get_rc_list().get_count() == block_count * column_count);
+    ASSERT_IF(bs_list::min, ndbuf.get_min().get_count() == block_count * column_count);
+    ASSERT_IF(bs_list::max, ndbuf.get_max().get_count() == block_count * column_count);
     ASSERT_IF(bs_list::sum | bs_list::mean | sum2cent_based_stat,
-              ndbuf.get_sum().get_count() == column_count);
-    ASSERT_IF(bs_list::sum2 | bs_list::sorm, ndbuf.get_sum2().get_count() == column_count);
-    ASSERT_IF(sum2cent_based_stat, ndbuf.get_sum2cent().get_count() == column_count);
-
-    ONEDAL_ASSERT(column_count > 0);
-    ONEDAL_ASSERT(block_count > 0);
+              ndbuf.get_sum().get_count() == block_count * column_count);
+    ASSERT_IF(bs_list::sum2 | bs_list::sorm,
+              ndbuf.get_sum2().get_count() == block_count * column_count);
+    ASSERT_IF(sum2cent_based_stat, ndbuf.get_sum2cent().get_count() == block_count * column_count);
 
     const std::int64_t* brc_ptr = ndbuf.get_rc_list().get_data();
     const Float* bmin_ptr = ndbuf.get_min().get_data();
@@ -577,16 +591,37 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_blocks(
     const Float* bsum_ptr = ndbuf.get_sum().get_data();
     const Float* bsum2_ptr = ndbuf.get_sum2().get_data();
     const Float* bsum2cent_ptr = ndbuf.get_sum2cent().get_data();
-    Float* rmin_ptr = ndres.get_min().get_mutable_data();
-    Float* rmax_ptr = ndres.get_max().get_mutable_data();
-    Float* rsum_ptr = ndres.get_sum().get_mutable_data();
-    Float* rsum2_ptr = ndres.get_sum2().get_mutable_data();
-    Float* rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
-    Float* rmean_ptr = ndres.get_mean().get_mutable_data();
-    Float* rsorm_ptr = ndres.get_sorm().get_mutable_data();
-    Float* rvarc_ptr = ndres.get_varc().get_mutable_data();
-    Float* rstdev_ptr = ndres.get_stdev().get_mutable_data();
-    Float* rvart_ptr = ndres.get_vart().get_mutable_data();
+
+    DECLSET_IF(Float*, rmin_ptr, bs_list::min, ndres.get_min().get_mutable_data())
+    DECLSET_IF(Float*, rmax_ptr, bs_list::max, ndres.get_max().get_mutable_data())
+    DECLSET_IF(Float*,
+               rsum2_ptr,
+               bs_list::sum2 | bs_list::sorm,
+               ndres.get_sum2().get_mutable_data())
+
+    Float* rsum_ptr = nullptr;
+    if (distr_mode) {
+        SET_IF(rsum_ptr, bs_list::mean | sum2cent_based_stat, ndres.get_sum().get_mutable_data())
+    }
+    else {
+        SET_IF(rsum_ptr, bs_list::sum, ndres.get_sum().get_mutable_data())
+    }
+
+    Float* rsum2cent_ptr = nullptr;
+    if (distr_mode) {
+        SET_IF(rsum2cent_ptr,
+               bs_list::varc | bs_list::stdev | bs_list::vart,
+               ndres.get_sum2cent().get_mutable_data())
+    }
+    else {
+        SET_IF(rsum2cent_ptr, bs_list::sum2cent, ndres.get_sum2cent().get_mutable_data())
+    }
+
+    DECLSET_IF(Float*, rmean_ptr, bs_list::mean, ndres.get_mean().get_mutable_data())
+    DECLSET_IF(Float*, rsorm_ptr, bs_list::sorm, ndres.get_sorm().get_mutable_data())
+    DECLSET_IF(Float*, rvarc_ptr, bs_list::varc, ndres.get_varc().get_mutable_data())
+    DECLSET_IF(Float*, rstdev_ptr, bs_list::stdev, ndres.get_stdev().get_mutable_data())
+    DECLSET_IF(Float*, rvart_ptr, bs_list::vart, ndres.get_vart().get_mutable_data())
 
     std::int64_t local_size = bk::device_max_sg_size(q_);
     auto global_size = de::check_mul_overflow(column_count, local_size);
@@ -683,16 +718,17 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_blocks(
         });
     });
 
-    return last_event;
+    return std::make_tuple(std::move(ndres), last_event);
 }
 
 /* merge distributed blocks kernel */
 template <typename Float, bs_list List>
-sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
+std::tuple<ndresult<Float, List>, sycl::event>
+compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
     const pr::ndarray<std::int64_t, 1>& com_row_count,
     const pr::ndarray<Float, 1>& com_sum,
     const pr::ndarray<Float, 1>& com_sum2cent,
-    ndresult<Float, List>& ndres,
+    ndresult<Float, List>&& ndres,
     std::int64_t block_count,
     std::int64_t column_count,
     std::int64_t block_stride, // distance between first elemments of blocks',
@@ -713,20 +749,28 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
     ASSERT_IF(bs_list::stdev, ndres.get_stdev().get_count() == column_count);
     ASSERT_IF(bs_list::vart, ndres.get_vart().get_count() == column_count);
 
-    ASSERT_IF(bs_list::mean | sum2cent_based_stat, com_row_count.get_count() == comm_.get_rank());
     ASSERT_IF(bs_list::mean | sum2cent_based_stat,
-              com_sum.get_count() == comm_.get_rank() * column_count);
-    ASSERT_IF(sum2cent_based_stat, com_sum2cent.get_count() == comm_.get_rank() * column_count);
+              com_row_count.get_count() == comm_.get_rank_count());
+    ASSERT_IF(bs_list::mean | sum2cent_based_stat,
+              com_sum.get_count() == comm_.get_rank_count() * column_count);
+    ASSERT_IF(sum2cent_based_stat,
+              com_sum2cent.get_count() == comm_.get_rank_count() * column_count);
 
-    Float* rsum_ptr = ndres.get_sum().get_mutable_data();
-    Float* rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
-    Float* rmean_ptr = ndres.get_mean().get_mutable_data();
-    Float* rsorm_ptr = ndres.get_sorm().get_mutable_data();
-    Float* rvarc_ptr = ndres.get_varc().get_mutable_data();
-    Float* rstdev_ptr = ndres.get_stdev().get_mutable_data();
-    Float* rvart_ptr = ndres.get_vart().get_mutable_data();
+    DECLSET_IF(Float*,
+               rsum_ptr,
+               bs_list::mean | sum2cent_based_stat,
+               ndres.get_sum().get_mutable_data())
+    DECLSET_IF(Float*,
+               rsum2cent_ptr,
+               bs_list::varc | bs_list::stdev | bs_list::vart,
+               ndres.get_sum2cent().get_mutable_data())
+    DECLSET_IF(Float*, rmean_ptr, bs_list::mean, ndres.get_mean().get_mutable_data())
+    DECLSET_IF(Float*, rsorm_ptr, bs_list::sorm, ndres.get_sorm().get_mutable_data())
+    DECLSET_IF(Float*, rvarc_ptr, bs_list::varc, ndres.get_varc().get_mutable_data())
+    DECLSET_IF(Float*, rstdev_ptr, bs_list::stdev, ndres.get_stdev().get_mutable_data())
+    DECLSET_IF(Float*, rvart_ptr, bs_list::vart, ndres.get_vart().get_mutable_data())
 
-    const Float* rsum2_ptr = ndres.get_sum2().get_mutable_data();
+    const Float* rsum2_ptr = ndres.get_sum2().get_data();
 
     const std::int64_t* brc_ptr = com_row_count.get_data();
     const Float* bsum_ptr = com_sum.get_data();
@@ -800,7 +844,7 @@ sycl::event compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
         });
     });
 
-    return last_event;
+    return std::make_tuple(std::forward<ndresult_t>(ndres), last_event);
 }
 
 template <typename Float, bs_list List>
@@ -844,16 +888,36 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
 
     auto data_ptr = data.get_data();
 
-    auto rmin_ptr = ndres.get_min().get_mutable_data();
-    auto rmax_ptr = ndres.get_max().get_mutable_data();
-    auto rsum_ptr = ndres.get_sum().get_mutable_data();
-    auto rsum2_ptr = ndres.get_sum2().get_mutable_data();
-    auto rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
-    auto rmean_ptr = ndres.get_mean().get_mutable_data();
-    auto rsorm_ptr = ndres.get_sorm().get_mutable_data();
-    auto rvarc_ptr = ndres.get_varc().get_mutable_data();
-    auto rstdev_ptr = ndres.get_stdev().get_mutable_data();
-    auto rvart_ptr = ndres.get_vart().get_mutable_data();
+    DECLSET_IF(Float*, rmin_ptr, bs_list::min, ndres.get_min().get_mutable_data())
+    DECLSET_IF(Float*, rmax_ptr, bs_list::max, ndres.get_max().get_mutable_data())
+    DECLSET_IF(Float*,
+               rsum2_ptr,
+               bs_list::sum2 | bs_list::sorm,
+               ndres.get_sum2().get_mutable_data())
+
+    Float* rsum_ptr = nullptr;
+    if (distr_mode) {
+        SET_IF(rsum_ptr, bs_list::mean | sum2cent_based_stat, ndres.get_sum().get_mutable_data())
+    }
+    else {
+        SET_IF(rsum_ptr, bs_list::sum, ndres.get_sum().get_mutable_data())
+    }
+
+    Float* rsum2cent_ptr = nullptr;
+    if (distr_mode) {
+        SET_IF(rsum2cent_ptr,
+               bs_list::varc | bs_list::stdev | bs_list::vart,
+               ndres.get_sum2cent().get_mutable_data())
+    }
+    else {
+        SET_IF(rsum2cent_ptr, bs_list::sum2cent, ndres.get_sum2cent().get_mutable_data())
+    }
+
+    DECLSET_IF(Float*, rmean_ptr, bs_list::mean, ndres.get_mean().get_mutable_data())
+    DECLSET_IF(Float*, rsorm_ptr, bs_list::sorm, ndres.get_sorm().get_mutable_data())
+    DECLSET_IF(Float*, rvarc_ptr, bs_list::varc, ndres.get_varc().get_mutable_data())
+    DECLSET_IF(Float*, rstdev_ptr, bs_list::stdev, ndres.get_stdev().get_mutable_data())
+    DECLSET_IF(Float*, rvart_ptr, bs_list::vart, ndres.get_vart().get_mutable_data())
 
     std::int64_t max_work_group_size =
         q_.get_device().get_info<sycl::info::device::max_work_group_size>();
@@ -912,7 +976,7 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
         });
     });
 
-    return std::make_tuple(ndres, last_event);
+    return std::make_tuple(std::move(ndres), last_event);
 }
 
 template <typename Float, bs_list List>
@@ -924,52 +988,35 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Floa
     std::int64_t row_count = data.get_dimension(0);
     std::int64_t column_count = data.get_dimension(1);
 
-    const bool distr_mode = comm_.get_rank_count() > 1;
-
     const auto column_block_count = get_column_block_count(column_count);
     const auto aux_buf_size = de::check_mul_overflow(row_block_count, column_count);
 
-    auto ndres = ndresult<Float, List>::empty(q_, column_count, distr_mode);
     auto ndbuf = ndbuffer<Float, List>::empty(q_, aux_buf_size);
 
-    // ndres asserts
-    ASSERT_IF(bs_list::min, ndres.get_min().get_count() == column_count);
-    ASSERT_IF(bs_list::max, ndres.get_max().get_count() == column_count);
-    if (distr_mode) {
-        ASSERT_IF(bs_list::mean | sum2cent_based_stat, ndres.get_sum().get_count() == column_count);
-    }
-    else {
-        ASSERT_IF(bs_list::sum, ndres.get_sum().get_count() == column_count);
-    }
-    ASSERT_IF(bs_list::sum2 | bs_list::sorm, ndres.get_sum2().get_count() == column_count);
-    if (distr_mode) {
-        ASSERT_IF(bs_list::varc | bs_list::stdev | bs_list::vart,
-                  ndres.get_sum2cent().get_count() == column_count);
-    }
-    else {
-        ASSERT_IF(bs_list::sum2cent, ndres.get_sum2cent().get_count() == column_count);
-    }
-    ASSERT_IF(bs_list::mean, ndres.get_mean().get_count() == column_count);
-    ASSERT_IF(bs_list::sorm, ndres.get_sorm().get_count() == column_count);
-    ASSERT_IF(bs_list::varc, ndres.get_varc().get_count() == column_count);
-    ASSERT_IF(bs_list::stdev, ndres.get_stdev().get_count() == column_count);
-    ASSERT_IF(bs_list::vart, ndres.get_vart().get_count() == column_count);
-
     // ndbuf asserts
-    ASSERT_IF(bs_list::mean | sum2cent_based_stat, ndbuf.get_rc_list().get_count() == column_count);
-    ASSERT_IF(bs_list::min, ndbuf.get_min().get_count() == column_count);
-    ASSERT_IF(bs_list::max, ndbuf.get_max().get_count() == column_count);
+    ASSERT_IF(bs_list::mean | sum2cent_based_stat, ndbuf.get_rc_list().get_count() == aux_buf_size);
+    ASSERT_IF(bs_list::min, ndbuf.get_min().get_count() == aux_buf_size);
+    ASSERT_IF(bs_list::max, ndbuf.get_max().get_count() == aux_buf_size);
     ASSERT_IF(bs_list::sum | bs_list::mean | sum2cent_based_stat,
-              ndbuf.get_sum().get_count() == column_count);
-    ASSERT_IF(bs_list::sum2 | bs_list::sorm, ndbuf.get_sum2().get_count() == column_count);
-    ASSERT_IF(sum2cent_based_stat, ndbuf.get_sum2cent().get_count() == column_count);
+              ndbuf.get_sum().get_count() == aux_buf_size);
+    ASSERT_IF(bs_list::sum2 | bs_list::sorm, ndbuf.get_sum2().get_count() == aux_buf_size);
+    ASSERT_IF(sum2cent_based_stat, ndbuf.get_sum2cent().get_count() == aux_buf_size);
 
-    auto ablock_rc_ptr = ndbuf.get_rc_list().get_mutable_data();
-    auto amin_ptr = ndbuf.get_min().get_mutable_data();
-    auto amax_ptr = ndbuf.get_max().get_mutable_data();
-    auto asum_ptr = ndbuf.get_sum().get_mutable_data();
-    auto asum2_ptr = ndbuf.get_sum2().get_mutable_data();
-    auto asum2cent_ptr = ndbuf.get_sum2cent().get_mutable_data();
+    DECLSET_IF(std::int64_t*,
+               ablock_rc_ptr,
+               bs_list::mean | sum2cent_based_stat,
+               ndbuf.get_rc_list().get_mutable_data())
+    DECLSET_IF(Float*, amin_ptr, bs_list::min, ndbuf.get_min().get_mutable_data())
+    DECLSET_IF(Float*, amax_ptr, bs_list::max, ndbuf.get_max().get_mutable_data())
+    DECLSET_IF(Float*,
+               asum_ptr,
+               bs_list::sum | bs_list::mean | sum2cent_based_stat,
+               ndbuf.get_sum().get_mutable_data())
+    DECLSET_IF(Float*,
+               asum2_ptr,
+               bs_list::sum2 | bs_list::sorm,
+               ndbuf.get_sum2().get_mutable_data())
+    DECLSET_IF(Float*, asum2cent_ptr, sum2cent_based_stat, ndbuf.get_sum2cent().get_mutable_data())
 
     auto data_ptr = data.get_data();
 
@@ -1007,12 +1054,10 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Floa
         });
     });
 
-    last_event =
-        merge_blocks(std::move(ndbuf), ndres, column_count, row_block_count, { last_event });
+    auto [ndres, merge_event] =
+        merge_blocks(std::move(ndbuf), column_count, row_block_count, { last_event });
 
-    // wait is required to resolve dependency on internal buffers, smart_event didn't help here by some reason
-    last_event.wait_and_throw();
-    return std::make_tuple(ndres, last_event);
+    return std::make_tuple(std::move(ndres), merge_event);
 }
 
 template <typename Float, bs_list List>
@@ -1021,21 +1066,27 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
     std::int64_t row_count,
     std::int64_t column_count,
     const bk::event_vector& deps) {
+    const bool distr_mode = comm_.get_rank_count() > 1;
     // ndres asserts
     ASSERT_IF(bs_list::min, ndres.get_min().get_count() == column_count);
     ASSERT_IF(bs_list::max, ndres.get_max().get_count() == column_count);
-    ASSERT_IF(bs_list::mean | sum2cent_based_stat, ndres.get_sum().get_count() == column_count);
+    if (distr_mode) {
+        ASSERT_IF(bs_list::mean | sum2cent_based_stat, ndres.get_sum().get_count() == column_count);
+    }
+    else {
+        ASSERT_IF(bs_list::sum, ndres.get_sum().get_count() == column_count);
+    }
     ASSERT_IF(bs_list::sum2 | bs_list::sorm, ndres.get_sum2().get_count() == column_count);
-    ASSERT_IF(bs_list::varc | bs_list::stdev | bs_list::vart,
-              ndres.get_sum2cent().get_count() == column_count);
-    ASSERT_IF(bs_list::mean, ndres.get_mean().get_count() == column_count);
-    ASSERT_IF(bs_list::sorm, ndres.get_sorm().get_count() == column_count);
-    ASSERT_IF(bs_list::varc, ndres.get_varc().get_count() == column_count);
-    ASSERT_IF(bs_list::stdev, ndres.get_stdev().get_count() == column_count);
-    ASSERT_IF(bs_list::vart, ndres.get_vart().get_count() == column_count);
+    if (distr_mode) {
+        ASSERT_IF(bs_list::varc | bs_list::stdev | bs_list::vart,
+                  ndres.get_sum2cent().get_count() == column_count);
+    }
+    else {
+        ASSERT_IF(bs_list::sum2cent, ndres.get_sum2cent().get_count() == column_count);
+    }
 
     sycl::event last_event;
-    if (comm_.get_rank_count() > 1) {
+    if (distr_mode) {
         if constexpr (check_mask_flag(bs_list::min, List)) {
             comm_
                 .allreduce(q_,
@@ -1115,20 +1166,22 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
         }
 
         if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
-            last_event = merge_distr_blocks(com_row_count,
-                                            com_sum,
-                                            com_sum2cent,
-                                            ndres,
-                                            comm_.get_rank_count(),
-                                            column_count,
-                                            column_count);
+            auto [merge_res, merge_event] = merge_distr_blocks(com_row_count,
+                                                               com_sum,
+                                                               com_sum2cent,
+                                                               std::forward<ndresult_t>(ndres),
+                                                               comm_.get_rank_count(),
+                                                               column_count,
+                                                               column_count);
+            ndres = std::move(merge_res);
+            last_event = std::move(merge_event);
         }
     }
     else {
         sycl::event::wait_and_throw(deps);
     }
 
-    return std::make_tuple(ndres, last_event);
+    return std::make_tuple(std::forward<ndresult_t>(ndres), last_event);
 }
 
 template <typename Float, bs_list List>
