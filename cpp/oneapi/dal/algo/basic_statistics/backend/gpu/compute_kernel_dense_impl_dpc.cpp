@@ -385,11 +385,11 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         }
         Float mean = sum / static_cast<Float>(rcnt);
 
-        Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
-        Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
-        Float delta_scale = mul_n1n2 / sum_n1n2;
-        Float mean_scale = Float(1) / sum_n1n2;
-        Float delta = mean - mrgmean;
+        const Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
+        const Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
+        const Float delta_scale = mul_n1n2 / sum_n1n2;
+        const Float mean_scale = Float(1) / sum_n1n2;
+        const Float delta = mean - mrgmean;
 
         mrgmin = sycl::fmin(min, mrgmin);
         mrgmax = sycl::fmax(max, mrgmax);
@@ -458,11 +458,11 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
                 mean = lmean_ptr[offset];
             }
 
-            Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
-            Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
-            Float delta_scale = mul_n1n2 / sum_n1n2;
-            Float mean_scale = Float(1) / sum_n1n2;
-            Float delta = mean - mrgmean;
+            const Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
+            const Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
+            const Float delta_scale = mul_n1n2 / sum_n1n2;
+            const Float mean_scale = Float(1) / sum_n1n2;
+            const Float delta = mean - mrgmean;
 
             mrgmin = sycl::fmin(min, mrgmin);
             mrgmax = sycl::fmax(max, mrgmax);
@@ -721,7 +721,13 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
         });
     });
 
-    return std::make_tuple(std::move(ndres), last_event);
+    const bool is_opencl_backend =
+        !q_.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
+    if (is_opencl_backend) {
+        // there is an issue in opencl backend with keeping memory dependencies in events.
+        last_event.wait_and_throw();
+    }
+    return std::make_tuple(std::move(ndres), std::move(last_event));
 }
 
 /* merge distributed blocks kernel */
@@ -847,6 +853,12 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
         });
     });
 
+    const bool is_opencl_backend =
+        !q_.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
+    if (is_opencl_backend) {
+        // there is an issue in opencl backend with keeping memory dependencies in events.
+        last_event.wait_and_throw();
+    }
     return std::make_tuple(std::forward<ndresult_t>(ndres), last_event);
 }
 
@@ -1097,6 +1109,7 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
     }
 
     sycl::event last_event;
+
     if (distr_mode) {
         if constexpr (check_mask_flag(bs_list::min, List)) {
             comm_
@@ -1192,7 +1205,7 @@ std::tuple<ndresult<Float, List>, sycl::event> compute_kernel_dense_impl<Float, 
         sycl::event::wait_and_throw(deps);
     }
 
-    return std::make_tuple(std::forward<ndresult_t>(ndres), last_event);
+    return std::make_tuple(std::forward<ndresult_t>(ndres), std::move(last_event));
 }
 
 template <typename Float, bs_list List>

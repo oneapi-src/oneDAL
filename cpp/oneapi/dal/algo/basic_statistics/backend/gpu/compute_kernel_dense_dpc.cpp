@@ -24,10 +24,6 @@
 
 namespace oneapi::dal::basic_statistics::backend {
 
-namespace de = dal::detail;
-namespace be = dal::backend;
-namespace pr = dal::backend::primitives;
-
 using method_t = method::dense;
 using task_t = task::compute;
 using input_t = compute_input<task_t>;
