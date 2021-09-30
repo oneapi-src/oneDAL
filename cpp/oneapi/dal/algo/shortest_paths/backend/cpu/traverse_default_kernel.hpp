@@ -179,12 +179,7 @@ struct delta_stepping {
                                                                     source,
                                                                     max_dist,
                                                                     alloc_ptr);
-        vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
-                                                                        vertex_allocator);
 
-        shared_bin[0] = source;
-        std::int64_t curr_bin_index = 0;
-        std::int64_t vertex_count_in_shared_bin = 1;
         std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
 
         using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
@@ -195,6 +190,11 @@ struct delta_stepping {
         v2a_t v2a(alloc_ptr);
         v3v_t local_bins(thread_cnt, v2a);
         local_bins[0].reserve(t.get_vertex_degree(source));
+
+        v1v_t shared_bin(t.get_edge_count(), vertex_allocator);
+        shared_bin[0] = source;
+        std::int64_t curr_bin_index = 0;
+        std::int64_t vertex_count_in_shared_bin = 1;
 
         vertex_type* local_processing_bins =
             allocate(vertex_allocator, max_elements_in_bin * thread_cnt);
