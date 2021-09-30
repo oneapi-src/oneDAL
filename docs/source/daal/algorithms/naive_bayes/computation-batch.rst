@@ -25,10 +25,13 @@ Training
 
 At the training stage, Naïve Bayes classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Naïve Bayes Classifier (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -40,8 +43,8 @@ At the training stage, Naïve Bayes classifier has the following parameters:
      - ``defaultDense``
      - Available computation methods for the Naïve Bayes classifier:
 
-         - ``defaultDense`` - default performance-oriented method
-         - ``fastCSR`` - performance-oriented method for CSR numeric tables
+       - ``defaultDense`` - default performance-oriented method
+       - ``fastCSR`` - performance-oriented method for CSR numeric tables
 
    * - ``nClasses``
      - Not applicable
@@ -59,10 +62,13 @@ Prediction
 
 At the prediction stage, Naïve Bayes classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for Naïve Bayes Classifier (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

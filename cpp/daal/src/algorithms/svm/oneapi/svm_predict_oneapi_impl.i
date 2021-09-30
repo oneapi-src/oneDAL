@@ -25,12 +25,10 @@
 #define __SVM_PREDICT_ONEAPI_IMPL_I__
 
 #include "src/sycl/blas_gpu.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "data_management/data/internal/numeric_table_sycl_csr.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
-
-DAAL_ITTNOTIFY_DOMAIN(svm_predict.default.batch);
 
 namespace daal
 {

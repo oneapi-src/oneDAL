@@ -30,7 +30,7 @@ Details
 
 Given:
 
-- :math:`n` feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}` 
+- :math:`n` feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}`
   of size :math:`p`;
 - their non-negative sample weights :math:`w = (w_1, \ldots, w_n)`;
 - the vector of responses :math:`y = (y_1, \ldots, y_n)`
@@ -46,10 +46,13 @@ If sample weights are provided as input, the library uses a weighted version of 
 
 MSE is an impurity metric (:math:`D` is a set of observations that reach the node), calculated as follows:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Decision Forest Regression: impurity calculations
    :widths: 10 10
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Without sample weights
      - With sample weights
@@ -105,13 +108,16 @@ Training
 
 For the description of the input and output, refer to :ref:`regression_usage_model`.
 
-In addition to the decision forest parameters described in :ref:`df_batch`, 
+In addition to the decision forest parameters described in :ref:`df_batch`,
 the training algorithm for decision forest regression has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Decision Forest Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -131,7 +137,7 @@ the training algorithm for decision forest regression has the following paramete
        For GPU:
 
        - ``hist`` - :ref:`inexact histogram computation method <df_inexact_hist_method>`
-      
+
 
 Output
 ******
@@ -148,10 +154,13 @@ For the description of the input and output, refer to :ref:`regression_usage_mod
 In addition to the parameters of regression, decision forest
 regression has the following parameters at the prediction stage:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Decision Forest Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -190,7 +199,7 @@ Examples
     - :cpp_example:`df_reg_traverse_model.cpp <decision_forest/df_reg_traverse_model.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

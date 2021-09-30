@@ -33,7 +33,7 @@
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "src/algorithms/dtrees/forest/classification/oneapi/df_classification_tree_helper_impl.i"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/externals/service_rng.h"
 #include "src/externals/service_math.h" //will remove after migrating finalize MDA to GPU
 #include "services/internal/buffer.h"
@@ -661,7 +661,9 @@ algorithmFPType ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::com
 template <typename algorithmFPType>
 services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::finalizeOOBError(const algorithmFPType * y,
                                                                                                const UniversalBuffer & oobBuf, const size_t nRows,
-                                                                                               algorithmFPType * res, algorithmFPType * resPerObs)
+                                                                                               algorithmFPType * res, algorithmFPType * resPerObs,
+                                                                                               algorithmFPType * resAccuracy,
+                                                                                               algorithmFPType * resDecisionFunction)
 {
     services::Status status;
 
@@ -678,7 +680,8 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::fi
     {
         size_t prediction = 0;
         size_t expectation(y[i]);
-        size_t maxVal = 0;
+        size_t maxVal       = 0;
+        algorithmFPType sum = 0;
         for (size_t clsIdx = 0; clsIdx < _nClasses; clsIdx++)
         {
             size_t val = oobBufHost.get()[i * _nClasses + clsIdx];
@@ -686,6 +689,17 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::fi
             {
                 maxVal     = val;
                 prediction = clsIdx;
+            }
+            sum += static_cast<algorithmFPType>(val);
+        }
+
+        sum = (sum > algorithmFPType(0)) ? sum : algorithmFPType(1);
+        if (resDecisionFunction)
+        {
+            for (size_t clsIdx = 0; clsIdx < _nClasses; clsIdx++)
+            {
+                const size_t val                            = oobBufHost.get()[i * _nClasses + clsIdx];
+                resDecisionFunction[i * _nClasses + clsIdx] = static_cast<algorithmFPType>(val) / sum;
             }
         }
 
@@ -701,6 +715,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::fi
     }
 
     if (res) *res = (0 < nPredicted) ? _res / algorithmFPType(nPredicted) : 0;
+    if (resAccuracy) *resAccuracy = (0 < nPredicted) ? algorithmFPType(1) - _res / algorithmFPType(nPredicted) : algorithmFPType(1);
 
     return status;
 }
@@ -1141,7 +1156,9 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     }
 
     /* Finalize results */
-    if (par.resultsToCompute & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation))
+    if (par.resultsToCompute
+        & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation
+           | decision_forest::training::computeOutOfBagErrorAccuracy | decision_forest::training::computeOutOfBagErrorDecisionFunction))
     {
         BlockDescriptor<algorithmFPType> responseBlock;
         DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(y)->getBlockOfRows(0, _nRows, readOnly, responseBlock));
@@ -1151,13 +1168,24 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagError)
             DAAL_CHECK_STATUS_VAR(oobErrPtr->getBlockOfRows(0, 1, writeOnly, oobErrBlock));
 
+        NumericTablePtr oobErrAccuracyPtr = res.get(outOfBagErrorAccuracy);
+        BlockDescriptor<algorithmFPType> oobErrAccuracyBlock;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorAccuracy)
+            DAAL_CHECK_STATUS_VAR(oobErrAccuracyPtr->getBlockOfRows(0, 1, writeOnly, oobErrAccuracyBlock));
+
         NumericTablePtr oobErrPerObsPtr = res.get(outOfBagErrorPerObservation);
         BlockDescriptor<algorithmFPType> oobErrPerObsBlock;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
             DAAL_CHECK_STATUS_VAR(oobErrPerObsPtr->getBlockOfRows(0, _nRows, writeOnly, oobErrPerObsBlock));
 
-        DAAL_CHECK_STATUS_VAR(
-            finalizeOOBError(responseBlock.getBlockPtr(), oobBufferPerObs, _nRows, oobErrBlock.getBlockPtr(), oobErrPerObsBlock.getBlockPtr()));
+        NumericTablePtr oobErrDecisionFunctionPtr = res.get(outOfBagErrorDecisionFunction);
+        BlockDescriptor<algorithmFPType> oobErrDecisionFunctionBlock;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorDecisionFunction)
+            DAAL_CHECK_STATUS_VAR(oobErrDecisionFunctionPtr->getBlockOfRows(0, _nRows, writeOnly, oobErrDecisionFunctionBlock));
+
+        DAAL_CHECK_STATUS_VAR(finalizeOOBError(responseBlock.getBlockPtr(), oobBufferPerObs, _nRows, oobErrBlock.getBlockPtr(),
+                                               oobErrPerObsBlock.getBlockPtr(), oobErrAccuracyBlock.getBlockPtr(),
+                                               oobErrDecisionFunctionBlock.getBlockPtr()));
 
         if (oobErrPtr) DAAL_CHECK_STATUS_VAR(oobErrPtr->releaseBlockOfRows(oobErrBlock));
 

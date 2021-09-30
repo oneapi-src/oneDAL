@@ -9,6 +9,9 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
+        "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
+        "@onedal//cpp/oneapi/dal/backend/primitives:stat",
+        "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/covariance:kernel",

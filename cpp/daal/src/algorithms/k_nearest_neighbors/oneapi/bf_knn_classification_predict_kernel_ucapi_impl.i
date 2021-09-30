@@ -31,7 +31,7 @@
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/cl_kernels/bf_knn_cl_kernels.cl"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 
 constexpr size_t maxInt32AsSizeT     = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
 constexpr uint32_t maxInt32AsUint32T = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());

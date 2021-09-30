@@ -21,20 +21,19 @@ Distributed Processing: Prediction of Ratings
 
 The distributed processing mode assumes that the data set is split in ``nblocks`` blocks across computation nodes.
 
-.. contents::
-    :local:
-    :depth: 1
-
 
 Algorithm Parameters
 ********************
 
 At the prediction stage, implicit ALS recommender in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Implicit Alternating Least Squares Computaion (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -42,7 +41,7 @@ At the prediction stage, implicit ALS recommender in the distributed processing 
    * - ``computeStep``
      - Not applicable
      - The parameter required to initialize the algorithm. Can be:
-       
+
        - ``step1Local`` - the first step, performed on local nodes
    * - ``algorithmFPType``
      - ``float``
@@ -65,17 +64,23 @@ and item factors :math:`Y_1, Y_2, \ldots, Y_{\mathrm{nblocks}}` produced at the 
 Each pair of partial models :math:`(X_i , Y_j)` is used to compute a numeric table with ratings :math:`R_{ij}`
 that correspond to the user factors and item factors from the input partial models.
 
-.. image:: images/implicit-als-distributed-computation-prediction-step-1.png
+.. figure:: images/implicit-als-distributed-computation-prediction-step-1.png
     :width: 800
     :align: center
-    
+    :alt:
+
+    Prediction with Implicit Alternating Least Squares: Distributed Processing, Step 1 - on Local Nodes
+
 In this step, implicit ALS recommender-based prediction accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -90,7 +95,9 @@ In this step, implicit ALS recommender-based prediction calculates the result de
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -99,7 +106,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``prediction``
      - Pointer to the :math:`m_i \times n_j` numeric table with predicted ratings.
-     
+
        .. note::
             By default this table is an object of the ``HomogenNumericTable`` class,
             but you can define it as an object of any class derived from ``NumericTable``

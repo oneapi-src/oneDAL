@@ -24,8 +24,7 @@
 #ifndef __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 #define __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 
-#include "src/externals/service_ittnotify.h"
-DAAL_ITTNOTIFY_DOMAIN(pca.transform.batch.oneapi);
+#include "src/externals/service_profiler.h"
 
 #include "src/algorithms/pca/transform/oneapi/cl_kernels/pca_transform_cl_kernels.cl"
 #include "src/services/service_data_utils.h"

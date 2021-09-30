@@ -19,7 +19,7 @@
   .. group-tab:: oneAPI DPC++
 
     Batch Processing:
-    
+
     - :ref:`dpc_linear_kernel_dense_batch.cpp`
 
   .. group-tab:: oneAPI C++

@@ -83,6 +83,8 @@ void train_result<Task>::set_model_impl(const model<Task>& value) {
 
 template class ONEDAL_EXPORT train_input<task::classification>;
 template class ONEDAL_EXPORT train_result<task::classification>;
+template class ONEDAL_EXPORT train_input<task::regression>;
+template class ONEDAL_EXPORT train_result<task::regression>;
 template class ONEDAL_EXPORT train_input<task::search>;
 template class ONEDAL_EXPORT train_result<task::search>;
 

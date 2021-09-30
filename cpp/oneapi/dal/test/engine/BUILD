@@ -10,6 +10,7 @@ dal_test_module(
         "gtest_main.cpp",
         "catch_main.cpp",
         "mpi.*",
+        "oneccl.*",
     ],
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
@@ -36,6 +37,22 @@ dal_test_module(
     ],
     dal_deps = [
         "@onedal//cpp/oneapi/dal/detail/mpi",
+    ],
+    dal_test_deps = [
+        ":common",
+    ],
+)
+
+dal_test_module(
+    name = "oneccl",
+    hdrs = [
+        "oneccl.hpp",
+    ],
+    srcs = [
+        "oneccl.cpp",
+    ],
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/detail/oneccl",
     ],
     dal_test_deps = [
         ":common",

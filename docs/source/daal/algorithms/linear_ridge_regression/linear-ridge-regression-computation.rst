@@ -17,11 +17,6 @@
 Linear and Ridge Regressions Computation
 ****************************************
 
-- `Batch Processing`_
-- `Online Processing`_
-- `Distributed Processing`_
-- `Examples`_
-
 Batch Processing
 ================
 
@@ -42,10 +37,13 @@ algorithm.
 
   .. group-tab:: Linear Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+    .. list-table:: Training Parameters for Linear Regression (Batch Processing)
       :widths: 10 10 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -56,7 +54,7 @@ algorithm.
       * - ``method``
         - ``defaultDense``
         - Available methods for linear regression training:
-        
+
           - ``defaultDense`` - the normal equations method
           - ``qrDense`` - the method based on QR decomposition
 
@@ -66,10 +64,13 @@ algorithm.
 
   .. group-tab:: Ridge Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.25}|\Y{0.3}|\Y{0.45}|
+
+    .. list-table:: Training Parameters for Ridge Regression (Batch Processing)
       :widths: 20 30 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -79,7 +80,7 @@ algorithm.
         - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
       * - ``method``
         - ``defaultDense``
-        - Default computation method used by the ridge regression. 
+        - Default computation method used by the ridge regression.
           The only method supported at the training stage is the normal equations method.
       * - ``ridgeParameters``
         - A numeric table of size :math:`1 \times 1` that contains the default ridge parameter
@@ -88,11 +89,11 @@ algorithm.
           or :math:`1 \times 1`. The contents of the table depend on its size:
 
           -  :math:`size = 1 \times k`: values of the ridge parameters :math:`\lambda_j` for :math:`j = 1, \ldots, k`.
-          -  :math:`size = 1 \times 1`: the value of the ridge parameter for each dependent variable 
+          -  :math:`size = 1 \times 1`: the value of the ridge parameter for each dependent variable
              :math:`\lambda_1 = \ldots = \lambda_k`.
 
           .. note::
-          
+
             This parameter can be an object of any class derived from ``NumericTable``,
             except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
@@ -108,10 +109,13 @@ For a description of the input and output, refer to :ref:`regression_usage_model
 
 At the prediction stage, linear and ridge regressions have the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Linear and Ridge Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -140,9 +144,12 @@ Linear and ridge regression training in the online processing mode accepts the i
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Linear and Ridge Regression (Online Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -159,10 +166,13 @@ The following table lists parameters of linear and ridge regressions at the trai
 
   .. group-tab:: Linear Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+    .. list-table:: Training Parameters for Linear Regression (Online Processing)
       :widths: 10 10 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -173,7 +183,7 @@ The following table lists parameters of linear and ridge regressions at the trai
       * - ``method``
         - ``defaultDense``
         - Available methods for linear regression training:
-          
+
           - ``defaultDense`` - the normal equations method
           - ``qrDense`` - the method based on QR decomposition
 
@@ -183,10 +193,13 @@ The following table lists parameters of linear and ridge regressions at the trai
 
   .. group-tab:: Ridge Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.25}|\Y{0.3}|\Y{0.45}|
+
+    .. list-table:: Training Parameters for Ridge Regression (Online Processing)
       :widths: 20 30 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -242,10 +255,13 @@ The following table lists parameters of linear and ridge regressions at the trai
 
   .. group-tab:: Linear Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+    .. list-table:: Training Parameters for Linear Regression (Distributed Processing)
       :widths: 10 10 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -253,7 +269,7 @@ The following table lists parameters of linear and ridge regressions at the trai
       * - ``computeStep``
         - Not applicable
         - The parameter required to initialize the algorithm. Can be:
-        
+
           - ``step1Local`` - the first step, performed on local nodes
           - ``step2Master`` - the second step, performed on a master node
 
@@ -263,20 +279,23 @@ The following table lists parameters of linear and ridge regressions at the trai
       * - ``method``
         - ``defaultDense``
         - Available methods for linear regression training:
-          
+
           - ``defaultDense`` - the normal equations method
           - ``qrDense`` - the method based on QR decomposition
       * - ``interceptFlag``
         - ``true``
         - A flag that indicates a need to compute :math:`\beta_{0_j}`.
- 
+
 
   .. group-tab:: Ridge Regression
 
-    .. list-table::
+    .. tabularcolumns::  |\Y{0.25}|\Y{0.3}|\Y{0.45}|
+
+    .. list-table:: Training Parameters for Ridge Regression (Distributed Processing)
       :widths: 20 30 60
       :header-rows: 1
       :align: left
+      :class: longtable
 
       * - Parameter
         - Default Value
@@ -284,7 +303,7 @@ The following table lists parameters of linear and ridge regressions at the trai
       * - ``computeStep``
         - Not applicable
         - The parameter required to initialize the algorithm. Can be:
-        
+
           - ``step1Local`` - the first step, performed on local nodes
           - ``step2Master`` - the second step, performed on a master node
 
@@ -317,16 +336,22 @@ The following table lists parameters of linear and ridge regressions at the trai
 Step 1 - on Local Nodes
 +++++++++++++++++++++++
 
-.. image:: images/distributed-step-1.png
+.. figure:: images/distributed-step-1.png
   :width: 600
+  :alt:
+
+  Linear and Ridge Regression Training: Distributed Processing, Step 1 - on Local Nodes
 
 In this step, linear and ridge regression training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Linear and Ridge Regression (Distributed Processing, Step 1)
   :widths: 10 60
   :header-rows: 1
+  :class: longtable
 
   * - Input ID
     - Input
@@ -341,7 +366,9 @@ In this step, linear and ridge regression training calculates the result describ
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Linear and Ridge Regression (Distributed Processing, Step 1)
   :widths: 10 60
   :header-rows: 1
 
@@ -349,7 +376,7 @@ For more details, see :ref:`algorithms`.
     - Result
   * - ``partialModel``
     - Pointer to the partial linear regression model that corresponds to the :math:`i`-th data block.
-    
+
       The result can only be an object of the ``Model`` class.
 
 .. _lin_ridge_step_2:
@@ -357,14 +384,19 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Master Node
 +++++++++++++++++++++++
 
-.. image:: images/distributed-step-2.png
+.. figure:: images/distributed-step-2.png
   :width: 600
+  :alt:
+
+  Linear and Ridge Regression Training: Distributed Processing, Step 2 - on Master Node
 
 In this step, linear and ridge regression training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Linear and Ridge Regression (Distributed Processing, Step 2)
   :widths: 10 60
   :header-rows: 1
 
@@ -372,14 +404,16 @@ For more details, see :ref:`algorithms`.
     - Input
   * - ``partialModels``
     - A collection of partial models computed on local nodes in :ref:`Step 1 <lin_ridge_step_1>`.
-      
+
       The collection contains objects of the ``Model`` class.
 
 In this step, linear and ridge regression training calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Linear and Ridge Regression (Distributed Processing, Step 2)
   :widths: 10 60
   :header-rows: 1
 
@@ -387,7 +421,7 @@ For more details, see :ref:`algorithms`.
     - Result
   * - ``model``
     - Pointer to the linear or ridge regression model being trained.
-    
+
       The result can only be an object of the ``Model`` class.
 
 Examples
@@ -419,7 +453,7 @@ Examples
 
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
@@ -446,7 +480,7 @@ Examples
 
     - :daal4py_sycl_example:`linear_regression_batch.py`
 
-  .. tab:: Python* 
+  .. tab:: Python*
 
     Batch Processing:
 

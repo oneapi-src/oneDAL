@@ -42,6 +42,8 @@ struct infer_kernel_gpu<Float, method::kd_tree, Task> {
 
 template struct infer_kernel_gpu<float, method::kd_tree, task::classification>;
 template struct infer_kernel_gpu<double, method::kd_tree, task::classification>;
+template struct infer_kernel_gpu<float, method::kd_tree, task::regression>;
+template struct infer_kernel_gpu<double, method::kd_tree, task::regression>;
 template struct infer_kernel_gpu<float, method::kd_tree, task::search>;
 template struct infer_kernel_gpu<double, method::kd_tree, task::search>;
 

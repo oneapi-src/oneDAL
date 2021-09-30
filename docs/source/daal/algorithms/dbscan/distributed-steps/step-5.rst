@@ -16,9 +16,12 @@
 
 In this step, the DBSCAN algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for DBSCAN (Distributed Processing, Step 5)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -43,12 +46,15 @@ In this step, the DBSCAN algorithm has the following parameters:
      - The maximum distance between observations lying in the same neighborhood.
 
 In this step, the DBSCAN algorithm accepts the input described below.
-Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for DBSCAN (Distributed Processing, Step 5)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -70,9 +76,12 @@ In this step, the DBSCAN algorithms calculates the partial results described bel
 Pass the ``Partial Result ID`` as a parameter to the methods that access the partial result of your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for DBSCAN (Distributed Processing, Step 5)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Partial Result ID
      - Result

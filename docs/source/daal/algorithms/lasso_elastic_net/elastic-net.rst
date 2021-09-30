@@ -26,7 +26,7 @@ Elastic Net
 Elastic Net is a method for modeling relationship between a dependent variable (which may be a vector)
 and one or more explanatory variables by fitting regularized least squares model.
 Elastic Net regression model has the special penalty, a sum of L1 and L2 regularizations,
-that takes advantage of both :ref:`ridge` and :ref:`LASSO <lasso>` algorithms. 
+that takes advantage of both :ref:`ridge` and :ref:`LASSO <lasso>` algorithms.
 This penalty is particularly useful in a situation with many correlated predictor variables [Friedman2010]_.
 
 Details

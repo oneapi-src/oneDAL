@@ -27,11 +27,9 @@
 #include "algorithms/kernel_function/kernel_function_types_rbf.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_math.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/sycl/spblas_gpu.h"
 #include "src/sycl/reducer.h"
-
-DAAL_ITTNOTIFY_DOMAIN(kernel_function.rbf.batch.oneapi);
 
 namespace daal
 {

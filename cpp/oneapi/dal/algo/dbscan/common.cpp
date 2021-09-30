@@ -19,6 +19,26 @@
 
 namespace oneapi::dal::dbscan {
 namespace detail {
+
+result_option_id get_responses_id() {
+    return result_option_id::make_by_index(0);
+}
+
+result_option_id get_core_observation_indices_id() {
+    return result_option_id::make_by_index(1);
+}
+
+result_option_id get_core_observations_id() {
+    return result_option_id::make_by_index(2);
+}
+
+result_option_id get_core_flags_id() {
+    return result_option_id::make_by_index(3);
+}
+
+template <typename Task>
+const result_option_id default_result_options = result_options::responses;
+
 namespace v1 {
 
 template <typename Task>
@@ -27,6 +47,7 @@ public:
     std::int64_t min_observations;
     double epsilon;
     bool mem_save_mode;
+    result_option_id result_options = default_result_options<Task>;
 };
 
 template <typename Task>
@@ -69,6 +90,20 @@ void descriptor_base<Task>::set_min_observations_impl(std::int64_t value) {
 template <typename Task>
 void descriptor_base<Task>::set_mem_save_mode_impl(bool value) {
     impl_->mem_save_mode = value;
+}
+
+template <typename Task>
+result_option_id descriptor_base<Task>::get_result_options() const {
+    return impl_->result_options;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_result_options_impl(const result_option_id& value) {
+    using msg = dal::detail::error_messages;
+    if (!bool(value)) {
+        throw domain_error(msg::empty_set_of_result_options());
+    }
+    impl_->result_options = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::clustering>;
