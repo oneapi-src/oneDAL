@@ -24,7 +24,7 @@
 namespace oneapi::dal::basic_statistics::backend {
 
 namespace de = dal::detail;
-namespace be = dal::backend;
+namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 enum class bs_list : std::uint64_t {
