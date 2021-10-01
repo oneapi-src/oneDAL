@@ -74,9 +74,15 @@ using container = dal::array<T>;
 
 template <typename T, typename Alloc>
 struct construct {
+    template <typename T_ = T, std::enable_if_t<!is_trivial<T_>::value, bool> = true>
     void operator()(T* data_ptr, std::int64_t capacity, const Alloc& a) {
-        data_ptr = new (data_ptr) T[capacity]();
+        for (int64_t i = 0; i < capacity; ++i) {
+            new (data_ptr + i) T();
+        }
     }
+
+    template <typename T_ = T, std::enable_if_t<is_trivial<T_>::value, bool> = true>
+    void operator()(T* data_ptr, std::int64_t capacity, const Alloc& a) {}
 };
 
 template <typename T, typename InnerAlloc, typename OuterAlloc>
