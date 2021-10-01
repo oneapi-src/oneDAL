@@ -20,7 +20,7 @@ Normalization
 Normalization is a set of algorithms intended to transform data before feeding it to some classes
 of algorithms, for example, classifiers [James2013]_.
 Normalization may improve computation accuracy and efficiency.
-Different rules can be used to normalize data. 
+Different rules can be used to normalize data.
 In |short_name|, two techniques to normalize data are implemented: z-score and min-max.
 
 .. toctree::

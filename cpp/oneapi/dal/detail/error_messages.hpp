@@ -212,6 +212,7 @@ public:
 
     /* k-NN */
     MSG(knn_kd_tree_method_is_not_implemented_for_gpu);
+    MSG(knn_regression_task_is_not_implemented_for_cpu);
     MSG(knn_search_task_is_not_implemented_for_gpu);
     MSG(neighbor_count_lt_one);
     MSG(unknown_distance_type);
@@ -275,6 +276,10 @@ public:
     MSG(tau_leq_zero);
     MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);
+
+    /* DBSCAN */
+    MSG(weight_dimension_doesnt_match_data_dimension);
+    MSG(weights_column_count_ne_1);
 };
 
 #undef MSG

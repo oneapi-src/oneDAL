@@ -19,10 +19,6 @@
 Batch Processing
 ================
 
-.. contents::
-    :local:
-    :depth: 1
-
 Training
 ********
 
@@ -30,10 +26,13 @@ For a description of the input and output, refer to :ref:`recommendation_system_
 
 At the training stage, the implicit ALS recommender has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Implicit Alternating Least Squares Computaion (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -71,10 +70,13 @@ For a description of the input and output, refer to :ref:`recommendation_system_
 
 At the prediction stage, the implicit ALS recommender has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Implicit Alternating Least Squares Computaion (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

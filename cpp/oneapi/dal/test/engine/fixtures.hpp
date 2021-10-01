@@ -105,6 +105,16 @@ public:
     }
 
     template <typename... Args>
+    auto split_compute_input(Args&&... args) {
+        return derived().split_compute_input_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto merge_compute_result(Args&&... args) {
+        return derived().merge_compute_result_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
     auto train_override(Args&&... args) {
         return base_t::train(std::forward<Args>(args)...);
     }
@@ -126,6 +136,16 @@ public:
 
     template <typename... Args>
     auto merge_train_result_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
+    template <typename... Args>
+    auto split_compute_input_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
+    template <typename... Args>
+    auto merge_compute_result_override(Args&&... args) {
         ONEDAL_ASSERT(!"This method must be overriden in the derived class");
     }
 
@@ -161,6 +181,42 @@ public:
             std::forward<Args>(args)...);
 
         return this->merge_train_result(results);
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto compute_via_spmd_threads(std::int64_t thread_count,
+                                  const Descriptor& desc,
+                                  Args&&... args) {
+        ONEDAL_ASSERT(thread_count > 0);
+
+        CAPTURE(thread_count);
+        thread_communicator comm{ thread_count };
+
+        const auto input_per_rank =
+            this->split_compute_input(thread_count, std::forward<Args>(args)...);
+        ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
+
+        const auto results = comm.map([&](std::int64_t rank) {
+            return dal::test::engine::spmd_compute(this->get_policy(),
+                                                   comm,
+                                                   desc,
+                                                   input_per_rank[rank]);
+        });
+        ONEDAL_ASSERT(results.size() == std::size_t(thread_count));
+
+        return results;
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto compute_via_spmd_threads_and_merge(std::int64_t thread_count,
+                                            const Descriptor& desc,
+                                            Args&&... args) {
+        const auto results = this->compute_via_spmd_threads( //
+            thread_count,
+            desc,
+            std::forward<Args>(args)...);
+
+        return this->merge_compute_result(results);
     }
 
 private:

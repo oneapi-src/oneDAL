@@ -35,18 +35,18 @@ Requirements
 
 Each accessor implementation:
 
-1. Defines a single :term:`format of the data <Data format>` for the
+#. Defines a single :term:`format of the data <Data format>` for the
    access. Every accessor type returns and use only one data format.
 
-2. Provides read-only access to the data in the :txtref:`table` types.
+#. Provides read-only access to the data in the :txtref:`table` types.
 
-3. Provides the :code:`pull()` method for obtaining the values from the table.
+#. Provides the :code:`pull()` method for obtaining the values from the table.
 
-4. Is lightweight. Its constructors do not have computationally intensive
+#. Is lightweight. Its constructors do not have computationally intensive
    operations such data copy, reading, or conversion. These operations are
    performed by method :code:`pull()`.
 
-5. The :code:`pull()` method avoids data copy and conversion when it is
+#. The :code:`pull()` method avoids data copy and conversion when it is
    possible to return the pointer to the memory block in the table. This is
    applicable for cases such as when the :capterm:`data format` and
    :capterm:`data types <data type>` of the data within the table are the same as the
@@ -64,9 +64,12 @@ specific way of obtaining data from the :txtref:`table`.
 
 All accessor classes in |short_name| are listed below:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.25}|\Y{0.5}|\Y{0.25}|
+
+.. list-table:: Accessor Types
    :header-rows: 1
    :widths: 25 50 25
+   :class: longtable
 
    * - Accessor type
      - Description

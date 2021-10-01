@@ -49,9 +49,12 @@ Testing Insignificance of a Single Beta
 
 The library uses the following quality metrics:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Quality Metrics for Testing Insignificance of a Single Beta
    :widths: 10 10
    :header-rows: 1
+   :class: longtable
 
    * - Quality Metric
      - Definition
@@ -78,9 +81,12 @@ Testing Insignificance of a Group of Betas
 
 The library uses the following quality metrics:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Quality Metrics for Testing Insignificance of a Group of Betas
    :widths: 10 10
    :header-rows: 1
+   :class: longtable
 
    * - Quality Metric
      - Definition
@@ -99,7 +105,7 @@ The library uses the following quality metrics:
    * - F-statistics used in testing insignificance of a group of betas :math:`F = (F_1, \ldots, F_k)`
      - :math:`F_j = \frac {(\text{ResSS}_{0j} - \text{ResSS}_j)/(p - p_0)}
        {{\text{ResSS}_j}/(n - p - 1)}`, :math:`j = 1, \ldots, k`,
-       where :math:`\text{ResSS}_j` are computed for a model with :math:`p + 1` betas and 
+       where :math:`\text{ResSS}_j` are computed for a model with :math:`p + 1` betas and
        :math:`\text{ResSS}_{0j}` are computed for a reduced model with :math:`p_0 + 1` betas (:math:`p - p_0` betas are set to zero)
 
 Batch Processing
@@ -119,33 +125,39 @@ The quality metric algorithm for linear regression accepts the input described b
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Testing Insignificance of a Single Beta in Linear Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
    * - ``expectedResponses``
      - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables) used for training the linear regression model.
-     
+
        This table can be an object of any class derived from ``NumericTable``.
    * - ``model``
-     - Pointer to the model computed at the training stage of the linear regression algorithm. 
-     
+     - Pointer to the model computed at the training stage of the linear regression algorithm.
+
        The model can only be an object of the ``linear_regression::Model`` class.
    * - ``predictedResponses``
-     - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables) computed at the prediction stage of the linear regression algorithm. 
-     
+     - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables) computed at the prediction stage of the linear regression algorithm.
+
        This table can be an object of any class derived from ``NumericTable``.
 
 .. rubric::  Algorithm Parameters
 
 The quality metric algorithm for linear regression has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Testing Insignificance of a Single Beta in Linear Regression (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -166,13 +178,16 @@ The quality metric algorithm for linear regression has the following parameters:
 
 .. rubric::  Algorithm Output
 
-The quality metric algorithm for linear regression calculates the result described below. 
-Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
+The quality metric algorithm for linear regression calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Testing Insignificance of a Single Beta in Linear Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
@@ -192,7 +207,7 @@ For more details, see :ref:`algorithms`.
 
    * - ``betaCovariances``
      - Pointer to the DataCollection object that contains :math:`k` numeric tables, each with the :math:`m \times m` variance-covariance matrix for betas of the j-th response (dependent variable), where m is the number of betas in the model (m is equal to p when interceptFlag is set to false at the training stage of the linear regression algorithm; otherwise, m is equal to p + 1 ).
-     
+
        The collection can contain objects of any class derived from ``NumericTable``.
    * - ``zScore``
      - Pointer to the :math:`k \times m` numeric table that contains the Z-score statistics used in the testing of insignificance of individual linear regression coefficients,
@@ -212,7 +227,7 @@ For more details, see :ref:`algorithms`.
          computed for the :math:`j`-th beta of the :math:`t`-th response (dependent variable),
 
        where :math:`m` is the number of betas in the model (:math:`m` is equal to :math:`p` when ``interceptFlag`` is set to ``false`` at the training stage
-       of the linear regression algorithm; otherwise, :math:`m` is equal to :math:`p + 1`). 
+       of the linear regression algorithm; otherwise, :math:`m` is equal to :math:`p + 1`).
 
        .. note::
            By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
@@ -231,38 +246,44 @@ Testing Insignificance of a Group of Betas
 
 .. rubric:: Algorithm Input
 
-The quality metric algorithm for linear regression accepts the input described below. 
-Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
+The quality metric algorithm for linear regression accepts the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Testing Insignificance of a Group of Betas in Linear Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
    * - ``expectedResponses``
      - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables) used for training the linear regression model.
-     
+
        This table can be an object of any class derived from ``NumericTable``.
    * - ``predictedResponses``
      - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables) computed at the prediction stage of the linear regression algorithm.
-       
+
        This table can be an object of any class derived from ``NumericTable``.
    * - ``predictedReducedModelResponses``
      - Pointer to the :math:`n \times k` numeric table with responses (:math:`k` dependent variables) computed at the prediction stage of the linear regression algorithm
        using the reduced linear regression model, where :math:`p - p_0` out of :math:`p` beta coefficients are set to zero.
-       
+
        This table can be an object of any class derived from ``NumericTable``.
 
 .. rubric:: Algorithm Parameters
 
 The quality metric algorithm for linear regression has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Testing Insignificance of a Group of Betas in Linear Regression (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -283,13 +304,16 @@ The quality metric algorithm for linear regression has the following parameters:
 
 .. rubric:: Algorithm Output
 
-The quality metric algorithm for linear regression calculates the result described below. 
-Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
+The quality metric algorithm for linear regression calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Testing Insignificance of a Group of Betas in Linear Regression (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
@@ -300,13 +324,13 @@ For more details, see :ref:`algorithms`.
    * - ``regSS``
      - Pointer to the :math:`1 \times k` numeric table that contains the regression sum of squares computed for each dependent variable.
    * - ``resSS``
-     - Pointer to the :math:`1 \times k` numeric table that contains the sum of squares of residuals computed for each dependent variable. 
+     - Pointer to the :math:`1 \times k` numeric table that contains the sum of squares of residuals computed for each dependent variable.
    * - ``tSS``
      - Pointer to the :math:`1 \times k` numeric table that contains the total sum of squares computed for each dependent variable.
    * - ``determinationCoeff``
      - Pointer to the :math:`1 \times k` numeric table that contains the determination coefficient computed for each dependent variable.
    * - ``fStatistics``
-     - Pointer to the :math:`1 \times k` numeric table that contains the F-statistics computed for each dependent variable. 
+     - Pointer to the :math:`1 \times k` numeric table that contains the F-statistics computed for each dependent variable.
 
 .. note::
     By default, these results are objects of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
@@ -325,7 +349,7 @@ Examples
     - :cpp_example:`lin_reg_metrics_dense_batch.cpp <quality_metrics/lin_reg_metrics_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

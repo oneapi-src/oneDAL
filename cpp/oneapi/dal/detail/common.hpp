@@ -276,6 +276,9 @@ struct limits {
     static constexpr Data max() {
         return std::numeric_limits<Data>::max();
     }
+    static constexpr Data epsilon() {
+        return std::numeric_limits<Data>::epsilon();
+    }
 };
 
 template <typename Out, typename In>

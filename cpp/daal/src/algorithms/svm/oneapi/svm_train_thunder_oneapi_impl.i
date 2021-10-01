@@ -48,15 +48,13 @@
 #include "src/services/service_data_utils.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/externals/service_memory.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/externals/service_service.h"
 #include "src/algorithms/svm/oneapi/cl_kernels/svm_train_block_smo_oneapi.cl"
 
 #include "src/algorithms/svm/oneapi/svm_train_cache_oneapi.h"
 #include "src/algorithms/svm/oneapi/svm_train_workset_oneapi.h"
 #include "src/algorithms/svm/oneapi/svm_train_result_oneapi.h"
-
-DAAL_ITTNOTIFY_DOMAIN(svm_train.default.batch);
 
 namespace daal
 {

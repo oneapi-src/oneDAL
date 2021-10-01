@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. tabs:: 
+.. tabs::
 
   .. group-tab:: oneAPI DPC++
 

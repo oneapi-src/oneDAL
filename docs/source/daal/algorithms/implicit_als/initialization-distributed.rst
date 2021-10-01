@@ -19,19 +19,18 @@ Distributed Processing
 
 The distributed processing mode assumes that the data set R is split in ``nblocks`` blocks across computation nodes.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Parameters
 **********
 
 In the distributed processing mode, initialization of item factors for the implicit ALS algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Parameters for Implicit Alternating Least Squares Initialization (Distributed Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -59,18 +58,25 @@ In the distributed processing mode, initialization of item factors for the impli
 
 To initialize the implicit ALS algorithm in the distributed processing mode, use the one-step process illustrated by the following diagram for :math:`\mathrm{nblocks} = 3`:
 
-.. image:: images/implicit-als-distributed-init-general-scheme.png
+.. figure:: images/implicit-als-distributed-init-general-scheme.png
     :width: 600
     :align: center
+    :alt:
+
+    Implicit Alternating Least Squares Initialization: General Schema of Distributed Processing
 
 .. _implicit_als_distributed_init_step_1:
 
 Step 1 - on Local Nodes
 ***********************
 
-.. image:: images/implicit-als-distributed-init-step-1.png
+.. figure:: images/implicit-als-distributed-init-step-1.png
     :width: 600
     :align: center
+    :alt:
+
+    Implicit Alternating Least Squares Initialization: Distributed Processing, Step 1 - on Local Nodes
+
 
 Input
 -----
@@ -79,7 +85,9 @@ In the distributed processing mode, initialization of item factors for the impli
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Initialization (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -88,7 +96,7 @@ For more details, see :ref:`algorithms`.
    * - ``dataColumnSlice``
      - An :math:`n_i \times m` numeric table with the part of the input data set.
        Each node holds :math:`n_i` rows of the full transposed input data set :math:`R^T`.
-       
+
        The input should be an object of ``CSRNumericTable`` class.
 
 Output
@@ -111,9 +119,12 @@ that contains the value of the starting offset of the user factors stored on the
 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Initialization (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Partial Result ID
      - Result
@@ -133,16 +144,22 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Local Nodes
 ***********************
 
-.. image:: images/implicit-als-distributed-init-step-2.png
+.. figure:: images/implicit-als-distributed-init-step-2.png
     :width: 600
     :align: center
+    :alt:
+
+    Implicit Alternating Least Squares Initialization: Distributed Processing, Step 2 - on Local Nodes
+
 
 Input
 -----
 
 This step uses the results of the previous step.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Initialization (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
 
@@ -173,9 +190,12 @@ that contains the value of the starting offset of the item factors stored on the
 
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Initialization (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Partial Result ID
      - Result

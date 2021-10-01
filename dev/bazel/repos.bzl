@@ -106,13 +106,14 @@ def _prebuilt_libs_repo_impl(repo_ctx):
     }
     _create_symlinks(repo_ctx, root, repo_ctx.attr.includes, substitutions, mapping)
     _create_symlinks(repo_ctx, root, repo_ctx.attr.libs, substitutions, mapping)
+    _create_symlinks(repo_ctx, root, repo_ctx.attr.bins, substitutions, mapping)
     repo_ctx.template(
         "BUILD",
         repo_ctx.attr.build_template,
         substitutions = substitutions,
     )
 
-def _prebuilt_libs_repo_rule(includes, libs, build_template,
+def _prebuilt_libs_repo_rule(includes, libs, build_template, bins=[],
                              root_env_var="", fallback_root="",
                              url="", sha256="", strip_prefix="",
                              local_mapping={}, download_mapping={}):
@@ -134,6 +135,7 @@ def _prebuilt_libs_repo_rule(includes, libs, build_template,
             "strip_prefixes": attr.string_list(default=[]),
             "includes": attr.string_list(default=includes),
             "libs": attr.string_list(default=libs),
+            "bins": attr.string_list(default=bins),
             "build_template": attr.label(allow_files=True,
                                          default=Label(build_template)),
             "_local_mapping": attr.string_dict(default=local_mapping),

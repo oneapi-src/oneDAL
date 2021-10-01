@@ -21,19 +21,18 @@ Distributed Processing: Training
 
 The distributed processing mode assumes that the data set is split in ``nblocks`` blocks across computation nodes.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Parameters
 ********************
 
 At the training stage, implicit ALS recommender in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Implicit Alternating Least Squares Computaion (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -41,7 +40,7 @@ At the training stage, implicit ALS recommender in the distributed processing mo
    * - ``computeStep``
      - Not applicable
      - The parameter required to initialize the algorithm. Can be:
-       
+
        - ``step1Local`` - the first step, performed on local nodes
        - ``step2Master`` - the second step, performed on a master node
        - ``step3Local`` - the third step, performed on local nodes
@@ -84,13 +83,19 @@ Each part includes four steps executed either on local nodes or on the master no
 as explained below and illustrated by graphics for :math:`\mathrm{nblocks} = 3`.
 The main loop of the implicit ALS training stage is executed on the master node.
 
-.. image:: images/implicit-als-distributed-computation-training-general-scheme-1.png
+.. figure:: images/implicit-als-distributed-computation-training-general-scheme-1.png
     :width: 600
     :align: center
+    :alt:
 
-.. image:: images/implicit-als-distributed-computation-training-general-scheme-2.png
+    Implicit Alternating Least Squares Computaion: Part 1
+
+.. figure:: images/implicit-als-distributed-computation-training-general-scheme-2.png
     :width: 600
     :align: center
+    :alt:
+
+    Implicit Alternating Least Squares Computaion: Part 2
 
 .. _implicit_als_distributed_training_step_1:
 
@@ -104,15 +109,20 @@ This step works with the matrix:
 
 Parts of this matrix are used as input partial models.
 
-.. image:: images/implicit-als-distributed-computation-training-step-1.png
+.. figure:: images/implicit-als-distributed-computation-training-step-1.png
     :width: 600
     :align: center
+    :alt:
+
+    Training with Implicit Alternating Least Squares: Distributed Processing, Step 1 - on Local Nodes
 
 In this step, implicit ALS recommender training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -125,7 +135,9 @@ In this step, implicit ALS recommender training calculates the result described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -143,15 +155,20 @@ Step 2 - on Master Node
 
 This step uses local partial results from :ref:`Step 1 <implicit_als_distributed_training_step_1>` as input.
 
-.. image:: images/implicit-als-distributed-computation-training-step-2.png
+.. figure:: images/implicit-als-distributed-computation-training-step-2.png
     :width: 600
     :align: center
+    :alt:
+
+    Training with Implicit Alternating Least Squares: Distributed Processing, Step 2 - on Master Node
 
 In this step, implicit ALS recommender training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -159,7 +176,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``inputOfStep2FromStep1``
      - A collection of numeric tables computed on local nodes in :ref:`Step 1 <implicit_als_distributed_training_step_1>`.
-       
+
        .. note::
             The collection may contain objects of any class derived from ``NumericTable``
             except the ``PackedTriangularMatrix`` class with the ``lowerPackedTriangularMatrix`` layout.
@@ -168,7 +185,9 @@ In this step, implicit ALS recommender training calculates the result described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -199,17 +218,23 @@ The Input Of Step 3 From Init is a key-value data collection that refers to the 
 - Output of the :ref:`step 1 of the distributed initialization algorithm <implicit_als_distributed_init_step_1>` in :ref:`part 1 <implicit_als_computation_parts>` of the iteration
 - Output of the :ref:`step 2 of the distributed initialization algorithm <implicit_als_distributed_init_step_2>` in :ref:`part 2 <implicit_als_computation_parts>` of the iteration
 
-.. image:: images/implicit-als-distributed-computation-training-step-3.png
+.. figure:: images/implicit-als-distributed-computation-training-step-3.png
     :width: 600
     :align: center
+    :alt:
+
+    Training with Implicit Alternating Least Squares: Distributed Processing, Step 3 - on Local Nodes
 
 In this step, implicit ALS recommender training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -223,7 +248,9 @@ In this step, implicit ALS recommender training calculates the result described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -232,7 +259,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``outputOfStep3ForStep4``
      - A key-value data collection that contains partial models to be used in :ref:`Step 4 <implicit_als_distributed_training_step_4>`.
-       Each element of the collection contains an object of the ``PartialModel`` class.    
+       Each element of the collection contains an object of the ``PartialModel`` class.
 
 .. _implicit_als_distributed_training_step_4:
 
@@ -246,17 +273,23 @@ This step uses the results of the previous steps and parts of the following matr
 
 The results of the step are the re-computed parts of this matrix.
 
-.. image:: images/implicit-als-distributed-computation-training-step-4.png
+.. figure:: images/implicit-als-distributed-computation-training-step-4.png
     :width: 600
     :align: center
+    :alt:
+
+    Training with Implicit Alternating Least Squares: Distributed Processing, Step 4 - on Local Nodes
 
 In this step, implicit ALS recommender training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 4)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -265,18 +298,21 @@ For more details, see :ref:`algorithms`.
        computed in :ref:`Step 3 <implicit_als_distributed_training_step_3>`.
        Each element of the collection contains an object of the ``PartialModel`` class.
    * - ``partialData``
-     - Pointer to the CSR numeric table that holds the :math:`i`-th part of the input data set, assuming that the data is divided by users/items.    
+     - Pointer to the CSR numeric table that holds the :math:`i`-th part of the input data set, assuming that the data is divided by users/items.
    * - ``inputOfStep4FromStep2``
      -  Pointer to the :math:`f \times f` numeric table computed in :ref:`Step 2 <implicit_als_distributed_training_step_2>`.
- 
+
 In this step, implicit ALS recommender training calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 4)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result

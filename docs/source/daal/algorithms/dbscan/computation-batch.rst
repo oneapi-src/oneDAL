@@ -17,18 +17,17 @@
 Batch Processing
 ================
 
-- `Algorithm Parameters`_
-- `Algorithm Input`_
-- `Algorithm Output`_
-
 Algorithm Parameters
 ********************
 
 The DBSCAN clustering algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for DBSCAN (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -51,17 +50,17 @@ The DBSCAN clustering algorithm has the following parameters:
    * - ``memorySavingMode``
      - ``false``
      - If flag is set to false, all neighborhoods will be computed and stored prior to clustering.
-       It will require up to :math:`O(|\text{sum of sizes of all observations' neighborhoods}|)` of additional memory, 
+       It will require up to :math:`O(|\text{sum of sizes of all observations' neighborhoods}|)` of additional memory,
        which in worst case can be :math:`O(|\text{number of observations}|^2)`. However, in general, performance may be better.
 
-       .. note:: 
+       .. note::
           On GPU, the ``memorySavingMode`` flag can only be set to ``true``.
           You will get an error if the flag is set to ``false``.
 
    * - ``resultsToCompute``
      - :math:`0`
      - The 64-bit integer flag that specifies which extra characteristics of the DBSCAN algorithm to compute.
-        
+
        Provide one of the following values to request a single characteristic or
        use bitwise OR to request a combination of the characteristics:
 
@@ -75,9 +74,12 @@ The DBSCAN algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for DBSCAN (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -90,10 +92,10 @@ For more details, see :ref:`algorithms`.
      - Optional input. Pointer to the :math:`n \times 1` numeric table with weights of observations.
 
        .. note::
-       
+
          The input can be an object of any class derived from ``NumericTable``
          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``.
-         
+
          By default all weights are equal to :math:`1`.
 
        .. note::
@@ -107,15 +109,18 @@ The DBSCAN algorithms calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for DBSCAN (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
    * - ``assignments``
      - Pointer to the :math:`n \times 1` numeric table with assignments of cluster indices to observations in the input data.
-       
+
        :term:`Noise observations <noise observation>` have the assignment equal to :math:`-1`.
 
    * - ``nClusters``

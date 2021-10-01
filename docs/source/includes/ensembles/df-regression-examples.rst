@@ -17,13 +17,13 @@
 .. tabs::
 
    .. group-tab:: oneAPI DPC++
- 
+
       Batch Processing:
- 
+
       - :ref:`dpc_df_reg_hist_batch.cpp`
- 
+
    .. group-tab:: oneAPI C++
- 
+
       Batch Processing:
- 
+
       - :ref:`cpp_df_reg_dense_batch.cpp`

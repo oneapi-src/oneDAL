@@ -51,22 +51,26 @@ for a given data source to check whether a new block of data is available for lo
 
 The following diagram illustrates the computation schema for online processing:
 
-.. image:: ./images/online-1.png
+.. figure:: ./images/online-1.png
   :width: 600
+  :alt:
 
-.. image:: ./images/online-2.png
+.. figure:: ./images/online-2.png
   :width: 600
+  :alt:
 
 .. note::
 
-    While different data blocks may have different numbers of observations :math:`n_i`, 
+    While different data blocks may have different numbers of observations :math:`n_i`,
     they must have the same number of feature vectors :math:`p`.
 
-.. image:: ./images/online-3.png
+.. figure:: ./images/online-3.png
   :width: 600
+  :alt:
 
-.. image:: ./images/online-4.png
+.. figure:: ./images/online-4.png
   :width: 600
+  :alt:
 
 .. _distributed_mode:
 
@@ -78,20 +82,22 @@ In distributed processing mode, the ``compute()`` and the ``finalizeCompute()`` 
 This computation mode assumes that the data set is split in nblocks blocks across computation nodes.
 
 Computation is done in several steps.
-You need to define the computation step for an algorithm by providing the computeStep value to the constructor during 
+You need to define the computation step for an algorithm by providing the computeStep value to the constructor during
 initialization of the algorithm. Use the ``compute()`` method on each computation node to compute partial results.
 Use the ``input.add()`` method on the master node to add pointers to partial results processed on each computation node.
 When the last partial result arrives, call the ``compute()`` method followed by ``finalizeCompute()`` to produce final results.
-If the input data arrives in an asynchronous mode, you can use the ``getStatus()`` method for a given data source to check whether 
+If the input data arrives in an asynchronous mode, you can use the ``getStatus()`` method for a given data source to check whether
 a new block of data is available for loading.
 
 The computation schema is algorithm-specific. The following diagram illustrates a typical computation schema for distribute processing:
 
-.. image:: ./images/distributed-1.png
+.. figure:: ./images/distributed-1.png
   :width: 600
+  :alt:
 
-.. image:: ./images/distributed-2.png
+.. figure:: ./images/distributed-2.png
   :width: 600
+  :alt:
 
 For the algorithm-specific computation schema, refer to the Distributed Processing section in the description of an appropriate algorithm.
 

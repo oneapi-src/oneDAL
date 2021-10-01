@@ -14,117 +14,152 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "daal/src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
-
 #include "oneapi/dal/algo/covariance/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/backend/primitives/lapack.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/stat.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::covariance::backend {
 
+namespace pr = oneapi::dal::backend::primitives;
+
 using dal::backend::context_gpu;
+using input_t = compute_input<task::compute>;
+using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-namespace daal_covariance = daal::algorithms::covariance;
-namespace interop = dal::backend::interop;
+template <typename Float>
+auto compute_means(sycl::queue& q,
+                   const pr::ndview<Float, 2>& data,
+                   const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_means, q);
+    ONEDAL_ASSERT(data.has_data());
+    const std::int64_t column_count = data.get_dimension(1);
+    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto reduce_event =
+        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
+    auto means_event = pr::means(q, data, sums, means, { reduce_event });
+
+    return std::make_tuple(means, sums, means_event);
+}
 
 template <typename Float>
-using daal_covariance_kernel_t = daal_covariance::oneapi::internal::
-    CovarianceDenseBatchKernelOneAPI<Float, daal_covariance::Method::defaultDense>;
+auto compute_covariance(sycl::queue& q,
+                        const pr::ndview<Float, 2>& data,
+                        const pr::ndview<Float, 1>& sums,
+                        pr::ndview<Float, 1>& means,
+                        const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_covariance, q);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+    ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
+    const std::int64_t column_count = data.get_dimension(1);
+    auto cov =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto cov_event = pr::covariance(q, data, sums, means, cov, vars, tmp, deps);
 
-template <typename Float, typename Task>
-static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
-                                             const descriptor_t& desc,
-                                             const table& data) {
-    bool is_mean_computed = false;
+    return std::make_tuple(cov, tmp, cov_event);
+}
 
-    auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
+template <typename Float>
+auto compute_correlation(sycl::queue& q,
+                         const pr::ndview<Float, 2>& data,
+                         const pr::ndview<Float, 1>& sums,
+                         pr::ndview<Float, 1>& means,
+                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_correlation, q);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+    ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
+    const std::int64_t column_count = data.get_dimension(1);
+    auto corr =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
-    const std::int64_t component_count = data.get_column_count();
+    auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, deps);
 
-    daal_covariance::Parameter daal_parameter;
-    daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
+    auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
+    return std::make_tuple(corr, smart_event);
+}
 
-    dal::detail::check_mul_overflow(component_count, component_count);
+template <typename Float>
+auto compute_correlation_with_covariance(sycl::queue& q,
+                                         const pr::ndview<Float, 2>& data,
+                                         const pr::ndview<Float, 2>& cov,
+                                         pr::ndview<Float, 1>& tmp,
+                                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_correlation_with_covariance, q);
+    ONEDAL_ASSERT(data.has_data());
+    const std::int64_t column_count = data.get_dimension(1);
+    auto corr =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
 
-    const auto daal_data = interop::convert_to_daal_table(queue, data);
+    auto corr_event = pr::correlation_with_covariance(q, data, cov, corr, tmp, deps);
 
-    auto arr_means = array<Float>::empty(queue, component_count, sycl::usm::alloc::device);
-    const auto daal_means = interop::convert_to_daal_table(queue, arr_means, 1, component_count);
-
-    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
-
-    if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto arr_cov_matrix =
-            array<Float>::empty(queue, component_count * component_count, sycl::usm::alloc::device);
-        const auto daal_cov_matrix =
-            interop::convert_to_daal_table(queue, arr_cov_matrix, component_count, component_count);
-
-        interop::status_to_exception(
-            daal_covariance_kernel_t<Float>().compute(daal_data.get(),
-                                                      daal_cov_matrix.get(),
-                                                      daal_means.get(),
-                                                      &daal_parameter));
-        is_mean_computed = true;
-
-        result.set_cov_matrix(
-            homogen_table::wrap(arr_cov_matrix, component_count, component_count));
-    }
-    if (desc.get_result_options().test(result_options::cor_matrix)) {
-        auto arr_cor_matrix =
-            array<Float>::empty(queue, component_count * component_count, sycl::usm::alloc::device);
-        const auto daal_cor_matrix =
-            interop::convert_to_daal_table(queue, arr_cor_matrix, component_count, component_count);
-        daal_parameter.outputMatrixType = daal_covariance::correlationMatrix;
-
-        interop::status_to_exception(
-            daal_covariance_kernel_t<Float>().compute(daal_data.get(),
-                                                      daal_cor_matrix.get(),
-                                                      daal_means.get(),
-                                                      &daal_parameter));
-        is_mean_computed = true;
-
-        result.set_cor_matrix(
-            homogen_table::wrap(arr_cor_matrix, component_count, component_count));
-    }
-    if (desc.get_result_options().test(result_options::means)) {
-        if (!is_mean_computed) {
-            auto arr_cov_matrix = array<Float>::empty(queue,
-                                                      component_count * component_count,
-                                                      sycl::usm::alloc::device);
-
-            const auto daal_cov_matrix = interop::convert_to_daal_table(queue,
-                                                                        arr_cov_matrix,
-                                                                        component_count,
-                                                                        component_count);
-
-            interop::status_to_exception(
-                daal_covariance_kernel_t<Float>().compute(daal_data.get(),
-                                                          daal_cov_matrix.get(),
-                                                          daal_means.get(),
-                                                          &daal_parameter));
-        }
-        result.set_means(homogen_table::wrap(arr_means, 1, component_count));
-    }
-    return result;
+    return std::make_tuple(corr, corr_event);
 }
 
 template <typename Float, typename Task>
 static compute_result<Task> compute(const context_gpu& ctx,
                                     const descriptor_t& desc,
-                                    const compute_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data());
+                                    const input_t& input) {
+    auto& q = ctx.get_queue();
+    const auto data = input.get_data();
+    bool is_corr_computed = false;
+    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
+
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t component_count = data.get_column_count();
+    dal::detail::check_mul_overflow(row_count, column_count);
+    dal::detail::check_mul_overflow(column_count, column_count);
+    dal::detail::check_mul_overflow(component_count, column_count);
+
+    const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
+
+    auto [means, sums, means_event] = compute_means(q, data_nd);
+
+    if (desc.get_result_options().test(result_options::cov_matrix)) {
+        auto [cov, tmp, cov_event] = compute_covariance(q, data_nd, sums, means, { means_event });
+
+        result.set_cov_matrix(
+            (homogen_table::wrap(cov.flatten(q, { cov_event }), column_count, column_count)));
+
+        if (desc.get_result_options().test(result_options::cor_matrix)) {
+            is_corr_computed = true;
+
+            auto [corr, corr_event] =
+                compute_correlation_with_covariance(q, data_nd, cov, tmp, { cov_event });
+
+            result.set_cor_matrix(
+                (homogen_table::wrap(corr.flatten(q, { corr_event }), column_count, column_count)));
+        }
+    }
+    if (desc.get_result_options().test(result_options::cor_matrix) && !is_corr_computed) {
+        auto [corr, corr_event] = compute_correlation(q, data_nd, sums, means, { means_event });
+
+        result.set_cor_matrix(
+            (homogen_table::wrap(corr.flatten(q, { corr_event }), column_count, column_count)));
+    }
+    if (desc.get_result_options().test(result_options::means)) {
+        result.set_means(homogen_table::wrap(means.flatten(q, { means_event }), 1, column_count));
+    }
+    return result;
 }
 
 template <typename Float>
-struct compute_kernel_gpu<Float, method::by_default, task::compute> {
+struct compute_kernel_gpu<Float, method::dense, task::compute> {
     compute_result<task::compute> operator()(const context_gpu& ctx,
                                              const descriptor_t& desc,
-                                             const compute_input<task::compute>& input) const {
+                                             const input_t& input) const {
         return compute<Float, task::compute>(ctx, desc, input);
     }
 };

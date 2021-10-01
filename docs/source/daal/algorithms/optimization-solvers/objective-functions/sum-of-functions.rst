@@ -22,7 +22,7 @@ The sum of functions :math:`F(\theta)` is a function that has the form of a sum:
 .. math::
     F(\theta) = \sum _{i=1}{n} F_i(\theta), \theta \in \mathbb{R}^p
 
-For given set of the indices :math:`I = \{i_1, i_2, \ldots , i_m\}`, :math:`1 \leq ik < n`, 
+For given set of the indices :math:`I = \{i_1, i_2, \ldots , i_m\}`, :math:`1 \leq ik < n`,
 :math:`k \in \{1, \ldots, m\}`, the value and the gradient of the sum of functions in the argument :math:`\theta` has the format:
 
 .. math::
@@ -43,7 +43,9 @@ The sum of functions algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Sum of Functions Computaion
    :widths: 10 60
    :header-rows: 1
 
@@ -57,10 +59,13 @@ Algorithm Parameters
 
 The sum of functions algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Sum of Functions Computaion
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value

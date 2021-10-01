@@ -69,7 +69,7 @@ of Gradient Boosted Tree Regression, complete the following steps:
   Each tree consists of internal nodes (called non-leaf or split nodes) and external nodes (leaf nodes).
   Each split node denotes a feature test that is a Boolean expression, for example,
   f < ``featureValue`` or f = ``featureValue``, where f is a feature and ``featureValue`` is a constant.
-  The test type depends on the feature type: continuous, categorical, or ordinal. 
+  The test type depends on the feature type: continuous, categorical, or ordinal.
   For more information on the test types, see :ref:`decision_tree`.
 
   The inducted decision tree is a binary tree, meaning that each non-leaf node has exactly two branches: true and false.
@@ -90,7 +90,7 @@ Examples
     - :cpp_example:`gbt_reg_traversed_model_builder.cpp <gradient_boosted_trees/gbt_reg_traversed_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`GbtRegTraversedModelBuilder.java <gbt/GbtRegTraversedModelBuilder.java>`
@@ -113,10 +113,13 @@ In addition to parameters of the gradient boosted trees described in :ref:`gb_tr
 the gradient boosted trees regression training algorithm has the
 following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Gradient Boosted Trees Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -137,10 +140,13 @@ Prediction
 In addition to the common regression parameters, the gradient boosted
 trees regression has the following parameters at the prediction stage:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Gradient Boosted Trees Regression (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -163,13 +169,13 @@ Examples
 .. tabs::
 
   .. tab:: C++ (CPU)
-  
+
     Batch Processing:
 
     - :cpp_example:`gbt_reg_dense_batch.cpp <gradient_boosted_trees/gbt_reg_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

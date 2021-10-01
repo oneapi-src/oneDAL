@@ -52,6 +52,10 @@ Float davies_bouldin_index(const table& data, const table& centroids, const tabl
 
     for (std::int64_t i = 0; i < row_count; ++i) {
         auto cluster_id = cluster_ids[i];
+        if (cluster_id < 0) {
+            continue;
+        }
+
         counter_ptr[cluster_id]++;
         Float distance_sq = 0.0;
         for (std::int64_t j = 0; j < feature_count; ++j) {
@@ -84,6 +88,46 @@ Float davies_bouldin_index(const table& data, const table& centroids, const tabl
     }
     dbi /= cluster_count;
     return dbi;
+}
+
+template <typename Float = double>
+table centers_of_mass(const table& data, const table& assignments, std::int64_t cluster_count) {
+    INFO("check if data shape is expected to be consistent")
+    REQUIRE(data.get_row_count() == assignments.get_row_count());
+    REQUIRE(assignments.get_column_count() == 1);
+
+    const auto feature_count = data.get_column_count();
+    const auto row_count = data.get_row_count();
+
+    auto centers = array<Float>::zeros(cluster_count * feature_count);
+    auto counters = array<std::int32_t>::zeros(cluster_count);
+    auto center_ptr = centers.get_mutable_data();
+    auto counter_ptr = counters.get_mutable_data();
+
+    const auto data_matrix =
+        linalg::matrix<Float>::wrap(row_accessor<const Float>(data).pull({ 0, -1 }),
+                                    { row_count, feature_count });
+
+    const auto cluster_ids = row_accessor<const std::int32_t>(assignments).pull({ 0, -1 });
+
+    for (std::int64_t i = 0; i < row_count; ++i) {
+        auto cluster_id = cluster_ids[i];
+        if (cluster_id < 0) {
+            continue;
+        }
+        counter_ptr[cluster_id]++;
+        for (std::int64_t j = 0; j < feature_count; ++j) {
+            center_ptr[cluster_id * feature_count + j] += data_matrix.get(i, j);
+        }
+    }
+    for (std::int64_t i = 0; i < cluster_count; ++i) {
+        const auto count = counter_ptr[i];
+        for (std::int64_t j = 0; j < feature_count; ++j) {
+            center_ptr[i * feature_count + j] /= count;
+        }
+    }
+
+    return dal::homogen_table::wrap(centers, cluster_count, feature_count);
 }
 
 } // namespace oneapi::dal::test::engine
