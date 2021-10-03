@@ -721,12 +721,7 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
         });
     });
 
-    const bool is_opencl_backend =
-        !q_.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
-    if (is_opencl_backend) {
-        // there is an issue in opencl backend with keeping memory dependencies in events.
-        last_event.wait_and_throw();
-    }
+    last_event.wait_and_throw();
     return std::make_tuple(std::move(ndres), std::move(last_event));
 }
 
@@ -853,12 +848,7 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
         });
     });
 
-    const bool is_opencl_backend =
-        !q_.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
-    if (is_opencl_backend) {
-        // there is an issue in opencl backend with keeping memory dependencies in events.
-        last_event.wait_and_throw();
-    }
+    last_event.wait_and_throw();
     return std::make_tuple(std::forward<local_result_t>(ndres), last_event);
 }
 
