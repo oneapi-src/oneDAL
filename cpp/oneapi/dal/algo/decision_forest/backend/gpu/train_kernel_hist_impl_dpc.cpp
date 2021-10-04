@@ -449,10 +449,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
         Index row_count = ctx.selected_row_count_;
         Index stride = ctx.selected_row_total_count_;
         if (ctx.distr_mode_) {
-            //if(ctx.global_row_offset_ > ctx.selected_row_total_count_) {
-            //    throw domain_error(msg::invalid_number_of_trees());
-            //}
-            row_count = 0; //
+            row_count = 0;
             if (ctx.global_row_offset_ < ctx.selected_row_total_count_) {
                 row_count = std::min(ctx.selected_row_total_count_ - ctx.global_row_offset_,
                                      ctx.row_count_);
@@ -1116,8 +1113,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                          node_count,
                                                          deps);
             last_event = allreduce_ndarray_inplace(imp_data_list.class_hist_list_, { last_event });
-            //last_event.wait_and_throw();
-            //comm_.allreduce(queue_, imp_data_list.class_hist_list_.get_data(), imp_data_list.class_hist_list_.get_mutable_data(), imp_data_list.class_hist_list_.get_count(), {last_event}).wait();
             last_event = compute_initial_imp_for_node_list(ctx,
                                                            imp_data_list,
                                                            node_list,
@@ -1527,7 +1522,6 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
 
         last_event = allreduce_ndarray_inplace(node_hist_list, { last_event });
         last_event.wait_and_throw();
-        //comm_.allreduce(queue_, node_hist_list.get_data(), node_hist_list.get_mutable_data(), node_hist_list.get_count(), { last_event }).wait();
     }
     else {
         const Index part_hist_size = get_part_hist_elem_count(ctx.selected_ftr_count_,
@@ -1571,7 +1565,6 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        node_count,
                                                        { last_event });
 
-            //last_event.wait_and_throw();
             last_event = allreduce_ndarray_inplace(sum_list, { last_event });
 
             last_event = compute_partial_sum2cent(ctx,
@@ -1589,7 +1582,6 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                   node_count,
                                                   { last_event });
 
-            //last_event.wait_and_throw();
             last_event = allreduce_ndarray_inplace(sum2cent_list, { last_event });
 
             last_event = fin_histogram_distr(ctx,
@@ -1641,8 +1633,6 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        part_hist_count,
                                                        node_count,
                                                        { last_event });
-
-            //last_event.wait_and_throw();
 
             last_event = sum_reduce_partial_histograms(ctx,
                                                        part_sum_list,
