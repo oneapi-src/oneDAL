@@ -36,83 +36,155 @@ using input_t = train_input<task::classification>;
 using result_t = train_result<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
-namespace daal_svm = daal::algorithms::svm;
-namespace daal_kernel_function = daal::algorithms::kernel_function;
-namespace interop = dal::backend::interop;
+template <typename Float>
+inline auto update_grad(sycl::queue& q,
+                        const pr::ndview<Float, 2>& kernel_values_nd,
+                        const pr::ndview<Float, 1>& delta_alpha_nd,
+                        pr::ndview<Float, 1>& grad_nd) {
+    auto reshape_delta =
+        delta_alpha_nd.reshape(pr::ndshape<2>{ kernel_values_nd.get_dimension(0), 1 });
+    auto reshape_grad = grad_nd.reshape(pr::ndshape<2>{ kernel_values_nd.get_dimension(1), 1 });
+    auto gemm_event =
+        pr::gemm(q, kernel_values_nd.t(), reshape_delta, reshape_grad, Float(1), Float(1));
+    return gemm_event;
+}
 
 template <typename Float>
-using daal_svm_thunder_kernel_t =
-    daal_svm::training::internal::SVMTrainOneAPI<Float, daal_svm::training::thunder>;
+inline bool check_stop_condition(const Float diff,
+                                 const Float prev_diff,
+                                 const Float eps,
+                                 std::int64_t& same_local_diff_count) {
+    constexpr std::int64_t max_unchanged_repetitions = 5;
+    same_local_diff_count = std::abs(diff - prev_diff) < eps * 1e-2 ? same_local_diff_count + 1 : 0;
+
+    if (same_local_diff_count > max_unchanged_repetitions || diff < eps) {
+        return true;
+    }
+    return false;
+}
 
 template <typename Float>
-static result_t call_daal_kernel(const context_gpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& data,
-                                 const table& responses) {
-    auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
+static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+    auto& q = ctx.get_queue();
 
     const std::uint64_t class_count = desc.get_class_count();
     if (class_count > 2) {
         throw unimplemented(dal::detail::error_messages::svm_multiclass_not_implemented_for_gpu());
     }
 
+    const auto data = input.get_data();
+    const auto responses = input.get_responses();
+
+    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    const binary_response_t<Float> old_unique_responses =
-        get_unique_responses<Float>(queue, responses);
-    const auto new_responses = convert_binary_responses(queue,
-                                                        responses,
-                                                        { Float(-1.0), Float(1.0) },
-                                                        old_unique_responses);
-    const auto daal_responses = interop::convert_to_daal_table(queue, new_responses);
+    const binary_response_t<Float> old_unique_responses = get_unique_responses<Float>(q, responses);
+    const auto new_responses =
+        convert_binary_responses(q, responses, { Float(-1.0), Float(1.0) }, old_unique_responses);
 
-    auto kernel_impl = detail::get_kernel_function_impl(desc);
-    if (!kernel_impl) {
-        throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
+    const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
+    const auto responses_nd = pr::table2ndarray<Float>(q, new_responses, sycl::usm::alloc::device);
+
+    const double C(desc.get_c());
+    const double accuracy_threshold(desc.get_accuracy_threshold());
+    const double tau(desc.get_tau());
+    const double cache_size(desc.get_cache_size());
+    const auto kernel_desc(desc.get_kernel());
+    const std::int64_t max_iteration_count(desc.get_max_iteration_count());
+
+    auto [alpha_nd, alpha_zeros_event] =
+        pr::ndarray<Float, 1>::zeros(queue_, row_count, sycl::usm::alloc::device);
+
+    auto grad_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+    auto invert_responses_event = invert_values(q, responses_nd, grad_nd);
+
+    const std::int64_t ws_count = propose_working_set_size(q, row_count);
+    auto ws_indices_nd =
+        pr::ndarray<std::uint32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
+    auto working_set = working_set_selector<Float>(q, y_nd, C, row_count);
+
+    // The maximum numbers of iteration of the subtask is number of observation in WS x inner_iterations. It's enough to find minimum for subtask.
+    constexpr std::int64_t inner_iterations = 1000;
+    const std::int64_t max_inner_iterations_count(ws_count * inner_iterations);
+
+    auto delta_alpha_nd = pr::ndarray<Float, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
+    auto f_diff_nd = pr::ndarray<Float, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
+    auto inner_iter_count_nd =
+        pr::ndarray<std::uint32_t, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
+
+    Float diff = Float(0);
+    Float prev_diff = Float(0);
+
+    std::int64_t same_local_diff_count = 0;
+
+    std::shared_ptr<svm_cache_iface<Float>> svm_cache_ptr =
+        std::make_shared<svm_cache<no_cache, Float, kernel_desc>>(q,
+                                                                  data_nd,
+                                                                  cache_size,
+                                                                  ws_count,
+                                                                  row_count);
+
+    sycl::event copy_event;
+    std::int64_t ws_indices_copy_cound;
+
+    std::int64_t iter = 0;
+    for (; iter < max_iteration_count; iter++) {
+        if (iter != 0) {
+            std::tie(ws_indices_copy_cound, copy_event) = copy_last_to_first(q, ws_indices_nd);
+            // cache_nd copyLastToFirst() why does it needed?
+        }
+
+        auto select_ws_event = working_set.select(alpha_nd,
+                                                  grad_nd,
+                                                  ws_indices_nd,
+                                                  { alpha_zeros_event, invert_responses_event });
+
+        const auto kernel_values_nd = svm_cache_ptr->compute(data, data_nd, ws_indices_nd);
+
+        auto solve_smo_event = solve_smo<Float>(q,
+                                                kernel_values_nd,
+                                                ws_indices_nd,
+                                                responses_nd,
+                                                row_count,
+                                                ws_count,
+                                                max_inner_iterations_count,
+                                                C,
+                                                accuracy_threshold,
+                                                tau,
+                                                alpha_nd,
+                                                delta_alpha_nd,
+                                                grad_nd,
+                                                f_diff_nd,
+                                                inner_iter_count_nd,
+                                                { cache_kernel_values_event });
+
+        auto f_diff_host = f_diff_nd.to_host(queue, { solve_smo_event }).flatten();
+        diff = *f_diff_host;
+
+        auto update_grad_event =
+            update_grad(kernel_values_nd, delta_alpha_nd, grad_nd).wait_and_throw();
+        if (check_stop_condition(diff, prev_diff, accuracy_threshold, same_local_diff_count)) {
+            break;
+        }
+
+        prev_diff = diff;
     }
 
-    const bool is_dense{ data.get_kind() == homogen_table::kind() };
-    const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
+    [bias, sv_coeffs, support_indices, support_vectors, compute_train_results_event] =
+        compute_train_results(q, data_nd, responses_nd, grad_nd, alpha_nd, C);
+    compute_train_results_event.wait_and_throw();
+    auto arr_biases = array<Float>::full(1, static_cast<Float>(bias));
+    auto model =
+        model_t()
+            .set_support_vectors(support_vectors)
+            .set_coeffs(sv_coeffs)
+            .set_biases(dal::detail::homogen_table_builder{}.reset(arr_biases, 1, 1).build())
+            .set_first_class_response(old_unique_responses.first)
+            .set_second_class_response(old_unique_responses.second);
 
-    const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
-    constexpr std::uint64_t megabyte = 1024 * 1024;
-    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
-    const std::uint64_t cache_byte = cache_megabyte * megabyte;
+    dal::detail::get_impl(model).bias = bias;
 
-    daal_svm::training::internal::KernelParameter daal_svm_parameter;
-    daal_svm_parameter.kernel = daal_kernel;
-    daal_svm_parameter.C = desc.get_c();
-    daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
-    daal_svm_parameter.tau = desc.get_tau();
-    daal_svm_parameter.maxIterations =
-        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
-    daal_svm_parameter.doShrinking = desc.get_shrinking();
-    daal_svm_parameter.cacheSize = cache_byte;
-
-    const auto daal_data = interop::convert_to_daal_table(queue, data);
-    auto daal_model = daal_svm::Model::create<Float>(column_count);
-    interop::status_to_exception(daal_svm_thunder_kernel_t<Float>().compute(daal_data,
-                                                                            *daal_responses,
-                                                                            daal_model.get(),
-                                                                            daal_svm_parameter));
-    const std::int64_t n_sv = daal_model->getSupportIndices()->getNumberOfRows();
-    if (n_sv == 0) {
-        return result_t{};
-    }
-    auto table_support_indices =
-        interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
-
-    auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
-                             .set_first_class_response(old_unique_responses.first)
-                             .set_second_class_response(old_unique_responses.second);
-
-    return result_t().set_model(trained_model).set_support_indices(table_support_indices);
-}
-
-template <typename Float>
-static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
+    return result_t().set_model(model).set_support_indices(support_indices);
 }
 
 template <typename Float>
