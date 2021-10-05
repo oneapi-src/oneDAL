@@ -17,3 +17,4 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/voting/uniform.hpp"
+#include "oneapi/dal/backend/primitives/voting/distance.hpp"

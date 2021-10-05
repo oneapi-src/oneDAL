@@ -37,7 +37,7 @@ using v1::compute_result_impl;
 namespace v1 {
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::v1::compute`.
+///              be :expr:`task::compute`.
 template <typename Task = task::by_default>
 class compute_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -45,11 +45,12 @@ class compute_input : public base {
 public:
     using task_t = Task;
 
-    /// Creates a new instance of the class with the given :literal:`x` and :literal:`y`.
+    /// Creates a new instance of the class with the given :literal:`data`
+    /// property value
     compute_input(const table& data);
 
-    /// An $n1 \\times p$ table with the data x, where each row
-    /// stores one feature vector.
+    /// An $n \\times p$ table with the training data, where each row stores one
+    /// feature vector.
     /// @remark default = table{}
     const table& get_data() const;
 
@@ -66,7 +67,7 @@ private:
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::v1::compute`.
+///              be :expr:`task::compute`.
 template <typename Task = task::by_default>
 class compute_result : public base {
     static_assert(detail::is_valid_task_v<Task>);

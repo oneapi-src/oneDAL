@@ -30,9 +30,7 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
 
-#include "src/externals/service_ittnotify.h"
-
-DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.batch);
+#include "src/externals/service_profiler.h"
 
 namespace daal
 {

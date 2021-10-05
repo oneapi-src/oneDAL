@@ -51,14 +51,17 @@ The multivariate outlier detection algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Multivariate Outlier Detection (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the :math:`n \times p` numeric table with the data for outlier detection.     
+     - Pointer to the :math:`n \times p` numeric table with the data for outlier detection.
        The input can be an object of any class derived from the ``NumericTable`` class.
    * - ``location``
      - Pointer to the :math:`1 \times p` numeric table with the vector of means.
@@ -70,30 +73,34 @@ For more details, see :ref:`algorithms`.
      - Pointer to the :math:`1 \times 1` numeric table with the non-negative number that defines the outlier region.
        The input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
 
-.. note::
+If you do not provide at least one of the ``location``, ``scatter``, ``threshold`` inputs,
+the library will initialize all of them with the following default values:
 
-    If you do not provide at least one of the ``location``, ``scatter``, ``threshold`` inputs,
-    the library will initialize all of them with the following default values:
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
 
-    .. list-table::
-        :widths: 10 20
-        
-        * - ``location``
-          - A set of :math:`0.0`
-        * - ``scatter``
-          - A numeric table with diagonal elements equal to :math:`1.0` and non-diagonal elements equal to :math:`0.0`
-        * - ``threshold``
-          - :math:`3.0`
+.. list-table:: Default Values for Algorithm Input of Multivariate Outlier Detection (Batch Processing)
+    :widths: 10 20
+    :class: longtable
+
+    * - ``location``
+      - A set of :math:`0.0`
+    * - ``scatter``
+      - A numeric table with diagonal elements equal to :math:`1.0` and non-diagonal elements equal to :math:`0.0`
+    * - ``threshold``
+      - :math:`3.0`
 
 Algorithm Parameters
 --------------------
 
 The multivariate outlier detection algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Multivariate Outlier Detection (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -112,7 +119,9 @@ The multivariate outlier detection algorithm calculates the result described bel
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Multivariate Outlier Detection (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -121,7 +130,7 @@ For more details, see :ref:`algorithms`.
    * - ``weights``
      - Pointer to the :math:`n \times 1` numeric table of zeros and ones.
        Zero in the :math:`i`-th position indicates that the :math:`i`-th feature vector is an outlier.
-       
+
        .. note::
           By default, the result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
@@ -139,7 +148,7 @@ Examples
     - :cpp_example:`out_detect_mult_dense_batch.cpp <outlier_detection/out_detect_mult_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

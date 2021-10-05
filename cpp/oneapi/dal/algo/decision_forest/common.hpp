@@ -20,6 +20,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/util/common.hpp"
 #include "oneapi/dal/algo/decision_tree/detail/node_visitor.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 
 namespace oneapi::dal::decision_forest {
 
@@ -564,6 +565,7 @@ template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
+    friend dal::detail::serialization_accessor;
 
     using dtree_task_t = detail::decision_tree_task_map_t<Task>;
     using dtree_visitor_iface_t = detail::decision_tree_visitor_ptr<Task>;
@@ -617,6 +619,9 @@ protected:
     void traverse_breadth_first_impl(std::int64_t tree_idx, dtree_visitor_iface_t&& visitor) const;
 
 private:
+    void serialize(dal::detail::output_archive& ar) const;
+    void deserialize(dal::detail::input_archive& ar);
+
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };

@@ -112,6 +112,8 @@ struct train_kernel_gpu<Float, method::brute_force, Task> {
 
 template struct train_kernel_gpu<float, method::brute_force, task::classification>;
 template struct train_kernel_gpu<double, method::brute_force, task::classification>;
+template struct train_kernel_gpu<float, method::brute_force, task::regression>;
+template struct train_kernel_gpu<double, method::brute_force, task::regression>;
 template struct train_kernel_gpu<float, method::brute_force, task::search>;
 template struct train_kernel_gpu<double, method::brute_force, task::search>;
 

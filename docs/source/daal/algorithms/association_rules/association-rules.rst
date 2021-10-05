@@ -73,7 +73,9 @@ The association rules algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input
 for your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Association Rules (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -93,10 +95,13 @@ Algorithm Parameters
 
 The association rules algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Association Rules (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -151,10 +156,13 @@ The association rules algorithm calculates the result described
 below. Pass the ``Result ID`` as a parameter to the methods that access
 the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Association Rules (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
@@ -163,28 +171,28 @@ the results of your algorithm.
        the table equals the number of items in the large item sets. Each row
        contains two integers:
 
-        + ID of the large item set, the number between 0 and nLargeItemsets -1.
-        + ID of the item, the number between 0 and :math:`nUniqueItems-1`.
+       + ID of the large item set, the number between 0 and nLargeItemsets -1.
+       + ID of the item, the number between 0 and :math:`nUniqueItems-1`.
 
    * - ``largeItemsetsSupport``
      - Pointer to the :math:`nLargeItemsets \times 2` numeric table of support values. Each row contains two integers:
 
-        + ID of the large item set, the number between 0 and nLargeItemsets-1.
-        + The support value, the number of times the item set is met in the array of transactions.
+       + ID of the large item set, the number between 0 and nLargeItemsets-1.
+       + The support value, the number of times the item set is met in the array of transactions.
 
    * - ``antecedentItemsets``
      - Pointer to the :math:`nAntecedentItems \times 2` numeric table that contains the
        left-hand-side (X) part of the association rules. Each row contains two integers:
 
-        + Rule ID, the number between 0 and :math:`nAntecedentItems-1`.
-        + Item ID, the number between 0 and :math:`nUniqueItems-1`.
+       + Rule ID, the number between 0 and :math:`nAntecedentItems-1`.
+       + Item ID, the number between 0 and :math:`nUniqueItems-1`.
 
    * - ``conseqentItemsets``
      - Pointer to the :math:`nConsequentItems \times 2` numeric table that contains the
        right-hand-side (Y) part of the association rules. Each row contains two integers:
 
-        + Rule ID, the number between 0 and :math:`nConsequentItems-1`.
-        + Item ID, the number between 0 and :math:`nUniqueItems-1`.
+       + Rule ID, the number between 0 and :math:`nConsequentItems-1`.
+       + Item ID, the number between 0 and :math:`nUniqueItems-1`.
 
    * - ``confidence``
      - Pointer to the :math:`nRules \times 1` numeric table that contains confidence values
@@ -224,7 +232,7 @@ Examples
     - :cpp_example:`assoc_rules_apriori_batch.cpp <association_rules/assoc_rules_apriori_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
@@ -234,7 +242,7 @@ Examples
   .. tab:: Python*
 
     Batch Processing:
-    
+
     - :daal4py_example:`association_rules_batch.py`
 
 Performance Considerations

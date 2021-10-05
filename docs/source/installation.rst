@@ -26,7 +26,7 @@
 Installation
 ============
 
-You can obtain the latest version of |short_name|: 
+You can obtain the latest version of |short_name|:
 
 - from |idz|_ as a part of |base_tk|.
 - from |github_rls|_ as a binary file.

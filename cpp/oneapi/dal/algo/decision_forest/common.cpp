@@ -314,8 +314,23 @@ void model<Task>::traverse_breadth_first_impl(std::int64_t tree_idx,
     impl_->traverse_breadth_first_impl(tree_idx, std::move(visitor));
 }
 
+template <typename Task>
+void model<Task>::serialize(dal::detail::output_archive& ar) const {
+    dal::detail::serialize_polymorphic_shared(impl_, ar);
+}
+
+template <typename Task>
+void model<Task>::deserialize(dal::detail::input_archive& ar) {
+    dal::detail::deserialize_polymorphic_shared(impl_, ar);
+}
+
 template class ONEDAL_EXPORT model<task::classification>;
 template class ONEDAL_EXPORT model<task::regression>;
+
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::regression>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_cls)
+ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_reg)
 
 } // namespace v1
 } // namespace oneapi::dal::decision_forest

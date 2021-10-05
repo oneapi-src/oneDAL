@@ -23,7 +23,7 @@
 #include "src/algorithms/engines/engine_batch_impl.h"
 #include "services/daal_string.h"
 #include "src/services/service_data_utils.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 
 using namespace daal::data_management;
 using namespace daal::services::internal;
@@ -40,8 +40,6 @@ namespace sycl
 {
 namespace selection
 {
-DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.select.select_indexed);
-
 services::Status runQuickSelectSimd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & dataVectors,
                                     const UniversalBuffer & indexVectors, const UniversalBuffer & rndSeq, uint32_t nRndSeq, uint32_t nK,
                                     uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize, uint32_t vectorOffset,

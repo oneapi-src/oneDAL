@@ -34,8 +34,11 @@ general methods for data compression and decompression. The
 following diagram illustrates the compression and decompression
 flow at a high level:
 
-.. image:: ./images/compression-flow.png
+.. figure:: ./images/compression-flow.png
   :width: 600
+  :alt:
+
+  Data Compression and Decompression Flow
 
 To define compression or decompression methods and related
 parameters, provide Compressor or Decompressor objects as

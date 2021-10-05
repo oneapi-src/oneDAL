@@ -27,7 +27,9 @@
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/exceptions.hpp"
+
 #include "oneapi/dal/test/engine/catch.hpp"
+#include "oneapi/dal/test/engine/config.hpp"
 #include "oneapi/dal/test/engine/macro.hpp"
 #include "oneapi/dal/test/engine/type_traits.hpp"
 
@@ -110,7 +112,55 @@
         return;            \
     }
 
+#define REGISTER_GLOBAL_SETUP(unique_id, GlobalSetup)                                      \
+    namespace {                                                                            \
+    int global_setup_init() {                                                              \
+        ::oneapi::dal::test::engine::register_global_setup(#unique_id, new GlobalSetup{}); \
+        return 0;                                                                          \
+    }                                                                                      \
+    [[maybe_unused]] const volatile int _ = global_setup_init();                           \
+    }
+
 namespace oneapi::dal::test::engine {
+
+template <typename T>
+struct type2str {
+    static const char* name() {
+        return "Unknown";
+    }
+};
+
+#define SPECIALIZE_TYPE_MAP(T)     \
+    template <>                    \
+    struct type2str<T> {           \
+        static const char* name(); \
+    };
+
+SPECIALIZE_TYPE_MAP(float)
+SPECIALIZE_TYPE_MAP(double)
+SPECIALIZE_TYPE_MAP(std::uint8_t)
+SPECIALIZE_TYPE_MAP(std::uint16_t)
+SPECIALIZE_TYPE_MAP(std::uint32_t)
+SPECIALIZE_TYPE_MAP(std::uint64_t)
+SPECIALIZE_TYPE_MAP(std::int8_t)
+SPECIALIZE_TYPE_MAP(std::int16_t)
+SPECIALIZE_TYPE_MAP(std::int32_t)
+SPECIALIZE_TYPE_MAP(std::int64_t)
+
+#undef SPECIALIZE_TYPE_MAP
+
+class global_setup_action {
+public:
+    virtual ~global_setup_action() = default;
+    virtual void init(const global_config& config) = 0;
+    virtual void tear_down() = 0;
+};
+
+void register_global_setup(const std::string& name, global_setup_action* action);
+
+void init_global_setup_actions(const global_config& config);
+
+void tear_down_global_setup_actions();
 
 class host_test_policy {
 public:
@@ -210,19 +260,6 @@ template <typename... Args>
 inline auto compute(device_test_policy& policy, Args&&... args) {
     return dal::compute(policy.get_queue(), std::forward<Args>(args)...);
 }
-
-template <typename T>
-struct type2str {
-    static const char* name() {
-        return "Unknown";
-    }
-};
-
-#define INSTANTIATE_TYPE_MAP(T)       \
-    template <>                       \
-    const char* type2str<T>::name() { \
-        return #T;                    \
-    }
 
 #endif
 

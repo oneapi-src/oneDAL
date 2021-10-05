@@ -29,9 +29,11 @@ and regression algorithms, as well as association rules discovery.
    :maxdepth: 2
 
    clustering/index.rst
+   covariance/index.rst
    decomposition/index.rst
-   ensembles/index.rst   
+   ensembles/index.rst
    kernel-functions/index.rst
    nearest-neighbors/index.rst
    pairwise-distances/index.rst
+   statistics/index.rst
    svm/index.rst

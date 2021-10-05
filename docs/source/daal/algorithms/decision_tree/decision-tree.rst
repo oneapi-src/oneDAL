@@ -37,8 +37,11 @@ the figure below, where:
    test
 -  Each external node (leaf) denotes the mentioned simple model
 
-.. image:: images/decision-tree-structure.png
+.. figure:: images/decision-tree-structure.png
   :width: 600
+  :alt:
+
+  Decision Tree Structure
 
 The test is a rule for partitioning of the feature space. The test
 depends on feature values. Each outcome of the test represents an

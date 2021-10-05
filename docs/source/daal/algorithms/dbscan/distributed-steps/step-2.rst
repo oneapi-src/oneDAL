@@ -22,7 +22,9 @@ In this step, the DBSCAN algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for DBSCAN (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -40,7 +42,9 @@ In this step, the DBSCAN algorithms calculates the partial results described bel
 Pass the ``Partial Result ID`` as a parameter to the methods that access the partial result of your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for DBSCAN (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 

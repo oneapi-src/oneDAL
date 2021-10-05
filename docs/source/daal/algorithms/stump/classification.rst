@@ -19,8 +19,8 @@ Classification Stump
 
 A Classification Decision Stump is a model that consists of a one-level decision tree
 where the root is connected to terminal nodes (leaves) [Friedman2017]_.
-The library only supports stumps with two leaves. 
-Two methods of split criterion are available: gini and information gain. 
+The library only supports stumps with two leaves.
+Two methods of split criterion are available: gini and information gain.
 See :ref:`dt_classification` for details.
 
 Batch Processing
@@ -35,9 +35,12 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the training stage, a classification decision stump has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Classification Stump (Batch Processing)
    :widths: 20 20 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -72,9 +75,12 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the prediction stage, a classification stump has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Classification Stump (Batch Processing)
    :widths: 20 20 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -91,8 +97,8 @@ At the prediction stage, a classification stump has the following parameters:
    * - ``resultsToEvaluate``
      - ``classifier::computeClassLabels``
      - The form of computed result:
-     
-       - ``classifier::computeClassLabels`` – the result contains the ``NumericTable`` 
+
+       - ``classifier::computeClassLabels`` – the result contains the ``NumericTable``
          of size :math:`n \times 1` with predicted labels
 
        - ``classifier::computeClassProbabilities`` – the result contains the ``NumericTable``
@@ -111,11 +117,11 @@ Examples
     - :cpp_example:`stump_cls_infogain_dense_batch.cpp <stump/stump_cls_infogain_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
-    
+
     - :java_example:`StumpClsGiniDenseBatch.java <stump/StumpClsGiniDenseBatch.java>`
     - :java_example:`StumpClsInfogainDenseBatch.java <stump/StumpClsInfogainDenseBatch.java>`
 

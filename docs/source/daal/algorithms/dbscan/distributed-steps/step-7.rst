@@ -22,7 +22,9 @@ In this step, the DBSCAN algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for DBSCAN (Distributed Processing, Step 7)
    :widths: 10 60
    :header-rows: 1
 
@@ -31,7 +33,7 @@ For more details, :ref:`algorithms`.
    * - ``partialFinishedFlags``
      - Pointer to the collection of :math:`1 \times 1` numeric table containing the flag indicating
        that the clustering process is finished collected from all nodes.
-       
+
        .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
 Algorithm Output
@@ -41,7 +43,9 @@ In this step, the DBSCAN algorithms calculates the results and partial results d
 Pass the ``Result ID`` as a parameter to the methods that access the result and partial result of your algorithm.
 For more details, :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for DBSCAN (Distributed Processing, Step 7)
    :widths: 10 60
    :header-rows: 1
 

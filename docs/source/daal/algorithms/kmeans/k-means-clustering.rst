@@ -237,7 +237,7 @@ For initialization, the following computation modes are available:
 
 .. toctree::
    :maxdepth: 1
-   
+
    initialization-batch.rst
    initialization-distributed.rst
 
@@ -248,7 +248,7 @@ The following computation modes are available:
 
 .. toctree::
    :maxdepth: 1
-   
+
    computation-batch.rst
    computation-distributed.rst
 
@@ -286,7 +286,7 @@ Examples
     - :cpp_example:`kmeans_csr_distr.cpp <kmeans/kmeans_csr_distr.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

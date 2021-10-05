@@ -22,7 +22,7 @@ When you build an application with |short_name|, you might encounter the followi
 .. code-block:: text
 
     error: use of undeclared identifier CL_DEVICE_IL_VERSION_KHR
-    
+
 This is caused by a bug in |dpcpp| 2021.1-beta06 release.
 
 How to fix

@@ -46,9 +46,11 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`data`
+    /// property value
     compute_input(const table& data);
 
-    /// The dataset for compute $X'$
+    /// An $n \\times p$ table with the training data, where each row stores one
+    /// feature vector.
     /// @remark default = table{}
     const table& get_data() const;
 

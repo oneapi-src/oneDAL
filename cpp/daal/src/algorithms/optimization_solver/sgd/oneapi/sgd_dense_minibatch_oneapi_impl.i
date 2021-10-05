@@ -26,9 +26,7 @@
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/externals/service_math.h"
 
-#include "src/externals/service_ittnotify.h"
-
-DAAL_ITTNOTIFY_DOMAIN(optimization_solver.sgd.batch.oneapi);
+#include "src/externals/service_profiler.h"
 
 namespace daal
 {
