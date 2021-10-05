@@ -19,9 +19,9 @@
 
 .. _alg_knn:
 
-===================================================
-k-Nearest Neighbors Classification and Search(k-NN)
-===================================================
+====================================================
+k-Nearest Neighbors Classification and Search (k-NN)
+====================================================
 
 .. include:: ../../../includes/nearest-neighbors/knn-introduction.rst
 
