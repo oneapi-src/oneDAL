@@ -10,7 +10,7 @@ idna==3.2
 imagesize==1.2.0
 importlib-metadata==4.8.1
 importlib-resources==5.2.2
-Jinja2==3.0.1
+Jinja2==3.0.2
 lxml==4.6.3
 MarkupSafe==2.0.1
 packaging==21.0
