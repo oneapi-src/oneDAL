@@ -75,10 +75,16 @@ class destroy_delete {
 public:
     explicit destroy_delete(std::int64_t count, Allocator& alloc) : count_(count), alloc_(alloc) {}
 
+    template <typename T_ = T, std::enable_if_t<!is_trivial<T_>::value, bool> = true>
     void operator()(T* data) {
         for (std::int64_t i = 0; i < count_; ++i) {
             data[i].~T();
         }
+        oneapi::dal::preview::detail::deallocate(alloc_, data, count_);
+    }
+
+    template <typename T_ = T, std::enable_if_t<is_trivial<T_>::value, bool> = true>
+    void operator()(T* data) {
         oneapi::dal::preview::detail::deallocate(alloc_, data, count_);
     }
 

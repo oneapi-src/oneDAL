@@ -155,6 +155,70 @@ inline std::int64_t reduce_to_common_bin(const std::int64_t& curr_bin_index,
     return vertex_count_in_shared_bin.load();
 }
 
+template <typename Mode, typename VertexType, typename EdgeValue>
+struct get_result_from_ralaxing_data {};
+
+template <typename VertexType, typename EdgeValue>
+struct get_result_from_ralaxing_data<mode::distances, VertexType, EdgeValue> {
+    template <typename DataToRelax>
+    inline traverse_result<task::one_to_all> operator()(
+        const detail::descriptor_base<task::one_to_all>& desc,
+        std::int64_t vertex_count,
+        const DataToRelax& data) {
+        using value_type = EdgeValue;
+        auto dist_arr = array<value_type>::empty(vertex_count);
+        value_type* dist_ = dist_arr.get_mutable_data();
+        const auto computed_dist = data.get_distances_ptr();
+
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+            dist_[i] = computed_dist[i];
+        });
+
+        return traverse_result<task::one_to_all>().set_distances(
+            dal::detail::homogen_table_builder{}.reset(dist_arr, vertex_count, 1).build());
+    }
+};
+
+template <typename VertexType, typename EdgeValue>
+struct get_result_from_ralaxing_data<mode::distances_predecessors, VertexType, EdgeValue> {
+    template <typename DataToRelax>
+    inline traverse_result<task::one_to_all> operator()(
+        const detail::descriptor_base<task::one_to_all>& desc,
+        std::int64_t vertex_count,
+        const DataToRelax& data) {
+        using value_type = EdgeValue;
+        using vertex_type = VertexType;
+        if (desc.get_optional_results() & optional_results::distances) {
+            auto dist_arr = array<value_type>::empty(vertex_count);
+            auto pred_arr = array<vertex_type>::empty(vertex_count);
+            value_type* dist_ = dist_arr.get_mutable_data();
+            vertex_type* pred_ = pred_arr.get_mutable_data();
+
+            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+                dist_[i] = data.get_distance(i);
+                pred_[i] = data.get_predecessor(i);
+            });
+
+            return traverse_result<task::one_to_all>()
+                .set_distances(
+                    dal::detail::homogen_table_builder{}.reset(dist_arr, vertex_count, 1).build())
+                .set_predecessors(
+                    dal::detail::homogen_table_builder{}.reset(pred_arr, vertex_count, 1).build());
+        }
+        else {
+            auto pred_arr = array<vertex_type>::empty(vertex_count);
+            vertex_type* pred_ = pred_arr.get_mutable_data();
+
+            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+                pred_[i] = data.get_predecessor(i);
+            });
+
+            return traverse_result<task::one_to_all>().set_predecessors(
+                dal::detail::homogen_table_builder{}.reset(pred_arr, vertex_count, 1).build());
+        }
+    }
+};
+
 template <typename Cpu, typename EdgeValue, typename Mode>
 struct delta_stepping {
     traverse_result<task::one_to_all> operator()(
@@ -180,7 +244,7 @@ struct delta_stepping {
                                                                     max_dist,
                                                                     alloc_ptr);
 
-        std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
+        const std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
 
         using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
         using v1a_t = inner_alloc<v1v_t>;
@@ -198,6 +262,12 @@ struct delta_stepping {
 
         vertex_type* local_processing_bins =
             allocate(vertex_allocator, max_elements_in_bin * thread_cnt);
+
+        dal::detail::shared<vertex_type> local_processing_bins_shared(
+            local_processing_bins,
+            destroy_delete<vertex_type, vertex_allocator_type>(max_elements_in_bin * thread_cnt,
+                                                               vertex_allocator));
+
         while (curr_bin_index != max_bin_count) {
             dal::detail::threader_for(
                 vertex_count_in_shared_bin,
@@ -236,55 +306,9 @@ struct delta_stepping {
             vertex_count_in_shared_bin =
                 reduce_to_common_bin(curr_bin_index, local_bins, shared_bin);
         }
-
-        deallocate(vertex_allocator, local_processing_bins, max_elements_in_bin * thread_cnt);
-
-        if ((desc.get_optional_results() & optional_results::distances) &&
-            (desc.get_optional_results() & optional_results::predecessors)) {
-            auto dist_arr = array<value_type>::empty(vertex_count);
-            auto pred_arr = array<vertex_type>::empty(vertex_count);
-            value_type* dist_ = dist_arr.get_mutable_data();
-            vertex_type* pred_ = pred_arr.get_mutable_data();
-
-            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-                dist_[i] = dist.get_distance(i);
-                pred_[i] = dist.get_predecessor(i);
-            });
-
-            return traverse_result<task::one_to_all>()
-                .set_distances(dal::detail::homogen_table_builder{}
-                                   .reset(dist_arr, t.get_vertex_count(), 1)
-                                   .build())
-                .set_predecessors(dal::detail::homogen_table_builder{}
-                                      .reset(pred_arr, t.get_vertex_count(), 1)
-                                      .build());
-        }
-        else if (desc.get_optional_results() & optional_results::predecessors) {
-            auto pred_arr = array<vertex_type>::empty(vertex_count);
-            vertex_type* pred_ = pred_arr.get_mutable_data();
-
-            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-                pred_[i] = dist.get_predecessor(i);
-            });
-
-            return traverse_result<task::one_to_all>().set_predecessors(
-                dal::detail::homogen_table_builder{}
-                    .reset(pred_arr, t.get_vertex_count(), 1)
-                    .build());
-        }
-        else { // if(desc.get_optional_results() & optional_results::distances)
-            auto dist_arr = array<value_type>::empty(vertex_count);
-            value_type* dist_ = dist_arr.get_mutable_data();
-
-            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-                dist_[i] = dist.get_distance(i);
-            });
-
-            return traverse_result<task::one_to_all>().set_distances(
-                dal::detail::homogen_table_builder{}
-                    .reset(dist_arr, t.get_vertex_count(), 1)
-                    .build());
-        }
+        return get_result_from_ralaxing_data<Mode, vertex_type, value_type>()(desc,
+                                                                              vertex_count,
+                                                                              dist);
     }
 };
 

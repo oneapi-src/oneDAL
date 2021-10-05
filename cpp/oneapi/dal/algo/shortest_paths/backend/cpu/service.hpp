@@ -53,17 +53,10 @@ bool operator!=(const dist_pred<T1, T2>& lhs, const dist_pred<T1, T2>& rhs) {
     return !(lhs == rhs);
 }
 
-template <typename T1, typename T2, typename T1_, typename T2_>
-inline constexpr bool is_class_params_the_same_v =
-    std::conjunction_v<std::is_same<T1, T2>, std::is_same<T1, T1_>, std::is_same<T2, T2_>>;
-
-template <typename T1, typename T2, typename T1_, typename T2_>
-inline constexpr bool is_not_class_params_the_same_v =
-    !std::is_same_v<T1, T2> && std::is_same_v<T1, T1_> && std::is_same_v<T2, T2_>;
-
 template <typename Cpu, typename Mode, typename Vertex, typename Value, typename AtomicT>
 class data_to_relax_base {
 public:
+    static_assert(is_same_v<Mode, mode::distances>);
     using relaxing_data_type = Value;
     using atomic_type = std::atomic<AtomicT>;
     using atomic_value_type = AtomicT;
@@ -71,7 +64,6 @@ public:
     using vertex_type = Vertex;
     using mode_type = Mode;
 
-    template <typename M = Mode, std::enable_if_t<is_same_v<M, mode::distances>, bool> = true>
     data_to_relax_base(std::int64_t vertex_count,
                        Vertex source,
                        relaxing_data_type max_dist,
@@ -79,58 +71,26 @@ public:
             : vertex_count(vertex_count),
               atomic_value_allocator(alloc_ptr) {
         relaxing_data = allocate(atomic_value_allocator, vertex_count);
-        relaxing_data = new (relaxing_data) atomic_type[vertex_count]();
         dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-            store_by_index(i, max_dist);
+            new (relaxing_data + i) atomic_type(max_dist);
         });
         store_by_index(source, 0);
-    }
-
-    template <typename EV,
-              typename M = Mode,
-              std::enable_if_t<is_same_v<M, mode::distances_predecessors>, bool> = true>
-    data_to_relax_base(std::int64_t vertex_count,
-                       Vertex source,
-                       EV max_dist,
-                       byte_alloc_iface* alloc_ptr)
-            : vertex_count(vertex_count),
-              atomic_value_allocator(alloc_ptr) {
-        relaxing_data = allocate(atomic_value_allocator, vertex_count);
-        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-            new (relaxing_data + i) relaxing_data_type(max_dist, -1);
-        });
-        store_by_index(source, relaxing_data_type(0, -1));
     }
 
     virtual ~data_to_relax_base() {
         deallocate(atomic_value_allocator, relaxing_data, vertex_count);
     }
 
-    template <
-        typename V = relaxing_data_type,
-        typename AV = atomic_value_type,
-        std::enable_if_t<is_class_params_the_same_v<V, AV, relaxing_data_type, atomic_value_type>,
-                         bool> = true>
     inline relaxing_data_type load_by_index(Vertex u) const {
         ONEDAL_ASSERT(static_cast<std::int64_t>(u) < vertex_count);
         return relaxing_data[u].load();
     }
 
-    template <
-        typename V = relaxing_data_type,
-        typename AV = atomic_value_type,
-        std::enable_if_t<is_class_params_the_same_v<V, AV, relaxing_data_type, atomic_value_type>,
-                         bool> = true>
     inline void store_by_index(Vertex u, relaxing_data_type value) {
         ONEDAL_ASSERT(static_cast<std::int64_t>(u) < vertex_count);
         relaxing_data[u].store(value);
     }
 
-    template <
-        typename V = relaxing_data_type,
-        typename AV = atomic_value_type,
-        std::enable_if_t<is_class_params_the_same_v<V, AV, relaxing_data_type, atomic_value_type>,
-                         bool> = true>
     inline bool compare_exchange_strong(Vertex u,
                                         relaxing_data_type& old_value,
                                         relaxing_data_type new_value) {
@@ -138,47 +98,99 @@ public:
         return relaxing_data[u].compare_exchange_strong(old_value, new_value);
     }
 
-    template <typename V = relaxing_data_type,
-              typename AV = atomic_value_type,
-              std::enable_if_t<
-                  is_not_class_params_the_same_v<V, AV, relaxing_data_type, atomic_value_type> &&
-                      std::is_same_v<relaxing_data_type, double> &&
-                      std::is_same_v<atomic_value_type, std::int64_t>,
-                  bool> = true>
-    inline double load_by_index(Vertex u) const {
-        ONEDAL_ASSERT(static_cast<std::int64_t>(u) < vertex_count);
-        std::int64_t a_int = relaxing_data[u].load();
-        std::int64_t* a_int_ptr = &a_int;
-        return *reinterpret_cast<double*>(a_int_ptr);
+    inline relaxing_data_type operator[](Vertex u) const {
+        return load_by_index(u);
     }
 
-    template <typename V = relaxing_data_type,
-              typename AV = atomic_value_type,
-              std::enable_if_t<
-                  is_not_class_params_the_same_v<V, AV, relaxing_data_type, atomic_value_type> &&
-                      std::is_same_v<relaxing_data_type, double> &&
-                      std::is_same_v<atomic_value_type, std::int64_t>,
-                  bool> = true>
-    inline void store_by_index(Vertex u, double value) {
+    inline auto get_distance(Vertex u) const {
+        return load_by_index(u);
+    }
+
+    inline auto get_distances_ptr() const {
+        return relaxing_data;
+    }
+
+private:
+    data_to_relax_base(const data_to_relax_base&) = delete;
+    data_to_relax_base(data_to_relax_base&&) = delete;
+    const std::int64_t vertex_count;
+    atomic_value_allocator_type atomic_value_allocator;
+    atomic_type* relaxing_data;
+};
+
+template <typename Cpu, typename Mode, typename Vertex, typename Value, typename AtomicT>
+class data_to_relax_int64_base {
+public:
+    static_assert(sizeof(Value) == sizeof(AtomicT));
+    using relaxing_data_type = Value;
+    using atomic_type = std::atomic<AtomicT>;
+    using atomic_value_type = AtomicT;
+    using atomic_value_allocator_type = inner_alloc<atomic_type>;
+    using vertex_type = Vertex;
+    using mode_type = Mode;
+
+    template <typename EV = relaxing_data_type,
+              typename M = Mode,
+              std::enable_if_t<is_same_v<M, mode::distances>, bool> = true>
+    data_to_relax_int64_base(std::int64_t vertex_count,
+                             Vertex source,
+                             relaxing_data_type max_dist,
+                             byte_alloc_iface* alloc_ptr)
+            : vertex_count(vertex_count),
+              atomic_value_allocator(alloc_ptr) {
+        relaxing_data = allocate(atomic_value_allocator, vertex_count);
+        double* value_ptr = &max_dist;
+        AtomicT value_int_representation = *reinterpret_cast<AtomicT*>(value_ptr);
+        dal::detail::threader_for(vertex_count, vertex_count, [&](AtomicT i) {
+            new (relaxing_data + i) atomic_type(value_int_representation);
+        });
+        store_by_index(source, 0);
+    }
+
+    template <typename EV,
+              typename M = Mode,
+              std::enable_if_t<is_same_v<M, mode::distances_predecessors>, bool> = true>
+    data_to_relax_int64_base(std::int64_t vertex_count,
+                             Vertex source,
+                             EV max_dist,
+                             byte_alloc_iface* alloc_ptr)
+            : vertex_count(vertex_count),
+              atomic_value_allocator(alloc_ptr) {
+        relaxing_data = allocate(atomic_value_allocator, vertex_count);
+        relaxing_data_type max_dp(max_dist, -1);
+        AtomicT max_dp_int_representation = *reinterpret_cast<AtomicT*>(&max_dp);
+        dal::detail::threader_for(vertex_count, vertex_count, [&](AtomicT i) {
+            new (relaxing_data + i) atomic_type(max_dp_int_representation);
+        });
+        store_by_index(source, relaxing_data_type(0, -1));
+    }
+
+    virtual ~data_to_relax_int64_base() {
+        deallocate(atomic_value_allocator, relaxing_data, vertex_count);
+    }
+
+    inline double load_by_index(Vertex u) const {
         ONEDAL_ASSERT(static_cast<std::int64_t>(u) < vertex_count);
-        double* value_ptr = &value;
-        std::int64_t value_int_representation = *reinterpret_cast<std::int64_t*>(value_ptr);
+        AtomicT a_int = relaxing_data[u].load();
+        AtomicT* a_int_ptr = &a_int;
+        return *reinterpret_cast<relaxing_data_type*>(a_int_ptr);
+    }
+
+    inline void store_by_index(Vertex u, relaxing_data_type value) {
+        ONEDAL_ASSERT(static_cast<std::int64_t>(u) < vertex_count);
+        relaxing_data_type* value_ptr = &value;
+        AtomicT value_int_representation = *reinterpret_cast<AtomicT*>(value_ptr);
         relaxing_data[u].store(value_int_representation);
     }
 
-    template <typename V = relaxing_data_type,
-              typename AV = atomic_value_type,
-              std::enable_if_t<
-                  is_not_class_params_the_same_v<V, AV, relaxing_data_type, atomic_value_type> &&
-                      std::is_same_v<relaxing_data_type, double> &&
-                      std::is_same_v<atomic_value_type, std::int64_t>,
-                  bool> = true>
-    inline bool compare_exchange_strong(Vertex u, double& old_value, double new_value) {
+    inline bool compare_exchange_strong(Vertex u,
+                                        relaxing_data_type& old_value,
+                                        relaxing_data_type new_value) {
         ONEDAL_ASSERT(static_cast<std::int64_t>(u) < vertex_count);
-        double* old_value_ptr = &old_value;
-        double* new_value_ptr = &new_value;
-        std::int64_t old_value_int_representation = *reinterpret_cast<std::int64_t*>(old_value_ptr);
-        std::int64_t new_value_int_representation = *reinterpret_cast<std::int64_t*>(new_value_ptr);
+        relaxing_data_type* old_value_ptr = &old_value;
+        relaxing_data_type* new_value_ptr = &new_value;
+        AtomicT old_value_int_representation = *reinterpret_cast<AtomicT*>(old_value_ptr);
+        AtomicT new_value_int_representation = *reinterpret_cast<AtomicT*>(new_value_ptr);
         return relaxing_data[u].compare_exchange_strong(old_value_int_representation,
                                                         new_value_int_representation);
     }
@@ -198,20 +210,20 @@ public:
         return load_by_index(u).dist;
     }
 
-    template <typename M = Mode, std::enable_if_t<is_same_v<M, mode::distances>, bool> = true>
-    inline auto get_predecessor(Vertex u) const {
-        return -1;
-    }
-
     template <typename M = Mode,
               std::enable_if_t<is_same_v<M, mode::distances_predecessors>, bool> = true>
     inline auto get_predecessor(Vertex u) const {
         return load_by_index(u).pred;
     }
 
+    template <typename M = Mode, std::enable_if_t<is_same_v<M, mode::distances>, bool> = true>
+    inline auto get_distances_ptr() const {
+        return reinterpret_cast<relaxing_data_type*>(relaxing_data);
+    }
+
 private:
-    data_to_relax_base(const data_to_relax_base&) = delete;
-    data_to_relax_base(data_to_relax_base&&) = delete;
+    data_to_relax_int64_base(const data_to_relax_int64_base&) = delete;
+    data_to_relax_int64_base(data_to_relax_int64_base&&) = delete;
     const std::int64_t vertex_count;
     atomic_value_allocator_type atomic_value_allocator;
     atomic_type* relaxing_data;
@@ -310,8 +322,9 @@ class data_to_relax : public data_to_relax_base<Cpu, Mode, Vertex, Value, Value>
 
 template <typename Cpu, typename Mode, typename Vertex>
 class data_to_relax<Cpu, Mode, Vertex, double>
-        : public data_to_relax_base<Cpu, Mode, Vertex, double, std::int64_t> {
-    using data_to_relax_base<Cpu, Mode, Vertex, double, std::int64_t>::data_to_relax_base;
+        : public data_to_relax_int64_base<Cpu, Mode, Vertex, double, std::int64_t> {
+    using data_to_relax_int64_base<Cpu, Mode, Vertex, double, std::int64_t>::
+        data_to_relax_int64_base;
     data_to_relax(const data_to_relax&) = delete;
     data_to_relax(data_to_relax&&) = delete;
 };
@@ -328,6 +341,22 @@ class data_to_relax<Cpu, mode::distances_predecessors, Vertex, dist_pred<Value, 
                              Vertex,
                              dist_pred<Value, Vertex>,
                              dist_pred<Value, Vertex>>::data_to_relax_base;
+    data_to_relax(const data_to_relax&) = delete;
+    data_to_relax(data_to_relax&&) = delete;
+};
+
+template <typename Cpu>
+class data_to_relax<Cpu, mode::distances_predecessors, std::int32_t, std::int32_t>
+        : public data_to_relax_int64_base<Cpu,
+                                          mode::distances_predecessors,
+                                          std::int32_t,
+                                          dist_pred<std::int32_t, std::int32_t>,
+                                          std::int64_t> {
+    using data_to_relax_int64_base<Cpu,
+                                   mode::distances_predecessors,
+                                   std::int32_t,
+                                   dist_pred<std::int32_t, std::int32_t>,
+                                   std::int64_t>::data_to_relax_int64_base;
     data_to_relax(const data_to_relax&) = delete;
     data_to_relax(data_to_relax&&) = delete;
 };
