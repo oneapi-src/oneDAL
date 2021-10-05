@@ -53,7 +53,7 @@ public:
         const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
         const auto result = dal::compute(q, kernel_desc, x_table, x_table);
         const auto kernel_values_nd =
-            pr::table2ndarray_1d<Float>(q, result.get_values(), sycl::usm::alloc::device);
+            pr::table2ndarray<Float>(q, result.get_values(), sycl::usm::alloc::device);
 
         INFO("allocate ndarray");
         auto y_host_nd = pr::ndarray<Float, 1>::wrap(y.data(), row_count);

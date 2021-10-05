@@ -104,7 +104,7 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
 
 template <typename Float>
 sycl::event solve_smo(sycl::queue& queue,
-                      const pr::ndview<Float, 1>& kernel_values,
+                      const pr::ndview<Float, 2>& kernel_values,
                       const pr::ndview<std::uint32_t, 1>& ws_indices,
                       const pr::ndarray<Float, 1>& labels,
                       const std::int64_t row_count,
