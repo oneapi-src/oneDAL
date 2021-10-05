@@ -119,12 +119,6 @@ const dataset_info df_ds_classification = { "workloads/classification/dataset/df
                                             2 /* class count */ };
 const dataset_info df_ds_white_wine = { "workloads/white_wine/dataset/white_wine" };
 
-const dataset_info df_ds_susy = { "workloads/susy/dataset/susy", 2 /* class count */ };
-
-const dataset_info df_ds_mnist = { "workloads/mnist/dataset/mnist", 10 /* class count */ };
-
-const dataset_info df_ds_higgs_1m = { "workloads/higgs_1m/dataset/higgs" };
-
 using df_cls_types = _TE_COMBINE_TYPES_3((float, double),
                                          (df::method::dense, df::method::hist),
                                          (df::task::classification));
