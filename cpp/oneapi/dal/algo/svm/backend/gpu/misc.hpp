@@ -113,6 +113,24 @@ auto copy_by_indices(const sycl::queue& q,
     });
 }
 
+inline sycl::event invert_values(sycl::queue& q,
+                                 const pr::ndview<Float, 1>& data,
+                                 pr::ndview<Float, 1>& res,
+                                 const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.get_dimension(0) == res.get_dimension(0));
+
+    const Float* data_ptr = data.get_data();
+    Float* res_ptr = res.get_mutable_data();
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = dal::backend::make_range_1d(data.get_count());
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            res_ptr[idx] = -data_ptr[idx];
+        });
+    });
+}
+
 template <typename Type>
 std::tuple<const std::int64_t, sycl::event> copy_last_to_first(
     const sycl::queue& q,
