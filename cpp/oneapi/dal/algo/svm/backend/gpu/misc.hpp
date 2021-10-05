@@ -80,15 +80,15 @@ sycl::event check_violating_edge(sycl::queue& queue,
     return check_event;
 }
 
-template <typename TypeND>
-auto copy_by_indices(const sycl::queue& q,
-                     const TypeND& x,
+template <typename Float>
+auto copy_by_indices(sycl::queue& q,
+                     const pr::ndview<Float, 2>& x,
                      const pr::ndview<std::uint32_t, 1>& x_indices,
-                     TypeND& res,
+                     pr::ndview<Float, 2>& res,
                      const std::int64_t row_count,
                      const std::int64_t column_count,
                      const dal::backend::event_vector& deps = {}) {
-    ONEDAL_ASSERT(x_indices.get_count()) == row_count;
+    ONEDAL_ASSERT(x_indices.get_count() == row_count);
     ONEDAL_ASSERT(res.get_count() == row_count * column_count);
     ONEDAL_ASSERT(res.has_mutable_data());
 
@@ -113,6 +113,7 @@ auto copy_by_indices(const sycl::queue& q,
     });
 }
 
+template <typename Float>
 inline sycl::event invert_values(sycl::queue& q,
                                  const pr::ndview<Float, 1>& data,
                                  pr::ndview<Float, 1>& res,
@@ -133,7 +134,7 @@ inline sycl::event invert_values(sycl::queue& q,
 
 template <typename Type>
 std::tuple<const std::int64_t, sycl::event> copy_last_to_first(
-    const sycl::queue& q,
+    sycl::queue& q,
     pr::ndview<Type, 1>& data,
     const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_mutable_data());

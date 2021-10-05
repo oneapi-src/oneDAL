@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/misc.hpp"
@@ -37,14 +38,17 @@ public:
     }
 
 protected:
-    sub_data_task_base(const sycl::queue& q, const std::int64_t row_count, const std::int64_t column_count) {
-        data_nd_ = pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, sycl::usm::alloc::device);
+    sub_data_task_base(const sycl::queue& q,
+                       const std::int64_t row_count,
+                       const std::int64_t column_count) {
+        data_nd_ =
+            pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, sycl::usm::alloc::device);
     }
 
     sub_data_task_base() {}
 
     table data_table_;
-    ndarray<Float, 2> data_nd_;
+    pr::ndarray<Float, 2> data_nd_;
 };
 
 template <typename Float>
@@ -79,14 +83,15 @@ enum svm_cache_type {
                          LRU algorithm is used to exclude values from cache */
 };
 
-template <typename Float>
+template <typename Float, typename KernelDescriptor>
 class svm_cache_iface {
 public:
     virtual ~svm_cache_iface() = default;
 
     virtual pr::ndarray<Float, 2> compute(const table x_table,
                                           const pr::ndarray<Float, 2>& x_nd,
-                                          const pr::ndview<std::uint32_t, 1>& ws_indices) = 0;
+                                          const pr::ndview<std::uint32_t, 1>& ws_indices,
+                                          KernelDescriptor&& desc) = 0;
 
 protected:
     svm_cache_iface(const sycl::queue& q,
@@ -102,32 +107,35 @@ protected:
     const std::int64_t line_size_;
 };
 
-template <svm_cache_type CacheType, typename Float, typename Kernel>
+template <svm_cache_type CacheType, typename Float, typename KernelDescriptor>
 class svm_cache {};
 
-template <typename Float, typename Kernel>
-class svm_cache<no_cache, Float, Kernel> {
+template <typename Float, typename KernelDescriptor>
+class svm_cache<no_cache, Float, KernelDescriptor> {
 public:
     svm_cache(const sycl::queue& q,
               const pr::ndarray<Float, 2>& data_nd,
               const double cache_size,
               const std::int64_t block_size,
               const std::int64_t line_size)
-            : svm_cache_iface<Float>(q, block_size, line_size) {
+            : svm_cache_iface<Float, KernelDescriptor>(q, block_size, line_size) {
         sub_data_task_ptr_ =
             std::make_shared<sub_data_task_dense<Float>>(q, block_size, data_nd.get_dimension(1));
     }
 
     pr::ndarray<Float, 2> compute(const table x_table,
                                   const pr::ndarray<Float, 2>& x_nd,
-                                  const pr::ndview<std::uint32_t, 1>& ws_indices) override {
+                                  const pr::ndview<std::uint32_t, 1>& ws_indices,
+                                  KernelDescriptor&& desc) override {
         const std::int64_t work_elements_count = ws_indices.get_count();
-        auto copy_event =
-            sub_data_task_ptr_->copy_data_by_indices(q_, ws_indices, work_elements_count, x_nd);
+        auto copy_event = sub_data_task_ptr_->copy_data_by_indices(this->q_,
+                                                                   ws_indices,
+                                                                   work_elements_count,
+                                                                   x_nd);
 
-        const auto result = dal::compute(q_, Kernel, sub_data_task_ptr_->get_table(), x_table);
+        const auto result = dal::compute(this->q_, desc, sub_data_task_ptr_->get_table(), x_table);
 
-        return pr::table2ndarray<Float>(q_, result, sycl::usm::alloc::device);
+        return pr::table2ndarray<Float>(this->q_, result, sycl::usm::alloc::device);
     }
 
 private:

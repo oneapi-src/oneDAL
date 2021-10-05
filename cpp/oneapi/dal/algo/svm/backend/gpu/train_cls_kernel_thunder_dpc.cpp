@@ -20,13 +20,21 @@
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/utils.hpp"
 
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+// #include "oneapi/dal/backend/interop/common_dpc.hpp"
+// #include "oneapi/dal/backend/interop/error_converter.hpp"
+// #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include <daal/src/algorithms/svm/oneapi/svm_train_thunder_kernel_oneapi.h>
+// #include <daal/src/algorithms/svm/oneapi/svm_train_thunder_kernel_oneapi.h>
+
+#include "oneapi/dal/algo/svm/backend/gpu/misc.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/svm_cache.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/train_results.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/working_set_selector.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/smo_solver.hpp"
+
+#include "oneapi/dal/backend/primitives/blas.hpp"
 
 namespace oneapi::dal::svm::backend {
 
@@ -35,6 +43,8 @@ using model_t = model<task::classification>;
 using input_t = train_input<task::classification>;
 using result_t = train_result<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
+
+namespace pr = dal::backend::primitives;
 
 template <typename Float>
 inline auto update_grad(sycl::queue& q,
@@ -76,32 +86,33 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     const auto responses = input.get_responses();
 
     const std::int64_t row_count = data.get_row_count();
-    const std::int64_t column_count = data.get_column_count();
+    // const std::int64_t column_count = data.get_column_count(); // unused
 
     const binary_response_t<Float> old_unique_responses = get_unique_responses<Float>(q, responses);
     const auto new_responses =
         convert_binary_responses(q, responses, { Float(-1.0), Float(1.0) }, old_unique_responses);
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
-    const auto responses_nd = pr::table2ndarray<Float>(q, new_responses, sycl::usm::alloc::device);
+    const auto responses_nd =
+        pr::table2ndarray_1d<Float>(q, new_responses, sycl::usm::alloc::device);
 
     const double C(desc.get_c());
     const double accuracy_threshold(desc.get_accuracy_threshold());
     const double tau(desc.get_tau());
-    const double cache_size(desc.get_cache_size());
-    const auto kernel_desc(desc.get_kernel());
+    // const double cache_size(desc.get_cache_size());  // unused
+    // const auto kernel_desc(detail::get_kernel_function_impl(desc));  // unused
     const std::int64_t max_iteration_count(desc.get_max_iteration_count());
 
     auto [alpha_nd, alpha_zeros_event] =
-        pr::ndarray<Float, 1>::zeros(queue_, row_count, sycl::usm::alloc::device);
+        pr::ndarray<Float, 1>::zeros(q, row_count, sycl::usm::alloc::device);
 
     auto grad_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
-    auto invert_responses_event = invert_values(q, responses_nd, grad_nd);
+    auto invert_responses_event = invert_values<Float>(q, responses_nd, grad_nd);
 
     const std::int64_t ws_count = propose_working_set_size(q, row_count);
     auto ws_indices_nd =
         pr::ndarray<std::uint32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
-    auto working_set = working_set_selector<Float>(q, y_nd, C, row_count);
+    auto working_set = working_set_selector<Float>(q, responses_nd, C, row_count);
 
     // The maximum numbers of iteration of the subtask is number of observation in WS x inner_iterations. It's enough to find minimum for subtask.
     constexpr std::int64_t inner_iterations = 1000;
@@ -117,12 +128,12 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
     std::int64_t same_local_diff_count = 0;
 
-    std::shared_ptr<svm_cache_iface<Float>> svm_cache_ptr =
-        std::make_shared<svm_cache<no_cache, Float, kernel_desc>>(q,
-                                                                  data_nd,
-                                                                  cache_size,
-                                                                  ws_count,
-                                                                  row_count);
+    // std::shared_ptr<svm_cache_iface<Float, kernel_desc>> svm_cache_ptr =
+    //     std::make_shared<svm_cache<no_cache, Float, kernel_desc>>(q,
+    //                                                               data_nd,
+    //                                                               cache_size,
+    //                                                               ws_count,
+    //                                                               row_count);
 
     sycl::event copy_event;
     std::int64_t ws_indices_copy_cound;
@@ -139,7 +150,11 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
                                                   ws_indices_nd,
                                                   { alpha_zeros_event, invert_responses_event });
 
-        const auto kernel_values_nd = svm_cache_ptr->compute(data, data_nd, ws_indices_nd);
+        select_ws_event.wait_and_throw();
+
+        // const auto kernel_values_nd = svm_cache_ptr->compute(data, data_nd, ws_indices_nd, kernel_desc);
+        const auto kernel_values_nd =
+            pr::ndarray<Float, 2>::empty(q, { 1, 1 }, sycl::usm::alloc::device);
 
         auto solve_smo_event = solve_smo<Float>(q,
                                                 kernel_values_nd,
@@ -155,36 +170,41 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
                                                 delta_alpha_nd,
                                                 grad_nd,
                                                 f_diff_nd,
-                                                inner_iter_count_nd,
-                                                { cache_kernel_values_event });
+                                                inner_iter_count_nd);
 
-        auto f_diff_host = f_diff_nd.to_host(queue, { solve_smo_event }).flatten();
-        diff = *f_diff_host;
+        auto f_diff_host = f_diff_nd.to_host(q, { solve_smo_event }).flatten();
+        diff = *f_diff_host.get_data(); // pay attention
 
-        auto update_grad_event =
-            update_grad(kernel_values_nd, delta_alpha_nd, grad_nd).wait_and_throw();
-        if (check_stop_condition(diff, prev_diff, accuracy_threshold, same_local_diff_count)) {
+        auto update_grad_event = update_grad(q, kernel_values_nd, delta_alpha_nd, grad_nd);
+        update_grad_event.wait_and_throw();
+        if (check_stop_condition<Float>(diff,
+                                        prev_diff,
+                                        accuracy_threshold,
+                                        same_local_diff_count)) {
             break;
         }
 
         prev_diff = diff;
     }
 
-    [bias, sv_coeffs, support_indices, support_vectors, compute_train_results_event] =
-        compute_train_results(q, data_nd, responses_nd, grad_nd, alpha_nd, C);
+    auto [bias, sv_coeffs, support_indices, support_vectors, compute_train_results_event] =
+        compute_train_results<Float>(q, data_nd, responses_nd, grad_nd, alpha_nd, C);
     compute_train_results_event.wait_and_throw();
     auto arr_biases = array<Float>::full(1, static_cast<Float>(bias));
     auto model =
         model_t()
-            .set_support_vectors(support_vectors)
-            .set_coeffs(sv_coeffs)
-            .set_biases(dal::detail::homogen_table_builder{}.reset(arr_biases, 1, 1).build())
+            .set_support_vectors(homogen_table::wrap(support_vectors.flatten(q),
+                                                     support_vectors.get_dimension(0),
+                                                     support_vectors.get_dimension(1)))
+            .set_coeffs(homogen_table::wrap(sv_coeffs.flatten(q), sv_coeffs.get_dimension(0), 1))
+            .set_biases(homogen_table::wrap(arr_biases, 1, 1))
             .set_first_class_response(old_unique_responses.first)
             .set_second_class_response(old_unique_responses.second);
 
     dal::detail::get_impl(model).bias = bias;
 
-    return result_t().set_model(model).set_support_indices(support_indices);
+    return result_t().set_model(model).set_support_indices(
+        homogen_table::wrap(support_indices.flatten(q), support_indices.get_dimension(0), 1));
 }
 
 template <typename Float>
