@@ -39,10 +39,12 @@ inline void singleton_partition(IndexType* labels, std::int64_t vertex_count) {
 
 template <typename IndexType>
 inline std::int64_t reindex_communities(IndexType* communities,
+                                        std::int64_t* community_size,
                                         std::int64_t vertex_count,
                                         IndexType* index) {
     for (std::int64_t v = 0; v < vertex_count; v++) {
         index[v] = -1;
+        community_size[v] = 0;
     }
     IndexType count = 0;
     for (std::int64_t v = 0; v < vertex_count; v++) {
@@ -50,6 +52,7 @@ inline std::int64_t reindex_communities(IndexType* communities,
             index[communities[v]] = count++;
         }
         communities[v] = index[communities[v]];
+        community_size[communities[v]]++;
     }
     return count;
 }
@@ -63,20 +66,23 @@ inline void compress_graph(dal::preview::detail::topology<IndexType>& t,
                            louvain_data<IndexType, EdgeValue>& ld) {
     ld.c_rows[0] = 0;
     for (std::int64_t c = 0; c < community_count; c++) {
-        ld.c2v[c].resize(0);
-        ld.c2v[c].reserve(ld.community_size[c]);
         ld.c_self_loops[c] = 0;
         ld.weights[c] = 0;
     }
+    ld.community_index[0] = ld.prefix_sum[0] = 0;
+    for (std::int64_t c = 1; c <= community_count; c++) {
+        ld.community_index[c] = ld.prefix_sum[c] = ld.prefix_sum[c - 1] + ld.community_size[c - 1];
+    }
     for (IndexType v = 0; v < t._vertex_count; v++) {
         IndexType c = partition[v];
-        ld.c2v[c].push_back(v);
+        std::int64_t index = ld.community_index[c]++;
+        ld.c2v[index] = v;
     }
 
     std::int64_t neighbor_count = 0;
     for (IndexType c = 0; c < community_count; c++) {
-        for (std::int64_t v_index = 0; v_index < ld.c2v[c].size(); v_index++) {
-            IndexType v = ld.c2v[c][v_index];
+        for (std::int64_t v_index = ld.prefix_sum[c]; v_index < ld.prefix_sum[c + 1]; v_index++) {
+            IndexType v = ld.c2v[v_index];
             ld.c_self_loops[c] += self_loops[v];
             for (std::int64_t index = t._rows_ptr[v]; index < t._rows_ptr[v + 1]; index++) {
                 IndexType v_to = t._cols_ptr[index];
@@ -322,16 +328,13 @@ struct louvain_kernel {
             using vertex_size_allocator_type = inner_alloc<vertex_size_type>;
             using vertex_pointer_allocator_type = inner_alloc<vertex_pointer_type>;
 
-            using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
             using v1s_t = vector_container<vertex_size_type, vertex_size_allocator_type>;
             using v1p_t = vector_container<vertex_pointer_type, vertex_pointer_allocator_type>;
-            using v1a_t = inner_alloc<v1v_t>;
 
             vertex_allocator_type vertex_allocator(alloc_ptr);
             vertex_size_allocator_type vertex_size_allocator(alloc_ptr);
             value_allocator_type value_allocator(alloc_ptr);
             vertex_pointer_allocator_type vp_a(alloc_ptr);
-            v1a_t v1a(alloc_ptr);
 
             const Float resolution = static_cast<Float>(desc.get_resolution());
             const Float accuracy_threshold = static_cast<Float>(desc.get_accuracy_threshold());
@@ -368,8 +371,7 @@ struct louvain_kernel {
                                                      edge_count,
                                                      value_allocator,
                                                      vertex_allocator,
-                                                     vertex_size_allocator,
-                                                     v1a);
+                                                     vertex_size_allocator);
 
             v1p_t communities(vp_a);
             v1s_t labels_size(vertex_size_allocator);
@@ -409,8 +411,10 @@ struct louvain_kernel {
                     deallocate(vertex_allocator, labels, current_topology._vertex_count);
                     break;
                 }
-                std::int64_t community_count =
-                    reindex_communities(labels, current_topology._vertex_count, ld.index);
+                std::int64_t community_count = reindex_communities(labels,
+                                                                   ld.community_size,
+                                                                   current_topology._vertex_count,
+                                                                   ld.index);
 
                 compress_graph(current_topology,
                                current_vals,
