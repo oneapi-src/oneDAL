@@ -16,10 +16,6 @@
 
 #include <daal/src/algorithms/linear_regression/linear_regression_train_kernel.h>
 
-#include "oneapi/dal/algo/linear_regression/backend/model_conversion.hpp"
-#include "oneapi/dal/algo/linear_regression/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
-
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -41,7 +37,7 @@ namespace interop = dal::backend::interop;
 constexpr auto daal_method = daal_lr::training::normEqDense;
 
 template <typename Float, daal::CpuType Cpu>
-using linear_regression_kernel_t =
+using daal_lr_kernel_t =
     daal_lr::training::internal::BatchKernel<Float, daal_method, Cpu>;
 
 
@@ -49,8 +45,8 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
-                                           const table& responses) {
-    using model_t = model<Task>;
+                                           const table& resp) {
+    using dal::detail::check_mul_overflow;
 
     const bool intercept = desc.get_compute_intercept();
 
@@ -60,11 +56,38 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const auto ext_feature_count = feature_count + intercept;
 
-    auto temp_xty = be::ndarray<Float>::zeros({ response_count, ext_feature_count});
-    auto temp_xtx = be::ndarray<Float>::zeros({ ext_feature_count, ext_feature_count });
+    const auto xtx_size = check_mul_overflow(feature_count, feature_count);
+    auto xtx_arr = array<Float>{ xtx_size };
 
+    const auto xty_size = check_mul_overflow(feature_count, response_count);
+    auto xty_arr = array<Float>{ xty_size };
 
-    return train_result<Task>();
+    const auto betas_size = check_mul_overflow(ext_feature_count, response_count);
+    auto betas_arr = array<Float>{ betas_size};
+
+    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, feature_count, feature_count);
+    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, feature_count, response_count);
+    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, ext_feature_count, betas_count);
+
+    auto x_daal_table = interop::convert_to_daal_table<Float>(data);
+    auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
+
+    const auto status = interop::call_daal_kernel<Float, daal_lr_kernel_t>(
+        ctx,
+        x_daal_table,
+        y_daal_table,
+        xtx_daal_table,
+        xty_daal_table,
+        betas_daal_table,
+        intercept);
+
+    interop::status_to_exception(status);
+
+    auto betas = homogen_table::wrap(betas_arr, ext_feature_count, response_count);
+
+    auto result = train_result<Task>().set_betas(betas);
+
+    return result;
 }
 
 template <typename Float, typename Task>
