@@ -113,7 +113,7 @@ public:
                     const Data* data,
                     std::int64_t row_count,
                     std::int64_t column_count,
-                    const sycl::vector_class<sycl::event>& dependencies = {}) {
+                    const std::vector<sycl::event>& dependencies = {}) {
         sycl::event::wait_and_throw(dependencies);
         get_impl().copy_data(detail::data_parallel_policy{ queue }, data, row_count, column_count);
         return *this;

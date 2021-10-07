@@ -81,7 +81,7 @@ public:
                               const Data* data_pointer,
                               std::int64_t row_count,
                               std::int64_t column_count,
-                              const sycl::vector_class<sycl::event>& dependencies = {},
+                              const std::vector<sycl::event>& dependencies = {},
                               data_layout layout = data_layout::row_major) {
         return homogen_table{ queue,
                               data_pointer,
@@ -179,7 +179,7 @@ public:
                   std::int64_t row_count,
                   std::int64_t column_count,
                   ConstDeleter&& data_deleter,
-                  const sycl::vector_class<sycl::event>& dependencies = {},
+                  const std::vector<sycl::event>& dependencies = {},
                   data_layout layout = data_layout::row_major) {
         init_impl(detail::data_parallel_policy{ queue },
                   row_count,
