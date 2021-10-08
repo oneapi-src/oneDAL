@@ -1911,30 +1911,23 @@ unsigned _internal_daal_GetStatus()
 
 //service_environment.h implementation
 
-#define __extract_bitmask_value(val, mask, shift) \
-        (((val) & (mask)) >> shift)
+    #define __extract_bitmask_value(val, mask, shift) (((val) & (mask)) >> shift)
 
-#define _CPUID_CACHE_INFO_GET_TYPE(__eax) \
-        __extract_bitmask_value(__eax /*4:0*/, 0x1fU, 0)
+    #define _CPUID_CACHE_INFO_GET_TYPE(__eax) __extract_bitmask_value(__eax /*4:0*/, 0x1fU, 0)
 
-#define _CPUID_CACHE_INFO_GET_LEVEL(__eax) \
-        __extract_bitmask_value(__eax /*7:5*/, 0xe0U, 5)
+    #define _CPUID_CACHE_INFO_GET_LEVEL(__eax) __extract_bitmask_value(__eax /*7:5*/, 0xe0U, 5)
 
-#define _CPUID_CACHE_INFO_GET_SETS(__ecx) ((__ecx) + 1)
+    #define _CPUID_CACHE_INFO_GET_SETS(__ecx) ((__ecx) + 1)
 
-#define _CPUID_CACHE_INFO_GET_LINE_SIZE(__ebx) \
-        (__extract_bitmask_value(__ebx /*11:0*/, 0x7ffU, 0) + 1)
+    #define _CPUID_CACHE_INFO_GET_LINE_SIZE(__ebx) (__extract_bitmask_value(__ebx /*11:0*/, 0x7ffU, 0) + 1)
 
-#define _CPUID_CACHE_INFO_GET_PARTITIONS(__ebx) \
-        (__extract_bitmask_value(__ebx /*21:11*/, 0x3ff800U, 11) + 1)
+    #define _CPUID_CACHE_INFO_GET_PARTITIONS(__ebx) (__extract_bitmask_value(__ebx /*21:11*/, 0x3ff800U, 11) + 1)
 
-#define _CPUID_CACHE_INFO_GET_WAYS(__ebx) \
-        (__extract_bitmask_value(__ebx /*31:22*/, 0xffc00000U, 22) + 1)
+    #define _CPUID_CACHE_INFO_GET_WAYS(__ebx) (__extract_bitmask_value(__ebx /*31:22*/, 0xffc00000U, 22) + 1)
 
-#define _CPUID_CACHE_INFO 0x4U
+    #define _CPUID_CACHE_INFO 0x4U
 
-static __inline void get_cache_info(int cache_num, int *type, int *level,
-        long long *sets, int *line_size, int *partitions, int *ways)
+static __inline void get_cache_info(int cache_num, int * type, int * level, long long * sets, int * line_size, int * partitions, int * ways)
 {
     static uint32_t abcd[4];
     run_cpuid(_CPUID_CACHE_INFO, cache_num, abcd);
@@ -1942,50 +1935,47 @@ static __inline void get_cache_info(int cache_num, int *type, int *level,
     const uint32_t ebx = abcd[1];
     const uint32_t ecx = abcd[2];
     const uint32_t edx = abcd[3];
-    *type = _CPUID_CACHE_INFO_GET_TYPE(eax);
-    *level = _CPUID_CACHE_INFO_GET_LEVEL(eax);
-    *sets = _CPUID_CACHE_INFO_GET_SETS(ecx);
-    *line_size = _CPUID_CACHE_INFO_GET_LINE_SIZE(ebx);
-    *partitions = _CPUID_CACHE_INFO_GET_PARTITIONS(ebx);
-    *ways = _CPUID_CACHE_INFO_GET_WAYS(ebx);
+    *type              = _CPUID_CACHE_INFO_GET_TYPE(eax);
+    *level             = _CPUID_CACHE_INFO_GET_LEVEL(eax);
+    *sets              = _CPUID_CACHE_INFO_GET_SETS(ecx);
+    *line_size         = _CPUID_CACHE_INFO_GET_LINE_SIZE(ebx);
+    *partitions        = _CPUID_CACHE_INFO_GET_PARTITIONS(ebx);
+    *ways              = _CPUID_CACHE_INFO_GET_WAYS(ebx);
 }
 
-#define _CPUID_CACHE_INFO_TYPE_NULL 0
-#define _CPUID_CACHE_INFO_TYPE_DATA 1
-#define _CPUID_CACHE_INFO_TYPE_INST 2
-#define _CPUID_CACHE_INFO_TYPE_UNIF 3
+    #define _CPUID_CACHE_INFO_TYPE_NULL 0
+    #define _CPUID_CACHE_INFO_TYPE_DATA 1
+    #define _CPUID_CACHE_INFO_TYPE_INST 2
+    #define _CPUID_CACHE_INFO_TYPE_UNIF 3
 
-static __inline void detect_data_caches(int cache_sizes_len,
-        volatile long long *cache_sizes)
+static __inline void detect_data_caches(int cache_sizes_len, volatile long long * cache_sizes)
 {
     int cache_num = 0, cache_sizes_idx = 0;
-    while (cache_sizes_idx <= cache_sizes_len) {
+    while (cache_sizes_idx <= cache_sizes_len)
+    {
         int type, level, line_size, partitions, ways;
         long long sets, size;
-        get_cache_info(cache_num++,
-                &type, &level, &sets, &line_size, &partitions, &ways);
+        get_cache_info(cache_num++, &type, &level, &sets, &line_size, &partitions, &ways);
 
         if (type == _CPUID_CACHE_INFO_TYPE_NULL) break;
         if (type == _CPUID_CACHE_INFO_TYPE_INST) continue;
 
-        size = ways * partitions * line_size * sets;
+        size                           = ways * partitions * line_size * sets;
         cache_sizes[cache_sizes_idx++] = size;
     }
 }
 
-#define MAX_CACHE_LEVELS 4
-volatile static bool cache_sizes_read = false;
-volatile static long long cache_sizes[MAX_CACHE_LEVELS] = {0};
+    #define MAX_CACHE_LEVELS 4
+volatile static bool cache_sizes_read                   = false;
+volatile static long long cache_sizes[MAX_CACHE_LEVELS] = { 0 };
 
 static __inline void update_cache_sizes()
 {
     int cbwr_branch;
 
-    if (cache_sizes_read)
-        return;
+    if (cache_sizes_read) return;
 
-    if (!cache_sizes_read)
-        detect_data_caches(MAX_CACHE_LEVELS, cache_sizes);
+    if (!cache_sizes_read) detect_data_caches(MAX_CACHE_LEVELS, cache_sizes);
     cache_sizes_read = true;
 }
 
