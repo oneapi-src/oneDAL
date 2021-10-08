@@ -197,7 +197,7 @@ kernel_function_impl* kernel_function<linear_kernel_t<F, M>>::get_impl() const {
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-const table& kernel_function<linear_kernel_t<F, M>>::compute_kernel_function(
+const table kernel_function<linear_kernel_t<F, M>>::compute_kernel_function(
     const dal::backend::context_gpu& ctx,
     const table& x,
     const table& y) {
@@ -222,7 +222,7 @@ kernel_function_impl* kernel_function<polynomial_kernel_t<F, M>>::get_impl() con
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-const table& kernel_function<polynomial_kernel_t<F, M>>::compute_kernel_function(
+const table kernel_function<polynomial_kernel_t<F, M>>::compute_kernel_function(
     const dal::backend::context_gpu& ctx,
     const table& x,
     const table& y) {
@@ -245,7 +245,7 @@ kernel_function_impl* kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-const table& kernel_function<rbf_kernel_t<F, M>>::compute_kernel_function(
+const table kernel_function<rbf_kernel_t<F, M>>::compute_kernel_function(
     const dal::backend::context_gpu& ctx,
     const table& x,
     const table& y) {
@@ -269,7 +269,7 @@ kernel_function_impl* kernel_function<sigmoid_kernel_t<F, M>>::get_impl() const 
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-const table& kernel_function<sigmoid_kernel_t<F, M>>::compute_kernel_function(
+const table kernel_function<sigmoid_kernel_t<F, M>>::compute_kernel_function(
     const dal::backend::context_gpu& ctx,
     const table& x,
     const table& y) {

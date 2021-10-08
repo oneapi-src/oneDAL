@@ -187,14 +187,14 @@ auto compute_support_indices(sycl::queue& q,
                              pr::ndview<std::uint8_t, 1>& indicator,
                              const std::int64_t sv_count,
                              const dal::backend::event_vector& deps = {}) {
+    auto row_count = indicator.get_dimension(0);
     auto support_indices =
         pr::ndarray<std::uint32_t, 1>::empty(q, { sv_count }, sycl::usm::alloc::device);
     auto tmp_index =
-        pr::ndarray<std::uint32_t, 1>::empty(q, { sv_count }, sycl::usm::alloc::device);
+        pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
 
     sycl::event copy_event;
     if (sv_count != 0) {
-        auto row_count = indicator.get_dimension(0);
         auto tmp_range =
             pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
         auto arange_event = tmp_range.arange(q);

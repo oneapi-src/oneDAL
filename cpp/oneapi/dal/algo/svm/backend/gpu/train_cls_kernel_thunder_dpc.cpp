@@ -139,6 +139,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
     std::int64_t iter = 0;
     for (; iter < max_iteration_count; iter++) {
+        std::cout << "ITER COUNT " << iter << std::endl;
         if (iter != 0) {
             std::tie(ws_indices_copy_cound, copy_event) = copy_last_to_first(q, ws_indices_nd);
             // cache_nd copyLastToFirst() why does it needed?
