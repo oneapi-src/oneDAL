@@ -52,8 +52,8 @@ inline auto update_grad(sycl::queue& q,
                         const pr::ndview<Float, 1>& delta_alpha_nd,
                         pr::ndview<Float, 1>& grad_nd) {
     auto reshape_delta =
-        delta_alpha_nd.reshape(pr::ndshape<2>{ kernel_values_nd.get_dimension(0), 1 });
-    auto reshape_grad = grad_nd.reshape(pr::ndshape<2>{ kernel_values_nd.get_dimension(1), 1 });
+        delta_alpha_nd.reshape(pr::ndshape<2>{ delta_alpha_nd.get_dimension(0), 1 });
+    auto reshape_grad = grad_nd.reshape(pr::ndshape<2>{ grad_nd.get_dimension(0), 1 });
     auto gemm_event =
         pr::gemm(q, kernel_values_nd.t(), reshape_delta, reshape_grad, Float(1), Float(1));
     return gemm_event;
@@ -99,8 +99,11 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     const double C(desc.get_c());
     const double accuracy_threshold(desc.get_accuracy_threshold());
     const double tau(desc.get_tau());
-    // const double cache_size(desc.get_cache_size());  // unused
-    // const auto kernel_desc(detail::get_kernel_function_impl(desc));  // unused
+    const double cache_size(desc.get_cache_size());
+    const auto kernel_ptr = detail::get_kernel_ptr(desc);
+    if (!kernel_ptr) {
+        throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
+    }
     const std::int64_t max_iteration_count(desc.get_max_iteration_count());
 
     auto [alpha_nd, alpha_zeros_event] =
@@ -128,12 +131,8 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
     std::int64_t same_local_diff_count = 0;
 
-    // std::shared_ptr<svm_cache_iface<Float, kernel_desc>> svm_cache_ptr =
-    //     std::make_shared<svm_cache<no_cache, Float, kernel_desc>>(q,
-    //                                                               data_nd,
-    //                                                               cache_size,
-    //                                                               ws_count,
-    //                                                               row_count);
+    std::shared_ptr<svm_cache_iface<Float>> svm_cache_ptr =
+        std::make_shared<svm_cache<no_cache, Float>>(q, data_nd, cache_size, ws_count, row_count);
 
     sycl::event copy_event;
     std::int64_t ws_indices_copy_cound;
@@ -152,9 +151,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
         select_ws_event.wait_and_throw();
 
-        // const auto kernel_values_nd = svm_cache_ptr->compute(data, data_nd, ws_indices_nd, kernel_desc);
-        const auto kernel_values_nd =
-            pr::ndarray<Float, 2>::empty(q, { 1, 1 }, sycl::usm::alloc::device);
+        const auto kernel_values_nd = svm_cache_ptr->compute(ctx, kernel_ptr, data, data_nd, ws_indices_nd);
 
         auto solve_smo_event = solve_smo<Float>(q,
                                                 kernel_values_nd,

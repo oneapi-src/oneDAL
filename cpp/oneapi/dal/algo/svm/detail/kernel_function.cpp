@@ -185,48 +185,100 @@ private:
 };
 
 template <typename F, typename M>
-kernel_function<linear_kernel_t<F, M>>::kernel_function(const linear_kernel_t<F, M> &kernel)
+kernel_function<linear_kernel_t<F, M>>::kernel_function(const linear_kernel_t<F, M>& kernel)
         : kernel_(kernel),
           impl_(new daal_interop_linear_kernel_impl<F, M>{ kernel.get_scale(),
                                                            kernel.get_shift() }) {}
 
 template <typename F, typename M>
-kernel_function_impl *kernel_function<linear_kernel_t<F, M>>::get_impl() const {
+kernel_function_impl* kernel_function<linear_kernel_t<F, M>>::get_impl() const {
     return impl_.get();
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-kernel_function<polynomial_kernel_t<F, M>>::kernel_function(const polynomial_kernel_t<F, M> &kernel)
+const table& kernel_function<linear_kernel_t<F, M>>::compute_kernel_function(
+    const dal::backend::context_gpu& ctx,
+    const table& x,
+    const table& y) {
+    return kernel_compute_ops_(dal::detail::data_parallel_policy(ctx.get_queue()),
+                               kernel_,
+                               linear_kernel::compute_input(x, y))
+        .get_values();
+}
+#endif
+
+template <typename F, typename M>
+kernel_function<polynomial_kernel_t<F, M>>::kernel_function(const polynomial_kernel_t<F, M>& kernel)
         : kernel_(kernel),
           impl_(new daal_interop_polynomial_kernel_impl<F, M>{ kernel.get_scale(),
                                                                kernel.get_shift(),
                                                                kernel.get_degree() }) {}
 
 template <typename F, typename M>
-kernel_function_impl *kernel_function<polynomial_kernel_t<F, M>>::get_impl() const {
+kernel_function_impl* kernel_function<polynomial_kernel_t<F, M>>::get_impl() const {
     return impl_.get();
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-kernel_function<rbf_kernel_t<F, M>>::kernel_function(const rbf_kernel_t<F, M> &kernel)
+const table& kernel_function<polynomial_kernel_t<F, M>>::compute_kernel_function(
+    const dal::backend::context_gpu& ctx,
+    const table& x,
+    const table& y) {
+    return kernel_compute_ops_(dal::detail::data_parallel_policy(ctx.get_queue()),
+                               kernel_,
+                               polynomial_kernel::compute_input(x, y))
+        .get_values();
+}
+#endif
+
+template <typename F, typename M>
+kernel_function<rbf_kernel_t<F, M>>::kernel_function(const rbf_kernel_t<F, M>& kernel)
         : kernel_(kernel),
           impl_(new daal_interop_rbf_kernel_impl<F, M>{ kernel.get_sigma() }) {}
 
 template <typename F, typename M>
-kernel_function_impl *kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
+kernel_function_impl* kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
     return impl_.get();
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-kernel_function<sigmoid_kernel_t<F, M>>::kernel_function(const sigmoid_kernel_t<F, M> &kernel)
+const table& kernel_function<rbf_kernel_t<F, M>>::compute_kernel_function(
+    const dal::backend::context_gpu& ctx,
+    const table& x,
+    const table& y) {
+    return kernel_compute_ops_(dal::detail::data_parallel_policy(ctx.get_queue()),
+                               kernel_,
+                               rbf_kernel::compute_input(x, y))
+        .get_values();
+}
+#endif
+
+template <typename F, typename M>
+kernel_function<sigmoid_kernel_t<F, M>>::kernel_function(const sigmoid_kernel_t<F, M>& kernel)
         : kernel_(kernel),
           impl_(new daal_interop_sigmoid_kernel_impl<F, M>{ kernel.get_scale(),
                                                             kernel.get_shift() }) {}
 
 template <typename F, typename M>
-kernel_function_impl *kernel_function<sigmoid_kernel_t<F, M>>::get_impl() const {
+kernel_function_impl* kernel_function<sigmoid_kernel_t<F, M>>::get_impl() const {
     return impl_.get();
 }
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename F, typename M>
+const table& kernel_function<sigmoid_kernel_t<F, M>>::compute_kernel_function(
+    const dal::backend::context_gpu& ctx,
+    const table& x,
+    const table& y) {
+    return kernel_compute_ops_(dal::detail::data_parallel_policy(ctx.get_queue()),
+                               kernel_,
+                               sigmoid_kernel::compute_input(x, y))
+        .get_values();
+}
+#endif
 
 #define INSTANTIATE_LINEAR(F, M) \
     template class ONEDAL_EXPORT kernel_function<linear_kernel_t<F, M>>;
