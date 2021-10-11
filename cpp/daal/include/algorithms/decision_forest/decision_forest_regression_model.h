@@ -62,7 +62,7 @@ namespace interface1
  * \tparam modelFPType  Data type to store decision forest model data, double or float
  *
  * \par References
- *      - \ref regression::training::interface1::Batch "regression::training::Batch" class
+ *      - \ref regression::training::interface2::Batch "regression::training::Batch" class
  *      - \ref regression::prediction::interface1::Batch "regression::prediction::Batch" class
  */
 class DAAL_EXPORT Model : public algorithms::regression::Model

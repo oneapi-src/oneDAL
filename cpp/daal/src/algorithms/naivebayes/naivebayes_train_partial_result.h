@@ -62,15 +62,9 @@ DAAL_EXPORT Status PartialResult::allocate(const daal::algorithms::Input * input
     size_t nFeatures                                  = algInput->getNumberOfFeatures();
     Status st;
     PartialModelPtr partialModelPtr;
-    {
-        const multinomial_naive_bayes::interface1::Parameter * algPar =
-            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if (algPar) partialModelPtr = PartialModel::create<algorithmFPType>(nFeatures, *algPar, &st);
-    }
-    {
-        const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if (algPar) partialModelPtr = PartialModel::create<algorithmFPType>(nFeatures, *algPar, &st);
-    }
+
+    const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+    if (algPar) partialModelPtr = PartialModel::create<algorithmFPType>(nFeatures, *algPar, &st);
     DAAL_CHECK(partialModelPtr, ErrorNullPartialModel);
     DAAL_CHECK_STATUS_VAR(st);
     set(classifier::training::partialModel, partialModelPtr);

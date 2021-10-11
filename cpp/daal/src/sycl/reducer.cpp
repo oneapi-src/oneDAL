@@ -17,7 +17,7 @@
 
 #include "src/sycl/reducer.h"
 #include "services/internal/execution_context.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/sycl/cl_kernels/op_reducer.cl"
 #include "services/daal_defines.h"
 
@@ -31,8 +31,6 @@ namespace sycl
 {
 namespace math
 {
-DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.math.Reducer);
-
 services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, const BinaryOp op, const TypeId & vectorTypeId)
 {
     services::String fptype_name = getKeyFPType(vectorTypeId);

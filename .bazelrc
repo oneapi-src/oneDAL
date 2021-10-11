@@ -13,11 +13,15 @@ build --flag_alias=test_disable_fp64=@config//:test_disable_fp64
 build --flag_alias=release_dpc=@config//:release_dpc
 build --flag_alias=device=@config//:device
 build --flag_alias=cpu=@config//:cpu
+build --flag_alias=enable_assert=@config//:enable_assert
 
 # Always pass this env variable to test rules, because SYCL
 # OpenCL backend uses it to determine available devices
 test --test_env=OCL_ICD_FILENAMES \
      --test_env=SYCL_DEVICE_FILTER
+
+# This variable is needed for MPI
+test --test_env=FI_PROVIDER_PATH
 
 # This variable is used to determine location of datasets for testing
 test --test_env=DAAL_DATASETS

@@ -16,9 +16,12 @@
 
 #pragma once
 
+#include "oneapi/dal/algo/knn/detail/distance.hpp"
+#include "oneapi/dal/util/result_option_id.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/algo/knn/detail/distance.hpp"
+#include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::knn {
 
@@ -40,11 +43,21 @@ namespace v1 {
 /// :capterm:`classification problem <classification>`.
 struct classification {};
 
+/// Tag-type that parameterizes entities used for solving
+/// the :capterm:`regression problem <regression>`.
+struct regression {};
+
+/// Tag-type that parameterizes entities used for solving
+/// the :capterm:`search problem <search>`.
+struct search {};
+
 /// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
 using v1::classification;
+using v1::regression;
+using v1::search;
 using v1::by_default;
 
 } // namespace task
@@ -69,6 +82,39 @@ using v1::by_default;
 
 } // namespace method
 
+/// Represents result option flag
+/// Behaves like a regular :expr`enum`.
+class result_option_id : public result_option_id_base {
+public:
+    constexpr result_option_id() = default;
+    constexpr explicit result_option_id(const result_option_id_base& base)
+            : result_option_id_base{ base } {}
+};
+
+namespace detail {
+
+ONEDAL_EXPORT result_option_id get_indices_id();
+ONEDAL_EXPORT result_option_id get_distances_id();
+ONEDAL_EXPORT result_option_id get_responses_id();
+
+} // namespace detail
+
+/// Result options are used to define
+/// what should algorithm return
+namespace result_options {
+
+/// Return the indices of the nearest neighbors
+const inline result_option_id indices = detail::get_indices_id();
+
+/// Return the distances to the nearest neighbors
+const inline result_option_id distances = detail::get_distances_id();
+
+/// Return the :expr<classification> results
+/// **Note:** This result is not available for the :expr<search> task.
+const inline result_option_id responses = detail::get_responses_id();
+
+} // namespace result_options
+
 namespace detail {
 namespace v1 {
 struct descriptor_tag {};
@@ -86,17 +132,41 @@ constexpr bool is_valid_method_v =
     dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
+constexpr bool is_valid_task_v =
+    dal::detail::is_one_of_v<Task, task::classification, task::regression, task::search>;
 
 template <typename Distance>
 constexpr bool is_valid_distance_v =
     dal::detail::is_tag_one_of_v<Distance,
                                  minkowski_distance::detail::descriptor_tag,
-                                 chebyshev_distance::detail::descriptor_tag>;
+                                 chebyshev_distance::detail::descriptor_tag,
+                                 cosine_distance::detail::descriptor_tag>;
+
+template <typename T>
+constexpr bool is_not_search_v = !std::is_same_v<T, task::search>;
+
+template <typename T>
+constexpr bool is_not_classification_v = !std::is_same_v<T, task::classification>;
+
+template <typename T>
+using enable_if_search_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::search>>;
+
+template <typename T>
+using enable_if_regression_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::regression>>;
+
+template <typename T>
+using enable_if_classification_t =
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::classification>>;
 
 template <typename T>
 using enable_if_brute_force_t =
     std::enable_if_t<std::is_same_v<std::decay_t<T>, method::brute_force>>;
+
+template <typename T>
+using enable_if_not_search_t = std::enable_if_t<is_not_search_v<T>>;
+
+template <typename T>
+using enable_if_not_classification_t = std::enable_if_t<is_not_classification_v<T>>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -115,6 +185,7 @@ public:
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
     voting_mode get_voting_mode() const;
+    result_option_id get_result_options() const;
 
 protected:
     explicit descriptor_base(const detail::distance_ptr& distance);
@@ -124,6 +195,7 @@ protected:
     void set_voting_mode_impl(voting_mode value);
     void set_distance_impl(const detail::distance_ptr& distance);
     const detail::distance_ptr& get_distance_impl() const;
+    void set_result_options_impl(const result_option_id& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -140,6 +212,12 @@ using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
 using v1::is_valid_distance_v;
+using v1::is_not_search_v;
+using v1::enable_if_search_t;
+using v1::enable_if_regression_t;
+using v1::enable_if_classification_t;
+using v1::enable_if_not_search_t;
+using v1::enable_if_not_classification_t;
 using v1::enable_if_brute_force_t;
 
 } // namespace detail
@@ -152,7 +230,8 @@ namespace v1 {
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
 ///                     be :expr:`method::brute_force` or :expr:`method::kd_tree`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
-///                     be :expr:`task::classification`.
+///                     be :expr:`task::classification`, :expr:`task::regression`,
+///                     or :expr:`task::search`.
 /// @tparam Distance    The descriptor of the distance used for computations. Can be
 ///                     :expr:`minkowski_distance::descriptor` or
 ///                     :expr:`chebyshev_distance::descriptor`
@@ -193,6 +272,23 @@ public:
                         const distance_t& distance)
             : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
         set_class_count(class_count);
+        set_neighbor_count(neighbor_count);
+    }
+
+    /// Creates a new instance of the class with the given :literal:`neighbor_count`
+    /// property value.
+    /// Used with :expr:`task::search` only.
+    template <typename T = Task, typename = detail::enable_if_not_classification_t<T>>
+    explicit descriptor(std::int64_t neighbor_count) {
+        set_neighbor_count(neighbor_count);
+    }
+
+    /// Creates a new instance of the class with the given :literal:`neighbor_count`
+    /// and :literal:`distance` property values.
+    /// Used with :expr:`task::search` only.
+    template <typename T = Task, typename = detail::enable_if_not_classification_t<T>>
+    explicit descriptor(std::int64_t neighbor_count, const distance_t& distance)
+            : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
         set_neighbor_count(neighbor_count);
     }
 
@@ -241,6 +337,16 @@ public:
         base_t::set_distance_impl(std::make_shared<detail::distance<distance_t>>(dist));
         return *this;
     }
+
+    /// Choose which results should be computed and returned.
+    result_option_id get_result_options() const {
+        return base_t::get_result_options();
+    }
+
+    auto& set_result_options(const result_option_id& value) {
+        base_t::set_result_options_impl(value);
+        return *this;
+    }
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
@@ -249,12 +355,16 @@ template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
+    friend dal::detail::serialization_accessor;
 
 public:
     /// Creates a new instance of the class with the default property values.
     model();
 
 private:
+    void serialize(dal::detail::output_archive& ar) const;
+    void deserialize(dal::detail::input_archive& ar);
+
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };

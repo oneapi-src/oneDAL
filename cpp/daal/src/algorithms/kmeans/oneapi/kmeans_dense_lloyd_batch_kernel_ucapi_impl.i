@@ -32,7 +32,7 @@
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_kernel_base_ucapi_impl.i"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 
 using namespace daal::services;
 using namespace daal::services::internal::sycl;

@@ -21,6 +21,9 @@ load("@onedal//dev/bazel:cc.bzl",
     "cc_test",
     "ModuleInfo",
 )
+load("@onedal//dev/bazel/deps:mpi.bzl",
+    "mpi_test",
+)
 load("@onedal//dev/bazel:release.bzl",
     "headers_filter",
 )
@@ -151,7 +154,8 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
 def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
              extra_deps=[], host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[], compile_as=[ "c++", "dpc++" ],
-             framework="gtest", data=[], tags=[], private=False, args=[], **kwargs):
+             framework="gtest", data=[], tags=[], private=False,
+             mpi=False, mpi_ranks=0, args=[], **kwargs):
     # TODO: Check `compile_as` parameter
     # TODO: Refactor this rule once decision on the tests structure is made
     if not framework in ["gtest", "catch2", "none"]:
@@ -178,7 +182,9 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         ] if is_gtest else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:common",
             "@onedal//cpp/oneapi/dal/test/engine:catch2_main",
-        ] if is_catch2 else []),
+        ] if is_catch2 else []) + ([
+            "@onedal//cpp/oneapi/dal/test/engine:mpi",
+        ] if mpi else []),
         extra_deps = _test_deps_on_daal() + extra_deps,
         testonly = True,
         **kwargs,
@@ -190,27 +196,36 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         _test_device_args() +
         args
     )
+    # Tests need to be marked as manual to prevent inclusion of all tests to
+    # `empty_test` suites, more detail:
+    # https://docs.bazel.build/versions/4.1.0/be/general.html#test_suite_args
+    common_tags = [ "manual" ]
+
     tests_for_test_suite = []
     if "c++" in compile_as:
-        cc_test(
+        _dal_cc_test(
             name = name + "_host",
+            mpi = mpi,
+            mpi_ranks = mpi_ranks,
             deps = [ ":" + module_name ],
             data = data,
-            tags = tags + ["host", iface_access_tag],
+            tags = common_tags + tags + ["host", iface_access_tag],
             args = test_args,
         )
         tests_for_test_suite.append(name + "_host")
     if "dpc++" in compile_as:
-        cc_test(
+        _dal_cc_test(
             name = name + "_dpc",
             features = [ "dpc++" ],
+            mpi = mpi,
+            mpi_ranks = mpi_ranks,
             deps = [
                 ":" + module_name + "_dpc",
                 # TODO: Remove once all GPU algorithms are migrated to DPC++
                 "@opencl//:opencl_binary",
             ],
             data = data,
-            tags = tags + ["dpc", iface_access_tag],
+            tags = common_tags + tags + ["dpc", iface_access_tag],
             args = test_args,
         )
         tests_for_test_suite.append(name + "_dpc")
@@ -247,10 +262,10 @@ def dal_test_suite(name, srcs=[], tests=[],
         tests = tests + targets,
     )
 
-def dal_collect_test_suites(name, root, modules, tests=[], **kwargs):
+def dal_collect_test_suites(name, root, modules, target="tests", tests=[], **kwargs):
     test_deps = []
     for module_name in modules:
-        test_label = "{0}/{1}:tests".format(root, module_name)
+        test_label = "{0}/{1}:{2}".format(root, module_name, target)
         test_deps.append(test_label)
     dal_test_suite(
         name = name,
@@ -479,10 +494,37 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
                 "ONEDAL_DISABLE_FP64_TESTS=1",
             ],
             "//conditions:default": [],
+        }) + select({
+            "@config//:assert_enabled": [
+                "ONEDAL_ENABLE_ASSERT=1",
+            ],
+            "//conditions:default": [],
         }),
         deps = _expand_select(deps),
         **kwargs,
     )
+
+def _dal_cc_test(name, mpi=False, mpi_ranks=0, **kwargs):
+    if mpi:
+        if mpi_ranks <= 0:
+            fail("Test is marked as MPI, you must provide `mpi_ranks` " +
+                 "attribute with the valid number of MPI ranks ")
+        cc_test(
+            name = "_mpi_" + name,
+            **kwargs,
+        )
+        mpi_test(
+            name = name,
+            src = "_mpi_" + name,
+            mpi_ranks = mpi_ranks,
+            mpiexec = "@mpi//:mpiexec",
+            fi = "@mpi//:fi",
+        )
+    else:
+        cc_test(
+            name = name,
+            **kwargs,
+        )
 
 def _select(x):
     return [x]

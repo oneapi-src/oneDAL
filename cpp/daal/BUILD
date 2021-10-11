@@ -169,7 +169,6 @@ daal_algorithms(
     algorithms = [
         "adaboost",
         "assocrules",
-        "boosting/inner",
         "brownboost",
         "cholesky",
         "classifier",

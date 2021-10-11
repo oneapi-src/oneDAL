@@ -25,13 +25,17 @@ dal_collect_modules(
     modules = [
         "blas",
         "distance",
+        "heap",
         "intersection",
         "lapack",
         "reduction",
+        "regression",
         "rng",
+        "search",
         "selection",
         "sort",
         "stat",
+        "voting",
     ],
     root = "@onedal//cpp/oneapi/dal/backend/primitives",
 )

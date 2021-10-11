@@ -27,16 +27,15 @@ namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 sycl::event count_clusters(sycl::queue& queue,
-                           const pr::ndview<std::int32_t, 2>& labels,
+                           const pr::ndview<std::int32_t, 2>& responses,
                            std::int64_t cluster_count,
                            pr::ndview<std::int32_t, 1>& counters,
                            const bk::event_vector& deps = {});
 
-sycl::event count_empty_clusters(sycl::queue& queue,
-                                 std::int64_t cluster_count,
-                                 pr::ndview<std::int32_t, 1>& counters,
-                                 pr::ndarray<std::int32_t, 1>& empty_cluster_count,
-                                 const bk::event_vector& deps = {});
+std::int64_t count_empty_clusters(sycl::queue& queue,
+                                  std::int64_t cluster_count,
+                                  pr::ndview<std::int32_t, 1>& counters,
+                                  const bk::event_vector& deps = {});
 #endif
 
 } // namespace oneapi::dal::kmeans::backend

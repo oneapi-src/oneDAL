@@ -68,50 +68,13 @@ enum SplitCriterion
 namespace interface1
 {
 /**
- * @ingroup decision_tree_classification
- * @{
- */
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_TREE__CLASSIFICATION__PARAMETER"></a>
- * \brief Decision tree algorithm parameters   \DAAL_DEPRECATED
- *
- * \snippet decision_tree/decision_tree_classification_model.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
-{
-    /**
-     *  Main constructor
-     *  \param[in] nClasses                         Number of classes
-     */
-    DAAL_DEPRECATED Parameter(size_t nClasses = 2)
-        : daal::algorithms::classifier::interface1::Parameter(nClasses),
-          splitCriterion(infoGain),
-          pruning(reducedErrorPruning),
-          maxTreeDepth(0),
-          minObservationsInLeafNodes(1)
-    {}
-
-    /**
-     * Checks a parameter of the Decision tree algorithm
-     */
-    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
-
-    SplitCriterion splitCriterion;     /*!< Split criterion for Decision tree classification */
-    Pruning pruning;                   /*!< Pruning method for Decision tree */
-    size_t maxTreeDepth;               /*!< Maximum tree depth. 0 means unlimited depth. */
-    size_t minObservationsInLeafNodes; /*!< Minimum number of observations in the leaf node. Can be any positive number. */
-};
-/* [interface1::Parameter source code] */
-
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__CLASSIFICATION__MODEL"></a>
  * \brief %Base class for models trained with the Decision tree algorithm
  *
  * \par References
  *      - Parameter class
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::interface2::Batch "training::Batch" class
+ *      - \ref prediction::interface2::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public daal::algorithms::classifier::Model
 {

@@ -28,8 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::training::interface1::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
-                                      multinomial_naive_bayes::training::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::training::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
                                       multinomial_naive_bayes::training::defaultDense)
 } // namespace algorithms

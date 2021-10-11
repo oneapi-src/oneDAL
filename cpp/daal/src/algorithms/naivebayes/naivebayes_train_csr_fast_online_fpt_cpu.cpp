@@ -33,10 +33,6 @@ namespace multinomial_naive_bayes
 {
 namespace training
 {
-namespace interface1
-{
-template class OnlineContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
 namespace interface2
 {
 template class OnlineContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

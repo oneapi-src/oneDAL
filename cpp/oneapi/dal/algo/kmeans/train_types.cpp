@@ -36,7 +36,7 @@ template <typename Task>
 class detail::v1::train_result_impl : public base {
 public:
     model<Task> trained_model;
-    table labels;
+    table responses;
     std::int64_t iteration_count = 0;
     double objective_function_value = 0.0;
 };
@@ -82,8 +82,8 @@ const model<Task>& train_result<Task>::get_model() const {
 }
 
 template <typename Task>
-const table& train_result<Task>::get_labels() const {
-    return impl_->labels;
+const table& train_result<Task>::get_responses() const {
+    return impl_->responses;
 }
 
 template <typename Task>
@@ -102,8 +102,8 @@ void train_result<Task>::set_model_impl(const model<Task>& value) {
 }
 
 template <typename Task>
-void train_result<Task>::set_labels_impl(const table& value) {
-    impl_->labels = value;
+void train_result<Task>::set_responses_impl(const table& value) {
+    impl_->responses = value;
 }
 
 template <typename Task>

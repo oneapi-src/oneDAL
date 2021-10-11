@@ -31,6 +31,10 @@ namespace data_management
 {
 namespace internal
 {
+using namespace daal::internal;
+using namespace daal::services;
+using namespace daal::services::internal;
+
 template <daal::CpuType cpu>
 services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction, double & score)
 {

@@ -29,7 +29,7 @@
 #include "src/externals/service_stat.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/sycl/reducer.h"
 

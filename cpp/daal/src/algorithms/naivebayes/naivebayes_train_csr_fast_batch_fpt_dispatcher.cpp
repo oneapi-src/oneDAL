@@ -28,8 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::training::interface1::BatchContainer, batch, DAAL_FPTYPE,
-                                      multinomial_naive_bayes::training::fastCSR)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::training::BatchContainer, batch, DAAL_FPTYPE,
                                       multinomial_naive_bayes::training::fastCSR)
 } // namespace algorithms

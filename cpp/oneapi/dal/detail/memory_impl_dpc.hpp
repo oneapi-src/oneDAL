@@ -33,6 +33,14 @@ ONEDAL_EXPORT void memcpy(const data_parallel_policy& policy,
                           void* dest,
                           const void* src,
                           std::int64_t size);
+ONEDAL_EXPORT void memcpy_usm2host(const data_parallel_policy& policy,
+                                   void* dest_host,
+                                   const void* src_usm,
+                                   std::int64_t size);
+ONEDAL_EXPORT void memcpy_host2usm(const data_parallel_policy& policy,
+                                   void* dest_usm,
+                                   const void* src_host,
+                                   std::int64_t size);
 ONEDAL_EXPORT bool is_known_usm_pointer_type(const data_parallel_policy& policy,
                                              const void* pointer);
 
@@ -91,6 +99,8 @@ using v1::malloc;
 using v1::free;
 using v1::memset;
 using v1::memcpy;
+using v1::memcpy_usm2host;
+using v1::memcpy_host2usm;
 using v1::is_known_usm_pointer_type;
 using v1::fill;
 using v1::data_parallel_allocator;

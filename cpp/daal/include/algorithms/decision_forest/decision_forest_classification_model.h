@@ -59,8 +59,8 @@ namespace interface1
  * \brief %Model of the classifier trained by the decision_forest::training::Batch algorithm.
  *
  * \par References
- *      - \ref classification::training::interface1::Batch "training::Batch" class
- *      - \ref classification::prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref classification::training::interface3::Batch "training::Batch" class
+ *      - \ref classification::prediction::interface3::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public classifier::Model
 {

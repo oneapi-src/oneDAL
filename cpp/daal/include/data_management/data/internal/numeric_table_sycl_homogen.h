@@ -571,9 +571,48 @@ private:
 };
 /** @} */
 
+/**
+ * Converts numeric table with arbitrary storage layout to SYCL homogen numeric table of the given type
+ * \param[in]  src               Numeric table to be converted
+ * \param[in]  st                Status of conversion
+ * \return                       Pointer to SYCL homogen numeric table
+ */
+template <typename T>
+inline daal::data_management::NumericTablePtr convertToSyclHomogen(NumericTable & src, services::Status & st)
+{
+    using namespace daal::services;
+
+    size_t ncols = src.getNumberOfColumns();
+    size_t nrows = src.getNumberOfRows();
+    daal::data_management::NumericTablePtr emptyPtr;
+
+    NumericTablePtr dst = SyclHomogenNumericTable<T>::create(ncols, nrows, NumericTableIface::doAllocate, &st);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(st, emptyPtr);
+    BlockDescriptor<T> srcBlock;
+    st |= src.getBlockOfRows(0, nrows, readOnly, srcBlock);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(st, emptyPtr);
+    BlockDescriptor<T> dstBlock;
+    st |= dst->getBlockOfRows(0, nrows, readOnly, dstBlock);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(st, emptyPtr);
+    T * srcData      = srcBlock.getBlockPtr();
+    auto hostDstData = dstBlock.getBuffer().toHost(writeOnly, st);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(st, emptyPtr);
+    T * dstData = hostDstData.get();
+    for (size_t i = 0; i < ncols * nrows; i++)
+    {
+        dstData[i] = srcData[i];
+    }
+    st |= src.releaseBlockOfRows(srcBlock);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(st, emptyPtr);
+    st |= dst->releaseBlockOfRows(dstBlock);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(st, emptyPtr);
+    return dst;
+}
+
 } // namespace interface1
 
 using interface1::SyclHomogenNumericTable;
+using interface1::convertToSyclHomogen;
 
 } // namespace internal
 } // namespace data_management

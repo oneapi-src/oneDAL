@@ -131,7 +131,8 @@ constexpr bool is_valid_kernel_v =
     dal::detail::is_tag_one_of_v<Kernel,
                                  linear_kernel::detail::descriptor_tag,
                                  polynomial_kernel::detail::descriptor_tag,
-                                 rbf_kernel::detail::descriptor_tag>;
+                                 rbf_kernel::detail::descriptor_tag,
+                                 sigmoid_kernel::detail::descriptor_tag>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -251,7 +252,9 @@ public:
 
     /// The descriptor of kernel function $K(x, y)$. Can be
     /// :expr:`linear_kernel::descriptor` or
-    /// :expr:`polynomial_kernel::descriptor` or :expr:`rbf_kernel::descriptor`.
+    /// :expr:`polynomial_kernel::descriptor` or
+    /// :expr:`rbf_kernel::descriptor` or
+    /// :expr:`sigmoid_kernel::descriptor`.
     /// @remark default = :literal:`kernel`
     const Kernel &get_kernel() const {
         using kf_t = detail::kernel_function<Kernel>;
@@ -454,22 +457,46 @@ public:
     /// The first unique value in class labels.
     /// Used with :expr:`task::classification` and
     /// :expr:`task::nu_classification`.
-    std::int64_t get_first_class_label() const;
+    [[deprecated]] std::int64_t get_first_class_label() const {
+        return get_first_class_response();
+    }
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto &set_first_class_label(std::int64_t value) {
-        set_first_class_label_impl(value);
+    [[deprecated]] auto &set_first_class_label(std::int64_t value) {
+        return set_first_class_response(value);
+    }
+
+    /// The first unique value in class responses.
+    /// Used with :expr:`task::classification` and
+    /// :expr:`task::nu_classification`.
+    std::int64_t get_first_class_response() const;
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    auto &set_first_class_response(std::int64_t value) {
+        set_first_class_response_impl(value);
         return *this;
     }
 
     /// The second unique value in class labels.
     /// Used with :expr:`task::classification` and
     /// :expr:`task::nu_classification`.
-    std::int64_t get_second_class_label() const;
+    [[deprecated]] std::int64_t get_second_class_label() const {
+        return get_second_class_response();
+    }
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto &set_second_class_label(std::int64_t value) {
-        set_second_class_label_impl(value);
+    [[deprecated]] auto &set_second_class_label(std::int64_t value) {
+        return set_second_class_response(value);
+    }
+
+    /// The second unique value in class responses.
+    /// Used with :expr:`task::classification` and
+    /// :expr:`task::nu_classification`.
+    std::int64_t get_second_class_response() const;
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    auto &set_second_class_response(std::int64_t value) {
+        set_second_class_response_impl(value);
         return *this;
     }
 
@@ -478,8 +505,8 @@ protected:
     void set_coeffs_impl(const table &);
     void set_bias_impl(double);
     void set_biases_impl(const table &);
-    void set_first_class_label_impl(std::int64_t);
-    void set_second_class_label_impl(std::int64_t);
+    void set_first_class_response_impl(std::int64_t);
+    void set_second_class_response_impl(std::int64_t);
 
 private:
     void serialize(dal::detail::output_archive &ar) const;

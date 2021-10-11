@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _objective_function_precomputed_characteristics:
+
 Objective Function with Precomputed Characteristics Algorithm
 =============================================================
 
@@ -21,7 +23,7 @@ Objective function with precomputed characteristics gives an ability to provide
 the results of the objective function precomputed with the user-defined algorithm.
 
 Set an earlier computed value and/or gradient and/or Hessian by allocating the result object
-and setting the characteristics of this result object. 
+and setting the characteristics of this result object.
 After that provide the modified result object to the algorithm for its further use with the iterative solver.
 
 For more details on iterative solvers, refer to :ref:`iterative_solver`.

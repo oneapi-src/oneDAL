@@ -31,28 +31,28 @@ struct sconsistent_conditions {
     std::int64_t length;
     void init(std::int64_t size) {
         length = size;
-        array = allocator_.allocate<std::int64_t>(length);
+        array = allocator.allocate<std::int64_t>(length);
         divider = length;
     }
-    sconsistent_conditions(std::int64_t size, inner_alloc allocator) : allocator_(allocator) {
+    sconsistent_conditions(std::int64_t size, inner_alloc alloc) : allocator(alloc) {
         init(size);
     }
     ~sconsistent_conditions() {
         if (array != nullptr) {
-            allocator_.deallocate<std::int64_t>(array, length);
+            allocator.deallocate(array, length);
             array = nullptr;
         }
     }
 
 private:
-    inner_alloc allocator_;
+    inner_alloc allocator;
 };
 
 template <typename Cpu>
 class sorter {
 public:
-    sorter(inner_alloc allocator);
-    sorter(const graph<Cpu>* ptarget, inner_alloc allocator);
+    sorter(inner_alloc alloc);
+    sorter(const graph<Cpu>* ptarget, inner_alloc alloc);
     virtual ~sorter();
 
     void get_pattern_vertex_probability(const graph<Cpu>& pattern,
@@ -67,7 +67,7 @@ public:
                                     sconsistent_conditions<Cpu>* cconditions,
                                     bool predecessor_in_core_indexing = false) const;
 
-    inner_alloc allocator_;
+    inner_alloc allocator;
     float* p_degree_probability;
     float* p_vertex_attribute_probability;
 
@@ -85,17 +85,17 @@ public:
 };
 
 template <typename Cpu>
-sorter<Cpu>::sorter(const graph<Cpu>* target, inner_alloc allocator) : sorter(allocator) {
+sorter<Cpu>::sorter(const graph<Cpu>* target, inner_alloc alloc) : sorter(alloc) {
     degree_max_size = target->get_max_degree() + 1;
     vertex_attribute_max_size = target->get_max_vertex_attribute() + 1;
 
     std::int64_t vertex_count = target->get_vertex_count();
 
-    p_degree_probability = allocator_.allocate<float>(degree_max_size);
+    p_degree_probability = allocator.allocate<float>(degree_max_size);
     if (p_degree_probability == nullptr) {
         return;
     }
-    p_vertex_attribute_probability = allocator_.allocate<float>(vertex_attribute_max_size);
+    p_vertex_attribute_probability = allocator.allocate<float>(vertex_attribute_max_size);
     if (p_vertex_attribute_probability == nullptr) {
         return;
     }
@@ -127,7 +127,7 @@ sorter<Cpu>::sorter(const graph<Cpu>* target, inner_alloc allocator) : sorter(al
 }
 
 template <typename Cpu>
-sorter<Cpu>::sorter(inner_alloc allocator) : allocator_(allocator) {
+sorter<Cpu>::sorter(inner_alloc alloc) : allocator(alloc) {
     p_degree_probability = nullptr;
     p_vertex_attribute_probability = nullptr;
     degree_max_size = 0;
@@ -137,12 +137,12 @@ sorter<Cpu>::sorter(inner_alloc allocator) : allocator_(allocator) {
 template <typename Cpu>
 sorter<Cpu>::~sorter() {
     if (p_degree_probability != nullptr) {
-        allocator_.deallocate<float>(p_degree_probability, degree_max_size);
+        allocator.deallocate(p_degree_probability, degree_max_size);
         p_degree_probability = nullptr;
     }
 
     if (p_vertex_attribute_probability != nullptr) {
-        allocator_.deallocate<float>(p_vertex_attribute_probability, vertex_attribute_max_size);
+        allocator.deallocate(p_vertex_attribute_probability, vertex_attribute_max_size);
         p_vertex_attribute_probability = nullptr;
     }
 }
@@ -179,8 +179,8 @@ void sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
     std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
     std::int64_t sorted_vertex_iterator = 0;
 
-    bit_vector<Cpu> vertex_candidates(bit_array_size, allocator_.get_byte_allocator());
-    bit_vector<Cpu> filling_mask(bit_array_size, allocator_.get_byte_allocator());
+    bit_vector<Cpu> vertex_candidates(bit_array_size, allocator.get_byte_allocator());
+    bit_vector<Cpu> filling_mask(bit_array_size, allocator.get_byte_allocator());
 
     std::int64_t index =
         find_minimum_probability_index_by_mask(pattern, pattern_vertex_probability);
@@ -352,7 +352,7 @@ std::int64_t sorter<Cpu>::get_core_linked_degree(const graph<Cpu>& pattern,
                                                  const std::uint8_t* pbit_mask) const {
     std::int64_t vertex_count = pattern.get_vertex_count();
     std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
-    bit_vector<Cpu> vertex_candidates(bit_array_size, allocator_.get_byte_allocator());
+    bit_vector<Cpu> vertex_candidates(bit_array_size, allocator.get_byte_allocator());
     std::int64_t core_degree = 0;
 
     vertex_candidates |= pattern.p_edges_bit[vertex];

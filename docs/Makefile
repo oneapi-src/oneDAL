@@ -32,7 +32,7 @@ create_rst_examples:
 	python3 rst_examples.py
 
 doxygen:
-	doxygen doxygen/oneapi/Doxyfile
+	cd doxygen/oneapi && doxygen
 
 parse-doxygen: doxygen
 	mkdir -p build

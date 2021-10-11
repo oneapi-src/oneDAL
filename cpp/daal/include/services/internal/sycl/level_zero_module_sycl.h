@@ -68,8 +68,14 @@ class ZeModule : public Base
 public:
     static SharedPtr<ZeModule> create(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status)
     {
-        const auto ptr = new ZeModule(deviceQueue, binarySize, pBinary, status);
-        if (!ptr) status |= ErrorMemoryAllocationFailed;
+        auto ptr = new ZeModule(deviceQueue, binarySize, pBinary, status);
+        if (!status)
+        {
+            if (ptr) delete ptr;
+            ptr = nullptr;
+        }
+        else if (!ptr)
+            status |= ErrorMemoryAllocationFailed;
         return SharedPtr<ZeModule>(ptr);
     }
 
@@ -96,6 +102,7 @@ private:
         desc.pInputModule = pBinary;
         desc.pBuildFlags  = "";
         desc.pConstants   = nullptr;
+        desc.pNext        = nullptr;
 
         ze_module_handle_t _moduleLevelZero;
         DAAL_CHECK_LEVEL_ZERO(

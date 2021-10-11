@@ -18,17 +18,19 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-template solution<__CPU_TAG__> si<__CPU_TAG__>(const graph<__CPU_TAG__>& pattern,
-                                               const graph<__CPU_TAG__>& target,
-                                               kind isomorphism_kind,
-                                               detail::byte_alloc_iface* alloc_ptr);
+template oneapi::dal::homogen_table si<__CPU_TAG__>(const graph<__CPU_TAG__>& pattern,
+                                                    const graph<__CPU_TAG__>& target,
+                                                    kind isomorphism_kind,
+                                                    std::int64_t max_match_count,
+                                                    byte_alloc_iface_t* alloc_ptr);
 
-template subgraph_isomorphism::graph_matching_result si_call_kernel<__CPU_TAG__>(
+template subgraph_isomorphism::graph_matching_result<task::compute> si_call_kernel<__CPU_TAG__>(
     const kind& si_kind,
-    detail::byte_alloc_iface* alloc_ptr,
+    std::int64_t max_match_count,
+    byte_alloc_iface_t* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
-    const std::int64_t* vv_t,
-    const std::int64_t* vv_p);
+    std::int64_t* vv_t,
+    std::int64_t* vv_p);
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

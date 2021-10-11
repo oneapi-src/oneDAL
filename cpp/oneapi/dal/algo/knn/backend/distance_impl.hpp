@@ -16,16 +16,12 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/knn/common.hpp"
-
-#include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h>
-#include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
+#include <daal/src/algorithms/service_kernel_math.h>
 
 namespace oneapi::dal::knn::detail {
 namespace v1 {
 
-using daal_distance_t =
-    daal::algorithms::bf_knn_classification::prediction::internal::PairwiseDistanceType;
+using daal_distance_t = daal::algorithms::internal::PairwiseDistanceType;
 
 class distance_impl : public base {
 public:

@@ -64,13 +64,10 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     services::Status s;
     decision_tree::Pruning treePruning;
     {
-        auto par1 = dynamic_cast<const decision_tree::classification::interface1::Parameter *>(parameter);
-        if (par1) treePruning = par1->pruning;
-
         auto par2 = dynamic_cast<const decision_tree::classification::interface2::Parameter *>(parameter);
         if (par2) treePruning = par2->pruning;
 
-        if (par1 == NULL && par2 == NULL) return services::Status(ErrorNullParameterNotSupported);
+        if (par2 == NULL) return services::Status(ErrorNullParameterNotSupported);
     }
 
     if (treePruning == decision_tree::reducedErrorPruning)

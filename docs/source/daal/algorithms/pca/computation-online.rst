@@ -23,10 +23,6 @@ Online processing computation mode assumes that data arrives in blocks :math:`i 
 
 PCA computation in the online processing mode follows the general computation schema for online processing described in :ref:`algorithms`.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Input
 ---------------
 
@@ -34,7 +30,9 @@ The PCA algorithm in the online processing mode accepts the input described belo
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Principal Component Analysis (Online Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -49,10 +47,13 @@ Algorithm Parameters
 
 The PCA algorithm in the online processing mode has the following parameters, depending on the computation method parameter method:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
+
+.. list-table:: Algorithm Parameters for Principal Component Analysis (Online Processing)
    :widths: 10 10 10 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Method
@@ -66,7 +67,7 @@ The PCA algorithm in the online processing mode has the following parameters, de
      - Not applicable
      - ``defaultDense``
      - Available computation methods for PCA computation:
-     
+
        - ``defaultDense`` - the correlation method
        - ``svdDense`` - the SVD method
    * - ``initializationProcedure``
@@ -97,20 +98,23 @@ For more details, see :ref:`algorithms`.
 
     .. tab:: Correlation method (``defaultDense``)
 
-        .. list-table::
+        .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+        .. list-table:: Partial Results for Principal Component Analysis using Correlation method (Online Processing)
             :widths: 10 60
             :header-rows: 1
+            :class: longtable
 
             * - Result ID
               - Result
             * - ``nObservationsCorrelation``
               - Pointer to the :math:`1 \times 1` numeric table with the number of observations processed so far.
-                
+
                 .. note::
                         By default, this result is an object of the ``HomogenNumericTable`` class,
                         but you can define it as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
             * - ``crossProductCorrelation``
-              - Pointer to the :math:`p \times p` numeric table with the partial cross-product matrix computed so far. 
+              - Pointer to the :math:`p \times p` numeric table with the partial cross-product matrix computed so far.
 
                 .. note::
 
@@ -119,7 +123,7 @@ For more details, see :ref:`algorithms`.
                     except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
             * - ``sumCorrelation``
-              - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far. 
+              - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far.
 
                 .. note::
 
@@ -130,20 +134,23 @@ For more details, see :ref:`algorithms`.
 
     .. tab:: SVD method (``svdDense``)
 
-        .. list-table::
+        .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+        .. list-table:: Partial Results for Principal Component Analysis using SVD method (Online Processing)
             :widths: 10 60
             :header-rows: 1
+            :class: longtable
 
             * - Result ID
               - Result
             * - ``nObservationsCorrelation``
               - Pointer to the :math:`1 \times 1` numeric table with the number of observations processed so far.
-                
+
                 .. note::
                         By default, this result is an object of the ``HomogenNumericTable`` class,
                         but you can define it as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
             * - ``sumSVD``
-              - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far. 
+              - Pointer to the :math:`1 \times p` numeric table with partial sums computed so far.
 
                 .. note::
 
@@ -167,17 +174,20 @@ The PCA algorithm in the online processing mode calculates the results described
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Principal Component Analysis (Online Processing)
     :widths: 10 60
     :header-rows: 1
+    :class: longtable
 
     * - Result ID
       - Result
     * - ``eigenvalues``
-      - Pointer to the :math:`1 \times p` numeric table that contains eigenvalues in the descending order. 
+      - Pointer to the :math:`1 \times p` numeric table that contains eigenvalues in the descending order.
     * - ``eigenvectors``
       - Pointer to the :math:`p \times p` numeric table that contains eigenvectors in the row-major order.
-       
+
 .. note::
 
     By default, these results are objects of the ``HomogenNumericTable`` class,

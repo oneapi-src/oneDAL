@@ -16,7 +16,7 @@
 
 .. _decision_forest:
 
-Decision Forest 
+Decision Forest
 ================
 
 Details
@@ -101,7 +101,7 @@ Maximal number of leaf nodes
   Grow trees with positive maximal number of leaf nodes in a :ref:`best-first <best_first_strategy>` fashion.
   Best nodes are defined by relative reduction in impurity.
   If maximal number of leaf nodes equals zero, then this criterion does not limit the number of leaf nodes,
-  and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion. 
+  and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion.
 
 Tree Building Strategies
 ++++++++++++++++++++++++
@@ -115,7 +115,7 @@ Depth-first Strategy
 ~~~~~~~~~~~~~~~~~~~~
 
 If maximal number of leaf nodes equals zero, a decision tree is built using depth-first strategy.
-In each terminal node :math:`t`, the following recursive procedure is applied: 
+In each terminal node :math:`t`, the following recursive procedure is applied:
 
 - Stop if the termination criteria are met.
 - Choose randomly without replacement :math:`m` feature indices :math:`J_t \in \{0, 1, \ldots, p-1\}`.
@@ -219,38 +219,38 @@ Variable Importance
 
 There are two main types of variable importance measures:
 
--  *Mean Decrease Impurity* importance (MDI).
+- *Mean Decrease Impurity* importance (MDI).
 
- Importance of the :math:`j`-th variable for predicting :math:`Y` is the sum of
- weighted impurity decreases :math:`p(t) \Delta i(s_t, t)` for all nodes
- :math:`t` that use :math:`x_j`, averaged over all :math:`B` trees in the
- forest:
+  Importance of the :math:`j`-th variable for predicting :math:`Y` is the sum of
+  weighted impurity decreases :math:`p(t) \Delta i(s_t, t)` for all nodes
+  :math:`t` that use :math:`x_j`, averaged over all :math:`B` trees in the
+  forest:
 
- .. math::
-	MDI\left(j\right)=\frac{1}{B}\sum _{b=1}^{B} \sum _{t\in {T}_{b}:v\left({s}_{t}\right)=j}p\left(t\right)\Delta i\left({s}_{t},t\right),
+  .. math::
+    MDI\left(j\right)=\frac{1}{B}\sum _{b=1}^{B} \sum _{t\in {T}_{b}:v\left({s}_{t}\right)=j}p\left(t\right)\Delta i\left({s}_{t},t\right),
 
- where :math:`p\left(t\right)=\frac{|{D}_{t}|}{|D|}` is the fraction of observations reaching node :math:`t`
- in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
- variable used in split :math:`s_t` .
+  where :math:`p\left(t\right)=\frac{|{D}_{t}|}{|D|}` is the fraction of observations reaching node :math:`t`
+  in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
+  variable used in split :math:`s_t` .
 
--  *Mean Decrease Accuracy* (MDA).
+- *Mean Decrease Accuracy* (MDA).
 
- Importance of the :math:`j`-th variable for predicting :math:`Y` is the average
- increase in the OOB error over all trees in the forest when the
- values of the :math:`j`-th variable are randomly permuted in the OOB
- set. For that reason, this latter measure is also known as
- *permutation importance*.
+  Importance of the :math:`j`-th variable for predicting :math:`Y` is the average
+  increase in the OOB error over all trees in the forest when the
+  values of the :math:`j`-th variable are randomly permuted in the OOB
+  set. For that reason, this latter measure is also known as
+  *permutation importance*.
 
- In more details, the library calculates MDA importance as
- follows:
+  In more details, the library calculates MDA importance as
+  follows:
 
- -  Let :math:`\pi (X,j)` be the set of feature vectors where the :math:`j`-th variable is randomly permuted over all vectors in the set.
- -  Let :math:`E_b` be the OOB error calculated for :math:`T_b:` on its out-of-bag dataset :math:`\overline{D_b}`.
- -  Let :math:`E_{b,j}` be the OOB error calculated for :math:`T_b:` using :math:`\pi \left(\overline{{X}_{b}},j\right)`, and its out-of-bag dataset :math:`\overline{D_b}` is permuted on the :math:`j`-th variable. Then
+  - Let :math:`\pi (X,j)` be the set of feature vectors where the :math:`j`-th variable is randomly permuted over all vectors in the set.
+  - Let :math:`E_b` be the OOB error calculated for :math:`T_b:` on its out-of-bag dataset :math:`\overline{D_b}`.
+  - Let :math:`E_{b,j}` be the OOB error calculated for :math:`T_b:` using :math:`\pi \left(\overline{{X}_{b}},j\right)`, and its out-of-bag dataset :math:`\overline{D_b}` is permuted on the :math:`j`-th variable. Then
 
-	* :math:`{\delta }_{b,j}={E}_{b}-{E}_{b,j}` is the OOB error increase for the tree :math:`T_b`.
-	* :math:`Raw MDA\left(j\right)=\frac{1}{B}\sum _{b=1}^{B}{\delta }_{b,j}` is MDA importance.
-	* :math:`Scaled MDA\left(j\right)=\frac{Raw MDA\left({x}_{j}\right)}{\frac{{\sigma }_{j}}{\sqrt{B}}}`, where :math:`{\sigma }_{j}^{2}` is the variance of :math:`D_{b,j}`
+    * :math:`{\delta }_{b,j}={E}_{b}-{E}_{b,j}` is the OOB error increase for the tree :math:`T_b`.
+    * :math:`Raw MDA\left(j\right)=\frac{1}{B}\sum _{b=1}^{B}{\delta }_{b,j}` is MDA importance.
+    * :math:`Scaled MDA\left(j\right)=\frac{Raw MDA\left({x}_{j}\right)}{\frac{{\sigma }_{j}}{\sqrt{B}}}`, where :math:`{\sigma }_{j}^{2}` is the variance of :math:`D_{b,j}`
 
 .. _df_batch:
 
@@ -265,10 +265,13 @@ Training
 
 At the training stage, decision forest regression has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Decision Forest (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -328,12 +331,12 @@ At the training stage, decision forest regression has the following parameters:
        request a single characteristic or use bitwise OR to request a
        combination of the characteristics:
 
-        + ``computeOutOfBagError``
-        + ``computeOutOfBagErrorPerObservation``
+       + ``computeOutOfBagError``
+       + ``computeOutOfBagErrorPerObservation``
    * - ``bootstrap``
      - ``true``
      - If true, the training set for a tree is a bootstrap of the whole training set.
-       If false, the whole training set is used to build trees.        
+       If false, the whole training set is used to build trees.
    * - ``minObservationsInLeafNode``
      - :math:`1` for classification, :math:`5` for regression
      - Minimum number of observations in the leaf node.
@@ -344,7 +347,7 @@ At the training stage, decision forest regression has the following parameters:
      - :math:`0.0`
      - Minimum weighted fraction of the sum total of weights of all the input observations required to be at a leaf node,
        from :math:`0.0` to :math:`0.5`.
-        
+
        All observations have equal weights if the weights of the observations are not provided.
 
    * - ``minImpurityDecreaseInSplitNode``
@@ -366,28 +369,31 @@ In addition to regression or classifier output, decision forest
 calculates the result described below. Pass the ``Result ID`` as a
 parameter to the methods that access the result of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Decision Forest (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
    * - ``outOfBagError``
      - A numeric table :math:`1 \times 1` containing out-of-bag error computed when the
        ``computeOutOfBagErroroption`` option is on.
-       
+
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``.
    * - ``variableImportance``
      - A numeric table :math:`1 \times p` that contains variable importance values for each
        feature. If you set the ``varImportance`` parameter to none, the library
        returns a null pointer to the table.
-       
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
@@ -397,9 +403,9 @@ parameter to the methods that access the result of your algorithm.
        :math:`-1` in the table indicates that no OOB value was computed because this
        observation was not in OOB set for any of the trees in the model (never
        left out during the bootstrap).
-       
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``.
    * - ``updatedEngine``

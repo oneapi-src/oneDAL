@@ -22,8 +22,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph.hpp"
+#include "oneapi/dal/io/csv.hpp"
 #include "oneapi/dal/table/common.hpp"
 
 namespace dal = oneapi::dal;
@@ -32,21 +31,17 @@ int main(int argc, char **argv) {
     auto target_filename = get_data_path("si_target_graph.csv");
     auto pattern_filename = get_data_path("si_pattern_graph.csv");
 
-    const dal::preview::graph_csv_data_source ds_target(target_filename);
-    const dal::preview::load_graph::descriptor<> d_target;
-    const auto target_graph = dal::preview::load_graph::load(d_target, ds_target);
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
 
-    const dal::preview::graph_csv_data_source ds_pattern(pattern_filename);
-    const dal::preview::load_graph::descriptor<> d_pattern;
-    const auto pattern_graph = dal::preview::load_graph::load(d_pattern, ds_pattern);
-
-    std::allocator<char> alloc;
+    const auto target_graph = dal::read<graph_t>(dal::csv::data_source{ target_filename });
+    const auto pattern_graph = dal::read<graph_t>(dal::csv::data_source{ pattern_filename });
 
     // set algorithm parameters
     const auto subgraph_isomorphism_desc =
-        dal::preview::subgraph_isomorphism::descriptor<>(alloc)
+        dal::preview::subgraph_isomorphism::descriptor<>()
             .set_kind(dal::preview::subgraph_isomorphism::kind::non_induced)
-            .set_semantic_match(false);
+            .set_semantic_match(false)
+            .set_max_match_count(10);
 
     const auto result =
         dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);

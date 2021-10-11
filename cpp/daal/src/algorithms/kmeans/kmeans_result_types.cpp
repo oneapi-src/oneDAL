@@ -25,7 +25,6 @@
 #include "services/daal_defines.h"
 #include "src/services/serialization_utils.h"
 #include "src/services/daal_strings.h"
-#include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -72,8 +71,7 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     const size_t inputRows = algInput->get(data)->getNumberOfRows();
 
     const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(par);
-    const interface1::Parameter * kmPar1 = dynamic_cast<const interface1::Parameter *>(par);
-    if (kmPar1 == nullptr && kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
+    if (kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
     const int unexpectedLayouts = (int)packed_mask;
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(objectiveFunction).get(), objectiveFunctionStr(), unexpectedLayouts, 0, 1, 1));
@@ -87,15 +85,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
             DAAL_CHECK_STATUS(s, checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, inputFeatures, kmPar2->nClusters));
         }
         if (kmPar2->resultsToEvaluate & computeAssignments || kmPar2->assignFlag)
-        {
-            NumericTablePtr assignmentsTable = get(assignments);
-            DAAL_CHECK_STATUS(s, checkNumericTable(assignmentsTable.get(), assignmentsStr(), unexpectedLayouts, 0, 1, inputRows));
-        }
-    }
-    else
-    {
-        DAAL_CHECK_STATUS(s, checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, inputFeatures, kmPar1->nClusters));
-        if (kmPar1->assignFlag)
         {
             NumericTablePtr assignmentsTable = get(assignments);
             DAAL_CHECK_STATUS(s, checkNumericTable(assignmentsTable.get(), assignmentsStr(), unexpectedLayouts, 0, 1, inputRows));

@@ -36,6 +36,7 @@ load(
     "get_no_canonical_prefixes_opt",
     "get_starlark_list_dict",
     "get_toolchain_identifier",
+    "get_tmp_dpcpp_inc_directories",
 )
 
 def _find_tool(repo_ctx, tool_name, mandatory = False):
@@ -54,6 +55,9 @@ def _find_tool(repo_ctx, tool_name, mandatory = False):
             )
             tool_path = repo_ctx.path("tool_not_found.sh")
     return str(tool_path), is_found
+
+def find_tool(repo_ctx, tool_name, mandatory = False):
+    return _find_tool(repo_ctx, tool_name, mandatory)
 
 def _create_ar_merge_tool(repo_ctx, ar_path):
     ar_merge_name = "merge_static_libs.sh"
@@ -93,9 +97,11 @@ def _find_tools(repo_ctx, reqs):
         ar = ar_path,
         ar_merge = ar_merge_path,
         is_dpc_found = dpcpp_found,
+        dpc_compiler_version = reqs.dpc_compiler_version
     )
 
 def _preapre_builtin_include_directory_paths(repo_ctx, tools):
+    required_tmp_includes = get_tmp_dpcpp_inc_directories(repo_ctx, tools) if tools.is_dpc_found else []
     builtin_include_directories = utils.unique(
         get_cxx_inc_directories(repo_ctx, tools.cc, "-xc") +
         get_cxx_inc_directories(repo_ctx, tools.cc, "-xc++") +
@@ -116,14 +122,15 @@ def _preapre_builtin_include_directory_paths(repo_ctx, tools):
             tools.dpcc,
             "-xc++",
             _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc),
-        ) +
+        ) + 
         get_cxx_inc_directories(
             repo_ctx,
             tools.dpcc,
             "-xc++",
             get_no_canonical_prefixes_opt(repo_ctx, tools.dpcc) +
             _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc),
-        ),
+        ) +
+        required_tmp_includes,
     )
     write_builtin_include_directory_paths(repo_ctx, tools.cc, builtin_include_directories)
     return builtin_include_directories
@@ -166,6 +173,9 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
     # Addition compile/link flags
     bin_search_flag_cc = _get_bin_search_flag(repo_ctx, tools.cc)
     bin_search_flag_dpcc = _get_bin_search_flag(repo_ctx, tools.dpcc)
+
+    # DPC++ kernel code split option
+    dpcc_code_split = "per_kernel"
 
     repo_ctx.template(
         "BUILD",
@@ -234,6 +244,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                 ) +
                 add_compiler_option_if_supported(
                     repo_ctx,
+                    tools.dpcc,
+                    "-fsycl-device-code-split={}".format(dpcc_code_split),
+                ) +
+                add_compiler_option_if_supported(
+                    repo_ctx,
                     tools.cc,
                     "-fdiagnostics-color=always",
                 ),
@@ -284,6 +299,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             ),
             "%{link_flags_dpcc}": get_starlark_list(
                 _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc) +
+                add_compiler_option_if_supported(
+                    repo_ctx,
+                    tools.dpcc,
+                    "-fsycl-device-code-split={}".format(dpcc_code_split),
+                ) +
                 add_linker_option_if_supported(
                     repo_ctx,
                     tools.dpcc,

@@ -65,8 +65,8 @@ public:
 
         auto& q = this->get_queue();
 
-        val.assign(q, val_host).wait_and_throw();
-        mask.assign(q, mask_host).wait_and_throw();
+        val.assign(q, val_host.to_device(q)).wait_and_throw();
+        mask.assign(q, mask_host.to_device(q)).wait_and_throw();
     }
 
     auto create_reference_on_host(const ndarray<Float, 1>& in, const ndarray<Flag, 1>& mask) {
@@ -161,8 +161,8 @@ public:
 
         auto& q = this->get_queue();
 
-        val.assign(q, val_host).wait_and_throw();
-        mask.assign(q, mask_host).wait_and_throw();
+        val.assign(q, val_host.to_device(q)).wait_and_throw();
+        mask.assign(q, mask_host.to_device(q)).wait_and_throw();
     }
 
     auto create_reference_on_host(const ndarray<Data, 1>& in, const ndarray<Flag, 1>& mask) {

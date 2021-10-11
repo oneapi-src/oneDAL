@@ -31,7 +31,7 @@ namespace te = dal::test::engine;
 
 template <typename T>
 struct checker_info {
-    typedef T (*checker_func)(const dal::v1::table& infer_labels,
+    typedef T (*checker_func)(const dal::v1::table& infer_responses,
                               const dal::v1::table& ground_truth);
 
     std::string name;
@@ -167,7 +167,7 @@ public:
         INFO("check if infer accuracy is expected")
         for (auto ch : checker_list) {
             CAPTURE(ch.name);
-            REQUIRE(ch.check(infer_result.get_labels(), y_test) < ch.required_accuracy + eps);
+            REQUIRE(ch.check(infer_result.get_responses(), y_test) < ch.required_accuracy + eps);
         }
 
         return infer_result;
@@ -231,11 +231,11 @@ public:
                             const df::infer_result<Task>& result) {
         constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
         if constexpr (is_cls) {
-            if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
-                INFO("check if infer labels shape is expected")
-                REQUIRE(result.get_labels().has_data());
-                REQUIRE(result.get_labels().get_row_count() == data.get_row_count());
-                REQUIRE(result.get_labels().get_column_count() == 1);
+            if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_responses)) {
+                INFO("check if infer responses shape is expected")
+                REQUIRE(result.get_responses().has_data());
+                REQUIRE(result.get_responses().get_row_count() == data.get_row_count());
+                REQUIRE(result.get_responses().get_column_count() == 1);
             }
 
             if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
@@ -246,10 +246,10 @@ public:
             }
         }
         else {
-            INFO("check if infer labels shape is expected")
-            REQUIRE(result.get_labels().has_data());
-            REQUIRE(result.get_labels().get_row_count() == data.get_row_count());
-            REQUIRE(result.get_labels().get_column_count() == 1);
+            INFO("check if infer responses shape is expected")
+            REQUIRE(result.get_responses().has_data());
+            REQUIRE(result.get_responses().get_row_count() == data.get_row_count());
+            REQUIRE(result.get_responses().get_column_count() == 1);
         }
     }
 
@@ -342,42 +342,42 @@ public:
         return checker_info<double>{ "mae_checker", &calculate_mae, required_accuracy };
     }
 
-    static double calculate_classification_error(const dal::table& infer_labels,
+    static double calculate_classification_error(const dal::table& infer_responses,
                                                  const dal::table& ground_truth) {
-        const auto labels = dal::row_accessor<const Float>(infer_labels).pull();
-        const auto truth_labels = dal::row_accessor<const Float>(ground_truth).pull();
-        std::int64_t incorrect_label_count = 0;
+        const auto responses = dal::row_accessor<const Float>(infer_responses).pull();
+        const auto truth_responses = dal::row_accessor<const Float>(ground_truth).pull();
+        std::int64_t incorrect_response_count = 0;
 
-        for (std::int64_t i = 0; i < labels.get_count(); i++) {
-            incorrect_label_count +=
-                (static_cast<int>(labels[i]) != static_cast<int>(truth_labels[i]));
+        for (std::int64_t i = 0; i < responses.get_count(); i++) {
+            incorrect_response_count +=
+                (static_cast<int>(responses[i]) != static_cast<int>(truth_responses[i]));
         }
-        return static_cast<double>(incorrect_label_count) / labels.get_count();
+        return static_cast<double>(incorrect_response_count) / responses.get_count();
     }
 
-    static double calculate_mse(const dal::v1::table& infer_labels,
+    static double calculate_mse(const dal::v1::table& infer_responses,
                                 const dal::v1::table& ground_truth) {
         double mean = 0.0;
-        const auto labels = dal::row_accessor<const Float>(infer_labels).pull();
-        const auto truth_labels = dal::row_accessor<const Float>(ground_truth).pull();
-        for (std::int64_t i = 0; i < labels.get_count(); i++) {
-            mean += (labels[i] - truth_labels[i]) * (labels[i] - truth_labels[i]);
+        const auto responses = dal::row_accessor<const Float>(infer_responses).pull();
+        const auto truth_responses = dal::row_accessor<const Float>(ground_truth).pull();
+        for (std::int64_t i = 0; i < responses.get_count(); i++) {
+            mean += (responses[i] - truth_responses[i]) * (responses[i] - truth_responses[i]);
         }
 
-        return mean / labels.get_count();
+        return mean / responses.get_count();
     }
 
-    static double calculate_mae(const dal::v1::table& infer_labels,
+    static double calculate_mae(const dal::v1::table& infer_responses,
                                 const dal::v1::table& ground_truth) {
         double mae = 0.0;
-        const auto labels = dal::row_accessor<const Float>(infer_labels).pull();
-        const auto truth_labels = dal::row_accessor<const Float>(ground_truth).pull();
+        const auto responses = dal::row_accessor<const Float>(infer_responses).pull();
+        const auto truth_responses = dal::row_accessor<const Float>(ground_truth).pull();
 
-        for (std::int64_t i = 0; i < labels.get_count(); i++) {
-            mae += std::abs(labels[i] - truth_labels[i]);
+        for (std::int64_t i = 0; i < responses.get_count(); i++) {
+            mae += std::abs(responses[i] - truth_responses[i]);
         }
 
-        return mae / labels.get_count();
+        return mae / responses.get_count();
     }
 
 private:
@@ -612,7 +612,7 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls all features flow") {
     desc.set_tree_count(30);
     desc.set_error_metric_mode(error_metric_mode_val);
     desc.set_variable_importance_mode(variable_importance_mode_val);
-    desc.set_features_per_node(data.get_column_count() - 1); // skip labels column
+    desc.set_features_per_node(data.get_column_count() - 1); // skip responses column
     desc.set_class_count(wl.ds_info.class_count);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
@@ -700,8 +700,8 @@ DF_BATCH_CLS_TEST("df cls base check with non default params") {
     const auto variable_importance_mode_val =
         GENERATE_COPY(variable_importance_mode::none, variable_importance_mode::mdi);
     const auto infer_mode_val =
-        GENERATE_COPY(df::infer_mode::class_labels,
-                      df::infer_mode::class_labels | df::infer_mode::class_probabilities);
+        GENERATE_COPY(df::infer_mode::class_responses,
+                      df::infer_mode::class_responses | df::infer_mode::class_probabilities);
 
     auto desc = this->get_default_descriptor();
 

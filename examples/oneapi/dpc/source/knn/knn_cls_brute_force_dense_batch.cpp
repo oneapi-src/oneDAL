@@ -14,7 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/algo/knn.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -25,23 +28,34 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("k_nearest_neighbors_train_data.csv");
-    const auto train_label_file_name = get_data_path("k_nearest_neighbors_train_label.csv");
+    const auto train_response_file_name = get_data_path("k_nearest_neighbors_train_label.csv");
     const auto test_data_file_name = get_data_path("k_nearest_neighbors_test_data.csv");
-    const auto test_label_file_name = get_data_path("k_nearest_neighbors_test_label.csv");
+    const auto test_response_file_name = get_data_path("k_nearest_neighbors_test_label.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
-    const auto y_train = dal::read<dal::table>(q, dal::csv::data_source{ train_label_file_name });
+    const auto y_train =
+        dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
 
-    const auto knn_desc = dal::knn::descriptor(5, 1);
+    const auto knn_desc_uniform = dal::knn::descriptor(5, 1);
+    const auto knn_desc_distance =
+        dal::knn::descriptor(5, 1).set_voting_mode(dal::knn::voting_mode::distance);
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_label_file_name });
+    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
 
-    const auto train_result = dal::train(q, knn_desc, x_train, y_train);
-    const auto test_result = dal::infer(q, knn_desc, x_test, train_result.get_model());
+    const auto train_result_uniform = dal::train(q, knn_desc_uniform, x_train, y_train);
+    const auto train_result_distance = dal::train(q, knn_desc_distance, x_train, y_train);
 
-    std::cout << "Test results:\n" << test_result.get_labels() << std::endl;
-    std::cout << "True labels:\n" << y_test << std::endl;
+    const auto test_result_uniform =
+        dal::infer(q, knn_desc_uniform, x_test, train_result_uniform.get_model());
+    const auto test_result_distance =
+        dal::infer(q, knn_desc_distance, x_test, train_result_distance.get_model());
+
+    std::cout << "Test results (uniform voting):\n"
+              << test_result_uniform.get_responses() << std::endl;
+    std::cout << "Test results (distance voting):\n"
+              << test_result_distance.get_responses() << std::endl;
+    std::cout << "True responses:\n" << y_test << std::endl;
 }
 
 int main(int argc, char const* argv[]) {

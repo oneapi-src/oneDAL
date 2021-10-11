@@ -33,7 +33,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/algorithms/svm/svm_train_cache.h"
 #include "src/algorithms/svm/svm_train_common.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/externals/service_math.h"
 #include "src/algorithms/svm/svm_train_kernel.h"
 
@@ -320,14 +320,14 @@ protected:
             }
         }
 
+        const double sign = (signNuType == SignNuType::positive) ? 1.0 : -1.0;
         if (nGrad == 0)
         {
-            bias = -0.5 * (ub + lb);
+            bias = sign * 0.5 * (ub + lb);
         }
         else
         {
-            double factor = (signNuType == SignNuType::positive) ? 1.0 : -1.0;
-            bias          = factor * sumGrad / algorithmFPType(nGrad);
+            bias = sign * sumGrad / algorithmFPType(nGrad);
         }
 
         return bias;

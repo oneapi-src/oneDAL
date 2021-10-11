@@ -30,9 +30,10 @@ namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 template <typename Policy, typename Descriptor, typename Graph>
 struct graph_matching_ops_dispatcher {
-    graph_matching_result operator()(const Policy &policy,
-                                     const Descriptor &descriptor,
-                                     graph_matching_input<Graph> &input) const {
+    using task_t = typename Descriptor::task_t;
+    graph_matching_result<task_t> operator()(const Policy &policy,
+                                             const Descriptor &descriptor,
+                                             graph_matching_input<Graph, task_t> &input) const {
         const auto &csr_target_topology =
             dal::preview::detail::csr_topology_builder<Graph>()(input.get_target_graph());
         const auto &csr_pattern_topology =
@@ -59,14 +60,15 @@ struct graph_matching_ops_dispatcher {
 template <typename Descriptor, typename Graph>
 struct graph_matching_ops {
     using float_t = typename Descriptor::float_t;
+    using task_t = typename Descriptor::task_t;
     using method_t = typename Descriptor::method_t;
     using allocator_t = typename Descriptor::allocator_t;
     using graph_t = Graph;
-    using input_t = graph_matching_input<graph_t>;
-    using result_t = graph_matching_result;
-    using descriptor_base_t = descriptor_base;
+    using input_t = graph_matching_input<graph_t, task_t>;
+    using result_t = graph_matching_result<task_t>;
+    using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor &param, graph_matching_input<Graph> &input) const {
+    void check_preconditions(const Descriptor &desc, input_t &input) const {
         using msg = dal::detail::error_messages;
 
         if (dal::preview::get_vertex_count(input.get_target_graph()) == 0) {
@@ -75,7 +77,11 @@ struct graph_matching_ops {
         if (dal::preview::get_vertex_count(input.get_pattern_graph()) == 0) {
             throw invalid_argument(msg::empty_pattern_graph());
         }
-        if (param.get_max_match_count() < 0) {
+        if (dal::preview::get_vertex_count(input.get_target_graph()) <
+            dal::preview::get_vertex_count(input.get_pattern_graph())) {
+            throw invalid_argument(msg::target_graph_is_smaller_than_pattern_graph());
+        }
+        if (desc.get_max_match_count() < 0) {
             throw invalid_argument(msg::max_match_count_lt_zero());
         }
     }

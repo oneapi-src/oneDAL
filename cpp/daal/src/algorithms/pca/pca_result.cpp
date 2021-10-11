@@ -120,7 +120,7 @@ void Result::set(ResultId id, const NumericTablePtr & value)
 */
 services::Status Result::check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * parameter, int method) const
 {
-    auto impl = interface1::ResultImpl::cast(getStorage(*this));
+    auto impl = ResultImpl::cast(getStorage(*this));
     DAAL_CHECK(impl, ErrorNullPtr);
 
     return impl->check(0, lastResultId + 1);

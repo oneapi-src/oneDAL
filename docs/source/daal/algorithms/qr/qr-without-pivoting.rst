@@ -38,7 +38,7 @@ The following computation modes are available:
 
 .. toctree::
    :maxdepth: 1
-   
+
    without-pivoting/computation-batch-online.rst
    without-pivoting/computation-distributed.rst
 
@@ -62,7 +62,7 @@ Examples
     - :cpp_example:`qr_dense_distr.cpp <qr/qr_dense_distr.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

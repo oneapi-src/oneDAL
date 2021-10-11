@@ -105,13 +105,13 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
     array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
-    array<int> arr_labels = array<int>::empty(row_count);
+    array<int> arr_responses = array<int>::empty(row_count);
     array<Float> arr_objective_function_value = array<Float>::empty(1);
     array<int> arr_iteration_count = array<int>::empty(1);
 
     const auto daal_centroids =
         interop::convert_to_daal_homogen_table(arr_centroids, cluster_count, column_count);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+    const auto daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
     const auto daal_objective_function_value =
         interop::convert_to_daal_homogen_table(arr_objective_function_value, 1, 1);
     const auto daal_iteration_count =
@@ -121,7 +121,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                       daal_initial_centroids.get() };
 
     daal::data_management::NumericTable* output[4] = { daal_centroids.get(),
-                                                       daal_labels.get(),
+                                                       daal_responses.get(),
                                                        daal_objective_function_value.get(),
                                                        daal_iteration_count.get() };
 
@@ -132,7 +132,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                            &par));
 
     return train_result<Task>()
-        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
+        .set_responses(
+            dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build())
         .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]))
         .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]))
         .set_model(

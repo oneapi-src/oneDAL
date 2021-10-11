@@ -20,7 +20,7 @@ Types of Numeric Tables
 .. include:: ./numeric-tables/heterogen-numeric-tables.rst
 
 .. include:: ./numeric-tables/homogen-numeric-tables.rst
-   
+
 .. include:: ./numeric-tables/csr-numeric-table.rst
 
 .. include:: ./numeric-tables/merged-numeric-table.rst

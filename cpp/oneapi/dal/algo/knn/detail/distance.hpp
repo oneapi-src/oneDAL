@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/minkowski_distance/common.hpp"
 #include "oneapi/dal/algo/chebyshev_distance/common.hpp"
+#include "oneapi/dal/algo/cosine_distance/common.hpp"
 
 namespace oneapi::dal::knn::detail {
 namespace v1 {
@@ -66,6 +67,18 @@ template <typename Float, typename Method>
 class distance<chebyshev_distance::descriptor<Float, Method>> : public base, public distance_iface {
 public:
     using distance_t = chebyshev_distance::descriptor<Float, Method>;
+    explicit distance(const distance_t& dist);
+    distance_impl* get_impl() const override;
+
+private:
+    distance_t distance_;
+    dal::detail::pimpl<distance_impl> impl_;
+};
+
+template <typename Float, typename Method>
+class distance<cosine_distance::descriptor<Float, Method>> : public base, public distance_iface {
+public:
+    using distance_t = cosine_distance::descriptor<Float, Method>;
     explicit distance(const distance_t& dist);
     distance_impl* get_impl() const override;
 

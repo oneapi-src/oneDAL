@@ -134,33 +134,16 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     VoteWeights voteWeights       = voteUniform;
     DAAL_UINT64 resultsToEvaluate = classifier::computeClassLabels;
 
+    const auto par3 = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
+    if (par3)
     {
-        auto par1 = dynamic_cast<const kdtree_knn_classification::interface1::Parameter *>(par);
-        if (par1)
-        {
-            k        = par1->k;
-            nClasses = par1->nClasses;
-        }
-
-        auto par2 = dynamic_cast<const kdtree_knn_classification::interface2::Parameter *>(par);
-        if (par2)
-        {
-            k                 = par2->k;
-            resultsToEvaluate = par2->resultsToEvaluate;
-            nClasses          = par2->nClasses;
-        }
-
-        const auto par3 = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
-        if (par3)
-        {
-            k                 = par3->k;
-            voteWeights       = par3->voteWeights;
-            resultsToEvaluate = par3->resultsToEvaluate;
-            nClasses          = par3->nClasses;
-        }
-
-        if (par1 == NULL && par2 == NULL && par3 == NULL) return Status(ErrorNullParameterNotSupported);
+        k                 = par3->k;
+        voteWeights       = par3->voteWeights;
+        resultsToEvaluate = par3->resultsToEvaluate;
+        nClasses          = par3->nClasses;
     }
+
+    if (par3 == NULL) return Status(ErrorNullParameterNotSupported);
 
     const Model * const model    = static_cast<const Model *>(m);
     const auto & kdTreeTable     = *(model->impl()->getKDTreeTable());

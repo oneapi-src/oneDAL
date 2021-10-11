@@ -21,8 +21,7 @@
 //--
 */
 
-#include "src/externals/service_ittnotify.h"
-DAAL_ITTNOTIFY_DOMAIN(lom.dense.default.batch);
+#include "src/externals/service_profiler.h"
 
 #include "src/algorithms/low_order_moments/low_order_moments_container.h"
 #include "src/algorithms/low_order_moments/low_order_moments_batch_impl.i"
@@ -39,7 +38,7 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 namespace internal
 {
-template class LowOrderMomentsBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+template class DAAL_EXPORT LowOrderMomentsBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 } // namespace low_order_moments
 } // namespace algorithms

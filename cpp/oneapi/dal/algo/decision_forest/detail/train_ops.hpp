@@ -44,14 +44,14 @@ struct train_ops {
         if (!(input.get_data().has_data())) {
             throw domain_error(msg::input_data_is_empty());
         }
-        if (!(input.get_labels().has_data())) {
-            throw domain_error(msg::input_labels_are_empty());
+        if (!(input.get_responses().has_data())) {
+            throw domain_error(msg::input_responses_are_empty());
         }
-        if (input.get_labels().get_column_count() != 1) {
-            throw domain_error(msg::input_labels_table_has_wrong_cc_expect_one());
+        if (input.get_responses().get_column_count() != 1) {
+            throw domain_error(msg::input_responses_table_has_wrong_cc_expect_one());
         }
-        if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
-            throw invalid_argument(msg::input_data_rc_neq_input_labels_rc());
+        if (input.get_data().get_row_count() != input.get_responses().get_row_count()) {
+            throw invalid_argument(msg::input_data_rc_neq_input_responses_rc());
         }
         if (!params.get_bootstrap() &&
             (params.get_variable_importance_mode() == variable_importance_mode::mda_raw ||

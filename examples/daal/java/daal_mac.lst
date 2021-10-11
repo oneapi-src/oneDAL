@@ -25,7 +25,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     boosting/adaboost/AdaBoostSammeRTwoClassBatch    \
                     boosting/adaboost/AdaBoostSammeRMultiClassBatch  \
                     boosting/brownboost/BrownBoostDenseBatch         \
-                    boosting/adaboost/AdaBoostDenseBatch             \
                     boosting/logitboost/LogitBoostDenseBatch         \
                     cholesky/CholeskyDenseBatch                      \
                     compression/CompressorExample                    \
@@ -132,7 +131,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     stump/StumpClsGiniDenseBatch                     \
                     stump/StumpClsInfogainDenseBatch                 \
                     stump/StumpRegMseDenseBatch                      \
-                    stump/StumpDenseBatch                            \
                     svd/SVDDenseBatch                                \
                     svd/SVDDenseDistr                                \
                     svd/SVDDenseOnline                               \

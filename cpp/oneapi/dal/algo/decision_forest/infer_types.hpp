@@ -88,10 +88,19 @@ public:
 
     /// The $n \\times 1$ table with the predicted labels
     /// @remark default = table{}
-    const table& get_labels() const;
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
 
-    auto& set_labels(const table& value) {
-        set_labels_impl(value);
+    /// The $n \\times 1$ table with the predicted responses
+    /// @remark default = table{}
+    const table& get_responses() const;
+
+    auto& set_responses(const table& value) {
+        set_responses_impl(value);
         return *this;
     }
 
@@ -108,7 +117,7 @@ public:
     }
 
 private:
-    void set_labels_impl(const table& value);
+    void set_responses_impl(const table& value);
     const table& get_probabilities_impl() const;
     void set_probabilities_impl(const table& value);
 

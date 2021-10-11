@@ -230,3 +230,4 @@ export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
 export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
 export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
 export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
+export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}

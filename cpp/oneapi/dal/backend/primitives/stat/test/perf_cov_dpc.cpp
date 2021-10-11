@@ -54,7 +54,7 @@ TEST("100K x 4K", "[cor][perf]") {
     q.wait_and_throw();
 
     BENCHMARK("correlation") {
-        correlation(q, data, sums, corr, means, vars, tmp, { sums_event }).wait_and_throw();
+        correlation(q, data, sums, means, corr, vars, tmp, { sums_event }).wait_and_throw();
     };
 }
 

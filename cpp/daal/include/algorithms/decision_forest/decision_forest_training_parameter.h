@@ -78,60 +78,13 @@ enum VariableImportanceMode
  */
 enum ResultToComputeId
 {
-    computeOutOfBagError               = 0x00000001ULL,
-    computeOutOfBagErrorPerObservation = 0x00000002ULL
+    computeOutOfBagError                 = 0x00000001ULL,
+    computeOutOfBagErrorPerObservation   = 0x00000002ULL,
+    computeOutOfBagErrorAccuracy         = 0x00000004ULL,
+    computeOutOfBagErrorR2               = 0x00000008ULL,
+    computeOutOfBagErrorDecisionFunction = 0x00000010ULL,
+    computeOutOfBagErrorPrediction       = 0x00000020ULL
 };
-
-/**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__TRAINING__PARAMETER"></a>
- * \brief Parameters for the decision forest algorithm
- *
- * \snippet decision_forest/decision_forest_training_parameter.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-class DAAL_EXPORT Parameter
-{
-public:
-    Parameter()
-        : nTrees(100),
-          observationsPerTreeFraction(1.),
-          featuresPerNode(0),
-          maxTreeDepth(0),
-          minObservationsInLeafNode(0),
-          seed(77),
-          engine(engines::mt2203::Batch<>::create()),
-          impurityThreshold(0.),
-          varImportance(none),
-          resultsToCompute(0),
-          memorySavingMode(false),
-          bootstrap(true)
-    {}
-
-    size_t nTrees;                        /*!< Number of trees in the forest. Default is 10 */
-    double observationsPerTreeFraction;   /*!< Fraction of observations used for a training of one tree, 0 to 1.
-                                                 Default is 1 (sampling with replacement) */
-    size_t featuresPerNode;               /*!< Number of features tried as possible splits per node.
-                                                 If 0 then sqrt(p) for classification, p/3 for regression,
-                                                 where p is the total number of features. */
-    size_t maxTreeDepth;                  /*!< Maximal tree depth. Default is 0 (unlimited) */
-    size_t minObservationsInLeafNode;     /*!< Minimal number of observations in a leaf node.
-                                                 Default is 1 for classification, 5 for regression. */
-    size_t seed;                          /*!< Seed for the random numbers generator used by the algorithms \DAAL_DEPRECATED_USE{ engine } */
-    engines::EnginePtr engine;            /*!< Engine for the random numbers generator used by the algorithms */
-    double impurityThreshold;             /*!< Threshold value used as stopping criteria: if the impurity value in the node is smaller
-                                                 than the threshold then the node is not split anymore.*/
-    VariableImportanceMode varImportance; /*!< Variable importance computation mode */
-    DAAL_UINT64 resultsToCompute;         /*!< 64 bit integer flag that indicates the results to compute */
-    bool memorySavingMode;                /*!< If true then use memory saving (but slower) mode */
-    bool bootstrap;                       /*!< If true then training set for a tree is a bootstrap of the whole training set */
-};
-/* [interface1::Parameter source code] */
-} // namespace interface1
 
 /**
  * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface

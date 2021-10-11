@@ -19,11 +19,6 @@
 Batch Processing
 ****************
 
-.. contents::
-    :local:
-    :depth: 1
-
-
 Algorithm Input
 +++++++++++++++
 
@@ -31,11 +26,13 @@ The K-Means clustering algorithm accepts the input described
 below. Pass the ``Input ID`` as a parameter to the methods that
 provide input for your algorithm.
 
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table::
+.. list-table:: Algorithm Input for K-Means Computaion (Batch Processing)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -51,10 +48,13 @@ Algorithm Parameters
 
 The K-Means clustering algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for K-Means Computaion (Batch Processing)
    :header-rows: 1
    :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -68,12 +68,12 @@ The K-Means clustering algorithm has the following parameters:
 
        For CPU:
 
-        -  ``defaultDense`` - implementation of Lloyd's algorithm
-        -  ``lloydCSR`` - implementation of Lloyd's algorithm for CSR numeric tables
+       - ``defaultDense`` - implementation of Lloyd's algorithm
+       - ``lloydCSR`` - implementation of Lloyd's algorithm for CSR numeric tables
 
        For GPU:
 
-        -  ``defaultDense`` - implementation of Lloyd's algorithm
+       - ``defaultDense`` - implementation of Lloyd's algorithm
 
    * - ``nClusters``
      - Not applicable
@@ -91,7 +91,7 @@ The K-Means clustering algorithm has the following parameters:
      - ``euclidean``
      - The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidian distance.
    * - **DEPRECATED:** ``assignFlag``
-       
+
        **USE INSTEAD:** ``resultsToEvaluate``
 
      - ``true``
@@ -99,9 +99,9 @@ The K-Means clustering algorithm has the following parameters:
    * - ``resultsToEvaluate``
      - ``computeCentroids`` | ``computeAssignments`` | ``computeExactObjectiveFunction``
      - The 64-bit integer flag that specifies which extra characteristics of the K-Means algorithm to compute.
-     
+
        Provide one of the following values to request a single characteristic or use bitwise OR to request a combination of the characteristics:
-       
+
        - ``computeCentroids`` for computation centroids.
        - ``computeAssignments`` for computation of assignments, that is, assigning cluster indices to respective observations.
        - ``computeExactObjectiveFunction`` for computation of exact ObjectiveFunction.
@@ -114,10 +114,13 @@ The K-Means clustering algorithm calculates the result described
 below. Pass the ``Result ID`` as a parameter to the methods that access
 the results of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for K-Means Computaion (Batch Processing)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
@@ -133,7 +136,7 @@ the results of your algorithm.
        Pointer to the :math:`n \times 1` numeric table with
        assignments of cluster indices to feature vectors in the input data,
        computed when ``computeAssignments`` option is enabled.
-       
+
        .. include:: ./../../includes/default_result_numeric_table.rst
 
    * - ``objectiveFunction``
@@ -148,7 +151,7 @@ the results of your algorithm.
      -
        Pointer to the :math:`1 \times 1` numeric table with the actual number of iterations
        done by the algorithm.
-       
+
        .. include:: ./../../includes/default_result_numeric_table.rst
 
 .. note::

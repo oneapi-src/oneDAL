@@ -4,7 +4,7 @@
    .wy-table-responsive table td {
       /* !important prevents the common CSS stylesheets from overriding
          this as on RTD they are loaded after this stylesheet */
-         
+
       white-space: normal !important;
    }
 }
@@ -97,16 +97,6 @@ div.quotation {
    white-space: pre-wrap;
 }
 
-/* A workaround for https://github.com/readthedocs/sphinx_rtd_theme/issues/647
- * Override display for function signatures so that there is spacing between
- * types and arguments */
- .rst-content dl:not(.docutils) dt {
-   display: table-cell !important;
-}
-.rst-content dl:not(.docutils) dd {
-   margin-top: 6px;
-}
-
 /*
 .rst-content tt.literal, .rst-content code.literal, .highlight {
    background: #f0f0f0;
@@ -133,9 +123,9 @@ div.quotation {
 /* A workaround for https://github.com/readthedocs/sphinx_rtd_theme/issues/647
 * Override display for function signatures so that there is spacing between
 * types and arguments */
-.rst-content dl:not(.docutils) dt {
+dt {
    display: table-cell !important;
 }
-.rst-content dl:not(.docutils) dd {
+dd {
    margin-top: 6px;
 }

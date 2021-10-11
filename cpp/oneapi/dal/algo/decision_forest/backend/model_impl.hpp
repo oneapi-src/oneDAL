@@ -20,6 +20,7 @@
 #include "oneapi/dal/algo/decision_tree/backend/node_info_impl.hpp"
 #include "oneapi/dal/algo/decision_tree/backend/node_visitor_interop.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/model_interop.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::decision_forest {
 
@@ -38,8 +39,15 @@ struct daal_model_map<task::regression> {
     using daal_model_interop_t = backend::model_interop_reg;
 };
 
+#define DF_SERIALIZABLE(Task, ClassificationId, RegressionId)          \
+    ONEDAL_SERIALIZABLE_MAP2(Task,                                     \
+                             (task::classification, ClassificationId), \
+                             (task::regression, RegressionId))
+
 template <typename Task>
-class detail::v1::model_impl : public base {
+class detail::v1::model_impl : public DF_SERIALIZABLE(Task,
+                                                      decision_forest_classification_model_impl_id,
+                                                      decision_forest_regression_model_impl_id) {
     static_assert(is_valid_task_v<Task>);
 
     using dtree_task_t = detail::decision_tree_task_map_t<Task>;
@@ -102,6 +110,26 @@ public:
             visitor_interop_t vis(std::move(visitor));
             daal_model->traverseBFS(dal::detail::integral_cast<std::size_t>(tree_idx), vis);
         }
+    }
+
+    void serialize(dal::detail::output_archive& ar) const override {
+        ar(tree_count);
+
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            ar(class_count);
+        }
+
+        dal::detail::serialize_polymorphic(interop_, ar);
+    }
+
+    void deserialize(dal::detail::input_archive& ar) override {
+        ar(tree_count);
+
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            ar(class_count);
+        }
+
+        interop_ = dal::detail::deserialize_polymorphic<backend::model_interop>(ar);
     }
 
     std::int64_t tree_count = 0;

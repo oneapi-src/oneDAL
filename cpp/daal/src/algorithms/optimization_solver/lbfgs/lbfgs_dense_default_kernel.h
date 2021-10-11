@@ -48,11 +48,6 @@ public:
                              NumericTable * correctionPairsResult, NumericTable * correctionIndicesResult, NumericTable * minimum,
                              NumericTable * nIterationsNT, NumericTable * averageArgLIterResult, OptionalArgument * optionalArgumentResult,
                              Parameter * parameter, engines::BatchBase & engine);
-    services::Status compute1(HostAppIface * pHost, NumericTable * correctionPairsInput, NumericTable * correctionIndicesInput,
-                              NumericTable * inputArgument, NumericTable * averageArgLIterInput, OptionalArgument * optionalArgumentInput,
-                              NumericTable * correctionPairsResult, NumericTable * correctionIndicesResult, NumericTable * minimum,
-                              NumericTable * nIterationsNT, NumericTable * averageArgLIterResult, OptionalArgument * optionalArgumentResult,
-                              interface1::Parameter * parameter, engines::BatchBase & engine);
 };
 
 } // namespace internal

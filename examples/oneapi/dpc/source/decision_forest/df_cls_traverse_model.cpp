@@ -14,7 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -32,7 +35,7 @@ struct print_node_visitor {
     bool operator()(const df::leaf_node_info<df::task::classification>& info) {
         std::cout << std::string(info.get_level() * 2, ' ');
         std::cout << "Level " << info.get_level()
-                  << ", leaf node. Response value = " << info.get_label()
+                  << ", leaf node. Response value = " << info.get_response()
                   << ", Impurity = " << info.get_impurity()
                   << ", Number of samples = " << info.get_sample_count() << ", Probabilities = { ";
         for (std::int64_t index_class = 0; index_class < class_count; ++index_class) {
@@ -64,15 +67,16 @@ void print_model(const df::model<Task>& m) {
 
 void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("df_classification_train_data.csv");
-    const auto train_label_file_name = get_data_path("df_classification_train_label.csv");
+    const auto train_response_file_name = get_data_path("df_classification_train_label.csv");
     const auto test_data_file_name = get_data_path("df_classification_test_data.csv");
-    const auto test_label_file_name = get_data_path("df_classification_test_label.csv");
+    const auto test_response_file_name = get_data_path("df_classification_test_label.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
-    const auto y_train = dal::read<dal::table>(q, dal::csv::data_source{ train_label_file_name });
+    const auto y_train =
+        dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_label_file_name });
+    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
 
     const auto df_desc = df::descriptor<float, df::method::hist, df::task::classification>{}
                              .set_class_count(class_count)

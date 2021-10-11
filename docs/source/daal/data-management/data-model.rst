@@ -17,7 +17,7 @@
 Data Model
 ==========
 
-The Data Model component of the |full_name| (|short_name|) 
+The Data Model component of the |full_name| (|short_name|)
 provides classes for model representation. The
 model mimics the actual data and represents it in a compact way so
 that you can use the library when the actual data is missing,

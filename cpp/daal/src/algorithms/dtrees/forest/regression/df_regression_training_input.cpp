@@ -90,18 +90,9 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     NumericTablePtr dependentVariableTable = get(dependentVariable);
 
     DAAL_CHECK_EX(dependentVariableTable->getNumberOfColumns() == 1, ErrorIncorrectNumberOfColumns, ArgumentName, dependentVariableStr());
-    const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter1 =
-        dynamic_cast<const daal::algorithms::decision_forest::regression::training::interface1::Parameter *>(par);
     const daal::algorithms::decision_forest::regression::training::interface2::Parameter * parameter2 =
         dynamic_cast<const daal::algorithms::decision_forest::regression::training::interface2::Parameter *>(par);
-    if (parameter1 != NULL)
-    {
-        const size_t nSamplesPerTree(parameter1->observationsPerTreeFraction * dataTable->getNumberOfRows());
-        DAAL_CHECK_EX(nSamplesPerTree > 0, ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
-        const auto nFeatures = dataTable->getNumberOfColumns();
-        DAAL_CHECK_EX(parameter1->featuresPerNode <= nFeatures, ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
-    }
-    else if (parameter2 != NULL)
+    if (parameter2 != NULL)
     {
         const size_t nSamplesPerTree(parameter2->observationsPerTreeFraction * dataTable->getNumberOfRows());
         DAAL_CHECK_EX(nSamplesPerTree > 0, ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());

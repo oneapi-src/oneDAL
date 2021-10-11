@@ -46,9 +46,9 @@ public:
         return 31 - ONEDAL_lzcnt_u32<Cpu>(bit_val);
     };
 
-    bit_vector(const inner_alloc allocator);
+    bit_vector(const inner_alloc alloc);
     bit_vector(bit_vector<Cpu>& bvec);
-    bit_vector(const std::int64_t vector_size, inner_alloc allocator);
+    bit_vector(const std::int64_t vector_size, inner_alloc alloc);
     ~bit_vector();
     void set_bit(std::int64_t vertex);
     std::uint8_t* get_vector_pointer() const;
@@ -85,7 +85,7 @@ public:
                          const std::int64_t vertex);
 
 private:
-    inner_alloc allocator_;
+    inner_alloc allocator;
     std::uint8_t* vector;
     std::int64_t n; // size in bytes
 };
@@ -187,30 +187,30 @@ void bit_vector<Cpu>::set_bit(std::uint8_t* result_vector,
 }
 
 template <typename Cpu>
-bit_vector<Cpu>::bit_vector(const inner_alloc allocator) : allocator_(allocator) {
+bit_vector<Cpu>::bit_vector(const inner_alloc alloc) : allocator(alloc) {
     vector = nullptr;
     n = 0;
 }
 
 template <typename Cpu>
 bit_vector<Cpu>::bit_vector(bit_vector<Cpu>& bvec)
-        : allocator_(bvec.allocator_.get_byte_allocator()) {
+        : allocator(bvec.allocator.get_byte_allocator()) {
     n = bvec.n;
-    vector = allocator_.allocate<std::uint8_t>(n);
+    vector = allocator.allocate<std::uint8_t>(n);
     this->set(n, vector, bvec.vector);
 }
 
 template <typename Cpu>
-bit_vector<Cpu>::bit_vector(const std::int64_t vector_size_in_bytes, inner_alloc allocator)
-        : allocator_(allocator),
+bit_vector<Cpu>::bit_vector(const std::int64_t vector_size_in_bytes, inner_alloc alloc)
+        : allocator(alloc),
           n(vector_size_in_bytes) {
-    vector = allocator_.allocate<std::uint8_t>(n);
+    vector = allocator.allocate<std::uint8_t>(n);
     this->set(n, vector);
 }
 
 template <typename Cpu>
 bit_vector<Cpu>::bit_vector(bit_vector<Cpu>&& a)
-        : allocator_(a.allocator_.get_byte_allocator()),
+        : allocator(a.allocator.get_byte_allocator()),
           vector(a.vector),
           n(a.n) {
     a.n = 0;
@@ -220,7 +220,7 @@ bit_vector<Cpu>::bit_vector(bit_vector<Cpu>&& a)
 template <typename Cpu>
 bit_vector<Cpu>::~bit_vector() {
     if (vector != nullptr) {
-        allocator_.deallocate<std::uint8_t>(vector, n);
+        allocator.deallocate(vector, n);
     }
 }
 

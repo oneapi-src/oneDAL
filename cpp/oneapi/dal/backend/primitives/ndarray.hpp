@@ -75,7 +75,7 @@ public:
     explicit ndarray_base(const ndshape<axis_count>& shape)
             : ndarray_base(shape, get_default_strides(shape)) {}
 
-    ndorder get_order() const {
+    constexpr ndorder get_order() const {
         return order;
     }
 
@@ -211,7 +211,47 @@ public:
     }
 
     bool has_mutable_data() const {
-        return has_data() && data_is_mutable_;
+        return this->has_data() && this->data_is_mutable_;
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    const T& at(std::int64_t id) const {
+        ONEDAL_ASSERT(has_data());
+        ONEDAL_ASSERT((this->get_dimension(0) >= id) && (id >= 0));
+        return *(get_data() + id);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    const T& at(std::int64_t id0, std::int64_t id1) const {
+        ONEDAL_ASSERT(has_data());
+        ONEDAL_ASSERT((this->get_dimension(0) >= id0) && (id0 >= 0));
+        ONEDAL_ASSERT((this->get_dimension(1) >= id1) && (id1 >= 0));
+        if constexpr (order == ndorder::c) {
+            const auto* row = get_data() + id0 * this->get_stride(0);
+            return *(row + id1);
+        }
+        const auto* const col = get_data() + id1 * this->get_stride(1);
+        return *(col + id0);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    T& at(std::int64_t id) {
+        ONEDAL_ASSERT(has_mutable_data());
+        ONEDAL_ASSERT((this->get_dimension(0) >= id) && (id >= 0));
+        return *(get_mutable_data() + id);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    T& at(std::int64_t id0, std::int64_t id1) {
+        ONEDAL_ASSERT(has_mutable_data());
+        ONEDAL_ASSERT((this->get_dimension(0) >= id0) && (id0 >= 0));
+        ONEDAL_ASSERT((this->get_dimension(1) >= id1) && (id1 >= 0));
+        if constexpr (order == ndorder::c) {
+            auto* const row = get_mutable_data() + id0 * this->get_stride(0);
+            return *(row + id1);
+        }
+        auto* const col = get_mutable_data() + id1 * this->get_stride(1);
+        return *(col + id0);
     }
 
     auto t() const {
@@ -226,6 +266,35 @@ public:
         using reshaped_ndview_t = ndview<T, new_axis_count, order>;
         check_reshape_conditions(new_shape);
         return reshaped_ndview_t{ data_, new_shape, data_is_mutable_ };
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    ndview get_slice(std::int64_t from, std::int64_t to) const {
+        ONEDAL_ASSERT((this->get_dimension(0) >= from) && (from >= 0));
+        ONEDAL_ASSERT((this->get_dimension(0) >= to) && (to >= from));
+        ONEDAL_ASSERT(this->has_data());
+        const ndshape<1> new_shape{ to - from };
+        const T* new_start_point = this->get_data() + from;
+        return ndview(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    ndview get_row_slice(std::int64_t from_row, std::int64_t to_row) const {
+        ONEDAL_ASSERT((this->get_dimension(0) >= from_row) && (from_row >= 0));
+        ONEDAL_ASSERT((this->get_dimension(0) >= to_row) && (to_row >= from_row));
+        ONEDAL_ASSERT(this->has_data());
+        const ndshape<2> new_shape{ (to_row - from_row), this->get_dimension(1) };
+        if constexpr (order == ndorder::c) {
+            const T* new_start_point = this->get_data() + from_row * this->get_leading_stride();
+            return ndview(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
+        }
+        const T* new_start_point = this->get_data() + from_row;
+        return ndview(new_start_point, new_shape, this->get_strides(), this->data_is_mutable_);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    ndview get_col_slice(std::int64_t from_col, std::int64_t to_col) const {
+        return this->t().get_row_slice(from_col, to_col).t();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -276,6 +345,83 @@ private:
     const T* data_;
     bool data_is_mutable_;
 };
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename T1, ndorder ord1, typename T2, ndorder ord2>
+sycl::event copy(sycl::queue& q,
+                 ndview<T1, 2, ord1>& dst,
+                 const ndview<T2, 2, ord2>& src,
+                 const event_vector& deps = {}) {
+    ONEDAL_ASSERT(src.has_data());
+    ONEDAL_ASSERT(dst.has_mutable_data());
+    const ndshape<2> dst_shape = dst.get_shape();
+    ONEDAL_ASSERT(dst_shape == src.get_shape());
+    sycl::event res_event;
+    if constexpr (ord1 == ndorder::c) {
+        T1* const dst_ptr = dst.get_mutable_data();
+        const T2* const src_ptr = src.get_data();
+        const auto dst_stride = dst.get_leading_stride();
+        const auto src_stride = src.get_leading_stride();
+        const auto cp_range = make_range_2d(dst_shape[0], dst_shape[1]);
+        res_event = q.submit([&](sycl::handler& h) {
+            h.depends_on(deps);
+            h.parallel_for(cp_range, [=](sycl::id<2> idx) {
+                T1& dst_ref = *(dst_ptr + idx[0] * dst_stride + idx[1]);
+                if constexpr (ord2 == ndorder::c) {
+                    dst_ref = static_cast<T1>(*(src_ptr + idx[0] * src_stride + idx[1]));
+                }
+                else {
+                    dst_ref = static_cast<T2>(*(src_ptr + idx[1] * src_stride + idx[0]));
+                }
+            });
+        });
+    }
+    else {
+        auto new_dst = dst.t();
+        const auto new_src = src.t();
+        res_event = copy(q, new_dst, new_src, deps);
+    }
+    return res_event;
+}
+
+template <typename T>
+sycl::event fill(sycl::queue& q,
+                 ndview<T, 1>& dst,
+                 const T& value = T{},
+                 const event_vector& deps = {}) {
+    ONEDAL_ASSERT(dst.has_mutable_data());
+    return q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.fill(dst.get_mutable_data(), value, dst.get_count());
+    });
+}
+
+template <typename T, ndorder ord1>
+sycl::event fill(sycl::queue& q,
+                 ndview<T, 2, ord1>& dst,
+                 const T& value = T{},
+                 const event_vector& deps = {}) {
+    ONEDAL_ASSERT(dst.has_mutable_data());
+    sycl::event res_event;
+    if constexpr (ord1 == ndorder::c) {
+        T* const dst_ptr = dst.get_mutable_data();
+        const ndshape<2> dst_shape = dst.get_shape();
+        const auto dst_stride = dst.get_leading_stride();
+        const auto fl_range = make_range_2d(dst_shape[0], dst_shape[1]);
+        res_event = q.submit([&](sycl::handler& h) {
+            h.depends_on(deps);
+            h.parallel_for(fl_range, [=](sycl::id<2> idx) {
+                *(dst_ptr + idx[0] * dst_stride + idx[1]) = value;
+            });
+        });
+    }
+    else {
+        auto new_dst = dst.t();
+        res_event = fill(q, new_dst, value, deps);
+    }
+    return res_event;
+}
+#endif
 
 template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
 class ndarray : public ndview<T, axis_count, order> {
@@ -367,8 +513,10 @@ public:
     }
 
     static ndarray empty(const shape_t& shape) {
-        T* ptr = detail::malloc<T>(detail::default_host_policy{}, shape.get_count());
-        return wrap(ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
+        T* ptr = dal::detail::malloc<T>(dal::detail::default_host_policy{}, shape.get_count());
+        return wrap(ptr,
+                    shape,
+                    dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
     }
 
     static ndarray copy(const T* data, const shape_t& shape) {
@@ -443,9 +591,9 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    array_t flatten(sycl::queue& q) const {
+    array_t flatten(sycl::queue& q, const event_vector& deps = {}) const {
         ONEDAL_ASSERT(is_known_usm(q, data_.get()));
-        return array_t{ q, data_, this->get_count() };
+        return array_t{ q, data_, this->get_count(), deps };
     }
 #endif
 
@@ -498,28 +646,106 @@ public:
         return dal::backend::copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
     }
 
+    sycl::event assign_from_host(sycl::queue& q,
+                                 const T* source_ptr,
+                                 std::int64_t source_count,
+                                 const event_vector& deps = {}) {
+        ONEDAL_ASSERT(source_ptr != nullptr);
+        ONEDAL_ASSERT(source_count > 0);
+        ONEDAL_ASSERT(source_count <= this->get_count());
+        return dal::backend::copy_host2usm(q,
+                                           this->get_mutable_data(),
+                                           source_ptr,
+                                           source_count,
+                                           deps);
+    }
+
     sycl::event assign(sycl::queue& q, const ndarray& src, const event_vector& deps = {}) {
         ONEDAL_ASSERT(src.get_count() > 0);
         ONEDAL_ASSERT(src.get_count() <= this->get_count());
         return this->assign(q, src.get_data(), src.get_count(), deps);
     }
+
+    sycl::event assign_from_host(sycl::queue& q,
+                                 const ndarray& src,
+                                 const event_vector& deps = {}) {
+        ONEDAL_ASSERT(src.get_count() > 0);
+        ONEDAL_ASSERT(src.get_count() <= this->get_count());
+        return this->assign_from_host(q, src.get_data(), src.get_count(), deps);
+    }
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
     ndarray to_host(sycl::queue& q, const event_vector& deps = {}) const {
-        T* host_ptr = detail::host_allocator<T>().allocate(this->get_count());
-        dal::backend::copy(q, host_ptr, this->get_data(), this->get_count(), deps).wait_and_throw();
+        T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
+        dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps)
+            .wait_and_throw();
         return wrap(host_ptr,
                     this->get_shape(),
-                    detail::make_default_delete<T>(detail::default_host_policy{}));
+                    dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
     }
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
     ndarray to_device(sycl::queue& q, const event_vector& deps = {}) const {
         ndarray dev = empty(q, this->get_shape(), sycl::usm::alloc::device);
-        dev.assign(q, this->get_data(), this->get_count(), deps).wait_and_throw();
+        dal::backend::copy_host2usm(q,
+                                    dev.get_mutable_data(),
+                                    this->get_data(),
+                                    this->get_count(),
+                                    deps)
+            .wait_and_throw();
         return dev;
+    }
+#endif
+
+    ndarray slice(std::int64_t offset, std::int64_t count, std::int64_t axis = 0) const {
+        ONEDAL_ASSERT(order == ndorder::c, "Only C-order is supported");
+        ONEDAL_ASSERT(axis == 0, "Non-zero axis is not supported");
+        ONEDAL_ASSERT(offset >= 0);
+        ONEDAL_ASSERT(count > 0);
+        ONEDAL_ASSERT(offset + count <= this->get_dimension(axis));
+
+        const auto shape = this->get_shape();
+        const std::int64_t rest_shape_count = shape.get_count() / shape[axis];
+        ONEDAL_ASSERT(rest_shape_count > 0);
+
+        T* data_ptr = data_.get() + offset * rest_shape_count;
+        const auto aliased_data = shared_t{ data_, data_ptr };
+
+        backend::ndindex<axis_count> shape_index = shape.get_index();
+        shape_index[0] = count;
+
+        return wrap(aliased_data, ndshape<axis_count>{ shape_index });
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    std::vector<ndarray> split(std::int64_t fold_count, std::int64_t axis = 0) const {
+        ONEDAL_ASSERT(order == ndorder::c, "Only C-order is supported");
+        ONEDAL_ASSERT(axis == 0, "Non-zero axis is not supported");
+        ONEDAL_ASSERT(fold_count >= 0);
+
+        if (fold_count <= 0) {
+            return {};
+        }
+
+        const std::int64_t regular_block = this->get_dimension(axis) / fold_count;
+        ONEDAL_ASSERT(regular_block > 0);
+
+        std::vector<ndarray> slices;
+        slices.reserve(fold_count);
+
+        for (std::int64_t i = 0; i < fold_count - 1; i++) {
+            slices.push_back(this->slice(i * regular_block, regular_block, axis));
+        }
+
+        {
+            const std::int64_t i = fold_count - 1;
+            const std::int64_t tail_block = this->get_dimension(axis) - regular_block * i;
+            slices.push_back(this->slice(i * regular_block, tail_block, axis));
+        }
+
+        return slices;
     }
 #endif
 

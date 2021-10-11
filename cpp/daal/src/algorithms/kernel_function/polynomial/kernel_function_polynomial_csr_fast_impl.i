@@ -114,7 +114,7 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
 
     const algorithmFPType k    = (algorithmFPType)(par->scale);
     const algorithmFPType b    = (algorithmFPType)(par->shift);
-    const size_t degree        = (size_t)(par->degree);
+    const size_t degree        = (par->kernelType == KernelType::sigmoid) ? 1 : static_cast<size_t>(par->degree);
     const algorithmFPType zero = algorithmFPType(0.0);
     const algorithmFPType one  = algorithmFPType(1.0);
 
@@ -145,6 +145,10 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                     {
                         dataR[i * nVectors1 + j] *= factor;
                     }
+                }
+                if (par->kernelType == KernelType::sigmoid)
+                {
+                    daal::internal::Math<algorithmFPType, cpu>::vTanh(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
                 }
             });
         }
@@ -216,6 +220,11 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                                 dataR[i * ldc + j + startRow2] *= factor;
                             }
                         }
+                        if (par->kernelType == KernelType::sigmoid)
+                        {
+                            daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * ldc + startRow2,
+                                                                              dataR + i * ldc + startRow2);
+                        }
                     }
                 }
             }
@@ -239,6 +248,10 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                             {
                                 mklBuff[i * ldc + j] *= factor;
                             }
+                        }
+                        if (par->kernelType == KernelType::sigmoid)
+                        {
+                            daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock1, mklBuff + i * ldc, mklBuff + i * ldc);
                         }
                     }
                 }

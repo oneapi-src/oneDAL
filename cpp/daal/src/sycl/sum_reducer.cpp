@@ -17,7 +17,7 @@
 
 #include "src/sycl/reducer.h"
 #include "services/internal/execution_context.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "services/daal_defines.h"
 
 namespace daal
@@ -30,8 +30,6 @@ namespace sycl
 {
 namespace math
 {
-DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.math.SumReducer);
-
 services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId)
 {
     services::Status status;

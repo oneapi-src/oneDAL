@@ -20,6 +20,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/util/common.hpp"
 #include "oneapi/dal/algo/decision_tree/detail/node_visitor.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 
 namespace oneapi::dal::decision_forest {
 
@@ -100,7 +101,9 @@ enum class error_metric_mode : std::uint64_t {
 /// Available identifiers to specify the infer mode
 enum class infer_mode : std::uint64_t {
     /// Infer produces a $n \\times 1$  table with the predicted labels
-    class_labels = 0x00000001ULL,
+    class_labels = 0x00000001ULL, /// deprecated
+    /// Infer produces a $n \\times 1$  table with the predicted responses
+    class_responses = class_labels,
     /// Infer produces $n \\times c$ table with the predicted class probabilities for each observation
     class_probabilities = 0x00000002ULL
 };
@@ -562,6 +565,7 @@ template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
+    friend dal::detail::serialization_accessor;
 
     using dtree_task_t = detail::decision_tree_task_map_t<Task>;
     using dtree_visitor_iface_t = detail::decision_tree_visitor_ptr<Task>;
@@ -615,6 +619,9 @@ protected:
     void traverse_breadth_first_impl(std::int64_t tree_idx, dtree_visitor_iface_t&& visitor) const;
 
 private:
+    void serialize(dal::detail::output_archive& ar) const;
+    void deserialize(dal::detail::input_archive& ar);
+
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };

@@ -23,15 +23,15 @@ namespace df = dal::decision_forest;
 
 int main(int argc, char const *argv[]) {
     const auto train_data_file_name = get_data_path("df_regression_train_data.csv");
-    const auto train_label_file_name = get_data_path("df_regression_train_label.csv");
+    const auto train_response_file_name = get_data_path("df_regression_train_label.csv");
     const auto test_data_file_name = get_data_path("df_regression_test_data.csv");
-    const auto test_label_file_name = get_data_path("df_regression_test_label.csv");
+    const auto test_response_file_name = get_data_path("df_regression_test_label.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
-    const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_label_file_name });
+    const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_response_file_name });
 
     const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
+    const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
     const auto df_desc =
         df::descriptor<float, df::method::dense, df::task::regression>{}
@@ -52,7 +52,7 @@ int main(int argc, char const *argv[]) {
 
     const auto result_infer = dal::infer(df_desc, result_train.get_model(), x_test);
 
-    std::cout << "Prediction results:\n" << result_infer.get_labels() << std::endl;
+    std::cout << "Prediction results:\n" << result_infer.get_responses() << std::endl;
 
     std::cout << "Ground truth:\n" << y_test << std::endl;
 

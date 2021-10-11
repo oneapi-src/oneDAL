@@ -57,13 +57,6 @@ public:
     {
         return services::ErrorMethodNotImplemented;
     }
-
-    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
-                             decision_forest::classification::Model & m, Result & res,
-                             const decision_forest::classification::training::interface1::Parameter & par)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
 };
 
 template <typename algorithmFPType>
@@ -72,25 +65,6 @@ class ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal:
 public:
     ClassificationTrainBatchKernelOneAPI() : _nClasses(0), _nRows(0), _nFeatures(0), _nSelectedRows(0), _nMaxBinsAmongFtrs(0), _totalBins(0) {};
 
-    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
-                             decision_forest::classification::Model & m, Result & res,
-                             const decision_forest::classification::training::interface1::Parameter & par)
-    {
-        Parameter tmpPar(par.nClasses);
-        tmpPar.nTrees                      = par.nTrees;
-        tmpPar.observationsPerTreeFraction = par.observationsPerTreeFraction;
-        tmpPar.featuresPerNode             = par.featuresPerNode;
-        tmpPar.maxTreeDepth                = par.maxTreeDepth;
-        tmpPar.minObservationsInLeafNode   = par.minObservationsInLeafNode;
-        tmpPar.seed                        = par.seed;
-        tmpPar.engine                      = par.engine;
-        tmpPar.impurityThreshold           = par.impurityThreshold;
-        tmpPar.varImportance               = par.varImportance;
-        tmpPar.resultsToCompute            = par.resultsToCompute;
-        tmpPar.memorySavingMode            = par.memorySavingMode;
-        tmpPar.bootstrap                   = par.bootstrap;
-        return compute(pHostApp, x, y, m, res, tmpPar);
-    }
     services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
                              decision_forest::classification::Model & m, Result & res, const Parameter & par);
 
@@ -153,7 +127,8 @@ private:
                                         const int * indicesPerm, const size_t testFtrInd, size_t n, services::Status & status);
 
     services::Status finalizeOOBError(const algorithmFPType * y, const services::internal::sycl::UniversalBuffer & oobBuf, const size_t nRows,
-                                      algorithmFPType * res, algorithmFPType * resPerObs);
+                                      algorithmFPType * res, algorithmFPType * resPerObs, algorithmFPType * resAccuracy,
+                                      algorithmFPType * resDecisionFunction);
 
     services::Status finalizeVarImp(const Parameter & par, algorithmFPType * varImp, algorithmFPType * varImpVariance, size_t nFeatures);
 

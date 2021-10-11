@@ -24,9 +24,7 @@
 #include "src/externals/service_math.h"
 #include "src/services/service_utils.h"
 #include "src/services/service_environment.h"
-#include "src/externals/service_ittnotify.h"
-
-DAAL_ITTNOTIFY_DOMAIN(cross_entropy_loss.dense.default.batch);
+#include "src/externals/service_profiler.h"
 
 #include "src/algorithms/objective_function/common/objective_function_utils.i"
 

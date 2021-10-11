@@ -28,8 +28,8 @@ struct infer_ops_dispatcher<host_policy, Float, Method, Task> {
     infer_result<Task> operator()(const host_policy& ctx,
                                   const descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method, Task>>;
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<KERNEL_SINGLE_NODE_CPU(
+            backend::infer_kernel_cpu<Float, Method, Task>)>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
@@ -41,6 +41,14 @@ INSTANTIATE(float, method::kd_tree, task::classification)
 INSTANTIATE(double, method::kd_tree, task::classification)
 INSTANTIATE(float, method::brute_force, task::classification)
 INSTANTIATE(double, method::brute_force, task::classification)
+INSTANTIATE(float, method::kd_tree, task::search)
+INSTANTIATE(double, method::kd_tree, task::search)
+INSTANTIATE(float, method::brute_force, task::search)
+INSTANTIATE(double, method::brute_force, task::search)
+INSTANTIATE(float, method::kd_tree, task::regression)
+INSTANTIATE(double, method::kd_tree, task::regression)
+INSTANTIATE(float, method::brute_force, task::regression)
+INSTANTIATE(double, method::brute_force, task::regression)
 
 } // namespace v1
 } // namespace oneapi::dal::knn::detail
