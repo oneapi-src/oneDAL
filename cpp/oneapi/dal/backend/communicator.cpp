@@ -17,12 +17,63 @@
 #include "oneapi/dal/backend/communicator.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 
+namespace ps = oneapi::dal::preview::spmd;
+
 namespace oneapi::dal::backend {
 
-class fake_spmd_communicator_impl : public dal::detail::spmd_communicator_iface {
+inline void copy_if_different_pointers(byte_t* dst,
+                                    const byte_t* src,
+                                    std::int64_t count,
+                                    const data_type& dtype) {
+    if (count == 0) {
+        return;
+    }
+
+    ONEDAL_ASSERT(src);
+    ONEDAL_ASSERT(dst);
+    ONEDAL_ASSERT(count > 0);
+
+    if (dst == src) {
+        return;
+    }
+
+    const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
+    const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
+    memcpy(dst, src, size);
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+inline void copy_if_different_pointers(sycl::queue& q,
+                                    byte_t* dst,
+                                    const byte_t* src,
+                                    std::int64_t count,
+                                    const data_type& dtype) {
+    if (count == 0) {
+        return;
+    }
+
+    ONEDAL_ASSERT(src);
+    ONEDAL_ASSERT(dst);
+    ONEDAL_ASSERT(count > 0);
+    ONEDAL_ASSERT(is_known_usm(q, src));
+    ONEDAL_ASSERT(is_known_usm(q, dst));
+
+    if (dst == src) {
+        return;
+    }
+
+    const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
+    const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
+    memcpy(q, dst, src, size).wait_and_throw();
+}
+#endif
+
+
+
+class fake_spmd_communicator_host_impl : public ps::communicator_iface_base {
 public:
-    using base_t = dal::detail::spmd_communicator_iface;
-    using request_t = dal::detail::spmd_request_iface;
+    using base_t = ps::communicator_iface_base;
+    using request_t = ps::request_iface;
 
     static constexpr std::int64_t root_rank = 0;
     static constexpr std::int64_t rank_count = 1;
@@ -49,60 +100,12 @@ public:
         return nullptr;
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
-    request_t* bcast(sycl::queue& q,
-                     byte_t* send_buf,
-                     std::int64_t count,
-                     const data_type& dtype,
-                     const event_vector& deps,
-                     std::int64_t root) override {
-        ONEDAL_ASSERT(root == root_rank);
-        sycl::event::wait_and_throw(deps);
-        return nullptr;
-    }
-#endif
-
-    request_t* gather(const byte_t* send_buf,
-                      std::int64_t send_count,
-                      byte_t* recv_buf,
-                      std::int64_t recv_count,
-                      const data_type& dtype,
-                      std::int64_t root) override {
-        ONEDAL_ASSERT(root == root_rank);
-        ONEDAL_ASSERT(send_count == recv_count);
-
-        copy_if_different_pointers(recv_buf, send_buf, send_count, dtype);
-
-        return nullptr;
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    request_t* gather(sycl::queue& q,
-                      const byte_t* send_buf,
-                      std::int64_t send_count,
-                      byte_t* recv_buf,
-                      std::int64_t recv_count,
-                      const data_type& dtype,
-                      const event_vector& deps,
-                      std::int64_t root) override {
-        ONEDAL_ASSERT(root == root_rank);
-        ONEDAL_ASSERT(send_count == recv_count);
-
-        sycl::event::wait_and_throw(deps);
-        copy_if_different_pointers(q, recv_buf, send_buf, send_count, dtype);
-
-        return nullptr;
-    }
-
-#endif
-
-    request_t* gatherv(const byte_t* send_buf,
+    request_t* allgatherv(const byte_t* send_buf,
                        std::int64_t send_count,
                        byte_t* recv_buf,
                        const std::int64_t* recv_counts,
                        const std::int64_t* displs,
-                       const data_type& dtype,
-                       std::int64_t root) override {
+                       const data_type& dtype) override {
         ONEDAL_ASSERT(root == root_rank);
 
         if (send_count == 0) {
@@ -118,16 +121,89 @@ public:
         return nullptr;
     }
 
+    request_t* allreduce(const byte_t* send_buf,
+                         byte_t* recv_buf,
+                         std::int64_t count,
+                         const data_type& dtype,
+                         const ps::reduce_op& op) override {
+        copy_if_different_pointers(recv_buf, send_buf, count, dtype);
+        return nullptr;
+    }
+
+};
+
 #ifdef ONEDAL_DATA_PARALLEL
-    request_t* gatherv(sycl::queue& q,
+class fake_spmd_communicator_device_impl : public ps::communicator_iface {
+public:
+    using base_t = ps::communicator_iface;
+    using request_t = ps::request_iface;
+
+    static constexpr std::int64_t root_rank = 0;
+    static constexpr std::int64_t rank_count = 1;
+
+    std::int64_t get_rank() override {
+        return root_rank;
+    }
+
+    std::int64_t get_default_root_rank() override {
+        return root_rank;
+    }
+
+    std::int64_t get_rank_count() override {
+        return rank_count;
+    }
+
+    void barrier() override {}
+
+    request_t* bcast(byte_t* send_buf,
+                     std::int64_t count,
+                     const data_type& dtype,
+                     std::int64_t root) override {
+        ONEDAL_ASSERT(root == root_rank);
+        return nullptr;
+    }
+
+
+    request_t* bcast(sycl::queue& q,
+                     byte_t* send_buf,
+                     std::int64_t count,
+                     const data_type& dtype,
+                     const event_vector& deps,
+                     std::int64_t root) override {
+        ONEDAL_ASSERT(root == root_rank);
+        sycl::event::wait_and_throw(deps);
+        return nullptr;
+    }
+
+    request_t* allgatherv(const byte_t* send_buf,
+                       std::int64_t send_count,
+                       byte_t* recv_buf,
+                       const std::int64_t* recv_counts,
+                       const std::int64_t* displs,
+                       const data_type& dtype) override {
+        ONEDAL_ASSERT(root == root_rank);
+
+        if (send_count == 0) {
+            return nullptr;
+        }
+
+        ONEDAL_ASSERT(recv_counts);
+        ONEDAL_ASSERT(displs);
+        ONEDAL_ASSERT(recv_counts[0] == send_count);
+
+        copy_if_different_pointers(recv_buf + displs[0], send_buf, send_count, dtype);
+
+        return nullptr;
+    }
+
+    request_t* allgatherv(sycl::queue& q,
                        const byte_t* send_buf,
                        std::int64_t send_count,
                        byte_t* recv_buf,
                        const std::int64_t* recv_counts,
                        const std::int64_t* displs,
                        const data_type& dtype,
-                       const event_vector& deps,
-                       std::int64_t root) override {
+                       const event_vector& deps) override {
         ONEDAL_ASSERT(root == root_rank);
 
         if (send_count == 0) {
@@ -143,109 +219,49 @@ public:
 
         return nullptr;
     }
-#endif
-
-    request_t* allgather(const byte_t* send_buf,
-                         std::int64_t send_count,
-                         byte_t* recv_buf,
-                         std::int64_t recv_count,
-                         const data_type& dtype) override {
-        ONEDAL_ASSERT(send_count == recv_count);
-
-        copy_if_different_pointers(recv_buf, send_buf, send_count, dtype);
-
-        return nullptr;
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    request_t* allgather(sycl::queue& q,
-                         const byte_t* send_buf,
-                         std::int64_t send_count,
-                         byte_t* recv_buf,
-                         std::int64_t recv_count,
-                         const data_type& dtype,
-                         const event_vector& deps) override {
-        ONEDAL_ASSERT(send_count == recv_count);
-
-        sycl::event::wait_and_throw(deps);
-        copy_if_different_pointers(q, recv_buf, send_buf, send_count, dtype);
-
-        return nullptr;
-    }
-#endif
 
     request_t* allreduce(const byte_t* send_buf,
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const dal::detail::spmd_reduce_op& op) override {
+                         const ps::reduce_op& op) override {
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
         return nullptr;
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
     request_t* allreduce(sycl::queue& q,
                          const byte_t* send_buf,
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const dal::detail::spmd_reduce_op& op,
+                         const ps::reduce_op& op,
                          const event_vector& deps) override {
         sycl::event::wait_and_throw(deps);
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
         return nullptr;
     }
+
+    sycl::queue get_queue() override {return sycl::queue();}
+};
 #endif
 
-    void copy_if_different_pointers(byte_t* dst,
-                                    const byte_t* src,
-                                    std::int64_t count,
-                                    const data_type& dtype) const {
-        if (count == 0) {
-            return;
-        }
-
-        ONEDAL_ASSERT(src);
-        ONEDAL_ASSERT(dst);
-        ONEDAL_ASSERT(count > 0);
-
-        if (dst == src) {
-            return;
-        }
-
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
-        memcpy(dst, src, size);
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    void copy_if_different_pointers(sycl::queue& q,
-                                    byte_t* dst,
-                                    const byte_t* src,
-                                    std::int64_t count,
-                                    const data_type& dtype) const {
-        if (count == 0) {
-            return;
-        }
-
-        ONEDAL_ASSERT(src);
-        ONEDAL_ASSERT(dst);
-        ONEDAL_ASSERT(count > 0);
-        ONEDAL_ASSERT(is_known_usm(q, src));
-        ONEDAL_ASSERT(is_known_usm(q, dst));
-
-        if (dst == src) {
-            return;
-        }
-
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
-        memcpy(q, dst, src, size).wait_and_throw();
-    }
-#endif
+template<typename memory_access_kind>
+struct comm_impl_selector {
+    using comm_type = fake_spmd_communicator_host_impl;
 };
 
-fake_spmd_communicator::fake_spmd_communicator()
-        : dal::detail::spmd_communicator(new fake_spmd_communicator_impl{}) {}
+#ifdef ONEDAL_DATA_PARALLEL
+template<>
+struct comm_impl_selector<ps::device_memory_access::usm> {
+    using comm_type = fake_spmd_communicator_device_impl;
+};
+#endif
+
+template<typename memory_access_kind>
+fake_spmd_communicator<memory_access_kind>::fake_spmd_communicator()
+        : ps::communicator<memory_access_kind>(new typename comm_impl_selector<memory_access_kind>::comm_type{}) {}
+
+template class fake_spmd_communicator<ps::device_memory_access::usm>;
+template class fake_spmd_communicator<ps::device_memory_access::none>;
 
 } // namespace oneapi::dal::backend

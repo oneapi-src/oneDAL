@@ -19,10 +19,15 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 
-namespace oneapi::dal::test::engine {
+namespace ps = oneapi::dal::preview::spmd;
 
+namespace oneapi::dal::test::engine {
+// TODO non-dpcpp host testing
 #ifdef ONEDAL_DATA_PARALLEL
-dal::detail::spmd_communicator get_oneccl_communicator(const sycl::queue& queue);
+ps::communicator<ps::device_memory_access::none> get_global_ccl_host_communicator();
+
+ps::communicator<ps::device_memory_access::usm> get_global_ccl_device_communicator(sycl::queue&);
 #endif
+
 
 } // namespace oneapi::dal::test::engine

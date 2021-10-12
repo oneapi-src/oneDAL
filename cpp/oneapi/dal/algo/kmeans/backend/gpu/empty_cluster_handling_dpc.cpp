@@ -17,6 +17,8 @@
 #include "oneapi/dal/algo/kmeans/backend/gpu/empty_cluster_handling.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 
+namespace ps = oneapi::dal::preview::spmd;
+
 namespace oneapi::dal::kmeans::backend {
 
 template <typename Float>
@@ -206,7 +208,7 @@ static auto scatter_candidates(sycl::queue& queue,
 
 template <typename Float>
 static auto reduce_candidates(sycl::queue& queue,
-                              const bk::communicator& comm,
+                              const bk::communicator<ps::device_memory_access::usm>& comm,
                               std::int64_t candidate_count,
                               pr::ndarray<Float, 1>& distances,
                               pr::ndarray<Float, 2>& candidates,
@@ -226,6 +228,7 @@ static auto reduce_candidates(sycl::queue& queue,
     auto host_all_candidates = pr::ndarray<Float, 3>::empty({ comm.get_rank_count(), //
                                                               candidate_count,
                                                               column_count });
+
     auto candidates_reduce_event = comm.allgather(host_candidates.flatten(), //
                                                   host_all_candidates.flatten());
 
@@ -302,7 +305,7 @@ static auto reduce_candidates(sycl::queue& queue,
 
 template <typename Float>
 static auto gather_scatter_candidates(sycl::queue& queue,
-                                      bk::communicator& comm,
+                                      bk::communicator<ps::device_memory_access::usm>& comm,
                                       const pr::ndview<Float, 2>& data,
                                       const centroid_candidates<Float>& candidates,
                                       pr::ndview<Float, 2>& centroids,
@@ -378,7 +381,7 @@ auto find_candidates(sycl::queue& queue,
 
 template <typename Float>
 auto fill_empty_clusters(sycl::queue& queue,
-                         bk::communicator& comm,
+                         bk::communicator<ps::device_memory_access::usm>& comm,
                          const pr::ndview<Float, 2>& data,
                          const centroid_candidates<Float>& candidates,
                          pr::ndview<Float, 2>& centroids,
@@ -400,7 +403,7 @@ auto fill_empty_clusters(sycl::queue& queue,
         ->std::tuple<centroid_candidates<Float>, sycl::event>;                      \
                                                                                     \
     template auto fill_empty_clusters(sycl::queue& queue,                           \
-                                      bk::communicator& comm,                       \
+                                      bk::communicator<ps::device_memory_access::usm>& comm,                       \
                                       const pr::ndview<Float, 2>& data,             \
                                       const centroid_candidates<Float>& candidates, \
                                       pr::ndview<Float, 2>& centroids,              \

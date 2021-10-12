@@ -34,6 +34,8 @@
 #define KERNEL_UNIVERSAL_SPMD_GPU(...) \
     KERNEL_SPEC(::oneapi::dal::backend::universal_spmd_gpu_kernel, __VA_ARGS__)
 
+namespace ps = oneapi::dal::preview::spmd;
+
 namespace oneapi::dal::backend {
 
 detail::cpu_extension detect_top_cpu_extension();
@@ -55,23 +57,24 @@ using cpu_dispatch_default = cpu_dispatch_sse2;
 #define __CPU_TAG_AVX512__  oneapi::dal::backend::cpu_dispatch_avx512
 #define __CPU_TAG_DEFAULT__ oneapi::dal::backend::cpu_dispatch_default
 
+template<typename memory_access_kind>
 class communicator_provider : public base {
 public:
     communicator_provider() = default;
-    communicator_provider(const communicator& comm) : comm_(new communicator{ comm }) {}
+    communicator_provider(const communicator<memory_access_kind>& comm) : comm_(new communicator<memory_access_kind>{ comm }) {}
 
-    const communicator& get_communicator() const {
+    const communicator<memory_access_kind>& get_communicator() const {
         if (!comm_) {
-            comm_.reset(new communicator{});
+            comm_.reset(new communicator<memory_access_kind>{});
         }
         return *comm_;
     }
 
 private:
-    mutable std::unique_ptr<communicator> comm_;
+    mutable std::unique_ptr<communicator<memory_access_kind>> comm_;
 };
 
-class context_cpu : public communicator_provider {
+class context_cpu : public communicator_provider<ps::device_memory_access::none> {
 public:
     explicit context_cpu(const detail::host_policy& policy = detail::host_policy::get_default())
             : cpu_extensions_(policy.get_enabled_cpu_extensions()) {
@@ -79,13 +82,13 @@ public:
     }
 
     explicit context_cpu(const detail::spmd_host_policy& policy)
-            : communicator_provider(policy.get_communicator()),
+            : communicator_provider<ps::device_memory_access::none>(policy.get_communicator()),
               cpu_extensions_(policy.get_local().get_enabled_cpu_extensions()) {
         global_init();
     }
 
-    explicit context_cpu(const detail::spmd_communicator& comm)
-            : communicator_provider(comm),
+    explicit context_cpu(const ps::communicator<ps::device_memory_access::none>& comm)
+            : communicator_provider<ps::device_memory_access::none>(comm),
               cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()) {}
 
     detail::cpu_extension get_enabled_cpu_extensions() const {
@@ -98,7 +101,7 @@ private:
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
-class context_gpu : public communicator_provider {
+class context_gpu : public communicator_provider<ps::device_memory_access::usm> {
 public:
     explicit context_gpu(const detail::data_parallel_policy& policy) : queue_(policy.get_queue()) {}
 

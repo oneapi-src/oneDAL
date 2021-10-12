@@ -138,7 +138,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
     this->set_rank_count(GENERATE(2, 4));
     this->check_if_results_same_on_all_ranks();
 }
-
+/*
 TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      "distributed kmeans empty clusters test",
                      "[spmd][smoke]",
@@ -149,7 +149,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
     this->set_rank_count(GENERATE(1, 2));
     this->check_empty_clusters();
 }
-
+*/
 TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      "distributed kmeans smoke train/infer test",
                      "[spmd][smoke]",

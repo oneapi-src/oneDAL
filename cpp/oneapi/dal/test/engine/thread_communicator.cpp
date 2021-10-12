@@ -112,13 +112,12 @@ void thread_communicator_gather::operator()(const byte_t* send_buf,
     });
 }
 
-void thread_communicator_gatherv::operator()(const byte_t* send_buf,
+void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
                                              std::int64_t send_count,
                                              byte_t* recv_buf,
                                              const std::int64_t* recv_counts,
                                              const std::int64_t* displs,
-                                             const data_type& dtype,
-                                             std::int64_t root) {
+                                             const data_type& dtype) {
     ONEDAL_ASSERT(root >= 0);
 
     if (send_count == 0) {
@@ -132,14 +131,12 @@ void thread_communicator_gatherv::operator()(const byte_t* send_buf,
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
     const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
 
-    if (rank == root) {
-        ONEDAL_ASSERT(recv_buf);
-        ONEDAL_ASSERT(displs);
-        ONEDAL_ASSERT(recv_counts);
-        recv_counts_ = recv_counts;
-        displs_ = displs;
-        recv_buf_ = recv_buf;
-    }
+    ONEDAL_ASSERT(recv_buf);
+    ONEDAL_ASSERT(displs);
+    ONEDAL_ASSERT(recv_counts);
+    recv_counts_ = recv_counts;
+    displs_ = displs;
+    recv_buf_ = recv_buf;
 
     barrier_();
 
@@ -212,7 +209,7 @@ void thread_communicator_allreduce::operator()(const byte_t* send_buf,
                                                byte_t* recv_buf,
                                                std::int64_t count,
                                                const data_type& dtype,
-                                               const dal::detail::spmd_reduce_op& op) {
+                                               const ps::reduce_op& op) {
     if (count == 0) {
         return;
     }
@@ -312,13 +309,13 @@ struct reduce_op_sum {
 };
 
 template <typename T, typename Op>
-inline void switch_by_reduce_op(const dal::detail::spmd_reduce_op& reduce_op_id, const Op& op) {
-    using dal::detail::spmd_reduce_op;
+inline void switch_by_reduce_op(const ps::reduce_op& reduce_op_id, const Op& op) {
+    using ps::reduce_op;
 
     switch (reduce_op_id) {
-        case spmd_reduce_op::max: return op(reduce_op_max<T>{});
-        case spmd_reduce_op::min: return op(reduce_op_min<T>{});
-        case spmd_reduce_op::sum: return op(reduce_op_sum<T>{});
+        case ps::reduce_op::sum: return op(reduce_op_sum<T>{});
+        case ps::reduce_op::min: return op(reduce_op_min<T>{});
+        case ps::reduce_op::max: return op(reduce_op_max<T>{});
         default:
             throw std::runtime_error{
                 "Thread communicator does not support reduction for given operation"
@@ -330,7 +327,7 @@ void thread_communicator_allreduce::reduce(const byte_t* src,
                                            byte_t* dst,
                                            std::int64_t count,
                                            const data_type& dtype,
-                                           const dal::detail::spmd_reduce_op& op_id) {
+                                           const ps::reduce_op& op_id) {
     switch_by_dtype(dtype, [&](auto _) {
         using value_t = decltype(_);
         reduce_impl<value_t>(src, dst, count, op_id);
@@ -350,7 +347,7 @@ template <typename T>
 void thread_communicator_allreduce::reduce_impl(const byte_t* src_bytes,
                                                 byte_t* dst_bytes,
                                                 std::int64_t count,
-                                                const dal::detail::spmd_reduce_op& op_id) {
+                                                const ps::reduce_op& op_id) {
     ONEDAL_ASSERT(src_bytes);
     ONEDAL_ASSERT(dst_bytes);
     ONEDAL_ASSERT(count >= 0);
@@ -374,11 +371,13 @@ void thread_communicator_allreduce::fill_with_zeros_impl(byte_t* dst_bytes, std:
     }
 }
 
-void thread_communicator_impl::barrier() {
+template<typename memory_access_kind>
+void thread_communicator_impl<memory_access_kind>::barrier() {
     barrier_();
 }
 
-auto thread_communicator_impl::bcast(byte_t* send_buf,
+template<typename memory_access_kind>
+auto thread_communicator_impl<memory_access_kind>::bcast(byte_t* send_buf,
                                      std::int64_t count,
                                      const data_type& dtype,
                                      std::int64_t root) -> request_t* {
@@ -387,47 +386,32 @@ auto thread_communicator_impl::bcast(byte_t* send_buf,
     return nullptr;
 }
 
-auto thread_communicator_impl::gather(const byte_t* send_buf,
-                                      std::int64_t send_count,
-                                      byte_t* recv_buf,
-                                      std::int64_t recv_count,
-                                      const data_type& dtype,
-                                      std::int64_t root) -> request_t* {
-    collective_operation_guard guard{ ctx_ };
-    gather_(send_buf, send_count, recv_buf, recv_count, dtype, root);
-    return nullptr;
-}
-
-auto thread_communicator_impl::gatherv(const byte_t* send_buf,
+template<typename memory_access_kind>
+auto thread_communicator_impl<memory_access_kind>::allgatherv(const byte_t* send_buf,
                                        std::int64_t send_count,
                                        byte_t* recv_buf,
                                        const std::int64_t* recv_counts,
                                        const std::int64_t* displs,
-                                       const data_type& dtype,
-                                       std::int64_t root) -> request_t* {
+                                       const data_type& dtype) -> request_t* {
     collective_operation_guard guard{ ctx_ };
-    gatherv_(send_buf, send_count, recv_buf, recv_counts, displs, dtype, root);
+    allgatherv_(send_buf, send_count, recv_buf, recv_counts, displs, dtype);
     return nullptr;
 }
 
-auto thread_communicator_impl::allreduce(const byte_t* send_buf,
+template<typename memory_access_kind>
+auto thread_communicator_impl<memory_access_kind>::allreduce(const byte_t* send_buf,
                                          byte_t* recv_buf,
                                          std::int64_t count,
                                          const data_type& dtype,
-                                         const dal::detail::spmd_reduce_op& op) -> request_t* {
+                                         const ps::reduce_op& op) -> request_t* {
     collective_operation_guard guard{ ctx_ };
     allreduce_(send_buf, recv_buf, count, dtype, op);
     return nullptr;
 }
 
-auto thread_communicator_impl::allgather(const byte_t* send_buf,
-                                         std::int64_t send_count,
-                                         byte_t* recv_buf,
-                                         std::int64_t recv_count,
-                                         const data_type& dtype) -> request_t* {
-    collective_operation_guard guard{ ctx_ };
-    allgather_(send_buf, send_count, recv_buf, recv_count, dtype);
-    return nullptr;
-}
+template class thread_communicator_impl<ps::device_memory_access::none>;
+#ifdef ONEDAL_DATA_PARALLEL
+template class thread_communicator_impl<ps::device_memory_access::usm>;
+#endif
 
 } // namespace oneapi::dal::test::engine

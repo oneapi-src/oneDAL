@@ -72,9 +72,9 @@ mpi_repo(
     ]
 )
 
-load("@onedal//dev/bazel/deps:oneccl.bzl", "oneccl_repo")
-oneccl_repo(
-    name = "oneccl",
+load("@onedal//dev/bazel/deps:ccl.bzl", "ccl_repo")
+ccl_repo(
+    name = "ccl",
     root_env_var = "CCL_ROOT",
     urls = [
         "https://files.pythonhosted.org/packages/ea/d9/3cb54d9b31aea0db527fc3480fc2e92438602ed53de3e45993c0643cf68f/oneccl_devel-2021.3.0-py2.py3-none-manylinux1_x86_64.whl",

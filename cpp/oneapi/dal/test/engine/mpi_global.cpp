@@ -19,14 +19,16 @@
 
 namespace oneapi::dal::test::engine {
 
-std::unique_ptr<dal::detail::spmd_communicator> global_mpi_communicator;
 
-dal::detail::spmd_communicator get_global_mpi_communicator() {
-    if (!global_mpi_communicator) {
-        global_mpi_communicator.reset(new dal::detail::mpi_communicator{ MPI_COMM_WORLD });
-    }
-    return *global_mpi_communicator;
+ps::communicator<ps::device_memory_access::none> get_global_mpi_host_communicator() {
+    return dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>();
 }
+
+#ifdef ONEDAL_DATA_PARALLEL
+ps::communicator<ps::device_memory_access::usm> get_global_mpi_device_communicator(sycl::queue& queue) {
+    return dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(queue);
+}
+#endif
 
 class mpi_communicator_global_setup : public global_setup_action {
 public:
@@ -39,7 +41,6 @@ public:
     }
 
     void tear_down() override {
-        global_mpi_communicator.reset();
         const int status = MPI_Finalize();
         if (status != MPI_SUCCESS) {
             throw std::runtime_error{ "Problem occurred during MPI finalize" };

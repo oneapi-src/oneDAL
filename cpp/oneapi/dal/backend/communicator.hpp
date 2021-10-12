@@ -17,12 +17,18 @@
 #pragma once
 
 #include "oneapi/dal/backend/common.hpp"
-#include "oneapi/dal/detail/communicator.hpp"
+#include "oneapi/dal/spmd/communicator.hpp"
+#include "oneapi/dal/spmd/detail/communicator_utils.hpp"
+
+namespace ps = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::backend {
 
+namespace de = dal::detail;
+
 /// Implementation of SPMD communicator for one-rank system
-class fake_spmd_communicator : public dal::detail::spmd_communicator {
+template<typename memory_access_kind>
+class fake_spmd_communicator : public ps::communicator<memory_access_kind> {
 public:
     fake_spmd_communicator();
 };
@@ -33,30 +39,31 @@ public:
 class communicator_event {
 public:
     communicator_event() = default;
-    communicator_event(const dal::detail::spmd_request& req) : public_req_(req) {}
-    communicator_event(dal::detail::spmd_request&& req) : public_req_(std::move(req)) {}
+    communicator_event(const ps::request& req) : public_req_(req) {}
+    communicator_event(ps::request&& req) : public_req_(std::move(req)) {}
 
     void wait() {
         public_req_.wait();
     }
 
 private:
-    dal::detail::spmd_request public_req_;
+    ps::request public_req_;
 };
 
 /// Wrapper over public SPMD communicator.
 /// The additional layer of abstraction is added to have more flexibility in changing the
 /// communicator interface which algorithms depend on. For example, this can be used to add
 /// collective operation overloading for internal classes such as `ndarray`.
+template<typename memory_access_kind>
 class communicator {
 public:
     /// Creates communicator based on public SPMD interface
-    communicator(const dal::detail::spmd_communicator& comm)
+    communicator(const ps::communicator<memory_access_kind>& comm)
             : public_comm_(comm),
               is_distributed_(true) {}
 
     /// Creates communicator for one-rank system
-    communicator(const fake_spmd_communicator& comm = fake_spmd_communicator{})
+    communicator(const fake_spmd_communicator<memory_access_kind>& comm = fake_spmd_communicator<memory_access_kind>{})
             : public_comm_(comm),
               is_distributed_(false) {}
 
@@ -101,27 +108,38 @@ public:
     }
 
     template <typename... Args>
-    communicator_event gather(Args&&... args) const {
-        return public_comm_.gather(std::forward<Args>(args)...);
+    communicator_event allgatherv(Args&&... args) const {
+        return public_comm_.allgatherv(std::forward<Args>(args)...);
     }
 
-    template <typename... Args>
-    communicator_event gatherv(Args&&... args) const {
-        return public_comm_.gatherv(std::forward<Args>(args)...);
+    template <typename T, typename... Args>
+    communicator_event allgather(const array<T>& ary, Args&&... args) const {
+        return de::allgather_array(public_comm_, ary, std::forward<Args>(args)...);
     }
 
-    template <typename... Args>
-    communicator_event allgather(Args&&... args) const {
-        return public_comm_.allgather(std::forward<Args>(args)...);
+    template <typename T, typename... Args>
+    communicator_event allgather(T& value, Args&&... args) const {
+        return de::allgather_value(public_comm_, value, std::forward<Args>(args)...);
     }
 
+/*
     template <typename... Args>
     communicator_event allreduce(Args&&... args) const {
         return public_comm_.allreduce(std::forward<Args>(args)...);
     }
+*/
+    template <typename T, typename... Args>
+    communicator_event allreduce(const array<T>& ary, Args&&... args) const {
+        return de::allreduce_array(public_comm_, ary, std::forward<Args>(args)...);
+    }
+
+    template <typename T, typename... Args>
+    communicator_event allreduce(T& value, Args&&... args) const {
+        return de::allreduce_value(public_comm_, value, std::forward<Args>(args)...);
+    }
 
 private:
-    dal::detail::spmd_communicator public_comm_;
+    ps::communicator<memory_access_kind> public_comm_;
     bool is_distributed_;
 };
 

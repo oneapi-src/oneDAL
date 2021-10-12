@@ -46,6 +46,7 @@ namespace oneapi::dal::basic_statistics::backend {
 namespace de = dal::detail;
 namespace be = dal::backend;
 namespace pr = dal::backend::primitives;
+namespace ps = oneapi::dal::preview::spmd;
 
 using alloc = sycl::usm::alloc;
 
@@ -53,7 +54,7 @@ template <typename Data>
 using local_accessor_rw_t =
     sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
 
-using comm_t = bk::communicator;
+using comm_t = bk::communicator<ps::device_memory_access::usm>;
 using dal::backend::context_gpu;
 using method_t = method::dense;
 using task_t = task::compute;
@@ -1103,32 +1104,20 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
     if (distr_mode) {
         if constexpr (check_mask_flag(bs_list::min, List)) {
             comm_
-                .allreduce(q_,
-                           ndres.get_min().get_data(),
-                           ndres.get_min().get_mutable_data(),
-                           ndres.get_min().get_count(),
-                           de::v1::spmd_reduce_op::min,
-                           deps)
+                .allreduce(ndres.get_min().flatten(q_, deps),
+                           ps::reduce_op::min)
                 .wait();
         }
         if constexpr (check_mask_flag(bs_list::max, List)) {
             comm_
-                .allreduce(q_,
-                           ndres.get_max().get_data(),
-                           ndres.get_max().get_mutable_data(),
-                           ndres.get_max().get_count(),
-                           de::v1::spmd_reduce_op::max,
-                           deps)
+                .allreduce(ndres.get_max().flatten(q_, deps),
+                           ps::reduce_op::max)
                 .wait();
         }
         if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
             comm_
-                .allreduce(q_,
-                           ndres.get_sum2().get_data(),
-                           ndres.get_sum2().get_mutable_data(),
-                           ndres.get_sum2().get_count(),
-                           de::v1::spmd_reduce_op::sum,
-                           deps)
+                .allreduce(ndres.get_sum2().flatten(q_, deps),
+                           ps::reduce_op::sum)
                 .wait();
         }
 
@@ -1139,7 +1128,7 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
         if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
             auto com_row_count_host =
                 pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
-            comm_.allgather(&row_count, 1, com_row_count_host.get_mutable_data(), 1).wait();
+            comm_.allgather(row_count, com_row_count_host.flatten()).wait();
             com_row_count = com_row_count_host.to_device(q_);
 
             de::check_mul_overflow(comm_.get_rank_count(), column_count);
@@ -1148,21 +1137,14 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
                                                    { comm_.get_rank_count() * column_count },
                                                    alloc::device);
             comm_
-                .allgather(q_,
-                           ndres.get_sum().get_data(),
-                           column_count,
-                           com_sum.get_mutable_data(),
-                           column_count)
+                .allgather(ndres.get_sum().flatten(q_, deps),
+                           com_sum.flatten(q_))
                 .wait();
         }
         else if constexpr (check_mask_flag(bs_list::sum, List)) {
             comm_
-                .allreduce(q_,
-                           ndres.get_sum().get_data(),
-                           ndres.get_sum().get_mutable_data(),
-                           ndres.get_sum().get_count(),
-                           de::v1::spmd_reduce_op::sum,
-                           deps)
+                .allreduce(ndres.get_sum().flatten(q_, deps),
+                           ps::reduce_op::sum)
                 .wait();
         }
 
@@ -1171,11 +1153,8 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
                                                         { comm_.get_rank_count() * column_count },
                                                         alloc::device);
             comm_
-                .allgather(q_,
-                           ndres.get_sum2cent().get_data(),
-                           column_count,
-                           com_sum2cent.get_mutable_data(),
-                           column_count)
+                .allgather(ndres.get_sum2cent().flatten(q_, deps),
+                           com_sum2cent.flatten(q_))
                 .wait();
         }
 

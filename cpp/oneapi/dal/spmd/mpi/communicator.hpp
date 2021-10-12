@@ -16,11 +16,21 @@
 
 #pragma once
 
-#include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/detail/communicator.hpp"
+#include "oneapi/dal/detail/mpi/communicator.hpp"
 
-namespace oneapi::dal::test::engine {
+namespace oneapi::dal::preview::spmd {
 
-dal::detail::spmd_communicator get_global_mpi_communicator();
+template<> 
+communicator<device_memory_access::none> make_communicator<backend::mpi>() {
+    return dal::detail::mpi_communicator<device_memory_access::none>{};
+}
 
-} // namespace oneapi::dal::test::engine
+
+#ifdef ONEDAL_DATA_PARALLEL
+template<> 
+communicator<device_memory_access::usm> make_communicator<backend::mpi>(sycl::queue& queue) {
+    return dal::detail::mpi_communicator<device_memory_access::usm>{queue};
+}
+#endif
+
+} // namespace oneapi::dal::spmd
