@@ -15,69 +15,46 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/algo/basic_statistics/backend/basic_statistics_interop.hpp"
+#include "oneapi/dal/algo/basic_statistics/backend/gpu/compute_kernel_dense_impl.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include <daal/src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h>
-
 namespace oneapi::dal::basic_statistics::backend {
 
-using dal::backend::context_gpu;
 using method_t = method::dense;
 using task_t = task::compute;
 using input_t = compute_input<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
-namespace daal_lom = daal::algorithms::low_order_moments;
-namespace interop = dal::backend::interop;
-
 template <typename Float>
-using daal_lom_kernel_t =
-    daal_lom::oneapi::internal::LowOrderMomentsBatchKernelOneAPI<Float, daal_lom::defaultDense>;
+static result_t compute(const bk::context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) {
+    const auto res_op = desc.get_result_options();
+    const auto res_min_max = result_options::min | result_options::max;
+    const auto res_mean_varc = result_options::mean | result_options::variance;
 
-template <typename Method>
-constexpr daal_lom::Method get_daal_method() {
-    return daal_lom::defaultDense;
-}
+    if ((res_op.test(res_min_max) && res_op.test(~res_min_max)) ||
+        (res_op.test(res_mean_varc) && res_op.test(~res_mean_varc))) {
+        return compute_kernel_dense_impl<Float, bs_mode_all>(ctx)(desc, input);
+    }
+    else if (res_op.test(res_min_max)) {
+        return compute_kernel_dense_impl<Float, bs_mode_min_max>(ctx)(desc, input);
+    }
+    else if (res_op.test(res_mean_varc)) {
+        return compute_kernel_dense_impl<Float, bs_mode_mean_variance>(ctx)(desc, input);
+    }
 
-template <typename Float>
-static result_t call_daal_kernel(const context_gpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& data) {
-    auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
-
-    const auto daal_data = interop::convert_to_daal_table(queue, data);
-
-    auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
-    auto daal_input = daal_lom::Input();
-    auto daal_result = daal_lom::Result();
-
-    daal_input.set(daal_lom::InputId::data, daal_data);
-    interop::status_to_exception(
-        daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
-
-    interop::status_to_exception(
-        daal_lom_kernel_t<Float>().compute(daal_data.get(), &daal_result, &daal_parameter));
-
-    auto result =
-        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
-
-    return result;
-}
-
-template <typename Float>
-static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+    return compute_kernel_dense_impl<Float, bs_mode_all>(ctx)(desc, input);
 }
 
 template <typename Float>
 struct compute_kernel_gpu<Float, method_t, task_t> {
-    result_t operator()(const context_gpu& ctx,
+    result_t operator()(const bk::context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
         return compute<Float>(ctx, desc, input);

@@ -32,11 +32,11 @@ namespace oneapi::dal::preview {
 /// CSR format with ordered vertex keys within each row. Self-loops and multi-edges
 /// are not supported.
 ///
-/// @tparam VertexValue  Type of vertex properties
-/// @tparam EdgeValue    Type of edge properties
-/// @tparam GraphValue   Type of graph properties
-/// @tparam IndexType    Type of vertex indices
-/// @tparam Allocator    Type of the custom allocator (currently not supported)
+/// @tparam VertexValue  The type of the vertex :capterm:`attribute <Attribute>` values
+/// @tparam EdgeValue    The type of the edge :capterm:`attribute <Attribute>` values
+/// @tparam GraphValue   The type of the graph :capterm:`attribute <Attribute>` value
+/// @tparam IndexType    The type of the :capterm:`vertex indices <Vertex index>`
+/// @tparam Allocator    The type of a graph allocator
 template <typename VertexValue = empty_value,
           typename EdgeValue = empty_value,
           typename GraphValue = empty_value,
@@ -49,24 +49,16 @@ public:
 
     static_assert(detail::is_valid_index_v<IndexType>, "Use int32_t for vertex index type");
 
-    /// Constructs an empty undirected_adjacency_vector_graph
+    /// Constructs an empty graph
     undirected_adjacency_vector_graph();
 
-    /// Constructs an empty undirected_adjacency_vector_graph
+    /// Destructs the graph
     virtual ~undirected_adjacency_vector_graph() = default;
 
-    /// Move constructor for undirected_adjacency_vector_graph
+    /// Creates a new graph instance and moves the implementation from another instance into this one
     undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&other) = default;
 
-    /// Constructs an empty undirected_adjacency_vector_graph with specified graph properties
-    /// and allocator
-    undirected_adjacency_vector_graph(const GraphValue &value, Allocator allocator = Allocator()){};
-
-    /// Constructs an empty undirected_adjacency_vector_graph with move graph properties and
-    /// allocator
-    undirected_adjacency_vector_graph(GraphValue &&value, Allocator allocator = Allocator()){};
-
-    /// Move operator for undirected_adjacency_vector_graph
+    /// Swaps the implementation of this object and another one
     undirected_adjacency_vector_graph &operator=(undirected_adjacency_vector_graph &&other);
 
 private:

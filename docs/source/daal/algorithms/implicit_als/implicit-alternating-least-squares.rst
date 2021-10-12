@@ -58,7 +58,7 @@ by minimizing the following cost function:
 where:
 
 - :math:`{p}_{ui}` indicates the preference of user u of item i:
-  
+
   .. math::
     p_{ui} = \begin{cases}
       1, & {r}_{ui}> \epsilon \\
@@ -90,7 +90,7 @@ For initialization, the following computation modes are available:
 
 .. toctree::
   :maxdepth: 1
-  
+
   initialization-batch.rst
   initialization-distributed.rst
 
@@ -127,11 +127,11 @@ Examples
     - :cpp_example:`impl_als_csr_distr.cpp <implicit_als/impl_als_csr_distr.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
-    
+
     - :java_example:`ImplAlsDenseBatch.java <implicit_als/ImplAlsDenseBatch.java>`
     - :java_example:`ImplAlsCSRBatch.java <implicit_als/ImplAlsCSRBatch.java>`
 
@@ -142,7 +142,7 @@ Examples
   .. tab:: Python*
 
     Batch Processing:
-    
+
     - :daal4py_example:`implicit_als_batch.py`
 
 

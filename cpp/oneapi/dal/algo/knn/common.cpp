@@ -45,6 +45,11 @@ result_option_id get_default_result_options<task::search>() {
 }
 
 template <>
+result_option_id get_default_result_options<task::regression>() {
+    return get_responses_id();
+}
+
+template <>
 result_option_id get_default_result_options<task::classification>() {
     return get_responses_id();
 }
@@ -136,6 +141,7 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::regression>;
 template class ONEDAL_EXPORT descriptor_base<task::search>;
 
 } // namespace v1
@@ -162,10 +168,13 @@ void model<Task>::deserialize(dal::detail::input_archive& ar) {
 }
 
 template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::regression>;
 template class ONEDAL_EXPORT model<task::search>;
 
 ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::classification>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::kd_tree_model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::regression>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::kd_tree_model_impl<task::regression>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::search>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::kd_tree_model_impl<task::search>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop)

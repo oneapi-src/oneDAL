@@ -21,7 +21,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/sycl/sorter.h"
 #include "src/sycl/partition.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/algorithms/svm/oneapi/cl_kernels/svm_kernels.cl"
 #include "src/services/service_data_utils.h"
 

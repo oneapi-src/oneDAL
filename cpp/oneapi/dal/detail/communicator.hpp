@@ -39,6 +39,8 @@ public:
 };
 
 enum class spmd_reduce_op {
+    max,
+    min,
     sum,
 };
 
@@ -135,6 +137,72 @@ public:
                                           const data_type& dtype,
                                           const spmd_reduce_op& op,
                                           const std::vector<sycl::event>& deps) = 0;
+#endif
+};
+
+/// Implementation of the low-level SPMD communicator interface
+/// that uses host-only functions to exchange USM data
+class spmd_communicator_via_host_impl : public spmd_communicator_iface {
+public:
+    // Explicitly declare all virtual functions with overloads to workaround Clang warning
+    // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
+    using spmd_communicator_iface::bcast;
+    using spmd_communicator_iface::gather;
+    using spmd_communicator_iface::gatherv;
+    using spmd_communicator_iface::allgather;
+    using spmd_communicator_iface::allreduce;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* bcast(sycl::queue& q,
+                              byte_t* send_buf,
+                              std::int64_t count,
+                              const data_type& dtype,
+                              const std::vector<sycl::event>& deps,
+                              std::int64_t root) override;
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* gather(sycl::queue& q,
+                               const byte_t* send_buf,
+                               std::int64_t send_count,
+                               byte_t* recv_buf,
+                               std::int64_t recv_count,
+                               const data_type& dtype,
+                               const std::vector<sycl::event>& deps,
+                               std::int64_t root) override;
+
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* gatherv(sycl::queue& q,
+                                const byte_t* send_buf,
+                                std::int64_t send_count,
+                                byte_t* recv_buf,
+                                const std::int64_t* recv_counts_host,
+                                const std::int64_t* displs_host,
+                                const data_type& dtype,
+                                const std::vector<sycl::event>& deps,
+                                std::int64_t root) override;
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* allgather(sycl::queue& q,
+                                  const byte_t* send_buf,
+                                  std::int64_t send_count,
+                                  byte_t* recv_buf,
+                                  std::int64_t recv_count,
+                                  const data_type& dtype,
+                                  const std::vector<sycl::event>& deps) override;
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request_iface* allreduce(sycl::queue& q,
+                                  const byte_t* send_buf,
+                                  byte_t* recv_buf,
+                                  std::int64_t count,
+                                  const data_type& dtype,
+                                  const spmd_reduce_op& op,
+                                  const std::vector<sycl::event>& deps) override;
 #endif
 };
 
@@ -758,6 +826,7 @@ using v1::communication_error;
 using v1::spmd_reduce_op;
 using v1::spmd_request_iface;
 using v1::spmd_communicator_iface;
+using v1::spmd_communicator_via_host_impl;
 using v1::spmd_request;
 using v1::spmd_communicator;
 

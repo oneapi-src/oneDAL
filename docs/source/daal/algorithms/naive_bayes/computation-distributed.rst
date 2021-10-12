@@ -29,9 +29,12 @@ Algorithm Parameters
 
 At the training stage, Naïve Bayes classifier in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Training Parameters for Naïve Bayes Classifier (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Parameter
      - Default Valude
@@ -50,8 +53,8 @@ At the training stage, Naïve Bayes classifier in the distributed processing mod
      - ``defaultDense``
      - Available computation methods for the Naïve Bayes classifier:
 
-         - ``defaultDense`` - default performance-oriented method
-         - ``fastCSR`` - performance-oriented method for CSR numeric tables
+       - ``defaultDense`` - default performance-oriented method
+       - ``fastCSR`` - performance-oriented method for CSR numeric tables
 
    * - ``nClasses``
      - Not applicable
@@ -70,16 +73,22 @@ Use the two-step computation schema for Naïve Bayes classifier training in the 
 Step 1 - on Local Nodes
 -----------------------
 
-.. image:: images/naive-bayes-distributed-step-1.png
+.. figure:: images/naive-bayes-distributed-step-1.png
     :width: 600
+    :alt:
+
+    Training with Naïve Bayes Classifier: Distributed Processing, Step 1 - on Local Nodes
 
 In this step, Naïve Bayes classifier training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Naïve Bayes Classifier (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -94,7 +103,9 @@ In this step, Naïve Bayes classifier training calculates the result described b
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Naïve Bayes Classifier (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -102,7 +113,7 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``partialModel``
      - Pointer to the partial Naïve Bayes classifier model that corresponds to the :math:`i`-th data block.
-       
+
        The result can only be an object of the ``Model`` class.
 
 .. _naive_bayes_step_2:
@@ -110,14 +121,19 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Master Node
 ------------------------
 
-.. image:: images/naive-bayes-distributed-step-2.png
+.. figure:: images/naive-bayes-distributed-step-2.png
     :width: 600
+    :alt:
+
+    Trainin with Naïve Bayes Classifier: Distributed Processing, Step 2 - on Master Node
 
 In this step, Naïve Bayes classifier training accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Naïve Bayes Classifier (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -125,20 +141,22 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``partialModels``
      - A collection of partial models computed on local nodes in :ref:`Step 1 <naive_bayes_step_1>`.
-     
+
        The collection contains objects of the ``Model`` class.
 
 In this step, Naïve Bayes classifier training calculates the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Naïve Bayes Classifier (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
    * - Result ID
      - Result
    * - ``model``
-     - Pointer to the Naïve Bayes classifier model being trained. 
-     
+     - Pointer to the Naïve Bayes classifier model being trained.
+
        The result can only be an object of the ``Model`` class.

@@ -290,6 +290,12 @@ services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * ar
     auto s = daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
     arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
+
+    if ((INTEL_DAAL_VERSION > COMPUTE_DAAL_VERSION(2020, 0, 0)))
+    {
+        arch->setSharedPtrObj(_probTbl);
+    }
+
     return s;
 }
 

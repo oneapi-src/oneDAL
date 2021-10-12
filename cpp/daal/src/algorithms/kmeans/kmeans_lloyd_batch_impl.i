@@ -32,9 +32,7 @@
 #include "src/algorithms/kmeans/kmeans_lloyd_impl.i"
 #include "src/algorithms/kmeans/kmeans_lloyd_postprocessing.h"
 
-#include "src/externals/service_ittnotify.h"
-
-DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.batch);
+#include "src/externals/service_profiler.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

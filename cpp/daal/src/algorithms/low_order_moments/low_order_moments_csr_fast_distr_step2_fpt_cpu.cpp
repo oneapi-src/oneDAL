@@ -20,8 +20,7 @@
 //  Implementation of low order moments kernel.
 //--
 */
-#include "src/externals/service_ittnotify.h"
-DAAL_ITTNOTIFY_DOMAIN(lom.csr.fast.distr);
+#include "src/externals/service_profiler.h"
 
 #include "src/algorithms/low_order_moments/low_order_moments_container.h"
 #include "src/algorithms/low_order_moments/low_order_moments_distributed_impl.i"

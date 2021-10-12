@@ -102,6 +102,7 @@ private:
         desc.pInputModule = pBinary;
         desc.pBuildFlags  = "";
         desc.pConstants   = nullptr;
+        desc.pNext        = nullptr;
 
         ze_module_handle_t _moduleLevelZero;
         DAAL_CHECK_LEVEL_ZERO(

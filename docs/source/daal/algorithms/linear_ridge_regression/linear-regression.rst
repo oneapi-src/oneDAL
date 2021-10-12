@@ -83,8 +83,8 @@ To build a Linear Regression model using methods of the Model Builder class of L
   Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7]_.
 
   .. note::
-  
-    If your set of coefficients does not contain an intercept, 
+
+    If your set of coefficients does not contain an intercept,
     ``interceptFlag`` is automatically set to ``False``, and to ``True``, otherwise.
 
 - Use the ``getModel`` method to get the trained Linear Regression model.
@@ -107,7 +107,7 @@ Examples
     - :cpp_example:`lin_reg_model_builder.cpp <linear_regression/lin_reg_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`LinRegModelBuilder.java <linear_regression/LinRegModelBuilder.java>`

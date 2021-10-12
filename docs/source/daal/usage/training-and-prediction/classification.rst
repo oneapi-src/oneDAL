@@ -29,16 +29,22 @@ The parameters used by classification algorithms at each stage depend on a speci
 Training Stage
 **************
 
-.. image:: images/training-stage-classification.png
+.. figure:: images/training-stage-classification.png
     :width: 600
+    :alt:
+
+    Classification Usage Model: Training Stage
 
 At the training stage, classification algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Classification Algorithms
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -59,7 +65,9 @@ At the training stage, classification algorithms calculate the result described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Classification Algorithms
    :widths: 10 60
    :header-rows: 1
 
@@ -71,16 +79,22 @@ For more details, see :ref:`algorithms`.
 Prediction Stage
 ****************
 
-.. image:: images/prediction-stage-classification.png
+.. figure:: images/prediction-stage-classification.png
     :width: 600
+    :alt:
+
+    Classification Usage Model: Prediction Stage
 
 At the prediction stage, classification algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Input for Classification Algorithms
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
@@ -95,21 +109,24 @@ At the prediction stage, classification algorithms calculate the result describe
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Output for Classification Algorithms
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
    * - ``prediction``
      - Pointer to the :math:`n \times 1` numeric table with classification results (class labels or confidence levels).
-       
+
        .. note::
-       
+
           By default, this table is an object of the ``HomogenNumericTable`` class,
           but you can define it as an object of any class derived from ``NumericTable``
           except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
-   
+
    * - ``probabilities``
      - A numeric table of size :math:`n \times \text{nClasses}`, containing probabilities of classes computed when the
        ``computeClassProbabilities`` option is enabled. This result table is available for selected algorithms, see corresponding algorithm documentation for details.

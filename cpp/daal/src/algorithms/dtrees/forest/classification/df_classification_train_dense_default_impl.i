@@ -916,7 +916,8 @@ public:
         DAAL_CHECK_STATUS_VAR(super::init(par, x));
         _nClasses = nClasses;
         using namespace decision_forest::training;
-        if (par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation))
+        if (par.resultsToCompute
+            & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorR2 | computeOutOfBagErrorDecisionFunction))
         {
             size_t sz    = sizeof(OOBClassificationData) * nClasses * x->getNumberOfRows();
             this->oobBuf = service_calloc<byte, cpu>(sz);
@@ -937,14 +938,17 @@ public:
             for (size_t i = 0, n = _nClasses * nSamples; i < n; ++i) dst[i] += src[i];
         }
     }
-    Status finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs) const;
+    Status finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs, algorithmFPType * resAccuracy,
+                            algorithmFPType * resR2, algorithmFPType * resDecisionFunction, algorithmFPType * resPrediction) const;
 
 private:
     size_t _nClasses;
 };
 
 template <typename algorithmFPType, CpuType cpu>
-Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs) const
+Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs,
+                                                             algorithmFPType * resAccuracy, algorithmFPType * resR2,
+                                                             algorithmFPType * resDecisionFunction, algorithmFPType * resPrediction) const
 {
     DAAL_ASSERT(this->oobBuf);
     const size_t nSamples = resp->getNumberOfRows();
@@ -952,17 +956,28 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
     DAAL_CHECK_BLOCK_STATUS(y);
     Atomic<size_t> nPredicted(0);
     Atomic<size_t> nError(0);
+    const algorithmFPType eps = services::internal::EpsilonVal<algorithmFPType>::get();
     daal::threader_for(nSamples, nSamples, [&](size_t i) {
         const OOBClassificationData * ptr = ((const OOBClassificationData *)this->oobBuf) + i * _nClasses;
         const size_t classLabel(y.get()[i]);
         size_t maxIdx                = 0;
+        algorithmFPType sum          = static_cast<algorithmFPType>(ptr[0]);
         OOBClassificationData maxVal = ptr[0];
         for (size_t j = 1; j < _nClasses; ++j)
         {
+            sum += static_cast<algorithmFPType>(ptr[j]);
             if (maxVal < ptr[j])
             {
                 maxVal = ptr[j];
                 maxIdx = j;
+            }
+        }
+        if (resDecisionFunction)
+        {
+            for (size_t j = 0; j < _nClasses; ++j)
+            {
+                resDecisionFunction[i * _nClasses + j] =
+                    static_cast<algorithmFPType>(ptr[j]) / services::internal::max<cpu, algorithmFPType>(sum, eps);
             }
         }
         if (maxVal == 0)
@@ -971,7 +986,7 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
             if (resPerObs) resPerObs[i] = algorithmFPType(-1);
             return;
         }
-        if (res)
+        if (res || resAccuracy)
         {
             nPredicted.inc();
             if (maxIdx != classLabel) nError.inc();
@@ -979,6 +994,8 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
         if (resPerObs) resPerObs[i] = algorithmFPType(maxIdx != classLabel);
     });
     if (res) *res = nPredicted.get() ? algorithmFPType(nError.get()) / algorithmFPType(nPredicted.get()) : 0;
+    if (resAccuracy)
+        *resAccuracy = nPredicted.get() ? algorithmFPType(1) - algorithmFPType(nError.get()) / algorithmFPType(nPredicted.get()) : algorithmFPType(1);
     return Status();
 }
 
@@ -1014,7 +1031,8 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
     HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w, decision_forest::classification::Model & m,
     Result & res, const decision_forest::classification::training::Parameter & par)
 {
-    ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get());
+    ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(),
+                  res.get(outOfBagErrorAccuracy).get(), nullptr, res.get(outOfBagErrorDecisionFunction).get(), nullptr);
     services::Status s;
     dtrees::internal::FeatureTypes featTypes;
     DAAL_CHECK(featTypes.init(*x), ErrorMemoryAllocationFailed);
