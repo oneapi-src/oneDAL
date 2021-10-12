@@ -135,19 +135,20 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         std::make_shared<svm_cache<no_cache, Float>>(q, data_nd, cache_size, ws_count, row_count);
 
     sycl::event copy_event;
-    std::int64_t ws_indices_copy_cound;
+    std::int64_t ws_indices_copy_count = 0;
 
     std::int64_t iter = 0;
     for (; iter < max_iteration_count; iter++) {
         std::cout << "ITER COUNT " << iter << std::endl;
         if (iter != 0) {
-            std::tie(ws_indices_copy_cound, copy_event) = copy_last_to_first(q, ws_indices_nd);
+            std::tie(ws_indices_copy_count, copy_event) = copy_last_to_first(q, ws_indices_nd);
             // cache_nd copyLastToFirst() why does it needed?
         }
 
         auto select_ws_event = working_set.select(alpha_nd,
                                                   grad_nd,
                                                   ws_indices_nd,
+                                                  ws_indices_copy_count,
                                                   { alpha_zeros_event, invert_responses_event });
 
         select_ws_event.wait_and_throw();
