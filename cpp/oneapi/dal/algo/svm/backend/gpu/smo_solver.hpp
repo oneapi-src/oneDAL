@@ -181,7 +181,8 @@ sycl::event solve_smo(sycl::queue& queue,
             std::uint32_t inner_iter = 0;
             for (; inner_iter < max_inner_iter; ++inner_iter) {
                 /* m(alpha) = min(grad[i]): i belongs to I_UP (alpha) */
-                objective_func_ptr[i] = is_upper_edge<Float>(labels_i, alpha_i, C) ? -grad_i : fp_min;
+                objective_func_ptr[i] =
+                    is_upper_edge<Float>(labels_i, alpha_i, C) ? -grad_i : fp_min;
 
                 /* Find i index of the working set (b_i) */
                 reduce_arg_max(item,
@@ -192,7 +193,8 @@ sycl::event solve_smo(sycl::queue& queue,
                 const Float ma = -local_vars_ptr[0].max_val_ind.value;
 
                 /* max_f(alpha) = max(grad[i]): i belongs to i_low (alpha)  */
-                objective_func_ptr[i] = is_lower_edge<Float>(labels_i, alpha_i, C) ? grad_i : fp_min;
+                objective_func_ptr[i] =
+                    is_lower_edge<Float>(labels_i, alpha_i, C) ? grad_i : fp_min;
 
                 /* Find max gradient */
                 reduce_arg_max(item,
