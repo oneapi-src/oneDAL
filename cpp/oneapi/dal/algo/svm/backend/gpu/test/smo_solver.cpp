@@ -65,7 +65,8 @@ public:
         auto f_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
         auto invert_y_event = invert_values(q, y_nd, f_nd);
 
-        auto alpha_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+        auto [alpha_nd, alpha_event] =
+            pr::ndarray<Float, 1>::zeros(q, { row_count }, sycl::usm::alloc::device);
         auto delta_alpha_nd =
             pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
         auto f_diff_nd = pr::ndarray<Float, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
@@ -90,7 +91,7 @@ public:
                          f_nd,
                          f_diff_nd,
                          inner_iter_count_nd,
-                         { invert_y_event })
+                         { invert_y_event, alpha_event })
             .wait_and_throw();
 
         INFO("check if objective function is expected");
