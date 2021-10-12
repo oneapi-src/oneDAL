@@ -52,93 +52,15 @@ working_set_selector<Float>::working_set_selector(const sycl::queue& queue,
 }
 
 template <typename Float>
-sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alpha,
-                                                const pr::ndview<Float, 1>& f,
-                                                pr::ndview<std::uint32_t, 1>& ws_indices,
-                                                const dal::backend::event_vector& deps) {
-    ONEDAL_ASSERT(labels_.get_dimension(0) == alpha.get_dimension(0));
-    ONEDAL_ASSERT(labels_.get_dimension(0) == f.get_dimension(0));
-    ONEDAL_ASSERT(alpha.get_dimension(0) == f.get_dimension(0));
-    ONEDAL_ASSERT(ws_indices.get_dimension(0) == ws_count_);
-    ONEDAL_ASSERT(ws_indices.has_mutable_data());
-
-    std::int64_t left_to_select = ws_count_;
-    std::int64_t selected_count = 0;
-
-    auto event = sort_f_indices(queue_, f, deps);
-
-    const std::int64_t need_select_up = (ws_count_ - selected_count) / 2;
-    std::tie(selected_count, event) = select_ws_edge(alpha,
-                                                     ws_indices,
-                                                     need_select_up,
-                                                     left_to_select,
-                                                     violating_edge::up,
-                                                     { event });
-    left_to_select -= selected_count;
-
-    const std::int64_t need_select_count_low = ws_count_ - selected_count;
-    std::tie(selected_count, event) = select_ws_edge(alpha,
-                                                     ws_indices,
-                                                     need_select_count_low,
-                                                     left_to_select,
-                                                     violating_edge::low,
-                                                     { event });
-    left_to_select -= selected_count;
-
-    if (left_to_select > 0) {
-        std::tie(selected_count, event) = select_ws_edge(alpha,
-                                                         ws_indices,
-                                                         left_to_select,
-                                                         left_to_select,
-                                                         violating_edge::up,
-                                                         { event });
-        left_to_select -= selected_count;
-    }
-    ONEDAL_ASSERT(left_to_select == 0);
-
-    return event;
-}
-
-template <typename Float>
-sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::uint32_t, 1>& idx,
-                                                         pr::ndview<std::uint8_t, 1>& indicator,
-                                                         const std::int64_t need_to_reset,
-                                                         const dal::backend::event_vector& deps) {
-    ONEDAL_ASSERT(idx.get_dimension(0) == ws_count_);
-    ONEDAL_ASSERT(need_to_reset <= ws_count_);
-    ONEDAL_ASSERT(indicator.get_dimension(0) == row_count_);
-    ONEDAL_ASSERT(indicator.has_mutable_data());
-
-    const std::uint32_t* idx_ptr = idx.get_data();
-    std::uint8_t* indicator_ptr = indicator.get_mutable_data();
-
-    const auto wg_size = std::min(dal::backend::propose_wg_size(queue_), need_to_reset);
-    const auto range = dal::backend::make_multiple_nd_range_1d(need_to_reset, wg_size);
-
-    auto reset_indicator_event = queue_.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-
-        cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-            const std::uint32_t i = item.get_global_id(0);
-            indicator_ptr[idx_ptr[i]] = 0;
-        });
-    });
-
-    return reset_indicator_event;
-}
-
-template <typename Float>
 std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_ws_edge(
     const pr::ndview<Float, 1>& alpha,
     pr::ndview<std::uint32_t, 1>& ws_indices,
     const std::int64_t need_select_count,
-    const std::int64_t left_to_select,
+    const std::int64_t already_selected,
     violating_edge edge,
     const dal::backend::event_vector& deps) {
     auto select_ws_edge_event =
         check_violating_edge(queue_, labels_, alpha, indicator_, C_, edge, deps);
-
-    const std::int64_t already_selected = ws_count_ - left_to_select;
 
     /* Reset indicator for busy Indices */
     if (already_selected > 0) {
@@ -171,6 +93,86 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
     }
 
     return { select_count, select_ws_edge_event };
+}
+
+template <typename Float>
+sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alpha,
+                                                const pr::ndview<Float, 1>& f,
+                                                pr::ndview<std::uint32_t, 1>& ws_indices,
+                                                std::int64_t selected_count,
+                                                const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(labels_.get_dimension(0) == alpha.get_dimension(0));
+    ONEDAL_ASSERT(labels_.get_dimension(0) == f.get_dimension(0));
+    ONEDAL_ASSERT(alpha.get_dimension(0) == f.get_dimension(0));
+    ONEDAL_ASSERT(ws_indices.get_dimension(0) == ws_count_);
+    ONEDAL_ASSERT(ws_indices.has_mutable_data());
+
+    std::int64_t left_to_select = ws_count_ - selected_count;
+    std::int64_t already_selected = selected_count;
+
+    auto event = sort_f_indices(queue_, f, deps);
+
+    const std::int64_t need_select_up = left_to_select / 2;
+    std::tie(selected_count, event) = select_ws_edge(alpha,
+                                                     ws_indices,
+                                                     need_select_up,
+                                                     already_selected,
+                                                     violating_edge::up,
+                                                     { event });
+    left_to_select -= selected_count;
+    already_selected += selected_count;
+
+    const std::int64_t need_select_count_low = left_to_select;
+    std::tie(selected_count, event) = select_ws_edge(alpha,
+                                                     ws_indices,
+                                                     need_select_count_low,
+                                                     already_selected,
+                                                     violating_edge::low,
+                                                     { event });
+    left_to_select -= selected_count;
+    already_selected += selected_count;
+
+    if (left_to_select > 0) {
+        std::tie(selected_count, event) = select_ws_edge(alpha,
+                                                         ws_indices,
+                                                         left_to_select,
+                                                         already_selected,
+                                                         violating_edge::up,
+                                                         { event });
+        left_to_select -= selected_count;
+        already_selected += selected_count;
+    }
+    ONEDAL_ASSERT(left_to_select == 0);
+
+    return event;
+}
+
+template <typename Float>
+sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::uint32_t, 1>& idx,
+                                                         pr::ndview<std::uint8_t, 1>& indicator,
+                                                         const std::int64_t need_to_reset,
+                                                         const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(idx.get_dimension(0) == ws_count_);
+    ONEDAL_ASSERT(need_to_reset <= ws_count_);
+    ONEDAL_ASSERT(indicator.get_dimension(0) == row_count_);
+    ONEDAL_ASSERT(indicator.has_mutable_data());
+
+    const std::uint32_t* idx_ptr = idx.get_data();
+    std::uint8_t* indicator_ptr = indicator.get_mutable_data();
+
+    const auto wg_size = std::min(dal::backend::propose_wg_size(queue_), need_to_reset);
+    const auto range = dal::backend::make_multiple_nd_range_1d(need_to_reset, wg_size);
+
+    auto reset_indicator_event = queue_.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+
+        cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
+            const std::uint32_t i = item.get_global_id(0);
+            indicator_ptr[idx_ptr[i]] = 0;
+        });
+    });
+
+    return reset_indicator_event;
 }
 
 template <typename Float>

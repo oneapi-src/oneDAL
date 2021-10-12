@@ -58,7 +58,7 @@ public:
         auto ws = working_set_selector<Float>(q, y_nd, C, row_count);
 
         INFO("Run select");
-        ws.select(alpha_nd, f_nd, ws_indices).wait_and_throw();
+        ws.select(alpha_nd, f_nd, ws_indices, 0).wait_and_throw();
 
         INFO("Check ws_indices");
         const auto indices_arr = ws_indices.flatten(q);

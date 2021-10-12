@@ -43,6 +43,7 @@ public:
     sycl::event select(const pr::ndview<Float, 1>& alpha,
                        const pr::ndview<Float, 1>& f,
                        pr::ndview<std::uint32_t, 1>& ws_indices,
+                       std::int64_t selected_count,
                        const dal::backend::event_vector& deps = {});
 
 private:
@@ -55,7 +56,7 @@ private:
         const pr::ndview<Float, 1>& alpha,
         pr::ndview<std::uint32_t, 1>& ws_indices,
         const std::int64_t need_select_count,
-        const std::int64_t left_to_select,
+        const std::int64_t already_selected,
         violating_edge edge,
         const dal::backend::event_vector& deps = {});
 
