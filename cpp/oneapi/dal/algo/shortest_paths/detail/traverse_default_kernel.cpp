@@ -29,7 +29,11 @@ operator()(const dal::detail::host_policy& policy,
            const EdgeValue* vals,
            byte_alloc_iface* alloc_ptr) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::delta_stepping<decltype(cpu), EdgeValue>{}(desc, t, vals, alloc_ptr);
+        return backend::delta_stepping<decltype(cpu), EdgeValue, backend::mode::distances>{}(
+            desc,
+            t,
+            vals,
+            alloc_ptr);
     });
 }
 
@@ -44,10 +48,12 @@ traverse_result<task::one_to_all> delta_stepping_with_pred<
                            const EdgeValue* vals,
                            byte_alloc_iface* alloc_ptr) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::delta_stepping_with_pred<decltype(cpu), EdgeValue>{}(desc,
-                                                                             t,
-                                                                             vals,
-                                                                             alloc_ptr);
+        return backend::delta_stepping<decltype(cpu),
+                                       EdgeValue,
+                                       backend::mode::distances_predecessors>{}(desc,
+                                                                                t,
+                                                                                vals,
+                                                                                alloc_ptr);
     });
 }
 

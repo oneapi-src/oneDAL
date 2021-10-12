@@ -17,10 +17,6 @@
 Batch Processing
 ================
 
-.. contents::
-    :local:
-    :depth: 1
-
 Input
 *****
 
@@ -28,7 +24,9 @@ Initialization of item factors for the implicit ALS algorithm accepts the input 
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for Implicit Alternating Least Squares Initialization (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -37,7 +35,7 @@ For more details, see :ref:`algorithms`.
      - Input
    * - ``data``
      - Pointer to the :math:`m \times n` numeric table with the mining data.
-       
+
        The input can be an object of any class derived from ``NumericTable`` except
        ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
 
@@ -46,10 +44,13 @@ Parameters
 
 Initialization of item factors for the implicit ALS algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Parameters for Implicit Alternating Least Squares Initialization (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -78,7 +79,9 @@ Initialization of item factors for the implicit ALS algorithm calculates the res
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for Implicit Alternating Least Squares Initialization (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left

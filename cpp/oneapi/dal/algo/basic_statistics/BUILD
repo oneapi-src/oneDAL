@@ -9,6 +9,7 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
+        "@onedal//cpp/oneapi/dal/backend/primitives:common",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/low_order_moments:kernel",
@@ -18,9 +19,14 @@ dal_module(
 dal_test_suite(
     name = "interface_tests",
     framework = "catch2",
+    hdrs = glob([
+        "test/*.hpp",
+    ]),
+
     srcs = glob([
         "test/*.cpp",
     ]),
+
     dal_deps = [
         ":basic_statistics",
     ],

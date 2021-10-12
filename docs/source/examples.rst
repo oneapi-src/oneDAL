@@ -22,6 +22,6 @@ oneAPI Examples
 .. toctree::
    :maxdepth: 2
    :glob:
-   
+
    DPC++ <examples/dpc.rst>
    C++ <examples/cpp.rst>

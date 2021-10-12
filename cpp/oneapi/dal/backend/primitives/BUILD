@@ -25,9 +25,11 @@ dal_collect_modules(
     modules = [
         "blas",
         "distance",
+        "heap",
         "intersection",
         "lapack",
         "reduction",
+        "regression",
         "rng",
         "search",
         "selection",

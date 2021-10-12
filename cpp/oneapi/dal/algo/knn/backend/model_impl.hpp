@@ -22,9 +22,10 @@
 
 namespace oneapi::dal::knn {
 
-#define KNN_SERIALIZABLE(Task, ClassificationId, SearchId)             \
-    ONEDAL_SERIALIZABLE_MAP2(Task,                                     \
-                             (task::classification, ClassificationId), \
+#define KNN_SERIALIZABLE(Task, ClassificationId, RegressionId, SearchId) \
+    ONEDAL_SERIALIZABLE_MAP3(Task,                                       \
+                             (task::classification, ClassificationId),   \
+                             (task::regression, RegressionId),           \
                              (task::search, SearchId))
 
 template <typename Task>
@@ -44,6 +45,7 @@ template <typename Task>
 class brute_force_model_impl : public model_impl<Task>,
                                public KNN_SERIALIZABLE(Task,
                                                        knn_brute_force_classification_model_impl_id,
+                                                       knn_brute_force_regression_model_impl_id,
                                                        knn_brute_force_search_model_impl_id) {
 public:
     brute_force_model_impl() = default;
@@ -81,6 +83,7 @@ template <typename Task>
 class kd_tree_model_impl : public model_impl<Task>,
                            public KNN_SERIALIZABLE(Task,
                                                    knn_kd_tree_classification_model_impl_id,
+                                                   knn_kd_tree_regression_model_impl_id,
                                                    knn_kd_tree_search_model_impl_id) {
 public:
     kd_tree_model_impl() : interop_(nullptr) {}

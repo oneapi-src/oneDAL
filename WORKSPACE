@@ -4,10 +4,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
   name = "bazel_skylib",
   urls = [
-    "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
-    "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
+    "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+    "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
   ],
-  sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
+  sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
 )
 
 load("@onedal//dev/bazel/config:config.bzl", "declare_onedal_config")
@@ -52,6 +52,36 @@ tbb_repo(
     url = "https://github.com/oneapi-src/oneTBB/releases/download/v2021.2.0/oneapi-tbb-2021.2.0-lin.tgz",
     sha256 = "bcaa0aa7c0d2851a730cb0f64ad120f06a7b63811c8cc49e51ea8e1579f51b05",
     strip_prefix = "oneapi-tbb-2021.2.0",
+)
+
+load("@onedal//dev/bazel/deps:mpi.bzl", "mpi_repo")
+mpi_repo(
+    name = "mpi",
+    root_env_var = "MPIROOT",
+    urls = [
+        "https://files.pythonhosted.org/packages/13/9b/9122cd616c62f50aeb1c9aa6b118043764bf1468940726e284a81c6013bc/impi_rt-2021.2.0-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/b9/9a/f9b0b0af026cc9a63b9ad2ab7da259adef2989dfe76805eb4d0c70422131/impi_devel-2021.3.1-py2.py3-none-manylinux1_x86_64.whl",
+    ],
+    sha256s = [
+        "b52d4dcc8f4bea30c8373676180723ad146a6d80fe92f228c45e1a8d1fe66091",
+        "5375a54166baa675b6ee0c9b7b7d9eecfd2f23da258ee4a4f34dd711ac2c5c38",
+    ],
+    strip_prefixes = [
+        "impi_rt-2021.2.0.data/data",
+        "impi_devel-2021.3.1.data/data",
+    ]
+)
+
+load("@onedal//dev/bazel/deps:oneccl.bzl", "oneccl_repo")
+oneccl_repo(
+    name = "oneccl",
+    root_env_var = "CCL_ROOT",
+    urls = [
+        "https://files.pythonhosted.org/packages/ea/d9/3cb54d9b31aea0db527fc3480fc2e92438602ed53de3e45993c0643cf68f/oneccl_devel-2021.3.0-py2.py3-none-manylinux1_x86_64.whl",
+    ],
+    sha256s = [
+        "d6cf242f7c6d4bc86cf6ec38c416b5ad569d3a0bd2d5258ae5e271027a7e6518",
+    ],
 )
 
 load("@onedal//dev/bazel/deps:mkl.bzl", "mkl_repo")

@@ -25,9 +25,7 @@
 #include "src/services/service_utils.h"
 #include "src/externals/service_math.h"
 
-#include "src/externals/service_ittnotify.h"
-
-DAAL_ITTNOTIFY_DOMAIN(optimization_solver.logistic_loss.batch.oneapi);
+#include "src/externals/service_profiler.h"
 
 namespace daal
 {

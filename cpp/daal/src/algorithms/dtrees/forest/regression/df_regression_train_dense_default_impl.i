@@ -764,7 +764,8 @@ public:
     {
         DAAL_CHECK_STATUS_VAR(super::init(par, x));
         using namespace decision_forest::training;
-        if (par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation))
+        if (par.resultsToCompute
+            & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorR2 | computeOutOfBagErrorPrediction))
         {
             size_t sz    = sizeof(RegErr<algorithmFPType, cpu>) * x->getNumberOfRows();
             this->oobBuf = service_calloc<byte, cpu>(sz);
@@ -784,30 +785,50 @@ public:
         }
     }
 
-    Status finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs) const
+    Status finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs, algorithmFPType * resAccuracy,
+                            algorithmFPType * resR2, algorithmFPType * resDecisionFunction, algorithmFPType * resPrediction) const
     {
         DAAL_ASSERT(this->oobBuf);
         const size_t nSamples = resp->getNumberOfRows();
         ReadRows<algorithmFPType, cpu> y(const_cast<NumericTable *>(resp), 0, nSamples);
         DAAL_CHECK_BLOCK_STATUS(y);
         const algorithmFPType * py         = y.get();
-        size_t nPredicted                  = 0.;
+        size_t nPredicted                  = 0;
         algorithmFPType _res               = 0;
+        algorithmFPType yMean              = 0;
+        algorithmFPType sumMeanDiff        = 0;
         RegErr<algorithmFPType, cpu> * ptr = (RegErr<algorithmFPType, cpu> *)this->oobBuf;
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < nSamples; ++i)
+        {
+            yMean += py[i];
+        }
+        yMean /= nSamples;
+
         for (size_t i = 0; i < nSamples; ++i)
         {
             if (ptr[i].count)
             {
                 ptr[i].value /= algorithmFPType(ptr[i].count);
                 const algorithmFPType oobForObs = (ptr[i].value - py[i]) * (ptr[i].value - py[i]);
+
                 if (resPerObs) resPerObs[i] = oobForObs;
                 _res += oobForObs;
                 ++nPredicted;
+
+                if (resPrediction) resPrediction[i] = ptr[i].value;
+                sumMeanDiff += (py[i] - yMean) * (py[i] - yMean);
             }
-            else if (resPerObs)
-                resPerObs[i] = algorithmFPType(-1); //was not in OOB set of any tree and hence not predicted
+            else
+            {
+                if (resPerObs) resPerObs[i] = algorithmFPType(-1); //was not in OOB set of any tree and hence not predicted
+                if (resPrediction) resPrediction[i] = algorithmFPType(0);
+            }
         }
         if (res) *res = _res / algorithmFPType(nPredicted);
+        if (resR2) *resR2 = 1 - _res / sumMeanDiff;
         return Status();
     }
 };
@@ -845,7 +866,8 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
                                                                                    decision_forest::regression::Model & m, Result & res,
                                                                                    const Parameter & par)
 {
-    ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get());
+    ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(), nullptr,
+                  res.get(outOfBagErrorR2).get(), nullptr, res.get(outOfBagErrorPrediction).get());
     services::Status s;
     dtrees::internal::FeatureTypes featTypes;
     DAAL_CHECK(featTypes.init(*x), ErrorMemoryAllocationFailed);

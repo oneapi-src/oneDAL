@@ -30,24 +30,29 @@ For a list of these parameters, refer to the description of an appropriate recom
 Training Stage
 **************
 
-.. image:: images/training-stage-recommendation-systems.png
+.. figure:: images/training-stage-recommendation-systems.png
     :width: 600
+    :alt:
+
+    Recommendation Systems Usage Model: Training Stage
 
 At the training stage, recommender algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Input for Recommender Algorithms
    :widths: 10 60
    :header-rows: 1
 
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the :math:`m \times n` numeric table with the mining data. 
-     
+     - Pointer to the :math:`m \times n` numeric table with the mining data.
+
        .. note::
-            
+
             This table can be an object of any class derived from ``NumericTable``
             except ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
 
@@ -55,43 +60,52 @@ At the training stage, recommender algorithms calculate the result described bel
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Training Output for Recommender Algorithms
    :widths: 10 60
    :header-rows: 1
 
    * - Result ID
      - Result
    * - ``model``
-     - Model with initialized item factors. 
-     
+     - Model with initialized item factors.
+
        .. note:: The result can only be an object of the ``Model`` class.
 
 Prediction Stage
 ****************
 
-.. image:: images/prediction-stage-recommendation-systems.png
+.. figure:: images/prediction-stage-recommendation-systems.png
     :width: 600
+    :alt:
+
+    Recommendation Systems Usage Model: Prediction Stage
 
 At the prediction stage, recommender algorithms accept the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Input for Recommender Algorithms
    :widths: 10 60
    :header-rows: 1
 
    * - Input ID
      - Input
    * - ``model``
-     - Model with initialized item factors. 
-     
+     - Model with initialized item factors.
+
        .. note:: This input can only be an object of the ``Model`` class.
 
 At the prediction stage, recommender algorithms calculate the result described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Prediction Output for Recommender Algorithms
    :widths: 10 60
    :header-rows: 1
 
@@ -99,9 +113,9 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``prediction``
      - Pointer to the :math:`m \times n` numeric table with predicted ratings.
-     
-       .. note:: 
-       
+
+       .. note::
+
             By default, this table is an object of the ``HomogenNumericTable`` class,
             but you can define it as an object of any class derived from ``NumericTable``
             except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.

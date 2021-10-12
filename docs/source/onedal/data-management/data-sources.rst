@@ -164,7 +164,9 @@ Data Source Types
 
 |short_name| defines a set of classes.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Data Source Types
    :header-rows: 1
    :widths: 10 70
 

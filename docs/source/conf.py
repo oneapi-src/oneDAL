@@ -172,6 +172,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::infer_input'),
     ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
     ('cpp:identifier', 'detail::enable_if_search_t<T>'),
+    ('cpp:identifier', 'detail::enable_if_not_classification_t<T>'),
     # minkowski_distance
     ('cpp:identifier', 'minkowski_distance'),
     ('cpp:identifier', 'minkowski_distance::descriptor'),
@@ -256,6 +257,30 @@ nitpick_ignore = [
     ('cpp:identifier', 'error_metric_mode::none'),
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error'),
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error_per_observation'),
+    # covariance
+    ('cpp:identifier', 'covariance'),
+    ('cpp:identifier', 'covariance::descriptor'),
+    ('cpp:identifier', 'covariance::compute_result'),
+    ('cpp:identifier', 'covariance::compute_input'),
+    ('cpp:identifier', 'oneapi::dal::covariance'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task::v1::compute'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method::v1'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method::v1::dense'),
+    # basic statistics
+    ('cpp:identifier', 'basic_statistics'),
+    ('cpp:identifier', 'basic_statistics::descriptor'),
+    ('cpp:identifier', 'basic_statistics::compute_result'),
+    ('cpp:identifier', 'basic_statistics::compute_input'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::task'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::task::v1::compute'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::method'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1::dense'),
     # common for algorithms
     ('cpp:identifier', 'result'),
     # common for result options
@@ -303,4 +328,16 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),
+
+    # graphs
+    ('cpp:identifier', 'vertex_size_type<Graph>'),
+    ('cpp:identifier', 'edge_size_type<Graph>'),
+    ('cpp:identifier', 'vertex_type<Graph>'),
+    ('cpp:identifier', 'vertex_edge_size_type<Graph>'),
+    ('cpp:identifier', 'const_vertex_edge_range_type<Graph>'),
+    ('cpp:identifier', 'vertex_outward_edge_size_type<Graph>'),
+    ('cpp:identifier', 'const_vertex_outward_edge_range_type<Graph>'),
+    ('cpp:identifier', 'edge_user_value_type<Graph>'),
+    ('cpp:identifier', 'directed_adjacency_vector_graph'),
+    ('cpp:identifier', 'undirected_adjacency_vector_graph'),
 ]

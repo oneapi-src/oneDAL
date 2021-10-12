@@ -17,7 +17,7 @@
 
 #include "src/sycl/partition.h"
 #include "services/internal/execution_context.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/sycl/cl_kernels/partition.cl"
 
 namespace daal
@@ -28,8 +28,6 @@ namespace internal
 {
 namespace sycl
 {
-DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.partition);
-
 services::Status Partition::buildProgram(ClKernelFactoryIface & factory, const TypeId & vectorTypeId)
 {
     services::String fptype_name = getKeyFPType(vectorTypeId);

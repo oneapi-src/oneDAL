@@ -30,7 +30,7 @@ Details
 
 Given:
 
-- :math:`n` feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}` 
+- :math:`n` feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}`
   of size :math:`p`;
 - their non-negative sample weights :math:`w = (w_1, \ldots, w_n)`;
 - the vector of class labels :math:`y = (y_1, \ldots, y_n)` that describes the class
@@ -52,12 +52,14 @@ Gini index is an impurity metric, calculated as follows:
 .. math::
 	{I}_{Gini}\left(D\right)=1-\sum _{i=0}^{C-1}{p}_{i}^{2}
 
-where 
+where
 
 - :math:`D` is a set of observations that reach the node;
 - :math:`p_i` is specified in the table below:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Decision Forest Classification: impurity calculations
    :widths: 10 10
    :header-rows: 1
    :align: left
@@ -74,9 +76,9 @@ where
 Prediction Stage
 ****************
 
-Given decision forest classifier and vectors :math:`x_1, \ldots, x_r`, 
+Given decision forest classifier and vectors :math:`x_1, \ldots, x_r`,
 the problem is to calculate the labels for those
-vectors. To solve the problem for each given query vector :math:`x_i`, 
+vectors. To solve the problem for each given query vector :math:`x_i`,
 the algorithm finds the leaf node in a tree in the
 forest that gives the classification response by that tree. The
 forest chooses the label y taking the majority of trees in the
@@ -134,8 +136,8 @@ complete the following steps:
 
   Each tree consists of internal nodes (called non-leaf or split nodes) and external nodes (leaf nodes).
   Each split node denotes a feature test that is a Boolean expression, for example,
-  f < ``featureValue`` or f = ``featureValue``, where f is a feature and ``featureValue`` is a constant. 
-  The test type depends on the feature type: continuous, categorical, or ordinal. 
+  f < ``featureValue`` or f = ``featureValue``, where f is a feature and ``featureValue`` is a constant.
+  The test type depends on the feature type: continuous, categorical, or ordinal.
   For more information on the test types, see :ref:`decision_tree`.
 
   The inducted decision tree is a binary tree, meaning that each non-leaf node has exactly two branches: true and false.
@@ -157,7 +159,7 @@ Examples
     - :cpp_example:`df_cls_traversed_model_builder.cpp <decision_forest/df_cls_traversed_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`DfClsDenseBatchModelBuilder.java <decision_forest/DfClsDenseBatchModelBuilder.java>`
@@ -180,11 +182,13 @@ In addition to the parameters of a classifier (see :ref:`classification_usage_mo
 described in :ref:`df_batch`, the training algorithm for decision forest classification has the
 following parameters:
 
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table::
+.. list-table:: Training Parameters for Decision Forest Classification (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -195,7 +199,7 @@ following parameters:
    * - ``method``
      - ``defaultDense``
      - The computation method used by the decision forest classification.
-     
+
        For CPU:
 
        - ``defaultDense`` - default performance-oriented method
@@ -223,10 +227,13 @@ For the description of the input and output, refer to :ref:`classification_usage
 In addition to the parameters of a classifier, decision forest
 classification has the following parameters at the prediction stage:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for Decision Forest Classification (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -281,11 +288,11 @@ Examples
     - :cpp_example:`df_cls_traverse_model.cpp <decision_forest/df_cls_traverse_model.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:
-    
+
     - :java_example:`DfClsDefaultDenseBatch.java <decision_forest/DfClsDefaultDenseBatch.java>`
     - :java_example:`DfClsHistDenseBatch.java <decision_forest/DfClsHistDenseBatch.java>`
     - :java_example:`DfClsTraverseModel.java <decision_forest/DfClsTraverseModel.java>`

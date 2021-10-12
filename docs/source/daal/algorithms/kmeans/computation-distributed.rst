@@ -19,19 +19,18 @@ Distributed Processing
 
 This mode assumes that the data set is split into ``nblocks`` blocks across computation nodes.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Algorithm Parameters
 ++++++++++++++++++++
 
 The K-Means clustering algorithm in the distributed processing mode has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for K-Means Computaion (Distributed Processing)
    :header-rows: 1
    :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -73,17 +72,23 @@ To compute K-Means clustering in the distributed processing mode, use the genera
 Step 1 - on Local Nodes
 +++++++++++++++++++++++
 
-.. image:: images/kmeans-distributed-computation-step-1.png
+.. figure:: images/kmeans-distributed-computation-step-1.png
     :width: 1000
+    :alt:
+
+    K-Means Computaion: Distributed Processing, Step 1 - on Local Nodes
 
 In this step, the K-Means clustering algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Computaion (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Input ID
      - Input
@@ -98,24 +103,27 @@ In this step, the K-Means clustering algorithm calculates the partial results an
 Pass the ``Partial Result ID`` or ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Partial Results for K-Means Computaion (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Partial Result ID
      - Result
    * - ``nObservations``
      - Pointer to the :math:`\mathrm{nClusters} \times 1` numeric table that contains
-       the number of observations assigned to the clusters on local node. 
-       
+       the number of observations assigned to the clusters on local node.
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
    * - ``partialSums``
      - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with
        partial sums of observations assigned to the clusters on the local node.
-     
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define the result as an object of any class derived from ``NumericTable``
@@ -123,14 +131,14 @@ For more details, see :ref:`algorithms`.
    * - ``partialObjectiveFunction``
      - Pointer to the :math:`1 \times 1` numeric table that contains the value of the partial objective function
        for observations processed on the local node.
-       
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.
    * - ``partialCandidatesDistances``
      - Pointer to the :math:`\mathrm{nClusters} \times 1` numeric table that contains the value of the ``nClusters``
        largest objective function for the observations processed on the local node and stored in descending order.
-       
+
        .. note::
            By default, this result if an object of the ``HomogenNumericTable`` class,
            but you can define this result as an object of any class derived from ``NumericTable``
@@ -139,12 +147,14 @@ For more details, see :ref:`algorithms`.
      - Pointer to the :math:`\mathrm{nClusters} \times 1` numeric table that contains the observations of the ``nClusters``
        largest objective function value processed on the local node and stored in descending order of the objective function.
 
-       .. note::       
+       .. note::
             By default, this result if an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable``
             except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, ``CSRNumericTable``.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Computaion (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -154,7 +164,7 @@ For more details, see :ref:`algorithms`.
    * - ``assignments``
      - Use when ``assignFlag`` = ``true``. Pointer to the :math:`n_i \times 1` numeric table
        with 32-bit integer assignments of cluster indices to feature vectors in the input data on the local node.
-       
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable``
@@ -165,14 +175,19 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Master Node
 +++++++++++++++++++++++
 
-.. image:: images/kmeans-distributed-computation-step-2.png
+.. figure:: images/kmeans-distributed-computation-step-2.png
     :width: 1000
+    :alt:
+
+    K-Means Computaion: Distributed Processing, Step 2 - on Master Node
 
 In this step, the K-Means clustering algorithm accepts the input from each local node described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Input for K-Means Computaion (Distributed Processing, Step 2)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -186,24 +201,27 @@ In this step, the K-Means clustering algorithm calculates the results described 
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for K-Means Computaion (Distributed Processing, Step 2)
    :header-rows: 1
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
    * - ``centroids``
-     - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with centroids. 
+     - Pointer to the :math:`\mathrm{nClusters} \times p` numeric table with centroids.
 
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
    * - ``objectiveFunction``
      - Pointer to the :math:`1 \times 1` numeric table that contains the value of the objective function.
-       
+
        .. note::
             By default, this result is an object of the ``HomogenNumericTable`` class,
             but you can define this result as an object of any class derived from ``NumericTable`` except ``CSRNumericTable``.

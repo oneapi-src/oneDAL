@@ -68,7 +68,7 @@ public:
              ndarray<float_t, 2>& selection,
              ndarray<std::int32_t, 2>& indices) {
         INFO("benchmark sort with indices");
-        const auto name = fmt::format("Selection (small k): val_type {}, k {}, elem_count {}",
+        const auto name = fmt::format("Selection: val_type {}, k {}, elem_count {}",
                                       te::type2str<float_t>::name(),
                                       k,
                                       data.get_count());
@@ -82,15 +82,30 @@ public:
 };
 
 using selection_types = std::tuple<float, double>;
+
 TEMPLATE_LIST_TEST_M(selection_test,
-                     "benchmark for selection (k <= 32)",
+                     "benchmark for selection (k <= 64)",
                      "[selection][perf]",
                      selection_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
-    std::int64_t k = GENERATE_COPY(16);
+    std::int64_t k = GENERATE_COPY(32, 64);
     std::int64_t row_count = GENERATE_COPY(1024);
-    std::int64_t col_count = GENERATE_COPY(16 * 1024);
+    std::int64_t col_count = GENERATE_COPY(64 * 1024);
+    auto [data, selection, indices] = this->allocate_matrices(k, row_count, col_count);
+    this->fill_constant(data, 1.0f);
+    this->run(data, k, selection, indices);
+}
+
+TEMPLATE_LIST_TEST_M(selection_test,
+                     "benchmark for selection (k <= 16)",
+                     "[selection][perf]",
+                     selection_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+    std::int64_t k = GENERATE(8, 16);
+    std::int64_t row_count = GENERATE(1024);
+    std::int64_t col_count = GENERATE(16 * 1024);
     auto [data, selection, indices] = this->allocate_matrices(k, row_count, col_count);
     this->fill_constant(data, 1.0f);
     this->run(data, k, selection, indices);
@@ -102,9 +117,9 @@ TEMPLATE_LIST_TEST_M(selection_test,
                      selection_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
-    std::int64_t k = GENERATE_COPY(1);
-    std::int64_t row_count = GENERATE_COPY(1024);
-    std::int64_t col_count = GENERATE_COPY(16 * 1024);
+    std::int64_t k = GENERATE(1);
+    std::int64_t row_count = GENERATE(1024);
+    std::int64_t col_count = GENERATE(16 * 1024);
     auto [data, selection, indices] = this->allocate_matrices(k, row_count, col_count);
     this->fill_constant(data, 1.0f);
     this->run(data, k, selection, indices);

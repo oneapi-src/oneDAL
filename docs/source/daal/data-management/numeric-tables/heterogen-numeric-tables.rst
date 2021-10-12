@@ -33,8 +33,11 @@ AOS Numeric Table
 AOS Numeric Table provides access to observations (feature vectors)
 that are laid out in a contiguous memory block:
 
-.. image:: ./images/aos-layout.png
+.. figure:: ./images/aos-layout.png
   :width: 600
+  :alt:
+
+  Array-Of-Structures (AOS) Memory Layout
 
 Examples
 --------
@@ -53,8 +56,11 @@ SOA Numeric Table
 SOA Numeric Table provides access to data sets where observations
 for each feature are laid out contiguously in memory:
 
-.. image:: ./images/soa-layout.png
+.. figure:: ./images/soa-layout.png
   :width: 600
+  :alt:
+
+  Structure-Of-Arrays (SOA) Memory Layout
 
 Examples
 --------

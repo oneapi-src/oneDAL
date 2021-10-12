@@ -21,9 +21,7 @@
 //--
 */
 
-#include "src/externals/service_ittnotify.h"
-DAAL_ITTNOTIFY_DOMAIN(covariance.dense.distr.oneapi);
-
+#include "src/externals/service_profiler.h"
 #include "src/algorithms/covariance/covariance_container.h"
 #include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi.h"
 #include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi_impl.i"

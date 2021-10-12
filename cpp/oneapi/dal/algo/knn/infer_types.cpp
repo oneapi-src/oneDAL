@@ -136,6 +136,8 @@ void infer_result<Task>::set_result_options_impl(const result_option_id& value) 
 
 template class ONEDAL_EXPORT infer_input<task::classification>;
 template class ONEDAL_EXPORT infer_result<task::classification>;
+template class ONEDAL_EXPORT infer_input<task::regression>;
+template class ONEDAL_EXPORT infer_result<task::regression>;
 template class ONEDAL_EXPORT infer_input<task::search>;
 template class ONEDAL_EXPORT infer_result<task::search>;
 
