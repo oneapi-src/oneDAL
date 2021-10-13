@@ -409,9 +409,9 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                 { ctx.selected_row_total_count_ * ctx.tree_in_block_ });
         }
 
-        Index* selected_row_global_ptr = selected_row_global_host.get_mutable_data();
-        Index* selected_row_ptr = ctx.distr_mode_ ? selected_row_host.get_mutable_data() : nullptr;
-        Index* node_list_ptr = node_list_host.get_mutable_data();
+        Index* const selected_row_global_ptr = selected_row_global_host.get_mutable_data();
+        Index* const selected_row_ptr = ctx.distr_mode_ ? selected_row_host.get_mutable_data() : nullptr;
+        Index* const node_list_ptr = node_list_host.get_mutable_data();
 
         for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
             pr::rng<Index> rn_gen;
