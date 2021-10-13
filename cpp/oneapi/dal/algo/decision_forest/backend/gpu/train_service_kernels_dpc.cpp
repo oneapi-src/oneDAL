@@ -608,11 +608,10 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
     Index krn_local_size,
     Index sbg_sum_count,
     const bk::event_vector& deps) {
-    ONEDAL_ASSERT(row_list.get_count() == global_row_count * node_count);
-    ONEDAL_ASSERT(row_buffer.get_count() == block_row_count * node_count);
+    ONEDAL_ASSERT(row_list.get_count() == de::check_mul_overflow(global_row_count, node_count));
+    ONEDAL_ASSERT(row_buffer.get_count() == de::check_mul_overflow(block_row_count, node_count));
 
     const Index* rows_list_ptr = row_list.get_data();
-    //const Index* node_list_ptr = node_list.get_data();
     Index* rows_buffer_ptr = row_buffer.get_mutable_data();
     const Index item_present_mark = 1;
 

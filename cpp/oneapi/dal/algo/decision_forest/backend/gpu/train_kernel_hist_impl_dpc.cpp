@@ -410,7 +410,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
         }
 
         Index* const selected_row_global_ptr = selected_row_global_host.get_mutable_data();
-        Index* const selected_row_ptr = ctx.distr_mode_ ? selected_row_host.get_mutable_data() : nullptr;
+        Index* const selected_row_ptr =
+            ctx.distr_mode_ ? selected_row_host.get_mutable_data() : nullptr;
         Index* const node_list_ptr = node_list_host.get_mutable_data();
 
         for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
@@ -473,8 +474,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                                                                       stride);
         }
     }
-
-    last_event.wait_and_throw();
 
     return last_event;
 }

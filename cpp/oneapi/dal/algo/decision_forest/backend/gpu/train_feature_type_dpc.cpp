@@ -142,8 +142,8 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
             Index cur_bin = 0;
 
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
-                Float value = values[i];
-                for(Float value = values[i]; bin_borders[cur_bin] < value; ++cur_bin);
+                for (Float value = values[i]; bin_borders[cur_bin] < value; ++cur_bin)
+                    ;
                 bins[indices[i]] = cur_bin;
             }
         });
