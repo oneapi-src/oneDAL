@@ -185,7 +185,7 @@ public:
         ONEDAL_ASSERT(recv_buf);
 
         std::vector<size_t> internal_recv_counts(this->get_rank_count());
-        for (std::int64_t i = 0; i < this->get_rank_count(); i++) {
+        for (std::int64_t i = 0; i < this->get_rank_count(); ++i) {
             internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
         }
 
