@@ -433,7 +433,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                 for (Index i = 0; i < ctx.selected_row_total_count_; ++i) {
                     dst[i] = 0;
                     if (src[i] >= ctx.global_row_offset_ &&
-                        src[i] < ctx.global_row_offset_ + ctx.row_count_) {
+                        src[i] < (ctx.global_row_offset_ + ctx.row_count_)) {
                         dst[row_idx++] = src[i] - ctx.global_row_offset_;
                     }
                 }
