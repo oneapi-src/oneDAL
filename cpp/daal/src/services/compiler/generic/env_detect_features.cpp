@@ -273,7 +273,7 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 
     if (check_avx512_mic_features() && daal_check_is_intel_cpu())
     {
-        return daal::avx512_mic;
+        return daal::avx512;
     }
 
     if (check_avx2_features())
