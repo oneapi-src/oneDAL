@@ -258,11 +258,6 @@ DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
 
 DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
-    if ((enable & daal::services::Environment::avx512_mic_e1) == daal::services::Environment::avx512_mic_e1)
-    {
-        fpk_serv_enable_instructions(MKL_ENABLE_AVX512_MIC_E1);
-    }
-
 #if defined(__APPLE__)
     __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif

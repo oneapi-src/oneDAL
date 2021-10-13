@@ -34,7 +34,7 @@
         DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx : func(daal::CpuType::avx, __VA_ARGS__); break;)                      \
         DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2 : func(daal::CpuType::avx2, __VA_ARGS__); break;)                   \
         DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512 : func(daal::CpuType::avx512, __VA_ARGS__); break;)             \
-        DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic : func(daal::CpuType::avx512_mic, __VA_ARGS__); break;) \
+        DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic : func(daal::CpuType::avx512, __VA_ARGS__); break;) \
         DAAL_EXPAND(default : func(daal::CpuType::sse2, __VA_ARGS__); break;)                                                   \
     }
 
@@ -49,7 +49,7 @@
         DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx : st = func(daal::CpuType::avx, __VA_ARGS__); break;)                      \
         DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2 : st = func(daal::CpuType::avx2, __VA_ARGS__); break;)                   \
         DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512 : st = func(daal::CpuType::avx512, __VA_ARGS__); break;)             \
-        DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic : st = func(daal::CpuType::avx512_mic, __VA_ARGS__); break;) \
+        DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic : st = func(daal::CpuType::avx512, __VA_ARGS__); break;) \
         DAAL_EXPAND(default : st = func(daal::CpuType::sse2, __VA_ARGS__); break;)                                                   \
     }                                                                                                                                \
     services::throwIfPossible(st);
