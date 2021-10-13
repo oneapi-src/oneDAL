@@ -427,7 +427,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                 Index* node_ptr = node_list_ptr + node_idx * impl_const_t::node_prop_count_;
                 Index* src = gen_row_idx_global_ptr;
 
-                Index* dst = selected_row_ptr + ctx.selected_row_total_count_ * node_idx;
+                Index* const dst = selected_row_ptr + ctx.selected_row_total_count_ * node_idx;
 
                 Index row_idx = 0;
                 for (Index i = 0; i < ctx.selected_row_total_count_; ++i) {
