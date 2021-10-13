@@ -50,4 +50,3 @@ struct mpi {};
 } // namespace backend
 
 } // namespace oneapi::dal::preview::spmd
-

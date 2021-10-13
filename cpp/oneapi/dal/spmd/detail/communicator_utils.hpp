@@ -177,4 +177,3 @@ ps::request bcast_value(const ps::communicator<memory_access_kind>& comm,
 }
 
 } // namespace oneapi::dal::detail
-
