@@ -384,6 +384,7 @@ public:
         return impl_->get_queue();
     }
 #endif
+
 protected:
     template <typename Impl>
     Impl& get_impl() const {
