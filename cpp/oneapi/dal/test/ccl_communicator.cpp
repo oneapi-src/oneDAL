@@ -56,7 +56,7 @@ public:
             .allreduce(get_queue(),
                        buffer_device.get_mutable_data(),
                        buffer_device.get_mutable_data(),
-                       count, 
+                       count,
                        ps::reduce_op::sum)
             .wait();
         copy_to_host(buffer, buffer_device.get_data(), count);

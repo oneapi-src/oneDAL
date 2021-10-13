@@ -21,19 +21,21 @@ namespace v1 {
 
 namespace ps = oneapi::dal::preview::spmd;
 
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class spmd_policy_impl {
 public:
     explicit spmd_policy_impl(const ps::communicator<memory_access_kind>& comm) : comm(comm) {}
     ps::communicator<memory_access_kind> comm;
 };
 
-template<typename memory_access_kind>
-spmd_policy_base<memory_access_kind>::spmd_policy_base(const ps::communicator<memory_access_kind>& comm)
+template <typename memory_access_kind>
+spmd_policy_base<memory_access_kind>::spmd_policy_base(
+    const ps::communicator<memory_access_kind>& comm)
         : impl_(new spmd_policy_impl<memory_access_kind>{ comm }) {}
 
-template<typename memory_access_kind>
-const ps::communicator<memory_access_kind>& spmd_policy_base<memory_access_kind>::get_communicator() const {
+template <typename memory_access_kind>
+const ps::communicator<memory_access_kind>& spmd_policy_base<memory_access_kind>::get_communicator()
+    const {
     return impl_->comm;
 }
 

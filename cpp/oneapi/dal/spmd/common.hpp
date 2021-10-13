@@ -29,24 +29,24 @@ public:
     }
 };
 
-enum class reduce_op {
-    sum,
-    min,
-    max
-};
+enum class reduce_op { sum, min, max };
 
-namespace device_memory_access { 
-// or "device_memory_access_kind"? 
-    struct usm {}; 
-    struct none {}; 
-} 
+namespace device_memory_access {
+// or "device_memory_access_kind"?
+struct usm {};
+struct none {};
+} // namespace device_memory_access
 
-template <typename T> using enable_if_device_memory_accessible_t = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm>>; 
-template <typename T> using enable_if_device_memory_not_accessible_t = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::none>>; 
+template <typename T>
+using enable_if_device_memory_accessible_t =
+    std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm>>;
+template <typename T>
+using enable_if_device_memory_not_accessible_t =
+    std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::none>>;
 
-namespace backend { 
-    struct ccl {}; 
-    struct mpi {}; 
-} 
+namespace backend {
+struct ccl {};
+struct mpi {};
+} // namespace backend
 
 } // namespace oneapi::dal::preview::spmd

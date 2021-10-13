@@ -394,20 +394,20 @@ auto fill_empty_clusters(sycl::queue& queue,
     }
 }
 
-#define INSTANTIATE(Float)                                                          \
-    template auto find_candidates(sycl::queue& queue,                               \
-                                  std::int64_t candidate_count,                     \
-                                  const pr::ndarray<Float, 2>& closest_distances,   \
-                                  const pr::ndarray<std::int32_t, 1>& counters,     \
-                                  const bk::event_vector& deps)                     \
-        ->std::tuple<centroid_candidates<Float>, sycl::event>;                      \
-                                                                                    \
-    template auto fill_empty_clusters(sycl::queue& queue,                           \
-                                      bk::communicator<ps::device_memory_access::usm>& comm,                       \
-                                      const pr::ndview<Float, 2>& data,             \
-                                      const centroid_candidates<Float>& candidates, \
-                                      pr::ndview<Float, 2>& centroids,              \
-                                      const bk::event_vector& deps)                 \
+#define INSTANTIATE(Float)                                                                   \
+    template auto find_candidates(sycl::queue& queue,                                        \
+                                  std::int64_t candidate_count,                              \
+                                  const pr::ndarray<Float, 2>& closest_distances,            \
+                                  const pr::ndarray<std::int32_t, 1>& counters,              \
+                                  const bk::event_vector& deps)                              \
+        ->std::tuple<centroid_candidates<Float>, sycl::event>;                               \
+                                                                                             \
+    template auto fill_empty_clusters(sycl::queue& queue,                                    \
+                                      bk::communicator<ps::device_memory_access::usm>& comm, \
+                                      const pr::ndview<Float, 2>& data,                      \
+                                      const centroid_candidates<Float>& candidates,          \
+                                      pr::ndview<Float, 2>& centroids,                       \
+                                      const bk::event_vector& deps)                          \
         ->sycl::event;
 
 INSTANTIATE(float)

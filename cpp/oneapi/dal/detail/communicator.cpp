@@ -42,11 +42,11 @@ static void wait_request(ps::request_iface* request) {
 
 #ifdef ONEDAL_DATA_PARALLEL
 ps::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
-                                            byte_t* send_buf,
-                                            std::int64_t count,
-                                            const data_type& dtype,
-                                            const std::vector<sycl::event>& deps,
-                                            std::int64_t root) {
+                                                          byte_t* send_buf,
+                                                          std::int64_t count,
+                                                          const data_type& dtype,
+                                                          const std::vector<sycl::event>& deps,
+                                                          std::int64_t root) {
     ONEDAL_ASSERT(root >= 0);
 
     if (count == 0) {
@@ -67,7 +67,7 @@ ps::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
         memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, size);
     }
 
-    wait_request(/*base_t::*/bcast(send_buff_host.get_mutable_data(), count, dtype, root));
+    wait_request(/*base_t::*/ bcast(send_buff_host.get_mutable_data(), count, dtype, root));
 
     if (get_rank() != root) {
         memcpy_host2usm(q, send_buf, send_buff_host.get_mutable_data(), size);
@@ -77,16 +77,16 @@ ps::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
 }
 #endif
 
-
 #ifdef ONEDAL_DATA_PARALLEL
-ps::request_iface* spmd_communicator_via_host_impl::allgatherv(sycl::queue& q,
-                                              const byte_t* send_buf,
-                                              std::int64_t send_count,
-                                              byte_t* recv_buf,
-                                              const std::int64_t* recv_counts_host,
-                                              const std::int64_t* displs_host,
-                                              const data_type& dtype,
-                                              const std::vector<sycl::event>& deps) {
+ps::request_iface* spmd_communicator_via_host_impl::allgatherv(
+    sycl::queue& q,
+    const byte_t* send_buf,
+    std::int64_t send_count,
+    byte_t* recv_buf,
+    const std::int64_t* recv_counts_host,
+    const std::int64_t* displs_host,
+    const data_type& dtype,
+    const std::vector<sycl::event>& deps) {
     ONEDAL_ASSERT(root >= 0);
 
     if (send_count == 0) {
@@ -130,12 +130,12 @@ ps::request_iface* spmd_communicator_via_host_impl::allgatherv(sycl::queue& q,
     recv_buf_host.reset(total_recv_size);
     recv_buf_host_ptr = recv_buf_host.get_mutable_data();
 
-    wait_request(/*base_t::*/allgatherv(send_buff_host.get_data(),
-                         send_count,
-                         recv_buf_host_ptr,
-                         recv_counts_host,
-                         displs_host,
-                         dtype));
+    wait_request(/*base_t::*/ allgatherv(send_buff_host.get_data(),
+                                         send_count,
+                                         recv_buf_host_ptr,
+                                         recv_counts_host,
+                                         displs_host,
+                                         dtype));
 
     const std::int64_t* displs_host_root_ptr = displs_host_root.get_data();
     ONEDAL_ASSERT(displs_host_root_ptr);
@@ -154,15 +154,15 @@ ps::request_iface* spmd_communicator_via_host_impl::allgatherv(sycl::queue& q,
 }
 #endif
 
-
 #ifdef ONEDAL_DATA_PARALLEL
-ps::request_iface* spmd_communicator_via_host_impl::allreduce(sycl::queue& q,
-                                                const byte_t* send_buf,
-                                                byte_t* recv_buf,
-                                                std::int64_t count,
-                                                const data_type& dtype,
-                                                const ps::reduce_op& op,
-                                                const std::vector<sycl::event>& deps) {
+ps::request_iface* spmd_communicator_via_host_impl::allreduce(
+    sycl::queue& q,
+    const byte_t* send_buf,
+    byte_t* recv_buf,
+    std::int64_t count,
+    const data_type& dtype,
+    const ps::reduce_op& op,
+    const std::vector<sycl::event>& deps) {
     if (count == 0) {
         return nullptr;
     }
@@ -183,7 +183,11 @@ ps::request_iface* spmd_communicator_via_host_impl::allreduce(sycl::queue& q,
 
     memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, byte_count);
     wait_request(
-        /*base_t::*/allreduce(send_buff_host.get_data(), recv_buf_host.get_mutable_data(), count, dtype, op));
+        /*base_t::*/ allreduce(send_buff_host.get_data(),
+                               recv_buf_host.get_mutable_data(),
+                               count,
+                               dtype,
+                               op));
     memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), byte_count);
 
     return nullptr;

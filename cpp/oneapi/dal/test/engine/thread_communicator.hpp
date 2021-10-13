@@ -279,8 +279,9 @@ private:
     std::vector<buffer_info> send_buffers_;
 };
 
-template<typename memory_access_kind>
-class thread_communicator_impl : public dal::detail::via_host_interface_selector<memory_access_kind>::type {
+template <typename memory_access_kind>
+class thread_communicator_impl
+        : public dal::detail::via_host_interface_selector<memory_access_kind>::type {
 public:
     using base_t = typename dal::detail::via_host_interface_selector<memory_access_kind>::type;
     using request_t = ps::request_iface;
@@ -315,7 +316,8 @@ public:
               allgather_(ctx_) {}
 #endif
 #ifdef ONEDAL_DATA_PARALLEL
-    template<typename T = memory_access_kind, typename = ps::enable_if_device_memory_accessible_t<T>>
+    template <typename T = memory_access_kind,
+              typename = ps::enable_if_device_memory_accessible_t<T>>
     explicit thread_communicator_impl(sycl::queue& queue, std::int64_t thread_count)
             : base_t(queue),
               ctx_(thread_count),
@@ -351,11 +353,11 @@ public:
                      std::int64_t root) override;
 
     request_t* allgatherv(const byte_t* send_buf,
-                       std::int64_t send_count,
-                       byte_t* recv_buf,
-                       const std::int64_t* recv_counts,
-                       const std::int64_t* displs,
-                       const data_type& dtype) override;
+                          std::int64_t send_count,
+                          byte_t* recv_buf,
+                          const std::int64_t* recv_counts,
+                          const std::int64_t* displs,
+                          const data_type& dtype) override;
 
     request_t* allreduce(const byte_t* send_buf,
                          byte_t* recv_buf,
@@ -363,7 +365,7 @@ public:
                          const data_type& dtype,
                          const ps::reduce_op& op) override;
 
-/*    request_t* allgather(const byte_t* send_buf,
+    /*    request_t* allgather(const byte_t* send_buf,
                          std::int64_t send_count,
                          byte_t* recv_buf,
                          std::int64_t recv_count,
@@ -380,7 +382,7 @@ private:
     thread_communicator_allgather allgather_;
 };
 
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class thread_communicator : public ps::communicator<memory_access_kind> {
 public:
     using impl_t = thread_communicator_impl<memory_access_kind>;
@@ -389,7 +391,8 @@ public:
             : ps::communicator<memory_access_kind>(new impl_t{ thread_count }) {}
 #endif
 #ifdef ONEDAL_DATA_PARALLEL
-    template<typename T = memory_access_kind, typename = ps::enable_if_device_memory_accessible_t<T>>
+    template <typename T = memory_access_kind,
+              typename = ps::enable_if_device_memory_accessible_t<T>>
     explicit thread_communicator(sycl::queue& queue, std::int64_t thread_count)
             : ps::communicator<memory_access_kind>(new impl_t{ queue, thread_count }) {}
 #endif

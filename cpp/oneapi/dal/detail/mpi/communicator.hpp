@@ -31,8 +31,7 @@ namespace v1 {
 
 class mpi_error : public preview::spmd::communication_error {};
 
-inline void mpi_call(int mpi_status) {
-}
+inline void mpi_call(int mpi_status) {}
 
 inline MPI_Datatype make_mpi_data_type(const data_type& dtype) {
     switch (dtype) {
@@ -86,12 +85,12 @@ private:
 /// Implementation of the low-level SPMD communicator interface via MPI
 /// TODO: Currently message sizes are limited via `int` type.
 ///       Large message sizes should be handled on the communicator side in the future.
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class mpi_communicator_impl : public via_host_interface_selector<memory_access_kind>::type {
 public:
     // Explicitly declare all virtual functions with overloads to workaround Clang warning
     // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
-    using base_t = typename  via_host_interface_selector<memory_access_kind>::type;
+    using base_t = typename via_host_interface_selector<memory_access_kind>::type;
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
@@ -101,7 +100,7 @@ public:
               default_root_(default_root) {}
 
 #ifdef ONEDAL_DATA_PARALLEL
-//    template<typename T = memory_access_kind, ps::enable_if_device_memory_accessible_t<T>>
+    //    template<typename T = memory_access_kind, ps::enable_if_device_memory_accessible_t<T>>
     explicit mpi_communicator_impl(sycl::queue& queue, std::int64_t default_root = 0)
             : base_t(queue),
               mpi_comm_(MPI_COMM_WORLD),
@@ -135,9 +134,9 @@ public:
     }
 
     ps::request_iface* bcast(byte_t* send_buf,
-                              std::int64_t count,
-                              const data_type& dtype,
-                              std::int64_t root) override {
+                             std::int64_t count,
+                             const data_type& dtype,
+                             std::int64_t root) override {
         ONEDAL_ASSERT(root >= 0);
 
         if (count == 0) {
@@ -147,8 +146,8 @@ public:
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(count > 0);
 
-//        MPI_Request mpi_request;
-//        mpi_call(MPI_Ibcast(send_buf,
+        //        MPI_Request mpi_request;
+        //        mpi_call(MPI_Ibcast(send_buf,
         mpi_call(MPI_Bcast(send_buf,
                             integral_cast<int>(count),
                             make_mpi_data_type(dtype),
@@ -156,15 +155,15 @@ public:
                             mpi_comm_/*,
                             &mpi_request*/));
         return nullptr;
-//        return new mpi_request_impl{ mpi_request };
+        //        return new mpi_request_impl{ mpi_request };
     }
 
     ps::request_iface* allgatherv(const byte_t* send_buf,
-                                std::int64_t send_count,
-                                byte_t* recv_buf,
-                                const std::int64_t* recv_counts,
-                                const std::int64_t* displs,
-                                const data_type& dtype) override {
+                                  std::int64_t send_count,
+                                  byte_t* recv_buf,
+                                  const std::int64_t* recv_counts,
+                                  const std::int64_t* displs,
+                                  const data_type& dtype) override {
         ONEDAL_ASSERT(root >= 0);
 
         if (send_count == 0) {
@@ -185,22 +184,22 @@ public:
 
         MPI_Request mpi_request;
         mpi_call(MPI_Allgatherv(send_buf,
-                              integral_cast<int>(send_count),
-                              make_mpi_data_type(dtype),
-                              recv_buf,
-                              recv_counts_int.get_data(),
-                              displs_int.get_data(),
-                              make_mpi_data_type(dtype),
-                              mpi_comm_));
+                                integral_cast<int>(send_count),
+                                make_mpi_data_type(dtype),
+                                recv_buf,
+                                recv_counts_int.get_data(),
+                                displs_int.get_data(),
+                                make_mpi_data_type(dtype),
+                                mpi_comm_));
 
         return new mpi_request_impl{ mpi_request };
     }
 
     ps::request_iface* allreduce(const byte_t* send_buf,
-                                  byte_t* recv_buf,
-                                  std::int64_t count,
-                                  const data_type& dtype,
-                                  const ps::reduce_op& op) override {
+                                 byte_t* recv_buf,
+                                 std::int64_t count,
+                                 const data_type& dtype,
+                                 const ps::reduce_op& op) override {
         if (count == 0) {
             return nullptr;
         }
@@ -253,16 +252,19 @@ private:
     std::int64_t rank_count_ = -1;
 };
 
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class mpi_communicator : public ps::communicator<memory_access_kind> {
 public:
 #ifdef ONEDAL_DATA_PARALLEL
-    template<typename T = memory_access_kind, typename = ps::enable_if_device_memory_accessible_t<T>>
+    template <typename T = memory_access_kind,
+              typename = ps::enable_if_device_memory_accessible_t<T>>
     explicit mpi_communicator(sycl::queue& queue, std::int64_t default_root = 0)
-            : ps::communicator<memory_access_kind>(new mpi_communicator_impl<memory_access_kind>(queue, default_root)) {}
+            : ps::communicator<memory_access_kind>(
+                  new mpi_communicator_impl<memory_access_kind>(queue, default_root)) {}
 #endif
     explicit mpi_communicator(std::int64_t default_root = 0)
-            : ps::communicator<memory_access_kind>(new mpi_communicator_impl<memory_access_kind>(default_root)) {}
+            : ps::communicator<memory_access_kind>(
+                  new mpi_communicator_impl<memory_access_kind>(default_root)) {}
 };
 
 } // namespace v1

@@ -25,8 +25,9 @@ template <typename... Args>
 inline auto spmd_train(host_test_policy& policy,
                        const ps::communicator<ps::device_memory_access::none>& comm,
                        Args&&... args) {
-    return dal::train(dal::detail::spmd_policy<dal::detail::host_policy>{ dal::detail::host_policy{}, comm },
-                      std::forward<Args>(args)...);
+    return dal::train(
+        dal::detail::spmd_policy<dal::detail::host_policy>{ dal::detail::host_policy{}, comm },
+        std::forward<Args>(args)...);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL

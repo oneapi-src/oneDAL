@@ -24,10 +24,10 @@ namespace ps = oneapi::dal::preview::spmd;
 namespace oneapi::dal::detail {
 namespace v1 {
 
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class spmd_policy_impl;
 
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class spmd_policy_base : public base {
 public:
     explicit spmd_policy_base(const ps::communicator<memory_access_kind>& comm);
@@ -43,7 +43,8 @@ class spmd_policy : public spmd_policy_base<ps::device_memory_access::none> {
     static_assert(is_execution_policy_v<LocalPolicy>, "Unknown local policy type");
 
 public:
-    explicit spmd_policy(const LocalPolicy& local_policy, const ps::communicator<ps::device_memory_access::none>& comm)
+    explicit spmd_policy(const LocalPolicy& local_policy,
+                         const ps::communicator<ps::device_memory_access::none>& comm)
             : spmd_policy_base(comm),
               local_policy_(local_policy) {}
 
@@ -59,7 +60,8 @@ private:
 template <>
 class spmd_policy<data_parallel_policy> : public spmd_policy_base<ps::device_memory_access::usm> {
 public:
-    explicit spmd_policy(const data_parallel_policy& local_policy, const ps::communicator<ps::device_memory_access::usm>& comm)
+    explicit spmd_policy(const data_parallel_policy& local_policy,
+                         const ps::communicator<ps::device_memory_access::usm>& comm)
             : spmd_policy_base(comm),
               local_policy_(local_policy) {}
 

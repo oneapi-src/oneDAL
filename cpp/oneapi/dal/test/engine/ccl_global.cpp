@@ -27,7 +27,8 @@ ps::communicator<ps::device_memory_access::none> get_global_ccl_host_communicato
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-ps::communicator<ps::device_memory_access::usm> get_global_ccl_device_communicator(sycl::queue& queue) {
+ps::communicator<ps::device_memory_access::usm> get_global_ccl_device_communicator(
+    sycl::queue& queue) {
     return dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(queue);
 }
 #endif

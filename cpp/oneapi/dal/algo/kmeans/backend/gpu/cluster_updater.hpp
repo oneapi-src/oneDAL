@@ -31,7 +31,10 @@ class cluster_updater {
 public:
     using kernels_fp_t = kernels_fp<Float>;
 
-    cluster_updater(const sycl::queue& q, const bk::communicator<ps::device_memory_access::usm>& comm) : queue_(q), comm_(comm) {}
+    cluster_updater(const sycl::queue& q,
+                    const bk::communicator<ps::device_memory_access::usm>& comm)
+            : queue_(q),
+              comm_(comm) {}
 
     auto& set_cluster_count(std::int64_t cluster_count) {
         ONEDAL_ASSERT(cluster_count > 0);

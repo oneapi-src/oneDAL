@@ -113,27 +113,31 @@ public:
     using ps::communicator_iface::allgatherv;
     using ps::communicator_iface::allreduce;
 
-    template<typename Kvs>
-    explicit ccl_device_communicator_impl(const sycl::queue& queue, std::shared_ptr<Kvs> kvs, std::int64_t rank, 
-                            std::int64_t rank_count)
+    template <typename Kvs>
+    explicit ccl_device_communicator_impl(const sycl::queue& queue,
+                                          std::shared_ptr<Kvs> kvs,
+                                          std::int64_t rank,
+                                          std::int64_t rank_count)
             : queue_(queue) {
         auto dev = ccl::create_device(queue_.get_device());
         auto ctx = ccl::create_context(queue_.get_context());
-        device_comm_.reset(new ccl_comm_wrapper{
-            ccl::create_communicator(rank_count, rank, dev, ctx, kvs) });
+        device_comm_.reset(
+            new ccl_comm_wrapper{ ccl::create_communicator(rank_count, rank, dev, ctx, kvs) });
         stream_.reset(new ccl_stream_wrapper{ ccl::create_stream(queue_) });
     }
 
-    sycl::queue get_queue() override { return queue_; }
+    sycl::queue get_queue() override {
+        return queue_;
+    }
 
     ps::request_iface* bcast(sycl::queue& q,
-                              byte_t* send_buf,
-                              std::int64_t count,
-                              const data_type& dtype,
-                              const std::vector<sycl::event>& deps,
-                              std::int64_t root) override {
-//        check_if_pointer_matches_queue(queue_, send_buf);
-//        check_if_pointer_matches_queue(q, send_buf);
+                             byte_t* send_buf,
+                             std::int64_t count,
+                             const data_type& dtype,
+                             const std::vector<sycl::event>& deps,
+                             std::int64_t root) override {
+        //        check_if_pointer_matches_queue(queue_, send_buf);
+        //        check_if_pointer_matches_queue(q, send_buf);
         ONEDAL_ASSERT(root >= 0);
 
         if (count == 0) {
@@ -155,7 +159,7 @@ public:
     }
 
     /// `allgatherv` that accepts USM pointers
-/*        virtual request_iface* allgatherv(sycl::queue& q,
+    /*        virtual request_iface* allgatherv(sycl::queue& q,
                                       const byte_t* send_buf,
                                       std::int64_t send_count,
                                       byte_t* recv_buf,
@@ -171,8 +175,8 @@ public:
                                   const std::int64_t* displs_host,
                                   const data_type& dtype,
                                   const std::vector<sycl::event>& deps = {}) override {
-//        check_if_pointer_matches_queue(queue_, send_buf);
-//        check_if_pointer_matches_queue(queue_, recv_buf);
+        //        check_if_pointer_matches_queue(queue_, send_buf);
+        //        check_if_pointer_matches_queue(queue_, recv_buf);
         if (send_count == 0) {
             return nullptr;
         }
@@ -181,7 +185,7 @@ public:
         ONEDAL_ASSERT(recv_buf);
 
         std::vector<size_t> internal_recv_counts(this->get_rank_count());
-        for(std::int64_t i = 0; i < this->get_rank_count(); i++) {
+        for (std::int64_t i = 0; i < this->get_rank_count(); i++) {
             internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
         }
 
@@ -197,14 +201,14 @@ public:
 
     /// `allreduce` that accepts USM pointers
     ps::request_iface* allreduce(sycl::queue& q,
-                                  const byte_t* send_buf,
-                                  byte_t* recv_buf,
-                                  std::int64_t count,
-                                  const data_type& dtype,
-                                  const ps::reduce_op& op = ps::reduce_op::sum,
-                                  const std::vector<sycl::event>& deps = {}) override {
-//        check_if_pointer_matches_queue(queue_, send_buf);
-//        check_if_pointer_matches_queue(queue_, recv_buf);
+                                 const byte_t* send_buf,
+                                 byte_t* recv_buf,
+                                 std::int64_t count,
+                                 const data_type& dtype,
+                                 const ps::reduce_op& op = ps::reduce_op::sum,
+                                 const std::vector<sycl::event>& deps = {}) override {
+        //        check_if_pointer_matches_queue(queue_, send_buf);
+        //        check_if_pointer_matches_queue(queue_, recv_buf);
         if (count == 0) {
             return nullptr;
         }
@@ -227,12 +231,12 @@ private:
     std::unique_ptr<ccl_stream_wrapper> stream_;
     sycl::queue queue_;
 };
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 struct ccl_interface_selector {
     using type = ps::communicator_iface_base;
 };
 
-template<>
+template <>
 struct ccl_interface_selector<ps::device_memory_access::usm> {
     using type = ccl_device_communicator_impl;
 };
@@ -240,52 +244,58 @@ struct ccl_interface_selector<ps::device_memory_access::usm> {
 /// Implementation of the low-level SPMD communicator interface via MPI
 /// TODO: Currently message sizes are limited via `int` type.
 ///       Large message sizes should be handled on the communicator side in the future.
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class ccl_communicator_impl : public ccl_interface_selector<memory_access_kind>::type {
 public:
     // Explicitly declare all virtual functions with overloads to workaround Clang warning
     // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
-    using base_t = typename  ccl_interface_selector<memory_access_kind>::type;
+    using base_t = typename ccl_interface_selector<memory_access_kind>::type;
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
 
-    explicit ccl_communicator_impl(ccl::shared_ptr_class<ccl::kvs> kvs, std::int64_t rank, 
-                            std::int64_t rank_count, std::int64_t default_root = 0)
+    explicit ccl_communicator_impl(ccl::shared_ptr_class<ccl::kvs> kvs,
+                                   std::int64_t rank,
+                                   std::int64_t rank_count,
+                                   std::int64_t default_root = 0)
             : rank_(rank),
               rank_count_(rank_count),
               default_root_(default_root) {
-        host_comm_.reset(
-            new ccl_comm_wrapper{ ccl::create_communicator(rank_count_, rank_, kvs) });
+        host_comm_.reset(new ccl_comm_wrapper{ ccl::create_communicator(rank_count_, rank_, kvs) });
     }
 
-//    template<typename T = memory_access_kind, ps::enable_if_device_memory_accessible_t<T>>
-    explicit ccl_communicator_impl(sycl::queue& queue, ccl::shared_ptr_class<ccl::kvs> kvs, std::int64_t rank, 
-                            std::int64_t rank_count, std::int64_t default_root = 0)
+    //    template<typename T = memory_access_kind, ps::enable_if_device_memory_accessible_t<T>>
+    explicit ccl_communicator_impl(sycl::queue& queue,
+                                   ccl::shared_ptr_class<ccl::kvs> kvs,
+                                   std::int64_t rank,
+                                   std::int64_t rank_count,
+                                   std::int64_t default_root = 0)
             : base_t(queue, kvs, rank, rank_count),
               rank_(rank),
               rank_count_(rank_count),
               default_root_(default_root) {
-        host_comm_.reset(
-            new ccl_comm_wrapper{ ccl::create_communicator(rank_count_, rank_, kvs) });
+        host_comm_.reset(new ccl_comm_wrapper{ ccl::create_communicator(rank_count_, rank_, kvs) });
     }
 
-    std::int64_t get_rank() override { return rank_; }
-    std::int64_t get_rank_count() override { return rank_count_; }
-
+    std::int64_t get_rank() override {
+        return rank_;
+    }
+    std::int64_t get_rank_count() override {
+        return rank_count_;
+    }
 
     std::int64_t get_default_root_rank() override {
         return default_root_;
     }
 
     void barrier() override {
-         ccl::barrier(host_comm_->get_ref()).wait();
+        ccl::barrier(host_comm_->get_ref()).wait();
     }
 
     ps::request_iface* bcast(byte_t* send_buf,
-                              std::int64_t count,
-                              const data_type& dtype,
-                              std::int64_t root) override {
+                             std::int64_t count,
+                             const data_type& dtype,
+                             std::int64_t root) override {
         ONEDAL_ASSERT(root >= 0);
 
         if (count == 0) {
@@ -304,19 +314,19 @@ public:
     }
 
     ps::request_iface* allgatherv(const byte_t* send_buf,
-                                std::int64_t send_count,
-                                byte_t* recv_buf,
-                                const std::int64_t* recv_counts,
-                                const std::int64_t* displs,
-                                const data_type& dtype) override {
-//        check_if_pointer_matches_queue(queue_, send_buf);
-//        check_if_pointer_matches_queue(queue_, recv_buf);
+                                  std::int64_t send_count,
+                                  byte_t* recv_buf,
+                                  const std::int64_t* recv_counts,
+                                  const std::int64_t* displs,
+                                  const data_type& dtype) override {
+        //        check_if_pointer_matches_queue(queue_, send_buf);
+        //        check_if_pointer_matches_queue(queue_, recv_buf);
         if (send_count == 0) {
             return nullptr;
         }
 
         std::vector<size_t> internal_recv_counts(rank_count_);
-        for(std::int64_t i = 0; i < rank_count_; i++) {
+        for (std::int64_t i = 0; i < rank_count_; i++) {
             internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
         }
 
@@ -333,10 +343,10 @@ public:
     }
 
     ps::request_iface* allreduce(const byte_t* send_buf,
-                                  byte_t* recv_buf,
-                                  std::int64_t count,
-                                  const data_type& dtype,
-                                  const ps::reduce_op& op) override {
+                                 byte_t* recv_buf,
+                                 std::int64_t count,
+                                 const data_type& dtype,
+                                 const ps::reduce_op& op) override {
         if (count == 0) {
             return nullptr;
         }
@@ -360,16 +370,31 @@ private:
     std::int64_t default_root_;
 };
 
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class ccl_communicator : public ps::communicator<memory_access_kind> {
 public:
-    template<typename T = memory_access_kind, typename = ps::enable_if_device_memory_accessible_t<T>>
-    explicit ccl_communicator(sycl::queue& queue, ccl::shared_ptr_class<ccl::kvs> kvs, std::int64_t rank, 
-                            std::int64_t rank_count, std::int64_t default_root = 0)
-            : ps::communicator<memory_access_kind>(new ccl_communicator_impl<memory_access_kind>(queue, kvs, rank, rank_count, default_root)) {}
-    explicit ccl_communicator(ccl::shared_ptr_class<ccl::kvs> kvs, std::int64_t rank, 
-                            std::int64_t rank_count, std::int64_t default_root = 0)
-            : ps::communicator<memory_access_kind>(new ccl_communicator_impl<memory_access_kind>(kvs, rank, rank_count, default_root)) {}
+    template <typename T = memory_access_kind,
+              typename = ps::enable_if_device_memory_accessible_t<T>>
+    explicit ccl_communicator(sycl::queue& queue,
+                              ccl::shared_ptr_class<ccl::kvs> kvs,
+                              std::int64_t rank,
+                              std::int64_t rank_count,
+                              std::int64_t default_root = 0)
+            : ps::communicator<memory_access_kind>(
+                  new ccl_communicator_impl<memory_access_kind>(queue,
+                                                                kvs,
+                                                                rank,
+                                                                rank_count,
+                                                                default_root)) {}
+    explicit ccl_communicator(ccl::shared_ptr_class<ccl::kvs> kvs,
+                              std::int64_t rank,
+                              std::int64_t rank_count,
+                              std::int64_t default_root = 0)
+            : ps::communicator<memory_access_kind>(
+                  new ccl_communicator_impl<memory_access_kind>(kvs,
+                                                                rank,
+                                                                rank_count,
+                                                                default_root)) {}
 };
 
 } // namespace v1

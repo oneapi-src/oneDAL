@@ -36,6 +36,7 @@ public:
 
 class request : public base {
     friend dal::detail::pimpl_accessor;
+
 public:
     request() : impl_(nullptr) {}
 
@@ -51,6 +52,7 @@ public:
         }
         return true;
     }
+
 private:
     explicit request(request_iface* impl) : impl_(impl) {}
     dal::detail::pimpl<request_iface> impl_;
@@ -81,10 +83,9 @@ public:
                                      std::int64_t count,
                                      const data_type& dtype,
                                      const reduce_op& op) = 0;
-
 };
 
-template<typename memory_access_kind> 
+template <typename memory_access_kind>
 struct interface_selector {
     using type = communicator_iface_base;
 };
@@ -102,11 +103,11 @@ public:
     using base_t::allreduce;
 
     virtual request_iface* bcast(sycl::queue& q,
-                                      byte_t* send_buf,
-                                      std::int64_t count,
-                                      const data_type& dtype,
-                                      const std::vector<sycl::event>& deps,
-                                      std::int64_t root) = 0;
+                                 byte_t* send_buf,
+                                 std::int64_t count,
+                                 const data_type& dtype,
+                                 const std::vector<sycl::event>& deps,
+                                 std::int64_t root) = 0;
     virtual request_iface* allgatherv(sycl::queue& q,
                                       const byte_t* send_buf,
                                       std::int64_t send_count,
@@ -123,10 +124,9 @@ public:
                                      const reduce_op& op,
                                      const std::vector<sycl::event>& deps) = 0;
     virtual sycl::queue get_queue() = 0;
-
 };
 
-template<>
+template <>
 struct interface_selector<device_memory_access::usm> {
     using type = communicator_iface;
 };
@@ -134,7 +134,7 @@ struct interface_selector<device_memory_access::usm> {
 #endif
 
 /// Low-level MPI-like communicator
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class communicator : public base {
 private:
     template <typename T>
@@ -146,10 +146,16 @@ private:
     using interface_type = typename interface_selector<memory_access_kind>::type;
 
 public:
-    std::int64_t get_rank() const { return impl_->get_rank(); }
-    std::int64_t get_rank_count() const { return impl_->get_rank_count();}
-    std::int64_t get_default_root_rank() const { return impl_->get_default_root_rank();}
-    
+    std::int64_t get_rank() const {
+        return impl_->get_rank();
+    }
+    std::int64_t get_rank_count() const {
+        return impl_->get_rank_count();
+    }
+    std::int64_t get_default_root_rank() const {
+        return impl_->get_default_root_rank();
+    }
+
     /// Returns `true` if the current rank is root
     bool is_root_rank(std::int64_t root = -1) const {
         return get_rank() == fix_root_rank(root);
@@ -162,8 +168,10 @@ public:
     }
 
     /// Blocks until all ranks in the communicator have reached this function
-    void barrier() {impl_->barrier(); }
-    
+    void barrier() {
+        impl_->barrier();
+    }
+
     /// Broadcasts a message from the `root` rank to all other ranks
     ///
     /// @param buf   The buffer which content is broadcasted
@@ -177,17 +185,18 @@ public:
                   std::int64_t count,
                   const data_type& dtype,
                   std::int64_t root = -1) const {
-        return dal::detail::make_private<request>(impl_->bcast(buf, count, dtype, fix_root_rank(root)));
+        return dal::detail::make_private<request>(
+            impl_->bcast(buf, count, dtype, fix_root_rank(root)));
     }
 #ifdef ONEDAL_DATA_PARALLEL
     /// `bcast` that accepts USM pointers
-    template<typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
+    template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
     request bcast(sycl::queue& queue,
-                       byte_t* buf,
-                       std::int64_t count,
-                       const data_type& dtype,
-                       const std::vector<sycl::event>& deps = {},
-                       std::int64_t root = -1) const {
+                  byte_t* buf,
+                  std::int64_t count,
+                  const data_type& dtype,
+                  const std::vector<sycl::event>& deps = {},
+                  std::int64_t root = -1) const {
         return dal::detail::make_private<request>(
             impl_->bcast(queue, buf, count, dtype, deps, fix_root_rank(root)));
     }
@@ -195,21 +204,27 @@ public:
     template <typename D, typename = enable_if_primitive_t<D>>
     request bcast(D* buf, std::int64_t count, std::int64_t root = -1) const {
         std::cout << "bcast initial: " << get_rank() << " " << *buf << std::endl;
-        auto ret = bcast(reinterpret_cast<byte_t*>(buf), count, dal::detail::make_data_type<D>(),root);
+        auto ret =
+            bcast(reinterpret_cast<byte_t*>(buf), count, dal::detail::make_data_type<D>(), root);
         std::cout << "bcast final: " << get_rank() << " " << *buf << std::endl;
         return ret;
-
     }
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename D, typename T = memory_access_kind, typename =
-                std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> && is_primitive_v<D>>>
+    template <typename D,
+              typename T = memory_access_kind,
+              typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
+                                          is_primitive_v<D>>>
     request bcast(sycl::queue& q,
                   D* buf,
                   std::int64_t count,
                   const std::vector<sycl::event>& deps = {},
                   std::int64_t root = -1) const {
-        return bcast(q, reinterpret_cast<byte_t*>(buf), count, dal::detail::make_data_type<D>(), deps, root);
-
+        return bcast(q,
+                     reinterpret_cast<byte_t*>(buf),
+                     count,
+                     dal::detail::make_data_type<D>(),
+                     deps,
+                     root);
     }
 #endif
     /// Collects data from all the ranks within a communicator into a single buffer
@@ -237,16 +252,12 @@ public:
                        const std::int64_t* recv_counts,
                        const std::int64_t* displs,
                        const data_type& dtype) const {
-        return dal::detail::make_private<request>(impl_->allgatherv(send_buf,
-                                                        send_count,
-                                                        recv_buf,
-                                                        recv_counts,
-                                                        displs,
-                                                        dtype));
+        return dal::detail::make_private<request>(
+            impl_->allgatherv(send_buf, send_count, recv_buf, recv_counts, displs, dtype));
     }
 #ifdef ONEDAL_DATA_PARALLEL
     /// `gather` that accepts USM pointers
-    template<typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
+    template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
     request allgatherv(sycl::queue& queue,
                        const byte_t* send_buf,
                        std::int64_t send_count,
@@ -256,13 +267,13 @@ public:
                        const data_type& dtype,
                        const std::vector<sycl::event>& deps = {}) const {
         return dal::detail::make_private<request>(impl_->allgatherv(queue,
-                                                        send_buf,
-                                                        send_count,
-                                                        recv_buf,
-                                                        recv_counts,
-                                                        displs,
-                                                        dtype,
-                                                        deps));
+                                                                    send_buf,
+                                                                    send_count,
+                                                                    recv_buf,
+                                                                    recv_counts,
+                                                                    displs,
+                                                                    dtype,
+                                                                    deps));
     }
 #endif
     template <typename D, enable_if_primitive_t<D>* = nullptr>
@@ -271,16 +282,18 @@ public:
                        D* recv_buf,
                        const std::int64_t* recv_counts,
                        const std::int64_t* displs) const {
-         return allgatherv(reinterpret_cast<const byte_t*>(send_buf),
-                       send_count,
-                       reinterpret_cast<byte_t*>(recv_buf),
-                       recv_counts,
-                       displs,
-                       dal::detail::make_data_type<D>());
+        return allgatherv(reinterpret_cast<const byte_t*>(send_buf),
+                          send_count,
+                          reinterpret_cast<byte_t*>(recv_buf),
+                          recv_counts,
+                          displs,
+                          dal::detail::make_data_type<D>());
     }
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename D, typename T = memory_access_kind, typename =
-                std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> && is_primitive_v<D>>>
+    template <typename D,
+              typename T = memory_access_kind,
+              typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
+                                          is_primitive_v<D>>>
     request allgatherv(sycl::queue& queue,
                        const D* send_buf,
                        std::int64_t send_count,
@@ -289,13 +302,13 @@ public:
                        const std::int64_t* displs,
                        const std::vector<sycl::event>& deps = {}) const {
         return allgatherv(queue,
-                       reinterpret_cast<const byte_t*>(send_buf),
-                       send_count,
-                       reinterpret_cast<byte_t*>(recv_buf),
-                       recv_counts,
-                       displs,
-                       dal::detail::make_data_type<D>(),
-                       deps);
+                          reinterpret_cast<const byte_t*>(send_buf),
+                          send_count,
+                          reinterpret_cast<byte_t*>(recv_buf),
+                          recv_counts,
+                          displs,
+                          dal::detail::make_data_type<D>(),
+                          deps);
     }
 #endif
     /// Combines data from all ranks using reduction operation and
@@ -314,11 +327,12 @@ public:
                       std::int64_t count,
                       const data_type& dtype,
                       const reduce_op& op) const {
-        return dal::detail::make_private<request>(impl_->allreduce(send_buf, recv_buf, count, dtype, op));
+        return dal::detail::make_private<request>(
+            impl_->allreduce(send_buf, recv_buf, count, dtype, op));
     }
 #ifdef ONEDAL_DATA_PARALLEL
     /// `allreduce` that accepts USM pointers
-    template<typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
+    template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
     request allreduce(sycl::queue& queue,
                       const byte_t* send_buf,
                       byte_t* recv_buf,
@@ -326,7 +340,8 @@ public:
                       const data_type& dtype,
                       const reduce_op& op,
                       const std::vector<sycl::event>& deps = {}) const {
-        return dal::detail::make_private<request>(impl_->allreduce(queue, send_buf, recv_buf, count, dtype, op, deps));
+        return dal::detail::make_private<request>(
+            impl_->allreduce(queue, send_buf, recv_buf, count, dtype, op, deps));
     }
 #endif
     template <typename D, enable_if_primitive_t<D>* = nullptr>
@@ -341,8 +356,11 @@ public:
                          op);
     }
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename D, typename T = memory_access_kind, typename =
-                std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> && is_primitive_v<D>, bool>>
+    template <typename D,
+              typename T = memory_access_kind,
+              typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
+                                              is_primitive_v<D>,
+                                          bool>>
     request allreduce(sycl::queue& queue,
                       const D* send_buf,
                       D* recv_buf,
@@ -361,33 +379,35 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     /// `bcast` that accepts USM pointers
-    template<typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
-    sycl::queue get_queue() { return impl_->get_queue(); }
-#endif 
+    template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
+    sycl::queue get_queue() {
+        return impl_->get_queue();
+    }
+#endif
 protected:
     template <typename Impl>
     Impl& get_impl() const {
-//        static_assert(std::is_base_of_v<spmd_communicator_iface, Impl>);
+        //        static_assert(std::is_base_of_v<spmd_communicator_iface, Impl>);
         return static_cast<Impl&>(*impl_);
     }
     explicit communicator(interface_type* impl) : impl_(impl) {}
     dal::detail::pimpl<interface_type> impl_;
 };
 
-// should throw an error 
-template<typename backend> 
-communicator<device_memory_access::none> make_communicator(); 
+// should throw an error
+template <typename backend>
+communicator<device_memory_access::none> make_communicator();
 
-//template<> communicator<device_memory_access::none> make_communicator<backend::mpi>(); 
+//template<> communicator<device_memory_access::none> make_communicator<backend::mpi>();
 
-//template<> communicator<device_memory_access::none> make_communicator<backend::ccl>(); 
+//template<> communicator<device_memory_access::none> make_communicator<backend::ccl>();
 
-#ifdef ONEDAL_DATA_PARALLEL 
-// should throw an error 
-template<typename backend>
-communicator<device_memory_access::usm> make_communicator(sycl::queue& queue); 
+#ifdef ONEDAL_DATA_PARALLEL
+// should throw an error
+template <typename backend>
+communicator<device_memory_access::usm> make_communicator(sycl::queue& queue);
 
-//template<> communicator<device_memory_access::usm> make_communicator<backend::mpi>(sycl::queue& queue); 
+//template<> communicator<device_memory_access::usm> make_communicator<backend::mpi>(sycl::queue& queue);
 
 //template<> communicator<device_memory_access::usm> make_communicator<backend::ccl>(sycl::queue& queue);
 

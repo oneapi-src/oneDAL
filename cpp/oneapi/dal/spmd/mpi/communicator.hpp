@@ -20,17 +20,16 @@
 
 namespace oneapi::dal::preview::spmd {
 
-template<> 
+template <>
 communicator<device_memory_access::none> make_communicator<backend::mpi>() {
     return dal::detail::mpi_communicator<device_memory_access::none>{};
 }
 
-
 #ifdef ONEDAL_DATA_PARALLEL
-template<> 
+template <>
 communicator<device_memory_access::usm> make_communicator<backend::mpi>(sycl::queue& queue) {
-    return dal::detail::mpi_communicator<device_memory_access::usm>{queue};
+    return dal::detail::mpi_communicator<device_memory_access::usm>{ queue };
 }
 #endif
 
-} // namespace oneapi::dal::spmd
+} // namespace oneapi::dal::preview::spmd

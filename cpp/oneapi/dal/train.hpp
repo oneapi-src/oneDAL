@@ -41,7 +41,7 @@ auto train(sycl::queue& queue, Args&&... args) {
 using v1::train;
 
 namespace preview {
-    
+
 template <typename... Args>
 auto train(spmd::communicator<spmd::device_memory_access::none>& comm, Args&&... args) {
     return dal::detail::train_dispatch(dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
@@ -51,8 +51,11 @@ auto train(spmd::communicator<spmd::device_memory_access::none>& comm, Args&&...
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename... Args>
 auto train(spmd::communicator<spmd::device_memory_access::usm>& comm, Args&&... args) {
-     return dal::detail::train_dispatch(dal::detail::spmd_policy<dal::detail::data_parallel_policy>{ dal::detail::data_parallel_policy{ comm.get_queue() }, comm },
-                                       std::forward<Args>(args)...);
+    return dal::detail::train_dispatch(
+        dal::detail::spmd_policy<dal::detail::data_parallel_policy>{
+            dal::detail::data_parallel_policy{ comm.get_queue() },
+            comm },
+        std::forward<Args>(args)...);
 }
 #endif
 

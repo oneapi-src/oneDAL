@@ -27,7 +27,7 @@ namespace oneapi::dal::backend {
 namespace de = dal::detail;
 
 /// Implementation of SPMD communicator for one-rank system
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class fake_spmd_communicator : public ps::communicator<memory_access_kind> {
 public:
     fake_spmd_communicator();
@@ -54,7 +54,7 @@ private:
 /// The additional layer of abstraction is added to have more flexibility in changing the
 /// communicator interface which algorithms depend on. For example, this can be used to add
 /// collective operation overloading for internal classes such as `ndarray`.
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class communicator {
 public:
     /// Creates communicator based on public SPMD interface
@@ -63,7 +63,8 @@ public:
               is_distributed_(true) {}
 
     /// Creates communicator for one-rank system
-    communicator(const fake_spmd_communicator<memory_access_kind>& comm = fake_spmd_communicator<memory_access_kind>{})
+    communicator(const fake_spmd_communicator<memory_access_kind>& comm =
+                     fake_spmd_communicator<memory_access_kind>{})
             : public_comm_(comm),
               is_distributed_(false) {}
 
@@ -122,7 +123,7 @@ public:
         return de::allgather_value(public_comm_, value, std::forward<Args>(args)...);
     }
 
-/*
+    /*
     template <typename... Args>
     communicator_event allreduce(Args&&... args) const {
         return public_comm_.allreduce(std::forward<Args>(args)...);

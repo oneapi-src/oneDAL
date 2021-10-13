@@ -28,6 +28,7 @@ namespace oneapi::dal::preview::spmd {
 
 class ccl_info {
     friend class de::singleton<ccl_info>;
+
 private:
     ccl_info() {
         MPI_Comm_size(MPI_COMM_WORLD, &rank_count);
@@ -36,33 +37,38 @@ private:
         if (rank == 0) {
             kvs = ccl::create_main_kvs();
             main_addr = kvs->get_address();
-            MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+            MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
         }
         else {
-            MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+            MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
             kvs = ccl::create_kvs(main_addr);
         }
     }
+
 public:
     ccl::shared_ptr_class<ccl::kvs> kvs;
     int rank; // size_t?
     int rank_count; // size_t?
 };
 
-template<> 
+template <>
 communicator<device_memory_access::none> make_communicator<backend::ccl>() {
     auto& info = de::singleton<ccl_info>::get();
     // integral cast
-    return dal::detail::ccl_communicator<device_memory_access::none>{info.kvs, info.rank, info.rank_count};
+    return dal::detail::ccl_communicator<device_memory_access::none>{ info.kvs,
+                                                                      info.rank,
+                                                                      info.rank_count };
 }
 
-template<> 
+template <>
 communicator<device_memory_access::usm> make_communicator<backend::ccl>(sycl::queue& queue) {
     auto& info = de::singleton<ccl_info>::get();
-    return dal::detail::ccl_communicator<device_memory_access::usm>{queue, info.kvs, info.rank, info.rank_count};
+    return dal::detail::ccl_communicator<device_memory_access::usm>{ queue,
+                                                                     info.kvs,
+                                                                     info.rank,
+                                                                     info.rank_count };
 }
 
 } // namespace oneapi::dal::preview::spmd
 
 #endif
-

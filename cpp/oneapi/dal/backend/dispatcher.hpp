@@ -57,11 +57,12 @@ using cpu_dispatch_default = cpu_dispatch_sse2;
 #define __CPU_TAG_AVX512__  oneapi::dal::backend::cpu_dispatch_avx512
 #define __CPU_TAG_DEFAULT__ oneapi::dal::backend::cpu_dispatch_default
 
-template<typename memory_access_kind>
+template <typename memory_access_kind>
 class communicator_provider : public base {
 public:
     communicator_provider() = default;
-    communicator_provider(const communicator<memory_access_kind>& comm) : comm_(new communicator<memory_access_kind>{ comm }) {}
+    communicator_provider(const communicator<memory_access_kind>& comm)
+            : comm_(new communicator<memory_access_kind>{ comm }) {}
 
     const communicator<memory_access_kind>& get_communicator() const {
         if (!comm_) {

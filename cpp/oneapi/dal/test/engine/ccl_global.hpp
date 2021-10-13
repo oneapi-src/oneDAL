@@ -29,5 +29,4 @@ ps::communicator<ps::device_memory_access::none> get_global_ccl_host_communicato
 ps::communicator<ps::device_memory_access::usm> get_global_ccl_device_communicator(sycl::queue&);
 #endif
 
-
 } // namespace oneapi::dal::test::engine

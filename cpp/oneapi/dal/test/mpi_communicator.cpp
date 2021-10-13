@@ -18,7 +18,6 @@
 #include "oneapi/dal/test/engine/mpi_global.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 
-
 namespace ps = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::test {
@@ -36,9 +35,9 @@ public:
 
     comm_t get_new_comm() {
 #ifdef ONEDAL_DATA_PARALLEL
-    return te::get_global_mpi_device_communicator(get_queue());
+        return te::get_global_mpi_device_communicator(get_queue());
 #else
-    return te::get_global_mpi_host_communicator();
+        return te::get_global_mpi_host_communicator();
 #endif
     }
 
