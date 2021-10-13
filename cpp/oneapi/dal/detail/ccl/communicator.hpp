@@ -181,7 +181,7 @@ public:
             return nullptr;
         }
 
-        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(send_buf != nullptr);
         ONEDAL_ASSERT(recv_buf);
 
         std::vector<size_t> internal_recv_counts(this->get_rank_count());
