@@ -367,7 +367,7 @@ private:
     std::unique_ptr<ccl_comm_wrapper> host_comm_;
     std::int64_t rank_ = -1;
     std::int64_t rank_count_ = -1;
-    std::int64_t default_root_;
+    std::int64_t default_root_ = -1;
 };
 
 template <typename memory_access_kind>
