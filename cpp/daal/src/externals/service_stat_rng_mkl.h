@@ -58,7 +58,7 @@
     #endif
 
     #if (defined(__x86_64__) && !defined(__APPLE__))
-        #define __DAAL_MKLVSL_AVX512_MIC b3
+        #define __DAAL_MKLVSL_AVX512_MIC z0
     #else
         #define __DAAL_MKLVSL_AVX512_MIC l9
     #endif
@@ -141,7 +141,7 @@
         }                                                                      \
         if (avx512_mic == cpu)                                                 \
         {                                                                      \
-            errcode = __DAAL_VSLFN(s9, f_pref, f_name) f_args;                 \
+            errcode = __DAAL_VSLFN(x0, f_pref, f_name) f_args;                 \
         }                                                                      \
         if (avx2 == cpu)                                                       \
         {                                                                      \
