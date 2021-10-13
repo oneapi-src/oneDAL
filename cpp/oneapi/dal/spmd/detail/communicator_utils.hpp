@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/array.hpp"
 #include "oneapi/dal/spmd/communicator.hpp"
 
 namespace ps = oneapi::dal::preview::spmd;
@@ -28,7 +29,7 @@ template <typename T>
 using enable_if_primitive_t = std::enable_if_t<is_primitive_v<T>>;
 
 template <typename memory_access_kind, typename IfBody>
-auto if_root_rank(ps::communicator<memory_access_kind>& comm,
+auto if_root_rank(const ps::communicator<memory_access_kind>& comm,
                   IfBody&& if_body,
                   std::int64_t root = -1) {
     if (comm.is_root_rank(root)) {
@@ -41,10 +42,18 @@ auto if_root_rank(ps::communicator<memory_access_kind>& comm,
 }
 
 template <typename memory_access_kind, typename T, enable_if_primitive_t<T>* = nullptr>
+ps::request bcast_value(const ps::communicator<memory_access_kind>& comm,
+                        T& value,
+                        std::int64_t root = -1) {
+    return comm.bcast(&value, 1, root);
+}
+
+template <typename memory_access_kind, typename T, enable_if_primitive_t<T>* = nullptr>
 ps::request bcast_array(const ps::communicator<memory_access_kind>& comm,
                         const array<T>& ary,
                         std::int64_t root = -1) {
     std::int64_t count = if_root_rank(
+        comm,
         [&]() {
             return ary.get_count();
         },
@@ -167,13 +176,6 @@ ps::request allgather_value(const ps::communicator<memory_access_kind>& comm,
                             const array<T>& recv) {
     auto send = array<T>::full(1, T(scalar));
     return allgather_array(comm, send, recv);
-}
-
-template <typename memory_access_kind, typename T, enable_if_primitive_t<T>* = nullptr>
-ps::request bcast_value(const ps::communicator<memory_access_kind>& comm,
-                        T& value,
-                        std::int64_t root = -1) {
-    return comm.bcast(&value, 1, root);
 }
 
 } // namespace oneapi::dal::detail

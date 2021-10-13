@@ -23,8 +23,6 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/spmd/common.hpp"
 
-#include <iostream>
-
 namespace oneapi::dal::preview::spmd {
 
 class request_iface {
@@ -203,10 +201,8 @@ public:
 #endif
     template <typename D, typename = enable_if_primitive_t<D>>
     request bcast(D* buf, std::int64_t count, std::int64_t root = -1) const {
-        std::cout << "bcast initial: " << get_rank() << " " << *buf << std::endl;
         auto ret =
             bcast(reinterpret_cast<byte_t*>(buf), count, dal::detail::make_data_type<D>(), root);
-        std::cout << "bcast final: " << get_rank() << " " << *buf << std::endl;
         return ret;
     }
 #ifdef ONEDAL_DATA_PARALLEL

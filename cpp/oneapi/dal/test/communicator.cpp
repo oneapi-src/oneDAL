@@ -16,22 +16,35 @@
 
 #include <mutex>
 #include "oneapi/dal/detail/communicator.hpp"
+#include "oneapi/dal/spmd/detail/communicator_utils.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/thread_communicator.hpp"
 
 namespace oneapi::dal::test {
 
+namespace de = dal::detail;
 namespace te = dal::test::engine;
 
 class communicator_test : public te::policy_fixture {
 public:
-    dal::detail::spmd_communicator create_communicator(std::int64_t rank_count) {
+#ifdef ONEDAL_DATA_PARALLEL
+    using comm_t = te::thread_communicator<ps::device_memory_access::usm>;
+    using spmd_comm_t = ps::communicator<ps::device_memory_access::usm>;
+#else
+    using comm_t = te::thread_communicator<ps::device_memory_access::none>;
+    using spmd_comm_t = ps::communicator<ps::device_memory_access::none>;
+#endif
+    auto create_communicator(std::int64_t rank_count) {
         CAPTURE(rank_count);
-        thread_comm_.reset(new te::thread_communicator{ rank_count });
-        return dal::detail::spmd_communicator{ *thread_comm_ };
+#ifdef ONEDAL_DATA_PARALLEL
+        thread_comm_.reset(new comm_t{ this->get_queue(), rank_count });
+#else
+        thread_comm_.reset(new comm_t{ rank_count });
+#endif
+        return spmd_comm_t{ *thread_comm_ };
     }
 
-    dal::detail::spmd_communicator create_communicator() {
+    auto create_communicator() {
         return create_communicator(generate_thread_count());
     }
 
@@ -138,7 +151,7 @@ private:
 
     std::mt19937 rng_{ seed };
     std::mutex mtx_;
-    std::unique_ptr<te::thread_communicator> thread_comm_;
+    std::unique_ptr<comm_t> thread_comm_;
 };
 
 TEST_M(communicator_test, "get current rank", "[basic]") {
@@ -163,57 +176,16 @@ TEST_M(communicator_test, "check if root rank", "[basic]") {
     });
 }
 
-TEST_M(communicator_test, "execute if root rank", "[basic]") {
-    auto comm = create_communicator();
-
-    SECTION("default else branch") {
-        execute([&](std::int64_t rank) {
-            const auto root_val = comm.if_root_rank([]() {
-                return std::int64_t(-1);
-            });
-            exclusive([&]() {
-                if (rank == 0) {
-                    REQUIRE(root_val == -1);
-                }
-                else {
-                    REQUIRE(root_val == 0);
-                }
-            });
-        });
-    }
-
-    SECTION("custom else branch") {
-        execute([&](std::int64_t rank) {
-            const auto root_val = comm.if_root_rank_else(
-                []() {
-                    return std::int64_t(-1);
-                },
-                []() {
-                    return std::int64_t(-2);
-                });
-
-            exclusive([&]() {
-                if (rank == 0) {
-                    REQUIRE(root_val == -1);
-                }
-                else {
-                    REQUIRE(root_val == -2);
-                }
-            });
-        });
-    }
-}
-
 TEST_M(communicator_test, "bcast single value", "[bcast]") {
     auto comm = create_communicator();
 
     execute([&](std::int64_t rank) {
         constexpr float root_x = 3.14;
-        float x = comm.if_root_rank([=] {
+        float x = de::if_root_rank(comm, [=] {
             return root_x;
         });
 
-        comm.bcast(x).wait();
+        de::bcast_value(comm, x).wait();
 
         exclusive([&]() {
             REQUIRE(x == root_x);
@@ -287,7 +259,7 @@ TEST_M(communicator_test, "bcast array", "[bcast][array]") {
         }
         const std::int64_t* buf_ptr = buf.get_mutable_data();
 
-        comm.bcast(buf).wait();
+        de::bcast_array(comm, buf).wait();
 
         exclusive([&]() {
             // Make sure we do not reallocate memory
@@ -318,7 +290,7 @@ TEST_M(communicator_test, "USM bcast array", "[bcast][usm][array]") {
         }
         const std::int64_t* buf_ptr = buf.get_mutable_data();
 
-        comm.bcast(buf).wait();
+        de::bcast_array(comm, buf).wait();
 
         exclusive([&]() {
             // Make sure we do not reallocate memory
@@ -340,7 +312,6 @@ TEST_M(communicator_test, "empty bcast is allowed", "[bcast][empty]") {
 
     float* empty_buf = nullptr;
     const std::int64_t empty_buf_count = 0;
-
     execute([&](std::int64_t rank) {
         comm.bcast(empty_buf, empty_buf_count).wait();
     });
@@ -359,264 +330,7 @@ TEST_M(communicator_test, "empty USM bcast is allowed", "[bcast][usm][empty]") {
 }
 #endif
 
-TEST_M(communicator_test, "gather single value", "[gather]") {
-    auto comm = create_communicator();
-
-    auto send = this->array_range(comm.get_rank_count(), float());
-
-    execute([&](std::int64_t rank) {
-        const auto recv = comm.gather(send[rank]);
-
-        exclusive([&]() {
-            if (comm.is_root_rank()) {
-                check_if_arrays_equal(recv, send);
-            }
-            else {
-                REQUIRE(recv.get_count() == 0);
-            }
-        });
-    });
-}
-
-TEST_M(communicator_test, "gather multiple values", "[gather]") {
-    constexpr std::int64_t count_per_rank = 5;
-    auto comm = create_communicator();
-
-    auto send_full = this->array_range(comm.get_rank_count() * count_per_rank, float());
-
-    execute([&](std::int64_t rank) {
-        const float* send_buf = send_full.get_data() + rank * count_per_rank;
-
-        array<float> recv;
-        float* recv_buf = nullptr;
-        if (comm.is_root_rank()) {
-            recv = array<float>::empty(comm.get_rank_count() * count_per_rank);
-            recv_buf = recv.get_mutable_data();
-        }
-
-        comm.gather(send_buf, count_per_rank, recv_buf, count_per_rank).wait();
-
-        exclusive([&]() {
-            if (comm.is_root_rank()) {
-                check_if_arrays_equal(recv, send_full);
-            }
-            else {
-                REQUIRE(recv.get_count() == 0);
-            }
-        });
-    });
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "USM gather multiple values", "[gather][usm]") {
-    constexpr std::int64_t count_per_rank = 5;
-    auto comm = create_communicator();
-
-    auto send_full = this->array_range(comm.get_rank_count() * count_per_rank, float());
-    auto send_full_device = this->to_device(send_full);
-
-    execute([&](std::int64_t rank) {
-        const float* send_buf = send_full_device.get_data() + rank * count_per_rank;
-
-        array<float> recv;
-        float* recv_buf = nullptr;
-        if (comm.is_root_rank()) {
-            recv.reset(this->get_queue(),
-                       comm.get_rank_count() * count_per_rank,
-                       sycl::usm::alloc::device);
-            recv_buf = recv.get_mutable_data();
-        }
-
-        comm.gather(this->get_queue(), send_buf, count_per_rank, recv_buf, count_per_rank).wait();
-
-        exclusive([&]() {
-            if (comm.is_root_rank()) {
-                check_if_arrays_equal(this->to_host(recv), send_full);
-            }
-            else {
-                REQUIRE(recv.get_count() == 0);
-            }
-        });
-    });
-}
-#endif
-
-TEST_M(communicator_test, "gather array", "[gather][array]") {
-    constexpr std::int64_t count_per_rank = 5;
-    auto comm = create_communicator();
-
-    auto send_full = this->array_range(comm.get_rank_count() * count_per_rank, float());
-
-    execute([&](std::int64_t rank) {
-        const float* send_buf = send_full.get_data() + rank * count_per_rank;
-        const auto send = array<float>::wrap(send_buf, count_per_rank);
-
-        array<float> recv;
-        if (comm.is_root_rank()) {
-            recv.reset(comm.get_rank_count() * count_per_rank);
-        }
-
-        comm.gather(send, recv).wait();
-
-        exclusive([&]() {
-            if (comm.is_root_rank()) {
-                check_if_arrays_equal(recv, send_full);
-            }
-            else {
-                REQUIRE(recv.get_count() == 0);
-            }
-        });
-    });
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "USM gather array", "[gather][usm][array]") {
-    constexpr std::int64_t count_per_rank = 5;
-    auto comm = create_communicator();
-
-    auto send_full = this->array_range(comm.get_rank_count() * count_per_rank, float());
-
-    execute([&](std::int64_t rank) {
-        const float* send_buf = send_full.get_data() + rank * count_per_rank;
-        const auto send = this->to_device(array<float>::wrap(send_buf, count_per_rank));
-
-        array<float> recv;
-        if (comm.is_root_rank()) {
-            recv.reset(this->get_queue(),
-                       comm.get_rank_count() * count_per_rank,
-                       sycl::usm::alloc::device);
-        }
-
-        comm.gather(send, recv).wait();
-
-        exclusive([&]() {
-            if (comm.is_root_rank()) {
-                check_if_arrays_equal(this->to_host(recv), send_full);
-            }
-            else {
-                REQUIRE(recv.get_count() == 0);
-            }
-        });
-    });
-}
-#endif
-
-TEST_M(communicator_test, "empty gather is allowed", "[gather][empty]") {
-    auto comm = create_communicator();
-    execute([&](std::int64_t rank) {
-        const float* send_buf = nullptr;
-        float* recv_buf = nullptr;
-        comm.gather(send_buf, 0, recv_buf, 0).wait();
-    });
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "empty USM gather is allowed", "[gather][usm][empty]") {
-    auto comm = create_communicator();
-    execute([&](std::int64_t rank) {
-        const float* send_buf = nullptr;
-        float* recv_buf = nullptr;
-        comm.gather(this->get_queue(), send_buf, 0, recv_buf, 0).wait();
-    });
-}
-#endif
-
-TEST_M(communicator_test, "gatherv values", "[gatherv]") {
-    auto comm = create_communicator();
-
-    // Send 1, 2, 3, ... elements from each rank
-    const auto send_count = this->array_range(comm.get_rank_count(), std::int64_t(1));
-    const auto displs = this->array_displacements(send_count);
-
-    const std::int64_t total_send_count = this->array_sum(send_count);
-    auto send_full = this->array_range(total_send_count, float());
-
-    execute([&](std::int64_t rank) {
-        const float* send_buf = send_full.get_data() + displs[rank];
-
-        array<float> recv;
-        float* recv_buf = nullptr;
-        if (comm.is_root_rank()) {
-            recv = array<float>::empty(total_send_count);
-            recv_buf = recv.get_mutable_data();
-        }
-
-        comm.gatherv(send_buf, send_count[rank], recv_buf, send_count.get_data(), displs.get_data())
-            .wait();
-
-        exclusive([&]() {
-            if (comm.is_root_rank()) {
-                check_if_arrays_equal(recv, send_full);
-            }
-            else {
-                REQUIRE(recv.get_count() == 0);
-            }
-        });
-    });
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "USM gatherv values", "[gatherv][usm]") {
-    auto comm = create_communicator();
-
-    // Send 1, 2, 3, ... elements from each rank
-    const auto send_count = this->array_range(comm.get_rank_count(), std::int64_t(1));
-    const auto displs = this->array_displacements(send_count);
-
-    const std::int64_t total_send_count = this->array_sum(send_count);
-    auto send_full = this->array_range(total_send_count, float());
-    auto send_full_device = this->to_device(send_full);
-
-    execute([&](std::int64_t rank) {
-        const float* send_buf = send_full_device.get_data() + displs[rank];
-
-        array<float> recv;
-        float* recv_buf = nullptr;
-        if (comm.is_root_rank()) {
-            recv.reset(this->get_queue(), total_send_count, sycl::usm::alloc::device);
-            recv_buf = recv.get_mutable_data();
-        }
-
-        comm.gatherv(this->get_queue(),
-                     send_buf,
-                     send_count[rank],
-                     recv_buf,
-                     send_count.get_data(),
-                     displs.get_data())
-            .wait();
-
-        exclusive([&]() {
-            if (comm.is_root_rank()) {
-                check_if_arrays_equal(this->to_host(recv), send_full);
-            }
-            else {
-                REQUIRE(recv.get_count() == 0);
-            }
-        });
-    });
-}
-#endif
-
-TEST_M(communicator_test, "empty gatherv is allowed", "[gatherv][empty]") {
-    auto comm = create_communicator();
-    execute([&](std::int64_t rank) {
-        const float* send_buf = nullptr;
-        float* recv_buf = nullptr;
-        comm.gatherv(send_buf, 0, recv_buf, nullptr, nullptr).wait();
-    });
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "empty USM gatherv is allowed", "[gatherv][usm][empty]") {
-    auto comm = create_communicator();
-    execute([&](std::int64_t rank) {
-        const float* send_buf = nullptr;
-        float* recv_buf = nullptr;
-        comm.gatherv(this->get_queue(), send_buf, 0, recv_buf, nullptr, nullptr).wait();
-    });
-}
-#endif
-
+/*
 TEST_M(communicator_test, "allgather multiple values", "[allgather]") {
     constexpr std::int64_t count_per_rank = 5;
     auto comm = create_communicator();
@@ -662,7 +376,8 @@ TEST_M(communicator_test, "USM allgather multiple values", "[allgather][usm]") {
     });
 }
 #endif
-
+*/
+/*
 TEST_M(communicator_test, "allgather array", "[allgather]") {
     constexpr std::int64_t count_per_rank = 5;
     auto comm = create_communicator();
@@ -674,7 +389,7 @@ TEST_M(communicator_test, "allgather array", "[allgather]") {
         const auto send = array<float>::wrap(send_buf, count_per_rank);
         const auto recv = array<float>::empty(comm.get_rank_count() * count_per_rank);
 
-        comm.allgather(send, recv).wait();
+        de::allgather_array(comm, send, recv).wait();
 
         exclusive([&]() {
             check_if_arrays_equal(recv, send_full);
@@ -697,7 +412,7 @@ TEST_M(communicator_test, "USM allgather array", "[allgather][usm]") {
                                               comm.get_rank_count() * count_per_rank,
                                               sycl::usm::alloc::device);
 
-        comm.allgather(send, recv).wait();
+        de::allgather_array(comm, send, recv).wait();
 
         exclusive([&]() {
             check_if_arrays_equal(this->to_host(recv), send_full);
@@ -725,14 +440,14 @@ TEST_M(communicator_test, "empty USM allgather is allowed", "[allgather][usm][em
     });
 }
 #endif
-
+*/
 TEST_M(communicator_test, "allreduce single value", "[allreduce]") {
     auto comm = create_communicator();
 
     execute([&](std::int64_t rank) {
         float x = 1;
 
-        comm.allreduce(x).wait();
+        de::allreduce_value(comm, x, ps::reduce_op::sum).wait();
 
         exclusive([&]() {
             REQUIRE(std::int64_t(x) == comm.get_rank_count());
@@ -748,7 +463,8 @@ TEST_M(communicator_test, "allreduce multiple values", "[allreduce]") {
         const auto send = this->array_full(count_per_rank, float(1));
         const auto recv = this->array_full(count_per_rank, float(0));
 
-        comm.allreduce(send.get_data(), recv.get_mutable_data(), count_per_rank).wait();
+        comm.allreduce(send.get_data(), recv.get_mutable_data(), count_per_rank, ps::reduce_op::sum)
+            .wait();
 
         exclusive([&]() {
             const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
@@ -766,7 +482,11 @@ TEST_M(communicator_test, "USM allreduce multiple values", "[allreduce][usm]") {
         const auto send = this->to_device(this->array_full(count_per_rank, float(1)));
         const auto recv = this->to_device(this->array_full(count_per_rank, float(0)));
 
-        comm.allreduce(this->get_queue(), send.get_data(), recv.get_mutable_data(), count_per_rank)
+        comm.allreduce(this->get_queue(),
+                       send.get_data(),
+                       recv.get_mutable_data(),
+                       count_per_rank,
+                       ps::reduce_op::sum)
             .wait();
 
         exclusive([&]() {
@@ -784,7 +504,7 @@ TEST_M(communicator_test, "allreduce array", "[allreduce]") {
     execute([&](std::int64_t rank) {
         const auto ary = this->array_full(count_per_rank, float(1));
 
-        comm.allreduce(ary).wait();
+        de::allreduce_array(comm, ary, ps::reduce_op::sum).wait();
 
         exclusive([&]() {
             const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
@@ -801,7 +521,7 @@ TEST_M(communicator_test, "USM allreduce array", "[allreduce][usm]") {
     execute([&](std::int64_t rank) {
         const auto ary = this->to_device(this->array_full(count_per_rank, float(1)));
 
-        comm.allreduce(ary).wait();
+        de::allreduce_array(comm, ary, ps::reduce_op::sum).wait();
 
         exclusive([&]() {
             const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
@@ -816,7 +536,7 @@ TEST_M(communicator_test, "empty allreduce is allowed", "[allreduce][empty]") {
     execute([&](std::int64_t rank) {
         const float* send_buf = nullptr;
         float* recv_buf = nullptr;
-        comm.allreduce(send_buf, recv_buf, 0).wait();
+        comm.allreduce(send_buf, recv_buf, 0, ps::reduce_op::sum).wait();
     });
 }
 
@@ -826,7 +546,7 @@ TEST_M(communicator_test, "empty USM allreduce is allowed", "[allreduce][usm][em
     execute([&](std::int64_t rank) {
         const byte_t* send_buf = nullptr;
         byte_t* recv_buf = nullptr;
-        comm.allreduce(this->get_queue(), send_buf, recv_buf, 0).wait();
+        comm.allreduce(this->get_queue(), send_buf, recv_buf, 0, ps::reduce_op::sum).wait();
     });
 }
 #endif

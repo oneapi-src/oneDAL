@@ -67,7 +67,7 @@ ps::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
         memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, size);
     }
 
-    wait_request(/*base_t::*/ bcast(send_buff_host.get_mutable_data(), count, dtype, root));
+    wait_request(bcast(send_buff_host.get_mutable_data(), count, dtype, root));
 
     if (get_rank() != root) {
         memcpy_host2usm(q, send_buf, send_buff_host.get_mutable_data(), size);
@@ -130,12 +130,12 @@ ps::request_iface* spmd_communicator_via_host_impl::allgatherv(
     recv_buf_host.reset(total_recv_size);
     recv_buf_host_ptr = recv_buf_host.get_mutable_data();
 
-    wait_request(/*base_t::*/ allgatherv(send_buff_host.get_data(),
-                                         send_count,
-                                         recv_buf_host_ptr,
-                                         recv_counts_host,
-                                         displs_host,
-                                         dtype));
+    wait_request(allgatherv(send_buff_host.get_data(),
+                            send_count,
+                            recv_buf_host_ptr,
+                            recv_counts_host,
+                            displs_host,
+                            dtype));
 
     const std::int64_t* displs_host_root_ptr = displs_host_root.get_data();
     ONEDAL_ASSERT(displs_host_root_ptr);
@@ -183,11 +183,7 @@ ps::request_iface* spmd_communicator_via_host_impl::allreduce(
 
     memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, byte_count);
     wait_request(
-        /*base_t::*/ allreduce(send_buff_host.get_data(),
-                               recv_buf_host.get_mutable_data(),
-                               count,
-                               dtype,
-                               op));
+        allreduce(send_buff_host.get_data(), recv_buf_host.get_mutable_data(), count, dtype, op));
     memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), byte_count);
 
     return nullptr;
