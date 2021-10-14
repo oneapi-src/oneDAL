@@ -85,12 +85,12 @@ private:
 /// Implementation of the low-level SPMD communicator interface via MPI
 /// TODO: Currently message sizes are limited via `int` type.
 ///       Large message sizes should be handled on the communicator side in the future.
-template <typename memory_access_kind>
-class mpi_communicator_impl : public via_host_interface_selector<memory_access_kind>::type {
+template <typename MemoryAccessKind>
+class mpi_communicator_impl : public via_host_interface_selector<MemoryAccessKind>::type {
 public:
     // Explicitly declare all virtual functions with overloads to workaround Clang warning
     // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
-    using base_t = typename via_host_interface_selector<memory_access_kind>::type;
+    using base_t = typename via_host_interface_selector<MemoryAccessKind>::type;
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
@@ -100,7 +100,7 @@ public:
               default_root_(default_root) {}
 
 #ifdef ONEDAL_DATA_PARALLEL
-    //    template<typename T = memory_access_kind, spmd::enable_if_device_memory_accessible_t<T>>
+    //    template<typename T = MemoryAccessKind, spmd::enable_if_device_memory_accessible_t<T>>
     explicit mpi_communicator_impl(sycl::queue& queue, std::int64_t default_root = 0)
             : base_t(queue),
               mpi_comm_(MPI_COMM_WORLD),
@@ -249,19 +249,19 @@ private:
     std::int64_t rank_count_ = -1;
 };
 
-template <typename memory_access_kind>
-class mpi_communicator : public spmd::communicator<memory_access_kind> {
+template <typename MemoryAccessKind>
+class mpi_communicator : public spmd::communicator<MemoryAccessKind> {
 public:
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T = memory_access_kind,
+    template <typename T = MemoryAccessKind,
               typename = spmd::enable_if_device_memory_accessible_t<T>>
     explicit mpi_communicator(sycl::queue& queue, std::int64_t default_root = 0)
-            : spmd::communicator<memory_access_kind>(
-                  new mpi_communicator_impl<memory_access_kind>(queue, default_root)) {}
+            : spmd::communicator<MemoryAccessKind>(
+                  new mpi_communicator_impl<MemoryAccessKind>(queue, default_root)) {}
 #endif
     explicit mpi_communicator(std::int64_t default_root = 0)
-            : spmd::communicator<memory_access_kind>(
-                  new mpi_communicator_impl<memory_access_kind>(default_root)) {}
+            : spmd::communicator<MemoryAccessKind>(
+                  new mpi_communicator_impl<MemoryAccessKind>(default_root)) {}
 };
 
 } // namespace v1

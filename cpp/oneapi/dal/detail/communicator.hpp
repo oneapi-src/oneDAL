@@ -79,7 +79,7 @@ private:
 using v1::spmd_communicator_via_host_impl;
 #endif
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 struct via_host_interface_selector {
     using type = spmd::communicator_iface_base;
 };

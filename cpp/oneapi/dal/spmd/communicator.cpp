@@ -19,29 +19,28 @@
 
 namespace oneapi::dal::preview::spmd {
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 template <typename D>
-request communicator<memory_access_kind>::bcast(const array<D>& ary, std::int64_t root) const {
+request communicator<MemoryAccessKind>::bcast(const array<D>& ary, std::int64_t root) const {
     return de::bcast(*this, ary, root);
 }
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 template <typename D>
-request communicator<memory_access_kind>::allgather(const array<D>& send,
-                                                    const array<D>& recv) const {
+request communicator<MemoryAccessKind>::allgather(const array<D>& send,
+                                                  const array<D>& recv) const {
     return de::allgather(*this, send, recv);
 }
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 template <typename D>
-request communicator<memory_access_kind>::allgather(D& scalar, const array<D>& recv) const {
+request communicator<MemoryAccessKind>::allgather(D& scalar, const array<D>& recv) const {
     return de::allgather(*this, scalar, recv);
 }
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 template <typename D>
-request communicator<memory_access_kind>::allreduce(const array<D>& ary,
-                                                    const reduce_op& op) const {
+request communicator<MemoryAccessKind>::allreduce(const array<D>& ary, const reduce_op& op) const {
     return de::allreduce(*this, ary, op);
 }
 

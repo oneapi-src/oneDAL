@@ -243,7 +243,7 @@ public:
 };
 #endif
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 struct comm_impl_selector {
     using comm_type = fake_spmd_communicator_host_impl;
 };
@@ -255,10 +255,10 @@ struct comm_impl_selector<spmd::device_memory_access::usm> {
 };
 #endif
 
-template <typename memory_access_kind>
-fake_spmd_communicator<memory_access_kind>::fake_spmd_communicator()
-        : spmd::communicator<memory_access_kind>(
-              new typename comm_impl_selector<memory_access_kind>::comm_type{}) {}
+template <typename MemoryAccessKind>
+fake_spmd_communicator<MemoryAccessKind>::fake_spmd_communicator()
+        : spmd::communicator<MemoryAccessKind>(
+              new typename comm_impl_selector<MemoryAccessKind>::comm_type{}) {}
 
 template class fake_spmd_communicator<spmd::device_memory_access::usm>;
 template class fake_spmd_communicator<spmd::device_memory_access::none>;

@@ -233,7 +233,7 @@ private:
     std::unique_ptr<ccl_stream_wrapper> stream_;
     sycl::queue queue_;
 };
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 struct ccl_interface_selector {
     using type = spmd::communicator_iface_base;
 };
@@ -246,12 +246,12 @@ struct ccl_interface_selector<spmd::device_memory_access::usm> {
 /// Implementation of the low-level SPMD communicator interface via MPI
 /// TODO: Currently message sizes are limited via `int` type.
 ///       Large message sizes should be handled on the communicator side in the future.
-template <typename memory_access_kind>
-class ccl_communicator_impl : public ccl_interface_selector<memory_access_kind>::type {
+template <typename MemoryAccessKind>
+class ccl_communicator_impl : public ccl_interface_selector<MemoryAccessKind>::type {
 public:
     // Explicitly declare all virtual functions with overloads to workaround Clang warning
     // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
-    using base_t = typename ccl_interface_selector<memory_access_kind>::type;
+    using base_t = typename ccl_interface_selector<MemoryAccessKind>::type;
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
@@ -266,7 +266,7 @@ public:
         host_comm_.reset(new ccl_comm_wrapper{ ccl::create_communicator(rank_count_, rank_, kvs) });
     }
 
-    //    template<typename T = memory_access_kind, spmd::enable_if_device_memory_accessible_t<T>>
+    //    template<typename T = MemoryAccessKind, spmd::enable_if_device_memory_accessible_t<T>>
     explicit ccl_communicator_impl(sycl::queue& queue,
                                    ccl::shared_ptr_class<ccl::kvs> kvs,
                                    std::int64_t rank,
@@ -372,31 +372,31 @@ private:
     std::int64_t default_root_ = -1;
 };
 
-template <typename memory_access_kind>
-class ccl_communicator : public spmd::communicator<memory_access_kind> {
+template <typename MemoryAccessKind>
+class ccl_communicator : public spmd::communicator<MemoryAccessKind> {
 public:
-    template <typename T = memory_access_kind,
+    template <typename T = MemoryAccessKind,
               typename = spmd::enable_if_device_memory_accessible_t<T>>
     explicit ccl_communicator(sycl::queue& queue,
                               ccl::shared_ptr_class<ccl::kvs> kvs,
                               std::int64_t rank,
                               std::int64_t rank_count,
                               std::int64_t default_root = 0)
-            : spmd::communicator<memory_access_kind>(
-                  new ccl_communicator_impl<memory_access_kind>(queue,
-                                                                kvs,
-                                                                rank,
-                                                                rank_count,
-                                                                default_root)) {}
+            : spmd::communicator<MemoryAccessKind>(
+                  new ccl_communicator_impl<MemoryAccessKind>(queue,
+                                                              kvs,
+                                                              rank,
+                                                              rank_count,
+                                                              default_root)) {}
     explicit ccl_communicator(ccl::shared_ptr_class<ccl::kvs> kvs,
                               std::int64_t rank,
                               std::int64_t rank_count,
                               std::int64_t default_root = 0)
-            : spmd::communicator<memory_access_kind>(
-                  new ccl_communicator_impl<memory_access_kind>(kvs,
-                                                                rank,
-                                                                rank_count,
-                                                                default_root)) {}
+            : spmd::communicator<MemoryAccessKind>(
+                  new ccl_communicator_impl<MemoryAccessKind>(kvs,
+                                                              rank,
+                                                              rank_count,
+                                                              default_root)) {}
 };
 
 } // namespace v1

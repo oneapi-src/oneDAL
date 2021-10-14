@@ -28,8 +28,8 @@ static constexpr bool is_primitive_v = std::is_arithmetic_v<T>;
 template <typename T>
 using enable_if_primitive_t = std::enable_if_t<is_primitive_v<T>>;
 
-template <typename memory_access_kind, typename IfBody>
-auto if_root_rank(const spmd::communicator<memory_access_kind>& comm,
+template <typename MemoryAccessKind, typename IfBody>
+auto if_root_rank(const spmd::communicator<MemoryAccessKind>& comm,
                   IfBody&& if_body,
                   std::int64_t root = -1) -> decltype(if_body()) {
     if (comm.is_root_rank(root)) {
@@ -41,8 +41,8 @@ auto if_root_rank(const spmd::communicator<memory_access_kind>& comm,
     }
 }
 
-template <typename memory_access_kind, typename T, enable_if_primitive_t<T>* = nullptr>
-spmd::request bcast(const spmd::communicator<memory_access_kind>& comm,
+template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>
+spmd::request bcast(const spmd::communicator<MemoryAccessKind>& comm,
                     const array<T>& ary,
                     std::int64_t root = -1) {
     std::int64_t count = if_root_rank(
@@ -59,7 +59,7 @@ spmd::request bcast(const spmd::communicator<memory_access_kind>& comm,
     if (comm.is_root_rank(root)) {
         // `const_cast` is safe here, `bcast` called on the
         // root rank does not modify the values
-        if constexpr (!std::is_same_v<memory_access_kind, spmd::device_memory_access::none>) {
+        if constexpr (!std::is_same_v<MemoryAccessKind, spmd::device_memory_access::none>) {
             __ONEDAL_IF_QUEUE__(ary.get_queue(), {
                 auto q = ary.get_queue().value();
                 request = comm.bcast(q, const_cast<T*>(ary.get_data()), count, {}, root);
@@ -72,7 +72,7 @@ spmd::request bcast(const spmd::communicator<memory_access_kind>& comm,
     else {
         ONEDAL_ASSERT(ary.has_mutable_data());
 
-        if constexpr (!std::is_same_v<memory_access_kind, spmd::device_memory_access::none>) {
+        if constexpr (!std::is_same_v<MemoryAccessKind, spmd::device_memory_access::none>) {
             __ONEDAL_IF_QUEUE__(ary.get_queue(), {
                 auto q = ary.get_queue().value();
                 request = comm.bcast(q, ary.get_mutable_data(), count, {}, root);
@@ -85,8 +85,8 @@ spmd::request bcast(const spmd::communicator<memory_access_kind>& comm,
 
     return request;
 }
-template <typename memory_access_kind, typename T, enable_if_primitive_t<T>* = nullptr>
-spmd::request allreduce(const spmd::communicator<memory_access_kind>& comm,
+template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>
+spmd::request allreduce(const spmd::communicator<MemoryAccessKind>& comm,
                         const array<T>& ary,
                         const spmd::reduce_op& op = spmd::reduce_op::sum) {
     if (ary.get_count() == 0) {
@@ -97,7 +97,7 @@ spmd::request allreduce(const spmd::communicator<memory_access_kind>& comm,
     ONEDAL_ASSERT(ary.has_mutable_data());
 
     spmd::request request;
-    if constexpr (!std::is_same_v<memory_access_kind, spmd::device_memory_access::none>) {
+    if constexpr (!std::is_same_v<MemoryAccessKind, spmd::device_memory_access::none>) {
         __ONEDAL_IF_QUEUE__(ary.get_queue(), {
             auto q = ary.get_queue().value();
             request =
@@ -112,8 +112,8 @@ spmd::request allreduce(const spmd::communicator<memory_access_kind>& comm,
     return request;
 }
 
-template <typename memory_access_kind, typename T, enable_if_primitive_t<T>* = nullptr>
-spmd::request allgather(const spmd::communicator<memory_access_kind>& comm,
+template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>
+spmd::request allgather(const spmd::communicator<MemoryAccessKind>& comm,
                         const array<T>& send,
                         const array<T>& recv) {
     if (send.get_count() == 0) {
@@ -134,7 +134,7 @@ spmd::request allgather(const spmd::communicator<memory_access_kind>& comm,
         total_count += send.get_count();
     }
 
-    if constexpr (!std::is_same_v<memory_access_kind, spmd::device_memory_access::none>) {
+    if constexpr (!std::is_same_v<MemoryAccessKind, spmd::device_memory_access::none>) {
         __ONEDAL_IF_QUEUE__(send.get_queue(), {
             auto q = send.get_queue().value();
 
@@ -161,8 +161,8 @@ spmd::request allgather(const spmd::communicator<memory_access_kind>& comm,
     return request;
 }
 
-template <typename memory_access_kind, typename T, enable_if_primitive_t<T>* = nullptr>
-spmd::request allgather(const spmd::communicator<memory_access_kind>& comm,
+template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>
+spmd::request allgather(const spmd::communicator<MemoryAccessKind>& comm,
                         T& scalar,
                         const array<T>& recv) {
     auto send = array<T>::full(1, T(scalar));

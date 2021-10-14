@@ -57,22 +57,22 @@ using cpu_dispatch_default = cpu_dispatch_sse2;
 #define __CPU_TAG_AVX512__  oneapi::dal::backend::cpu_dispatch_avx512
 #define __CPU_TAG_DEFAULT__ oneapi::dal::backend::cpu_dispatch_default
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 class communicator_provider : public base {
 public:
     communicator_provider() = default;
-    communicator_provider(const communicator<memory_access_kind>& comm)
-            : comm_(new communicator<memory_access_kind>{ comm }) {}
+    communicator_provider(const communicator<MemoryAccessKind>& comm)
+            : comm_(new communicator<MemoryAccessKind>{ comm }) {}
 
-    const communicator<memory_access_kind>& get_communicator() const {
+    const communicator<MemoryAccessKind>& get_communicator() const {
         if (!comm_) {
-            comm_.reset(new communicator<memory_access_kind>{});
+            comm_.reset(new communicator<MemoryAccessKind>{});
         }
         return *comm_;
     }
 
 private:
-    mutable std::unique_ptr<communicator<memory_access_kind>> comm_;
+    mutable std::unique_ptr<communicator<MemoryAccessKind>> comm_;
 };
 
 class context_cpu : public communicator_provider<spmd::device_memory_access::none> {

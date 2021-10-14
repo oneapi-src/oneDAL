@@ -24,18 +24,18 @@ namespace spmd = oneapi::dal::preview::spmd;
 namespace oneapi::dal::detail {
 namespace v1 {
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 class spmd_policy_impl;
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 class spmd_policy_base : public base {
 public:
-    explicit spmd_policy_base(const spmd::communicator<memory_access_kind>& comm);
+    explicit spmd_policy_base(const spmd::communicator<MemoryAccessKind>& comm);
 
-    const spmd::communicator<memory_access_kind>& get_communicator() const;
+    const spmd::communicator<MemoryAccessKind>& get_communicator() const;
 
 private:
-    pimpl<spmd_policy_impl<memory_access_kind>> impl_;
+    pimpl<spmd_policy_impl<MemoryAccessKind>> impl_;
 };
 
 template <typename LocalPolicy>

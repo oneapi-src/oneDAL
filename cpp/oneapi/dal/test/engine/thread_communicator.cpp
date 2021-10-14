@@ -371,40 +371,39 @@ void thread_communicator_allreduce::fill_with_zeros_impl(byte_t* dst_bytes, std:
     }
 }
 
-template <typename memory_access_kind>
-void thread_communicator_impl<memory_access_kind>::barrier() {
+template <typename MemoryAccessKind>
+void thread_communicator_impl<MemoryAccessKind>::barrier() {
     barrier_();
 }
 
-template <typename memory_access_kind>
-auto thread_communicator_impl<memory_access_kind>::bcast(byte_t* send_buf,
-                                                         std::int64_t count,
-                                                         const data_type& dtype,
-                                                         std::int64_t root) -> request_t* {
+template <typename MemoryAccessKind>
+auto thread_communicator_impl<MemoryAccessKind>::bcast(byte_t* send_buf,
+                                                       std::int64_t count,
+                                                       const data_type& dtype,
+                                                       std::int64_t root) -> request_t* {
     collective_operation_guard guard{ ctx_ };
     bcast_(send_buf, count, dtype, root);
     return nullptr;
 }
 
-template <typename memory_access_kind>
-auto thread_communicator_impl<memory_access_kind>::allgatherv(const byte_t* send_buf,
-                                                              std::int64_t send_count,
-                                                              byte_t* recv_buf,
-                                                              const std::int64_t* recv_counts,
-                                                              const std::int64_t* displs,
-                                                              const data_type& dtype)
-    -> request_t* {
+template <typename MemoryAccessKind>
+auto thread_communicator_impl<MemoryAccessKind>::allgatherv(const byte_t* send_buf,
+                                                            std::int64_t send_count,
+                                                            byte_t* recv_buf,
+                                                            const std::int64_t* recv_counts,
+                                                            const std::int64_t* displs,
+                                                            const data_type& dtype) -> request_t* {
     collective_operation_guard guard{ ctx_ };
     allgatherv_(send_buf, send_count, recv_buf, recv_counts, displs, dtype);
     return nullptr;
 }
 
-template <typename memory_access_kind>
-auto thread_communicator_impl<memory_access_kind>::allreduce(const byte_t* send_buf,
-                                                             byte_t* recv_buf,
-                                                             std::int64_t count,
-                                                             const data_type& dtype,
-                                                             const spmd::reduce_op& op)
+template <typename MemoryAccessKind>
+auto thread_communicator_impl<MemoryAccessKind>::allreduce(const byte_t* send_buf,
+                                                           byte_t* recv_buf,
+                                                           std::int64_t count,
+                                                           const data_type& dtype,
+                                                           const spmd::reduce_op& op)
     -> request_t* {
     collective_operation_guard guard{ ctx_ };
     allreduce_(send_buf, recv_buf, count, dtype, op);

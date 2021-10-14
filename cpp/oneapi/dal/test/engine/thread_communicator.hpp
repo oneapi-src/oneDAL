@@ -279,11 +279,11 @@ private:
     std::vector<buffer_info> send_buffers_;
 };
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 class thread_communicator_impl
-        : public dal::detail::via_host_interface_selector<memory_access_kind>::type {
+        : public dal::detail::via_host_interface_selector<MemoryAccessKind>::type {
 public:
-    using base_t = typename dal::detail::via_host_interface_selector<memory_access_kind>::type;
+    using base_t = typename dal::detail::via_host_interface_selector<MemoryAccessKind>::type;
     using request_t = spmd::request_iface;
 
     // Explicitly declare all virtual functions with overloads to workaround Clang warning
@@ -316,7 +316,7 @@ public:
               allgather_(ctx_) {}
 #endif
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T = memory_access_kind,
+    template <typename T = MemoryAccessKind,
               typename = spmd::enable_if_device_memory_accessible_t<T>>
     explicit thread_communicator_impl(sycl::queue& queue, std::int64_t thread_count)
             : base_t(queue),
@@ -382,19 +382,19 @@ private:
     thread_communicator_allgather allgather_;
 };
 
-template <typename memory_access_kind>
-class thread_communicator : public spmd::communicator<memory_access_kind> {
+template <typename MemoryAccessKind>
+class thread_communicator : public spmd::communicator<MemoryAccessKind> {
 public:
-    using impl_t = thread_communicator_impl<memory_access_kind>;
+    using impl_t = thread_communicator_impl<MemoryAccessKind>;
 #ifndef ONEDAL_DATA_PARALLEL
     explicit thread_communicator(std::int64_t thread_count)
-            : spmd::communicator<memory_access_kind>(new impl_t{ thread_count }) {}
+            : spmd::communicator<MemoryAccessKind>(new impl_t{ thread_count }) {}
 #endif
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T = memory_access_kind,
+    template <typename T = MemoryAccessKind,
               typename = spmd::enable_if_device_memory_accessible_t<T>>
     explicit thread_communicator(sycl::queue& queue, std::int64_t thread_count)
-            : spmd::communicator<memory_access_kind>(new impl_t{ queue, thread_count }) {}
+            : spmd::communicator<MemoryAccessKind>(new impl_t{ queue, thread_count }) {}
 #endif
     template <typename Body>
     void execute(const Body& body) {

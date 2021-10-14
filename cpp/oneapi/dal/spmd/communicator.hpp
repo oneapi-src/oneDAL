@@ -88,7 +88,7 @@ public:
                                      const reduce_op& op) = 0;
 };
 
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 struct interface_selector {
     using type = communicator_iface_base;
 };
@@ -137,7 +137,7 @@ struct interface_selector<device_memory_access::usm> {
 #endif
 
 /// Low-level MPI-like communicator
-template <typename memory_access_kind>
+template <typename MemoryAccessKind>
 class communicator : public base {
 private:
     template <typename T>
@@ -146,7 +146,7 @@ private:
     template <typename T>
     using enable_if_primitive_t = std::enable_if_t<is_primitive_v<T>>;
 
-    using interface_type = typename interface_selector<memory_access_kind>::type;
+    using interface_type = typename interface_selector<MemoryAccessKind>::type;
 
 public:
     std::int64_t get_rank() const {
@@ -193,7 +193,7 @@ public:
     }
 #ifdef ONEDAL_DATA_PARALLEL
     /// `bcast` that accepts USM pointers
-    template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
+    template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     request bcast(sycl::queue& queue,
                   byte_t* buf,
                   std::int64_t count,
@@ -212,7 +212,7 @@ public:
     }
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename D,
-              typename T = memory_access_kind,
+              typename T = MemoryAccessKind,
               typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
                                           is_primitive_v<D>>>
     request bcast(sycl::queue& q,
@@ -278,7 +278,7 @@ public:
     }
 #ifdef ONEDAL_DATA_PARALLEL
     /// `allgatherv` that accepts USM pointers
-    template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
+    template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     request allgatherv(sycl::queue& queue,
                        const byte_t* send_buf,
                        std::int64_t send_count,
@@ -312,7 +312,7 @@ public:
     }
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename D,
-              typename T = memory_access_kind,
+              typename T = MemoryAccessKind,
               typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
                                           is_primitive_v<D>>>
     request allgatherv(sycl::queue& queue,
@@ -353,7 +353,7 @@ public:
     }
 #ifdef ONEDAL_DATA_PARALLEL
     /// `allreduce` that accepts USM pointers
-    template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
+    template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     request allreduce(sycl::queue& queue,
                       const byte_t* send_buf,
                       byte_t* recv_buf,
@@ -378,7 +378,7 @@ public:
     }
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename D,
-              typename T = memory_access_kind,
+              typename T = MemoryAccessKind,
               typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
                                               is_primitive_v<D>,
                                           bool>>
@@ -405,7 +405,7 @@ public:
     request allreduce(const array<D>& ary, const reduce_op& op = reduce_op::sum) const;
 #ifdef ONEDAL_DATA_PARALLEL
     /// `bcast` that accepts USM pointers
-    template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
+    template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     sycl::queue get_queue() const {
         return impl_->get_queue();
     }
@@ -430,15 +430,17 @@ using v1::communicator_iface;
 #endif
 using v1::communicator;
 
-template <typename backend>
+template <typename Backend>
 communicator<device_memory_access::none> make_communicator() {
-    throw communication_error("Unknown communicator backend!");
+    // TODO move error message
+    throw communication_error("Unsupported communicator backend!");
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-template <typename backend>
+template <typename Backend>
 communicator<device_memory_access::usm> make_communicator(sycl::queue& queue) {
-    throw communication_error("Unknown communicator backend!");
+    // TODO move error message
+    throw communication_error("Unsupported communicator backend!");
 }
 #endif
 

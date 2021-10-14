@@ -31,7 +31,7 @@ public:
     }
 };
 
-enum class reduce_op { sum, min, max };
+enum class reduce_op { max, min, sum };
 
 } // namespace v1
 
@@ -39,8 +39,15 @@ using v1::communication_error;
 using v1::reduce_op;
 
 namespace device_memory_access {
+namespace v1 {
+
 struct usm {};
 struct none {};
+} // namespace v1
+
+using v1::usm;
+using v1::none;
+
 } // namespace device_memory_access
 
 template <typename T>
