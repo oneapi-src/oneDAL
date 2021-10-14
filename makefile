@@ -608,6 +608,7 @@ ONEAPI.srcdir := $(CPPDIR.onedal)
 ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(ONEAPI.srcdir)/algo \
                        $(ONEAPI.srcdir)/table \
+                       $(ONEAPI.srcdir)/spmd \
                        $(ONEAPI.srcdir)/graph \
                        $(ONEAPI.srcdir)/util \
                        $(ONEAPI.srcdir)/io \

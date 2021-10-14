@@ -185,7 +185,7 @@ TEST_M(communicator_test, "bcast single value", "[bcast]") {
             return root_x;
         });
 
-        de::bcast_value(comm, x).wait();
+        comm.bcast(x).wait();
 
         exclusive([&]() {
             REQUIRE(x == root_x);
@@ -259,7 +259,7 @@ TEST_M(communicator_test, "bcast array", "[bcast][array]") {
         }
         const std::int64_t* buf_ptr = buf.get_mutable_data();
 
-        de::bcast_array(comm, buf).wait();
+        comm.bcast(buf).wait();
 
         exclusive([&]() {
             // Make sure we do not reallocate memory
@@ -290,7 +290,7 @@ TEST_M(communicator_test, "USM bcast array", "[bcast][usm][array]") {
         }
         const std::int64_t* buf_ptr = buf.get_mutable_data();
 
-        de::bcast_array(comm, buf).wait();
+        comm.bcast(buf).wait();
 
         exclusive([&]() {
             // Make sure we do not reallocate memory
@@ -447,7 +447,7 @@ TEST_M(communicator_test, "allreduce single value", "[allreduce]") {
     execute([&](std::int64_t rank) {
         float x = 1;
 
-        de::allreduce_value(comm, x, ps::reduce_op::sum).wait();
+        comm.allreduce(x, ps::reduce_op::sum).wait();
 
         exclusive([&]() {
             REQUIRE(std::int64_t(x) == comm.get_rank_count());
@@ -504,7 +504,7 @@ TEST_M(communicator_test, "allreduce array", "[allreduce]") {
     execute([&](std::int64_t rank) {
         const auto ary = this->array_full(count_per_rank, float(1));
 
-        de::allreduce_array(comm, ary, ps::reduce_op::sum).wait();
+        comm.allreduce(ary, ps::reduce_op::sum).wait();
 
         exclusive([&]() {
             const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
@@ -521,7 +521,7 @@ TEST_M(communicator_test, "USM allreduce array", "[allreduce][usm]") {
     execute([&](std::int64_t rank) {
         const auto ary = this->to_device(this->array_full(count_per_rank, float(1)));
 
-        de::allreduce_array(comm, ary, ps::reduce_op::sum).wait();
+        comm.allreduce(ary, ps::reduce_op::sum).wait();
 
         exclusive([&]() {
             const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));

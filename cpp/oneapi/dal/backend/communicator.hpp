@@ -18,7 +18,6 @@
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/spmd/communicator.hpp"
-#include "oneapi/dal/spmd/detail/communicator_utils.hpp"
 
 namespace ps = oneapi::dal::preview::spmd;
 
@@ -89,16 +88,6 @@ public:
         return public_comm_.is_root_rank(std::forward<Args>(args)...);
     }
 
-    template <typename... Args>
-    auto if_root_rank(Args&&... args) const {
-        return public_comm_.if_root_rank(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto if_root_rank_else(Args&&... args) const {
-        return public_comm_.if_root_rank_else(std::forward<Args>(args)...);
-    }
-
     void barrier() const {
         public_comm_.barrier();
     }
@@ -113,30 +102,14 @@ public:
         return public_comm_.allgatherv(std::forward<Args>(args)...);
     }
 
-    template <typename T, typename... Args>
-    communicator_event allgather(const array<T>& ary, Args&&... args) const {
-        return de::allgather_array(public_comm_, ary, std::forward<Args>(args)...);
+    template <typename... Args>
+    communicator_event allgather(Args&&... args) const {
+        return public_comm_.allgather(std::forward<Args>(args)...);
     }
 
-    template <typename T, typename... Args>
-    communicator_event allgather(T& value, Args&&... args) const {
-        return de::allgather_value(public_comm_, value, std::forward<Args>(args)...);
-    }
-
-    /*
     template <typename... Args>
     communicator_event allreduce(Args&&... args) const {
         return public_comm_.allreduce(std::forward<Args>(args)...);
-    }
-*/
-    template <typename T, typename... Args>
-    communicator_event allreduce(const array<T>& ary, Args&&... args) const {
-        return de::allreduce_array(public_comm_, ary, std::forward<Args>(args)...);
-    }
-
-    template <typename T, typename... Args>
-    communicator_event allreduce(T& value, Args&&... args) const {
-        return de::allreduce_value(public_comm_, value, std::forward<Args>(args)...);
     }
 
 private:

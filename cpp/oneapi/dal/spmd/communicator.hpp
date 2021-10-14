@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,8 +22,11 @@
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/spmd/common.hpp"
+#include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::preview::spmd {
+
+namespace de = dal::detail;
 
 class request_iface {
 public:
@@ -223,6 +226,26 @@ public:
                      root);
     }
 #endif
+    template <typename D, typename = enable_if_primitive_t<D>>
+    request bcast(D& value, std::int64_t root = -1) const {
+        return bcast(&value, 1, root);
+    }
+    template <typename D>
+    request bcast(const array<D>& ary, std::int64_t root = -1) const;
+    /// Gathers data from all ranks and distributes the results back to all ranks
+    ///
+    /// @param send_buf   The send buffer
+    /// @param send_count The number of elements of `dtype` in `send_buf`
+    /// @param recv_buf   The receiving buffer
+    /// @param recv_count The number of elements of `dtype` in `recv_buf`
+    /// @param dtype      The type of elements in the passed buffers
+    ///
+    /// @return The object to track the progress of the operation
+    template <typename D>
+    request allgather(const array<D>& send, const array<D>& recv) const;
+
+    template <typename D>
+    request allgather(D& scalar, const array<D>& recv) const;
     /// Collects data from all the ranks within a communicator into a single buffer
     /// and redistribute to all ranks.
     /// The data size send by each rank may be different.
@@ -252,7 +275,7 @@ public:
             impl_->allgatherv(send_buf, send_count, recv_buf, recv_counts, displs, dtype));
     }
 #ifdef ONEDAL_DATA_PARALLEL
-    /// `gather` that accepts USM pointers
+    /// `allgatherv` that accepts USM pointers
     template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
     request allgatherv(sycl::queue& queue,
                        const byte_t* send_buf,
@@ -372,11 +395,16 @@ public:
                          deps);
     }
 #endif
-
+    template <typename D, typename = enable_if_primitive_t<D>>
+    request allreduce(D& scalar, const reduce_op& op = reduce_op::sum) const {
+        return allreduce(&scalar, &scalar, 1, op);
+    }
+    template <typename D>
+    request allreduce(const array<D>& ary, const reduce_op& op = reduce_op::sum) const;
 #ifdef ONEDAL_DATA_PARALLEL
     /// `bcast` that accepts USM pointers
     template <typename T = memory_access_kind, typename = enable_if_device_memory_accessible_t<T>>
-    sycl::queue get_queue() {
+    sycl::queue get_queue() const {
         return impl_->get_queue();
     }
 #endif
@@ -384,7 +412,6 @@ public:
 protected:
     template <typename Impl>
     Impl& get_impl() const {
-        //        static_assert(std::is_base_of_v<spmd_communicator_iface, Impl>);
         return static_cast<Impl&>(*impl_);
     }
     explicit communicator(interface_type* impl) : impl_(impl) {}
