@@ -75,12 +75,6 @@ private:
                                           Index max_bin_count_among_ftrs,
                                           Index class_count) const;
 
-    sycl::event allreduce_ndarray_inplace(pr::ndarray<Index, 1>& src_dst,
-                                          const bk::event_vector& deps = {});
-
-    sycl::event allreduce_ndarray_inplace(pr::ndarray<Float, 1>& src_dst,
-                                          const bk::event_vector& deps = {});
-
     sycl::event gen_initial_tree_order(train_context_t& ctx,
                                        rng_engine_list_t& rng_engine_list,
                                        pr::ndarray<Index, 1>& node_list,

@@ -84,36 +84,6 @@ std::int64_t train_kernel_hist_impl<Float, Bin, Index, Task>::get_part_hist_elem
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::allreduce_ndarray_inplace(
-    pr::ndarray<Index, 1>& src_dst,
-    const bk::event_vector& deps) {
-    comm_
-        .allreduce(queue_,
-                   src_dst.get_data(),
-                   src_dst.get_mutable_data(),
-                   src_dst.get_count(),
-                   de::v1::spmd_reduce_op::sum,
-                   deps)
-        .wait();
-    return sycl::event{};
-}
-
-template <typename Float, typename Bin, typename Index, typename Task>
-sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::allreduce_ndarray_inplace(
-    pr::ndarray<Float, 1>& src_dst,
-    const bk::event_vector& deps) {
-    comm_
-        .allreduce(queue_,
-                   src_dst.get_data(),
-                   src_dst.get_mutable_data(),
-                   src_dst.get_count(),
-                   de::v1::spmd_reduce_op::sum,
-                   deps)
-        .wait();
-    return sycl::event{};
-}
-
-template <typename Float, typename Bin, typename Index, typename Task>
 void train_kernel_hist_impl<Float, Bin, Index, Task>::validate_input(const descriptor_t& desc,
                                                                      const table& data,
                                                                      const table& labels) const {
@@ -151,7 +121,7 @@ Index train_kernel_hist_impl<Float, Bin, Index, Task>::get_row_total_count(bool 
     Index row_total_count = row_count;
 
     if (distr_mode) {
-        comm_.allreduce(&row_count, &row_total_count, 1).wait();
+        comm_.allreduce(row_total_count).wait();
     }
 
     return row_total_count;
@@ -1111,7 +1081,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                          imp_data_list,
                                                          node_count,
                                                          deps);
-            last_event = allreduce_ndarray_inplace(imp_data_list.class_hist_list_, { last_event });
+            comm_.allreduce(imp_data_list.class_hist_list_.flatten(queue_, { last_event })).wait();
             last_event = compute_initial_imp_for_node_list(ctx,
                                                            imp_data_list,
                                                            node_list,
@@ -1128,7 +1098,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                    sum_list,
                                                    node_count,
                                                    deps);
-            last_event = allreduce_ndarray_inplace(sum_list, { last_event });
+            comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
             last_event = compute_initial_sum2cent_local(ctx,
                                                         response,
                                                         tree_order,
@@ -1137,7 +1107,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                         sum2cent_list,
                                                         node_count,
                                                         { last_event });
-            last_event = allreduce_ndarray_inplace(sum2cent_list, { last_event });
+            comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
             last_event = fin_initial_imp(ctx,
                                          node_list,
                                          sum_list,
@@ -1519,7 +1489,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                                  node_count,
                                                                  deps);
 
-        last_event = allreduce_ndarray_inplace(node_hist_list, { last_event });
+        comm_.allreduce(node_hist_list.flatten(queue_, { last_event })).wait();
         last_event.wait_and_throw();
     }
     else {
@@ -1564,7 +1534,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        node_count,
                                                        { last_event });
 
-            last_event = allreduce_ndarray_inplace(sum_list, { last_event });
+            comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
 
             last_event = compute_partial_sum2cent(ctx,
                                                   data,
@@ -1581,7 +1551,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                   node_count,
                                                   { last_event });
 
-            last_event = allreduce_ndarray_inplace(sum2cent_list, { last_event });
+            comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
 
             last_event = fin_histogram_distr(ctx,
                                              sum_list,
@@ -1641,7 +1611,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        impl_const_t::hist_prop_sum_count_,
                                                        { last_event });
 
-            last_event = allreduce_ndarray_inplace(sum_list, { last_event });
+            comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
 
             last_event = compute_partial_sum2cent(ctx,
                                                   data,
@@ -1666,7 +1636,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        impl_const_t::hist_prop_sum2cent_count_,
                                                        { last_event });
 
-            last_event = allreduce_ndarray_inplace(sum2cent_list, { last_event });
+            comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
 
             last_event = fin_histogram_distr(ctx,
                                              sum_list,
