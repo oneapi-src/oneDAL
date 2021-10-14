@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/spmd/communicator.hpp"
+#include <vector>
 
 namespace ps = oneapi::dal::preview::spmd;
 
