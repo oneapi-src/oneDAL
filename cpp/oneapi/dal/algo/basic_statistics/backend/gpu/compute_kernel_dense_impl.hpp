@@ -35,7 +35,7 @@ template <typename Float, bs_list List>
 class compute_kernel_dense_impl {
     using method_t = method::dense;
     using task_t = task::compute;
-    using comm_t = bk::communicator<ps::device_memory_access::usm>;
+    using comm_t = bk::communicator<spmd::device_memory_access::usm>;
     using input_t = compute_input<task_t>;
     using result_t = compute_result<task_t>;
     using local_result_t = local_result<Float, List>;

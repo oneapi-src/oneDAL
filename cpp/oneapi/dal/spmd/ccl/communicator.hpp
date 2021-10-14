@@ -26,6 +26,10 @@ namespace de = oneapi::dal::detail;
 
 namespace oneapi::dal::preview::spmd {
 
+namespace backend {
+struct ccl {};
+} // namespace backend
+
 class ccl_info {
     friend class de::singleton<ccl_info>;
 

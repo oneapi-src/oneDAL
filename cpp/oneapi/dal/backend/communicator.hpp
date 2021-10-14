@@ -19,7 +19,7 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/spmd/communicator.hpp"
 
-namespace ps = oneapi::dal::preview::spmd;
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::backend {
 
@@ -27,7 +27,7 @@ namespace de = dal::detail;
 
 /// Implementation of SPMD communicator for one-rank system
 template <typename memory_access_kind>
-class fake_spmd_communicator : public ps::communicator<memory_access_kind> {
+class fake_spmd_communicator : public spmd::communicator<memory_access_kind> {
 public:
     fake_spmd_communicator();
 };
@@ -38,15 +38,15 @@ public:
 class communicator_event {
 public:
     communicator_event() = default;
-    communicator_event(const ps::request& req) : public_req_(req) {}
-    communicator_event(ps::request&& req) : public_req_(std::move(req)) {}
+    communicator_event(const spmd::request& req) : public_req_(req) {}
+    communicator_event(spmd::request&& req) : public_req_(std::move(req)) {}
 
     void wait() {
         public_req_.wait();
     }
 
 private:
-    ps::request public_req_;
+    spmd::request public_req_;
 };
 
 /// Wrapper over public SPMD communicator.
@@ -57,7 +57,7 @@ template <typename memory_access_kind>
 class communicator {
 public:
     /// Creates communicator based on public SPMD interface
-    communicator(const ps::communicator<memory_access_kind>& comm)
+    communicator(const spmd::communicator<memory_access_kind>& comm)
             : public_comm_(comm),
               is_distributed_(true) {}
 
@@ -113,7 +113,7 @@ public:
     }
 
 private:
-    ps::communicator<memory_access_kind> public_comm_;
+    spmd::communicator<memory_access_kind> public_comm_;
     bool is_distributed_;
 };
 

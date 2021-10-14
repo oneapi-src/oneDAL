@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/array.hpp"
 
-namespace ps = oneapi::dal::preview::spmd;
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail::v1 {
 
@@ -33,7 +33,7 @@ static void check_if_pointer_matches_queue(const sycl::queue& q, const void* ptr
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-static void wait_request(ps::request_iface* request) {
+static void wait_request(spmd::request_iface* request) {
     if (request != nullptr) {
         request->wait();
     }
@@ -41,12 +41,12 @@ static void wait_request(ps::request_iface* request) {
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-ps::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
-                                                          byte_t* send_buf,
-                                                          std::int64_t count,
-                                                          const data_type& dtype,
-                                                          const std::vector<sycl::event>& deps,
-                                                          std::int64_t root) {
+spmd::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
+                                                            byte_t* send_buf,
+                                                            std::int64_t count,
+                                                            const data_type& dtype,
+                                                            const std::vector<sycl::event>& deps,
+                                                            std::int64_t root) {
     ONEDAL_ASSERT(root >= 0);
 
     if (count == 0) {
@@ -78,7 +78,7 @@ ps::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-ps::request_iface* spmd_communicator_via_host_impl::allgatherv(
+spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
     sycl::queue& q,
     const byte_t* send_buf,
     std::int64_t send_count,
@@ -155,13 +155,13 @@ ps::request_iface* spmd_communicator_via_host_impl::allgatherv(
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-ps::request_iface* spmd_communicator_via_host_impl::allreduce(
+spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
     sycl::queue& q,
     const byte_t* send_buf,
     byte_t* recv_buf,
     std::int64_t count,
     const data_type& dtype,
-    const ps::reduce_op& op,
+    const spmd::reduce_op& op,
     const std::vector<sycl::event>& deps) {
     if (count == 0) {
         return nullptr;

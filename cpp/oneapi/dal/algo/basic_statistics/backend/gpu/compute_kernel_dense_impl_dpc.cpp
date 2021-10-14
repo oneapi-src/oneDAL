@@ -54,7 +54,7 @@ template <typename Data>
 using local_accessor_rw_t =
     sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
 
-using comm_t = bk::communicator<ps::device_memory_access::usm>;
+using comm_t = bk::communicator<spmd::device_memory_access::usm>;
 using dal::backend::context_gpu;
 using method_t = method::dense;
 using task_t = task::compute;
@@ -1103,13 +1103,13 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
 
     if (distr_mode) {
         if constexpr (check_mask_flag(bs_list::min, List)) {
-            comm_.allreduce(ndres.get_min().flatten(q_, deps), ps::reduce_op::min).wait();
+            comm_.allreduce(ndres.get_min().flatten(q_, deps), spmd::reduce_op::min).wait();
         }
         if constexpr (check_mask_flag(bs_list::max, List)) {
-            comm_.allreduce(ndres.get_max().flatten(q_, deps), ps::reduce_op::max).wait();
+            comm_.allreduce(ndres.get_max().flatten(q_, deps), spmd::reduce_op::max).wait();
         }
         if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
-            comm_.allreduce(ndres.get_sum2().flatten(q_, deps), ps::reduce_op::sum).wait();
+            comm_.allreduce(ndres.get_sum2().flatten(q_, deps), spmd::reduce_op::sum).wait();
         }
 
         pr::ndarray<std::int64_t, 1> com_row_count;
@@ -1130,7 +1130,7 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
             comm_.allgather(ndres.get_sum().flatten(q_, deps), com_sum.flatten(q_)).wait();
         }
         else if constexpr (check_mask_flag(bs_list::sum, List)) {
-            comm_.allreduce(ndres.get_sum().flatten(q_, deps), ps::reduce_op::sum).wait();
+            comm_.allreduce(ndres.get_sum().flatten(q_, deps), spmd::reduce_op::sum).wait();
         }
 
         if constexpr (check_mask_flag(sum2cent_based_stat, List)) {

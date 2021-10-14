@@ -19,28 +19,26 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
-namespace ps = oneapi::dal::preview::spmd;
-
 template <typename memory_access_kind>
 class spmd_policy_impl {
 public:
-    explicit spmd_policy_impl(const ps::communicator<memory_access_kind>& comm) : comm(comm) {}
-    ps::communicator<memory_access_kind> comm;
+    explicit spmd_policy_impl(const spmd::communicator<memory_access_kind>& comm) : comm(comm) {}
+    spmd::communicator<memory_access_kind> comm;
 };
 
 template <typename memory_access_kind>
 spmd_policy_base<memory_access_kind>::spmd_policy_base(
-    const ps::communicator<memory_access_kind>& comm)
+    const spmd::communicator<memory_access_kind>& comm)
         : impl_(new spmd_policy_impl<memory_access_kind>{ comm }) {}
 
 template <typename memory_access_kind>
-const ps::communicator<memory_access_kind>& spmd_policy_base<memory_access_kind>::get_communicator()
+const spmd::communicator<memory_access_kind>& spmd_policy_base<memory_access_kind>::get_communicator()
     const {
     return impl_->comm;
 }
 
-template class spmd_policy_base<ps::device_memory_access::usm>;
-template class spmd_policy_base<ps::device_memory_access::none>;
+template class spmd_policy_base<spmd::device_memory_access::usm>;
+template class spmd_policy_base<spmd::device_memory_access::none>;
 
 } // namespace v1
 } // namespace oneapi::dal::detail

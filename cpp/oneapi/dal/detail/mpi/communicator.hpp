@@ -24,7 +24,7 @@
 #include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
 
-namespace ps = oneapi::dal::preview::spmd;
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -100,7 +100,7 @@ public:
               default_root_(default_root) {}
 
 #ifdef ONEDAL_DATA_PARALLEL
-    //    template<typename T = memory_access_kind, ps::enable_if_device_memory_accessible_t<T>>
+    //    template<typename T = memory_access_kind, spmd::enable_if_device_memory_accessible_t<T>>
     explicit mpi_communicator_impl(sycl::queue& queue, std::int64_t default_root = 0)
             : base_t(queue),
               mpi_comm_(MPI_COMM_WORLD),
@@ -133,10 +133,10 @@ public:
         mpi_call(MPI_Barrier(mpi_comm_));
     }
 
-    ps::request_iface* bcast(byte_t* send_buf,
-                             std::int64_t count,
-                             const data_type& dtype,
-                             std::int64_t root) override {
+    spmd::request_iface* bcast(byte_t* send_buf,
+                               std::int64_t count,
+                               const data_type& dtype,
+                               std::int64_t root) override {
         ONEDAL_ASSERT(root >= 0);
 
         if (count == 0) {
@@ -146,24 +146,21 @@ public:
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(count > 0);
 
-        //        MPI_Request mpi_request;
-        //        mpi_call(MPI_Ibcast(send_buf,
+        // TODO replace with MPI_Ibcast
         mpi_call(MPI_Bcast(send_buf,
-                            integral_cast<int>(count),
-                            make_mpi_data_type(dtype),
-                            integral_cast<int>(root),
-                            mpi_comm_/*,
-                            &mpi_request*/));
+                           integral_cast<int>(count),
+                           make_mpi_data_type(dtype),
+                           integral_cast<int>(root),
+                           mpi_comm_));
         return nullptr;
-        //        return new mpi_request_impl{ mpi_request };
     }
 
-    ps::request_iface* allgatherv(const byte_t* send_buf,
-                                  std::int64_t send_count,
-                                  byte_t* recv_buf,
-                                  const std::int64_t* recv_counts,
-                                  const std::int64_t* displs,
-                                  const data_type& dtype) override {
+    spmd::request_iface* allgatherv(const byte_t* send_buf,
+                                    std::int64_t send_count,
+                                    byte_t* recv_buf,
+                                    const std::int64_t* recv_counts,
+                                    const std::int64_t* displs,
+                                    const data_type& dtype) override {
         ONEDAL_ASSERT(root >= 0);
 
         if (send_count == 0) {
@@ -195,11 +192,11 @@ public:
         return new mpi_request_impl{ mpi_request };
     }
 
-    ps::request_iface* allreduce(const byte_t* send_buf,
-                                 byte_t* recv_buf,
-                                 std::int64_t count,
-                                 const data_type& dtype,
-                                 const ps::reduce_op& op) override {
+    spmd::request_iface* allreduce(const byte_t* send_buf,
+                                   byte_t* recv_buf,
+                                   std::int64_t count,
+                                   const data_type& dtype,
+                                   const spmd::reduce_op& op) override {
         if (count == 0) {
             return nullptr;
         }
@@ -253,17 +250,17 @@ private:
 };
 
 template <typename memory_access_kind>
-class mpi_communicator : public ps::communicator<memory_access_kind> {
+class mpi_communicator : public spmd::communicator<memory_access_kind> {
 public:
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T = memory_access_kind,
-              typename = ps::enable_if_device_memory_accessible_t<T>>
+              typename = spmd::enable_if_device_memory_accessible_t<T>>
     explicit mpi_communicator(sycl::queue& queue, std::int64_t default_root = 0)
-            : ps::communicator<memory_access_kind>(
+            : spmd::communicator<memory_access_kind>(
                   new mpi_communicator_impl<memory_access_kind>(queue, default_root)) {}
 #endif
     explicit mpi_communicator(std::int64_t default_root = 0)
-            : ps::communicator<memory_access_kind>(
+            : spmd::communicator<memory_access_kind>(
                   new mpi_communicator_impl<memory_access_kind>(default_root)) {}
 };
 

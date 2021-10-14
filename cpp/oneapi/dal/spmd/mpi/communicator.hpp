@@ -20,6 +20,10 @@
 
 namespace oneapi::dal::preview::spmd {
 
+namespace backend {
+struct mpi {};
+} // namespace backend
+
 template <>
 communicator<device_memory_access::none> make_communicator<backend::mpi>() {
     return dal::detail::mpi_communicator<device_memory_access::none>{};

@@ -18,7 +18,7 @@
 #include "oneapi/dal/test/engine/mpi_global.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 
-namespace ps = oneapi::dal::preview::spmd;
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::test {
 
@@ -28,9 +28,9 @@ namespace ps = oneapi::dal::preview::spmd;
 class mpi_comm_test : public te::policy_fixture {
 public:
 #ifdef ONEDAL_DATA_PARALLEL
-    using comm_t = ps::communicator<ps::device_memory_access::usm>;
+    using comm_t = spmd::communicator<spmd::device_memory_access::usm>;
 #else
-    using comm_t = ps::communicator<ps::device_memory_access::none>;
+    using comm_t = spmd::communicator<spmd::device_memory_access::none>;
 #endif
 
     comm_t get_new_comm() {
@@ -59,7 +59,7 @@ public:
 
     template <typename T>
     void test_allreduce(T* buffer, std::int64_t count) {
-        get_new_comm().allreduce(buffer, buffer, count, ps::reduce_op::sum).wait();
+        get_new_comm().allreduce(buffer, buffer, count, spmd::reduce_op::sum).wait();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -71,7 +71,7 @@ public:
                        buffer_device.get_mutable_data(),
                        buffer_device.get_mutable_data(),
                        count,
-                       ps::reduce_op::sum)
+                       spmd::reduce_op::sum)
             .wait();
         copy_to_host(buffer, buffer_device.get_data(), count);
     }

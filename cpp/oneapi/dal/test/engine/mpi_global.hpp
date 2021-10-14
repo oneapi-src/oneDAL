@@ -19,13 +19,14 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 
-namespace ps = oneapi::dal::preview::spmd;
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::test::engine {
 
-ps::communicator<ps::device_memory_access::none> get_global_mpi_host_communicator();
+spmd::communicator<spmd::device_memory_access::none> get_global_mpi_host_communicator();
 #ifdef ONEDAL_DATA_PARALLEL
-ps::communicator<ps::device_memory_access::usm> get_global_mpi_device_communicator(sycl::queue&);
+spmd::communicator<spmd::device_memory_access::usm> get_global_mpi_device_communicator(
+    sycl::queue&);
 #endif
 
 } // namespace oneapi::dal::test::engine

@@ -156,10 +156,10 @@ public:
         CAPTURE(thread_count);
 
 #ifdef ONEDAL_DATA_PARALLEL
-        using comm_t = thread_communicator<ps::device_memory_access::usm>;
+        using comm_t = thread_communicator<spmd::device_memory_access::usm>;
         comm_t comm{ this->get_queue(), thread_count };
 #else
-        using comm_t = thread_communicator<ps::device_memory_access::none>;
+        using comm_t = thread_communicator<spmd::device_memory_access::none>;
         comm_t comm{ thread_count };
 #endif
         const auto input_per_rank =
@@ -197,10 +197,10 @@ public:
 
         CAPTURE(thread_count);
 #ifdef ONEDAL_DATA_PARALLEL
-        using comm_t = thread_communicator<ps::device_memory_access::usm>;
+        using comm_t = thread_communicator<spmd::device_memory_access::usm>;
         comm_t comm{ this->get_queue(), thread_count };
 #else
-        using comm_t = thread_communicator<ps::device_memory_access::none>;
+        using comm_t = thread_communicator<spmd::device_memory_access::none>;
         comm_t comm{ thread_count };
 #endif
 

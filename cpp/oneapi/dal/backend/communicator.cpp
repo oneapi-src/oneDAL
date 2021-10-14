@@ -68,10 +68,10 @@ inline void copy_if_different_pointers(sycl::queue& q,
 }
 #endif
 
-class fake_spmd_communicator_host_impl : public ps::communicator_iface_base {
+class fake_spmd_communicator_host_impl : public spmd::communicator_iface_base {
 public:
-    using base_t = ps::communicator_iface_base;
-    using request_t = ps::request_iface;
+    using base_t = spmd::communicator_iface_base;
+    using request_t = spmd::request_iface;
 
     static constexpr std::int64_t root_rank = 0;
     static constexpr std::int64_t rank_count = 1;
@@ -123,17 +123,17 @@ public:
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const ps::reduce_op& op) override {
+                         const spmd::reduce_op& op) override {
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
         return nullptr;
     }
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
-class fake_spmd_communicator_device_impl : public ps::communicator_iface {
+class fake_spmd_communicator_device_impl : public spmd::communicator_iface {
 public:
-    using base_t = ps::communicator_iface;
-    using request_t = ps::request_iface;
+    using base_t = spmd::communicator_iface;
+    using request_t = spmd::request_iface;
 
     static constexpr std::int64_t root_rank = 0;
     static constexpr std::int64_t rank_count = 1;
@@ -220,7 +220,7 @@ public:
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const ps::reduce_op& op) override {
+                         const spmd::reduce_op& op) override {
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
         return nullptr;
     }
@@ -230,7 +230,7 @@ public:
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const ps::reduce_op& op,
+                         const spmd::reduce_op& op,
                          const event_vector& deps) override {
         sycl::event::wait_and_throw(deps);
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
@@ -250,17 +250,17 @@ struct comm_impl_selector {
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <>
-struct comm_impl_selector<ps::device_memory_access::usm> {
+struct comm_impl_selector<spmd::device_memory_access::usm> {
     using comm_type = fake_spmd_communicator_device_impl;
 };
 #endif
 
 template <typename memory_access_kind>
 fake_spmd_communicator<memory_access_kind>::fake_spmd_communicator()
-        : ps::communicator<memory_access_kind>(
+        : spmd::communicator<memory_access_kind>(
               new typename comm_impl_selector<memory_access_kind>::comm_type{}) {}
 
-template class fake_spmd_communicator<ps::device_memory_access::usm>;
-template class fake_spmd_communicator<ps::device_memory_access::none>;
+template class fake_spmd_communicator<spmd::device_memory_access::usm>;
+template class fake_spmd_communicator<spmd::device_memory_access::none>;
 
 } // namespace oneapi::dal::backend

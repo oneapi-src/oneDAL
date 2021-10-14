@@ -21,6 +21,8 @@
 
 namespace oneapi::dal::preview::spmd {
 
+namespace v1 {
+
 class communication_error : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
@@ -31,8 +33,12 @@ public:
 
 enum class reduce_op { sum, min, max };
 
+} // namespace v1
+
+using v1::communication_error;
+using v1::reduce_op;
+
 namespace device_memory_access {
-// or "device_memory_access_kind"?
 struct usm {};
 struct none {};
 } // namespace device_memory_access
@@ -43,10 +49,5 @@ using enable_if_device_memory_accessible_t =
 template <typename T>
 using enable_if_device_memory_not_accessible_t =
     std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::none>>;
-
-namespace backend {
-struct ccl {};
-struct mpi {};
-} // namespace backend
 
 } // namespace oneapi::dal::preview::spmd

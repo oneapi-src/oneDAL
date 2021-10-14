@@ -26,7 +26,7 @@ namespace te = dal::test::engine;
 
 class ccl_comm_test : public te::policy_fixture {
 public:
-    using comm_t = ps::communicator<ps::device_memory_access::usm>;
+    using comm_t = spmd::communicator<spmd::device_memory_access::usm>;
 
     comm_t get_new_comm() {
         return te::get_global_ccl_device_communicator(get_queue());
@@ -46,7 +46,7 @@ public:
 
     template <typename T>
     void test_allreduce(T* buffer, std::int64_t count) {
-        get_new_comm().allreduce(buffer, buffer, count, ps::reduce_op::sum).wait();
+        get_new_comm().allreduce(buffer, buffer, count, spmd::reduce_op::sum).wait();
     }
 
     template <typename T>
@@ -57,7 +57,7 @@ public:
                        buffer_device.get_mutable_data(),
                        buffer_device.get_mutable_data(),
                        count,
-                       ps::reduce_op::sum)
+                       spmd::reduce_op::sum)
             .wait();
         copy_to_host(buffer, buffer_device.get_data(), count);
     }

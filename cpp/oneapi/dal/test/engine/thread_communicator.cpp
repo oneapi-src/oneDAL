@@ -209,7 +209,7 @@ void thread_communicator_allreduce::operator()(const byte_t* send_buf,
                                                byte_t* recv_buf,
                                                std::int64_t count,
                                                const data_type& dtype,
-                                               const ps::reduce_op& op) {
+                                               const spmd::reduce_op& op) {
     if (count == 0) {
         return;
     }
@@ -309,13 +309,13 @@ struct reduce_op_sum {
 };
 
 template <typename T, typename Op>
-inline void switch_by_reduce_op(const ps::reduce_op& reduce_op_id, const Op& op) {
-    using ps::reduce_op;
+inline void switch_by_reduce_op(const spmd::reduce_op& reduce_op_id, const Op& op) {
+    using spmd::reduce_op;
 
     switch (reduce_op_id) {
-        case ps::reduce_op::sum: return op(reduce_op_sum<T>{});
-        case ps::reduce_op::min: return op(reduce_op_min<T>{});
-        case ps::reduce_op::max: return op(reduce_op_max<T>{});
+        case spmd::reduce_op::sum: return op(reduce_op_sum<T>{});
+        case spmd::reduce_op::min: return op(reduce_op_min<T>{});
+        case spmd::reduce_op::max: return op(reduce_op_max<T>{});
         default:
             throw std::runtime_error{
                 "Thread communicator does not support reduction for given operation"
@@ -327,7 +327,7 @@ void thread_communicator_allreduce::reduce(const byte_t* src,
                                            byte_t* dst,
                                            std::int64_t count,
                                            const data_type& dtype,
-                                           const ps::reduce_op& op_id) {
+                                           const spmd::reduce_op& op_id) {
     switch_by_dtype(dtype, [&](auto _) {
         using value_t = decltype(_);
         reduce_impl<value_t>(src, dst, count, op_id);
@@ -347,7 +347,7 @@ template <typename T>
 void thread_communicator_allreduce::reduce_impl(const byte_t* src_bytes,
                                                 byte_t* dst_bytes,
                                                 std::int64_t count,
-                                                const ps::reduce_op& op_id) {
+                                                const spmd::reduce_op& op_id) {
     ONEDAL_ASSERT(src_bytes);
     ONEDAL_ASSERT(dst_bytes);
     ONEDAL_ASSERT(count >= 0);
@@ -404,16 +404,16 @@ auto thread_communicator_impl<memory_access_kind>::allreduce(const byte_t* send_
                                                              byte_t* recv_buf,
                                                              std::int64_t count,
                                                              const data_type& dtype,
-                                                             const ps::reduce_op& op)
+                                                             const spmd::reduce_op& op)
     -> request_t* {
     collective_operation_guard guard{ ctx_ };
     allreduce_(send_buf, recv_buf, count, dtype, op);
     return nullptr;
 }
 
-template class thread_communicator_impl<ps::device_memory_access::none>;
+template class thread_communicator_impl<spmd::device_memory_access::none>;
 #ifdef ONEDAL_DATA_PARALLEL
-template class thread_communicator_impl<ps::device_memory_access::usm>;
+template class thread_communicator_impl<spmd::device_memory_access::usm>;
 #endif
 
 } // namespace oneapi::dal::test::engine

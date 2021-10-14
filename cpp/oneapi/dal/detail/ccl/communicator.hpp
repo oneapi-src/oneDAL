@@ -28,7 +28,7 @@
 #include <mpi.h>
 #include <ccl.hpp>
 
-namespace ps = oneapi::dal::preview::spmd;
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -52,14 +52,16 @@ inline ccl::datatype make_ccl_data_type(const data_type& dtype) {
     }
 }
 
-inline ccl::reduction make_ccl_reduce_op(const ps::reduce_op& op) {
+inline ccl::reduction make_ccl_reduce_op(const spmd::reduce_op& op) {
     switch (op) {
-        case ps::reduce_op::sum: return ccl::reduction::sum;
+        case spmd::reduce_op::sum: return ccl::reduction::sum;
+        case spmd::reduce_op::min: return ccl::reduction::min;
+        case spmd::reduce_op::max: return ccl::reduction::max;
         default: throw communication_error("Unknown reduce operation");
     }
 }
 
-class ccl_request_impl : public ps::request_iface {
+class ccl_request_impl : public spmd::request_iface {
 public:
     explicit ccl_request_impl(ccl::event&& request) {
         event_ = std::move(request);
@@ -105,13 +107,13 @@ private:
 /// Implementation of the low-level SPMD communicator interface via ccl
 /// TODO: Currently message sizes are limited via `int` type.
 ///       Large message sizes should be handled on the communicator side in the future.
-class ccl_device_communicator_impl : public ps::communicator_iface {
+class ccl_device_communicator_impl : public spmd::communicator_iface {
 public:
     // Explicitly declare all virtual functions with overloads to workaround Clang warning
     // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
-    using ps::communicator_iface::bcast;
-    using ps::communicator_iface::allgatherv;
-    using ps::communicator_iface::allreduce;
+    using spmd::communicator_iface::bcast;
+    using spmd::communicator_iface::allgatherv;
+    using spmd::communicator_iface::allreduce;
 
     template <typename Kvs>
     explicit ccl_device_communicator_impl(const sycl::queue& queue,
@@ -130,12 +132,12 @@ public:
         return queue_;
     }
 
-    ps::request_iface* bcast(sycl::queue& q,
-                             byte_t* send_buf,
-                             std::int64_t count,
-                             const data_type& dtype,
-                             const std::vector<sycl::event>& deps,
-                             std::int64_t root) override {
+    spmd::request_iface* bcast(sycl::queue& q,
+                               byte_t* send_buf,
+                               std::int64_t count,
+                               const data_type& dtype,
+                               const std::vector<sycl::event>& deps,
+                               std::int64_t root) override {
         //        check_if_pointer_matches_queue(queue_, send_buf);
         //        check_if_pointer_matches_queue(q, send_buf);
         ONEDAL_ASSERT(root >= 0);
@@ -167,14 +169,14 @@ public:
                                       const std::int64_t* displs_host,
                                       const data_type& dtype,
                                       const std::vector<sycl::event>& deps) = 0;*/
-    ps::request_iface* allgatherv(sycl::queue& q,
-                                  const byte_t* send_buf,
-                                  std::int64_t send_count,
-                                  byte_t* recv_buf,
-                                  const std::int64_t* recv_counts,
-                                  const std::int64_t* displs_host,
-                                  const data_type& dtype,
-                                  const std::vector<sycl::event>& deps = {}) override {
+    spmd::request_iface* allgatherv(sycl::queue& q,
+                                    const byte_t* send_buf,
+                                    std::int64_t send_count,
+                                    byte_t* recv_buf,
+                                    const std::int64_t* recv_counts,
+                                    const std::int64_t* displs_host,
+                                    const data_type& dtype,
+                                    const std::vector<sycl::event>& deps = {}) override {
         //        check_if_pointer_matches_queue(queue_, send_buf);
         //        check_if_pointer_matches_queue(queue_, recv_buf);
         if (send_count == 0) {
@@ -200,13 +202,13 @@ public:
     }
 
     /// `allreduce` that accepts USM pointers
-    ps::request_iface* allreduce(sycl::queue& q,
-                                 const byte_t* send_buf,
-                                 byte_t* recv_buf,
-                                 std::int64_t count,
-                                 const data_type& dtype,
-                                 const ps::reduce_op& op = ps::reduce_op::sum,
-                                 const std::vector<sycl::event>& deps = {}) override {
+    spmd::request_iface* allreduce(sycl::queue& q,
+                                   const byte_t* send_buf,
+                                   byte_t* recv_buf,
+                                   std::int64_t count,
+                                   const data_type& dtype,
+                                   const spmd::reduce_op& op = spmd::reduce_op::sum,
+                                   const std::vector<sycl::event>& deps = {}) override {
         //        check_if_pointer_matches_queue(queue_, send_buf);
         //        check_if_pointer_matches_queue(queue_, recv_buf);
         if (count == 0) {
@@ -233,11 +235,11 @@ private:
 };
 template <typename memory_access_kind>
 struct ccl_interface_selector {
-    using type = ps::communicator_iface_base;
+    using type = spmd::communicator_iface_base;
 };
 
 template <>
-struct ccl_interface_selector<ps::device_memory_access::usm> {
+struct ccl_interface_selector<spmd::device_memory_access::usm> {
     using type = ccl_device_communicator_impl;
 };
 
@@ -264,7 +266,7 @@ public:
         host_comm_.reset(new ccl_comm_wrapper{ ccl::create_communicator(rank_count_, rank_, kvs) });
     }
 
-    //    template<typename T = memory_access_kind, ps::enable_if_device_memory_accessible_t<T>>
+    //    template<typename T = memory_access_kind, spmd::enable_if_device_memory_accessible_t<T>>
     explicit ccl_communicator_impl(sycl::queue& queue,
                                    ccl::shared_ptr_class<ccl::kvs> kvs,
                                    std::int64_t rank,
@@ -292,10 +294,10 @@ public:
         ccl::barrier(host_comm_->get_ref()).wait();
     }
 
-    ps::request_iface* bcast(byte_t* send_buf,
-                             std::int64_t count,
-                             const data_type& dtype,
-                             std::int64_t root) override {
+    spmd::request_iface* bcast(byte_t* send_buf,
+                               std::int64_t count,
+                               const data_type& dtype,
+                               std::int64_t root) override {
         ONEDAL_ASSERT(root >= 0);
 
         if (count == 0) {
@@ -313,12 +315,12 @@ public:
         return new ccl_request_impl{ std::move(event) };
     }
 
-    ps::request_iface* allgatherv(const byte_t* send_buf,
-                                  std::int64_t send_count,
-                                  byte_t* recv_buf,
-                                  const std::int64_t* recv_counts,
-                                  const std::int64_t* displs,
-                                  const data_type& dtype) override {
+    spmd::request_iface* allgatherv(const byte_t* send_buf,
+                                    std::int64_t send_count,
+                                    byte_t* recv_buf,
+                                    const std::int64_t* recv_counts,
+                                    const std::int64_t* displs,
+                                    const data_type& dtype) override {
         //        check_if_pointer_matches_queue(queue_, send_buf);
         //        check_if_pointer_matches_queue(queue_, recv_buf);
         if (send_count == 0) {
@@ -342,11 +344,11 @@ public:
         return new ccl_request_impl{ std::move(event) };
     }
 
-    ps::request_iface* allreduce(const byte_t* send_buf,
-                                 byte_t* recv_buf,
-                                 std::int64_t count,
-                                 const data_type& dtype,
-                                 const ps::reduce_op& op) override {
+    spmd::request_iface* allreduce(const byte_t* send_buf,
+                                   byte_t* recv_buf,
+                                   std::int64_t count,
+                                   const data_type& dtype,
+                                   const spmd::reduce_op& op) override {
         if (count == 0) {
             return nullptr;
         }
@@ -371,16 +373,16 @@ private:
 };
 
 template <typename memory_access_kind>
-class ccl_communicator : public ps::communicator<memory_access_kind> {
+class ccl_communicator : public spmd::communicator<memory_access_kind> {
 public:
     template <typename T = memory_access_kind,
-              typename = ps::enable_if_device_memory_accessible_t<T>>
+              typename = spmd::enable_if_device_memory_accessible_t<T>>
     explicit ccl_communicator(sycl::queue& queue,
                               ccl::shared_ptr_class<ccl::kvs> kvs,
                               std::int64_t rank,
                               std::int64_t rank_count,
                               std::int64_t default_root = 0)
-            : ps::communicator<memory_access_kind>(
+            : spmd::communicator<memory_access_kind>(
                   new ccl_communicator_impl<memory_access_kind>(queue,
                                                                 kvs,
                                                                 rank,
@@ -390,7 +392,7 @@ public:
                               std::int64_t rank,
                               std::int64_t rank_count,
                               std::int64_t default_root = 0)
-            : ps::communicator<memory_access_kind>(
+            : spmd::communicator<memory_access_kind>(
                   new ccl_communicator_impl<memory_access_kind>(kvs,
                                                                 rank,
                                                                 rank_count,

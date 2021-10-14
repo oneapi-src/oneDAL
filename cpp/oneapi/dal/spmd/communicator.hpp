@@ -28,6 +28,8 @@ namespace oneapi::dal::preview::spmd {
 
 namespace de = dal::detail;
 
+namespace v1 {
+
 class request_iface {
 public:
     virtual ~request_iface() = default;
@@ -418,23 +420,26 @@ protected:
     dal::detail::pimpl<interface_type> impl_;
 };
 
-// should throw an error
+} // namespace v1
+
+using v1::request_iface;
+using v1::request;
+using v1::communicator_iface_base;
+#ifdef ONEDAL_DATA_PARALLEL
+using v1::communicator_iface;
+#endif
+using v1::communicator;
+
 template <typename backend>
-communicator<device_memory_access::none> make_communicator();
-
-//template<> communicator<device_memory_access::none> make_communicator<backend::mpi>();
-
-//template<> communicator<device_memory_access::none> make_communicator<backend::ccl>();
+communicator<device_memory_access::none> make_communicator() {
+    throw communication_error("Unknown communicator backend!");
+}
 
 #ifdef ONEDAL_DATA_PARALLEL
-// should throw an error
 template <typename backend>
-communicator<device_memory_access::usm> make_communicator(sycl::queue& queue);
-
-//template<> communicator<device_memory_access::usm> make_communicator<backend::mpi>(sycl::queue& queue);
-
-//template<> communicator<device_memory_access::usm> make_communicator<backend::ccl>(sycl::queue& queue);
-
+communicator<device_memory_access::usm> make_communicator(sycl::queue& queue) {
+    throw communication_error("Unknown communicator backend!");
+}
 #endif
 
 } // namespace oneapi::dal::preview::spmd

@@ -15,10 +15,12 @@
 *******************************************************************************/
 
 #include <mutex>
-#include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/spmd/detail/communicator_utils.hpp"
+#include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/thread_communicator.hpp"
+
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::test {
 
@@ -28,11 +30,11 @@ namespace te = dal::test::engine;
 class communicator_test : public te::policy_fixture {
 public:
 #ifdef ONEDAL_DATA_PARALLEL
-    using comm_t = te::thread_communicator<ps::device_memory_access::usm>;
-    using spmd_comm_t = ps::communicator<ps::device_memory_access::usm>;
+    using comm_t = te::thread_communicator<spmd::device_memory_access::usm>;
+    using spmd_comm_t = spmd::communicator<spmd::device_memory_access::usm>;
 #else
-    using comm_t = te::thread_communicator<ps::device_memory_access::none>;
-    using spmd_comm_t = ps::communicator<ps::device_memory_access::none>;
+    using comm_t = te::thread_communicator<spmd::device_memory_access::none>;
+    using spmd_comm_t = spmd::communicator<spmd::device_memory_access::none>;
 #endif
     auto create_communicator(std::int64_t rank_count) {
         CAPTURE(rank_count);
@@ -447,7 +449,7 @@ TEST_M(communicator_test, "allreduce single value", "[allreduce]") {
     execute([&](std::int64_t rank) {
         float x = 1;
 
-        comm.allreduce(x, ps::reduce_op::sum).wait();
+        comm.allreduce(x, spmd::reduce_op::sum).wait();
 
         exclusive([&]() {
             REQUIRE(std::int64_t(x) == comm.get_rank_count());
@@ -463,7 +465,10 @@ TEST_M(communicator_test, "allreduce multiple values", "[allreduce]") {
         const auto send = this->array_full(count_per_rank, float(1));
         const auto recv = this->array_full(count_per_rank, float(0));
 
-        comm.allreduce(send.get_data(), recv.get_mutable_data(), count_per_rank, ps::reduce_op::sum)
+        comm.allreduce(send.get_data(),
+                       recv.get_mutable_data(),
+                       count_per_rank,
+                       spmd::reduce_op::sum)
             .wait();
 
         exclusive([&]() {
@@ -486,7 +491,7 @@ TEST_M(communicator_test, "USM allreduce multiple values", "[allreduce][usm]") {
                        send.get_data(),
                        recv.get_mutable_data(),
                        count_per_rank,
-                       ps::reduce_op::sum)
+                       spmd::reduce_op::sum)
             .wait();
 
         exclusive([&]() {
@@ -504,7 +509,7 @@ TEST_M(communicator_test, "allreduce array", "[allreduce]") {
     execute([&](std::int64_t rank) {
         const auto ary = this->array_full(count_per_rank, float(1));
 
-        comm.allreduce(ary, ps::reduce_op::sum).wait();
+        comm.allreduce(ary, spmd::reduce_op::sum).wait();
 
         exclusive([&]() {
             const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
@@ -521,7 +526,7 @@ TEST_M(communicator_test, "USM allreduce array", "[allreduce][usm]") {
     execute([&](std::int64_t rank) {
         const auto ary = this->to_device(this->array_full(count_per_rank, float(1)));
 
-        comm.allreduce(ary, ps::reduce_op::sum).wait();
+        comm.allreduce(ary, spmd::reduce_op::sum).wait();
 
         exclusive([&]() {
             const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
@@ -536,7 +541,7 @@ TEST_M(communicator_test, "empty allreduce is allowed", "[allreduce][empty]") {
     execute([&](std::int64_t rank) {
         const float* send_buf = nullptr;
         float* recv_buf = nullptr;
-        comm.allreduce(send_buf, recv_buf, 0, ps::reduce_op::sum).wait();
+        comm.allreduce(send_buf, recv_buf, 0, spmd::reduce_op::sum).wait();
     });
 }
 
@@ -546,7 +551,7 @@ TEST_M(communicator_test, "empty USM allreduce is allowed", "[allreduce][usm][em
     execute([&](std::int64_t rank) {
         const byte_t* send_buf = nullptr;
         byte_t* recv_buf = nullptr;
-        comm.allreduce(this->get_queue(), send_buf, recv_buf, 0, ps::reduce_op::sum).wait();
+        comm.allreduce(this->get_queue(), send_buf, recv_buf, 0, spmd::reduce_op::sum).wait();
     });
 }
 #endif

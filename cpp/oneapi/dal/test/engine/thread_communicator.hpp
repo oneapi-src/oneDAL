@@ -27,7 +27,7 @@
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
-namespace ps = oneapi::dal::preview::spmd;
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::test::engine {
 
@@ -222,7 +222,7 @@ public:
                     byte_t* recv_buf,
                     std::int64_t count,
                     const data_type& dtype,
-                    const ps::reduce_op& op);
+                    const spmd::reduce_op& op);
 
 private:
     thread_communicator_context& ctx_;
@@ -233,7 +233,7 @@ private:
                        byte_t* dst,
                        std::int64_t count,
                        const data_type& dtype,
-                       const ps::reduce_op& op);
+                       const spmd::reduce_op& op);
 
     static void fill_with_zeros(byte_t* dst, std::int64_t count, const data_type& dtype);
 
@@ -241,7 +241,7 @@ private:
     static void reduce_impl(const byte_t* src,
                             byte_t* dst,
                             std::int64_t count,
-                            const ps::reduce_op& op);
+                            const spmd::reduce_op& op);
 
     template <typename T>
     static void fill_with_zeros_impl(byte_t* dst, std::int64_t count);
@@ -284,7 +284,7 @@ class thread_communicator_impl
         : public dal::detail::via_host_interface_selector<memory_access_kind>::type {
 public:
     using base_t = typename dal::detail::via_host_interface_selector<memory_access_kind>::type;
-    using request_t = ps::request_iface;
+    using request_t = spmd::request_iface;
 
     // Explicitly declare all virtual functions with overloads to workaround Clang warning
     // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
@@ -317,7 +317,7 @@ public:
 #endif
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T = memory_access_kind,
-              typename = ps::enable_if_device_memory_accessible_t<T>>
+              typename = spmd::enable_if_device_memory_accessible_t<T>>
     explicit thread_communicator_impl(sycl::queue& queue, std::int64_t thread_count)
             : base_t(queue),
               ctx_(thread_count),
@@ -363,7 +363,7 @@ public:
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const ps::reduce_op& op) override;
+                         const spmd::reduce_op& op) override;
 
     /*    request_t* allgather(const byte_t* send_buf,
                          std::int64_t send_count,
@@ -383,18 +383,18 @@ private:
 };
 
 template <typename memory_access_kind>
-class thread_communicator : public ps::communicator<memory_access_kind> {
+class thread_communicator : public spmd::communicator<memory_access_kind> {
 public:
     using impl_t = thread_communicator_impl<memory_access_kind>;
 #ifndef ONEDAL_DATA_PARALLEL
     explicit thread_communicator(std::int64_t thread_count)
-            : ps::communicator<memory_access_kind>(new impl_t{ thread_count }) {}
+            : spmd::communicator<memory_access_kind>(new impl_t{ thread_count }) {}
 #endif
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T = memory_access_kind,
-              typename = ps::enable_if_device_memory_accessible_t<T>>
+              typename = spmd::enable_if_device_memory_accessible_t<T>>
     explicit thread_communicator(sycl::queue& queue, std::int64_t thread_count)
-            : ps::communicator<memory_access_kind>(new impl_t{ queue, thread_count }) {}
+            : spmd::communicator<memory_access_kind>(new impl_t{ queue, thread_count }) {}
 #endif
     template <typename Body>
     void execute(const Body& body) {

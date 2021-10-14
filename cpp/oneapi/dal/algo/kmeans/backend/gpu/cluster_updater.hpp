@@ -24,7 +24,7 @@ namespace oneapi::dal::kmeans::backend {
 
 namespace pr = dal::backend::primitives;
 namespace bk = dal::backend;
-namespace ps = oneapi::dal::preview::spmd;
+namespace spmd = oneapi::dal::preview::spmd;
 
 template <typename Float>
 class cluster_updater {
@@ -32,7 +32,7 @@ public:
     using kernels_fp_t = kernels_fp<Float>;
 
     cluster_updater(const sycl::queue& q,
-                    const bk::communicator<ps::device_memory_access::usm>& comm)
+                    const bk::communicator<spmd::device_memory_access::usm>& comm)
             : queue_(q),
               comm_(comm) {}
 
@@ -180,7 +180,7 @@ public:
 
 private:
     sycl::queue queue_;
-    bk::communicator<ps::device_memory_access::usm> comm_;
+    bk::communicator<spmd::device_memory_access::usm> comm_;
 
     std::int64_t row_count_ = 0;
     std::int64_t column_count_ = 0;
