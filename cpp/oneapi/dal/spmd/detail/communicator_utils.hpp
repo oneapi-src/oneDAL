@@ -113,6 +113,49 @@ spmd::request allreduce(const spmd::communicator<MemoryAccessKind>& comm,
 }
 
 template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>
+spmd::request allgatherv(const spmd::communicator<MemoryAccessKind>& comm,
+                         const array<T>& send,
+                         const array<T>& recv,
+                         const std::int64_t* recv_counts,
+                         const std::int64_t* displs) {
+    if (send.get_count() == 0) {
+        ONEDAL_ASSERT(recv.get_count() == 0);
+        return spmd::request{};
+    }
+
+    ONEDAL_ASSERT(send.get_count() > 0);
+    ONEDAL_ASSERT(recv.has_mutable_data());
+
+    spmd::request request;
+
+    if constexpr (!std::is_same_v<MemoryAccessKind, spmd::device_memory_access::none>) {
+        __ONEDAL_IF_QUEUE__(send.get_queue(), {
+            auto q = send.get_queue().value();
+
+            ONEDAL_ASSERT(recv.get_queue().has_value());
+            ONEDAL_ASSERT(recv.get_queue().value().get_context() == q.get_context());
+
+            request = comm.allgatherv(q,
+                                      send.get_data(),
+                                      send.get_count(),
+                                      recv.get_mutable_data(),
+                                      recv_counts,
+                                      displs);
+        });
+    }
+
+    __ONEDAL_IF_NO_QUEUE__(send.get_queue(), {
+        request = comm.allgatherv(send.get_data(),
+                                  send.get_count(),
+                                  recv.get_mutable_data(),
+                                  recv_counts,
+                                  displs);
+    });
+
+    return request;
+}
+
+template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>
 spmd::request allgather(const spmd::communicator<MemoryAccessKind>& comm,
                         const array<T>& send,
                         const array<T>& recv) {
@@ -134,31 +177,7 @@ spmd::request allgather(const spmd::communicator<MemoryAccessKind>& comm,
         total_count += send.get_count();
     }
 
-    if constexpr (!std::is_same_v<MemoryAccessKind, spmd::device_memory_access::none>) {
-        __ONEDAL_IF_QUEUE__(send.get_queue(), {
-            auto q = send.get_queue().value();
-
-            ONEDAL_ASSERT(recv.get_queue().has_value());
-            ONEDAL_ASSERT(recv.get_queue().value().get_context() == q.get_context());
-
-            request = comm.allgatherv(q,
-                                      send.get_data(),
-                                      send.get_count(),
-                                      recv.get_mutable_data(),
-                                      recv_counts.data(),
-                                      displs.data());
-        });
-    }
-
-    __ONEDAL_IF_NO_QUEUE__(send.get_queue(), {
-        request = comm.allgatherv(send.get_data(),
-                                  send.get_count(),
-                                  recv.get_mutable_data(),
-                                  recv_counts.data(),
-                                  displs.data());
-    });
-
-    return request;
+    return allgatherv(comm, send, recv, recv_counts.data(), displs.data());
 }
 
 template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>

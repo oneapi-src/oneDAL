@@ -34,6 +34,15 @@ request communicator<MemoryAccessKind>::allgather(const array<D>& send,
 
 template <typename MemoryAccessKind>
 template <typename D>
+request communicator<MemoryAccessKind>::allgatherv(const array<D>& send,
+                                                   const array<D>& recv,
+                                                   const std::int64_t* recv_counts,
+                                                   const std::int64_t* displs) const {
+    return de::allgatherv(*this, send, recv, recv_counts, displs);
+}
+
+template <typename MemoryAccessKind>
+template <typename D>
 request communicator<MemoryAccessKind>::allgather(D& scalar, const array<D>& recv) const {
     return de::allgather(*this, scalar, recv);
 }
@@ -45,10 +54,14 @@ request communicator<MemoryAccessKind>::allreduce(const array<D>& ary, const red
 }
 
 #define INSTANTIATE(M, D)                                                                      \
-    template request communicator<M>::bcast(const array<D>& ary, std::int64_t root) const;     \
+    template request communicator<M>::bcast<D>(const array<D>& ary, std::int64_t root) const;  \
     template request communicator<M>::allgather<D>(const array<D>& send, const array<D>& recv) \
         const;                                                                                 \
     template request communicator<M>::allgather<D>(D & scalar, const array<D>& recv) const;    \
+    template request communicator<M>::allgatherv<D>(const array<D>& send,                      \
+                                                    const array<D>& recv,                      \
+                                                    const std::int64_t* recv_counts,           \
+                                                    const std::int64_t* displs) const;         \
     template request communicator<M>::allreduce<D>(const array<D>& ary, const reduce_op& op) const;
 
 #define INSTANTIATE_MEMORY_ACCESS(M) \

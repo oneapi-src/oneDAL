@@ -332,6 +332,11 @@ public:
                           deps);
     }
 #endif
+    template <typename D>
+    request allgatherv(const array<D>& send,
+                       const array<D>& recv,
+                       const std::int64_t* recv_counts,
+                       const std::int64_t* displs) const;
     /// Combines data from all ranks using reduction operation and
     /// distributes the result back to all ranks
     ///
