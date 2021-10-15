@@ -172,9 +172,9 @@ spmd::request allgather(const spmd::communicator<MemoryAccessKind>& comm,
     std::vector<std::int64_t> recv_counts(comm.get_rank_count(), send.get_count());
     std::vector<std::int64_t> displs(comm.get_rank_count(), 0);
     std::int64_t total_count = 0;
-    for (std::int64_t i = 0; i < send.get_count(); i++) {
+    for (std::int64_t i = 0; i < comm.get_rank_count(); i++) {
         displs[i] = total_count;
-        total_count += send.get_count();
+        total_count += recv_counts[i];
     }
 
     return allgatherv(comm, send, recv, recv_counts.data(), displs.data());
