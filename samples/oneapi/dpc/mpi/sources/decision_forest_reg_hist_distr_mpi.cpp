@@ -93,7 +93,7 @@ void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
     std::cout << "Prediction results:\n"
               << result_infer.get_responses() << std::endl;
 
-    std::cout << "Ground truth:\n" << y_test << std::endl;
+    std::cout << "Ground truth:\n" << y_test_vec[rank_id] << std::endl;
   }
 }
 
