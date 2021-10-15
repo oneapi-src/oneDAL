@@ -280,6 +280,9 @@ public:
     /* DBSCAN */
     MSG(weight_dimension_doesnt_match_data_dimension);
     MSG(weights_column_count_ne_1);
+
+    /*SPMD*/
+    MSG(unsupported_communicator_backend);
 };
 
 #undef MSG

@@ -437,15 +437,13 @@ using v1::communicator;
 
 template <typename Backend>
 communicator<device_memory_access::none> make_communicator() {
-    // TODO move error message
-    throw communication_error("Unsupported communicator backend!");
+    throw communication_error(dal::detail::error_messages::unsupported_communicator_backend());
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Backend>
 communicator<device_memory_access::usm> make_communicator(sycl::queue& queue) {
-    // TODO move error message
-    throw communication_error("Unsupported communicator backend!");
+    throw communication_error(dal::detail::error_messages::unsupported_communicator_backend());
 }
 #endif
 
