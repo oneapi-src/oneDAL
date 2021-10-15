@@ -14,23 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/array.hpp"
 
 namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail::v1 {
-
-#ifdef ONEDAL_DATA_PARALLEL
-static void check_if_pointer_matches_queue(const sycl::queue& q, const void* ptr) {
-    if (ptr) {
-        const auto alloc_kind = sycl::get_pointer_type(ptr, q.get_context());
-        if (alloc_kind == sycl::usm::alloc::unknown) {
-            throw invalid_argument{ error_messages::unknown_usm_pointer_type() };
-        }
-    }
-}
-#endif
 
 #ifdef ONEDAL_DATA_PARALLEL
 static void wait_request(spmd::request_iface* request) {
@@ -56,7 +46,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
     ONEDAL_ASSERT(send_buf);
     ONEDAL_ASSERT(count > 0);
 
-    check_if_pointer_matches_queue(q, send_buf);
+    preview::detail::check_if_pointer_matches_queue(q, send_buf);
     sycl::event::wait_and_throw(deps);
 
     const std::int64_t dtype_size = get_data_type_size(dtype);
@@ -100,8 +90,8 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
     ONEDAL_ASSERT(recv_counts_host);
     ONEDAL_ASSERT(displs_host);
 
-    check_if_pointer_matches_queue(q, send_buf);
-    check_if_pointer_matches_queue(q, recv_buf);
+    preview::detail::check_if_pointer_matches_queue(q, send_buf);
+    preview::detail::check_if_pointer_matches_queue(q, recv_buf);
     sycl::event::wait_and_throw(deps);
 
     const std::int64_t rank_count = get_rank_count();
@@ -171,8 +161,8 @@ spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
     ONEDAL_ASSERT(recv_buf);
     ONEDAL_ASSERT(count > 0);
 
-    check_if_pointer_matches_queue(q, send_buf);
-    check_if_pointer_matches_queue(q, recv_buf);
+    preview::detail::check_if_pointer_matches_queue(q, send_buf);
+    preview::detail::check_if_pointer_matches_queue(q, recv_buf);
     sycl::event::wait_and_throw(deps);
 
     const std::int64_t dtype_size = get_data_type_size(dtype);
