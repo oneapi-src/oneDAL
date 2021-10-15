@@ -44,7 +44,7 @@ There are two ways to fix this:
          #define DAAL_DISABLE_LEVEL_ZERO
 
     2. Disable Level Zero runtime:
-    
+
        .. code-block:: bash
-     
+
          export SYCL_BE=PI_OPENCL

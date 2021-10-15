@@ -34,8 +34,13 @@ compression and decompression, see :ref:`data_compression`.
 
 A general structure of an archive is as follows:
 
-.. image:: ./images/data-archive-structure.png
+.. figure:: ./images/data-archive-structure.png
   :width: 400
+  :alt: The first segment contains the archive header,
+        the last segment contains the archive footer, and all
+        other segments contain a segment header and a segment footer.
+
+  Data Archive Structure
 
 Headers and footers contain information required to reconstruct the
 archived object.

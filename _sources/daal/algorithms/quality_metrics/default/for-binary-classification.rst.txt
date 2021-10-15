@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _quality_metrics_for_binary_classification:
+
 Quality Metrics for Binary Classification Algorithms
 ====================================================
 
@@ -29,8 +31,11 @@ Details
 
 Further definitions use the following notations:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Notations for Quality Metrics for Binary Classification Algorithms
    :widths: 10 10 30
+   :class: longtable
 
    * - :math:`\text{tp}`
      - true positive
@@ -47,9 +52,12 @@ Further definitions use the following notations:
 
 The library uses the following quality metrics for binary classifiers:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Definitions of Quality Metrics for Binary Classification Algorithms
    :widths: 10 10
    :header-rows: 1
+   :class: longtable
 
    * - Quality Metric
      - Definition
@@ -70,16 +78,18 @@ For more details of these metrics, including the evaluation focus, refer to [Sok
 
 The confusion matrix is defined as follows:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.4}|\Y{0.3}|
+
+.. list-table:: Confusion Matrix for Binary Classification Algorithms
     :header-rows: 1
     :stub-columns: 1
 
-    * -
+    * - 
       - Classified as Class :math:`C_1`
       - Classified as Class :math:`C_2`
     * - Actual Class :math:`C_1`
       - `tp`
-      - `fn`    
+      - `fn`
     * - Actual Class :math:`C_2`
       - `fp`
       - `tn`
@@ -94,19 +104,22 @@ The quality metric algorithm for binary classifiers accepts the input described 
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Quality Metrics for Binary Classification (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Input ID
      - Input
    * - ``predictedLabels``
      - Pointer to the :math:`n \times 1` numeric table that contains labels computed at the prediction stage of the classification algorithm.
-       
+
        This input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
    * - ``groundTruthLabels``
-     - Pointer to the :math:`n \times 1` numeric table that contains expected labels. 
-       
+     - Pointer to the :math:`n \times 1` numeric table that contains expected labels.
+
        This input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
 Algorithm Parameters
@@ -114,10 +127,13 @@ Algorithm Parameters
 
 The quality metric algorithm has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Quality Metrics for Binary Classification (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -135,19 +151,22 @@ The quality metric algorithm has the following parameters:
 Algorithm Output
 ----------------
 
-The quality metric algorithm calculates the result described below. 
-Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
+The quality metric algorithm calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Quality Metrics for Binary Classification (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
    * - ``confusionMatrix``
      - Pointer to the :math:`2 \times 2` numeric table with the confusion matrix.
-       
+
        .. note::
          By default, this result is an object of the ``HomogenNumericTable`` class,
          but you can define the result as an object of any class derived from NumericTable except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
@@ -177,7 +196,7 @@ Examples
     - :cpp_example:`svm_two_class_metrics_dense_batch.cpp <quality_metrics/svm_two_class_metrics_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

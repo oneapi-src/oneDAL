@@ -27,24 +27,24 @@ between different stages of the :txtref:`data analytics pipeline
 contains three main steps of data acquisition, preparation, and computation (see
 :txtref:`the picture below <typical_data_management_flow>`):
 
-1. Raw data acquisition
+#. Raw data acquisition
 
-  - Transfer out-of-memory data from various sources (databases, files, remote
-    storage) into an in-memory representation.
+   - Transfer out-of-memory data from various sources (databases, files, remote
+     storage) into an in-memory representation.
 
-2. Data preparation
+#. Data preparation
 
-  - Support different in-memory :capterm:`data formats <data format>`.
-  - Compress and decompress the data.
-  - Convert the data into numeric representation.
-  - Recover missing values.
-  - Filter the data and perform data normalization.
-  - Compute various statistical metrics for numerical data, such as mean, variance,
-    and covariance.
+   - Support different in-memory :capterm:`data formats <data format>`.
+   - Compress and decompress the data.
+   - Convert the data into numeric representation.
+   - Recover missing values.
+   - Filter the data and perform data normalization.
+   - Compute various statistical metrics for numerical data, such as mean, variance,
+     and covariance.
 
-3. Algorithm computation
+#. Algorithm computation
 
-  - Stream in-memory numerical data to the algorithm.
+   - Stream in-memory numerical data to the algorithm.
 
 In complex usage scenarios, data flow goes through these three stages back and
 forth. For example, when the data are not fully available at the start of the
@@ -54,9 +54,11 @@ and prepared.
 
 .. _typical_data_management_flow:
 
-.. image:: _static/data_management_flow.png
+.. figure:: _static/data_management_flow.png
   :width: 800
   :alt: Typical data management flow
+
+  Data Management Flow in oneDAL
 
 Key concepts
 ============
@@ -71,24 +73,22 @@ Dataset
 --------
 
 The main data-related concept that |short_name| works with is a
-:capterm:`dataset`. It is a tabular view of data, where table rows represent the
-:capterm:`observations <observation>` and columns represent the
-:capterm:`features <feature>`.
+:capterm:`dataset`. It is a collection of data in a specific data format.
 
-.. image:: _static/dataset.png
+.. figure:: _static/dataset.png
   :width: 400
   :alt: Dataset
 
 The dataset is used across all stages of the data analytics pipeline. For
 example:
 
-1. At the acquisition stage, it is downloaded into the
+#. At the acquisition stage, it is downloaded into the
    local memory.
 
-2. At the preparation stage, it is converted into a numerical
+#. At the preparation stage, it is converted into a numerical
    representation.
 
-3. At the computation stage, it is used as one of the inputs or
+#. At the computation stage, it is used as one of the inputs or
    results of an algorithm or a descriptor properties.
 
 .. _data-source:
@@ -174,9 +174,9 @@ Table metadata
 Table metadata concept provides an additional information about data in the
 table:
 
-1. The :capterm:`data types <Data type>` of the columns.
+#. The :capterm:`data types <Data type>` of the columns.
 
-2. The logical types of data in the columns:
+#. The logical types of data in the columns:
    :capterm:`nominal <Nominal feature>`, :capterm:`ordinal <Ordinal feature>`,
    :capterm:`interval <Interval feature>`, or :capterm:`ratio <Ratio feature>`.
 
@@ -221,9 +221,11 @@ of these concepts, which are highlighted by colors:
 
 .. _table_accessor_usage_example:
 
-.. image:: _static/table_accessor_usage_example.png
+.. figure:: _static/table_accessor_usage_example.png
   :width: 800
   :alt: Sequence diagram of accessor-builder-table relations
+
+  Sequence diagram of accessor-builder-table relations
 
 To perform computations on a dataset, you have to create a :txtref:`table` object
 first. It can be done either using a :txtref:`data-source` or directly from
@@ -236,6 +238,46 @@ Once a table object is created, it can be used as an input in computations or as
 a parameter of some algorithm. The data in the table can be accessed via its own
 interface or via read-only accessor as shown on the diagram.
 
+.. _graph:
+
+Graph
+-----
+
+A graph is a concept of in-memory structured data that is organized
+as a :capterm:`graph` with several vertices and edges.
+Graphs can be :capterm:`directed <Directed graph>`, :capterm:`undirected <Undirected graph>`,
+:capterm:`weighted <Weighted graph>` and :capterm:`attributed <Attribute>`. Graphs are used
+at the data preparation and data processing stages to:
+
+- Be an in-memory representation of a :txtref:`dataset`.
+
+- Store graph data in sparse
+  :capterm:`data formats <data format>`.
+
+- Avoid unnecessary data copies during conversion from external data
+  representations.
+
+- Connect with the :txtref:`data-source` to convert data from an
+  out-of-memory representation into an in-memory representation.
+
+.. note::
+  For thread-safety reasons and better integration with external entities, a
+  graph provides a read-only access to the data within it, thus, a graph object
+  is :capterm:`immutable <immutability>`.
+
+The logical organization of a graph and the physical :capterm:`format of
+the data <data format>` are different:
+
+- Logically, a :capterm:`graph` contains :math:`|V|` vertices and :math:`|E|` edges.
+  All vertices of the :capterm:`graph` are described with the same data type and
+  respective operations on it. Similarly, the same is true for edges and :capterm:`attributes <Attribute>`
+  of the :capterm:`graph`. The data types of vertices, edges, and attributes can be different.
+
+- Physically, the :capterm:`topology` of a graph can be organized in :capterm:`CSR <CSR data>`
+  and others data formats.
+
+For details, see :txtref:`dm_graphs` section.
+
 Details
 =======
 
@@ -247,4 +289,5 @@ This section includes the detailed descriptions of all data management objects i
    array.rst
    accessors.rst
    data-sources.rst
+   graphs.rst
    tables.rst
