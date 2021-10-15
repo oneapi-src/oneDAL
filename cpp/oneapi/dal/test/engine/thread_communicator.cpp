@@ -118,44 +118,50 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
                                                 const std::int64_t* recv_counts,
                                                 const std::int64_t* displs,
                                                 const data_type& dtype) {
-    ONEDAL_ASSERT(root >= 0);
-
     if (send_count == 0) {
         return;
     }
 
     ONEDAL_ASSERT(send_buf);
     ONEDAL_ASSERT(send_count > 0);
+    ONEDAL_ASSERT(recv_buf);
+    ONEDAL_ASSERT(recv_count > 0);
+    ONEDAL_ASSERT(send_count == recv_count);
 
     const std::int64_t rank = ctx_.get_this_thread_rank();
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-    const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
 
-    ONEDAL_ASSERT(recv_buf);
-    ONEDAL_ASSERT(displs);
-    ONEDAL_ASSERT(recv_counts);
-    recv_counts_ = recv_counts;
-    displs_ = displs;
-    recv_buf_ = recv_buf;
+    send_buffers_[rank] = buffer_info{ send_buf, send_count };
 
     barrier_();
 
-    ONEDAL_ASSERT(recv_counts_);
-    ONEDAL_ASSERT(displs_);
-    ONEDAL_ASSERT(recv_buf_);
-    ONEDAL_ASSERT(send_count <= recv_counts_[rank]);
+#ifdef ONEDAL_ENABLE_ASSERT
+    if (rank == ctx_.get_root_rank()) {
+        for (const auto& info : send_buffers_) {
+            ONEDAL_ASSERT(info.count == send_count);
+            ONEDAL_ASSERT(info.buf != nullptr);
+        }
+    }
+#endif
 
-    const std::int64_t offset = dal::detail::check_mul_overflow(dtype_size, displs_[rank]);
-    for (std::int64_t i = 0; i < send_size; i++) {
-        recv_buf_[offset + i] = send_buf[i];
+    {
+        std::int64_t r = 0;
+        for ([[maybe_unused]] const auto& send : send_buffers_) {
+            const std::int64_t offset = dal::detail::check_mul_overflow(dtype_size, displs[r]);
+            const std::int64_t recv_size = dal::detail::check_mul_overflow(dtype_size, recv_counts[r]);
+            for (std::int64_t i = 0; i < recv_size; i++) {
+                recv_buf[offset + i] = send.buf[i];
+            }
+            r++;
+        }
     }
 
     barrier_([&]() {
-        recv_counts_ = nullptr;
-        displs_ = nullptr;
-        recv_buf_ = nullptr;
+        send_buffers_.clear();
+        send_buffers_.resize(ctx_.get_thread_count());
     });
 }
+
 
 void thread_communicator_allgather::operator()(const byte_t* send_buf,
                                                std::int64_t send_count,

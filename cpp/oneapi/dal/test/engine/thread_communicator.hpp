@@ -181,7 +181,7 @@ private:
     std::int64_t recv_count_;
     byte_t* recv_buf_;
 };
-
+/*
 class thread_communicator_allgatherv {
 public:
     explicit thread_communicator_allgatherv(thread_communicator_context& ctx)
@@ -204,6 +204,32 @@ private:
     const std::int64_t* recv_counts_;
     const std::int64_t* displs_;
     byte_t* recv_buf_;
+};
+*/
+
+class thread_communicator_allgatherv {
+public:
+    struct buffer_info {
+        const byte_t* buf = nullptr;
+        std::int64_t count = 0;
+    };
+
+    explicit thread_communicator_allgatherv(thread_communicator_context& ctx)
+            : ctx_(ctx),
+              barrier_(ctx),
+              send_buffers_(ctx_.get_thread_count()) {}
+
+    void operator()(const byte_t* send_buf,
+                    std::int64_t send_count,
+                    byte_t* recv_buf,
+                    const std::int64_t* recv_counts,
+                    const std::int64_t* displs,
+                    const data_type& dtype);
+
+private:
+    thread_communicator_context& ctx_;
+    thread_communicator_barrier barrier_;
+    std::vector<buffer_info> send_buffers_;
 };
 
 class thread_communicator_allreduce {
