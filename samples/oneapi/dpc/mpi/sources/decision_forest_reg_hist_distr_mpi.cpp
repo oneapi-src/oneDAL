@@ -23,7 +23,7 @@
 #define ONEDAL_DATA_PARALLEL
 #endif
 
-#include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/detail/mpi/communicator.hpp"
 #include "oneapi/dal/detail/spmd_policy.hpp"
 #include "oneapi/dal/io/csv.hpp"
@@ -31,39 +31,69 @@
 #include "utils.hpp"
 
 namespace dal = oneapi::dal;
+namespace df = dal::decision_forest;
 
 void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
   const auto train_data_file_name =
-      get_data_path("data/kmeans_dense_train_data.csv");
-  const auto initial_centroids_file_name =
-      get_data_path("data/kmeans_dense_train_centroids.csv");
+      get_data_path("df_regression_train_data.csv");
+  const auto train_response_file_name =
+      get_data_path("df_regression_train_label.csv");
+  const auto test_data_file_name = get_data_path("df_regression_test_data.csv");
+  const auto test_response_file_name =
+      get_data_path("df_regression_test_label.csv");
 
   const auto x_train = dal::read<dal::table>(
       policy.get_local(), dal::csv::data_source{train_data_file_name});
-  const auto initial_centroids = dal::read<dal::table>(
-      policy.get_local(), dal::csv::data_source{initial_centroids_file_name});
-
-  const auto kmeans_desc = dal::kmeans::descriptor<>()
-                               .set_cluster_count(20)
-                               .set_max_iteration_count(5)
-                               .set_accuracy_threshold(0.001);
+  const auto y_train = dal::read<dal::table>(
+      policy.get_local(), dal::csv::data_source{train_response_file_name});
+  const auto x_test = dal::read<dal::table>(
+      policy.get_local(), dal::csv::data_source{test_data_file_name});
+  const auto y_test = dal::read<dal::table>(
+      policy.get_local(), dal::csv::data_source{test_response_file_name});
 
   auto comm = policy.get_communicator();
   auto rank_id = comm.get_rank();
   auto rank_count = comm.get_rank_count();
 
-  auto input_vec =
+  auto x_train_vec =
       split_table_by_rows<float>(policy.get_local(), x_train, rank_count);
-  dal::kmeans::train_input local_input{input_vec[rank_id], initial_centroids};
+  auto y_train_vec =
+      split_table_by_rows<float>(policy.get_local(), y_train, rank_count);
+  auto x_test_vec =
+      split_table_by_rows<float>(policy.get_local(), x_test, rank_count);
+  auto y_test_vec =
+      split_table_by_rows<float>(policy.get_local(), y_test, rank_count);
 
-  const auto result_train = dal::train(policy, kmeans_desc, local_input);
+  const auto df_desc =
+      df::descriptor<float, df::method::hist, df::task::regression>{}
+          .set_tree_count(100)
+          .set_features_per_node(0)
+          .set_min_observations_in_leaf_node(1)
+          .set_error_metric_mode(
+              df::error_metric_mode::out_of_bag_error |
+              df::error_metric_mode::out_of_bag_error_per_observation)
+          .set_variable_importance_mode(df::variable_importance_mode::mdi);
+
+  const auto result_train =
+      dal::train(policy, df_desc, x_train_vec[rank_id], y_train_vec[rank_id]);
+
   if (comm.get_rank() == 0) {
-    std::cout << "Iteration count: " << result_train.get_iteration_count()
-              << std::endl;
-    std::cout << "Objective function value: "
-              << result_train.get_objective_function_value() << std::endl;
-    std::cout << "Centroids:\n"
-              << result_train.get_model().get_centroids() << std::endl;
+    std::cout << "Variable importance results:\n"
+              << result_train.get_var_importance() << std::endl;
+
+    std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
+    std::cout << "OOB error per observation:\n"
+              << result_train.get_oob_err_per_observation() << std::endl;
+  }
+
+  const auto result_infer = dal::infer(
+      policy, df_desc, result_train.get_model(), x_test_vec[rank_id]);
+
+  if (comm.get_rank() == 0) {
+    std::cout << "Prediction results:\n"
+              << result_infer.get_responses() << std::endl;
+
+    std::cout << "Ground truth:\n" << y_test << std::endl;
   }
 }
 

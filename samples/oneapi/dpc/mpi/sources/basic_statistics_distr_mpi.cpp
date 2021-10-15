@@ -23,7 +23,7 @@
 #define ONEDAL_DATA_PARALLEL
 #endif
 
-#include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/algo/basic_statistics.hpp"
 #include "oneapi/dal/detail/mpi/communicator.hpp"
 #include "oneapi/dal/detail/spmd_policy.hpp"
 #include "oneapi/dal/io/csv.hpp"
@@ -33,37 +33,35 @@
 namespace dal = oneapi::dal;
 
 void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
-  const auto train_data_file_name =
-      get_data_path("data/kmeans_dense_train_data.csv");
-  const auto initial_centroids_file_name =
-      get_data_path("data/kmeans_dense_train_centroids.csv");
+  const auto data_file_name = get_data_path("data/covcormoments_dense.csv");
 
-  const auto x_train = dal::read<dal::table>(
-      policy.get_local(), dal::csv::data_source{train_data_file_name});
-  const auto initial_centroids = dal::read<dal::table>(
-      policy.get_local(), dal::csv::data_source{initial_centroids_file_name});
+  const auto data = dal::read<dal::table>(
+      policy.get_local(), dal::csv::data_source{data_file_name});
 
-  const auto kmeans_desc = dal::kmeans::descriptor<>()
-                               .set_cluster_count(20)
-                               .set_max_iteration_count(5)
-                               .set_accuracy_threshold(0.001);
+  const auto bs_desc = dal::basic_statistics::descriptor{};
 
   auto comm = policy.get_communicator();
   auto rank_id = comm.get_rank();
   auto rank_count = comm.get_rank_count();
 
   auto input_vec =
-      split_table_by_rows<float>(policy.get_local(), x_train, rank_count);
-  dal::kmeans::train_input local_input{input_vec[rank_id], initial_centroids};
+      split_table_by_rows<float>(policy.get_local(), data, rank_count);
 
-  const auto result_train = dal::train(policy, kmeans_desc, local_input);
+  const auto result = dal::compute(policy, bs_desc, input_vec[rank_id]);
   if (comm.get_rank() == 0) {
-    std::cout << "Iteration count: " << result_train.get_iteration_count()
-              << std::endl;
-    std::cout << "Objective function value: "
-              << result_train.get_objective_function_value() << std::endl;
-    std::cout << "Centroids:\n"
-              << result_train.get_model().get_centroids() << std::endl;
+    std::cout << "Minimum:\n" << result.get_min() << std::endl;
+    std::cout << "Maximum:\n" << result.get_max() << std::endl;
+    std::cout << "Sum:\n" << result.get_sum() << std::endl;
+    std::cout << "Sum of squares:\n" << result.get_sum_squares() << std::endl;
+    std::cout << "Sum of squared difference from the means:\n"
+              << result.get_sum_squares_centered() << std::endl;
+    std::cout << "Mean:\n" << result.get_mean() << std::endl;
+    std::cout << "Second order raw moment:\n"
+              << result.get_second_order_raw_moment() << std::endl;
+    std::cout << "Variance:\n" << result.get_variance() << std::endl;
+    std::cout << "Standard deviation:\n"
+              << result.get_standard_deviation() << std::endl;
+    std::cout << "Variation:\n" << result.get_variation() << std::endl;
   }
 }
 
