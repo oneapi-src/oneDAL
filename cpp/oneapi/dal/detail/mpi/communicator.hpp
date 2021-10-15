@@ -179,7 +179,6 @@ public:
         recv_counts_int.reset(rank_count);
         displs_int.reset(rank_count);
 
-
         auto recv_counts_int_ptr = recv_counts_int.get_mutable_data();
         auto displs_int_ptr = displs_int.get_mutable_data();
 

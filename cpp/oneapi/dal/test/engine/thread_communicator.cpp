@@ -148,7 +148,8 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
         std::int64_t r = 0;
         for ([[maybe_unused]] const auto& send : send_buffers_) {
             const std::int64_t offset = dal::detail::check_mul_overflow(dtype_size, displs[r]);
-            const std::int64_t recv_size = dal::detail::check_mul_overflow(dtype_size, recv_counts[r]);
+            const std::int64_t recv_size =
+                dal::detail::check_mul_overflow(dtype_size, recv_counts[r]);
             for (std::int64_t i = 0; i < recv_size; i++) {
                 recv_buf[offset + i] = send.buf[i];
             }
@@ -161,7 +162,6 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
         send_buffers_.resize(ctx_.get_thread_count());
     });
 }
-
 
 void thread_communicator_allgather::operator()(const byte_t* send_buf,
                                                std::int64_t send_count,

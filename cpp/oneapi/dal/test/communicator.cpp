@@ -340,7 +340,7 @@ TEST_M(communicator_test, "allgather array", "[allgather]") {
     execute([&](std::int64_t rank) {
         const float* send_buf = send_full.get_data() + rank * count_per_rank;
         const auto send = array<float>::empty(count_per_rank);
-        for(std::int64_t i = 0; i < count_per_rank; i++)
+        for (std::int64_t i = 0; i < count_per_rank; i++)
             send.get_mutable_data()[i] = send_buf[i];
         const auto recv = array<float>::empty(comm.get_rank_count() * count_per_rank);
 
