@@ -26,7 +26,9 @@ QR decomposition accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for QR Decomposition without Pivoting (Batch and Online Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -37,7 +39,7 @@ For more details, see :ref:`algorithms`.
 
        - For batch processing: the entire :math:`n \times p` matrix :math:`X` to be factorized.
        - For online processing: the :math:`n_i \times p` submatrix of :math:`X` that represents
-         the current data block in the online processing mode. 
+         the current data block in the online processing mode.
          Note that each current data block must have sufficient size: :math:`n_i > p`.
 
        The input can be an object of any class derived from ``NumericTable``.
@@ -47,10 +49,13 @@ Algorithm Parameters
 
 QR decomposition has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for QR Decomposition without Pivoting (Batch and Online Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -69,15 +74,18 @@ QR decomposition calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for QR Decomposition without Pivoting (Batch and Online Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
    * - ``matrixQ``
-     - Pointer to the numeric table with the :math:`n \times p` matrix :math:`Q_1`. 
-       
+     - Pointer to the numeric table with the :math:`n \times p` matrix :math:`Q_1`.
+
        .. note::
            By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
            derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
@@ -85,7 +93,7 @@ For more details, see :ref:`algorithms`.
    * - ``matrixR``
      - Pointer to the numeric table with the :math:`p \times p` upper triangular matrix :math:`R_1`.
 
-       .. note:: 
+       .. note::
            By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
-           derived from ``NumericTable`` except the ``PackedSymmetricMatrix`` class, ``CSRNumericTable`` class, 
+           derived from ``NumericTable`` except the ``PackedSymmetricMatrix`` class, ``CSRNumericTable`` class,
            and ``PackedTriangularMatrix`` class with the ``lowerPackedTriangularMatrix`` layout.

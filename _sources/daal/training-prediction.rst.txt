@@ -36,16 +36,16 @@ Training and prediction algorithms in |full_name| (|short_name|) include a range
    algorithms/svm_multi_class/multi-class-classifier.rst
    algorithms/boosting/index.rst
 
-Unlike :ref:`analysis` algorithms, which are intended to characterize the structure of data sets, machine learning algorithms model the data. 
+Unlike :ref:`analysis` algorithms, which are intended to characterize the structure of data sets, machine learning algorithms model the data.
 Modeling operates in two major stages:
 
 - **Training**, when the algorithm estimates model parameters based on a training data set.
 - **Prediction or decision making**, when the algorithm uses the trained model to predict the outcome based on new data.
 
 Training is typically a lot more computationally complex problem than prediction.
-Therefore, certain end-to-end analytics usage scenarios require that training and prediction phases are done on different devices, 
-the training is done on more powerful devices, while prediction is done on smaller devices. 
-Because smaller devices may have stricter memory footprint requirements, 
+Therefore, certain end-to-end analytics usage scenarios require that training and prediction phases are done on different devices,
+the training is done on more powerful devices, while prediction is done on smaller devices.
+Because smaller devices may have stricter memory footprint requirements,
 |short_name| separates Training, Prediction, and respective Model in three different class hierarchies to minimize the footprint.
 
 Training Alternative
@@ -61,8 +61,9 @@ ready for the prediction stage.
 
 The following schema illustrates the use of Model Builder class:
 
-.. image:: images/model_builders.png
+.. figure:: images/model_builders.png
    :width: 600
+   :alt:
 
 The Model Builder class is implemented for the following algorithms:
 

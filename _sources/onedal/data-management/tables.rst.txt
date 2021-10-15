@@ -24,9 +24,12 @@ Tables
 
 This section describes the types related to the :txtref:`table` concept.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Table Types
    :header-rows: 1
    :widths: 10 70
+   :class: longtable
 
    * - Type
      - Description
@@ -52,16 +55,16 @@ Requirements on table types
 
 Each implementation of :txtref:`table` concept:
 
-1. Follows the definition of the :txtref:`table` concept and its restrictions
+#. Follows the definition of the :txtref:`table` concept and its restrictions
    (e.g., :capterm:`immutability`).
 
-2. Is derived from the :cpp:expr:`oneapi::dal::table` class. The behavior of this class can be
+#. Is derived from the :cpp:expr:`oneapi::dal::table` class. The behavior of this class can be
    extended, but cannot be weaken.
 
-3. Is :term:`reference-counted <Reference-counted object>`.
+#. Is :term:`reference-counted <Reference-counted object>`.
 
-4. Every new :cpp:expr:`oneapi::dal::table` sub-type defines a unique id number - the "kind"
-   that represents objects of that type in runtime.
+#. Defines a unique id number: the "kind" that represents objects of that
+   type in runtime.
 
 The following listing provides an example of table API to illustrate table kinds
 and copy-assignment operation:
@@ -94,7 +97,9 @@ Table types
 |short_name| defines a set of classes that implement the
 :txtref:`table` concept for a specific data format:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.3}|\Y{0.7}|
+
+.. list-table:: Table Types for specific data formats
    :header-rows: 1
    :widths: 30 70
 

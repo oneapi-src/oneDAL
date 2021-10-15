@@ -42,7 +42,9 @@ Pivoted QR decomposition accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input for Pivoted QR Decomposition (Batch Processing)
    :widths: 10 60
    :header-rows: 1
 
@@ -57,10 +59,13 @@ Algorithm Parameters
 
 Pivoted QR decomposition has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Pivoted QR Decomposition (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -73,7 +78,7 @@ Pivoted QR decomposition has the following parameters:
      - Performance-oriented computation method, the only method supported by the algorithm.
    * - ``permutedColumns``
      - Not applicable
-     - Pointer to the numeric table with the :math:`1 \times p` matrix with the information for the permutation: 
+     - Pointer to the numeric table with the :math:`1 \times p` matrix with the information for the permutation:
 
        - If the :math:`i`-th element is zero, the :math:`i`-th column of the input matrix is a free column
          and may be permuted with any other free column during the computation.
@@ -94,34 +99,37 @@ Pivoted QR decomposition calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Output for Pivoted QR Decomposition (Batch Processing)
    :widths: 10 60
    :header-rows: 1
+   :class: longtable
 
    * - Result ID
      - Result
    * - ``matrixQ``
-     - Pointer to the numeric table with the :math:`n \times p` matrix :math:`Q_1`. 
-       
+     - Pointer to the numeric table with the :math:`n \times p` matrix :math:`Q_1`.
+
        .. note::
            By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
            derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
    * - ``matrixR``
      - Pointer to the numeric table with the :math:`p \times p` upper triangular matrix :math:`R_1`.
-     
-       .. note:: 
+
+       .. note::
            By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
-           derived from ``NumericTable`` except the ``PackedSymmetricMatrix`` class, ``CSRNumericTable`` class, 
+           derived from ``NumericTable`` except the ``PackedSymmetricMatrix`` class, ``CSRNumericTable`` class,
            and ``PackedTriangularMatrix`` class with the ``lowerPackedTriangularMatrix`` layout.
 
    * - ``permutationMatrix``
      - Pointer to the numeric table with the :math:`1 \times p` matrix such that
        :math:`\text{permutationMatrix}(i) = k` if the column :math:`k` of the full matrix :math:`X` is permuted into the position :math:`i` in :math:`XP`.
 
-       .. note:: 
+       .. note::
            By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
-           derived from ``NumericTable`` except the ``PackedSymmetricMatrix`` class, ``CSRNumericTable`` class, 
+           derived from ``NumericTable`` except the ``PackedSymmetricMatrix`` class, ``CSRNumericTable`` class,
            and ``PackedTriangularMatrix`` class with the ``lowerPackedTriangularMatrix`` layout.
 
 Examples
@@ -136,7 +144,7 @@ Examples
     - :cpp_example:`pivoted_qr_dense_batch.cpp <pivoted_qr/pivoted_qr_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

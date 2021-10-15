@@ -37,7 +37,7 @@ from the tree. For more details, see [Breiman84]_ and [Breiman2001]_.
 
 .. toctree::
    :maxdepth: 1
-   
+
    decision-forest.rst
    decision-forest-regression
    decision-forest-classification

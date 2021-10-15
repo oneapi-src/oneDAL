@@ -34,12 +34,15 @@ In computation modes that permit multiple calls to the ``compute()`` method,
 ensure that the structure of the input data, that is, the number of features, their order, and type, is the same for all the calls.
 The following methods are available to provide input to an algorithm:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Algorithm Input
    :widths: 10 60
    :align: left
+   :class: longtable
 
    * - ``input.set(Input ID, InputData)``
-     - Use to set a pointer to the input argument with the ``Input ID`` identifier. 
+     - Use to set a pointer to the input argument with the ``Input ID`` identifier.
        This method overwrites the previous input pointer stored in the algorithm.
    * - ``input.add(Input ID, InputData)``
      - Use in the distributed computation mode to add the pointers with the ``Input ID`` identifier.

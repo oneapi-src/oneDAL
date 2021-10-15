@@ -136,7 +136,7 @@ Prediction Stage
 ----------------
 
 Given kNN classifier and query vectors :math:`x_0, \ldots, x_r`,
-the problem is to calculate the labels for those vectors. 
+the problem is to calculate the labels for those vectors.
 
 Prediction using K-D Tree
 +++++++++++++++++++++++++
@@ -176,10 +176,13 @@ For a description of the input and output, refer to Usage Model: Training and Pr
 At the training stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for k-Nearest Neighbors Classifier (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -199,9 +202,9 @@ following parameters:
      - A parameter to enable/disable use of the input data set in the kNN
        model. Possible values:
 
-        + ``doNotUse`` - the algorithm does not include the input data and labels
-          in the trained kNN model but creates a copy of the input data set.
-        + ``doUse`` - the algorithm includes the input data and labels in the trained kNN model.
+       + ``doNotUse`` - the algorithm does not include the input data and labels
+         in the trained kNN model but creates a copy of the input data set.
+       + ``doUse`` - the algorithm includes the input data and labels in the trained kNN model.
 
        K-D tree based kNN reorders feature vectors and corresponding labels in the
        input data set or its copy to improve performance at the prediction stage.
@@ -221,10 +224,13 @@ For a description of the input and output, refer to Usage Model: Training and Pr
 At the prediction stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Prediction Parameters for k-Nearest Neighbors Classifier (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -264,25 +270,28 @@ Output
 In addition to classifier output, kNN calculates the results described below.
 Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Output for k-Nearest Neighbors Classifier (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Result ID
      - Result
-   * - ``indices`` 
+   * - ``indices``
      - A numeric table :math:`n \times k` containing indices of rows from training dataset that are nearest neighbors computed when the ``computeIndicesOfNeigtbors`` option is on.
-     
+
        .. note::
-       
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``.
    * - ``distances``
      - A numeric table :math:`n \times k` containing distances to nearest neighbors computed when the ``computeDistances`` option is on.
-     
+
        .. note::
-          
+
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``.
 
@@ -296,7 +305,7 @@ Examples
     Batch Processing:
 
     - :ref:`dpc_knn_cls_brute_force_dense_batch.cpp`
-  
+
   .. tab:: oneAPI C++
 
     Batch Processing:
@@ -311,7 +320,7 @@ Examples
     - :cpp_example:`bf_knn_dense_batch.cpp <k_nearest_neighbors/bf_knn_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

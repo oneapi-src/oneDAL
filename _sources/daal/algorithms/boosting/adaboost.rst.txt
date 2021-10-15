@@ -26,7 +26,7 @@ For a multi-class case, use :ref:`svm_multi_class` framework of the library.
 Details
 *******
 
-Given :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p` 
+Given :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p`
 and a vector of class labels :math:`y= (y_1, \ldots, y_n)`, where :math:`y_i \in K = \{-1, 1\}`
 describes the class to which the feature vector :math:`x_i` belongs, and a weak learner algorithm,
 the problem is to build an AdaBoost classifier.
@@ -47,7 +47,7 @@ The following scheme shows the major steps of the algorithm:
 #. Output the final hypothesis:
 
    .. math::
-        H(x_i) = \mathrm{sign} \left( \sum _{t=1}^{T} \alpha_t h_t(x_i)\right) 
+        H(x_i) = \mathrm{sign} \left( \sum _{t=1}^{T} \alpha_t h_t(x_i)\right)
 
 Prediction Stage
 ----------------
@@ -69,10 +69,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the training stage, an AdaBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for AdaBoost Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -104,10 +107,13 @@ For a description of the input and output, refer to :ref:`classification_usage_m
 
 At the prediction stage, an AdaBoost classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for AdaBoost Classifier (Batch Processing)
    :header-rows: 1
    :widths: 10 20 30
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -120,7 +126,7 @@ At the prediction stage, an AdaBoost classifier has the following parameters:
      - Performance-oriented computation method, the only method supported by the AdaBoost classifier at the prediction stage.
    * - ``weakLearnerPrediction``
      - Pointer to an object of the stump prediction class
-     - Pointer to the prediction algorithm of the weak learner. By default, a stump weak learner is used.       
+     - Pointer to the prediction algorithm of the weak learner. By default, a stump weak learner is used.
 
 Examples
 ********
@@ -134,7 +140,7 @@ Examples
     - :cpp_example:`adaboost_dense_batch.cpp <boosting/adaboost_dense_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

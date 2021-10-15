@@ -21,7 +21,7 @@ DPC++ examples for |short_name| might not work in Visual Studio 2017 by default.
 
 .. code-block:: text
 
-    The Windows SDK version 10.0 was not found. Install the required version of Windows SDK or change the SDK version 
+    The Windows SDK version 10.0 was not found. Install the required version of Windows SDK or change the SDK version
     in the project property pages or by right-clicking the solution and selecting "Retarget solution".
  
 How to Fix
