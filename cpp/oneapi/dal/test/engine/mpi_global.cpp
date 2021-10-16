@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/test/engine/spmd.hpp"
-#include "oneapi/dal/detail/mpi/communicator.hpp"
+#include "oneapi/dal/spmd/mpi/communicator.hpp"
 
 namespace oneapi::dal::test::engine {
 

@@ -53,9 +53,9 @@ inline MPI_Datatype make_mpi_data_type(const data_type& dtype) {
 
 inline MPI_Op make_mpi_reduce_op(const preview::spmd::reduce_op& op) {
     switch (op) {
-        case spmd_reduce_op::max: return MPI_MAX;
-        case spmd_reduce_op::min: return MPI_MIN;
-        case spmd_reduce_op::sum: return MPI_SUM;
+        case spmd::reduce_op::max: return MPI_MAX;
+        case spmd::reduce_op::min: return MPI_MIN;
+        case spmd::reduce_op::sum: return MPI_SUM;
         default: ONEDAL_ASSERT(!"Unknown reduce operation");
     }
     return MPI_OP_NULL;
@@ -193,41 +193,15 @@ public:
         }
 
         MPI_Request mpi_request;
-        mpi_call(MPI_Igatherv(send_buf,
+        mpi_call(MPI_Iallgatherv(send_buf,
                               integral_cast<int>(send_count),
                               make_mpi_data_type(dtype),
                               recv_buf,
                               recv_counts_int.get_data(),
                               displs_int.get_data(),
                               make_mpi_data_type(dtype),
-                              integral_cast<int>(root),
                               mpi_comm_,
                               &mpi_request));
-
-        return new mpi_request_impl{ mpi_request };
-    }
-
-    spmd_request_iface* allgather(const byte_t* send_buf,
-                                  std::int64_t send_count,
-                                  byte_t* recv_buf,
-                                  std::int64_t recv_count,
-                                  const data_type& dtype) override {
-        if (send_count == 0) {
-            return nullptr;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(recv_buf);
-
-        MPI_Request mpi_request;
-        mpi_call(MPI_Allgatherv(send_buf,
-                                integral_cast<int>(send_count),
-                                make_mpi_data_type(dtype),
-                                recv_buf,
-                                recv_counts_int.get_data(),
-                                displs_int.get_data(),
-                                make_mpi_data_type(dtype),
-                                mpi_comm_));
 
         return new mpi_request_impl{ mpi_request };
     }
