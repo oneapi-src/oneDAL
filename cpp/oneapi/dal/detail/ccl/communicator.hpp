@@ -24,6 +24,7 @@
 // TODO: In the future this can be solved via __has_include C++17 feature
 
 #include <oneapi/dal/array.hpp>
+//#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 #include <mpi.h>
 #include <ccl.hpp>
@@ -138,8 +139,8 @@ public:
                                const data_type& dtype,
                                const std::vector<sycl::event>& deps,
                                std::int64_t root) override {
-        check_if_pointer_matches_queue(queue_, send_buf);
-        check_if_pointer_matches_queue(q, send_buf);
+        preview::detail::check_if_pointer_matches_queue(queue_, send_buf);
+        preview::detail::check_if_pointer_matches_queue(q, send_buf);
         ONEDAL_ASSERT(root >= 0);
 
         if (count == 0) {
@@ -169,8 +170,8 @@ public:
                                     const std::int64_t* displs_host,
                                     const data_type& dtype,
                                     const std::vector<sycl::event>& deps = {}) override {
-        check_if_pointer_matches_queue(queue_, send_buf);
-        check_if_pointer_matches_queue(queue_, recv_buf);
+        preview::detail::check_if_pointer_matches_queue(queue_, send_buf);
+        preview::detail::check_if_pointer_matches_queue(queue_, recv_buf);
         if (send_count == 0) {
             return nullptr;
         }
@@ -201,8 +202,8 @@ public:
                                    const data_type& dtype,
                                    const spmd::reduce_op& op = spmd::reduce_op::sum,
                                    const std::vector<sycl::event>& deps = {}) override {
-        check_if_pointer_matches_queue(queue_, send_buf);
-        check_if_pointer_matches_queue(queue_, recv_buf);
+        preview::detail::check_if_pointer_matches_queue(queue_, send_buf);
+        preview::detail::check_if_pointer_matches_queue(queue_, recv_buf);
         if (count == 0) {
             return nullptr;
         }

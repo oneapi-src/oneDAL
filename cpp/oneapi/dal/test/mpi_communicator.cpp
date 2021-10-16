@@ -77,27 +77,35 @@ public:
 #endif
 
     template <typename T>
-    void test_allgatherv(T* send_buffer, std::int64_t send_count, T* recv_buffer, std::int64_t* recv_counts, std::int64_t* displs) {
+    void test_allgatherv(T* send_buffer,
+                         std::int64_t send_count,
+                         T* recv_buffer,
+                         std::int64_t* recv_counts,
+                         std::int64_t* displs) {
         get_new_comm().allgatherv(send_buffer, send_count, recv_buffer, recv_counts, displs).wait();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
-    void test_allgatherv_on_device(T* send_buf, std::int64_t send_count, T* recv_buf, std::int64_t* recv_counts, std::int64_t* displs) {
+    void test_allgatherv_on_device(T* send_buf,
+                                   std::int64_t send_count,
+                                   T* recv_buf,
+                                   std::int64_t* recv_counts,
+                                   std::int64_t* displs) {
         auto comm = get_new_comm();
         auto send_buffer_device = copy_to_device(send_buf, send_count);
         std::int64_t total_count = 0;
-        for(std::int64_t i = 0; i < comm.get_rank_count(); i++) {
+        for (std::int64_t i = 0; i < comm.get_rank_count(); i++) {
             total_count += recv_counts[i];
         }
-        auto recv_buffer_device = array<T>::empty(get_queue(), total_count, sycl::usm::alloc::device);
-        comm
-            .allgatherv(get_queue(),
-                       send_buffer_device.get_mutable_data(),
-                       send_count,
-                       recv_buffer_device.get_mutable_data(),
-                       recv_counts,
-                       displs)
+        auto recv_buffer_device =
+            array<T>::empty(get_queue(), total_count, sycl::usm::alloc::device);
+        comm.allgatherv(get_queue(),
+                        send_buffer_device.get_mutable_data(),
+                        send_count,
+                        recv_buffer_device.get_mutable_data(),
+                        recv_counts,
+                        displs)
             .wait();
         copy_to_host(recv_buf, recv_buffer_device.get_data(), total_count);
     }
@@ -194,20 +202,28 @@ TEST_M(mpi_comm_test, "allgatherv") {
     std::vector<float> recv_buffer(total_size);
     std::vector<float> final_buffer(total_size);
     std::int64_t offset = 0;
-    for(std::int64_t i = 0; i < rank_count; i++) {
-        for(std::int64_t j = 0; j < recv_counts[i]; j++) {
+    for (std::int64_t i = 0; i < rank_count; i++) {
+        for (std::int64_t j = 0; j < recv_counts[i]; j++) {
             final_buffer[offset] = float(i);
             offset++;
         }
     }
 
     SECTION("host") {
-        test_allgatherv(send_buffer.data(), rank_size, recv_buffer.data(), recv_counts.data(), displs.data());
+        test_allgatherv(send_buffer.data(),
+                        rank_size,
+                        recv_buffer.data(),
+                        recv_counts.data(),
+                        displs.data());
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     SECTION("device") {
-        test_allgatherv_on_device(send_buffer.data(), rank_size, recv_buffer.data(), recv_counts.data(), displs.data());
+        test_allgatherv_on_device(send_buffer.data(),
+                                  rank_size,
+                                  recv_buffer.data(),
+                                  recv_counts.data(),
+                                  displs.data());
     }
 #endif
 

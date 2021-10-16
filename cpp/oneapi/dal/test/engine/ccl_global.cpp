@@ -17,8 +17,7 @@
 #ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/test/engine/spmd.hpp"
-#include "oneapi/dal/detail/ccl/communicator.hpp"
-#include <memory>
+#include "oneapi/dal/spmd/ccl/communicator.hpp"
 
 namespace oneapi::dal::test::engine {
 

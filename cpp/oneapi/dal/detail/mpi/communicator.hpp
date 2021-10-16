@@ -194,14 +194,14 @@ public:
 
         MPI_Request mpi_request;
         mpi_call(MPI_Iallgatherv(send_buf,
-                              integral_cast<int>(send_count),
-                              make_mpi_data_type(dtype),
-                              recv_buf,
-                              recv_counts_int.get_data(),
-                              displs_int.get_data(),
-                              make_mpi_data_type(dtype),
-                              mpi_comm_,
-                              &mpi_request));
+                                 integral_cast<int>(send_count),
+                                 make_mpi_data_type(dtype),
+                                 recv_buf,
+                                 recv_counts_int.get_data(),
+                                 displs_int.get_data(),
+                                 make_mpi_data_type(dtype),
+                                 mpi_comm_,
+                                 &mpi_request));
 
         return new mpi_request_impl{ mpi_request };
     }
