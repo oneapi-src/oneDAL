@@ -46,6 +46,31 @@ public:
                                    std::int64_t k,
                                    ndview<std::int32_t, 2>& column_indices,
                                    const event_vector& deps = {}) = 0;
+
+    /*virtual sycl::event select_sq_l2(sycl::queue& queue,
+                                     const ndview<Float, 1>& n1,
+                                     const ndview<Float, 1>& n2,
+                                     const ndview<Float, 2>& ip,
+                                     std::int64_t k,
+                                     ndview<Float, 2>& selection,
+                                     ndview<std::int32_t, 2>& column_indices,
+                                     const event_vector& deps = {}) = 0;
+
+    virtual sycl::event select_sq_l2(sycl::queue& queue,
+                                     const ndview<Float, 1>& n1,
+                                     const ndview<Float, 1>& n2,
+                                     const ndview<Float, 2>& ip,
+                                     std::int64_t k,
+                                     ndview<Float, 2>& selection,
+                                     const event_vector& deps = {}) = 0;
+
+    virtual sycl::event select_sq_l2(sycl::queue& queue,
+                                     const ndview<Float, 1>& n1,
+                                     const ndview<Float, 1>& n2,
+                                     const ndview<Float, 2>& ip,
+                                     std::int64_t k,
+                                     ndview<std::int32_t, 2>& column_indices,
+                                     const event_vector& deps = {}) = 0;*/
 };
 
 inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
