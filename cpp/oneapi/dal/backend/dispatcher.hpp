@@ -34,8 +34,6 @@
 #define KERNEL_UNIVERSAL_SPMD_GPU(...) \
     KERNEL_SPEC(::oneapi::dal::backend::universal_spmd_gpu_kernel, __VA_ARGS__)
 
-namespace ps = oneapi::dal::preview::spmd;
-
 namespace oneapi::dal::backend {
 
 detail::cpu_extension detect_top_cpu_extension();

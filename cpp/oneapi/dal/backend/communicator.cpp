@@ -17,8 +17,6 @@
 #include "oneapi/dal/backend/communicator.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 
-namespace ps = oneapi::dal::preview::spmd;
-
 namespace oneapi::dal::backend {
 
 inline void copy_if_different_pointers(byte_t* dst,

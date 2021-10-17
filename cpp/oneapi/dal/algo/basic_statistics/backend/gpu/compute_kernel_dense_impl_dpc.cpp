@@ -46,7 +46,6 @@ namespace oneapi::dal::basic_statistics::backend {
 namespace de = dal::detail;
 namespace be = dal::backend;
 namespace pr = dal::backend::primitives;
-namespace ps = oneapi::dal::preview::spmd;
 
 using alloc = sycl::usm::alloc;
 

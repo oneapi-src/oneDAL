@@ -22,7 +22,6 @@ namespace spmd = oneapi::dal::preview::spmd;
 namespace oneapi::dal::test {
 
 namespace te = dal::test::engine;
-namespace ps = oneapi::dal::preview::spmd;
 
 class mpi_comm_test : public te::policy_fixture {
 public:
