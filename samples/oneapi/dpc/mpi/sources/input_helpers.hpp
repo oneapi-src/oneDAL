@@ -16,57 +16,56 @@
 
 #pragma once
 
-#include <fstream>
-#include <string>
 #include <vector>
+#include <string>
+#include <fstream>
 
-#include "oneapi/dal/detail/spmd_policy.hpp"
+#include <CL/sycl.hpp>
 #include "oneapi/dal/table/row_accessor.hpp"
 
-inline bool check_file(const std::string &name) {
-  return std::ifstream{name}.good();
+namespace dal = oneapi::dal;
+
+inline bool check_file(const std::string& name) {
+    return std::ifstream{ name }.good();
 }
 
-inline std::string get_data_path(const std::string &name) {
-  const std::vector<std::string> paths = {"./data",
-                                          "samples/oneapi/dpc/mpi/data"};
+inline std::string get_data_path(const std::string& name) {
+    const std::vector<std::string> paths = { "./data", "samples/oneapi/dpc/mpi/data" };
 
-  for (const auto &path : paths) {
-    const std::string try_path = path + "/" + name;
-    if (check_file(try_path)) {
-      return try_path;
+    for (const auto& path : paths) {
+        const std::string try_path = path + "/" + name;
+        if (check_file(try_path)) {
+            return try_path;
+        }
     }
-  }
 
-  return name;
+    return name;
 }
 
 template <typename Float>
-std::vector<oneapi::dal::table>
-split_table_by_rows(const oneapi::dal::detail::data_parallel_policy &p,
-                    const oneapi::dal::table &t, std::int64_t split_count) {
-  ONEDAL_ASSERT(split_count > 0);
-  ONEDAL_ASSERT(split_count <= t.get_row_count());
+std::vector<dal::table> split_table_by_rows(sycl::queue& queue,
+                                            const dal::table& t,
+                                            std::int64_t split_count) {
+    ONEDAL_ASSERT(split_count > 0);
+    ONEDAL_ASSERT(split_count <= t.get_row_count());
 
-  const std::int64_t row_count = t.get_row_count();
-  const std::int64_t column_count = t.get_column_count();
-  const std::int64_t block_size_regular =
-      row_count / split_count + bool(row_count % split_count);
+    const std::int64_t row_count = t.get_row_count();
+    const std::int64_t column_count = t.get_column_count();
+    const std::int64_t block_size_regular = row_count / split_count;
+    const std::int64_t block_size_tail = row_count % split_count;
 
-  std::vector<oneapi::dal::table> result(split_count);
+    std::vector<dal::table> result(split_count);
 
-  for (std::int64_t i = 0; i < split_count; i++) {
-    const std::int64_t block_start = i * block_size_regular;
-    std::int64_t block_end =
-        std::min(block_start + block_size_regular, row_count);
-    const std::int64_t block_size = block_end - block_start;
+    std::int64_t row_offset = 0;
+    for (std::int64_t i = 0; i < split_count; i++) {
+        const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
+        const std::int64_t block_size = block_size_regular + tail;
 
-    const auto row_range = oneapi::dal::range{block_start, block_end};
-    const auto block = oneapi::dal::row_accessor<const Float>{t}.pull(
-        p.get_queue(), row_range, sycl::usm::alloc::device);
-    result[i] =
-        oneapi::dal::homogen_table::wrap(block, block_size, column_count);
-  }
+        const auto row_range = dal::range{ row_offset, row_offset + block_size };
+        const auto block = dal::row_accessor<const Float>{ t }.pull(queue, row_range, sycl::usm::alloc::device);
+        result[i] = dal::homogen_table::wrap(block, block_size, column_count);
+        row_offset += block_size;
+    }
 
-  return result;
+    return result;
 }
