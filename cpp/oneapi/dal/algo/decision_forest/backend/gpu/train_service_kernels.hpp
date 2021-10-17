@@ -82,6 +82,7 @@ public:
     sycl::event initialize_tree_order(pr::ndarray<Index, 1>& tree_order,
                                       Index tree_count,
                                       Index row_count,
+                                      Index stride,
                                       const bk::event_vector& deps = {});
 
     sycl::event update_mdi_var_importance(const pr::ndarray<Index, 1>& node_list,
@@ -93,18 +94,20 @@ public:
 
     sycl::event mark_present_rows(const pr::ndarray<Index, 1>& row_list,
                                   pr::ndarray<Index, 1>& row_buffer,
-                                  Index row_count,
-                                  Index tree_count,
-                                  Index tree_idx,
+                                  Index global_row_count,
+                                  Index block_row_count,
+                                  Index node_row_count,
+                                  Index node_count,
+                                  Index node_idx,
                                   Index krn_local_size,
                                   Index sbg_sum_count,
                                   const bk::event_vector& deps = {});
 
     sycl::event count_absent_rows_for_blocks(const pr::ndarray<Index, 1>& row_buffer,
                                              pr::ndarray<Index, 1>& part_sum_list,
-                                             Index row_count,
-                                             Index tree_count,
-                                             Index tree_idx,
+                                             Index block_row_count,
+                                             Index node_count,
+                                             Index node_idx,
                                              Index krn_local_size,
                                              Index sbg_sum_count,
                                              const bk::event_vector& deps = {});
@@ -112,8 +115,8 @@ public:
     sycl::event count_absent_rows_total(const pr::ndarray<Index, 1>& part_sum_list,
                                         pr::ndarray<Index, 1>& part_pref_sum_list,
                                         pr::ndarray<Index, 1>& oob_rows_num_list,
-                                        Index tree_count,
-                                        Index tree,
+                                        Index node_count,
+                                        Index node_idx,
                                         Index krn_local_size,
                                         Index sbg_sum_count,
                                         const bk::event_vector& deps = {});
@@ -122,19 +125,21 @@ public:
                                              const pr::ndarray<Index, 1>& part_pref_sum_list,
                                              const pr::ndarray<Index, 1>& oob_row_num_list,
                                              pr::ndarray<Index, 1>& oob_row_list,
-                                             Index row_count,
-                                             Index tree_count,
-                                             Index tree,
+                                             Index block_row_count,
+                                             Index node_count,
+                                             Index node_idx,
                                              Index total_oob_row_num,
                                              Index krn_local_size,
                                              Index sbg_sum_count,
                                              const bk::event_vector& deps = {});
 
     sycl::event get_oob_row_list(const pr::ndarray<Index, 1>& row_list,
+                                 const pr::ndarray<Index, 1>& node_list,
                                  pr::ndarray<Index, 1>& oob_row_count_list,
                                  pr::ndarray<Index, 1>& oob_row_list,
-                                 Index row_count,
-                                 Index tree_count,
+                                 Index global_row_count,
+                                 Index block_row_count,
+                                 Index node_count,
                                  const bk::event_vector& deps = {});
 
 private:
