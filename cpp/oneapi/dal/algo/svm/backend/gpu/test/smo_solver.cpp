@@ -45,7 +45,8 @@ public:
                          const std::int64_t column_count,
                          const std::int64_t expected_inner_iter_count,
                          const Float expected_f_diff,
-                         const Float expected_objective_func) {
+                         const std::vector<Float>& expected_alpha,
+                         const std::vector<Float>& expected_delta_alpha) {
         auto& q = this->get_queue();
 
         INFO("compute kernel function values");
@@ -80,6 +81,7 @@ public:
                          kernel_values_nd,
                          ws_indices_nd,
                          y_nd,
+                         f_nd,
                          row_count,
                          row_count,
                          max_inner_iter,
@@ -88,14 +90,16 @@ public:
                          tau,
                          alpha_nd,
                          delta_alpha_nd,
-                         f_nd,
                          f_diff_nd,
                          inner_iter_count_nd,
                          { invert_y_event, alpha_event })
             .wait_and_throw();
 
-        INFO("check if objective function is expected");
-        check_objective_function(y, alpha_nd, f_nd, expected_objective_func);
+        INFO("check if alpha is expected");
+        check_ndarray(alpha_nd, expected_alpha);
+
+        INFO("check if delta alpha is expected");
+        check_ndarray(delta_alpha_nd, expected_delta_alpha);
 
         INFO("check if f diff is expected");
         check_f_diff(f_diff_nd, expected_f_diff);
@@ -104,27 +108,17 @@ public:
         check_inner_iter_count(inner_iter_count_nd, expected_inner_iter_count);
     }
 
-    void check_objective_function(const std::vector<Float>& y,
-                                  const pr::ndarray<Float, 1>& alpha_nd,
-                                  const pr::ndarray<Float, 1>& f_nd,
-                                  const Float expected_objective_func) {
-        auto& q = this->get_queue();
+    void check_ndarray(const pr::ndarray<Float, 1>& res, const std::vector<Float>& expected_res) {
+        auto row_count = res.get_count();
 
-        const auto alpha_arr = alpha_nd.flatten(q);
-        const auto alpha_mat_host = la::matrix<Float>::wrap(alpha_arr).to_host();
-        const auto alpha_arr_host = alpha_mat_host.get_array();
+        const auto res_host = res.to_host(this->get_queue());
+        auto expected_res_host = pr::ndarray<Float, 1>::wrap(expected_res.data(), row_count);
+        const Float* res_ptr = res_host.get_data();
+        const Float* expected_res_ptr = expected_res_host.get_data();
 
-        const auto f_arr = f_nd.flatten(q);
-        const auto f_mat_host = la::matrix<Float>::wrap(f_arr).to_host();
-        const auto f_arr_host = f_mat_host.get_array();
-
-        Float objective = 0;
-
-        for (std::int64_t i = 0; i < alpha_nd.get_count(); i++) {
-            objective += alpha_arr_host[i] - (f_arr_host[i] + y[i]) * alpha_arr_host[i] * y[i] / 2;
+        for (std::int64_t el = 0; el < row_count; el++) {
+            REQUIRE(fabs(res_ptr[el] - expected_res_ptr[el]) < 1.0e-3);
         }
-
-        REQUIRE(fabs(expected_objective_func + objective) < 1e-3);
     }
 
     void check_f_diff(const pr::ndarray<Float, 1>& f_diff_nd, const Float expected_f_diff) {
@@ -134,7 +128,7 @@ public:
         const auto f_diff_mat_host = la::matrix<Float>::wrap(f_diff_arr).to_host();
         const auto f_diff_arr_host = f_diff_mat_host.get_array();
 
-        REQUIRE(fabs(expected_f_diff - f_diff_arr_host[0]) < 1e-3);
+        REQUIRE(fabs(expected_f_diff - f_diff_arr_host[0]) < 1.0e-3);
     }
 
     void check_inner_iter_count(const pr::ndarray<std::uint32_t, 1>& inner_iter_count_nd,
@@ -179,7 +173,12 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
     constexpr std::int64_t max_inner_iter = 100;
     constexpr std::int64_t expected_inner_iter_count = 5;
     constexpr float_t expected_f_diff = 2.0;
-    constexpr float_t expected_objective_func = -73.801;
+
+    const std::vector<float_t> expected_alpha = { 10, 0,  0,  10, 10, 0, 10, 0,
+                                                  10, 10, 10, 10, 10, 0, 0,  10 };
+
+    const std::vector<float_t> expected_delta_alpha = { 10,  0,  0,  -10, -10, -0, -10, 0,
+                                                        -10, 10, 10, 10,  10,  -0, 0,   -10 };
 
     this->test_smo_solver(x,
                           y,
@@ -191,7 +190,8 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
                           column_count,
                           expected_inner_iter_count,
                           expected_f_diff,
-                          expected_objective_func);
+                          expected_alpha,
+                          expected_delta_alpha);
 }
 
 TEMPLATE_LIST_TEST_M(smo_solver_test,
@@ -223,7 +223,13 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
     constexpr std::int64_t max_inner_iter = 1000;
     constexpr std::int64_t expected_inner_iter_count = 17;
     constexpr float_t expected_f_diff = 2.0;
-    constexpr float_t expected_objective_func = -12.1322;
+
+    const std::vector<float_t> expected_alpha = { 0, 0, 0, 0, 1.15481, 0.658399, 0, 3,
+                                                  3, 0, 0, 3, 0,       0,        0, 2.50359 };
+
+    const std::vector<float_t> expected_delta_alpha = { 0,  0,  0,  -0,      -1.15481, 0.658399,
+                                                        0,  3,  3,  0,       0,        -3,
+                                                        -0, -0, -0, -2.50359 };
 
     this->test_smo_solver(x,
                           y,
@@ -235,7 +241,8 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
                           column_count,
                           expected_inner_iter_count,
                           expected_f_diff,
-                          expected_objective_func);
+                          expected_alpha,
+                          expected_delta_alpha);
 }
 
 TEMPLATE_LIST_TEST_M(smo_solver_test,
@@ -265,7 +272,12 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
     constexpr std::int64_t max_inner_iter = 117;
     constexpr std::int64_t expected_inner_iter_count = 117;
     constexpr float_t expected_f_diff = 2.0;
-    constexpr float_t expected_objective_func = -157.638;
+
+    const std::vector<float_t> expected_alpha = { 0,   0, 76.8432, 23.1569, 0, 0, 0, 0,
+                                                  100, 0, 0,       0,       0, 0, 0, 0 };
+
+    const std::vector<float_t> expected_delta_alpha = { 0,   0, -76.8432, -23.1569, -0, -0, 0,  -0,
+                                                        100, 0, 0,        0,        -0, -0, -0, 0 };
 
     this->test_smo_solver(x,
                           y,
@@ -277,7 +289,8 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
                           column_count,
                           expected_inner_iter_count,
                           expected_f_diff,
-                          expected_objective_func);
+                          expected_alpha,
+                          expected_delta_alpha);
 }
 
 } // namespace oneapi::dal::svm::backend::test

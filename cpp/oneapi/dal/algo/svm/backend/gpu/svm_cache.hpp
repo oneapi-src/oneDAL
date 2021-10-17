@@ -67,12 +67,13 @@ public:
                                      const pr::ndview<std::uint32_t, 1>& ws_indices,
                                      const std::int64_t subset_vectors_count,
                                      const pr::ndview<Float, 2>& x) override {
-        return copy_by_indices(q,
-                               x,
-                               ws_indices,
-                               this->data_nd_,
-                               subset_vectors_count,
-                               x.get_dimension(1));
+        auto event = copy_by_indices(q,
+                                     x,
+                                     ws_indices,
+                                     this->data_nd_,
+                                     subset_vectors_count,
+                                     x.get_dimension(1));
+        return event;
     }
 };
 

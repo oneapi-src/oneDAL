@@ -52,10 +52,10 @@ sycl::event check_coeffs_border(sycl::queue& q,
 template <typename Float>
 Float compute_bias(sycl::queue& q,
                    const pr::ndview<Float, 1>& labels,
-                   const pr::ndview<Float, 1>& f,
-                   const pr::ndview<Float, 1>& coeffs,
-                   pr::ndview<Float, 1>& tmp_values,
-                   pr::ndview<std::uint8_t, 1>& indicator,
+                   const pr::ndarray<Float, 1>& f,
+                   const pr::ndarray<Float, 1>& coeffs,
+                   pr::ndarray<Float, 1>& tmp_values,
+                   pr::ndarray<std::uint8_t, 1>& indicator,
                    const Float C) {
     Float bias = 0;
     auto reduce_res = pr::ndarray<Float, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
@@ -64,6 +64,7 @@ Float compute_bias(sycl::queue& q,
     std::int64_t free_sv_count = 0;
     auto check_coeffs_border_event = check_coeffs_border<Float>(q, coeffs, indicator, C);
     auto select_flagged = pr::select_flagged<Float, std::uint8_t>{ q };
+
     select_flagged(indicator, f, tmp_values, free_sv_count, { check_coeffs_border_event })
         .wait_and_throw();
     if (free_sv_count > 0) {
@@ -241,11 +242,13 @@ template <typename Float>
 auto compute_train_results(sycl::queue& q,
                            const pr::ndview<Float, 2>& x,
                            const pr::ndview<Float, 1>& labels,
-                           const pr::ndview<Float, 1>& f,
-                           pr::ndview<Float, 1>& coeffs,
+                           const pr::ndarray<Float, 1>& f,
+                           pr::ndarray<Float, 1>& coeffs,
                            const Float C) {
     auto row_count = labels.get_dimension(0);
-    auto tmp_values = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+    auto [tmp_values, tmp_values_event] =
+        pr::ndarray<Float, 1>::zeros(q, { row_count }, sycl::usm::alloc::device);
+    tmp_values_event.wait_and_throw();
     auto indicator =
         pr::ndarray<std::uint8_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
 
@@ -267,7 +270,6 @@ auto compute_train_results(sycl::queue& q,
                                        { compute_support_indices_event });
 
     return std::make_tuple(bias,
-                           //coeffs,
                            sv_coeffs,
                            support_indices,
                            support_vectors,

@@ -81,7 +81,7 @@ public:
         check_train_result(train_data, train_result, support_vector_count, support_indices);
 
         INFO("run inference");
-        const auto infer_result = infer(desc, model, train_data);
+        const auto infer_result = this->infer(desc, model, train_data);
         check_infer_result(train_data, infer_result, decision_function, responses);
     }
 
@@ -121,7 +121,7 @@ public:
         check_train_result(train_data, train_result, support_vector_count, support_indices);
 
         INFO("run inference");
-        const auto infer_result = infer(desc, model, test_data);
+        const auto infer_result = this->infer(desc, model, test_data);
         const auto decision_function = infer_result.get_decision_function();
 
         INFO("check if decision fuction is expected")
@@ -238,7 +238,7 @@ public:
         check_nans(train_result);
 
         INFO("run inference");
-        const auto infer_result = infer(desc, model, test_data);
+        const auto infer_result = this->infer(desc, model, test_data);
         check_shapes(test_data, infer_result);
         check_nans(infer_result);
 

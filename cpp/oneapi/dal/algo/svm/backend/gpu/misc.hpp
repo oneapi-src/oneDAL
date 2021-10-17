@@ -97,12 +97,12 @@ auto copy_by_indices(sycl::queue& q,
     Float* res_ptr = res.get_mutable_data();
 
     return q.submit([&](sycl::handler& cgh) {
-        const auto range = dal::backend::make_multiple_nd_range_1d(column_count, row_count);
-        cgh.depends_on(deps);
+        const auto range = dal::backend::make_range_1d(column_count * row_count);
 
-        cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-            const std::uint32_t row_index = item.get_global_id(1);
-            const std::uint32_t col_index = item.get_global_id(0);
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            const std::uint32_t col_index = idx % column_count;
+            const std::uint32_t row_index = idx / column_count;
 
             const std::uint32_t row_x_index = x_indices_ptr[row_index];
 

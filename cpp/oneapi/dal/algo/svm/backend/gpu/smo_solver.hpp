@@ -53,10 +53,12 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
                            enumerate_value<Float>& result) {
     auto sg = item.get_sub_group();
 
+    const std::uint32_t local_id = item.get_local_id(0);
     const std::uint32_t wg_size = item.get_local_range()[0];
     const std::uint32_t sg_size = sg.get_local_range()[0];
     const std::uint32_t sg_count = wg_size / sg_size;
-    const std::uint32_t sg_id = sg.get_group_id();
+    const std::uint32_t sg_id = local_id / sg_size;
+    ;
     const std::uint32_t sg_local_id = sg.get_local_id();
 
     const std::uint32_t int_max = dal::detail::limits<std::uint32_t>::max();
@@ -111,6 +113,7 @@ sycl::event solve_smo(sycl::queue& queue,
                       const pr::ndview<Float, 2>& kernel_values,
                       const pr::ndview<std::uint32_t, 1>& ws_indices,
                       const pr::ndarray<Float, 1>& labels,
+                      const pr::ndview<Float, 1>& grad,
                       const std::int64_t row_count,
                       const std::int64_t ws_count,
                       const std::int64_t max_inner_iter,
@@ -119,7 +122,6 @@ sycl::event solve_smo(sycl::queue& queue,
                       const Float tau,
                       pr::ndview<Float, 1>& alpha,
                       pr::ndview<Float, 1>& delta_alpha,
-                      pr::ndview<Float, 1>& grad,
                       pr::ndview<Float, 1>& grad_diff,
                       pr::ndview<std::uint32_t, 1>& inner_iter_count,
                       const dal::backend::event_vector& deps = {}) {
@@ -140,9 +142,9 @@ sycl::event solve_smo(sycl::queue& queue,
     const Float* labels_ptr = labels.get_data();
     const Float* kernel_values_ptr = kernel_values.get_data();
     const std::uint32_t* ws_indices_ptr = ws_indices.get_data();
+    const Float* grad_ptr = grad.get_data();
     Float* alpha_ptr = alpha.get_mutable_data();
     Float* delta_alpha_ptr = delta_alpha.get_mutable_data();
-    Float* grad_ptr = grad.get_mutable_data();
     Float* grad_diff_ptr = grad_diff.get_mutable_data();
     std::uint32_t* inner_iter_count_ptr = inner_iter_count.get_mutable_data();
 
@@ -273,7 +275,6 @@ sycl::event solve_smo(sycl::queue& queue,
             }
             alpha_ptr[ws_index] = alpha_i;
             delta_alpha_ptr[i] = (alpha_i - old_alpha_i) * labels_i;
-            grad_ptr[ws_index] = grad_i;
             if (i == 0) {
                 inner_iter_count_ptr[0] = inner_iter;
             }

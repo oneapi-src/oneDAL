@@ -46,11 +46,31 @@ using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace pr = dal::backend::primitives;
 
+// template <typename Float>
+// void print_ndview(sycl::queue& q, const pr::ndarray<Float, 1>& f, std::string str) {
+//     auto host_ndarr = f.to_host(q);
+//     const Float* f_ptr = host_ndarr.get_data();
+//     std::cout << "Printing: " << str << "   : ";
+//     for (std::int64_t i = 0; i < f.get_dimension(0); i++)
+//         std::cout << static_cast<float>(f_ptr[i]) << " ";
+//     std::cout << std::endl;
+// }
+
+// template <typename Float>
+// void print_ndview_2d(sycl::queue& q, const pr::ndarray<Float, 2>& f, std::string str) {
+//     auto host_ndarr = f.to_host(q);
+//     const Float* f_ptr = host_ndarr.get_data();
+//     std::cout << "Printing: " << str << "   : ";
+//     for (std::int64_t i = 0; i < f.get_count(); i++)
+//         std::cout << static_cast<float>(f_ptr[i]) << " ";
+//     std::cout << std::endl;
+// }
+
 template <typename Float>
 inline auto update_grad(sycl::queue& q,
-                        const pr::ndview<Float, 2>& kernel_values_nd,
-                        const pr::ndview<Float, 1>& delta_alpha_nd,
-                        pr::ndview<Float, 1>& grad_nd) {
+                        const pr::ndarray<Float, 2>& kernel_values_nd,
+                        const pr::ndarray<Float, 1>& delta_alpha_nd,
+                        pr::ndarray<Float, 1>& grad_nd) {
     auto reshape_delta =
         delta_alpha_nd.reshape(pr::ndshape<2>{ delta_alpha_nd.get_dimension(0), 1 });
     auto reshape_grad = grad_nd.reshape(pr::ndshape<2>{ grad_nd.get_dimension(0), 1 });
@@ -86,7 +106,6 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     const auto responses = input.get_responses();
 
     const std::int64_t row_count = data.get_row_count();
-    // const std::int64_t column_count = data.get_column_count(); // unused
 
     const binary_response_t<Float> old_unique_responses = get_unique_responses<Float>(q, responses);
     const auto new_responses =
@@ -139,10 +158,8 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
     std::int64_t iter = 0;
     for (; iter < max_iteration_count; iter++) {
-        std::cout << "ITER COUNT " << iter << std::endl;
         if (iter != 0) {
             std::tie(ws_indices_copy_count, copy_event) = copy_last_to_first(q, ws_indices_nd);
-            // cache_nd copyLastToFirst() why does it needed?
         }
 
         auto select_ws_event = working_set.select(alpha_nd,
@@ -153,12 +170,14 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
         select_ws_event.wait_and_throw();
 
-        const auto kernel_values_nd = svm_cache_ptr->compute(ctx, kernel_ptr, data, data_nd, ws_indices_nd);
+        const auto kernel_values_nd =
+            svm_cache_ptr->compute(ctx, kernel_ptr, data, data_nd, ws_indices_nd);
 
         auto solve_smo_event = solve_smo<Float>(q,
                                                 kernel_values_nd,
                                                 ws_indices_nd,
                                                 responses_nd,
+                                                grad_nd,
                                                 row_count,
                                                 ws_count,
                                                 max_inner_iterations_count,
@@ -167,13 +186,11 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
                                                 tau,
                                                 alpha_nd,
                                                 delta_alpha_nd,
-                                                grad_nd,
                                                 f_diff_nd,
                                                 inner_iter_count_nd);
 
         auto f_diff_host = f_diff_nd.to_host(q, { solve_smo_event }).flatten();
-        diff = *f_diff_host.get_data(); // pay attention
-
+        diff = *f_diff_host.get_data();
         auto update_grad_event = update_grad(q, kernel_values_nd, delta_alpha_nd, grad_nd);
         update_grad_event.wait_and_throw();
         if (check_stop_condition<Float>(diff,

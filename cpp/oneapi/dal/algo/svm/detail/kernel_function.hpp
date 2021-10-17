@@ -33,8 +33,8 @@ public:
     virtual kernel_function_impl* get_impl() const = 0;
 #ifdef ONEDAL_DATA_PARALLEL
     virtual const table compute_kernel_function(const dal::backend::context_gpu& ctx,
-                                                 const table& x,
-                                                 const table& y) = 0;
+                                                const table& x,
+                                                const table& y) = 0;
 #endif
 };
 
@@ -67,8 +67,8 @@ public:
     kernel_function_impl* get_impl() const override;
 #ifdef ONEDAL_DATA_PARALLEL
     const table compute_kernel_function(const dal::backend::context_gpu& ctx,
-                                         const table& x,
-                                         const table& y) override;
+                                        const table& x,
+                                        const table& y) override;
 #endif
 
 private:
@@ -87,8 +87,8 @@ public:
     kernel_function_impl* get_impl() const override;
 #ifdef ONEDAL_DATA_PARALLEL
     const table compute_kernel_function(const dal::backend::context_gpu& ctx,
-                                         const table& x,
-                                         const table& y) override;
+                                        const table& x,
+                                        const table& y) override;
 #endif
 
 private:
@@ -107,8 +107,8 @@ public:
     kernel_function_impl* get_impl() const override;
 #ifdef ONEDAL_DATA_PARALLEL
     const table compute_kernel_function(const dal::backend::context_gpu& ctx,
-                                         const table& x,
-                                         const table& y) override;
+                                        const table& x,
+                                        const table& y) override;
 #endif
 
 private:
@@ -126,8 +126,8 @@ public:
     kernel_function_impl* get_impl() const override;
 #ifdef ONEDAL_DATA_PARALLEL
     const table compute_kernel_function(const dal::backend::context_gpu& ctx,
-                                         const table& x,
-                                         const table& y) override;
+                                        const table& x,
+                                        const table& y) override;
 #endif
 
 private:
