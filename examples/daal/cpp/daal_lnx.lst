@@ -186,4 +186,6 @@ DAAL  = assoc_rules_apriori_batch             \
         bernoulli_dense_batch                 \
         enable_thread_pinning                 \
         sgd_custom_obj_func_dense_batch       \
-        tsne_batch
+        tsne_batch                            \
+        tsne_batch1                           \
+        tsne_batch2

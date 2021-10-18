@@ -101,9 +101,9 @@ services::Status boundingBoxKernelImpl(DataType * posx, DataType * posy, const I
     daal::static_tls<DataType *> tlsBox([=]() {
         auto localBox = services::internal::service_malloc<DataType, cpu>(4);
         localBox[0]   = daal::services::internal::MaxVal<DataType>::get();
-        localBox[1]   = daal::services::internal::MinVal<DataType>::get();
+        localBox[1]   = -daal::services::internal::MaxVal<DataType>::get();
         localBox[2]   = daal::services::internal::MaxVal<DataType>::get();
-        localBox[3]   = daal::services::internal::MinVal<DataType>::get();
+        localBox[3]   = -daal::services::internal::MaxVal<DataType>::get();
         return localBox;
     });
     const IdxType nThreads    = tlsBox.nthreads();
@@ -364,7 +364,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             }
 
             count[k]         = cnt;
-            const DataType m = cm ? 1. / cm : 0.;
+            const DataType m = cm ? 1. / cm : 1.;
             posx[k]          = px * m;
             posy[k]          = py * m;
 
@@ -423,7 +423,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             }
 
             count[k]         = cnt;
-            const DataType m = 1. / cm;
+            const DataType m = cm ? 1. / cm : 1.;
             posx[k]          = px * m;
             posy[k]          = py * m;
             flag             = true;
@@ -824,7 +824,8 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const DataType * params = paramDataBlock.get();
     DAAL_CHECK_BLOCK_STATUS(paramDataBlock);
     DAAL_CHECK(paramTable->getNumberOfRows() == 4, daal::services::ErrorIncorrectSizeOfInputNumericTable);
-    const DataType eps         = 0.0025;
+    //const DataType eps         = 0.0025;
+    const DataType eps         = 0.000001;
     DataType momentum          = 0.5;
     DataType exaggeration      = params[0];
     const DataType eta         = params[1];

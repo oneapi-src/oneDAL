@@ -33,9 +33,10 @@ template <typename algorithmIdxType, typename algorithmFPType>
 void tsneGradientDescentDispImpl(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
                                  const NumericTablePtr paramTable, const NumericTablePtr resultTable)
 {
-#define DAAL_TSNE_GRADIENT_DESCENT_IMPL(cpuId, ...) tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, cpuId>(__VA_ARGS__);
-    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_TSNE_GRADIENT_DESCENT_IMPL, initTable, pTable, sizeIterTable, paramTable, resultTable);
-#undef DAAL_TSNE_GRADIENT_DESCENT_IMPL
+//#define DAAL_TSNE_GRADIENT_DESCENT_IMPL(cpuId, ...) tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, cpuId>(__VA_ARGS__);
+//    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_TSNE_GRADIENT_DESCENT_IMPL, initTable, pTable, sizeIterTable, paramTable, resultTable);
+//#undef DAAL_TSNE_GRADIENT_DESCENT_IMPL
+    tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, daal::CpuType::sse2>(initTable, pTable, sizeIterTable, paramTable, resultTable);
 }
 
 template <typename algorithmIdxType, typename algorithmFPType>
