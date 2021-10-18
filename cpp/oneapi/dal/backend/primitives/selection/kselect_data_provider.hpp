@@ -84,7 +84,7 @@ public:
         ONEDAL_ASSERT(n2.has_data());
         ONEDAL_ASSERT(ip.has_data());
         ONEDAL_ASSERT(n1.get_count() == ip.get_dimension(0));
-        ONEDAL_ASSERT(n1.get_count() == ip.get_dimension(1));
+        ONEDAL_ASSERT(n2.get_count() == ip.get_dimension(1));
         const auto* const n1_ptr = n1.get_data();
         const auto* const n2_ptr = n2.get_data();
         const auto* const ip_ptr = ip.get_data();
@@ -100,6 +100,7 @@ public:
         const auto& n2 = *(n2_ptr_ + col);
         const auto& ip = *(ip_ptr_ + row * ip_str_ + col);
         // L2 distance = inner product + norms #1 + norms #2
+        // inner product = -2 * qnorms * tnorms
         return n1 + n2 + ip;
     }
 
