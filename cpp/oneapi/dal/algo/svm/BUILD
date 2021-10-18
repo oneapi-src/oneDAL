@@ -13,6 +13,8 @@ dal_module(
         "@onedal//cpp/oneapi/dal/algo:polynomial_kernel",
         "@onedal//cpp/oneapi/dal/algo:rbf_kernel",
         "@onedal//cpp/oneapi/dal/algo:sigmoid_kernel",
+        "@onedal//cpp/oneapi/dal/backend/primitives:blas",
+        "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
         "@onedal//cpp/oneapi/dal/backend/primitives:sort",
         "@onedal//cpp/oneapi/dal/backend/primitives:selection",
     ],

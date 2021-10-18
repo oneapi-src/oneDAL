@@ -37,12 +37,12 @@ inline bool is_lower_edge(const Float y, const Float alpha, const Float C) {
 }
 
 template <typename Float>
-sycl::event check_violating_edge(sycl::queue& queue,
+sycl::event check_violating_edge(sycl::queue& q,
                                  const pr::ndview<Float, 1>& y,
                                  const pr::ndview<Float, 1>& alpha,
                                  pr::ndview<std::uint8_t, 1>& indicator,
                                  const Float C,
-                                 violating_edge edge,
+                                 const violating_edge edge,
                                  const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(y.get_dimension(0) == alpha.get_dimension(0));
     ONEDAL_ASSERT(alpha.get_dimension(0) == indicator.get_dimension(0));
@@ -54,13 +54,13 @@ sycl::event check_violating_edge(sycl::queue& queue,
 
     const std::int64_t row_count = y.get_dimension(0);
 
-    const auto wg_size = std::min(dal::backend::propose_wg_size(queue), row_count);
+    const auto wg_size = std::min(dal::backend::propose_wg_size(q), row_count);
     const auto range = dal::backend::make_multiple_nd_range_1d(row_count, wg_size);
 
     sycl::event check_event;
 
     if (edge == violating_edge::up) {
-        check_event = queue.submit([&](sycl::handler& cgh) {
+        check_event = q.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
 
             cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
@@ -70,7 +70,7 @@ sycl::event check_violating_edge(sycl::queue& queue,
         });
     }
     else {
-        check_event = queue.submit([&](sycl::handler& cgh) {
+        check_event = q.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
 
             cgh.parallel_for(range, [=](sycl::nd_item<1> item) {

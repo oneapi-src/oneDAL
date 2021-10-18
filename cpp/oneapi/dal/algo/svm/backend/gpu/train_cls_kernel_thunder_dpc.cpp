@@ -20,14 +20,6 @@
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/utils.hpp"
 
-// #include "oneapi/dal/backend/interop/common_dpc.hpp"
-// #include "oneapi/dal/backend/interop/error_converter.hpp"
-// #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
-#include "oneapi/dal/table/row_accessor.hpp"
-
-// #include <daal/src/algorithms/svm/oneapi/svm_train_thunder_kernel_oneapi.h>
-
 #include "oneapi/dal/algo/svm/backend/gpu/misc.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/svm_cache.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/train_results.hpp"
@@ -46,31 +38,11 @@ using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace pr = dal::backend::primitives;
 
-// template <typename Float>
-// void print_ndview(sycl::queue& q, const pr::ndarray<Float, 1>& f, std::string str) {
-//     auto host_ndarr = f.to_host(q);
-//     const Float* f_ptr = host_ndarr.get_data();
-//     std::cout << "Printing: " << str << "   : ";
-//     for (std::int64_t i = 0; i < f.get_dimension(0); i++)
-//         std::cout << static_cast<float>(f_ptr[i]) << " ";
-//     std::cout << std::endl;
-// }
-
-// template <typename Float>
-// void print_ndview_2d(sycl::queue& q, const pr::ndarray<Float, 2>& f, std::string str) {
-//     auto host_ndarr = f.to_host(q);
-//     const Float* f_ptr = host_ndarr.get_data();
-//     std::cout << "Printing: " << str << "   : ";
-//     for (std::int64_t i = 0; i < f.get_count(); i++)
-//         std::cout << static_cast<float>(f_ptr[i]) << " ";
-//     std::cout << std::endl;
-// }
-
 template <typename Float>
 inline auto update_grad(sycl::queue& q,
-                        const pr::ndarray<Float, 2>& kernel_values_nd,
-                        const pr::ndarray<Float, 1>& delta_alpha_nd,
-                        pr::ndarray<Float, 1>& grad_nd) {
+                        const pr::ndview<Float, 2>& kernel_values_nd,
+                        const pr::ndview<Float, 1>& delta_alpha_nd,
+                        pr::ndview<Float, 1>& grad_nd) {
     auto reshape_delta =
         delta_alpha_nd.reshape(pr::ndshape<2>{ delta_alpha_nd.get_dimension(0), 1 });
     auto reshape_grad = grad_nd.reshape(pr::ndshape<2>{ grad_nd.get_dimension(0), 1 });
@@ -136,7 +108,8 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         pr::ndarray<std::uint32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
     auto working_set = working_set_selector<Float>(q, responses_nd, C, row_count);
 
-    // The maximum numbers of iteration of the subtask is number of observation in WS x inner_iterations. It's enough to find minimum for subtask.
+    // The maximum numbers of iteration of the subtask is number of observation in WS x inner_iterations.
+    // It's enough to find minimum for subtask.
     constexpr std::int64_t inner_iterations = 1000;
     const std::int64_t max_inner_iterations_count(ws_count * inner_iterations);
 
@@ -162,13 +135,13 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
             std::tie(ws_indices_copy_count, copy_event) = copy_last_to_first(q, ws_indices_nd);
         }
 
-        auto select_ws_event = working_set.select(alpha_nd,
-                                                  grad_nd,
-                                                  ws_indices_nd,
-                                                  ws_indices_copy_count,
-                                                  { alpha_zeros_event, invert_responses_event });
-
-        select_ws_event.wait_and_throw();
+        working_set
+            .select(alpha_nd,
+                    grad_nd,
+                    ws_indices_nd,
+                    ws_indices_copy_count,
+                    { alpha_zeros_event, invert_responses_event, copy_event })
+            .wait_and_throw();
 
         const auto kernel_values_nd =
             svm_cache_ptr->compute(ctx, kernel_ptr, data, data_nd, ws_indices_nd);
@@ -191,8 +164,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
         auto f_diff_host = f_diff_nd.to_host(q, { solve_smo_event }).flatten();
         diff = *f_diff_host.get_data();
-        auto update_grad_event = update_grad(q, kernel_values_nd, delta_alpha_nd, grad_nd);
-        update_grad_event.wait_and_throw();
+        update_grad(q, kernel_values_nd, delta_alpha_nd, grad_nd).wait_and_throw();
         if (check_stop_condition<Float>(diff,
                                         prev_diff,
                                         accuracy_threshold,

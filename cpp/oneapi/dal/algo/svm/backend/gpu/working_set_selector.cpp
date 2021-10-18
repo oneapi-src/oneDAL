@@ -25,27 +25,27 @@ namespace pr = dal::backend::primitives;
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float>
-working_set_selector<Float>::working_set_selector(const sycl::queue& queue,
+working_set_selector<Float>::working_set_selector(const sycl::queue& q,
                                                   const pr::ndarray<Float, 1>& labels,
                                                   const Float C,
                                                   const std::int64_t row_count)
-        : queue_(queue),
+        : q_(q),
           row_count_(row_count),
           C_(C),
           labels_(labels) {
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(row_count <= dal::detail::limits<std::uint32_t>::max());
     auto [indicator, indicator_event] =
-        pr::ndarray<std::uint8_t, 1>::zeros(queue_, { row_count_ }, sycl::usm::alloc::device);
+        pr::ndarray<std::uint8_t, 1>::zeros(q_, { row_count_ }, sycl::usm::alloc::device);
     sorted_f_indices_ =
-        pr::ndarray<std::uint32_t, 1>::empty(queue_, { row_count_ }, sycl::usm::alloc::device);
+        pr::ndarray<std::uint32_t, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
 
-    ws_count_ = propose_working_set_size(queue_, row_count);
+    ws_count_ = propose_working_set_size(q_, row_count);
 
     tmp_sort_values_ =
-        pr::ndarray<Float, 1>::empty(queue_, { row_count_ }, sycl::usm::alloc::device);
+        pr::ndarray<Float, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
     buff_indices_ =
-        pr::ndarray<std::uint32_t, 1>::empty(queue_, { row_count_ }, sycl::usm::alloc::device);
+        pr::ndarray<std::uint32_t, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
 
     indicator_event.wait_and_throw();
     indicator_ = indicator;
@@ -60,7 +60,7 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
     violating_edge edge,
     const dal::backend::event_vector& deps) {
     auto select_ws_edge_event =
-        check_violating_edge(queue_, labels_, alpha, indicator_, C_, edge, deps);
+        check_violating_edge(q_, labels_, alpha, indicator_, C_, edge, deps);
 
     /* Reset indicator for busy Indices */
     if (already_selected > 0) {
@@ -68,7 +68,7 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
             reset_indicator(ws_indices, indicator_, already_selected, { select_ws_edge_event });
     }
     std::int64_t select_flagged_count = 0;
-    auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint8_t>{ queue_ };
+    auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint8_t>{ q_ };
     select_ws_edge_event = select_flagged(indicator_,
                                           sorted_f_indices_,
                                           buff_indices_,
@@ -85,7 +85,7 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
         if (edge == violating_edge::low) {
             offset = select_flagged_count - select_count;
         }
-        select_ws_edge_event = dal::backend::copy(queue_,
+        select_ws_edge_event = dal::backend::copy(q_,
                                                   ws_indices_ptr + already_selected,
                                                   buff_indices_ptr + offset,
                                                   select_count,
@@ -110,7 +110,7 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
     std::int64_t left_to_select = ws_count_ - selected_count;
     std::int64_t already_selected = selected_count;
 
-    auto event = sort_f_indices(queue_, f, deps);
+    auto event = sort_f_indices(q_, f, deps);
 
     const std::int64_t need_select_up = left_to_select / 2;
     std::tie(selected_count, event) = select_ws_edge(alpha,
@@ -160,10 +160,10 @@ sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::u
     const std::uint32_t* idx_ptr = idx.get_data();
     std::uint8_t* indicator_ptr = indicator.get_mutable_data();
 
-    const auto wg_size = std::min(dal::backend::propose_wg_size(queue_), need_to_reset);
+    const auto wg_size = std::min(dal::backend::propose_wg_size(q_), need_to_reset);
     const auto range = dal::backend::make_multiple_nd_range_1d(need_to_reset, wg_size);
 
-    auto reset_indicator_event = queue_.submit([&](sycl::handler& cgh) {
+    auto reset_indicator_event = q_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
 
         cgh.parallel_for(range, [=](sycl::nd_item<1> item) {

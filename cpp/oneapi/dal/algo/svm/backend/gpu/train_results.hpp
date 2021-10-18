@@ -53,17 +53,18 @@ sycl::event check_coeffs_border(sycl::queue& q,
 template <typename Float>
 Float compute_bias(sycl::queue& q,
                    const pr::ndview<Float, 1>& labels,
-                   const pr::ndarray<Float, 1>& f,
-                   const pr::ndarray<Float, 1>& coeffs,
-                   pr::ndarray<Float, 1>& tmp_values,
-                   pr::ndarray<std::uint8_t, 1>& indicator,
-                   const Float C) {
+                   const pr::ndview<Float, 1>& f,
+                   const pr::ndview<Float, 1>& coeffs,
+                   pr::ndview<Float, 1>& tmp_values,
+                   pr::ndview<std::uint8_t, 1>& indicator,
+                   const Float C,
+                   const dal::backend::event_vector& deps = {}) {
     Float bias = 0;
     auto reduce_res = pr::ndarray<Float, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
 
     /* free SV: (0 < coeffs < C)*/
     std::int64_t free_sv_count = 0;
-    auto check_coeffs_border_event = check_coeffs_border<Float>(q, coeffs, indicator, C);
+    auto check_coeffs_border_event = check_coeffs_border<Float>(q, coeffs, indicator, C, deps);
     auto select_flagged = pr::select_flagged<Float, std::uint8_t>{ q };
 
     select_flagged(indicator, f, tmp_values, free_sv_count, { check_coeffs_border_event })
@@ -249,11 +250,11 @@ auto compute_train_results(sycl::queue& q,
     auto row_count = labels.get_dimension(0);
     auto [tmp_values, tmp_values_event] =
         pr::ndarray<Float, 1>::zeros(q, { row_count }, sycl::usm::alloc::device);
-    tmp_values_event.wait_and_throw();
     auto indicator =
         pr::ndarray<std::uint8_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
 
-    Float bias = compute_bias<Float>(q, labels, f, coeffs, tmp_values, indicator, C);
+    Float bias =
+        compute_bias<Float>(q, labels, f, coeffs, tmp_values, indicator, C, { tmp_values_event });
 
     auto compute_dual_coeffs_event = compute_dual_coeffs<Float>(q, labels, coeffs);
 

@@ -50,7 +50,7 @@ struct local_variables {
 
 template <typename Float>
 inline void reduce_arg_max(sycl::nd_item<1> item,
-                           Float* objective_func,
+                           const Float* objective_func,
                            enumerate_value<Float>* sg_cache,
                            enumerate_value<Float>& result) {
     auto sg = item.get_sub_group();
@@ -60,7 +60,7 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
     const std::uint32_t sg_size = sg.get_local_range()[0];
     const std::uint32_t sg_count = wg_size / sg_size;
     const std::uint32_t sg_id = local_id / sg_size;
-    ;
+
     const std::uint32_t sg_local_id = sg.get_local_id();
 
     const std::uint32_t int_max = dal::detail::limits<std::uint32_t>::max();

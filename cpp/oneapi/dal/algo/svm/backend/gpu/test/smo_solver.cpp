@@ -37,7 +37,6 @@ public:
 
     void test_smo_solver(const std::vector<Float>& x,
                          const std::vector<Float>& y,
-                         const std::vector<std::uint32_t>& ws_indices,
                          const Float C,
                          const Float eps,
                          const std::int64_t max_inner_iter,
@@ -60,8 +59,8 @@ public:
         auto y_host_nd = pr::ndarray<Float, 1>::wrap(y.data(), row_count);
         auto y_nd = y_host_nd.to_device(q);
 
-        auto ws_indices_host_nd = pr::ndarray<std::uint32_t, 1>::wrap(ws_indices.data(), row_count);
-        auto ws_indices_nd = ws_indices_host_nd.to_device(q);
+        auto ws_indices_nd = pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+        auto arange_event = ws_indices_nd.arange(q);
 
         auto f_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
         auto invert_y_event = invert_values(q, y_nd, f_nd);
@@ -92,7 +91,7 @@ public:
                          delta_alpha_nd,
                          f_diff_nd,
                          inner_iter_count_nd,
-                         { invert_y_event, alpha_event })
+                         { invert_y_event, alpha_event, arange_event })
             .wait_and_throw();
 
         INFO("check if alpha is expected");
@@ -165,8 +164,6 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
         0.13908519,  -0.15868474, -0.11105107, -0.07440591
     };
     const std::vector<float_t> y = { 1, 1, 1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, -1, 1, -1 };
-    const std::vector<std::uint32_t> ws_indices = { 0, 1, 2,  3,  4,  5,  6,  7,
-                                                    8, 9, 10, 11, 12, 13, 14, 15 };
 
     constexpr float_t C = 10.0;
     constexpr float_t eps = 1.0e-3;
@@ -182,7 +179,6 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
 
     this->test_smo_solver(x,
                           y,
-                          ws_indices,
                           C,
                           eps,
                           max_inner_iter,
@@ -215,8 +211,6 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
     const std::vector<float_t> y = {
         1, 1, 1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1,
     };
-    const std::vector<std::uint32_t> ws_indices = { 0, 1, 2,  3,  4,  5,  6,  7,
-                                                    8, 9, 10, 11, 12, 13, 14, 15 };
 
     constexpr float_t C = 3.0;
     constexpr float_t eps = 1.0e-3;
@@ -233,7 +227,6 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
 
     this->test_smo_solver(x,
                           y,
-                          ws_indices,
                           C,
                           eps,
                           max_inner_iter,
@@ -264,8 +257,6 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
         -0.82022575, -1.57899185, 1.39052325,  -0.28958642,
     };
     const std::vector<float_t> y = { 1, 1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, -1, -1, -1, 1 };
-    const std::vector<std::uint32_t> ws_indices = { 0, 1, 2,  3,  4,  5,  6,  7,
-                                                    8, 9, 10, 11, 12, 13, 14, 15 };
 
     constexpr float_t C = 100.0;
     constexpr float_t eps = 1.0e-3;
@@ -281,7 +272,6 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
 
     this->test_smo_solver(x,
                           y,
-                          ws_indices,
                           C,
                           eps,
                           max_inner_iter,
