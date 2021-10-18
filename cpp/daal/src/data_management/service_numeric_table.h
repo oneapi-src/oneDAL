@@ -649,7 +649,7 @@ private:
         _blocks.reset(_nRowBlocks);
         if (_nColBlocks > 1)
         {
-            daal::static_threader_for(_nRowBlocks, [&](int blockIndex, size_t tid) {
+            daal::static_threader_for(_nRowBlocks, [&](size_t blockIndex, size_t tid) {
                 size_t index     = blockIndex * _nRowsInBlock;
                 size_t rowsToAdd = index + _nRowsInBlock <= rowsCount ? _nRowsInBlock : rowsCount - index;
                 _data->getBlockOfRows(index, rowsToAdd, mode, _blocks[blockIndex]);

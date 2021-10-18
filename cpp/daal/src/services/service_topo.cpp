@@ -1981,11 +1981,14 @@ static __inline void update_cache_sizes()
 
 long long getCacheSize(int cache_num)
 {
-    update_cache_sizes();
+    
     if (cache_num < 1 || cache_num > MAX_CACHE_LEVELS)
         return -1;
     else
+    {
+        update_cache_sizes();
         return cache_sizes[cache_num - 1];
+    }
 }
 
 unsigned getL1CacheSize()
