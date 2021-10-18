@@ -20,9 +20,6 @@
 #include "oneapi/dal/algo/polynomial_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel.hpp"
 #include "oneapi/dal/algo/sigmoid_kernel.hpp"
-#ifdef ONEDAL_DATA_PARALLEL
-#include "oneapi/dal/backend/dispatcher.hpp"
-#endif
 
 namespace oneapi::dal::svm::detail {
 namespace v1 {
@@ -34,7 +31,7 @@ public:
     virtual ~kernel_function_iface() {}
     virtual kernel_function_impl* get_impl() const = 0;
 #ifdef ONEDAL_DATA_PARALLEL
-    virtual const table compute_kernel_function(const dal::backend::context_gpu& ctx,
+    virtual const table compute_kernel_function(const dal::detail::data_parallel_policy& policy,
                                                 const table& x,
                                                 const table& y) = 0;
 #endif
@@ -68,7 +65,7 @@ public:
     explicit kernel_function(const kernel_t& kernel);
     kernel_function_impl* get_impl() const override;
 #ifdef ONEDAL_DATA_PARALLEL
-    const table compute_kernel_function(const dal::backend::context_gpu& ctx,
+    const table compute_kernel_function(const dal::detail::data_parallel_policy& policy,
                                         const table& x,
                                         const table& y) override;
 #endif
@@ -88,7 +85,7 @@ public:
     explicit kernel_function(const kernel_t& kernel);
     kernel_function_impl* get_impl() const override;
 #ifdef ONEDAL_DATA_PARALLEL
-    const table compute_kernel_function(const dal::backend::context_gpu& ctx,
+    const table compute_kernel_function(const dal::detail::data_parallel_policy& policy,
                                         const table& x,
                                         const table& y) override;
 #endif
@@ -108,7 +105,7 @@ public:
     explicit kernel_function(const kernel_t& kernel);
     kernel_function_impl* get_impl() const override;
 #ifdef ONEDAL_DATA_PARALLEL
-    const table compute_kernel_function(const dal::backend::context_gpu& ctx,
+    const table compute_kernel_function(const dal::detail::data_parallel_policy& policy,
                                         const table& x,
                                         const table& y) override;
 #endif
@@ -127,7 +124,7 @@ public:
     explicit kernel_function(const kernel_t& kernel);
     kernel_function_impl* get_impl() const override;
 #ifdef ONEDAL_DATA_PARALLEL
-    const table compute_kernel_function(const dal::backend::context_gpu& ctx,
+    const table compute_kernel_function(const dal::detail::data_parallel_policy& policy,
                                         const table& x,
                                         const table& y) override;
 #endif

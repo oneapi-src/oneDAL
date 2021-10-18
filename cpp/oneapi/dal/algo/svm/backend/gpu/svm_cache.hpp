@@ -91,8 +91,7 @@ class svm_cache_iface {
 public:
     virtual ~svm_cache_iface() = default;
 
-    virtual pr::ndarray<Float, 2> compute(const dal::backend::context_gpu& ctx,
-                                          const detail::kernel_function_ptr& kernel_ptr,
+    virtual pr::ndarray<Float, 2> compute(const detail::kernel_function_ptr& kernel_ptr,
                                           const table& x_table,
                                           const pr::ndarray<Float, 2>& x_nd,
                                           const pr::ndview<std::uint32_t, 1>& ws_indices) = 0;
@@ -125,8 +124,7 @@ public:
             std::make_shared<sub_data_task_dense<Float>>(q, block_size, data_nd.get_dimension(1));
     }
 
-    pr::ndarray<Float, 2> compute(const dal::backend::context_gpu& ctx,
-                                  const detail::kernel_function_ptr& kernel_ptr,
+    pr::ndarray<Float, 2> compute(const detail::kernel_function_ptr& kernel_ptr,
                                   const table& x_table,
                                   const pr::ndarray<Float, 2>& x_nd,
                                   const pr::ndview<std::uint32_t, 1>& ws_indices) override {
@@ -137,7 +135,9 @@ public:
                                                                    x_nd);
 
         const auto result =
-            kernel_ptr->compute_kernel_function(ctx, sub_data_task_ptr_->get_table(), x_table);
+            kernel_ptr->compute_kernel_function(dal::detail::data_parallel_policy(this->q_),
+                                                sub_data_task_ptr_->get_table(),
+                                                x_table);
 
         return pr::table2ndarray<Float>(this->q_, result, sycl::usm::alloc::device);
     }

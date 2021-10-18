@@ -144,7 +144,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
             .wait_and_throw();
 
         const auto kernel_values_nd =
-            svm_cache_ptr->compute(ctx, kernel_ptr, data, data_nd, ws_indices_nd);
+            svm_cache_ptr->compute(kernel_ptr, data, data_nd, ws_indices_nd);
 
         auto solve_smo_event = solve_smo<Float>(q,
                                                 kernel_values_nd,
