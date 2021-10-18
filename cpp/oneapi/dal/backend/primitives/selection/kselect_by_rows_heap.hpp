@@ -85,7 +85,7 @@ public:
                              std::int64_t k,
                              ndview<Float, 2>& selection,
                              ndview<std::int32_t, 2>& indices,
-                             const event_vector& deps);
+                             const event_vector& deps) override;
 
     sycl::event select_sq_l2(sycl::queue& queue,
                              const ndview<Float, 1>& n1,
@@ -93,7 +93,7 @@ public:
                              const ndview<Float, 2>& ip,
                              std::int64_t k,
                              ndview<Float, 2>& selection,
-                             const event_vector& deps);
+                             const event_vector& deps) override;
 
     sycl::event select_sq_l2(sycl::queue& queue,
                              const ndview<Float, 1>& n1,
@@ -101,7 +101,7 @@ public:
                              const ndview<Float, 2>& ip,
                              std::int64_t k,
                              ndview<std::int32_t, 2>& indices,
-                             const event_vector& deps);
+                             const event_vector& deps) override;
 };
 #endif
 

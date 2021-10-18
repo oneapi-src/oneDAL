@@ -87,7 +87,7 @@ public:
                              std::int64_t k,
                              ndview<Float, 2>& selection,
                              ndview<std::int32_t, 2>& indices,
-                             const event_vector& deps) {
+                             const event_vector& deps) override {
         const auto ht = ip.get_dimension(0);
         const auto dp = sq_l2_dp_t::make(n1, n2, ip);
         return select<true, true>(queue, dp, k, ht, selection, indices, deps);
@@ -99,7 +99,7 @@ public:
                              const ndview<Float, 2>& ip,
                              std::int64_t k,
                              ndview<Float, 2>& selection,
-                             const event_vector& deps) {
+                             const event_vector& deps) override {
         ndarray<std::int32_t, 2> dummy;
         const auto ht = ip.get_dimension(0);
         const auto dp = sq_l2_dp_t::make(n1, n2, ip);
@@ -112,7 +112,7 @@ public:
                              const ndview<Float, 2>& ip,
                              std::int64_t k,
                              ndview<std::int32_t, 2>& indices,
-                             const event_vector& deps) {
+                             const event_vector& deps) override {
         ndarray<Float, 2> dummy;
         const auto ht = ip.get_dimension(0);
         const auto dp = sq_l2_dp_t::make(n1, n2, ip);

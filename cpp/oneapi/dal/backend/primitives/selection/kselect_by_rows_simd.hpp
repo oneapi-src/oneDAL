@@ -42,7 +42,7 @@ public:
                            const event_vector& deps) override {
         const auto ht = data.get_dimension(0);
         const auto dp = naive_dp_t::make(data);
-        return select<true, true>(queue, dp, ht, k, selection, indices, deps);
+        return select<true, true>(queue, dp, k, ht, selection, indices, deps);
     }
 
     sycl::event operator()(sycl::queue& queue,
@@ -53,7 +53,7 @@ public:
         ndarray<std::int32_t, 2> dummy;
         const auto ht = data.get_dimension(0);
         const auto dp = naive_dp_t::make(data);
-        return select<true, false>(queue, dp, ht, k, selection, dummy, deps);
+        return select<true, false>(queue, dp, k, ht, selection, dummy, deps);
     }
 
     sycl::event operator()(sycl::queue& queue,
@@ -64,7 +64,7 @@ public:
         ndarray<Float, 2> dummy;
         const auto ht = data.get_dimension(0);
         const auto dp = naive_dp_t::make(data);
-        return select<false, true>(queue, dp, ht, k, dummy, indices, deps);
+        return select<false, true>(queue, dp, k, ht, dummy, indices, deps);
     }
 
     sycl::event select_sq_l2(sycl::queue& queue,
@@ -74,10 +74,10 @@ public:
                              std::int64_t k,
                              ndview<Float, 2>& selection,
                              ndview<std::int32_t, 2>& indices,
-                             const event_vector& deps) {
+                             const event_vector& deps) override {
         const auto ht = ip.get_dimension(0);
         const auto dp = sq_l2_dp_t::make(n1, n2, ip);
-        return select<true, true>(queue, dp, ht, k, selection, indices, deps);
+        return select<true, true>(queue, dp, k, ht, selection, indices, deps);
     }
 
     sycl::event select_sq_l2(sycl::queue& queue,
@@ -86,11 +86,11 @@ public:
                              const ndview<Float, 2>& ip,
                              std::int64_t k,
                              ndview<Float, 2>& selection,
-                             const event_vector& deps) {
+                             const event_vector& deps) override {
         ndarray<std::int32_t, 2> dummy;
         const auto ht = ip.get_dimension(0);
         const auto dp = sq_l2_dp_t::make(n1, n2, ip);
-        return select<true, false>(queue, dp, ht, k, selection, dummy, deps);
+        return select<true, false>(queue, dp, k, ht, selection, dummy, deps);
     }
 
     sycl::event select_sq_l2(sycl::queue& queue,
@@ -99,19 +99,19 @@ public:
                              const ndview<Float, 2>& ip,
                              std::int64_t k,
                              ndview<std::int32_t, 2>& indices,
-                             const event_vector& deps) {
+                             const event_vector& deps) override {
         ndarray<Float, 2> dummy;
         const auto ht = ip.get_dimension(0);
         const auto dp = sq_l2_dp_t::make(n1, n2, ip);
-        return select<false, true>(queue, dp, ht, dummy, indices, deps);
+        return select<false, true>(queue, dp, k, ht, dummy, indices, deps);
     }
 
 private:
     template <bool selection_out, bool indices_out, typename DataProvider>
     sycl::event select(sycl::queue& queue,
                        const DataProvider& dp,
-                       std::int64_t height,
                        std::int64_t k,
+                       std::int64_t height,
                        ndview<Float, 2>& selection,
                        ndview<std::int32_t, 2>& indices,
                        const event_vector& deps = {}) {

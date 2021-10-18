@@ -28,6 +28,7 @@ template <typename Float>
 class kselect_by_rows_base {
 public:
     virtual ~kselect_by_rows_base() {}
+
     virtual sycl::event operator()(sycl::queue& queue,
                                    const ndview<Float, 2>& data,
                                    std::int64_t k,
@@ -47,7 +48,7 @@ public:
                                    ndview<std::int32_t, 2>& column_indices,
                                    const event_vector& deps = {}) = 0;
 
-    /*virtual sycl::event select_sq_l2(sycl::queue& queue,
+    virtual sycl::event select_sq_l2(sycl::queue& queue,
                                      const ndview<Float, 1>& n1,
                                      const ndview<Float, 1>& n2,
                                      const ndview<Float, 2>& ip,
@@ -70,7 +71,7 @@ public:
                                      const ndview<Float, 2>& ip,
                                      std::int64_t k,
                                      ndview<std::int32_t, 2>& column_indices,
-                                     const event_vector& deps = {}) = 0;*/
+                                     const event_vector& deps = {}) = 0;
 };
 
 inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
