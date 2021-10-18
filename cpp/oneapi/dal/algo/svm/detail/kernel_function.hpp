@@ -20,7 +20,9 @@
 #include "oneapi/dal/algo/polynomial_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel.hpp"
 #include "oneapi/dal/algo/sigmoid_kernel.hpp"
+#ifdef ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/backend/dispatcher.hpp"
+#endif
 
 namespace oneapi::dal::svm::detail {
 namespace v1 {
