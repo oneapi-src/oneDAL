@@ -20,6 +20,8 @@
 
 namespace oneapi::dal::svm::backend {
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 namespace pr = dal::backend::primitives;
 
 enum class violating_edge { up, low };
@@ -145,5 +147,7 @@ std::tuple<const std::int64_t, sycl::event> copy_last_to_first(
         dal::backend::copy(q, data_ptr, data_ptr + copy_count, data_size - copy_count, deps);
     return { copy_count, copy_event };
 }
+
+#endif
 
 } // namespace oneapi::dal::svm::backend

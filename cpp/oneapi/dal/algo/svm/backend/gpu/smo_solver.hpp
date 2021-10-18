@@ -22,6 +22,8 @@
 
 namespace oneapi::dal::svm::backend {
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 namespace pr = dal::backend::primitives;
 
 using sycl::ext::oneapi::maximum;
@@ -282,5 +284,7 @@ sycl::event solve_smo(sycl::queue& queue,
     });
     return solve_event;
 }
+
+#endif
 
 } // namespace oneapi::dal::svm::backend

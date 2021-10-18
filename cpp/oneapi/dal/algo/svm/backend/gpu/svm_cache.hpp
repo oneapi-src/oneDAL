@@ -23,6 +23,8 @@
 
 namespace oneapi::dal::svm::backend {
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
@@ -143,5 +145,7 @@ public:
 private:
     std::shared_ptr<sub_data_task_base<Float>> sub_data_task_ptr_;
 };
+
+#endif
 
 } // namespace oneapi::dal::svm::backend

@@ -17,12 +17,13 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-// #include "oneapi/dal/backend/primitives/common.hpp" // ?
 #include "oneapi/dal/backend/primitives/selection/select_flagged.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/misc.hpp"
 
 namespace oneapi::dal::svm::backend {
+
+#ifdef ONEDAL_DATA_PARALLEL
 
 namespace pr = dal::backend::primitives;
 
@@ -275,5 +276,7 @@ auto compute_train_results(sycl::queue& q,
                            support_vectors,
                            compute_support_vectors_event);
 }
+
+#endif
 
 } // namespace oneapi::dal::svm::backend
