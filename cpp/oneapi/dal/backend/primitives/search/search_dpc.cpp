@@ -471,7 +471,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
             auto ip = temp_objs->get_distances()
                              .get_col_slice(0, train_block_size)
                              .get_row_slice(0, query_block_size);
-            auto ip_event = gemm(this->get_queue(), train, query, ip, Float(-2), Float(0), { last_event });
+            auto ip_event = gemm(this->get_queue(), query, train.t(), ip, Float(-2), Float(0), { last_event });
 
             const auto rel_idx = tb_id - start_tb;
             auto part_inds =
@@ -479,8 +479,8 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
             auto part_dsts =
                 temp_objs->get_part_distances_block(rel_idx + 1).get_row_slice(0, query_block_size);
             auto selt_event = select.select_sq_l2(this->get_queue(),
-                                                  tnorms,
                                                   qnorms,
+                                                  tnorms,
                                                   ip,
                                                   k_neighbors,
                                                   part_dsts,
