@@ -59,7 +59,8 @@ public:
         auto y_host_nd = pr::ndarray<Float, 1>::wrap(y.data(), row_count);
         auto y_nd = y_host_nd.to_device(q);
 
-        auto ws_indices_nd = pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+        auto ws_indices_nd =
+            pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
         auto arange_event = ws_indices_nd.arange(q);
 
         auto f_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);

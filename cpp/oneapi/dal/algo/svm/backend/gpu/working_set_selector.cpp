@@ -42,8 +42,7 @@ working_set_selector<Float>::working_set_selector(const sycl::queue& q,
 
     ws_count_ = propose_working_set_size(q_, row_count);
 
-    tmp_sort_values_ =
-        pr::ndarray<Float, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
+    tmp_sort_values_ = pr::ndarray<Float, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
     buff_indices_ =
         pr::ndarray<std::uint32_t, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
 
