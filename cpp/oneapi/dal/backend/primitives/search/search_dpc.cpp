@@ -469,9 +469,10 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
             auto tevent = temp_objs->get_train_norms_event(tb_id);
             ONEDAL_ASSERT(train.get_dimension(0) == train_block_size);
             auto ip = temp_objs->get_distances()
-                             .get_col_slice(0, train_block_size)
-                             .get_row_slice(0, query_block_size);
-            auto ip_event = gemm(this->get_queue(), query, train.t(), ip, Float(-2), Float(0), { last_event });
+                          .get_col_slice(0, train_block_size)
+                          .get_row_slice(0, query_block_size);
+            auto ip_event =
+                gemm(this->get_queue(), query, train.t(), ip, Float(-2), Float(0), { last_event });
 
             const auto rel_idx = tb_id - start_tb;
             auto part_inds =
@@ -485,7 +486,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
                                                   k_neighbors,
                                                   part_dsts,
                                                   part_inds,
-                                                  { ip_event, qevent, tevent});
+                                                  { ip_event, qevent, tevent });
 
             const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
             last_event = this->treat_indices(part_inds, st_idx, { selt_event });

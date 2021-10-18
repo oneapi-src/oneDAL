@@ -24,17 +24,15 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename Float>
+template <typename Float>
 class naive_data_provider {
     using this_t = naive_data_provider<Float>;
 
 public:
-    naive_data_provider(std::int32_t wth,
-                        std::int32_t str,
-                        const Float* ptr)
-        : wth_{ std::move(wth) },
-          str_{ std::move(str) },
-          ptr_{ std::move(ptr) } {}
+    naive_data_provider(std::int32_t wth, std::int32_t str, const Float* ptr)
+            : wth_{ std::move(wth) },
+              str_{ std::move(str) },
+              ptr_{ std::move(ptr) } {}
 
     static inline this_t make(const ndview<Float, 2>& data) {
         ONEDAL_ASSERT(data.has_data());
@@ -61,7 +59,7 @@ private:
     const Float* const ptr_;
 };
 
-template<typename Float>
+template <typename Float>
 class sq_l2_distance_provider {
     using this_t = sq_l2_distance_provider<Float>;
 
@@ -71,11 +69,11 @@ public:
                             const Float* ip_ptr,
                             const Float* n1_ptr,
                             const Float* n2_ptr)
-        : ip_wth_{ std::move(ip_wth) },
-          ip_str_{ std::move(ip_str) },
-          ip_ptr_{ std::move(ip_ptr) },
-          n1_ptr_{ std::move(n1_ptr) },
-          n2_ptr_{ std::move(n2_ptr) } {}
+            : ip_wth_{ std::move(ip_wth) },
+              ip_str_{ std::move(ip_str) },
+              ip_ptr_{ std::move(ip_ptr) },
+              n1_ptr_{ std::move(n1_ptr) },
+              n2_ptr_{ std::move(n2_ptr) } {}
 
     static inline this_t make(const ndview<Float, 1>& n1,
                               const ndview<Float, 1>& n2,
@@ -92,7 +90,7 @@ public:
         const auto ip_ostr = ip.get_leading_stride();
         const auto ip_cwth = dal::detail::integral_cast<std::int32_t>(ip_owth);
         const auto ip_cstr = dal::detail::integral_cast<std::int32_t>(ip_ostr);
-        return this_t{ ip_cwth, ip_cstr, ip_ptr, n1_ptr, n2_ptr};
+        return this_t{ ip_cwth, ip_cstr, ip_ptr, n1_ptr, n2_ptr };
     }
 
     Float at(std::int32_t row, std::int32_t col) const {
@@ -116,20 +114,20 @@ private:
     const Float* const n2_ptr_;
 };
 
-template<typename Float, bool sq_l2>
+template <typename Float, bool sq_l2>
 struct data_provider_map {};
 
-template<typename Float>
+template <typename Float>
 struct data_provider_map<Float, true> {
     using type = sq_l2_distance_provider<Float>;
 };
 
-template<typename Float>
+template <typename Float>
 struct data_provider_map<Float, false> {
     using type = naive_data_provider<Float>;
 };
 
-template<typename Float, bool sq_l2 = false>
+template <typename Float, bool sq_l2 = false>
 using data_provider_t = typename data_provider_map<Float, sq_l2>::type;
 
 #endif
