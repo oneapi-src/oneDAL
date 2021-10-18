@@ -110,7 +110,7 @@ private:
     template <bool selection_out, bool indices_out, typename DataProvider>
     sycl::event select(sycl::queue& queue,
                        const DataProvider& dp,
-                       const std::int64_t height,
+                       std::int64_t height,
                        ndview<Float, 2>& selection,
                        ndview<std::int32_t, 2>& indices,
                        const event_vector& deps = {}) {

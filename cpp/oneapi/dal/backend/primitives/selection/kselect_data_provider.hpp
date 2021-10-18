@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "oneapi/dal/detail/common.hpp"
+
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 namespace oneapi::dal::backend::primitives {
@@ -40,8 +42,8 @@ public:
         const auto owth = data.get_dimension(1);
         const auto ostr = data.get_leading_stride();
         ONEDAL_ASSERT(owth <= ostr);
-        const auto cwth = detail::integral_cast<std::int32_t>(owth);
-        const auto cstr = detail::integral_cast<std::int32_t>(ostr);
+        const auto cwth = dal::detail::integral_cast<std::int32_t>(owth);
+        const auto cstr = dal::detail::integral_cast<std::int32_t>(ostr);
         return this_t{ cwth, cstr, ptr };
     }
 
@@ -88,12 +90,12 @@ public:
         const auto* const ip_ptr = ip.get_data();
         const auto ip_owth = ip.get_dimension(1);
         const auto ip_ostr = ip.get_leading_stride();
-        const auto ip_cwth = detail::integral_cast<std::int32_t>(ip_owth);
-        const auto ip_cstr = detail::integral_cast<std::int32_t>(ip_ostr);
+        const auto ip_cwth = dal::detail::integral_cast<std::int32_t>(ip_owth);
+        const auto ip_cstr = dal::detail::integral_cast<std::int32_t>(ip_ostr);
         return this_t{ ip_cwth, ip_cstr, ip_ptr, n1_ptr, n2_ptr};
     }
 
-    const Float& at(std::int32_t row, std::int32_t col) const {
+    Float at(std::int32_t row, std::int32_t col) const {
         const auto& n1 = *(n1_ptr_ + row);
         const auto& n2 = *(n2_ptr_ + col);
         const auto& ip = *(ip_ptr_ + row * ip_str_ + col);
