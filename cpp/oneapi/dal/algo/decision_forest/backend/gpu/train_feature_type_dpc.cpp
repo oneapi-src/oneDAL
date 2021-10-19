@@ -199,6 +199,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders(const pr::ndarray<Float,
     }
 
     last_event = bin_borders_nd_device.assign_from_host(queue_, bin_borders_nd_host);
+    bin_borders_nd_device = bin_borders_nd_device.reshape(pr::ndshape<1>{ bin_count });
 
     return std::make_tuple(bin_borders_nd_device, bin_count, last_event);
 }
@@ -237,20 +238,18 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     pr::ndarray<Float, 1> com_bin_brd;
     com_bin_brd = pr::ndarray<Float, 1>::empty(queue_, { com_bin_count });
 
-    if (comm_.is_root_rank()) {
-        const std::int64_t* com_bin_count_ptr = com_bin_count_arr.get_data();
-        std::int64_t* com_bin_offset_ptr = com_bin_offset_arr.get_mutable_data();
+    const std::int64_t* com_bin_count_ptr = com_bin_count_arr.get_data();
+    std::int64_t* com_bin_offset_ptr = com_bin_offset_arr.get_mutable_data();
 
-        std::int64_t offset = 0;
-        for (Index i = 0; i < comm_.get_rank_count(); ++i) {
-            com_bin_offset_ptr[i] = offset;
-            offset += com_bin_count_ptr[i];
-        }
+    std::int64_t offset = 0;
+    for (Index i = 0; i < comm_.get_rank_count(); ++i) {
+        com_bin_offset_ptr[i] = offset;
+        offset += com_bin_count_ptr[i];
     }
 
     comm_
-        .allgatherv(local_bin_borders_nd_device.flatten(),
-                    com_bin_brd.flatten(),
+        .allgatherv(local_bin_borders_nd_device.flatten(queue_),
+                    com_bin_brd.flatten(queue_),
                     com_bin_count_arr.get_data(),
                     com_bin_offset_arr.get_data())
         .wait();
