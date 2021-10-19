@@ -147,16 +147,6 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const decision_tree::classification::Parameter * parameter,
                                           int method);
 
-    /**
-     * Allocates memory to store the result of Decision tree model-based training
-     * \param[in] input Pointer to an object containing the input data
-     * \param[in] parameter %Parameter of Decision tree model-based training
-     * \param[in] method Computation method for the algorithm
-     */
-    template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input,
-                                          const decision_tree::classification::interface1::Parameter * parameter, int method);
-
 protected:
     /** \private */
     template <typename Archive, bool onDeserialize>

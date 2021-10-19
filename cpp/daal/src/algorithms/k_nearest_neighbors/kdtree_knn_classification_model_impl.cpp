@@ -76,6 +76,17 @@ size_t Model::getNumberOfFeatures() const
     return _impl->getNumberOfFeatures();
 }
 
+KDTreeTable::KDTreeTable(size_t rowCount, services::Status & st) : data_management::AOSNumericTable(sizeof(KDTreeNode), 4, rowCount, st)
+{
+    setFeature<size_t>(0, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, dimension));
+    setFeature<size_t>(1, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, leftIndex));
+    setFeature<size_t>(2, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, rightIndex));
+    setFeature<double>(3, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, cutPoint));
+    st |= allocateDataMemory();
+}
+
+KDTreeTable::KDTreeTable(services::Status & st) : KDTreeTable(0, st) {}
+
 } // namespace interface1
 
 namespace interface3

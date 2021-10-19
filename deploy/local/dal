@@ -101,3 +101,4 @@ prepend-path    LIBRARY_PATH       $daalroot/lib/$daal_target_arch
 prepend-path    CPATH              $daalroot/include
 prepend-path    CLASSPATH          $daalroot/lib/onedal.jar
 prepend-path    CMAKE_PREFIX_PATH  $daalroot
+prepend-path    PKG_CONFIG_PATH    $daalroot/lib/pkgconfig

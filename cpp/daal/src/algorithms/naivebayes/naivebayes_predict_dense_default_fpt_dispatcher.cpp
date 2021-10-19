@@ -28,8 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE,
-                                      multinomial_naive_bayes::prediction::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::prediction::BatchContainer, batch, DAAL_FPTYPE,
                                       multinomial_naive_bayes::prediction::defaultDense)
 } // namespace algorithms

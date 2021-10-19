@@ -20,7 +20,7 @@
 Homogeneous table
 =================
 
-Class ``homogen_table`` is an implementation of a table type
+Class ``homogen_table`` is a subtype of a table type
 for which the following is true:
 
 - The data within the table are dense and stored as one contiguous memory block.

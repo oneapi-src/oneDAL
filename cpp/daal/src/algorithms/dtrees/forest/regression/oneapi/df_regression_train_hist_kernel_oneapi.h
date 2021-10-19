@@ -126,7 +126,7 @@ private:
                                         const int * indicesPerm, const size_t testFtrInd, size_t n, services::Status & status);
 
     services::Status finalizeOOBError(const algorithmFPType * y, const services::internal::sycl::UniversalBuffer & oobBuf, const size_t nRows,
-                                      algorithmFPType * res, algorithmFPType * resPerObs);
+                                      algorithmFPType * res, algorithmFPType * resPerObs, algorithmFPType * resR2, algorithmFPType * resPrediction);
 
     services::Status finalizeVarImp(const Parameter & par, algorithmFPType * varImp, algorithmFPType * varImpVariance, size_t nFeatures);
 

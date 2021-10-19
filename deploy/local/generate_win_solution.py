@@ -126,7 +126,7 @@ def find_all_examples(examples_dir):
     for root, dirnames, filenames in os.walk(examples_dir):
         for filename in fnmatch.filter(filenames, '*.cpp'):
             rel_path = os.path.relpath(root, examples_dir)
-            if filename not in ['jaccard_batch_app.cpp', 'subgraph_isomorphism_batch.cpp']:
+            if filename not in ['jaccard_batch_app.cpp']:
                 examples.append(os.path.join(rel_path, filename))
     return examples
 

@@ -55,54 +55,6 @@ enum QualityMetricId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__QUALITY_METRIC_SET__RESULTCOLLECTION"></a>
- * \brief Class that implements functionality of the collection of result objects of the quality metrics algorithm  \DAAL_DEPRECATED
- *        specialized for using with the AdaBoost training algorithm
- */
-class DAAL_EXPORT ResultCollection : public algorithms::quality_metric_set::ResultCollection
-{
-public:
-    ResultCollection() {}
-    virtual ~ResultCollection() {}
-
-    /**
-     * Returns the result of the quality metrics algorithm
-     * \param[in] id   Identifier of the result
-     * \return         Result that corresponds to the given identifier
-     */
-    classifier::quality_metric::binary_confusion_matrix::ResultPtr getResult(QualityMetricId id) const;
-};
-typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
-
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__QUALITY_METRIC_SET__INPUTDATACOLLECTION"></a>
- * \brief Class that implements functionality of the collection of input objects of the quality metrics algorithm  \DAAL_DEPRECATED
- *        specialized for using with the AdaBoost training algorithm
- */
-class DAAL_EXPORT InputDataCollection : public algorithms::quality_metric_set::InputDataCollection
-{
-public:
-    InputDataCollection() {}
-    virtual ~InputDataCollection() {}
-
-    /**
-     * Returns the input object for the quality metrics algorithm
-     * \param[in] id    Identifier of the input object
-     * \return          %Input object that corresponds to the given identifier
-     */
-    classifier::quality_metric::binary_confusion_matrix::InputPtr getInput(QualityMetricId id) const;
-};
-typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
-} // namespace interface1
-
-/** @} */
-
-/**
  * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface2

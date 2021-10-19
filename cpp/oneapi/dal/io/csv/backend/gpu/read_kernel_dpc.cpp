@@ -67,10 +67,10 @@ table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
 
     auto arr =
         array<DAAL_DATA_TYPE>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
-    dal::detail::memcpy(queue,
-                        arr.get_mutable_data(),
-                        data,
-                        sizeof(DAAL_DATA_TYPE) * row_count * column_count);
+    dal::detail::memcpy_host2usm(queue,
+                                 arr.get_mutable_data(),
+                                 data,
+                                 sizeof(DAAL_DATA_TYPE) * row_count * column_count);
 
     interop::status_to_exception(nt->releaseBlockOfRows(block));
 

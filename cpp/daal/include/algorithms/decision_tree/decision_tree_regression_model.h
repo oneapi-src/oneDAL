@@ -93,8 +93,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  *
  * \par References
  *      - Parameter class
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::interface2::Batch "training::Batch" class
+ *      - \ref prediction::interface2::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public algorithms::regression::Model
 {

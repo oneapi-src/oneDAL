@@ -7,6 +7,5 @@ daal_module(
     deps = [
         "@onedal//cpp/daal:core",
         "@onedal//cpp/daal/src/algorithms/stump:kernel",
-        "@onedal//cpp/daal/src/algorithms/boosting/inner:kernel",
     ],
 )

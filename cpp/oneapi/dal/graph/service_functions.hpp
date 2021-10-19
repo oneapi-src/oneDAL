@@ -47,7 +47,7 @@ constexpr auto get_edge_count(const Graph &g) noexcept -> edge_size_type<Graph>;
 ///
 /// @tparam Graph  Type of the graph
 /// @param [in]   g  Input graph object
-/// @param [in]   u Identifier of the vertex
+/// @param [in]   u Vertex index
 ///
 /// @return The degree of the vertex u
 template <typename Graph>
@@ -57,10 +57,10 @@ constexpr auto get_vertex_degree(const Graph &g, vertex_type<Graph> u)
 /// Returns the outward degree for the specified vertex
 ///
 /// @tparam Graph  Type of the graph
-/// @param [in]   graph  Input graph object
-/// @param [in]   vertex Identifier of the vertex
+/// @param [in]   g  Input graph object
+/// @param [in]   u Vertex index
 ///
-/// @return The out degree of the vertex
+/// @return The outward degree of the vertex
 template <typename Graph>
 constexpr auto get_vertex_outward_degree(const Graph &g, vertex_type<Graph> u)
     -> vertex_outward_edge_size_type<Graph>;
@@ -69,7 +69,7 @@ constexpr auto get_vertex_outward_degree(const Graph &g, vertex_type<Graph> u)
 ///
 /// @tparam Graph  Type of the graph
 /// @param [in]   g  Input graph object
-/// @param [in]   u Identifier of the vertex
+/// @param [in]   u Vertex index
 ///
 /// @return The range of the vertex u neighbors
 template <typename Graph>
@@ -79,22 +79,22 @@ constexpr auto get_vertex_neighbors(const Graph &g, vertex_type<Graph> u)
 /// Returns the range of the vertex outward neighbors for the specified vertex
 ///
 /// @tparam Graph  Type of the graph
-/// @param [in]   graph  Input graph object
-/// @param [in]   vertex Identifier of the vertex
+/// @param [in]   g  Input graph object
+/// @param [in]   u Vertex index
 ///
 /// @return The range of the vertex out neighbors
 template <typename Graph>
 constexpr auto get_vertex_outward_neighbors(const Graph &g, vertex_type<Graph> u)
     -> const_vertex_outward_edge_range_type<Graph>;
 
-/// Returns the value of an edge represented as source and destination vertices
+/// Returns the value of an edge (u, v)
 ///
 /// @tparam Graph  Type of the graph
 /// @param [in]   graph  Input graph object
-/// @param [in]   u Identifier of the source vertex in edge
-/// @param [in]   v Identifier of the source vertex in edge
+/// @param [in]   u Source vertex index
+/// @param [in]   v Destination vertex index
 ///
-/// @return Edge Value
+/// @return Edge value
 template <typename Graph>
 constexpr auto get_edge_value(const Graph &g, vertex_type<Graph> u, vertex_type<Graph> v)
     -> const edge_user_value_type<Graph> &;
@@ -158,6 +158,10 @@ template <typename Graph>
 constexpr auto get_edge_value(const Graph &g, vertex_type<Graph> u, vertex_type<Graph> v)
     -> const edge_user_value_type<Graph> & {
     static_assert(is_directed<Graph>, "get_edge_value supported only for directed graph");
+    if (u < 0 || (vertex_size_type<Graph>)u >= detail::get_vertex_count_impl(g)) {
+        throw out_of_range(dal::detail::error_messages::
+                               vertex_index_out_of_range_expect_from_zero_to_vertex_count());
+    }
     return detail::get_edge_value_impl(g, u, v);
 }
 

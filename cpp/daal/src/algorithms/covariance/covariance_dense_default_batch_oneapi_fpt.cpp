@@ -21,9 +21,7 @@
 //--
 */
 
-#include "src/externals/service_ittnotify.h"
-DAAL_ITTNOTIFY_DOMAIN(covariance.dense.batch.oneapi);
-
+#include "src/externals/service_profiler.h"
 #include "src/algorithms/covariance/covariance_container.h"
 #include "src/algorithms/covariance/oneapi/covariance_dense_batch_oneapi_impl.i"
 
@@ -37,7 +35,7 @@ namespace oneapi
 {
 namespace internal
 {
-template class CovarianceDenseBatchKernelOneAPI<DAAL_FPTYPE, defaultDense>;
+template class DAAL_EXPORT CovarianceDenseBatchKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 }
 } // namespace oneapi
 

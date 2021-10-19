@@ -69,13 +69,13 @@ Working subset of α updated on each iteration of the algorithm is
 based on the Working Set Selection (WSS) 3 scheme [Fan05]_.
 The scheme can be optimized using one of these techniques or both:
 
-      -  **Cache**:      
-         the implementation can allocate a predefined amount of memory
-         to store intermediate results of the kernel computation.
+- **Cache**:
+  the implementation can allocate a predefined amount of memory
+  to store intermediate results of the kernel computation.
 
-      -  **Shrinking**:
-         the implementation can try to decrease the amount of kernel
-         related computations (see [Joachims99]_).
+- **Shrinking**:
+  the implementation can try to decrease the amount of kernel
+  related computations (see [Joachims99]_).
 
 The solution of the problem defines the separating hyperplane and
 corresponding decision function :math:`D(x)= \sum_{k} {y_k \alpha_k K(x_k, x)} + b` where only those :math:`x_k` that
@@ -109,7 +109,7 @@ complete the following steps:
   - Use ``setBias`` to add a bias term to the model.
 
 - Use the ``getModel`` method to get the trained SVM Classifier model.
-- Use the ``getStatus`` method to check the status of the model building process. 
+- Use the ``getStatus`` method to check the status of the model building process.
   If ``DAAL_NOTHROW_EXCEPTIONS`` macros is defined, the status report contains the list of errors
   that describe the problems API encountered (in case of API runtime failure).
 
@@ -124,15 +124,15 @@ Examples
 .. tabs::
 
   .. tab:: C++ (CPU)
-  
+
     - :cpp_example:`svm_two_class_model_builder.cpp <svm/svm_two_class_model_builder.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     - :java_example:`SVMTwoClassModelBuilder.java <svm/SVMTwoClassModelBuilder.java>`
-  
+
   .. tab:: Python*
 
     - :daal4py_example:`svm_two_class_model_builder.py`
@@ -151,10 +151,13 @@ Training and Prediction.
 
 At the training stage, SVM classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Support Vector Machine Classifier (Batch Processing)
    :header-rows: 1
    :widths: 20 30 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -168,12 +171,12 @@ At the training stage, SVM classifier has the following parameters:
 
        For CPU:
 
-        - ``defaultDense`` – Boser method [Boser92]_
-        - ``thunder`` - Thunder method [Wen2018]_
+       - ``defaultDense`` – Boser method [Boser92]_
+       - ``thunder`` - Thunder method [Wen2018]_
 
        For GPU:
 
-        - ``thunder`` - Thunder method [Wen2018]_
+       - ``thunder`` - Thunder method [Wen2018]_
 
    * - ``nClasses``
      - :math:`2`
@@ -212,10 +215,13 @@ Training and Prediction.
 
 At the prediction stage, SVM classifier has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Prediction Parameters for Support Vector Machine Classifier (Batch Processing)
    :header-rows: 1
    :widths: 20 30 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -241,18 +247,18 @@ Examples
   .. tab:: oneAPI DPC++
 
     Batch Processing:
-    
+
     - :ref:`dpc_svm_two_class_thunder_dense_batch.cpp`
 
   .. tab:: oneAPI C++
 
     Batch Processing:
-    
+
     - :ref:`cpp_svm_two_class_smo_dense_batch.cpp`
     - :ref:`cpp_svm_two_class_thunder_dense_batch.cpp`
 
   .. tab:: C++ (CPU)
-  
+
     Batch Processing:
 
     - :cpp_example:`svm_two_class_boser_dense_batch.cpp <svm/svm_two_class_boser_dense_batch.cpp>`
@@ -261,9 +267,9 @@ Examples
     - :cpp_example:`svm_two_class_thunder_csr_batch.cpp <svm/svm_two_class_thunder_csr_batch.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
-  
+
     Batch Processing:
 
     - :java_example:`SVMTwoClassBoserDenseBatch.java <svm/SVMTwoClassBoserDenseBatch.java>`

@@ -18,7 +18,10 @@
 #include <iomanip>
 #include <iostream>
 
+#ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -30,14 +33,14 @@ void run(sycl::queue &q) {
     const auto train_data_file_name = get_data_path("kmeans_dense_train_data.csv");
     const auto initial_centroids_file_name = get_data_path("kmeans_dense_train_centroids.csv");
     const auto test_data_file_name = get_data_path("kmeans_dense_test_data.csv");
-    const auto test_label_file_name = get_data_path("kmeans_dense_test_label.csv");
+    const auto test_response_file_name = get_data_path("kmeans_dense_test_label.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
     const auto initial_centroids =
         dal::read<dal::table>(q, dal::csv::data_source{ initial_centroids_file_name });
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_label_file_name });
+    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
 
     const auto kmeans_desc = dal::kmeans::descriptor<>()
                                  .set_cluster_count(20)
@@ -49,12 +52,12 @@ void run(sycl::queue &q) {
     std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
     std::cout << "Objective function value: " << result_train.get_objective_function_value()
               << std::endl;
-    std::cout << "Labels:\n" << result_train.get_labels() << std::endl;
+    std::cout << "Responses:\n" << result_train.get_responses() << std::endl;
     std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
 
     const auto result_test = dal::infer(q, kmeans_desc, result_train.get_model(), x_test);
 
-    std::cout << "Infer result:\n" << result_test.get_labels() << std::endl;
+    std::cout << "Infer result:\n" << result_test.get_responses() << std::endl;
 
     std::cout << "Ground truth:\n" << y_test << std::endl;
 }

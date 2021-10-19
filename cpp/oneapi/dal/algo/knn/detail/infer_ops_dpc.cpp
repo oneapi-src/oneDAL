@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/detail/infer_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::knn::detail {
 namespace v1 {
@@ -29,9 +29,9 @@ struct infer_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
     infer_result<Task> operator()(const data_parallel_policy& ctx,
                                   const descriptor_base<Task>& params,
                                   const infer_input<Task>& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method, Task>,
-                                            backend::infer_kernel_gpu<Float, Method, Task>>;
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
+            KERNEL_SINGLE_NODE_CPU(backend::infer_kernel_cpu<Float, Method, Task>),
+            KERNEL_SINGLE_NODE_GPU(backend::infer_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
@@ -43,6 +43,14 @@ INSTANTIATE(float, method::kd_tree, task::classification)
 INSTANTIATE(double, method::kd_tree, task::classification)
 INSTANTIATE(float, method::brute_force, task::classification)
 INSTANTIATE(double, method::brute_force, task::classification)
+INSTANTIATE(float, method::kd_tree, task::search)
+INSTANTIATE(double, method::kd_tree, task::search)
+INSTANTIATE(float, method::brute_force, task::search)
+INSTANTIATE(double, method::brute_force, task::search)
+INSTANTIATE(float, method::kd_tree, task::regression)
+INSTANTIATE(double, method::kd_tree, task::regression)
+INSTANTIATE(float, method::brute_force, task::regression)
+INSTANTIATE(double, method::brute_force, task::regression)
 
 } // namespace v1
 } // namespace oneapi::dal::knn::detail

@@ -305,29 +305,7 @@ protected:
 //////////////////////////////////////////////////////////////////////////////////////////
 // ClassificationTrainBatchKernel
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, gbt::classification::training::Method method, CpuType cpu>
-services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface * pHost, const NumericTable * x,
-                                                                                       const NumericTable * y, gbt::classification::Model & m,
-                                                                                       Result & res, const interface1::Parameter & par,
-                                                                                       engines::internal::BatchBaseImpl & engine)
-{
-    Parameter tmpPar(par.nClasses);
-    tmpPar.splitMethod                 = par.splitMethod;
-    tmpPar.maxIterations               = par.maxIterations;
-    tmpPar.maxTreeDepth                = par.maxTreeDepth;
-    tmpPar.shrinkage                   = par.shrinkage;
-    tmpPar.lambda                      = par.lambda;
-    tmpPar.observationsPerTreeFraction = par.observationsPerTreeFraction;
-    tmpPar.featuresPerNode             = par.featuresPerNode;
-    tmpPar.minObservationsInLeafNode   = par.minObservationsInLeafNode;
-    tmpPar.memorySavingMode            = par.memorySavingMode;
-    tmpPar.engine                      = par.engine;
-    tmpPar.maxBins                     = par.maxBins;
-    tmpPar.minBinSize                  = par.minBinSize;
-    tmpPar.internalOptions             = par.internalOptions;
-    tmpPar.loss                        = par.loss;
-    return compute(pHost, x, y, m, res, tmpPar, engine);
-}
+
 template <typename algorithmFPType, gbt::classification::training::Method method, CpuType cpu>
 services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface * pHost, const NumericTable * x,
                                                                                        const NumericTable * y, gbt::classification::Model & m,

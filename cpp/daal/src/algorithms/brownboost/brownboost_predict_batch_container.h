@@ -22,7 +22,6 @@
 //--
 */
 
-#include "algorithms/boosting/brownboost_predict.h"
 #include "src/algorithms/brownboost/brownboost_predict_kernel.h"
 
 namespace daal

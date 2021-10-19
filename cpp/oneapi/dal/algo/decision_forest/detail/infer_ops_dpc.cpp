@@ -17,27 +17,28 @@
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/detail/infer_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
 namespace v1 {
 
-using dal::detail::data_parallel_policy;
-
-template <typename Float, typename Task, typename Method>
-struct infer_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
-    infer_result<Task> operator()(const data_parallel_policy& ctx,
-                                  const descriptor_base<Task>& params,
+template <typename Policy, typename Float, typename Task, typename Method>
+struct infer_ops_dispatcher<Policy, Float, Task, Method> {
+    infer_result<Task> operator()(const Policy& policy,
+                                  const descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method, Task>,
-                                            backend::infer_kernel_gpu<Float, Method, Task>>;
-        return kernel_dispatcher_t{}(ctx, params, input);
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
+            KERNEL_SINGLE_NODE_CPU(backend::infer_kernel_cpu<Float, Method, Task>),
+            KERNEL_UNIVERSAL_SPMD_GPU(backend::infer_kernel_gpu<Float, Method, Task>)>;
+        return kernel_dispatcher_t{}(policy, desc, input);
     }
 };
 
-#define INSTANTIATE(F, T, M) \
-    template struct ONEDAL_EXPORT infer_ops_dispatcher<data_parallel_policy, F, T, M>;
+#define INSTANTIATE(F, T, M)                                              \
+    template struct ONEDAL_EXPORT                                         \
+        infer_ops_dispatcher<dal::detail::data_parallel_policy, F, T, M>; \
+    template struct ONEDAL_EXPORT                                         \
+        infer_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::by_default)
 INSTANTIATE(double, task::classification, method::by_default)

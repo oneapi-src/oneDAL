@@ -36,6 +36,10 @@ public:
         return int_data_.data();
     }
 
+    const std::int64_t* get_data(std::int64_t) const {
+        return int64_data_.data();
+    }
+
     const float* get_data(float) const {
         return float_data_.data();
     }
@@ -145,6 +149,9 @@ private:
     std::array<std::int32_t, element_count_> int_data_ = { 1, -2, //
                                                            3, -4, //
                                                            5, -6 };
+    std::array<std::int64_t, element_count_> int64_data_ = { 1, -2, //
+                                                             3, -4, //
+                                                             5, -6 };
     std::array<float, element_count_> float_data_ = { 1.6f, -2.5f, //
                                                       3.4f, -4.3f, //
                                                       5.2f, -6.1f };
@@ -211,6 +218,7 @@ TEST_M(convert_test, "device2device convert identical types", "[device2device]")
             test_device2device_conversion<float, float>(stride);
         }
         SECTION("double -> double") {
+            SKIP_IF(!this->get_policy().has_native_float64());
             test_device2device_conversion<double, double>(stride);
         }
     }
@@ -231,17 +239,17 @@ TEST_M(convert_test, "convert types of the same size device2device", "[device2de
 TEST_M(convert_test, "convert types of the different sizes device2device", "[device2device]") {
     const std::int64_t stride = GENERATE_COPY(1, 2, 3);
     SECTION(fmt::format("stride = {}", stride)) {
-        SECTION("float -> double") {
-            test_device2device_conversion<float, double>(stride);
+        SECTION("float -> std::int64_t") {
+            test_device2device_conversion<float, std::int64_t>(stride);
         }
-        SECTION("double -> float") {
-            test_device2device_conversion<double, float>(stride);
+        SECTION("std::int64_t -> float") {
+            test_device2device_conversion<std::int64_t, float>(stride);
         }
-        SECTION("std::int32_t -> double") {
-            test_device2device_conversion<std::int32_t, double>(stride);
+        SECTION("std::int32_t -> std::int64_t") {
+            test_device2device_conversion<std::int32_t, std::int64_t>(stride);
         }
-        SECTION("double -> std::int32_t") {
-            test_device2device_conversion<double, std::int32_t>(stride);
+        SECTION("std::int64_t -> std::int32_t") {
+            test_device2device_conversion<std::int64_t, std::int32_t>(stride);
         }
     }
 }
@@ -259,6 +267,7 @@ TEST_M(convert_test, "host2device convert identical types without stride", "[hos
             test_host2device_conversion<float, float>(stride);
         }
         SECTION("double -> double") {
+            SKIP_IF(!this->get_policy().has_native_float64());
             test_host2device_conversion<double, double>(stride);
         }
     }
@@ -279,17 +288,17 @@ TEST_M(convert_test, "host2device convert types of the same size", "[host2device
 TEST_M(convert_test, "host2device convert types of the different sizes", "[host2device]") {
     const std::int64_t stride = GENERATE_COPY(1, 2, 3);
     SECTION(fmt::format("stride = {}", stride)) {
-        SECTION("float -> double") {
-            test_host2device_conversion<float, double>(stride);
+        SECTION("float -> std::int64_t") {
+            test_host2device_conversion<float, std::int64_t>(stride);
         }
-        SECTION("double -> float") {
-            test_host2device_conversion<double, float>(stride);
+        SECTION("std::int64_t -> float") {
+            test_host2device_conversion<std::int64_t, float>(stride);
         }
-        SECTION("std::int32_t -> double") {
-            test_host2device_conversion<std::int32_t, double>(stride);
+        SECTION("std::int32_t -> std::int64_t") {
+            test_host2device_conversion<std::int32_t, std::int64_t>(stride);
         }
-        SECTION("double -> std::int32_t") {
-            test_host2device_conversion<double, std::int32_t>(stride);
+        SECTION("std::int64_t -> std::int32_t") {
+            test_host2device_conversion<std::int64_t, std::int32_t>(stride);
         }
     }
 }
@@ -307,6 +316,7 @@ TEST_M(convert_test, "device2host convert identical types", "[device2host]") {
             test_device2host_conversion<float, float>(stride);
         }
         SECTION("double -> double") {
+            SKIP_IF(!this->get_policy().has_native_float64());
             test_device2host_conversion<double, double>(stride);
         }
     }
@@ -327,17 +337,17 @@ TEST_M(convert_test, "device2host convert types of the same size", "[device2host
 TEST_M(convert_test, "device2host convert types of the different sizes", "[device2host]") {
     const std::int64_t stride = GENERATE_COPY(1, 2, 3);
     SECTION(fmt::format("stride = {}", stride)) {
-        SECTION("float -> double") {
-            test_device2host_conversion<float, double>(stride);
+        SECTION("float -> std::int64_t") {
+            test_device2host_conversion<float, std::int64_t>(stride);
         }
-        SECTION("double -> float") {
-            test_device2host_conversion<double, float>(stride);
+        SECTION("std::int64_t -> float") {
+            test_device2host_conversion<std::int64_t, float>(stride);
         }
-        SECTION("std::int32_t -> double") {
-            test_device2host_conversion<std::int32_t, double>(stride);
+        SECTION("std::int32_t -> std::int64_t") {
+            test_device2host_conversion<std::int32_t, std::int64_t>(stride);
         }
-        SECTION("double -> std::int32_t") {
-            test_device2host_conversion<double, std::int32_t>(stride);
+        SECTION("std::int64_t -> std::int32_t") {
+            test_device2host_conversion<std::int64_t, std::int32_t>(stride);
         }
     }
 }

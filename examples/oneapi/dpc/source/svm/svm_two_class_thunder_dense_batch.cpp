@@ -16,7 +16,10 @@
 
 #include <CL/sycl.hpp>
 
+#ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/algo/svm.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -26,12 +29,13 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue &q) {
     const auto train_data_file_name = get_data_path("svm_two_class_train_dense_data.csv");
-    const auto train_label_file_name = get_data_path("svm_two_class_train_dense_label.csv");
+    const auto train_response_file_name = get_data_path("svm_two_class_train_dense_label.csv");
     const auto test_data_file_name = get_data_path("svm_two_class_test_dense_data.csv");
-    const auto test_label_file_name = get_data_path("svm_two_class_test_dense_label.csv");
+    const auto test_response_file_name = get_data_path("svm_two_class_test_dense_label.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
-    const auto y_train = dal::read<dal::table>(q, dal::csv::data_source{ train_label_file_name });
+    const auto y_train =
+        dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
 
     const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
     const auto svm_desc = dal::svm::descriptor{ kernel_desc }
@@ -47,13 +51,13 @@ void run(sycl::queue &q) {
     std::cout << "Support indices:\n" << result_train.get_support_indices() << std::endl;
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_true = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
+    const auto y_true = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
     const auto result_test = dal::infer(q, svm_desc, result_train.get_model(), x_test);
 
     std::cout << "Decision function result:\n" << result_test.get_decision_function() << std::endl;
-    std::cout << "Labels result:\n" << result_test.get_labels() << std::endl;
-    std::cout << "Labels true:\n" << y_true << std::endl;
+    std::cout << "Responses result:\n" << result_test.get_responses() << std::endl;
+    std::cout << "Responses true:\n" << y_true << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

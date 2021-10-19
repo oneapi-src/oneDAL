@@ -35,11 +35,11 @@ Details
 Given the matrix :math:`X` of size :math:`n \times p`, the problem is to compute the
 Singular Value Decomposition (SVD) :math:`X = U \Sigma V^t`, where:
 
-   -  :math:`U` is an orthogonal matrix of size :math:`n \times n`
+- :math:`U` is an orthogonal matrix of size :math:`n \times n`
 
-   -  :math:`\Sigma` is a rectangular diagonal matrix of size :math:`n \times p` with non-negative values on the diagonal, called singular values
+- :math:`\Sigma` is a rectangular diagonal matrix of size :math:`n \times p` with non-negative values on the diagonal, called singular values
 
-   -  :math:`V_t` is an orthogonal matrix of size :math:`p \times p`
+- :math:`V_t` is an orthogonal matrix of size :math:`p \times p`
 
 Columns of the matrices :math:`U` and :math:`V` are called left and right singular vectors, respectively.
 
@@ -50,7 +50,7 @@ The following computation modes are available:
 
 .. toctree::
    :maxdepth: 1
-   
+
    computation-batch-online.rst
    computation-distributed.rst
 
@@ -74,7 +74,7 @@ Examples
       - :cpp_example:`svd_dense_distr.cpp <svd/svd_dense_distr.cpp>`
 
    .. tab:: Java*
-  
+
       .. note:: There is no support for Java on GPU.
 
       Batch Processing:
@@ -82,7 +82,7 @@ Examples
       - :java_example:`SVDDenseBatch.java <svd/SVDDenseBatch.java>`
 
       Online Processing:
-    
+
       - :java_example:`SVDDenseOnline.java <svd/SVDDenseOnline.java>`
 
       Distributed Processing:
@@ -130,9 +130,9 @@ Distributed Processing
 ----------------------
 
 Using SVD in the distributed processing mode requires gathering local-node :math:`p \times p` numeric tables on the master node.
-When the amount of local-node work is small, that is, when the local-node data set is small, 
+When the amount of local-node work is small, that is, when the local-node data set is small,
 the network data transfer may become a bottleneck.
-To avoid this situation, ensure that local nodes have a sufficient amount of work. 
+To avoid this situation, ensure that local nodes have a sufficient amount of work.
 For example, distribute input data set across a smaller number of nodes.
 
 .. include:: ../../../opt-notice.rst

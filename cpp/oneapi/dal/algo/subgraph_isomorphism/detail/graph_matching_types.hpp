@@ -26,7 +26,7 @@ namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 class graph_matching_result_impl;
 
-template <typename Graph>
+template <typename Graph, typename Task>
 class graph_matching_input_impl : public base {
 public:
     graph_matching_input_impl(const Graph& target_graph, const Graph& pattern_graph)

@@ -172,7 +172,7 @@ public:
     template <typename Y>
     [[deprecated]] static array<T> wrap(Y* data,
                                         std::int64_t count,
-                                        const sycl::vector_class<sycl::event>& dependencies) {
+                                        const std::vector<sycl::event>& dependencies) {
         sycl::event::wait_and_throw(dependencies);
         return array<T>{ data, count, dal::detail::empty_delete<const T>{} };
     }
@@ -193,7 +193,7 @@ public:
     static array<T> wrap(const sycl::queue& queue,
                          Y* data,
                          std::int64_t count,
-                         const sycl::vector_class<sycl::event>& dependencies = {}) {
+                         const std::vector<sycl::event>& dependencies = {}) {
         return array<T>{ queue, data, count, dal::detail::empty_delete<const T>{}, dependencies };
     }
 #endif
@@ -253,7 +253,7 @@ public:
                    T* data,
                    std::int64_t count,
                    Deleter&& deleter,
-                   const sycl::vector_class<sycl::event>& dependencies = {})
+                   const std::vector<sycl::event>& dependencies = {})
             : impl_(new impl_t(detail::data_parallel_policy{ queue },
                                data,
                                count,
@@ -302,7 +302,7 @@ public:
                    const T* data,
                    std::int64_t count,
                    ConstDeleter&& deleter,
-                   const sycl::vector_class<sycl::event>& dependencies = {})
+                   const std::vector<sycl::event>& dependencies = {})
             : impl_(new impl_t(detail::data_parallel_policy{ queue },
                                data,
                                count,
@@ -333,7 +333,7 @@ public:
     explicit array(const sycl::queue& queue,
                    const std::shared_ptr<T>& data,
                    std::int64_t count,
-                   const sycl::vector_class<sycl::event>& dependencies = {})
+                   const std::vector<sycl::event>& dependencies = {})
             : impl_(new impl_t(detail::data_parallel_policy{ queue }, data, count)) {
         ONEDAL_ASSERT(sycl::get_pointer_type(data.get(), queue.get_context()) !=
                       sycl::usm::alloc::unknown);
@@ -362,7 +362,7 @@ public:
     explicit array(const sycl::queue& queue,
                    const std::shared_ptr<const T>& data,
                    std::int64_t count,
-                   const sycl::vector_class<sycl::event>& dependencies = {})
+                   const std::vector<sycl::event>& dependencies = {})
             : impl_(new impl_t(detail::data_parallel_policy{ queue }, data, count)) {
         ONEDAL_ASSERT(sycl::get_pointer_type(data.get(), queue.get_context()) !=
                       sycl::usm::alloc::unknown);
@@ -545,7 +545,7 @@ public:
                T* data,
                std::int64_t count,
                Deleter&& deleter,
-               const sycl::vector_class<sycl::event>& dependencies = {}) {
+               const std::vector<sycl::event>& dependencies = {}) {
         ONEDAL_ASSERT(sycl::get_pointer_type(data, queue.get_context()) !=
                       sycl::usm::alloc::unknown);
         impl_->reset(detail::data_parallel_policy{ queue },
@@ -594,7 +594,7 @@ public:
                const T* data,
                std::int64_t count,
                ConstDeleter&& deleter,
-               const sycl::vector_class<sycl::event>& dependencies = {}) {
+               const std::vector<sycl::event>& dependencies = {}) {
         ONEDAL_ASSERT(sycl::get_pointer_type(data, queue.get_context()) !=
                       sycl::usm::alloc::unknown);
         impl_->reset(detail::data_parallel_policy{ queue },

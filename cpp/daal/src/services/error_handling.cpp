@@ -973,6 +973,9 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorIncorrectNumberOfTerms, "Incorrect number of summands (terms) in objective function");
     add(ErrorIncorrectNumberOfNodes, "Incorrect number of nodes");
     add(ErrorInconsistenceModelAndBatchSizeInParameter, "Inconsistence of model and batch size parameter in optimization solver");
+
+    add(ErrorCanNotLoadDynamicLibrary, "Failure during loading of dynamic library");
+    add(ErrorCanNotLoadDynamicLibrarySymbol, "Failure during loading symbol from dynamic library");
 }
 
 void ErrorDetailCollection::parseResourceFile()

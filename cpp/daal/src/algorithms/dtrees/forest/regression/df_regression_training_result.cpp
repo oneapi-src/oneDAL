@@ -84,40 +84,29 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     const decision_forest::regression::training::Input * algInput = static_cast<const decision_forest::regression::training::Input *>(input);
 
     //TODO: check model
-    const daal::algorithms::decision_forest::regression::training::interface1::Parameter * algParameter1 =
-        dynamic_cast<const daal::algorithms::decision_forest::regression::training::interface1::Parameter *>(par);
     const daal::algorithms::decision_forest::regression::training::interface2::Parameter * algParameter2 =
         dynamic_cast<const daal::algorithms::decision_forest::regression::training::interface2::Parameter *>(par);
 
-    if (algParameter1 != NULL)
-    {
-        if (algParameter1->resultsToCompute & decision_forest::training::computeOutOfBagError)
-        {
-            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1));
-        }
-        if (algParameter1->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
-        {
-            const auto nObs = algInput->get(decision_forest::regression::training::data)->getNumberOfRows();
-            DAAL_CHECK_STATUS(
-                s, data_management::checkNumericTable(get(outOfBagErrorPerObservation).get(), outOfBagErrorPerObservationStr(), 0, 0, 1, nObs));
-        }
-        if (algParameter1->varImportance != decision_forest::training::none)
-        {
-            const auto nFeatures = algInput->get(decision_forest::regression::training::data)->getNumberOfColumns();
-            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(variableImportance).get(), variableImportanceStr(), 0, 0, nFeatures, 1));
-        }
-    }
-    else if (algParameter2 != NULL)
+    if (algParameter2 != NULL)
     {
         if (algParameter2->resultsToCompute & decision_forest::training::computeOutOfBagError)
         {
             DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1));
+        }
+        if (algParameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorR2)
+        {
+            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagErrorR2).get(), outOfBagErrorR2Str(), 0, 0, 1, 1));
         }
         if (algParameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
         {
             const auto nObs = algInput->get(decision_forest::regression::training::data)->getNumberOfRows();
             DAAL_CHECK_STATUS(
                 s, data_management::checkNumericTable(get(outOfBagErrorPerObservation).get(), outOfBagErrorPerObservationStr(), 0, 0, 1, nObs));
+        }
+        if (algParameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorPrediction)
+        {
+            const auto nObs = algInput->get(decision_forest::regression::training::data)->getNumberOfRows();
+            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagErrorPrediction).get(), outOfBagErrorPredictionStr(), 0, 0, 1, nObs));
         }
         if (algParameter2->varImportance != decision_forest::training::none)
         {

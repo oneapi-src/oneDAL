@@ -32,10 +32,6 @@ namespace kdtree_knn_classification
 namespace training
 {
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter, int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
-                                                                    const kdtree_knn_classification::interface2::Parameter * parameter, int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
-                                                                    const kdtree_knn_classification::interface1::Parameter * parameter, int method);
 
 } // namespace training
 } // namespace kdtree_knn_classification

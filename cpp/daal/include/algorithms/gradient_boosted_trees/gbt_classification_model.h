@@ -58,8 +58,8 @@ namespace interface1
  * \brief %Model of the classifier trained by the gbt::training::Batch algorithm.
  *
  * \par References
- *      - \ref classification::training::interface1::Batch "training::Batch" class
- *      - \ref classification::prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref classification::training::interface2::Batch "training::Batch" class
+ *      - \ref classification::prediction::interface2::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public classifier::Model
 {

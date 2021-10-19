@@ -32,7 +32,7 @@
 #include "src/algorithms/dtrees/gbt/regression/gbt_regression_tree_impl.h"
 #include "src/algorithms/dtrees/gbt/gbt_model_impl.h"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"

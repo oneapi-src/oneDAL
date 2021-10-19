@@ -43,7 +43,7 @@ public:
         auto& impl = dal::detail::cast_impl<leaf_impl_t>(node);
 
         if constexpr (std::is_same_v<task_t, task::classification>) {
-            impl.label = zeroize ? 0 : response_cls_;
+            impl.response = zeroize ? 0 : response_cls_;
 
             auto prob_arr = dal::array<double>::empty(impl.class_count);
             vec_prob_.push_back(prob_arr); // node_info doesn't own prob pointer
@@ -55,7 +55,7 @@ public:
             impl.prob = prob; // node_info doesn't own prob pointer
         }
         else {
-            impl.label = zeroize ? 0 : response_reg_;
+            impl.response = zeroize ? 0 : response_reg_;
         }
     }
 
@@ -83,13 +83,13 @@ public:
     void check_node(const leaf_node_info<task_t>& node) {
         check_node(static_cast<const node_info<task_t>&>(node));
         if constexpr (std::is_same_v<task_t, task::classification>) {
-            REQUIRE(node.get_label() == response_cls_);
+            REQUIRE(node.get_response() == response_cls_);
             for (std::int64_t idx = 0; idx < class_count_; idx++) {
                 REQUIRE(node.get_probability(idx) == static_cast<double>(idx));
             }
         }
         else {
-            REQUIRE(node.get_label() == response_reg_);
+            REQUIRE(node.get_response() == response_reg_);
         }
     }
 

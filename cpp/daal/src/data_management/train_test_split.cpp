@@ -95,9 +95,9 @@ services::Status generateShuffledIndicesImpl(const NumericTablePtr & idxTable, c
     const size_t nThreads  = threader_get_threads_number();
     const size_t n         = idxTable->getNumberOfRows();
     const size_t stateSize = rngStateTable->getNumberOfRows();
-    // number of generated uints: 1.5x of n for reserve
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n / 2lu, 3lu);
-    const size_t nRandomUInts = n / 2lu * 3lu;
+    // number of generated uints: 2 x n + 32 for reserve
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n + 16, 2);
+    const size_t nRandomUInts = 2 * n + 32;
 
     daal::internal::WriteColumns<IdxType, cpu> idxBlock(*idxTable, 0, 0, n);
     IdxType * idx = idxBlock.get();
@@ -210,7 +210,7 @@ services::Status splitColumn(const NumericTablePtr & inputTable, const NumericTa
                              const size_t nThreads)
 {
     services::Status s;
-    daal::internal::ReadColumns<DataType, cpu> origDataBlock(*inputTable, iCol, 0, nTrainRows + nTestRows);
+    daal::internal::ReadColumns<DataType, cpu> origDataBlock(*inputTable, iCol, 0, inputTable->getNumberOfRows());
     const DataType * origDataPtr = origDataBlock.get();
     DAAL_CHECK_MALLOC(origDataPtr);
 
@@ -274,7 +274,7 @@ services::Status splitRows(const NumericTablePtr & inputTable, const NumericTabl
 {
     services::Status s;
     const size_t blockSize = daal::services::internal::max<cpu, size_t>(BLOCK_CONST / nColumns, 1);
-    daal::internal::ReadRows<DataType, cpu> origBlock(*inputTable, 0, nTrainRows + nTestRows);
+    daal::internal::ReadRows<DataType, cpu> origBlock(*inputTable, 0, inputTable->getNumberOfRows());
     const DataType * origDataPtr = origBlock.get();
     DAAL_CHECK_MALLOC(origDataPtr);
 
@@ -290,12 +290,15 @@ services::Status trainTestSplitImpl(const NumericTablePtr & inputTable, const Nu
 {
     const size_t nThreads   = threader_get_threads_number();
     const NTLayout layout   = inputTable->getDataLayout();
-    const size_t nColumns   = trainTable->getNumberOfColumns();
+    const size_t nColumns   = inputTable->getNumberOfColumns();
+    const size_t nInputRows = inputTable->getNumberOfRows();
     const size_t nTrainRows = trainTable->getNumberOfRows();
     const size_t nTestRows  = testTable->getNumberOfRows();
     DAAL_CHECK(nColumns == testTable->getNumberOfColumns(), ErrorInconsistentNumberOfColumns);
-    DAAL_CHECK(nColumns == inputTable->getNumberOfColumns(), ErrorInconsistentNumberOfColumns);
-    DAAL_CHECK(nTrainRows + nTestRows == inputTable->getNumberOfRows(), ErrorInconsistentNumberOfRows);
+    DAAL_CHECK(nColumns == trainTable->getNumberOfColumns(), ErrorInconsistentNumberOfColumns);
+    DAAL_CHECK(nTrainRows == trainIdxTable->getNumberOfRows(), ErrorInconsistentNumberOfRows);
+    DAAL_CHECK(nTestRows == testIdxTable->getNumberOfRows(), ErrorInconsistentNumberOfRows);
+    DAAL_CHECK(nTrainRows + nTestRows <= nInputRows, ErrorInconsistentNumberOfRows);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nTrainRows + nTestRows, nColumns);
 
     NumericTableDictionaryPtr tableFeaturesDict = inputTable->getDictionarySharedPtr();

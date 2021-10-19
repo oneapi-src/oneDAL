@@ -31,7 +31,7 @@
 #include "src/sycl/blas_gpu.h"
 #include "src/sycl/reducer.h"
 #include "src/algorithms/covariance/oneapi/cl_kernels/covariance_kernels.cl"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/services/service_data_utils.h"
 
 using namespace daal::services::internal;

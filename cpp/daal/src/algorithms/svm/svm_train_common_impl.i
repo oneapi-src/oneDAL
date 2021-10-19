@@ -28,7 +28,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/services/service_utils.h"
 #include "src/services/service_data_utils.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "src/algorithms/svm/svm_train_result.h"
 #include "src/algorithms/svm/svm_train_common.h"
 
@@ -71,7 +71,7 @@ algorithmFPType HelperTrainSVM<algorithmFPType, cpu>::WSSi(size_t nActiveVectors
 
     Bi                   = -1;
     algorithmFPType GMin = (MaxVal<algorithmFPType>::get()); // some big negative number
-    char sign            = getSign(signNuType);
+    const char sign      = getSign(signNuType);
 
     /* Find i index of the working set (Bi) */
     for (size_t i = 0; i < nActiveVectors; ++i)

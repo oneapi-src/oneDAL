@@ -21,8 +21,7 @@
 //--
 */
 
-#include "src/externals/service_ittnotify.h"
-DAAL_ITTNOTIFY_DOMAIN(low_order_moments.dense.batch.oneapi);
+#include "src/externals/service_profiler.h"
 
 #include "src/algorithms/low_order_moments/low_order_moments_container.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_batch_oneapi_impl.i"
@@ -37,7 +36,7 @@ namespace oneapi
 {
 namespace internal
 {
-template class LowOrderMomentsBatchKernelOneAPI<DAAL_FPTYPE, defaultDense>;
+template class DAAL_EXPORT LowOrderMomentsBatchKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 template class LowOrderMomentsBatchKernelOneAPI<DAAL_FPTYPE, singlePassDense>;
 template class LowOrderMomentsBatchKernelOneAPI<DAAL_FPTYPE, sumDense>;
 template class LowOrderMomentsBatchKernelOneAPI<DAAL_FPTYPE, fastCSR>;

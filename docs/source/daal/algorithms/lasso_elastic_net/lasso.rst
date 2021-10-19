@@ -63,7 +63,7 @@ by minimizing the objective function:
 
 .. math::
 
-    F_j(\beta) = \frac{1}{2n} \sum_{i=1}^{n}(y_{ij} - \beta_{0j} - \sum_{q=1}^{p}{\beta_{qj}x_{iq})^2} + 
+    F_j(\beta) = \frac{1}{2n} \sum_{i=1}^{n}(y_{ij} - \beta_{0j} - \sum_{q=1}^{p}{\beta_{qj}x_{iq})^2} +
     \lambda_{1j} \sum_{q=1}^{p}|\beta_{qj}|
 
 In the equation above, the first term is a mean squared error function and the second one is a regularization term that

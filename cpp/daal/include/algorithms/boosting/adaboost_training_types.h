@@ -71,55 +71,6 @@ enum ResultNumericTableId
                                                                 weak learners classification errors */
     lastResultNumericTableId = weakLearnersErrors
 };
-/**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__TRAINING__RESULT"></a>
- * \brief Provides methods to access final results obtained with the compute() method    \DAAL_DEPRECATED
- *        of the AdaBoost training algorithm in the batch processing mode
- */
-class DAAL_EXPORT Result : public classifier::training::interface1::Result
-{
-public:
-    DECLARE_SERIALIZABLE_CAST(Result)
-
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
-
-    /**
-     * Allocates memory to store final results of AdaBoost training
-     * \param[in] input         %Input of the AdaBoost training algorithm
-     * \param[in] parameter     Parameters of the algorithm
-     * \param[in] method        AdaBoost computation method
-     */
-    template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                                          const int method);
-
-    /**
-     * Returns the model trained with the AdaBoost algorithm
-     * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
-     * \return          Model trained with the AdaBoost algorithm
-     */
-    DAAL_DEPRECATED daal::algorithms::adaboost::interface1::ModelPtr get(classifier::training::ResultId id) const;
-
-    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                           int method) const DAAL_C11_OVERRIDE;
-
-protected:
-    using daal::algorithms::interface1::Result::check;
-
-    /** \private */
-    template <typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive * arch)
-    {
-        return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
-    }
-};
-typedef services::SharedPtr<interface1::Result> ResultPtr;
-} // namespace interface1
 
 /**
  * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.

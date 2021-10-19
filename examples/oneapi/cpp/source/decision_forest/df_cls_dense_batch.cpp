@@ -23,15 +23,15 @@ namespace df = dal::decision_forest;
 
 int main(int argc, char const *argv[]) {
     const auto train_data_file_name = get_data_path("df_classification_train_data.csv");
-    const auto train_label_file_name = get_data_path("df_classification_train_label.csv");
+    const auto train_response_file_name = get_data_path("df_classification_train_label.csv");
     const auto test_data_file_name = get_data_path("df_classification_test_data.csv");
-    const auto test_label_file_name = get_data_path("df_classification_test_label.csv");
+    const auto test_response_file_name = get_data_path("df_classification_test_label.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
-    const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_label_file_name });
+    const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_response_file_name });
 
     const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
+    const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
     const auto df_desc =
         df::descriptor<>{}
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[]) {
             .set_min_impurity_decrease_in_split_node(0.0)
             .set_variable_importance_mode(df::variable_importance_mode::mdi)
             .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
-            .set_infer_mode(df::infer_mode::class_labels | df::infer_mode::class_probabilities)
+            .set_infer_mode(df::infer_mode::class_responses | df::infer_mode::class_probabilities)
             .set_voting_mode(df::voting_mode::weighted);
 
     const auto result_train = dal::train(df_desc, x_train, y_train);
@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
 
     const auto result_infer = dal::infer(df_desc, result_train.get_model(), x_test);
 
-    std::cout << "Prediction results:\n" << result_infer.get_labels() << std::endl;
+    std::cout << "Prediction results:\n" << result_infer.get_responses() << std::endl;
     std::cout << "Probabilities results:\n" << result_infer.get_probabilities() << std::endl;
 
     std::cout << "Ground truth:\n" << y_test << std::endl;

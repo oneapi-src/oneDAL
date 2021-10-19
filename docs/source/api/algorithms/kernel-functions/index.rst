@@ -26,3 +26,4 @@ This chapter describes programming interfaces of the kernel functions implemente
    linear-kernel.rst
    polynomial-kernel.rst
    rbf-kernel.rst
+   sigmoid-kernel.rst

@@ -31,7 +31,7 @@ public:
     /// Performs K-selection on each row of a matrix
     ///
     /// @param[in]  queue           The queue
-    /// @param[in]  data            The [nxm] matrix to be processed
+    /// @param[in]  data            The [n x m] matrix to be processed
     /// @param[in]  k               The number of minimal values to be selected in each row
     /// @param[out] selection       The [n x k] matrix of selected values
     /// @param[out] column_indices  The [n x k] matrix of indices of selected values
@@ -47,7 +47,7 @@ public:
     /// Performs K-selection on each row of a matrix
     ///
     /// @param[in]  queue       The queue
-    /// @param[in]  data        The [nxm] matrix to be processed
+    /// @param[in]  data        The [n x m] matrix to be processed
     /// @param[in]  k           The number of minimal values to be selected in each row
     /// @param[out] selection   The [n x k] matrix of selected values
     virtual sycl::event operator()(sycl::queue& queue,
@@ -61,7 +61,7 @@ public:
     /// Performs K-selection on each row of a matrix
     ///
     /// @param[in]  queue           The queue
-    /// @param[in]  data            The [nxm] matrix to be processed
+    /// @param[in]  data            The [n x m] matrix to be processed
     /// @param[in]  k               The number of minimal values to be selected in each row
     /// @param[out] column_indices  The [n x k] matrix of indices of selected values
     virtual sycl::event operator()(sycl::queue& queue,

@@ -290,6 +290,12 @@ services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * ar
     auto s = daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
     arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
+
+    if ((INTEL_DAAL_VERSION > COMPUTE_DAAL_VERSION(2020, 0, 0)))
+    {
+        arch->setSharedPtrObj(_probTbl);
+    }
+
     return s;
 }
 
@@ -315,7 +321,7 @@ bool ModelImpl::add(const TreeType & tree, size_t nClasses, size_t iTree)
     auto pTbl           = new DecisionTreeTable(nNode);
     auto impTbl         = new HomogenNumericTable<double>(1, nNode, NumericTable::doAllocate);
     auto nodeSamplesTbl = new HomogenNumericTable<int>(1, nNode, NumericTable::doAllocate);
-    auto probTbl        = new HomogenNumericTable<double>(nNode, nClasses, NumericTable::doAllocate);
+    auto probTbl        = new HomogenNumericTable<double>(DictionaryIface::equal, nNode, nClasses, NumericTable::doAllocate);
 
     if (!pTbl || !impTbl || !nodeSamplesTbl || !probTbl)
     {

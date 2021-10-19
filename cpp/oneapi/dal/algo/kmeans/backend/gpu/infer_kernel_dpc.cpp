@@ -45,29 +45,40 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                       input.get_model().get_centroids(),
                                                       sycl::usm::alloc::device);
 
-        std::int64_t block_size_in_rows =
-            kernels_fp<Float>::get_block_size_in_rows(queue, column_count);
+        std::int64_t block_size_in_rows = std::min(
+            row_count,
+            kernels_fp<float_t>::get_block_size_in_rows(queue, column_count, cluster_count));
         dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
         auto arr_distance_block =
             pr::ndarray<Float, 2>::empty(queue,
                                          { block_size_in_rows, cluster_count },
                                          sycl::usm::alloc::device);
+        auto arr_centroid_squares =
+            pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
+        auto arr_data_squares =
+            pr::ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
+        auto data_squares_event =
+            kernels_fp<Float>::compute_squares(queue, arr_data, arr_data_squares);
+        auto centroid_squares_event =
+            kernels_fp<Float>::compute_squares(queue, arr_centroids, arr_centroid_squares);
         auto arr_closest_distances =
             pr::ndarray<Float, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
-        auto arr_labels =
+        auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_objective_function =
             pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
 
         auto assign_event =
-            kernels_fp<Float>::template assign_clusters<pr::squared_l2_metric<Float>>(
-                queue,
-                arr_data,
-                arr_centroids,
-                block_size_in_rows,
-                arr_labels,
-                arr_distance_block,
-                arr_closest_distances);
+            kernels_fp<Float>::assign_clusters(queue,
+                                               arr_data,
+                                               arr_centroids,
+                                               arr_data_squares,
+                                               arr_centroid_squares,
+                                               block_size_in_rows,
+                                               arr_responses,
+                                               arr_distance_block,
+                                               arr_closest_distances,
+                                               { data_squares_event, centroid_squares_event });
         kernels_fp<Float>::compute_objective_function(queue,
                                                       arr_closest_distances,
                                                       arr_objective_function,
@@ -75,7 +86,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             .wait_and_throw();
 
         return infer_result<task::clustering>()
-            .set_labels(dal::homogen_table::wrap(arr_labels.flatten(queue), row_count, 1))
+            .set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1))
             .set_objective_function_value(
                 static_cast<double>(*arr_objective_function.to_host(queue).get_data()));
     }

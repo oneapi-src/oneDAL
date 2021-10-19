@@ -32,11 +32,19 @@ inline std::tuple<array<T>, sycl::event> to_device(sycl::queue& q, const array<T
         if (is_same_device(q, ary_q) && is_device_usm(ary)) {
             return { ary, sycl::event{} };
         }
+        else {
+            const auto ary_device = array<T>::empty(q, ary.get_count(), sycl::usm::alloc::device);
+            const auto event =
+                copy<T>(q, ary_device.get_mutable_data(), ary.get_data(), ary.get_count());
+            return { ary_device, event };
+        }
     }
-
-    const auto ary_device = array<T>::empty(q, ary.get_count(), sycl::usm::alloc::device);
-    const auto event = copy<T>(q, ary_device.get_mutable_data(), ary.get_data(), ary.get_count());
-    return { ary_device, event };
+    else {
+        const auto ary_device = array<T>::empty(q, ary.get_count(), sycl::usm::alloc::device);
+        const auto event =
+            copy_host2usm<T>(q, ary_device.get_mutable_data(), ary.get_data(), ary.get_count());
+        return { ary_device, event };
+    }
 }
 
 template <typename T>
@@ -50,10 +58,9 @@ inline std::tuple<array<T>, sycl::event> to_host(const array<T>& ary) {
     ONEDAL_ASSERT(ary.get_queue().has_value());
     auto q = ary.get_queue().value();
 
-    // TODO: Change allocation kind to normal host memory once
-    //       bug in `copy` with the host memory is fixed
-    const auto ary_host = array<T>::empty(q, ary.get_count(), sycl::usm::alloc::host);
-    const auto event = copy<T>(q, ary_host.get_mutable_data(), ary.get_data(), ary.get_count());
+    const auto ary_host = array<T>::empty(q, ary.get_count());
+    const auto event =
+        copy_usm2host<T>(q, ary_host.get_mutable_data(), ary.get_data(), ary.get_count());
     return { ary_host, event };
 }
 

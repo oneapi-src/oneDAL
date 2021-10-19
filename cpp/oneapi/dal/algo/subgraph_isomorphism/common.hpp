@@ -19,13 +19,12 @@
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::preview {
-namespace subgraph_isomorphism {
-namespace detail {
-struct tag {};
-class descriptor_impl;
+namespace oneapi::dal::preview::subgraph_isomorphism {
 
-} // namespace detail
+namespace task {
+struct compute {};
+using by_default = compute;
+} // namespace task
 
 namespace method {
 struct fast {};
@@ -34,12 +33,28 @@ using by_default = fast;
 
 enum class kind { induced, non_induced };
 
+namespace detail {
+struct descriptor_tag {};
+
+template <typename Task>
+class descriptor_impl;
+
+template <typename Method>
+constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::fast>;
+
+template <typename Task>
+constexpr bool is_valid_task = dal::detail::is_one_of_v<Task, task::compute>;
+
 /// The base class for the Subgraph Isomorphism algorithm descriptor
-class ONEDAL_EXPORT descriptor_base : public base {
+template <typename Task = task::by_default>
+class descriptor_base : public base {
+    static_assert(is_valid_task<Task>);
+
 public:
-    using tag_t = detail::tag;
+    using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
+    using task_t = Task;
 
     /// Constructs the empty descriptor
     descriptor_base();
@@ -54,59 +69,84 @@ public:
     auto get_max_match_count() const -> std::int64_t;
 
 protected:
-    void set_kind_impl(kind value);
-    void set_semantic_match_impl(bool semantic_match);
-    void set_max_match_count_impl(std::int64_t max_match_count);
+    void set_kind(kind value);
+    void set_semantic_match(bool semantic_match);
+    void set_max_match_count(std::int64_t max_match_count);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
+
+} // namespace detail
 
 /// Class for the Subgraph Isomorphism algorithm descriptor
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
-template <typename Float = descriptor_base::float_t,
-          typename Method = descriptor_base::method_t,
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default,
           typename Allocator = std::allocator<char>>
-class descriptor : public descriptor_base {
+class descriptor : public detail::descriptor_base<Task> {
+    static_assert(detail::is_valid_method<Method>);
+    static_assert(detail::is_valid_task<Task>);
+
+    using base_t = detail::descriptor_base<Task>;
+
 public:
     using float_t = Float;
     using method_t = Method;
+    using task_t = Task;
     using allocator_t = Allocator;
 
-    explicit descriptor(Allocator allocator) {
-        _alloc = allocator;
+    explicit descriptor(Allocator allocator = std::allocator<char>()) {
+        alloc_ = allocator;
+    }
+
+    /// Returns kind of subgraph isomorphism
+    kind get_kind() const {
+        return base_t::get_kind();
     }
 
     /// Sets the type of searched subgraph in Subgraph Isomorphism computation
     ///
     /// @param [in] value  The begin of the row of the graph block
     auto& set_kind(kind value) {
-        this->set_kind_impl(value);
+        base_t::set_kind(value);
         return *this;
     }
 
-    /// Sets the flag if semantic search is requred in Subgraph Isomorphism computation
+    /// Returns the flag if semantic search is requred in Subgraph Isomorphism computation
+    bool get_semantic_match() const {
+        return base_t::get_semantic_match();
+    }
+
+    /// Returns the flag if semantic search is requred in Subgraph Isomorphism computation
     ///
     /// @param [in] semantic_match The flag if semantic search is requred
     auto& set_semantic_match(bool semantic_match) {
-        this->set_semantic_match_impl(semantic_match);
+        base_t::set_semantic_match(semantic_match);
         return *this;
+    }
+
+    /// Sets the maximum number of matchings to search in Subgraph Isomorphism computation
+    std::int64_t get_max_match_count() const {
+        return base_t::get_max_match_count();
     }
 
     /// Sets the maximum number of matchings to search in Subgraph Isomorphism computation
     ///
     /// @param [in] max_match_count  The maximum number of matchings
     auto& set_max_match_count(std::int64_t max_match_count) {
-        this->set_max_match_count_impl(max_match_count);
+        base_t::set_max_match_count(max_match_count);
         return *this;
     }
+
     Allocator get_allocator() const {
-        return _alloc;
+        return alloc_;
     }
 
 private:
-    Allocator _alloc;
+    Allocator alloc_;
 };
 
 namespace detail {
@@ -121,6 +161,4 @@ constexpr bool is_valid_graph =
                                                                graph_allocator<Graph>>>;
 
 } // namespace detail
-
-} // namespace subgraph_isomorphism
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::subgraph_isomorphism

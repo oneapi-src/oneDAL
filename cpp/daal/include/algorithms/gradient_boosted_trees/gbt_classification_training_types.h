@@ -80,28 +80,6 @@ enum ResultNumericTableId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__GBT__CLASSIFICATION__TRAINING__PARAMETER"></a>
- * \brief Gradient Boosted Trees algorithm parameters \DAAL_DEPRECATED
- *
- * \snippet gradient_boosted_trees/gbt_classification_training_types.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public daal::algorithms::gbt::training::Parameter
-{
-    /** Default constructor */
-    DAAL_DEPRECATED Parameter(size_t nClasses) : classifier::interface1::Parameter(nClasses), loss(crossEntropy) {}
-    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
-    LossFunctionType loss; /*!< Loss function type */
-};
-/* [interface1::Parameter source code] */
-} // namespace interface1
-
-/**
  * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface2

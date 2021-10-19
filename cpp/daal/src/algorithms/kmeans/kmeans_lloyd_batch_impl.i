@@ -32,9 +32,7 @@
 #include "src/algorithms/kmeans/kmeans_lloyd_impl.i"
 #include "src/algorithms/kmeans/kmeans_lloyd_postprocessing.h"
 
-#include "src/externals/service_ittnotify.h"
-
-DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.batch);
+#include "src/externals/service_profiler.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -170,7 +168,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         size_t cPos = 0;
 
         algorithmFPType newCentersGoalFunc = (algorithmFPType)0.0;
-
+        algorithmFPType l2Norm             = (algorithmFPType)0.0;
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(kmeansMergeReduceCentroids);
 
@@ -184,7 +182,10 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t j = 0; j < p; j++)
                     {
-                        clusters[i * p + j] = clusterS1[i * p + j] * coeff;
+                        const algorithmFPType newCluster = clusterS1[i * p + j] * coeff;
+                        const algorithmFPType dist       = clusters[i * p + j] - newCluster;
+                        l2Norm += dist * dist;
+                        clusters[i * p + j] = newCluster;
                     }
                 }
                 else
@@ -193,13 +194,20 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                     newCentersGoalFunc += cValues[cPos];
                     ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices[cPos], 1);
                     const algorithmFPType * row = mtRow.get();
+
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t j = 0; j < p; j++)
+                    {
+                        const algorithmFPType dist = clusters[i * p + j] - row[j];
+                        l2Norm += dist * dist;
+                    }
                     result |=
                         daal::services::internal::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
                     cPos++;
                 }
             }
         }
-
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(kmeansUpdateObjectiveFunction);
             if (par->accuracyThreshold > (algorithmFPType)0.0)
@@ -209,7 +217,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                 task->kmeansClearClusters(&newTargetFunc);
                 newTargetFunc -= newCentersGoalFunc;
 
-                if (internal::Math<algorithmFPType, cpu>::sFabs(oldTargetFunc - newTargetFunc) < par->accuracyThreshold)
+                if (l2Norm < par->accuracyThreshold)
                 {
                     kIter++;
                     break;

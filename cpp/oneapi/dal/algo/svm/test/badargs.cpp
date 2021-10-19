@@ -56,9 +56,9 @@ public:
         return homogen_table::wrap(train_data_.data(), override_row_count, override_column_count);
     }
 
-    table get_train_labels(std::int64_t override_row_count = row_count) const {
+    table get_train_responses(std::int64_t override_row_count = row_count) const {
         ONEDAL_ASSERT(override_row_count <= row_count);
-        return homogen_table::wrap(train_labels_.data(), override_row_count, 1);
+        return homogen_table::wrap(train_responses_.data(), override_row_count, 1);
     }
 
     table get_infer_data(std::int64_t override_row_count = row_count,
@@ -72,8 +72,8 @@ private:
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<Float, row_count> train_labels_ = { 0.0, 1.0, 0.0, 0.0,
-                                                                    1.0, 1.0, 0.0, 1.0 };
+    static constexpr std::array<Float, row_count> train_responses_ = { 0.0, 1.0, 0.0, 0.0,
+                                                                       1.0, 1.0, 0.0, 1.0 };
 
     static constexpr std::array<Float, element_count> infer_data_ = {
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
@@ -194,15 +194,15 @@ private:
         REQUIRE_THROWS_AS(this->get_descriptor().set_nu(2.0), domain_error); \
     }
 
-#define TEST_EMPTY_TRAIN_DATA                                                               \
-    {                                                                                       \
-        SKIP_IF(this->not_available_on_device());                                           \
-        const auto svm_desc = this->get_descriptor();                                       \
-        REQUIRE_THROWS_AS(this->train(svm_desc, homogen_table{}, this->get_train_labels()), \
-                          domain_error);                                                    \
+#define TEST_EMPTY_TRAIN_DATA                                                                  \
+    {                                                                                          \
+        SKIP_IF(this->not_available_on_device());                                              \
+        const auto svm_desc = this->get_descriptor();                                          \
+        REQUIRE_THROWS_AS(this->train(svm_desc, homogen_table{}, this->get_train_responses()), \
+                          domain_error);                                                       \
     }
 
-#define TEST_EMPTY_TRAIN_LABELS                                                           \
+#define TEST_EMPTY_TRAIN_RESPONSES                                                        \
     {                                                                                     \
         SKIP_IF(this->not_available_on_device());                                         \
         const auto svm_desc = this->get_descriptor();                                     \
@@ -210,74 +210,76 @@ private:
                           domain_error);                                                  \
     }
 
-#define TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_LABELS_ROWS                                    \
-    {                                                                                 \
-        SKIP_IF(this->not_available_on_device());                                     \
-        const auto svm_desc = this->get_descriptor();                                 \
-        REQUIRE_THROWS_AS(                                                            \
-            this->train(svm_desc, this->get_train_data(), this->get_train_labels(4)), \
-            invalid_argument);                                                        \
+#define TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_RESPONSES_ROWS                                    \
+    {                                                                                    \
+        SKIP_IF(this->not_available_on_device());                                        \
+        const auto svm_desc = this->get_descriptor();                                    \
+        REQUIRE_THROWS_AS(                                                               \
+            this->train(svm_desc, this->get_train_data(), this->get_train_responses(4)), \
+            invalid_argument);                                                           \
     }
 
-#define TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_WEIGHTS_ROWS               \
-    {                                                             \
-        SKIP_IF(this->not_available_on_device());                 \
-        const auto svm_desc = this->get_descriptor();             \
-        REQUIRE_THROWS_AS(this->train(svm_desc,                   \
-                                      this->get_train_data(),     \
-                                      this->get_train_labels(),   \
-                                      this->get_train_labels(4)), \
-                          invalid_argument);                      \
+#define TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_WEIGHTS_ROWS                  \
+    {                                                                \
+        SKIP_IF(this->not_available_on_device());                    \
+        const auto svm_desc = this->get_descriptor();                \
+        REQUIRE_THROWS_AS(this->train(svm_desc,                      \
+                                      this->get_train_data(),        \
+                                      this->get_train_responses(),   \
+                                      this->get_train_responses(4)), \
+                          invalid_argument);                         \
     }
 
-#define TEST_EMPTY_INFER_DATA                                                                    \
-    {                                                                                            \
-        SKIP_IF(this->not_available_on_device());                                                \
-        const auto svm_desc = this->get_descriptor();                                            \
-        const auto model =                                                                       \
-            this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model(); \
-        REQUIRE_THROWS_AS(this->infer(svm_desc, model, homogen_table{}), domain_error);          \
+#define TEST_EMPTY_INFER_DATA                                                           \
+    {                                                                                   \
+        SKIP_IF(this->not_available_on_device());                                       \
+        const auto svm_desc = this->get_descriptor();                                   \
+        const auto model =                                                              \
+            this->train(svm_desc, this->get_train_data(), this->get_train_responses())  \
+                .get_model();                                                           \
+        REQUIRE_THROWS_AS(this->infer(svm_desc, model, homogen_table{}), domain_error); \
     }
 
-#define TEST_IF_SV_EMPTY                                                                         \
-    {                                                                                            \
-        SKIP_IF(this->not_available_on_device());                                                \
-        const auto svm_desc = this->get_descriptor();                                            \
-        auto model =                                                                             \
-            this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model(); \
-        REQUIRE_THROWS_AS(this->infer(svm_desc,                                                  \
-                                      model.set_support_vectors(homogen_table{}),                \
-                                      this->get_infer_data()),                                   \
-                          domain_error);                                                         \
+#define TEST_IF_SV_EMPTY                                                                        \
+    {                                                                                           \
+        SKIP_IF(this->not_available_on_device());                                               \
+        const auto svm_desc = this->get_descriptor();                                           \
+        auto model = this->train(svm_desc, this->get_train_data(), this->get_train_responses()) \
+                         .get_model();                                                          \
+        REQUIRE_THROWS_AS(this->infer(svm_desc,                                                 \
+                                      model.set_support_vectors(homogen_table{}),               \
+                                      this->get_infer_data()),                                  \
+                          domain_error);                                                        \
     }
 
-#define TEST_IF_COEFS_EMPTY                                                                      \
-    {                                                                                            \
-        SKIP_IF(this->not_available_on_device());                                                \
-        const auto svm_desc = this->get_descriptor();                                            \
-        auto model =                                                                             \
-            this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model(); \
-        REQUIRE_THROWS_AS(                                                                       \
-            this->infer(svm_desc, model.set_coeffs(homogen_table{}), this->get_infer_data()),    \
-            domain_error);                                                                       \
+#define TEST_IF_COEFS_EMPTY                                                                     \
+    {                                                                                           \
+        SKIP_IF(this->not_available_on_device());                                               \
+        const auto svm_desc = this->get_descriptor();                                           \
+        auto model = this->train(svm_desc, this->get_train_data(), this->get_train_responses()) \
+                         .get_model();                                                          \
+        REQUIRE_THROWS_AS(                                                                      \
+            this->infer(svm_desc, model.set_coeffs(homogen_table{}), this->get_infer_data()),   \
+            domain_error);                                                                      \
     }
 
-#define TEST_IF_SV_COLS_NEQ_INFER_DATA_COLS                                                      \
-    {                                                                                            \
-        SKIP_IF(this->not_available_on_device());                                                \
-        const auto svm_desc = this->get_descriptor();                                            \
-        const auto model =                                                                       \
-            this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model(); \
-        REQUIRE_THROWS_AS(this->infer(svm_desc, model, this->get_infer_data(8, 1)),              \
-                          invalid_argument);                                                     \
+#define TEST_IF_SV_COLS_NEQ_INFER_DATA_COLS                                            \
+    {                                                                                  \
+        SKIP_IF(this->not_available_on_device());                                      \
+        const auto svm_desc = this->get_descriptor();                                  \
+        const auto model =                                                             \
+            this->train(svm_desc, this->get_train_data(), this->get_train_responses()) \
+                .get_model();                                                          \
+        REQUIRE_THROWS_AS(this->infer(svm_desc, model, this->get_infer_data(8, 1)),    \
+                          invalid_argument);                                           \
     }
 
 #define TEST_IF_COEFFS_ROWS_NEQ_SV_COUNT                                                           \
     {                                                                                              \
         SKIP_IF(this->not_available_on_device());                                                  \
         const auto svm_desc = this->get_descriptor();                                              \
-        auto model =                                                                               \
-            this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model();   \
+        auto model = this->train(svm_desc, this->get_train_data(), this->get_train_responses())    \
+                         .get_model();                                                             \
         const auto support_vector_count = model.get_support_vector_count();                        \
         model.set_coeffs(this->get_infer_data(support_vector_count - 1, 2));                       \
         REQUIRE_THROWS_AS(this->infer(svm_desc, model, this->get_infer_data()), invalid_argument); \
@@ -322,11 +324,11 @@ TEST_ZERO_TAU
 THUNDER_SVM_BADARG_TEST("throws if train data is empty")
 TEST_EMPTY_TRAIN_DATA
 
-THUNDER_SVM_BADARG_TEST("throws if train labels is empty")
-TEST_EMPTY_TRAIN_LABELS
+THUNDER_SVM_BADARG_TEST("throws if train responses is empty")
+TEST_EMPTY_TRAIN_RESPONSES
 
-THUNDER_SVM_BADARG_TEST("throws if train data rows neq train labels rows")
-TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_LABELS_ROWS
+THUNDER_SVM_BADARG_TEST("throws if train data rows neq train responses rows")
+TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_RESPONSES_ROWS
 
 THUNDER_SVM_BADARG_TEST("throws if train data rows neq train weights rows")
 TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_WEIGHTS_ROWS
@@ -392,11 +394,11 @@ TEST_ZERO_TAU
 SVC_BADARG_TEST("throws if train data is empty")
 TEST_EMPTY_TRAIN_DATA
 
-SVC_BADARG_TEST("throws if train labels is empty")
-TEST_EMPTY_TRAIN_LABELS
+SVC_BADARG_TEST("throws if train responses is empty")
+TEST_EMPTY_TRAIN_RESPONSES
 
-SVC_BADARG_TEST("throws if train data rows neq train labels rows")
-TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_LABELS_ROWS
+SVC_BADARG_TEST("throws if train data rows neq train responses rows")
+TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_RESPONSES_ROWS
 
 SVC_BADARG_TEST("throws if train data rows neq train weights rows")
 TEST_TRAIN_DATA_ROWS_NEQ_TRAIN_WEIGHTS_ROWS

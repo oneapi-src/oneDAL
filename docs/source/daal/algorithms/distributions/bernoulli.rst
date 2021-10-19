@@ -22,7 +22,7 @@ Generates Bernoulli distributed random numbers.
 Details
 *******
 
-Bernoulli random number generator fills the :math:`n \times p` numeric table with 
+Bernoulli random number generator fills the :math:`n \times p` numeric table with
 Bernoulli distributed values with the :math:`p` probability of success on a single trial, where :math:`p \in R`,
 :math:`0 \leq p \leq 1`.
 
@@ -39,7 +39,7 @@ The probability distribution is given by:
 The cumulative distribution function is as follows:
 
 .. math::
-    F_p(x) = 
+    F_p(x) =
     \begin{cases}
       0, & x < 0 \\
 		  1 - p, & 0 \leq x < 1, x \in \mathbb{R} \\
@@ -53,10 +53,13 @@ Batch Processing
 
 Bernoulli distribution algorithm has the following parameters in addition to the common parameters specified in :ref:`distributions`:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
+
+.. list-table:: Algorithm Parameters for Bernoulli Distribution (Batch Processing)
    :header-rows: 1
-   :widths: 10 10 60   
+   :widths: 10 10 60
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -69,7 +72,7 @@ Bernoulli distribution algorithm has the following parameters in addition to the
      - Performance-oriented computation method, the only method supported by the algorithm.
    * - ``p``
      - Not applicable
-     - Success probability of a trial, required parameter.   
+     - Success probability of a trial, required parameter.
 
 Examples
 ********

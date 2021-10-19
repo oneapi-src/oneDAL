@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/stump/stump_training_types.h"
+#include "algorithms/weak_learner/weak_learner_training_types.h"
 #include "src/services/serialization_utils.h"
 
 using namespace daal::data_management;

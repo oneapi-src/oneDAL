@@ -37,7 +37,7 @@ using v1::infer_result_impl;
 namespace v1 {
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::classification`.
+///              be :expr:`task::classification` or :expr:`task::search`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -76,7 +76,7 @@ private:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::classification`.
+///              be :expr:`task::classification` or :expr:`task::search`.
 template <typename Task = task::by_default>
 class infer_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -89,16 +89,57 @@ public:
 
     /// The predicted labels
     /// @remark default = table{}
-    const table& get_labels() const;
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
 
-    auto& set_labels(const table& value) {
-        set_labels_impl(value);
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
+
+    /// The predicted responses
+    /// @remark default = table{}
+    const table& get_responses() const;
+
+    template <typename T = Task, typename = detail::enable_if_not_search_t<T>>
+    auto& set_responses(const table& value) {
+        set_responses_impl(value);
+        return *this;
+    }
+
+    /// Indices of nearest neighbors
+    /// @remark default = table{}
+    const table& get_indices() const;
+
+    auto& set_indices(const table& value) {
+        set_indices_impl(value);
+        return *this;
+    }
+
+    /// Distances to nearest neighbors
+    /// @remark default = table{}
+    const table& get_distances() const;
+
+    auto& set_distances(const table& value) {
+        set_distances_impl(value);
+        return *this;
+    }
+
+    /// Result options that indicates availability of the properties
+    const result_option_id& get_result_options() const;
+
+    auto& set_result_options(const result_option_id& value) {
+        set_result_options_impl(value);
         return *this;
     }
 
 protected:
-    void set_labels_impl(const table&);
-    const table& get_labels_impl() const;
+    void set_responses_impl(const table&);
+    void set_indices_impl(const table&);
+    void set_distances_impl(const table&);
+    void set_result_options_impl(const result_option_id&);
+    const table& get_responses_impl() const;
 
 private:
     dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;

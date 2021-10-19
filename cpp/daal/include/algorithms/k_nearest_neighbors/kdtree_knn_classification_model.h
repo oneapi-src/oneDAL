@@ -78,90 +78,6 @@ enum VoteWeights
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PARAMETER"></a>
- * \brief KD-tree based kNN algorithm parameters   \DAAL_DEPRECATED
- *
- * \snippet k_nearest_neighbors/kdtree_knn_classification_model.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
-{
-    /**
-     *  Parameter constructor
-     *  \param[in] nClasses             Number of classes
-     *  \param[in] nNeighbors           Number of neighbors
-     *  \param[in] randomSeed           Seed for random choosing elements from training dataset \DAAL_DEPRECATED_USE{ engine }
-     *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
-     */
-    DAAL_DEPRECATED Parameter(size_t nClasses = 2, size_t nNeighbors = 1, int randomSeed = 777, DataUseInModel dataUse = doNotUse)
-        : daal::algorithms::classifier::interface1::Parameter(nClasses),
-          k(nNeighbors),
-          seed(randomSeed),
-          dataUseInModel(dataUse),
-          engine(engines::mcg59::Batch<>::create())
-    {}
-
-    /**
-     * Checks a parameter of the KD-tree based kNN algorithm
-     */
-    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
-
-    size_t k;                      /*!< Number of neighbors */
-    int seed;                      /*!< Seed for random choosing elements from training dataset \DAAL_DEPRECATED_USE{ engine } */
-    DataUseInModel dataUseInModel; /*!< The option to enable/disable an usage of the input dataset in kNN model */
-    engines::EnginePtr engine;     /*!< Engine for random choosing elements from training dataset */
-};
-/* [interface1::Parameter source code] */
-} // namespace interface1
-
-/**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PARAMETER"></a>
- * \brief KD-tree based kNN algorithm parameters    \DAAL_DEPRECATED
- *
- * \snippet k_nearest_neighbors/kdtree_knn_classification_model.h Parameter source code
- */
-/* [interface2::Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
-{
-    /**
-     *  Parameter constructor
-     *  \param[in] nClasses             Number of classes
-     *  \param[in] nNeighbors           Number of neighbors
-     *  \param[in] randomSeed           Seed for random choosing elements from training dataset \DAAL_DEPRECATED_USE{ engine }
-     *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
-     */
-    DAAL_DEPRECATED Parameter(size_t nClasses = 2, size_t nNeighbors = 1, int randomSeed = 777, DataUseInModel dataUse = doNotUse)
-        : daal::algorithms::classifier::Parameter(nClasses),
-          k(nNeighbors),
-          seed(randomSeed),
-          dataUseInModel(dataUse),
-          engine(engines::mcg59::Batch<>::create())
-    {}
-
-    /**
-     * Checks a parameter of the KD-tree based kNN algorithm
-     */
-    DAAL_DEPRECATED_VIRTUAL services::Status check() const DAAL_C11_OVERRIDE;
-
-    size_t k;                      /*!< Number of neighbors */
-    int seed;                      /*!< Seed for random choosing elements from training dataset \DAAL_DEPRECATED_USE{ engine } */
-    DataUseInModel dataUseInModel; /*!< The option to enable/disable an usage of the input dataset in kNN model */
-    engines::EnginePtr engine;     /*!< Engine for random choosing elements from training dataset */
-};
-/* [interface2::Parameter source code] */
-} // namespace interface2
-
-/**
  * \brief Contains version 3.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface3
@@ -224,8 +140,8 @@ namespace interface1
  *
  * \par References
  *      - Parameter class
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::interface3::Batch "training::Batch" class
+ *      - \ref prediction::interface3::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public daal::algorithms::classifier::Model
 {

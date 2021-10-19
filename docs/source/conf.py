@@ -38,10 +38,9 @@ sys.path.insert(0, os.path.abspath('../'))
 
 project = 'oneDAL'
 copyright = '2014 - 2021, Intel Corporation' # pylint: disable=redefined-builtin
-author = 'Intel'
 
 # The full version, including alpha/beta/rc tags
-release = '2021'
+# release = '2021'
 
 rst_prolog = """
 .. |short_name| replace:: oneDAL
@@ -92,8 +91,8 @@ exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst
 extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
     'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', ''),
-    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/%s', ''),
-    'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/sycl/%s', ''),
+    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/%s', ''),
+    'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/%s', ''),
     'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', '')
 }
 
@@ -127,7 +126,8 @@ html_theme_options = {
     'path_to_docs': 'docs/source',
     'use_issues_button': True,
     'use_edit_page_button': True,
-    'repository_branch': 'master'
+    'repository_branch': 'master',
+    'extra_footer': '<p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>'
 }
 
 # oneDAL project directory is needed for `dalapi` extension
@@ -171,6 +171,8 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::infer_result'),
     ('cpp:identifier', 'knn::infer_input'),
     ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
+    ('cpp:identifier', 'detail::enable_if_search_t<T>'),
+    ('cpp:identifier', 'detail::enable_if_not_classification_t<T>'),
     # minkowski_distance
     ('cpp:identifier', 'minkowski_distance'),
     ('cpp:identifier', 'minkowski_distance::descriptor'),
@@ -235,6 +237,11 @@ nitpick_ignore = [
     ('cpp:identifier', 'rbf_kernel::descriptor'),
     ('cpp:identifier', 'rbf_kernel::compute_result'),
     ('cpp:identifier', 'rbf_kernel::compute_input'),
+    # sigmoid kernel
+    ('cpp:identifier', 'sigmoid_kernel'),
+    ('cpp:identifier', 'sigmoid_kernel::descriptor'),
+    ('cpp:identifier', 'sigmoid_kernel::compute_result'),
+    ('cpp:identifier', 'sigmoid_kernel::compute_input'),
     # decision forest
     ('cpp:identifier', 'decision_forest'),
     ('cpp:identifier', 'decision_forest::infer_result'),
@@ -250,8 +257,35 @@ nitpick_ignore = [
     ('cpp:identifier', 'error_metric_mode::none'),
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error'),
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error_per_observation'),
+    # covariance
+    ('cpp:identifier', 'covariance'),
+    ('cpp:identifier', 'covariance::descriptor'),
+    ('cpp:identifier', 'covariance::compute_result'),
+    ('cpp:identifier', 'covariance::compute_input'),
+    ('cpp:identifier', 'oneapi::dal::covariance'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task::v1::compute'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method::v1'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method::v1::dense'),
+    # basic statistics
+    ('cpp:identifier', 'basic_statistics'),
+    ('cpp:identifier', 'basic_statistics::descriptor'),
+    ('cpp:identifier', 'basic_statistics::compute_result'),
+    ('cpp:identifier', 'basic_statistics::compute_input'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::task'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::task::v1::compute'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::method'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1::dense'),
     # common for algorithms
     ('cpp:identifier', 'result'),
+    # common for result options
+    ('cpp:identifier', 'result_option_id_base'),
+    ('cpp:identifier', 'result_option_id'),
     # tables
     ('cpp:identifier', 'table'),
     ('cpp:identifier', 'row_count'),
@@ -294,4 +328,16 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),
+
+    # graphs
+    ('cpp:identifier', 'vertex_size_type<Graph>'),
+    ('cpp:identifier', 'edge_size_type<Graph>'),
+    ('cpp:identifier', 'vertex_type<Graph>'),
+    ('cpp:identifier', 'vertex_edge_size_type<Graph>'),
+    ('cpp:identifier', 'const_vertex_edge_range_type<Graph>'),
+    ('cpp:identifier', 'vertex_outward_edge_size_type<Graph>'),
+    ('cpp:identifier', 'const_vertex_outward_edge_range_type<Graph>'),
+    ('cpp:identifier', 'edge_user_value_type<Graph>'),
+    ('cpp:identifier', 'directed_adjacency_vector_graph'),
+    ('cpp:identifier', 'undirected_adjacency_vector_graph'),
 ]

@@ -20,7 +20,7 @@ Moments of Low Order
 ====================
 
 Moments are basic quantitative measures of data set characteristics such as location and dispersion.
-|short_name| computes the following low order characteristics: 
+|short_name| computes the following low order characteristics:
 
 - minimums/maximums
 - sums
@@ -35,14 +35,17 @@ Moments are basic quantitative measures of data set characteristics such as loca
 Details
 *******
 
-Given a set :math:`X` of :math:`n` feature vectors 
-:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of dimension :math:`p`, 
+Given a set :math:`X` of :math:`n` feature vectors
+:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of dimension :math:`p`,
 the problem is to compute the following sample characteristics for each feature in the data set:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Moments of Low Order
    :widths: 20 60
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Statistic
      - Definition
@@ -74,7 +77,7 @@ The following computation modes are available:
 
 .. toctree::
    :maxdepth: 1
-   
+
    computation-batch.rst
    computation-online.rst
    computation-distributed.rst
@@ -102,7 +105,7 @@ Examples
     -  :cpp_example:`low_order_moms_csr_distr.cpp <moments/low_order_moms_csr_distr.cpp>`
 
   .. tab:: Java*
-  
+
     .. note:: There is no support for Java on GPU.
 
     Batch Processing:

@@ -166,6 +166,24 @@ public:
     ID(3010200000, svm_model_interop_impl_multiclass_id);
     ID(3010300000, svm_nu_classification_model_impl_id);
     ID(3010400000, svm_nu_regression_model_impl_id);
+
+    // PCA
+    ID(4010000000, pca_dim_reduction_model_impl_id);
+
+    // Algorithms - KNN
+    ID(5010000000, knn_brute_force_classification_model_impl_id);
+    ID(5010100000, knn_kd_tree_classification_model_impl_id);
+    ID(5010200000, knn_model_interop_id);
+    ID(5010300000, knn_brute_force_search_model_impl_id);
+    ID(5010400000, knn_kd_tree_search_model_impl_id);
+    ID(5010500000, knn_brute_force_regression_model_impl_id);
+    ID(5010600000, knn_kd_tree_regression_model_impl_id);
+
+    // Algorithms - Decision Forest
+    ID(6010000000, decision_forest_classification_model_impl_id);
+    ID(6020000000, decision_forest_regression_model_impl_id);
+    ID(6030000000, decision_forest_model_interop_impl_cls_id);
+    ID(6040000000, decision_forest_model_interop_impl_reg_id);
 };
 
 #undef ID

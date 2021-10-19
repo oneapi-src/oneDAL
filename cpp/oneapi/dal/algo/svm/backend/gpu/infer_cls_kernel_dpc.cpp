@@ -91,18 +91,20 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const auto arr_decision_func_host = dal::backend::to_host_sync(arr_decision_func);
 
     // TODO: rework with help dpcpp code
-    auto arr_label = array<Float>::empty(row_count * 1);
-    auto label_data = arr_label.get_mutable_data();
+    auto arr_response = array<Float>::empty(row_count * 1);
+    auto response_data = arr_response.get_mutable_data();
     for (std::int64_t i = 0; i < row_count; ++i) {
-        label_data[i] = arr_decision_func_host[i] >= 0 ? trained_model.get_second_class_label()
-                                                       : trained_model.get_first_class_label();
+        response_data[i] = arr_decision_func_host[i] >= 0
+                               ? trained_model.get_second_class_response()
+                               : trained_model.get_first_class_response();
     }
 
     return result_t()
         .set_decision_function(dal::detail::homogen_table_builder{}
                                    .reset(arr_decision_func_host, row_count, 1)
                                    .build())
-        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
+        .set_responses(
+            dal::detail::homogen_table_builder{}.reset(arr_response, row_count, 1).build());
 }
 
 template <typename Float>

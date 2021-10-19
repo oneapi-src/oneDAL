@@ -121,17 +121,28 @@ private:
 struct ResultData
 {
 public:
-    ResultData(const Parameter & par, NumericTable * _varImp, NumericTable * _oobError, NumericTable * _oobErrorPerObs)
+    ResultData(const Parameter & par, NumericTable * _varImp, NumericTable * _oobError, NumericTable * _oobErrorPerObs,
+               NumericTable * _oobErrorAccuracy, NumericTable * _oobErrorR2, NumericTable * _oobErrorDecisionFunction,
+               NumericTable * _oobErrorPrediction)
     {
         if (par.varImportance != decision_forest::training::none) varImp = _varImp;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagError) oobError = _oobError;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorAccuracy) oobErrorAccuracy = _oobErrorAccuracy;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorR2) oobErrorR2 = _oobErrorR2;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation) oobErrorPerObs = _oobErrorPerObs;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorDecisionFunction)
+            oobErrorDecisionFunction = _oobErrorDecisionFunction;
+        if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPrediction) oobErrorPrediction = _oobErrorPrediction;
     }
-    NumericTable * varImp         = nullptr; //if needed then allocated outside kernel
-    NumericTable * oobError       = nullptr; //if needed then allocated outside kernel
-    NumericTable * oobErrorPerObs = nullptr; //if needed then allocated outside kernel
-    NumericTablePtr oobIndices;              //if needed then allocated in kernel
-    engines::EnginePtr updatedEngine;        // engine updated after simulations
+    NumericTable * varImp                   = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobError                 = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorAccuracy         = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorR2               = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorPerObs           = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorDecisionFunction = nullptr; //if needed then allocated outside kernel
+    NumericTable * oobErrorPrediction       = nullptr; //if needed then allocated outside kernel
+    NumericTablePtr oobIndices;                        //if needed then allocated in kernel
+    engines::EnginePtr updatedEngine;                  // engine updated after simulations
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -445,15 +456,30 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     if (varImpBD.get()) mainCtx.finalizeVarImp(par.varImportance, nFeatures);
 
     //OOB error
-    if (par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation))
+    if (par.resultsToCompute
+        & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+           | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction))
     {
         WriteOnlyRows<algorithmFPType, cpu> oobErr(res.oobError, 0, 1);
         if (par.resultsToCompute & computeOutOfBagError) DAAL_CHECK_BLOCK_STATUS(oobErr);
 
+        WriteOnlyRows<algorithmFPType, cpu> oobErrAccuracy(res.oobErrorAccuracy, 0, 1);
+        if (par.resultsToCompute & computeOutOfBagErrorAccuracy) DAAL_CHECK_BLOCK_STATUS(oobErrAccuracy);
+
+        WriteOnlyRows<algorithmFPType, cpu> oobErrR2(res.oobErrorR2, 0, 1);
+        if (par.resultsToCompute & computeOutOfBagErrorR2) DAAL_CHECK_BLOCK_STATUS(oobErrR2);
+
         WriteOnlyRows<algorithmFPType, cpu> oobErrPerObs(res.oobErrorPerObs, 0, nRows);
         if (par.resultsToCompute & computeOutOfBagErrorPerObservation) DAAL_CHECK_BLOCK_STATUS(oobErrPerObs);
 
-        s = mainCtx.finalizeOOBError(y, oobErr.get(), oobErrPerObs.get());
+        WriteOnlyRows<algorithmFPType, cpu> oobErrDecisionFunction(res.oobErrorDecisionFunction, 0, nRows);
+        if (par.resultsToCompute & computeOutOfBagErrorDecisionFunction) DAAL_CHECK_BLOCK_STATUS(oobErrDecisionFunction);
+
+        WriteOnlyRows<algorithmFPType, cpu> oobErrPrediction(res.oobErrorPrediction, 0, nRows);
+        if (par.resultsToCompute & computeOutOfBagErrorPrediction) DAAL_CHECK_BLOCK_STATUS(oobErrPrediction);
+
+        s = mainCtx.finalizeOOBError(y, oobErr.get(), oobErrPerObs.get(), oobErrAccuracy.get(), oobErrR2.get(), oobErrDecisionFunction.get(),
+                                     oobErrPrediction.get());
     }
     return s;
 }
@@ -492,7 +518,8 @@ protected:
           _minSamplesSplit(2),
           _minWeightLeaf(0.),
           _minImpurityDecrease(-daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows()),
-          _maxLeafNodes(0)
+          _maxLeafNodes(0),
+          _useConstFeatures(false)
     {
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
 
@@ -534,7 +561,7 @@ protected:
                                                          typename DataHelper::ImpurityData & curImpurity, bool & bUnorderedFeaturesUsed,
                                                          size_t nClasses, algorithmFPType totalWeights);
     template <typename WorkItem>
-    typename DataHelper::NodeType::Base * buildNode(const size_t nClasses, size_t & remainingSplitNodes, WorkItem & item,
+    typename DataHelper::NodeType::Base * buildNode(const size_t level, const size_t nClasses, size_t & remainingSplitNodes, WorkItem & item,
                                                     typename DataHelper::ImpurityData & impurity);
 
     algorithmFPType * featureBuf(size_t iBuf) const
@@ -566,11 +593,11 @@ protected:
                                                      algorithmFPType imp);
     typename DataHelper::NodeType::Leaf * makeLeaf(const IndexType * idx, size_t n, typename DataHelper::ImpurityData & imp, size_t makeLeaf);
 
-    bool findBestSplit(size_t iStart, size_t n, const typename DataHelper::ImpurityData & curImpurity, IndexType & iBestFeature,
+    bool findBestSplit(size_t level, size_t iStart, size_t n, const typename DataHelper::ImpurityData & curImpurity, IndexType & iBestFeature,
                        typename DataHelper::TSplitData & split, algorithmFPType totalWeights);
-    bool findBestSplitSerial(size_t iStart, size_t n, const typename DataHelper::ImpurityData & curImpurity, IndexType & iBestFeature,
+    bool findBestSplitSerial(size_t level, size_t iStart, size_t n, const typename DataHelper::ImpurityData & curImpurity, IndexType & iBestFeature,
                              typename DataHelper::TSplitData & split, algorithmFPType totalWeights);
-    bool findBestSplitThreaded(size_t iStart, size_t n, const typename DataHelper::ImpurityData & curImpurity, IndexType & iBestFeature,
+    bool findBestSplitThreaded(size_t level, size_t iStart, size_t n, const typename DataHelper::ImpurityData & curImpurity, IndexType & iBestFeature,
                                typename DataHelper::TSplitData & split, algorithmFPType totalWeights);
     bool simpleSplit(size_t iStart, const typename DataHelper::ImpurityData & curImpurity, IndexType & iFeatureBest,
                      typename DataHelper::TSplitData & split);
@@ -586,7 +613,8 @@ protected:
     //find features to check in the current split node
     void chooseFeatures()
     {
-        const size_t n = nFeatures();
+        const size_t n    = nFeatures();
+        const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
         if (n == _nFeaturesPerNode)
         {
             PRAGMA_IVDEP
@@ -597,8 +625,7 @@ protected:
         {
             *_numElems += n;
             RNGs<IndexType, cpu> rng;
-            rng.uniformWithoutReplacement(_nFeaturesPerNode, _aFeatureIdx.get(), _aFeatureIdx.get() + _nFeaturesPerNode, _engineImpl->getState(), 0,
-                                          n);
+            rng.uniformWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), 0, n);
         }
     }
 
@@ -617,7 +644,8 @@ protected:
     }
 
 protected:
-    TArray<IndexType, cpu> _aFeatureIdx; //indices of features to be used for the soplit at the current level
+    TArray<IndexType, cpu> _aFeatureIdx;      //indices of features to be used for the split at the current level
+    TArray<IndexType, cpu> _aConstFeatureIdx; //indices of found constant features
     DataHelper _helper;
     services::internal::HostAppHelper _hostApp;
     typename DataHelper::TreeType _tree;
@@ -631,7 +659,9 @@ protected:
     const Parameter & _par;
     const size_t _nSamples;
     const size_t _nFeaturesPerNode;
-    const size_t _nFeatureBufs; //number of buffers to get feature values (to process features independently in parallel)
+    const size_t _nFeatureBufs;   //number of buffers to get feature values (to process features independently in parallel)
+    const bool _useConstFeatures; //including constant features in number of features per node
+    mutable size_t _nConstFeature;
 
     const BinIndexType * _binIndex;
     const FeatureTypes & _featHelper;
@@ -650,19 +680,29 @@ template <typename algorithmFPType, typename BinIndexType, typename DataHelper, 
 services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::run(engines::internal::BatchBaseImpl * engineImpl,
                                                                                          dtrees::internal::Tree *& pTree, size_t & numElems)
 {
-    _numElems   = &numElems;
-    _engineImpl = engineImpl;
-    pTree       = nullptr;
+    const size_t maxFeatures = nFeatures();
+    _nConstFeature           = 0;
+    _numElems                = &numElems;
+    _engineImpl              = engineImpl;
+    pTree                    = nullptr;
     _tree.destroy();
     _aSample.reset(_nSamples);
     _aFeatureBuf.reset(_nFeatureBufs);
     _aFeatureIndexBuf.reset(_nFeatureBufs);
-    _aFeatureIdx.reset(_nFeaturesPerNode * 2); // _nFeaturesPerNode elements are used by algorithm, others are used internally by generator
+
+    if (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures)
+    {
+        _aFeatureIdx.reset(maxFeatures * 2);      // maxFeatures elements are used by algorithm, others are used internally by generator
+        _aConstFeatureIdx.reset(maxFeatures * 2); // first maxFeatures elements are used for saving indices of constant features,
+                                                  // the other part are used for saving levels of this features
+        DAAL_CHECK_MALLOC(_aConstFeatureIdx.get());
+        services::internal::service_memset_seq<IndexType, cpu>(_aConstFeatureIdx.get(), IndexType(0), maxFeatures * 2);
+    }
+    else
+        _aFeatureIdx.reset(_nFeaturesPerNode * 2); // _nFeaturesPerNode elements are used by algorithm, others are used internally by generator
 
     DAAL_CHECK_MALLOC(_aSample.get() && _helper.reset(_nSamples) && _helper.resetWeights(_nSamples) && _aFeatureBuf.get() && _aFeatureIndexBuf.get()
                       && _aFeatureIdx.get());
-
-    //allocate temporary bufs
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
@@ -721,7 +761,11 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
         _threadCtx.nTrees++;
     }
 
-    if (s && ((_par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation)) || (_par.varImportance > MDI)))
+    if (s
+        && ((_par.resultsToCompute
+             & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+                | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction))
+            || (_par.varImportance > MDI)))
         s = computeResults(_tree);
     if (s) pTree = &_tree;
     return s;
@@ -754,13 +798,30 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
     services::Status & s, size_t iStart, size_t n, size_t level, typename DataHelper::ImpurityData & curImpurity, bool & bUnorderedFeaturesUsed,
     size_t nClasses, algorithmFPType totalWeights)
 {
+    const size_t maxFeatures = nFeatures();
     if (_hostApp.isCancelled(s, n)) return nullptr;
+
+    if (!_par.memorySavingMode && !_useConstFeatures)
+    {
+        for (size_t i = _nConstFeature; i > 0; --i)
+        {
+            if (level + 1 < _aConstFeatureIdx[maxFeatures + _aConstFeatureIdx[i - 1]])
+            {
+                DAAL_ASSERT(_nConstFeature > 0);
+                --_nConstFeature;
+                _aConstFeatureIdx[maxFeatures + _aConstFeatureIdx[i - 1]] = 0; //clean level
+                _aConstFeatureIdx[i - 1]                                  = 0; //clean index
+            }
+            else
+                break;
+        }
+    }
 
     if (terminateCriteria(n, level, curImpurity, totalWeights)) return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
 
     typename DataHelper::TSplitData split;
     IndexType iFeature;
-    if (findBestSplit(iStart, n, curImpurity, iFeature, split, totalWeights))
+    if (findBestSplit(level, iStart, n, curImpurity, iFeature, split, totalWeights))
     {
         const size_t nLeft   = split.nLeft;
         const double imp     = curImpurity.var;
@@ -797,7 +858,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
 template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
 template <typename WorkItem>
 typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(
-    const size_t nClasses, size_t & remainingSplitNodes, WorkItem & item, typename DataHelper::ImpurityData & impurity)
+    const size_t level, const size_t nClasses, size_t & remainingSplitNodes, WorkItem & item, typename DataHelper::ImpurityData & impurity)
 {
     typename DataHelper::TSplitData split;
     IndexType iFeature;
@@ -806,7 +867,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
     {
         return makeLeaf(_aSample.get() + item.start, item.n, impurity, nClasses);
     }
-    else if (findBestSplit(item.start, item.n, impurity, iFeature, split, item.totalWeights))
+    else if (findBestSplit(level, item.start, item.n, impurity, iFeature, split, item.totalWeights))
     {
         const double imp     = impurity.var;
         const double impLeft = split.left.var;
@@ -935,7 +996,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
     // Create base
     WorkItem base(bUnorderedFeaturesUsed, iStart, n, level, totalWeights);
     typename DataHelper::NodeType::Base * baseNode =
-        TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(nClasses, remainingSplitNodes, base, curImpurity);
+        TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(level, nClasses, remainingSplitNodes, base, curImpurity);
 
     DAAL_ASSERT(baseNode);
     s = binaryHeap.push(base);
@@ -954,13 +1015,13 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
 
         // create leftChild
         WorkItem leftChild(src.featureUnordered, src.start, src.nLeft, src.level + 1, src.leftWeights);
-        src.node->kid[0] =
-            TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(nClasses, remainingSplitNodes, leftChild, src.impurityLeft);
+        src.node->kid[0] = TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(src.level + 1, nClasses, remainingSplitNodes,
+                                                                                                         leftChild, src.impurityLeft);
 
         // create rightChild
         WorkItem rightChild(src.featureUnordered, src.start + src.nLeft, src.n - src.nLeft, src.level + 1, src.totalWeights - src.leftWeights);
-        src.node->kid[1] = TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(nClasses, remainingSplitNodes, rightChild,
-                                                                                                         src.impurityRight);
+        src.node->kid[1] = TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(src.level + 1, nClasses, remainingSplitNodes,
+                                                                                                         rightChild, src.impurityRight);
 
         DAAL_ASSERT(src.node->kid[0]);
         DAAL_ASSERT(src.node->kid[1]);
@@ -1005,7 +1066,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::simpleS
 }
 
 template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
-bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplit(size_t iStart, size_t n,
+bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplit(size_t level, size_t iStart, size_t n,
                                                                                        const typename DataHelper::ImpurityData & curImpurity,
                                                                                        IndexType & iFeatureBest,
                                                                                        typename DataHelper::TSplitData & split,
@@ -1019,19 +1080,21 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
 #endif
         return simpleSplit(iStart, curImpurity, iFeatureBest, split);
     }
-    if (_nFeatureBufs == 1) return findBestSplitSerial(iStart, n, curImpurity, iFeatureBest, split, totalWeights);
-    return findBestSplitThreaded(iStart, n, curImpurity, iFeatureBest, split, totalWeights);
+    if (_nFeatureBufs == 1) return findBestSplitSerial(level, iStart, n, curImpurity, iFeatureBest, split, totalWeights);
+    return findBestSplitThreaded(level, iStart, n, curImpurity, iFeatureBest, split, totalWeights);
 }
 
 //find best split and put it to featureIndexBuf
 template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
-bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplitSerial(size_t iStart, size_t n,
+bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplitSerial(size_t level, size_t iStart, size_t n,
                                                                                              const typename DataHelper::ImpurityData & curImpurity,
                                                                                              IndexType & iBestFeature,
                                                                                              typename DataHelper::TSplitData & bestSplit,
                                                                                              algorithmFPType totalWeights)
 {
     chooseFeatures();
+    size_t nVisitedFeature       = 0;
+    const size_t maxFeatures     = nFeatures();
     const float qMax             = 0.02; //min fracture of observations to be handled as indexed feature values
     IndexType * bestSplitIdx     = featureIndexBuf(0) + iStart;
     IndexType * aIdx             = _aSample.get() + iStart;
@@ -1039,14 +1102,32 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
     int idxFeatureValueBestSplit = -1; //when sorted feature is used
     typename DataHelper::TSplitData split;
     const float fact = float(n);
-    for (size_t i = 0; i < _nFeaturesPerNode; ++i)
+    for (size_t i = 0; i < maxFeatures && nVisitedFeature < _nFeaturesPerNode; ++i)
     {
         const auto iFeature            = _aFeatureIdx[i];
         const bool bUseIndexedFeatures = (!_par.memorySavingMode) && (fact > qMax * float(_helper.indexedFeatures().numIndices(iFeature)));
 
+        if (!_maxLeafNodes && !_useConstFeatures && !_par.memorySavingMode)
+        {
+            if (_aConstFeatureIdx[maxFeatures + iFeature] > 0) continue; //selected feature is known constant feature
+            if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n))
+            {
+                _aConstFeatureIdx[maxFeatures + iFeature] = level + 1;
+                _aConstFeatureIdx[_nConstFeature]         = iFeature;
+                ++_nConstFeature;
+                continue; //all values of the feature are the same, selected feature is new constant feature
+            }
+            else
+                ++nVisitedFeature;
+        }
+        else
+        {
+            ++nVisitedFeature;
+            if (!_par.memorySavingMode && !_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue;
+        }
+
         if (bUseIndexedFeatures)
         {
-            if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue; //all values of the feature are the same
             split.featureUnordered = _featHelper.isUnordered(iFeature);
             //index of best feature value in the array of sorted feature values
             const int idxFeatureValue =
@@ -1124,7 +1205,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
 }
 
 template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
-bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplitThreaded(size_t iStart, size_t n,
+bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplitThreaded(size_t level, size_t iStart, size_t n,
                                                                                                const typename DataHelper::ImpurityData & curImpurity,
                                                                                                IndexType & iFeatureBest,
                                                                                                typename DataHelper::TSplitData & split,
@@ -1154,7 +1235,10 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     DAAL_CHECK_MALLOC(oobIndices.get());
     _helper.getOOBIndices(oobIndices.get());
     const bool bMDA(_par.varImportance == training::MDA_Raw || _par.varImportance == training::MDA_Scaled);
-    if (_par.resultsToCompute & (computeOutOfBagError | computeOutOfBagErrorPerObservation) || bMDA)
+    if (_par.resultsToCompute
+            & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+               | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction)
+        || bMDA)
     {
         const algorithmFPType oobError = computeOOBError(t, nOOB, oobIndices.get());
         if (bMDA)

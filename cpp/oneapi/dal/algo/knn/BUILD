@@ -11,6 +11,13 @@ dal_module(
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/algo:minkowski_distance",
         "@onedal//cpp/oneapi/dal/algo:chebyshev_distance",
+        "@onedal//cpp/oneapi/dal/algo:cosine_distance",
+        "@onedal//cpp/oneapi/dal/backend/primitives:common",
+        "@onedal//cpp/oneapi/dal/backend/primitives:distance",
+        "@onedal//cpp/oneapi/dal/backend/primitives:regression",
+        "@onedal//cpp/oneapi/dal/backend/primitives:search",
+        "@onedal//cpp/oneapi/dal/backend/primitives:selection",
+        "@onedal//cpp/oneapi/dal/backend/primitives:voting",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/k_nearest_neighbors:kernel",

@@ -21,6 +21,10 @@
 #include <daal/include/algorithms/k_nearest_neighbors/kdtree_knn_classification_model.h>
 #include "oneapi/dal/algo/knn/common.hpp"
 
+#include "oneapi/dal/backend/serialization.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/archive.hpp"
+
 namespace oneapi::dal::knn::backend {
 
 inline auto convert_to_daal_bf_voting_mode(voting_mode vm) {
@@ -34,22 +38,34 @@ inline auto convert_to_daal_kdtree_voting_mode(voting_mode vm) {
                                       : daal_kdtree_knn::voteDistance;
 }
 
-class model_interop : public base {
+class model_interop : public ONEDAL_SERIALIZABLE(knn_model_interop_id) {
+    using daal_model_ptr_t = daal::algorithms::classifier::ModelPtr;
+
 public:
-    using DaalModel = daal::algorithms::classifier::ModelPtr;
+    model_interop() = default;
 
-    model_interop(const DaalModel& daal_model) : daal_model_(daal_model) {}
+    model_interop(const daal_model_ptr_t& daal_model) : daal_model_(daal_model) {}
 
-    void set_daal_model(const DaalModel& model) {
+    void set_daal_model(const daal_model_ptr_t& model) {
         daal_model_ = model;
     }
 
-    const DaalModel& get_daal_model() const {
+    const daal_model_ptr_t& get_daal_model() const {
         return daal_model_;
     }
 
+    void serialize(dal::detail::output_archive& ar) const override {
+        dal::backend::interop::daal_output_data_archive daal_ar(ar);
+        daal_ar.setSharedPtrObj(const_cast<daal_model_ptr_t&>(daal_model_));
+    }
+
+    void deserialize(dal::detail::input_archive& ar) override {
+        dal::backend::interop::daal_input_data_archive daal_ar(ar);
+        daal_ar.setSharedPtrObj(daal_model_);
+    }
+
 private:
-    DaalModel daal_model_;
+    daal_model_ptr_t daal_model_;
 };
 
 } // namespace oneapi::dal::knn::backend

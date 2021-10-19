@@ -15,16 +15,17 @@
 * limitations under the License.
 *******************************************************************************/-->
 
-# Intel&reg; oneAPI Data Analytics Library <!-- omit in toc -->
+# oneAPI Data Analytics Library <!-- omit in toc --> <img align="right" width="100" height="100" src="https://spec.oneapi.io/oneapi-logo-white-scaled.jpg">
 
 [Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](#documentation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Support](#support)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Samples](#samples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
 
 [![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/oneapi-src.oneDAL?branchName=master)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=5&branchName=master) [![License](https://img.shields.io/github/license/oneapi-src/oneDAL.svg)](https://github.com/oneapi-src/oneDAL/blob/master/LICENSE) [![Join the community on GitHub Discussions](https://badgen.net/badge/join%20the%20discussion/on%20github/black?icon=github)](https://github.com/oneapi-src/oneDAL/discussions)
 
-Intel&reg; oneAPI Data Analytics Library (oneDAL) is a powerful machine learning library that helps speed up big data analysis. oneDAL solvers are also used in [Intel Distribution for Python](https://software.intel.com/content/www/us/en/develop/tools/distribution-for-python.html) for scikit-learn optimization.
+oneAPI Data Analytics Library (oneDAL) is a powerful machine learning library that helps speed up big data analysis. oneDAL solvers are also used in [Intel Distribution for Python](https://software.intel.com/content/www/us/en/develop/tools/distribution-for-python.html) for scikit-learn optimization.
 
-Intel&reg; oneAPI Data Analytics Library is an extension of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
+oneAPI Data Analytics Library is an extension of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
 
+oneDAL is part of [oneAPI](https://oneapi.io).
 
 ## Table of Contents <!-- omit in toc -->
 - [Python API](#python-api)
@@ -112,7 +113,7 @@ For more details browse [daal4py documentation](https://intelpython.github.io/da
 
 You can speed up Scikit-learn using [Intel(R) Extension for Scikit-learn*](https://intel.github.io/scikit-learn-intelex/).
 
-Intel(R) Extension for Scikit-learn* speeds up scikit-learn beyond  by providing drop-in patching. Acceleration is achieved through the use of the Intel(R) oneAPI Data Analytics Library that allows for fast usage of the framework suited for Data Scientists or Machine Learning users.
+Intel(R) Extension for Scikit-learn* speeds up scikit-learn beyond  by providing drop-in patching. Acceleration is achieved through the use of the oneAPI Data Analytics Library that allows for fast usage of the framework suited for Data Scientists or Machine Learning users.
 
 |   |
 |---|
@@ -246,13 +247,13 @@ The preview features list:
 
 ## oneDAL and Intel&reg; DAAL
 
-Intel&reg; oneAPI Data Analytics Library is an extension of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
+oneAPI Data Analytics Library is an extension of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
 
 This repository contains branches corresponding to both oneAPI and classical versions of the library. We encourage you to use oneDAL located under the `master` branch.
 
 |Product|Latest release|Branch|
 |-------|--------------|------|
-|oneDAL       |2021.2|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021.2-rls](https://github.com/oneapi-src/oneDAL/tree/rls/2021.2-rls)|
+|oneDAL       |2021.4|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021.4-rls](https://github.com/oneapi-src/oneDAL/tree/rls/2021.4-rls)|
 |Intel&reg; DAAL|2020 Update 3|[rls/daal-2020-u3-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-u3-rls)|
 
 

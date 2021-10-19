@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/pca/infer_types.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::pca::backend {
 

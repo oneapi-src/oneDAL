@@ -21,9 +21,8 @@
 //--
 */
 
-#include "src/algorithms/normalization/zscore/inner/zscore_types_v1.h"
-#include "src/algorithms/normalization/zscore/inner/zscore_types_v2.h"
 #include "src/algorithms/normalization/zscore/zscore_result.h"
+
 using namespace daal::data_management;
 using namespace daal::services;
 

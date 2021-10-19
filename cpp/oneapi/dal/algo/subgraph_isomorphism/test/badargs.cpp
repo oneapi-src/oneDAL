@@ -54,6 +54,13 @@ protected:
     std::int64_t rows_count;
 };
 
+/*
+  O------O---
+ /|\    /|\  \
+O | O--O-+-O--O
+ \|/    \|/  /
+  O------O---
+*/
 class double_triangle_target_type : public graph_base_data {
 public:
     double_triangle_target_type() {
@@ -67,6 +74,21 @@ public:
                                           7, 1, 8, 7, 4, 6, 4, 7, 5, 3, 5, 6, 4, 8, 5, 7 };
     std::array<std::int64_t, 10> rows = { 0, 2, 6, 9, 13, 17, 22, 25, 30, 32 };
     std::array<std::int32_t, 9> labels = { 1, 0, 1, 0, 0, 1, 0, 1, 0 };
+};
+
+class k_6_type : public graph_base_data {
+public:
+    k_6_type() {
+        vertex_count = 6;
+        edge_count = 15;
+        cols_count = 30;
+        rows_count = 7;
+    }
+    std::array<std::int32_t, 6> degrees = { 5, 5, 5, 5, 5, 5 };
+    std::array<std::int32_t, 30> cols = { 1, 4, 3, 2, 5, 0, 2, 5, 4, 3, 4, 1, 3, 0, 5,
+                                          4, 0, 2, 1, 5, 2, 0, 3, 1, 5, 1, 4, 0, 2, 3 };
+    std::array<std::int64_t, 7> rows = { 0, 5, 10, 15, 20, 25, 30 };
+    std::array<std::int32_t, 6> labels = { 0, 0, 0, 0, 0, 0 };
 };
 
 class empty_graph_type : public graph_base_data {
@@ -186,13 +208,12 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if match count is negative") {
         invalid_argument);
 }
 
-SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if match count is positive") {
-    REQUIRE_THROWS_AS(
-        (this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_target_type>(
-            false,
-            isomorphism_kind::induced,
-            1)),
-        unimplemented);
+SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if target graph is smaller than pattern graph") {
+    REQUIRE_THROWS_AS((this->check_subgraph_isomorphism<k_6_type, double_triangle_target_type>(
+                          false,
+                          isomorphism_kind::induced,
+                          1)),
+                      invalid_argument);
 }
 
 // SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if semantic match is true") {

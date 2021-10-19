@@ -97,7 +97,7 @@ namespace v1 {
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
-/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+/// @tparam Method Tag-type that specifies an the implementation of the algorithm. Can
 ///                be :expr:`method::dense`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
 ///                be :expr:`task::compute`.

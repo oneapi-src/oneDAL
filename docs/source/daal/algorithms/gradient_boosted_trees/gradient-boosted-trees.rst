@@ -67,17 +67,17 @@ algorithm does the following:
 
 - For :math:`k = 1, \ldots , M`:
 
-	- Update :math:`g_i` and :math:`h_i`, :math:`i = 1, \ldots, n`
+  - Update :math:`g_i` and :math:`h_i`, :math:`i = 1, \ldots, n`
 
-	- Grow a regression tree :math:`{f}_{k}\in F` that minimizes the objective function
-	  :math:`-\frac{1}{2}\sum _{j=1}^{T}\frac{{G}_{j}^{2}}{{H}_{j}+\lambda }+\gamma T`, where
-	  :math:`G_j=\sum _{i\in {I}_{j}}{g}_{j}`, :math:`{H}_{j}=\sum _{i\in {I}_{j}}{h}_{j}`, :math:`{I}_{j}= \{i| ({x}_{i})=j\}`, :math:`j=1, \ldots, T`.
+  - Grow a regression tree :math:`{f}_{k}\in F` that minimizes the objective function
+    :math:`-\frac{1}{2}\sum _{j=1}^{T}\frac{{G}_{j}^{2}}{{H}_{j}+\lambda }+\gamma T`, where
+    :math:`G_j=\sum _{i\in {I}_{j}}{g}_{j}`, :math:`{H}_{j}=\sum _{i\in {I}_{j}}{h}_{j}`, :math:`{I}_{j}= \{i| ({x}_{i})=j\}`, :math:`j=1, \ldots, T`.
 
-	- Assign an optimal weight :math:`{w_j}^{*}= \frac{G_j}{H_j +\lambda }` to the leaf :math:`j`, :math:`j = 1, \ldots, T`.
+  - Assign an optimal weight :math:`{w_j}^{*}= \frac{G_j}{H_j +\lambda }` to the leaf :math:`j`, :math:`j = 1, \ldots, T`.
 
-	- Apply shrinkage parameter :math:`\theta` to the tree leafs and add the tree to the model
+  - Apply shrinkage parameter :math:`\theta` to the tree leafs and add the tree to the model
 
-	- Update :math:`\hat{y_i}^{(k)}`
+  - Update :math:`\hat{y_i}^{(k)}`
 
 The algorithm for growing the tree:
 
@@ -90,12 +90,12 @@ The algorithm for growing the tree:
 
 - For each leaf node in the tree:
 
-	- Choose a subset of feature for split finding if required (stochastic gradient boosting).
+  - Choose a subset of feature for split finding if required (stochastic gradient boosting).
 
-	- Find the best split that maximizes the gain:
+  - Find the best split that maximizes the gain:
 
-	.. math::
-		\frac{{G}_{L}^{2}}{{H}_{L}+\lambda }+ \frac{{G}_{R}^{2}}{{H}_{R}+\lambda }- \frac{{({G}_{L}+{G}_{R})}^{2}}{{H}_{L}+ {H}_{R}+\lambda }- \gamma  
+    .. math::
+       \frac{{G}_{L}^{2}}{{H}_{L}+\lambda }+ \frac{{G}_{R}^{2}}{{H}_{R}+\lambda }- \frac{{({G}_{L}+{G}_{R})}^{2}}{{H}_{L}+ {H}_{R}+\lambda }- \gamma  
 
 	- Stop when a termination criterion is met.
 
@@ -154,10 +154,13 @@ For description of the input and output, refer to .
 At the training stage, the gradient boosted trees batch algorithm
 has the following parameters:
 
-.. list-table::
+.. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
+
+.. list-table:: Training Parameters for Gradient Boosted Trees (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
+   :class: longtable
 
    * - Parameter
      - Default Value
@@ -168,8 +171,8 @@ has the following parameters:
 
        Possible values:
 
-        + ``inexact`` - continuous features are bucketed into discrete bins and the buckets borders are examined only
-        + ``exact`` - all possible splits for a given feature are examined
+       + ``inexact`` - continuous features are bucketed into discrete bins and the buckets borders are examined only
+       + ``exact`` - all possible splits for a given feature are examined
 
    * - ``maxIterations``
      - :math:`50`

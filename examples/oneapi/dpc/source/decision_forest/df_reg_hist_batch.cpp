@@ -14,7 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -26,15 +29,16 @@ namespace df = dal::decision_forest;
 
 void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("df_regression_train_data.csv");
-    const auto train_label_file_name = get_data_path("df_regression_train_label.csv");
+    const auto train_response_file_name = get_data_path("df_regression_train_label.csv");
     const auto test_data_file_name = get_data_path("df_regression_test_data.csv");
-    const auto test_label_file_name = get_data_path("df_regression_test_label.csv");
+    const auto test_response_file_name = get_data_path("df_regression_test_label.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
-    const auto y_train = dal::read<dal::table>(q, dal::csv::data_source{ train_label_file_name });
+    const auto y_train =
+        dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_label_file_name });
+    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
 
     const auto df_desc =
         df::descriptor<float, df::method::hist, df::task::regression>{}
@@ -57,7 +61,7 @@ void run(sycl::queue& q) {
 
         const auto result_infer = dal::infer(q, df_desc, result_train.get_model(), x_test);
 
-        std::cout << "Prediction results:\n" << result_infer.get_labels() << std::endl;
+        std::cout << "Prediction results:\n" << result_infer.get_responses() << std::endl;
 
         std::cout << "Ground truth:\n" << y_test << std::endl;
     }

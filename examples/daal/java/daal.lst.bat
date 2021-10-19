@@ -25,7 +25,6 @@ boosting\adaboost\AdaBoostSammeMultiClassBatch ^
 boosting\adaboost\AdaBoostSammeRTwoClassBatch ^
 boosting\adaboost\AdaBoostSammeRMultiClassBatch ^
 boosting\brownboost\BrownBoostDenseBatch ^
-boosting\adaboost\AdaBoostDenseBatch ^
 boosting\logitboost\LogitBoostDenseBatch ^
 cholesky\CholeskyDenseBatch ^
 compression\CompressorExample ^
@@ -132,7 +131,6 @@ serialization\SerializationExample ^
 stump\StumpClsGiniDenseBatch ^
 stump\StumpClsInfogainDenseBatch ^
 stump\StumpRegMseDenseBatch ^
-stump\StumpDenseBatch ^
 svd\SVDDenseBatch ^
 svd\SVDDenseDistr ^
 svd\SVDDenseOnline ^

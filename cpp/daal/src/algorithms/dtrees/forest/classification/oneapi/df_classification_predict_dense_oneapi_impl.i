@@ -30,7 +30,7 @@
 
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 #include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "src/data_management/service_numeric_table.h"
@@ -153,13 +153,9 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
     BlockDescriptor<algorithmFPType> dataBlock;
     DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(x)->getBlockOfRows(0, nRows, readOnly, dataBlock));
 
-    BlockDescriptor<algorithmFPType> resBlock;
-    DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(res)->getBlockOfRows(0, nRows, writeOnly, resBlock));
-
     BlockDescriptor<algorithmFPType> probBlock;
 
     auto dataBuffer = dataBlock.getBuffer();
-    auto resBuffer  = resBlock.getBuffer();
 
     UniversalBuffer classHist;
     if (prob)
@@ -175,10 +171,18 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
     }
 
     DAAL_CHECK_STATUS_VAR(predictByAllTrees(dataBuffer, m, classHist, nRows, nCols));
-    DAAL_CHECK_STATUS_VAR(determineWinners(classHist, resBuffer, nRows));
+
+    if (res)
+    {
+        BlockDescriptor<algorithmFPType> resBlock;
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(res)->getBlockOfRows(0, nRows, writeOnly, resBlock));
+
+        auto resBuffer = resBlock.getBuffer();
+        DAAL_CHECK_STATUS_VAR(determineWinners(classHist, resBuffer, nRows));
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(res)->releaseBlockOfRows(resBlock));
+    }
 
     DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(x)->releaseBlockOfRows(dataBlock));
-    DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(res)->releaseBlockOfRows(resBlock));
     if (prob)
     {
         DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(prob)->releaseBlockOfRows(probBlock));

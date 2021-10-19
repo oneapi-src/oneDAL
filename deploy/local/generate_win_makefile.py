@@ -23,7 +23,7 @@ import sys
 import glob
 
 def check_stop_list(path):
-    exclude_list = ['jaccard_batch_app', 'subgraph_isomorphism_batch']
+    exclude_list = ['jaccard_batch_app']
     for exclude_name in exclude_list:
         if exclude_name in path:
             return False

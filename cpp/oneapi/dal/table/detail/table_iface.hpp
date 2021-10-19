@@ -93,6 +93,8 @@ public:
                            std::int64_t row_count,
                            std::int64_t column_count) = 0;
 
+    virtual void copy_data(const dal::array<byte_t>& data) = 0;
+
 #ifdef ONEDAL_DATA_PARALLEL
     virtual void allocate(const data_parallel_policy& policy,
                           std::int64_t row_count,

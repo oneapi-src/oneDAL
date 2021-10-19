@@ -91,9 +91,19 @@ public:
     /// An $n \\times 1$ table with assignments labels to feature
     /// vectors in the input data.
     /// @remark default = table{}
-    const table& get_labels() const;
-    auto& set_labels(const table& value) {
-        set_labels_impl(value);
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
+
+    /// An $n \\times 1$ table with assignments responses to feature
+    /// vectors in the input data.
+    /// @remark default = table{}
+    const table& get_responses() const;
+    auto& set_responses(const table& value) {
+        set_responses_impl(value);
         return *this;
     }
 
@@ -109,7 +119,7 @@ public:
     }
 
 protected:
-    void set_labels_impl(const table&);
+    void set_responses_impl(const table&);
     void set_objective_function_value_impl(double);
 
 private:

@@ -24,7 +24,7 @@
 #include "src/algorithms/dtrees/forest/oneapi/cl_kernels/df_tree_level_build_helper_kernels.cl"
 
 #include "src/services/service_data_utils.h"
-#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_profiler.h"
 
 using namespace daal::services::internal::sycl;
 using namespace daal::services;

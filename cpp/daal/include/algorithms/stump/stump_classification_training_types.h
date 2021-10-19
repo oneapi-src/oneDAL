@@ -26,7 +26,6 @@
 
 #include "algorithms/algorithm.h"
 #include "algorithms/classifier/classifier_training_types.h"
-#include "algorithms/classifier/classifier_training_types.h"
 #include "algorithms/stump/stump_classification_model.h"
 
 namespace daal

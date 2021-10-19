@@ -71,11 +71,11 @@ public:
         leaf_info.level = desc.level;
 
         if constexpr (std::is_same_v<Task, task::classification>) {
-            leaf_info.label = desc.label;
+            leaf_info.response = desc.label;
             leaf_info.prob = desc.prob;
         }
         else if constexpr (std::is_same_v<Task, task::regression>) {
-            leaf_info.label = desc.response;
+            leaf_info.response = desc.response;
         }
 
         leaf_info.impurity = desc.impurity;

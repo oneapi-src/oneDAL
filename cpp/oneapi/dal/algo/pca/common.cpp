@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/pca/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::pca {
 namespace detail {
@@ -29,9 +30,17 @@ public:
 };
 
 template <typename Task>
-class model_impl : public base {
+class model_impl : public ONEDAL_SERIALIZABLE(pca_dim_reduction_model_impl_id) {
 public:
     table eigenvectors;
+
+    void serialize(dal::detail::output_archive& ar) const override {
+        ar(eigenvectors);
+    }
+
+    void deserialize(dal::detail::input_archive& ar) override {
+        ar(eigenvectors);
+    }
 };
 
 template <typename Task>
@@ -82,7 +91,18 @@ void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
 }
 
+template <typename Task>
+void model<Task>::serialize(dal::detail::output_archive& ar) const {
+    dal::detail::serialize_polymorphic_shared(impl_, ar);
+}
+
+template <typename Task>
+void model<Task>::deserialize(dal::detail::input_archive& ar) {
+    dal::detail::deserialize_polymorphic_shared(impl_, ar);
+}
+
 template class ONEDAL_EXPORT model<task::dim_reduction>;
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::dim_reduction>)
 
 } // namespace v1
 } // namespace oneapi::dal::pca
