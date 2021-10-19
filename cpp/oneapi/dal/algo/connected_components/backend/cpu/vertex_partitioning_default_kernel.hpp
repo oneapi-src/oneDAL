@@ -24,7 +24,6 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
-
 #include "oneapi/dal/detail/threading.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
@@ -47,8 +46,9 @@ void link(const std::int32_t &u, const std::int32_t &v, std::atomic<std::int32_t
             h = p2;
             l = p1;
         }
-        if (components[h].compare_exchange_strong(h, l))
+        if (components[h].compare_exchange_strong(h, l)) {
             break;
+        }
         p1 = components[components[h]];
         p2 = components[l];
     }
@@ -57,7 +57,7 @@ void link(const std::int32_t &u, const std::int32_t &v, std::atomic<std::int32_t
 //Reduces component trees to single-level depth
 template <typename Cpu>
 void compress(const std::int32_t &u, std::atomic<std::int32_t> *components) {
-    if (components[components[u]] != components[u]) {
+    while (components[components[u]] != components[u]) {
         components[u].store(components[components[u]]);
     }
 }
@@ -93,9 +93,10 @@ std::int32_t most_frequent_element(const std::atomic<std::int32_t> *components,
 
     std::int32_t *root_sample_counts = allocate(vertex_allocator, vertex_count);
 
-    for (std::int32_t u = 0; u < vertex_count; ++u) {
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
         root_sample_counts[u] = 0;
-    }
+    });
+
     for (std::int32_t i = 0; i < samples_count; ++i) {
         root_sample_counts[components[rnd_vertex_ids[i]]]++;
     }
@@ -138,6 +139,7 @@ struct afforest {
         const std::int32_t neighbors_round = 2;
 
         std::int32_t neighbors_count = 0;
+
         for (std::int32_t i = 0; i < neighbors_round; ++i) {
             dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
                 std::int32_t neighbors_count = t.get_vertex_degree(u);
