@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::svm::backend {
 
@@ -44,6 +45,7 @@ sycl::event check_violating_edge(sycl::queue& q,
                                  const Float C,
                                  const violating_edge edge,
                                  const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(check_violating_edge, q);
     ONEDAL_ASSERT(y.get_dimension(0) == alpha.get_dimension(0));
     ONEDAL_ASSERT(alpha.get_dimension(0) == indicator.get_dimension(0));
     ONEDAL_ASSERT(indicator.has_mutable_data());
@@ -90,6 +92,7 @@ auto copy_by_indices(sycl::queue& q,
                      const std::int64_t row_count,
                      const std::int64_t column_count,
                      const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(copy_by_indices, q);
     ONEDAL_ASSERT(x_indices.get_count() == row_count);
     ONEDAL_ASSERT(res.get_count() == row_count * column_count);
     ONEDAL_ASSERT(res.has_mutable_data());
@@ -120,6 +123,7 @@ inline sycl::event invert_values(sycl::queue& q,
                                  const pr::ndview<Float, 1>& data,
                                  pr::ndview<Float, 1>& res,
                                  const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(invert_values, q);
     ONEDAL_ASSERT(data.get_dimension(0) == res.get_dimension(0));
 
     const Float* data_ptr = data.get_data();
@@ -139,6 +143,7 @@ std::tuple<const std::int64_t, sycl::event> copy_last_to_first(
     sycl::queue& q,
     pr::ndview<Type, 1>& data,
     const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(copy_last_to_first, q);
     ONEDAL_ASSERT(data.has_mutable_data());
     std::int64_t data_size = data.get_count();
     const std::int64_t copy_count = data_size / 2;

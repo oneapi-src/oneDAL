@@ -110,7 +110,7 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
 }
 
 template <typename Float>
-sycl::event solve_smo(sycl::queue& queue,
+sycl::event solve_smo(sycl::queue& q,
                       const pr::ndview<Float, 2>& kernel_values,
                       const pr::ndview<std::uint32_t, 1>& ws_indices,
                       const pr::ndarray<Float, 1>& labels,
@@ -126,6 +126,7 @@ sycl::event solve_smo(sycl::queue& queue,
                       pr::ndview<Float, 1>& grad_diff,
                       pr::ndview<std::uint32_t, 1>& inner_iter_count,
                       const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(solve_smo, q);
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(row_count <= dal::detail::limits<std::uint32_t>::max());
     ONEDAL_ASSERT(row_count == labels.get_dimension(0));
@@ -153,7 +154,7 @@ sycl::event solve_smo(sycl::queue& queue,
 
     const sycl::nd_range<1> nd_range = dal::backend::make_multiple_nd_range_1d(ws_count, ws_count);
 
-    auto solve_event = queue.submit([&](sycl::handler& cgh) {
+    auto solve_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<Float> local_kernel_values(ws_count, cgh);
         local_accessor_rw_t<Float> objective_func(ws_count, cgh);

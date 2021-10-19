@@ -17,6 +17,7 @@
 #include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemm.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::linear_kernel::backend {
 
@@ -29,10 +30,10 @@ namespace pr = dal::backend::primitives;
 
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+    auto& queue = ctx.get_queue();
+    ONEDAL_PROFILER_TASK(linear_kernel.compute, queue);
     const auto x = input.get_x();
     const auto y = input.get_y();
-
-    auto& queue = ctx.get_queue();
 
     const std::int64_t x_row_count = x.get_row_count();
     const std::int64_t y_row_count = y.get_row_count();
@@ -55,7 +56,11 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
         fill_res_event = res_nd.fill(queue, Float(1));
     }
 
-    auto gemm_event = gemm(queue, x_nd, y_nd.t(), res_nd, scale, shift, { fill_res_event });
+    sycl::event gemm_event;
+    {
+        ONEDAL_PROFILER_TASK(linear_kernel.compute.gemm, queue);
+        gemm_event = gemm(queue, x_nd, y_nd.t(), res_nd, scale, shift, { fill_res_event });
+    }
 
     const auto res_array = res_nd.flatten(queue, { gemm_event });
     auto res_table = homogen_table::wrap(res_array, x_row_count, y_row_count);

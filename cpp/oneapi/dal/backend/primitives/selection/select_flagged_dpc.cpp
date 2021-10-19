@@ -32,6 +32,7 @@ sycl::event select_flagged_base<Data, Flag>::scan(sycl::queue& queue,
                                                   integer_t local_size,
                                                   integer_t local_sum_count,
                                                   sycl::event& deps) {
+    ONEDAL_PROFILER_TASK(selection.select_flagged.scan, queue);
     ONEDAL_ASSERT(part_sum.get_count() == sum_buff_size_);
 
     const sycl::nd_range<1> nd_range =
@@ -83,6 +84,7 @@ sycl::event select_flagged_base<Data, Flag>::sum_scan(sycl::queue& queue,
                                                       integer_t local_sum_count,
                                                       ndarray<integer_t, 1>& total_sum,
                                                       sycl::event& deps) {
+    ONEDAL_PROFILER_TASK(selection.select_flagged.sum_scan, queue);
     ONEDAL_ASSERT(part_sum.get_count() == sum_buff_size_);
     ONEDAL_ASSERT(part_prefix_sum.get_count() == sum_buff_size_);
 
@@ -131,6 +133,7 @@ sycl::event select_flagged_base<Data, Flag>::reorder(sycl::queue& queue,
                                                      integer_t local_size,
                                                      integer_t local_sum_count,
                                                      sycl::event& deps) {
+    ONEDAL_PROFILER_TASK(selection.select_flagged.reorder, queue);
     ONEDAL_ASSERT(part_prefix_sum.get_count() == sum_buff_size_);
 
     const sycl::nd_range<1> nd_range =
@@ -219,6 +222,7 @@ sycl::event select_flagged_base<Data, Flag>::select_flagged_base_impl(
     ndview<Data, 1>& out,
     std::int64_t& selected_elem_count,
     const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(selection.select_flagged, queue_);
     ONEDAL_ASSERT(out.has_mutable_data());
     ONEDAL_ASSERT(in.get_count() == out.get_count());
 

@@ -18,17 +18,11 @@
 #include "oneapi/dal/backend/primitives/selection/select_flagged.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
-
-#ifdef ONEDAL_DATA_PARALLEL
-
-std::int64_t propose_working_set_size(const sycl::queue& q, const std::int64_t row_count) {
-    const std::int64_t max_wg_size = dal::backend::device_max_wg_size(q);
-    return std::min(dal::backend::down_pow2<std::uint32_t>(row_count),
-                    dal::backend::down_pow2<std::uint32_t>(max_wg_size));
-}
 
 template <typename Float>
 working_set_selector<Float>::working_set_selector(const sycl::queue& q,
@@ -64,6 +58,7 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
     const std::int64_t already_selected,
     violating_edge edge,
     const dal::backend::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(select_ws.select_ws_edge, q_);
     auto select_ws_edge_event =
         check_violating_edge(q_, labels_, alpha, indicator_, C_, edge, deps);
 
@@ -106,6 +101,7 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
                                                 pr::ndview<std::uint32_t, 1>& ws_indices,
                                                 std::int64_t selected_count,
                                                 const dal::backend::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(select_ws, q_);
     ONEDAL_ASSERT(labels_.get_dimension(0) == alpha.get_dimension(0));
     ONEDAL_ASSERT(labels_.get_dimension(0) == f.get_dimension(0));
     ONEDAL_ASSERT(alpha.get_dimension(0) == f.get_dimension(0));
@@ -157,6 +153,7 @@ sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::u
                                                          pr::ndview<std::uint8_t, 1>& indicator,
                                                          const std::int64_t need_to_reset,
                                                          const dal::backend::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(select_ws.select_ws_edge.reset_indicator, q_);
     ONEDAL_ASSERT(idx.get_dimension(0) == ws_count_);
     ONEDAL_ASSERT(need_to_reset <= ws_count_);
     ONEDAL_ASSERT(indicator.get_dimension(0) == row_count_);
@@ -181,17 +178,18 @@ sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::u
 }
 
 template <typename Float>
-sycl::event working_set_selector<Float>::sort_f_indices(sycl::queue& queue,
+sycl::event working_set_selector<Float>::sort_f_indices(sycl::queue& q,
                                                         const pr::ndview<Float, 1>& f,
                                                         const dal::backend::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(select_ws.sort_f_indices, q);
     ONEDAL_ASSERT(f.get_dimension(0) == row_count_);
 
     const Float* f_ptr = f.get_data();
     Float* tmp_sort_ptr = tmp_sort_values_.get_mutable_data();
 
-    auto copy_event = dal::backend::copy(queue, tmp_sort_ptr, f_ptr, row_count_, deps);
-    auto arange_event = sorted_f_indices_.arange(queue);
-    auto radix_sort = pr::radix_sort_indices_inplace<Float, std::uint32_t>{ queue };
+    auto copy_event = dal::backend::copy(q, tmp_sort_ptr, f_ptr, row_count_, deps);
+    auto arange_event = sorted_f_indices_.arange(q);
+    auto radix_sort = pr::radix_sort_indices_inplace<Float, std::uint32_t>{ q };
     auto radix_sort_event =
         radix_sort(tmp_sort_values_, sorted_f_indices_, { copy_event, arange_event });
 
@@ -201,6 +199,6 @@ sycl::event working_set_selector<Float>::sort_f_indices(sycl::queue& queue,
 template class working_set_selector<float>;
 template class working_set_selector<double>;
 
-#endif
-
 } // namespace oneapi::dal::svm::backend
+
+#endif

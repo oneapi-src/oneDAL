@@ -19,13 +19,17 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/misc.hpp"
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
 
-#ifdef ONEDAL_DATA_PARALLEL
-
-std::int64_t propose_working_set_size(const sycl::queue& q, const std::int64_t row_count);
+inline std::int64_t propose_working_set_size(const sycl::queue& q, const std::int64_t row_count) {
+    const std::int64_t max_wg_size = dal::backend::device_max_wg_size(q);
+    return std::min(dal::backend::down_pow2<std::uint32_t>(row_count),
+                    dal::backend::down_pow2<std::uint32_t>(max_wg_size));
+}
 
 template <typename Float>
 class working_set_selector {
@@ -72,6 +76,6 @@ private:
     pr::ndarray<Float, 1> labels_;
 };
 
-#endif
-
 } // namespace oneapi::dal::svm::backend
+
+#endif

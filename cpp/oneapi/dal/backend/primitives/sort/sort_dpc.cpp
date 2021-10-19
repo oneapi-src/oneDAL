@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
 
@@ -42,6 +43,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_scan(sycl::queue& qu
                                                                  std::int64_t local_size,
                                                                  std::int64_t local_hist_count,
                                                                  sycl::event& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace.radix_scan, queue);
     ONEDAL_ASSERT(part_hist.get_count() == hist_buff_size_);
 
     const sycl::nd_range<1> nd_range =
@@ -105,6 +107,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_hist_scan(
     std::int64_t local_size,
     std::int64_t local_hist_count,
     sycl::event& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace.radix_hist_scan, queue);
     ONEDAL_ASSERT(part_hist.get_count() == hist_buff_size_);
     ONEDAL_ASSERT(part_prefix_hist.get_count() == hist_buff_size_);
 
@@ -165,6 +168,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
     std::int64_t local_size,
     std::int64_t local_hist_count,
     sycl::event& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace.radix_reorder, queue);
     ONEDAL_ASSERT(part_prefix_hist.get_count() == ((local_hist_count + 1) << radix_bits_));
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
     ONEDAL_ASSERT(val_in.get_count() == val_out.get_count());
@@ -267,6 +271,7 @@ template <typename Float, typename Index>
 sycl::event radix_sort_indices_inplace<Float, Index>::operator()(ndview<Float, 1>& val_in,
                                                                  ndview<Index, 1>& ind_in,
                                                                  const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace, queue_);
     ONEDAL_ASSERT(val_in.has_mutable_data());
     ONEDAL_ASSERT(ind_in.has_mutable_data());
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
@@ -374,6 +379,7 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                                             ndview<Integer, 2>& val_out,
                                             std::int64_t sorted_elem_count,
                                             const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort, queue_);
     // radixBuf should be big enough to accumulate radix_range elements
     ONEDAL_ASSERT(val_in.get_dimension(1) > 0);
     ONEDAL_ASSERT(sorted_elem_count > 0);
@@ -525,6 +531,7 @@ template <typename Integer>
 sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                                             ndview<Integer, 2>& val_out,
                                             const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort, queue_);
     return this->operator()(val_in, val_out, val_in.get_dimension(1), deps);
 }
 

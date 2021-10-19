@@ -43,6 +43,7 @@ inline auto update_grad(sycl::queue& q,
                         const pr::ndview<Float, 2>& kernel_values_nd,
                         const pr::ndview<Float, 1>& delta_alpha_nd,
                         pr::ndview<Float, 1>& grad_nd) {
+    ONEDAL_PROFILER_TASK(update_grad, q);
     auto reshape_delta =
         delta_alpha_nd.reshape(pr::ndshape<2>{ delta_alpha_nd.get_dimension(0), 1 });
     auto reshape_grad = grad_nd.reshape(pr::ndshape<2>{ grad_nd.get_dimension(0), 1 });

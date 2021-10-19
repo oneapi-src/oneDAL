@@ -69,6 +69,7 @@ public:
                                      const pr::ndview<std::uint32_t, 1>& ws_indices,
                                      const std::int64_t subset_vectors_count,
                                      const pr::ndview<Float, 2>& x) override {
+        ONEDAL_PROFILER_TASK(cache_compute.copy_data_by_indices, q);
         auto event = copy_by_indices(q,
                                      x,
                                      ws_indices,
@@ -128,6 +129,7 @@ public:
                                   const table& x_table,
                                   const pr::ndarray<Float, 2>& x_nd,
                                   const pr::ndview<std::uint32_t, 1>& ws_indices) override {
+        ONEDAL_PROFILER_TASK(cache_compute, this->q_);
         const std::int64_t work_elements_count = ws_indices.get_count();
         auto copy_event = sub_data_task_ptr_->copy_data_by_indices(this->q_,
                                                                    ws_indices,
