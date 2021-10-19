@@ -163,6 +163,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
                                                 inner_iter_count_nd);
         auto f_diff_host = f_diff_nd.to_host(q, { solve_smo_event }).flatten();
         diff = *f_diff_host.get_data();
+
         update_grad(q, kernel_values_nd, delta_alpha_nd, grad_nd).wait_and_throw();
         if (check_stop_condition<Float>(diff,
                                         prev_diff,

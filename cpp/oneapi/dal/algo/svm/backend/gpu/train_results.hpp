@@ -251,7 +251,7 @@ auto compute_train_results(sycl::queue& q,
         pr::ndarray<std::uint8_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
 
     Float bias =
-пш        compute_bias<Float>(q, labels, f, coeffs, tmp_values, indicator, C, { tmp_values_event });
+        compute_bias<Float>(q, labels, f, coeffs, tmp_values, indicator, C, { tmp_values_event });
 
     auto compute_dual_coeffs_event = compute_dual_coeffs<Float>(q, labels, coeffs);
 

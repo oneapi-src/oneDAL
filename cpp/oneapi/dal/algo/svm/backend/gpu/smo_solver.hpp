@@ -65,8 +65,8 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
 
     const std::uint32_t int_max = dal::detail::limits<std::uint32_t>::max();
 
-    Float x = objective_func[sg_local_id];
-    std::uint32_t x_index = sg_local_id;
+    Float x = objective_func[local_id];
+    std::uint32_t x_index = local_id;
 
     Float res_max = sycl::reduce_over_group(sg, x, maximum<Float>());
 
