@@ -131,8 +131,7 @@ struct afforest {
 
         for (std::int32_t i = 0; i < neighbors_round; ++i) {
             for (std::int32_t u = 0; u < vertex_count; ++u) {
-                const std::int32_t neighbors_count = t.get_vertex_degree(u);
-                if (i < neighbors_count) {
+                if (i < t.get_vertex_degree(u)) {
                     link<Cpu>(u, t.get_vertex_neighbors_begin(u)[i], components);
                 }
             }
@@ -147,7 +146,7 @@ struct afforest {
         for (std::int32_t u = 0; u < vertex_count; ++u) {
             if (components[u] != sample_comp) {
                 if (t.get_vertex_degree(u) >= neighbors_round) {
-                    for (auto v = t.get_vertex_neighbors_begin(u);
+                    for (auto v = t.get_vertex_neighbors_begin(u) + neighbors_round;
                          v != t.get_vertex_neighbors_end(u);
                          ++v) {
                         link<Cpu>(u, *v, components);
