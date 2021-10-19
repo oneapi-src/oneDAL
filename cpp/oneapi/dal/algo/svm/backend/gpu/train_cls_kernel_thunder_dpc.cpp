@@ -161,7 +161,6 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
                                                 delta_alpha_nd,
                                                 f_diff_nd,
                                                 inner_iter_count_nd);
-
         auto f_diff_host = f_diff_nd.to_host(q, { solve_smo_event }).flatten();
         diff = *f_diff_host.get_data();
         update_grad(q, kernel_values_nd, delta_alpha_nd, grad_nd).wait_and_throw();
@@ -175,9 +174,19 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         prev_diff = diff;
     }
 
-    auto [bias, sv_coeffs, support_indices, support_vectors, compute_train_results_event] =
+    auto [bias,
+          sv_count,
+          sv_coeffs,
+          support_indices,
+          support_vectors,
+          compute_train_results_event] =
         compute_train_results<Float>(q, data_nd, responses_nd, grad_nd, alpha_nd, C);
     compute_train_results_event.wait_and_throw();
+
+    if (sv_count == 0) {
+        return result_t{};
+    }
+
     auto arr_biases = array<Float>::full(1, static_cast<Float>(bias));
     auto model =
         model_t()

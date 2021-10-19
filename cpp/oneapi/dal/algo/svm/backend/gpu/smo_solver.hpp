@@ -80,31 +80,30 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
 
     item.barrier(sycl::access::fence_space::local_space);
 
-    if (sg_id != 0 || sg_local_id >= sg_count)
-        return;
+    if (sg_id == 0 && sg_local_id < sg_count) {
+        x = sg_cache[sg_local_id].value;
+        x_index = sg_cache[sg_local_id].index;
+        res_max = sycl::reduce_over_group(sg, x, maximum<Float>());
+        res_index =
+            sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
 
-    x = sg_cache[sg_local_id].value;
-    x_index = sg_cache[sg_local_id].index;
-    res_max = sycl::reduce_over_group(sg, x, maximum<Float>());
-    res_index =
-        sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
+        for (std::uint32_t group_index = sg_size; group_index < sg_count; group_index += sg_size) {
+            x = sg_cache[group_index + sg_local_id].value;
+            x_index = sg_cache[group_index + sg_local_id].index;
 
-    for (std::uint32_t group_index = sg_size; group_index < sg_count; group_index += sg_size) {
-        x = sg_cache[group_index + sg_local_id].value;
-        x_index = sg_cache[group_index + sg_local_id].index;
-
-        const Float inner_max = sycl::reduce_over_group(sg, x, maximum<Float>());
-        if (inner_max > res_max) {
-            res_max = inner_max;
-            res_index = sycl::reduce_over_group(sg,
-                                                res_max == x ? x_index : int_max,
-                                                minimum<std::uint32_t>());
+            const Float inner_max = sycl::reduce_over_group(sg, x, maximum<Float>());
+            if (inner_max > res_max) {
+                res_max = inner_max;
+                res_index = sycl::reduce_over_group(sg,
+                                                    res_max == x ? x_index : int_max,
+                                                    minimum<std::uint32_t>());
+            }
         }
-    }
 
-    if (sg_local_id == 0) {
-        result.value = res_max;
-        result.index = res_index;
+        if (sg_local_id == 0) {
+            result.value = res_max;
+            result.index = res_index;
+        }
     }
 
     item.barrier(sycl::access::fence_space::local_space);

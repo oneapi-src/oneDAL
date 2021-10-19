@@ -173,14 +173,15 @@ auto compute_sv_coeffs(sycl::queue& q,
     select_flagged(indicator, coeffs, tmp_values, sv_count, { check_non_zero_binary_event })
         .wait_and_throw();
 
+    if (sv_count == 0) {
+        return std::make_tuple(pr::ndarray<Float, 1>(), sv_count, sycl::event());
+    }
+
     auto sv_coeffs = pr::ndarray<Float, 1>::empty(q, { sv_count }, sycl::usm::alloc::device);
 
-    sycl::event copy_event;
-    if (sv_count != 0) {
-        const Float* tmp_values_ptr = tmp_values.get_data();
-        Float* sv_coeffs_ptr = sv_coeffs.get_mutable_data();
-        copy_event = dal::backend::copy(q, sv_coeffs_ptr, tmp_values_ptr, sv_count);
-    }
+    const Float* tmp_values_ptr = tmp_values.get_data();
+    Float* sv_coeffs_ptr = sv_coeffs.get_mutable_data();
+    auto copy_event = dal::backend::copy(q, sv_coeffs_ptr, tmp_values_ptr, sv_count);
 
     return std::make_tuple(sv_coeffs, sv_count, copy_event);
 }
@@ -190,30 +191,31 @@ auto compute_support_indices(sycl::queue& q,
                              pr::ndview<std::uint8_t, 1>& indicator,
                              const std::int64_t sv_count,
                              const dal::backend::event_vector& deps = {}) {
+    if (sv_count == 0) {
+        return std::make_tuple(pr::ndarray<std::uint32_t, 1>(), sycl::event());
+    }
+
     auto row_count = indicator.get_dimension(0);
     auto support_indices =
         pr::ndarray<std::uint32_t, 1>::empty(q, { sv_count }, sycl::usm::alloc::device);
     auto tmp_index =
         pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
 
-    sycl::event copy_event;
-    if (sv_count != 0) {
-        auto tmp_range =
-            pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
-        auto arange_event = tmp_range.arange(q);
+    auto tmp_range =
+        pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+    auto arange_event = tmp_range.arange(q);
 
-        std::int64_t check_sv_count = 0;
-        auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint8_t>{ q };
-        select_flagged(indicator, tmp_range, tmp_index, check_sv_count, { arange_event })
-            .wait_and_throw();
+    std::int64_t check_sv_count = 0;
+    auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint8_t>{ q };
+    select_flagged(indicator, tmp_range, tmp_index, check_sv_count, { arange_event })
+        .wait_and_throw();
 
-        ONEDAL_ASSERT(check_sv_count == sv_count);
+    ONEDAL_ASSERT(check_sv_count == sv_count);
 
-        const std::uint32_t* tmp_index_ptr = tmp_index.get_data();
-        std::uint32_t* support_indices_ptr = support_indices.get_mutable_data();
+    const std::uint32_t* tmp_index_ptr = tmp_index.get_data();
+    std::uint32_t* support_indices_ptr = support_indices.get_mutable_data();
 
-        copy_event = dal::backend::copy(q, support_indices_ptr, tmp_index_ptr, sv_count);
-    }
+    auto copy_event = dal::backend::copy(q, support_indices_ptr, tmp_index_ptr, sv_count);
 
     return std::make_tuple(support_indices, copy_event);
 }
@@ -224,19 +226,14 @@ auto compute_support_vectors(sycl::queue& q,
                              const pr::ndview<std::uint32_t, 1>& support_indices,
                              const std::int64_t sv_count,
                              const dal::backend::event_vector& deps = {}) {
+    if (sv_count == 0) {
+        return std::make_tuple(pr::ndarray<Float, 2>(), sycl::event());
+    }
     auto support_vectors =
         pr::ndarray<Float, 2>::empty(q, { sv_count, x.get_dimension(1) }, sycl::usm::alloc::device);
 
-    sycl::event copy_by_indices_event;
-    if (sv_count != 0) {
-        copy_by_indices_event = copy_by_indices(q,
-                                                x,
-                                                support_indices,
-                                                support_vectors,
-                                                sv_count,
-                                                x.get_dimension(1),
-                                                deps);
-    }
+    auto copy_by_indices_event =
+        copy_by_indices(q, x, support_indices, support_vectors, sv_count, x.get_dimension(1), deps);
     return std::make_tuple(support_vectors, copy_by_indices_event);
 }
 
@@ -254,7 +251,7 @@ auto compute_train_results(sycl::queue& q,
         pr::ndarray<std::uint8_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
 
     Float bias =
-        compute_bias<Float>(q, labels, f, coeffs, tmp_values, indicator, C, { tmp_values_event });
+пш        compute_bias<Float>(q, labels, f, coeffs, tmp_values, indicator, C, { tmp_values_event });
 
     auto compute_dual_coeffs_event = compute_dual_coeffs<Float>(q, labels, coeffs);
 
@@ -272,6 +269,7 @@ auto compute_train_results(sycl::queue& q,
                                        { compute_support_indices_event });
 
     return std::make_tuple(bias,
+                           sv_count,
                            sv_coeffs,
                            support_indices,
                            support_vectors,
