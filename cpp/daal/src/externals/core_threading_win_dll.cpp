@@ -782,7 +782,6 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
     typedef void(*##fn_dpref##fn_name##_t)##argdecl;                          \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;              \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx512_, fn_name, argdecl, argcall) \
-    CALL_VOID_FUNC_FROM_DLL_CPU_MIC(fn_dpref, avx512_, fn_name, argdecl, argcall) \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx2_, fn_name, argdecl, argcall)   \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx_, fn_name, argdecl, argcall)    \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, sse42_, fn_name, argdecl, argcall)  \
@@ -819,7 +818,6 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
     typedef ret_type(*##fn_dpref##fn_name##_t)##argdecl;                               \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                       \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx512_, fn_name, argdecl, argcall) \
-    CALL_RET_FUNC_FROM_DLL_CPU_MIC(ret_type, fn_dpref, avx512_, fn_name, argdecl, argcall) \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx2_, fn_name, argdecl, argcall)   \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx_, fn_name, argdecl, argcall)    \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, sse42_, fn_name, argdecl, argcall)  \
