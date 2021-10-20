@@ -37,8 +37,8 @@ struct infer_ops_dispatcher<host_policy, Float, Method, Task> {
 #define INSTANTIATE(F, M, T) \
     template struct ONEDAL_EXPORT infer_ops_dispatcher<host_policy, F, M, T>;
 
-INSTANTIATE(float, method::kd_tree, task::classification)
-INSTANTIATE(double, method::kd_tree, task::classification)
+INSTANTIATE(float, method::norm_eq, task::regression)
+INSTANTIATE(double, method::norm_eq, task::regression)
 
 } // namespace v1
 } // namespace oneapi::dal::linear_regression::detail

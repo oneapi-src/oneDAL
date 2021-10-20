@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef ONEDAL_DATA_PARALLEL
-#define ONEDAL_DATA_PARALLEL
-#endif
-
 #include "oneapi/dal/algo/linear_regression.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -26,23 +22,23 @@
 
 namespace dal = oneapi::dal;
 
-void run(sycl::queue& q) {
+void run() {
     const auto train_data_file_name = get_data_path("linear_regression_train_data.csv");
     const auto train_response_file_name = get_data_path("linear_regression_train_responses.csv");
     const auto test_data_file_name = get_data_path("linear_regression_test_data.csv");
     const auto test_response_file_name = get_data_path("linear_regression_test_responses.csv");
 
-    const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
+    const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
     const auto y_train =
-        dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
+        dal::read<dal::table>(dal::csv::data_source{ train_response_file_name });
 
-    const auto knn_desc_uniform = dal::linear_regression::descriptor<>();
+    const auto lr_desc = dal::linear_regression::descriptor<>();
 
-    const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
+    const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
+    const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
-    const auto train_result_uniform = dal::train(q, knn_desc_uniform, x_train, y_train);
-    const auto train_result_distance = dal::train(q, knn_desc_distance, x_train, y_train);
+    const auto train_result = dal::train(lr_desc, x_train, y_train);
+    [[maybe_unused]] const auto lr_model = train_result.get_model();
 
     /*const auto test_result_uniform =
         dal::infer(q, knn_desc_uniform, x_test, train_result_uniform.get_model());
@@ -57,16 +53,6 @@ void run(sycl::queue& q) {
 }
 
 int main(int argc, char const* argv[]) {
-    for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
-        auto q = sycl::queue{ d };
-        // TODO: Should be deleted after regression algorithm introduction on CPU
-        try {
-            run(q);
-        }
-        catch (const dal::unimplemented& e) {
-            std::cout << e.what() << std::endl;
-        }
-    }
+    run();
     return 0;
 }

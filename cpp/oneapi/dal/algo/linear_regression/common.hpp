@@ -68,7 +68,7 @@ constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>
 
 template <typename Method>
 constexpr bool is_valid_method_v =
-    dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
+    dal::detail::is_one_of_v<Method, method::norm_eq>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = std::is_same_v<Task, task::regression>;
@@ -78,13 +78,15 @@ class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
 
 public:
+    using tag_t = descriptor_tag;
+
     descriptor_base();
 
-    bool get_compute_intercept();
+    descriptor_base(bool compute_intercept);
+
+    bool get_compute_intercept() const;
 
 protected:
-    explicit descriptor_base();
-
     void set_compute_intercept_impl(bool compute_intercept);
 
 private:
@@ -129,9 +131,7 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept) : base_t() {
-        set_compute_intercept(compute_intercept);
-    }
+    explicit descriptor(bool compute_intercept) : base_t(compute_intercept) {}
 
     /// Creates a new instance of the class with default parameters
     explicit descriptor() : base_t(true) {}
@@ -141,7 +141,7 @@ public:
         return base_t::get_compute_intercept();
     }
 
-    auto& get_compute_intercept(bool compute_intercept) const {
+    auto& set_compute_intercept(bool compute_intercept) const {
         base_t::set_compute_intercept(compute_intercept);
         return *this;
     }

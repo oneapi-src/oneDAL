@@ -28,11 +28,17 @@ class descriptor_impl : public base {
 public:
     explicit descriptor_impl() = default;
 
-    bool compute_intercept = false;
+    bool compute_intercept = true;
 };
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
+
+template <typename Task>
+descriptor_base<Task>::descriptor_base(bool compute_intercept)
+        : impl_(new descriptor_impl<Task>{}) {
+    impl_->compute_intercept = compute_intercept;
+}
 
 template<typename Task>
 bool descriptor_base<Task>::get_compute_intercept() const {
@@ -71,7 +77,7 @@ void model<Task>::deserialize(dal::detail::input_archive& ar) {
 
 template class ONEDAL_EXPORT model<task::regression>;
 
-ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::norm_eq_model_impl<task::regression>)
 
 } // namespace v1
 } // namespace oneapi::dal::linear_regression

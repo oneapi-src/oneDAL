@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/linear_model/linear_model_infer_kernel.h>
+#include <daal/src/algorithms/linear_model/linear_model_predict_kernel.h>
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -24,28 +24,30 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#include "oneapi/dal/algo/linear_regression/common.hpp"
+#include "oneapi/dal/algo/linear_regression/infer_types.hpp"
+#include "oneapi/dal/algo/linear_regression/backend/cpu/infer_kernel.hpp"
+
 namespace oneapi::dal::linear_regression::backend {
 
 using daal::services::Status;
 using dal::backend::context_cpu;
 
-using be = dal::backend;
-
-namespace daal_lm = daal::algorithms::linear_regression;
+namespace be = dal::backend;
+namespace daal_lm = daal::algorithms::linear_model;
 namespace interop = dal::backend::interop;
 
-constexpr auto daal_method = daal_lr::infer::normEqDense;
+constexpr auto daal_method = daal_lm::prediction::Method::defaultDense;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_lr_kernel_t =
-    daal_lr::prediction::internal::BatchKernel<Float, daal_method, Cpu>;
+using daal_lm_kernel_t =
+    daal_lm::prediction::internal::PredictKernel<Float, daal_method, Cpu>;
 
 
 template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
-                                           const table& data,
-                                           const table& resp) {
+                                           const table& data) {
 /*    using dal::detail::check_mul_overflow;
 
     const bool intercept = desc.get_compute_intercept();
@@ -94,7 +96,7 @@ template <typename Float, typename Task>
 static infer_result<Task> infer(const context_cpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
                                 const infer_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data());
 }
 
 template <typename Float, typename Task>
