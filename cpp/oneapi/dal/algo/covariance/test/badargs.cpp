@@ -37,7 +37,7 @@ public:
     }
 };
 
-using cov_types = COMBINE_TYPES((float, double), (covariance::method::dense));
+using cov_types = COMBINE_TYPES((float, double), (covariance::method::dense), (covariance::task::compute));
 
 #define COVARIANCE_BADARG_TEST(name) \
     TEMPLATE_TEST_M(covariance_badarg_test, name, "[covariance][badarg]", cov_types)
