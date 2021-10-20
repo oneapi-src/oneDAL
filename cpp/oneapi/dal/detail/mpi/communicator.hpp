@@ -50,6 +50,8 @@ inline MPI_Datatype make_mpi_data_type(const data_type& dtype) {
 
 inline MPI_Op make_mpi_reduce_op(const spmd_reduce_op& op) {
     switch (op) {
+        case spmd_reduce_op::max: return MPI_MAX;
+        case spmd_reduce_op::min: return MPI_MIN;
         case spmd_reduce_op::sum: return MPI_SUM;
         default: ONEDAL_ASSERT(!"Unknown reduce operation");
     }
@@ -202,6 +204,19 @@ public:
             const std::int64_t rank_count = get_rank_count();
             recv_counts_int.reset(rank_count);
             displs_int.reset(rank_count);
+
+            auto recv_counts_int_ptr = recv_counts_int.get_mutable_data();
+            auto displs_int_ptr = displs_int.get_mutable_data();
+
+            [[maybe_unused]] std::int64_t displs_counter = 0;
+            for (std::int64_t i = 0; i < rank_count; ++i) {
+                ONEDAL_ASSERT(recv_counts[i] > 0);
+                ONEDAL_ASSERT(displs[i] >= displs_counter);
+                displs_counter += recv_counts[i];
+
+                recv_counts_int_ptr[i] = dal::detail::integral_cast<int>(recv_counts[i]);
+                displs_int_ptr[i] = dal::detail::integral_cast<int>(displs[i]);
+            }
         }
 
         MPI_Request mpi_request;

@@ -32,36 +32,6 @@
 
 namespace dal = oneapi::dal;
 
-template <typename Float>
-std::vector<dal::table>
-split_table_by_rows(const dal::detail::data_parallel_policy &p,
-                    const dal::table &t, std::int64_t split_count) {
-  ONEDAL_ASSERT(split_count > 0);
-  ONEDAL_ASSERT(split_count <= t.get_row_count());
-
-  const std::int64_t row_count = t.get_row_count();
-  const std::int64_t column_count = t.get_column_count();
-  const std::int64_t block_size_regular =
-      row_count / split_count + bool(row_count % split_count);
-
-  std::vector<dal::table> result(split_count);
-
-  for (std::int64_t i = 0; i < split_count; i++) {
-    const std::int64_t block_start = i * block_size_regular;
-    std::int64_t block_end = block_start + block_size_regular;
-    if (block_end > row_count)
-      block_end = row_count - block_start;
-    const std::int64_t block_size = block_end - block_start;
-
-    const auto row_range = dal::range{block_start, block_end};
-    const auto block = dal::row_accessor<const Float>{t}.pull(
-        p.get_queue(), row_range, sycl::usm::alloc::device);
-    result[i] = dal::homogen_table::wrap(block, block_size, column_count);
-  }
-
-  return result;
-}
-
 void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
   const auto train_data_file_name =
       get_data_path("data/kmeans_dense_train_data.csv");

@@ -285,6 +285,24 @@ inline void switch_by_dtype(const data_type& dtype, const Op& op) {
 }
 
 template <typename T>
+struct reduce_op_max {
+    void operator()(const T* src, T* dst, std::int64_t count) const {
+        for (std::int64_t i = 0; i < count; i++) {
+            dst[i] = std::max(dst[i], src[i]);
+        }
+    }
+};
+
+template <typename T>
+struct reduce_op_min {
+    void operator()(const T* src, T* dst, std::int64_t count) const {
+        for (std::int64_t i = 0; i < count; i++) {
+            dst[i] = std::min(dst[i], src[i]);
+        }
+    }
+};
+
+template <typename T>
 struct reduce_op_sum {
     void operator()(const T* src, T* dst, std::int64_t count) const {
         for (std::int64_t i = 0; i < count; i++) {
@@ -298,6 +316,8 @@ inline void switch_by_reduce_op(const dal::detail::spmd_reduce_op& reduce_op_id,
     using dal::detail::spmd_reduce_op;
 
     switch (reduce_op_id) {
+        case spmd_reduce_op::max: return op(reduce_op_max<T>{});
+        case spmd_reduce_op::min: return op(reduce_op_min<T>{});
         case spmd_reduce_op::sum: return op(reduce_op_sum<T>{});
         default:
             throw std::runtime_error{

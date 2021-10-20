@@ -99,7 +99,7 @@ public:
     template <typename Y>
     static array<T> wrap(Y* data,
                          std::int64_t count,
-                         const sycl::vector_class<sycl::event>& dependencies) {
+                         const std::vector<sycl::event>& dependencies) {
         return array<T>{ data, count, dal::detail::empty_delete<const T>{}, dependencies };
     }
 #endif
@@ -145,7 +145,7 @@ public:
                    T* data,
                    std::int64_t count,
                    Deleter&& deleter,
-                   const sycl::vector_class<sycl::event>& dependencies = {})
+                   const std::vector<sycl::event>& dependencies = {})
             : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
         update_data(impl_.get());
         sycl::event::wait_and_throw(dependencies);
@@ -156,7 +156,7 @@ public:
                    const T* data,
                    std::int64_t count,
                    ConstDeleter&& deleter,
-                   const sycl::vector_class<sycl::event>& dependencies = {})
+                   const std::vector<sycl::event>& dependencies = {})
             : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
         update_data(impl_.get());
         sycl::event::wait_and_throw(dependencies);
@@ -257,7 +257,7 @@ public:
     void reset(Y* data,
                std::int64_t count,
                YDeleter&& deleter,
-               const sycl::vector_class<sycl::event>& dependencies) {
+               const std::vector<sycl::event>& dependencies) {
         sycl::event::wait_and_throw(dependencies);
         reset(data, count, std::forward<YDeleter>(deleter));
     }

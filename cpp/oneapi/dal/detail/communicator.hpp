@@ -39,6 +39,8 @@ public:
 };
 
 enum class spmd_reduce_op {
+    max,
+    min,
     sum,
 };
 
