@@ -307,6 +307,8 @@ MSG(initial_partition_label_gte_vertex_count,
 
 /* SPMD */
 MSG(unsupported_communicator_backend, "Unsupported communicator backend")
+MSG(unknown_data_type, "Unknown data type")
+MSG(unknown_reduce_op, "Unknown reduce operation")
 
 } // namespace v1
 } // namespace oneapi::dal::detail

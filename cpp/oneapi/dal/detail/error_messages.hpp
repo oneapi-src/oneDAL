@@ -283,6 +283,8 @@ public:
 
     /*SPMD*/
     MSG(unsupported_communicator_backend);
+    MSG(unknown_data_type);
+    MSG(unknown_reduce_op);
 };
 
 #undef MSG
