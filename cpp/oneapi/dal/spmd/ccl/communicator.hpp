@@ -51,8 +51,8 @@ private:
 
 public:
     ccl::shared_ptr_class<ccl::kvs> kvs;
-    int rank; // size_t?
-    int rank_count; // size_t?
+    int rank;
+    int rank_count;
 };
 
 template <>
@@ -67,10 +67,12 @@ communicator<device_memory_access::none> make_communicator<backend::ccl>() {
 template <>
 communicator<device_memory_access::usm> make_communicator<backend::ccl>(sycl::queue& queue) {
     auto& info = de::singleton<ccl_info>::get();
-    return dal::detail::ccl_communicator<device_memory_access::usm>{ queue,
-                                                                     info.kvs,
-                                                                     info.rank,
-                                                                     info.rank_count };
+    return dal::detail::ccl_communicator<device_memory_access::usm>{
+        queue,
+        info.kvs,
+        dal::detail::integral_cast<std::int64_t>(info.rank),
+        dal::detail::integral_cast<std::int64_t>(info.rank_count)
+    };
 }
 
 } // namespace oneapi::dal::preview::spmd
