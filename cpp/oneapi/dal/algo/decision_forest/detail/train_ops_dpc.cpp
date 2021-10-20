@@ -22,8 +22,6 @@
 namespace oneapi::dal::decision_forest::detail {
 namespace v1 {
 
-using dal::detail::data_parallel_policy;
-
 template <typename Policy, typename Float, typename Task, typename Method>
 struct train_ops_dispatcher<Policy, Float, Task, Method> {
     train_result<Task> operator()(const Policy& policy,

@@ -34,19 +34,13 @@ struct louvain_data {
     using vertex_allocator_type = inner_alloc<vertex_type>;
     using vertex_size_allocator_type = inner_alloc<vertex_size_type>;
 
-    using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
-    using v1a_t = inner_alloc<v1v_t>;
-    using v2v_t = vector_container<v1v_t, v1a_t>;
-
     louvain_data() = delete;
     louvain_data(std::int64_t vertex_count,
                  std::int64_t edge_count,
                  value_allocator_type& value_allocator,
                  vertex_allocator_type& vertex_allocator,
-                 vertex_size_allocator_type& vertex_size_allocator,
-                 v1a_t& v1a)
-            : c2v(vertex_count, v1a),
-              m(0),
+                 vertex_size_allocator_type& vertex_size_allocator)
+            : m(0),
               vertex_count(vertex_count),
               edge_count(edge_count),
               value_allocator(value_allocator),
@@ -67,6 +61,9 @@ struct louvain_data {
         c_self_loops = allocate(value_allocator, vertex_count);
         c_neighbors = allocate(vertex_allocator, vertex_count);
         c_rows = allocate(vertex_allocator, vertex_count + 1);
+        c2v = allocate(vertex_allocator, vertex_count);
+        community_index = allocate(vertex_size_allocator, vertex_count + 1);
+        prefix_sum = allocate(vertex_size_allocator, vertex_count + 1);
 
         c_vals = allocate(value_allocator, edge_count * 2);
         c_cols = allocate(vertex_allocator, edge_count * 2);
@@ -88,6 +85,9 @@ struct louvain_data {
         deallocate(value_allocator, c_self_loops, vertex_count);
         deallocate(vertex_allocator, c_neighbors, vertex_count);
         deallocate(vertex_allocator, c_rows, vertex_count + 1);
+        deallocate(vertex_allocator, c2v, vertex_count);
+        deallocate(vertex_size_allocator, community_index, vertex_count + 1);
+        deallocate(vertex_size_allocator, prefix_sum, vertex_count + 1);
 
         deallocate(value_allocator, c_vals, edge_count * 2);
         deallocate(vertex_allocator, c_cols, edge_count * 2);
@@ -112,13 +112,14 @@ struct louvain_data {
     value_type* c_self_loops;
     vertex_type* c_neighbors;
     vertex_type* c_rows;
+    vertex_type* c2v;
+    vertex_size_type* community_index;
+    vertex_size_type* prefix_sum;
 
     value_type* c_vals;
     vertex_type* c_cols;
     vertex_type* index;
 
-    // Set of vertices for every community
-    v2v_t c2v;
     // Total link weight in the network
     value_type m;
 
