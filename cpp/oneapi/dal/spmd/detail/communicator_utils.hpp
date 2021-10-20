@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/spmd/communicator.hpp"
-#include <vector>
 
 namespace spmd = oneapi::dal::preview::spmd;
 
@@ -169,15 +168,17 @@ spmd::request allgather(const spmd::communicator<MemoryAccessKind>& comm,
 
     spmd::request request;
 
-    std::vector<std::int64_t> recv_counts(comm.get_rank_count(), send.get_count());
-    std::vector<std::int64_t> displs(comm.get_rank_count(), 0);
+    auto recv_counts = array<std::int64_t>::full(comm.get_rank_count(), send.get_count());
+    auto displs = array<std::int64_t>::zeros(comm.get_rank_count());
+    auto recv_counts_ptr = recv_counts.get_data();
+    auto displs_ptr = displs.get_mutable_data();
     std::int64_t total_count = 0;
     for (std::int64_t i = 0; i < comm.get_rank_count(); i++) {
-        displs[i] = total_count;
-        total_count += recv_counts[i];
+        displs_ptr[i] = total_count;
+        total_count += recv_counts_ptr[i];
     }
 
-    return allgatherv(comm, send, recv, recv_counts.data(), displs.data());
+    return allgatherv(comm, send, recv, recv_counts.get_data(), displs.get_data());
 }
 
 template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>

@@ -19,6 +19,8 @@
 
 namespace oneapi::dal::preview::spmd {
 
+namespace de = dal::detail;
+
 template <typename MemoryAccessKind>
 template <typename D>
 request communicator<MemoryAccessKind>::bcast(const array<D>& ary, std::int64_t root) const {

@@ -26,8 +26,6 @@
 
 namespace oneapi::dal::preview::spmd {
 
-namespace de = dal::detail;
-
 namespace v1 {
 
 class request_iface {

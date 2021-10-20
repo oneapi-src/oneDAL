@@ -24,19 +24,19 @@ namespace v1 {
 
 template <class T>
 class singleton {
+public:
+    static T& get() {
+        static std::once_flag flag;
+        std::call_once(flag, [] {
+            get_instance();
+        });
+        return get_instance();
+    }
+
 private:
     static T& get_instance() {
         static T instance;
         return instance;
-    }
-
-public:
-    static T& get() {
-        static std::once_flag do_once;
-        std::call_once(do_once, [] {
-            get_instance();
-        });
-        return get_instance();
     }
 };
 
