@@ -231,7 +231,7 @@ public:
                           const la::matrix<double>& res,
                           std::string info = "") {
         CAPTURE(info);
-        const doubis_onele tol = 1e-1;
+        const double tol = 1e-1;
         const double diff = te::rel_error(ref, res, 0.0);
         CHECK(diff < tol);
     }
