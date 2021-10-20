@@ -58,9 +58,11 @@ void link(const std::int32_t &u, const std::int32_t &v, std::atomic<std::int32_t
 
 //Reduces component trees to single-level depth
 template <typename Cpu>
+
 void compress(const std::int32_t &u, std::atomic<std::int32_t> *components) {
     while (components[components[u]] != components[u]) {
         components[u].store(components[components[u]]);
+
     }
 }
 
@@ -161,7 +163,7 @@ struct afforest {
         dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
             if (components[u] != sample_comp) {
                 if (t.get_vertex_degree(u) >= neighbors_round) {
-                    for (auto v = t.get_vertex_neighbors_begin(u);
+                    for (auto v = t.get_vertex_neighbors_begin(u) + neighbors_round;
                          v != t.get_vertex_neighbors_end(u);
                          ++v) {
                         link<Cpu>(u, *v, components);
