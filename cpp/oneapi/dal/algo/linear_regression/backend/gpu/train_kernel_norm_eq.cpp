@@ -14,9 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 #include <iostream>
-#include <daal/src/algorithms/linear_regression/linear_regression_train_kernel.h>
+#include <daal/src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h>
 
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
@@ -27,12 +28,12 @@
 #include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
-#include "oneapi/dal/algo/linear_regression/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/algo/linear_regression/backend/gpu/train_kernel.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
 
 using daal::services::Status;
-using dal::backend::context_cpu;
+using dal::backend::context_gpu;
 
 namespace be = dal::backend;
 namespace interop = dal::backend::interop;
@@ -40,13 +41,13 @@ namespace daal_lr = daal::algorithms::linear_regression;
 
 constexpr auto daal_method = daal_lr::training::normEqDense;
 
-template <typename Float, daal::CpuType Cpu>
+template <typename Float>
 using daal_lr_kernel_t =
-    daal_lr::training::internal::BatchKernel<Float, daal_method, Cpu>;
+    daal_lr::training::internal::BatchKernelOneAPI<Float, daal_method>;
 
 
 template <typename Float, typename Task>
-static train_result<Task> call_daal_kernel(const context_cpu& ctx,
+static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
                                            const table& resp) {
@@ -55,22 +56,24 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     using model_t = model<Task>;
     using model_impl_t = backend::norm_eq_model_impl<Task>;
 
+    auto& queue = ctx.get_queue();
+    interop::execution_context_guard guard(queue);
+
     const bool intercept = desc.get_compute_intercept();
 
-    const auto sample_count = data.get_row_count();
     const auto feature_count = data.get_column_count();
     const auto response_count = resp.get_column_count();
 
     const auto ext_feature_count = feature_count + intercept;
 
     const auto xtx_size = check_mul_overflow(feature_count, feature_count);
-    auto xtx_arr = array<Float>::empty( xtx_size );
+    auto xtx_arr = array<Float>::empty( queue, xtx_size );
 
     const auto xty_size = check_mul_overflow(feature_count, response_count);
-    auto xty_arr = array<Float>::empty( xty_size );
+    auto xty_arr = array<Float>::empty( queue, xty_size );
 
     const auto betas_size = check_mul_overflow(ext_feature_count, response_count);
-    auto betas_arr = array<Float>::empty( betas_size );
+    auto betas_arr = array<Float>::empty( queue, betas_size );
 
     auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, feature_count, feature_count);
     auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, feature_count, response_count);
@@ -79,16 +82,12 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
 
-    std::cout << sample_count << ' ' << feature_count << ' ' << response_count << std::endl;
-    std::cout << betas_size << ' ' << xtx_size << ' ' << xty_size << std::endl;
-
-    const auto status = interop::call_daal_kernel<Float, daal_lr_kernel_t>(ctx,
-                                                                           *x_daal_table,
-                                                                           *y_daal_table,
-                                                                           *xtx_daal_table,
-                                                                           *xty_daal_table,
-                                                                           *betas_daal_table,
-                                                                           intercept);
+    const auto status = daal_lr_kernel_t<Float>().compute(*x_daal_table,
+                                                          *y_daal_table,
+                                                          *xtx_daal_table,
+                                                          *xty_daal_table,
+                                                          *betas_daal_table,
+                                                           intercept);
 
     interop::status_to_exception(status);
 
@@ -102,22 +101,22 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 }
 
 template <typename Float, typename Task>
-static train_result<Task> train(const context_cpu& ctx,
+static train_result<Task> train(const context_gpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
                                 const train_input<Task>& input) {
     return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>
-struct train_kernel_cpu<Float, method::norm_eq, Task> {
-    train_result<Task> operator()(const context_cpu& ctx,
+struct train_kernel_gpu<Float, method::norm_eq, Task> {
+    train_result<Task> operator()(const context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {
         return train<Float, Task>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_cpu<float, method::norm_eq, task::regression>;
-template struct train_kernel_cpu<double, method::norm_eq, task::regression>;
+template struct train_kernel_gpu<float, method::norm_eq, task::regression>;
+template struct train_kernel_gpu<double, method::norm_eq, task::regression>;
 
 } // namespace oneapi::dal::linear_regression::backend
