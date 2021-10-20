@@ -12,6 +12,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
     ],
     extra_deps = [
+        "@onedal//cpp/daal:core",
         "@onedal//cpp/daal/src/algorithms/linear_model:kernel",
         "@onedal//cpp/daal/src/algorithms/linear_regression:kernel",
     ],

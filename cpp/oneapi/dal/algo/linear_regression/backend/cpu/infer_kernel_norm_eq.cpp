@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/linear_model/linear_model_predict_kernel.h>
+//#include <daal/src/algorithms/linear_model/linear_model_predict_kernel.h>
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -34,14 +34,14 @@ using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace be = dal::backend;
-namespace daal_lm = daal::algorithms::linear_model;
+//namespace daal_lm = daal::algorithms::linear_model;
 namespace interop = dal::backend::interop;
 
-constexpr auto daal_method = daal_lm::prediction::Method::defaultDense;
+/*constexpr auto daal_method = daal_lm::prediction::Method::defaultDense;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_lm_kernel_t =
-    daal_lm::prediction::internal::PredictKernel<Float, daal_method, Cpu>;
+    daal_lm::prediction::internal::PredictKernel<Float, daal_method, Cpu>;*/
 
 
 template <typename Float, typename Task>

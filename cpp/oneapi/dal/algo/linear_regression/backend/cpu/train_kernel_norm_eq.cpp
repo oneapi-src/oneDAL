@@ -79,21 +79,21 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
 
-    const auto status = interop::call_daal_kernel<Float, daal_lr_kernel_t>(
-        ctx,
-        *x_daal_table,
-        *y_daal_table,
-        *xtx_daal_table,
-        *xty_daal_table,
-        *betas_daal_table,
-        intercept);
+    const auto status = interop::call_daal_kernel<Float, daal_lr_kernel_t>(ctx,
+                                                                           *x_daal_table,
+                                                                           *y_daal_table,
+                                                                           *xtx_daal_table,
+                                                                           *xty_daal_table,
+                                                                           *betas_daal_table,
+                                                                           intercept);
 
     interop::status_to_exception(status);
 
     auto betas = homogen_table::wrap(betas_arr, ext_feature_count, response_count);
 
     const auto model_impl = std::make_shared<model_impl_t>(betas);
-    auto result = train_result<Task>(dal::detail::make_private<model_t>(model_impl));
+    const auto model = dal::detail::make_private<model_t>(model_impl);
+    auto result = train_result<Task>().set_model(model);
 
     return result;
 }
