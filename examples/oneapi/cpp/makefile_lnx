@@ -25,7 +25,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see onedal.lst file"
 	@echo
-	@echo "compiler_name     - can be intel, gnu, clang or icx. Default value is intel."
+	@echo "compiler_name     - can be intel, dpcpp, icx or gnu. Default value is intel."
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
@@ -59,8 +59,12 @@ ifndef example
     example = $(ONEDAL)
 endif
 
+ifeq ($(compiler),clang)
+    override compiler = dpcpp
+endif
+
 ifneq ($(compiler),gnu)
-    ifneq ($(compiler),clang)
+    ifneq ($(compiler),dpcpp)
         ifneq ($(compiler),icx)
             override compiler = intel
         endif
@@ -136,9 +140,9 @@ ifeq ($(compiler),gnu)
     CC = g++
 endif
 
-ifeq ($(compiler),clang)
+ifeq ($(compiler),dpcpp)
     gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-    CC = clang++ --gcc-toolchain=$(gcc_toolchain)
+    CC = dpcpp --gcc-toolchain=$(gcc_toolchain)
 endif
 
 ifeq ($(compiler),icx)
