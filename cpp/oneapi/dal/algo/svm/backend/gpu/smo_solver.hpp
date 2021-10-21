@@ -33,36 +33,71 @@ template <typename Data>
 using local_accessor_rw_t =
     sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
 
-template <typename Float>
-struct enumerate_value {
-    std::uint32_t index;
-    Float value;
-};
-
-template <typename Float>
-struct local_variables {
-    Float delta_b_i;
-    Float delta_b_j;
-    Float local_diff;
-    Float local_eps;
-};
+constexpr std::uint32_t delta_b_i = 0;
+constexpr std::uint32_t delta_b_j = 1;
+constexpr std::uint32_t local_diff = 2;
+constexpr std::uint32_t local_eps = 3;
+constexpr std::uint32_t max_val_ind = 64;
 
 template <typename Float>
 inline void reduce_arg_max(sycl::nd_item<1> item,
                            const Float* objective_func,
-                           enumerate_value<Float>& result) {
-    auto wg = item.get_group();
+                           Float* sg_cache_values,
+                           std::uint32_t* sg_cache_index) {
+    auto sg = item.get_sub_group();
+
     const std::uint32_t local_id = item.get_local_id(0);
+    const std::uint32_t wg_size = item.get_local_range()[0];
+    const std::uint32_t sg_size = sg.get_local_range()[0];
+    const std::uint32_t sg_count = wg_size / sg_size;
+    const std::uint32_t sg_id = local_id / sg_size;
+
+    const std::uint32_t sg_local_id = sg.get_local_id();
 
     const std::uint32_t int_max = dal::detail::limits<std::uint32_t>::max();
 
     Float x = objective_func[local_id];
     std::uint32_t x_index = local_id;
 
-    result.value = sycl::reduce_over_group(wg, x, maximum<Float>());
+    Float res_max = sycl::reduce_over_group(sg, x, maximum<Float>());
 
-    result.index =
-        sycl::reduce_over_group(wg, result.value == x ? x_index : int_max, minimum<std::uint32_t>());
+    std::uint32_t res_index =
+        sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
+
+    if (sg_local_id == 0) {
+        sg_cache_values[sg_id] = res_max;
+        sg_cache_index[sg_id] = res_index;
+    }
+
+    item.barrier(sycl::access::fence_space::local_space);
+
+    if (sg_id == 0 && sg_local_id < sg_count) {
+        x = sg_cache_values[sg_local_id];
+        x_index = sg_cache_index[sg_local_id];
+        res_max = sycl::reduce_over_group(sg, x, maximum<Float>());
+        res_index =
+            sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
+
+        for (std::uint32_t group_index = sg_size; group_index < sg_count; group_index += sg_size) {
+            x = sg_cache_values[group_index + sg_local_id];
+            x_index = sg_cache_index[group_index + sg_local_id];
+
+            const Float inner_max = sycl::reduce_over_group(sg, x, maximum<Float>());
+            if (inner_max > res_max) {
+                res_max = inner_max;
+                res_index = sycl::reduce_over_group(sg,
+                                                    res_max == x ? x_index : int_max,
+                                                    minimum<std::uint32_t>());
+            }
+        }
+
+        if (sg_local_id == 0) {
+            sg_cache_values[max_val_ind] = res_max;
+            sg_cache_index[max_val_ind] = res_index;
+        }
+    }
+
+    item.barrier(sycl::access::fence_space::local_space);
 }
 
 template <typename Float>
@@ -106,13 +141,17 @@ sycl::event solve_smo(sycl::queue& q,
     Float* grad_diff_ptr = grad_diff.get_mutable_data();
     std::uint32_t* inner_iter_count_ptr = inner_iter_count.get_mutable_data();
 
+    constexpr std::uint32_t max_sg_size = 64;
+
     const sycl::nd_range<1> nd_range = dal::backend::make_multiple_nd_range_1d(ws_count, ws_count);
 
     auto solve_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<Float> local_kernel_values(ws_count, cgh);
         local_accessor_rw_t<Float> objective_func(ws_count, cgh);
-        local_accessor_rw_t<local_variables<Float>> local_vars(1, cgh);
+        local_accessor_rw_t<Float> sg_cache_values(max_sg_size + 1, cgh);
+        local_accessor_rw_t<std::uint32_t> sg_cache_index(max_sg_size + 1, cgh);
+        local_accessor_rw_t<Float> local_vars(4, cgh);
 
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             const std::uint32_t i = item.get_local_id(0);
@@ -127,11 +166,11 @@ sycl::event solve_smo(sycl::queue& q,
             std::uint32_t b_i = 0;
             std::uint32_t b_j = 0;
 
-            enumerate_value<Float> max_val_ind;
-
             Float* local_kernel_values_ptr = local_kernel_values.get_pointer().get();
             Float* objective_func_ptr = objective_func.get_pointer().get();
-            local_variables<Float>* local_vars_ptr = local_vars.get_pointer().get();
+            Float* sg_cache_values_ptr = sg_cache_values.get_pointer().get();
+            std::uint32_t* sg_cache_index_ptr = sg_cache_index.get_pointer().get();
+            Float* local_vars_ptr = local_vars.get_pointer().get();
 
             local_kernel_values_ptr[i] = kernel_values_ptr[i * row_count + ws_index];
             item.barrier(sycl::access::fence_space::local_space);
@@ -143,31 +182,34 @@ sycl::event solve_smo(sycl::queue& q,
                     is_upper_edge<Float>(labels_i, alpha_i, C) ? -grad_i : fp_min;
 
                 /* Find i index of the working set (b_i) */
-                reduce_arg_max(item, objective_func_ptr, max_val_ind);
-                b_i = max_val_ind.index;
-                const Float ma = -max_val_ind.value;
+                reduce_arg_max(item, objective_func_ptr, sg_cache_values_ptr, sg_cache_index_ptr);
+                b_i = sg_cache_index_ptr[max_val_ind];
+                const Float ma = -sg_cache_values_ptr[max_val_ind];
 
                 /* max_f(alpha) = max(grad[i]): i belongs to i_low (alpha)  */
                 objective_func_ptr[i] =
                     is_lower_edge<Float>(labels_i, alpha_i, C) ? grad_i : fp_min;
 
                 /* Find max gradient */
-                reduce_arg_max(item, objective_func_ptr, max_val_ind);
+                reduce_arg_max(item,
+                               objective_func_ptr,
+                               sg_cache_values_ptr,
+                               sg_cache_index_ptr);
 
                 if (i == 0) {
-                    const Float max_f = max_val_ind.value;
+                    const Float max_f = sg_cache_values_ptr[max_val_ind];
 
                     /* for condition check: m(alpha) >= max_f */
-                    local_vars_ptr[0].local_diff = max_f - ma;
+                    local_vars_ptr[local_diff] = max_f - ma;
                     if (inner_iter == 0) {
-                        local_vars_ptr[0].local_eps =
-                            sycl::fmax(eps, local_vars_ptr[0].local_diff * Float(1e-1));
-                        grad_diff_ptr[0] = local_vars_ptr[0].local_diff;
+                        local_vars_ptr[local_eps] =
+                            sycl::fmax(eps, local_vars_ptr[local_diff] * Float(1e-1));
+                        grad_diff_ptr[0] = local_vars_ptr[local_diff];
                     }
                 }
 
                 item.barrier(sycl::access::fence_space::local_space);
-                if (local_vars_ptr[0].local_diff < local_vars_ptr[0].local_eps) {
+                if (local_vars_ptr[local_diff] < local_vars_ptr[local_eps]) {
                     break;
                 }
 
@@ -188,28 +230,31 @@ sycl::event solve_smo(sycl::queue& q,
                 }
 
                 /* Find j index of the working set (b_j) */
-                reduce_arg_max(item, objective_func_ptr, max_val_ind);
-                b_j = max_val_ind.index;
+                reduce_arg_max(item,
+                               objective_func_ptr,
+                               sg_cache_values_ptr,
+                               sg_cache_index_ptr);
+                b_j = sg_cache_index_ptr[max_val_ind];
 
                 const Float ki_bj = kernel_values_ptr[b_j * row_count + ws_index];
 
                 /* Update alpha */
                 if (i == b_i) {
-                    local_vars_ptr[0].delta_b_i = labels_i > 0 ? C - alpha_i : alpha_i;
+                    local_vars_ptr[delta_b_i] = labels_i > 0 ? C - alpha_i : alpha_i;
                 }
                 if (i == b_j) {
-                    local_vars_ptr[0].delta_b_j = labels_i > 0 ? alpha_i : C - alpha_i;
+                    local_vars_ptr[delta_b_j] = labels_i > 0 ? alpha_i : C - alpha_i;
                     const Float b = ma - grad_i;
                     const Float a = sycl::fmax(kii + k_bi_bi - Float(2.0) * ki_bi, tau);
 
                     const Float dt = -b / a;
-                    local_vars_ptr[0].delta_b_j = sycl::fmin(local_vars_ptr[0].delta_b_j, dt);
+                    local_vars_ptr[delta_b_j] = sycl::fmin(local_vars_ptr[delta_b_j], dt);
                 }
 
                 item.barrier(sycl::access::fence_space::local_space);
 
                 const Float delta =
-                    sycl::fmin(local_vars_ptr[0].delta_b_i, local_vars_ptr[0].delta_b_j);
+                    sycl::fmin(local_vars_ptr[delta_b_i], local_vars_ptr[delta_b_j]);
                 alpha_i += i == b_i ? labels_i * delta : 0;
                 alpha_i -= i == b_j ? labels_i * delta : 0;
 
