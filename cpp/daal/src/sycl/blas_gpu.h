@@ -78,7 +78,7 @@ struct BlasGpu
         }
         else
         {
-            ctx.syrk(upper_lower, trans, k, n, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
+            ctx.syrk(upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
         }
 
         return status;
