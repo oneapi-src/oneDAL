@@ -277,11 +277,7 @@ auto compute_train_results(sycl::queue& q,
                                        { compute_support_indices_event });
     compute_support_vectors_event.wait_and_throw();
 
-    return std::make_tuple(bias,
-                           sv_count,
-                           sv_coeffs,
-                           support_indices,
-                           support_vectors);
+    return std::make_tuple(bias, sv_count, sv_coeffs, support_indices, support_vectors);
 }
 
 #endif
