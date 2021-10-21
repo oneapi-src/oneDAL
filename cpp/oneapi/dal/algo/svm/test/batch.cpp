@@ -267,427 +267,427 @@ private:
     }
 };
 
-using svm_types = COMBINE_TYPES((float), (svm::method::thunder, svm::method::smo));
+using svm_types = COMBINE_TYPES((float, double), (svm::method::thunder, svm::method::smo));
 using svm_nightly_types = COMBINE_TYPES((float, double), (svm::method::thunder));
 
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm polynomial manual dataset",
-//                      "[svm][integration][batch][polynomial]",
-//                      svm_types) {
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
-//     SKIP_IF(this->kernel_not_available_on_device());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = polynomial::descriptor<float_t, polynomial::method::dense>;
-
-//     constexpr std::int64_t row_count_train = 19;
-//     constexpr std::int64_t column_count = 2;
-//     constexpr std::int64_t element_count_train = row_count_train * column_count;
-
-//     constexpr std::array<float_t, element_count_train> x_data = {
-//         -5, 2, -4, 1,  -3, 0, -2, -1, -1, -2, 0, -3, 1, -2, 2, -1, 3, 0, 4,
-//         1,  5, 2,  -1, 1,  0, 1,  1,  1,  -2, 2, -1, 2, 0,  2, 1,  2, 2, 2,
-//     };
-//     const auto x_train = homogen_table::wrap(x_data.data(), row_count_train, column_count);
-
-//     constexpr std::array<float_t, row_count_train> y_data = { -1, -1, -1, -1, -1, -1, -1,
-//                                                               -1, -1, -1, -1, 1,  1,  1,
-//                                                               1,  1,  1,  1,  1 };
-//     const auto y_train = homogen_table::wrap(y_data.data(), row_count_train, 1);
-
-//     constexpr std::int64_t row_count_test = 3;
-//     constexpr std::int64_t element_count_test = row_count_test * column_count;
-
-//     constexpr std::array<float_t, element_count_test> x_data_train = { 0, 0, -1, -1, 1, -1 };
-//     const auto x_test = homogen_table::wrap(x_data_train.data(), row_count_test, column_count);
-
-//     constexpr std::array<float_t, row_count_test> y_data_train = { 1, -1, -1 };
-//     const auto y_test = homogen_table::wrap(y_data_train.data(), row_count_test, 1);
-
-//     const double scale = 1;
-//     const double shift = 4;
-//     const double degree = 2;
-//     const double c = 1;
-
-//     const auto kernel_desc = kernel_t{}.set_scale(scale).set_shift(shift).set_degree(degree);
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-//             .set_c(c);
-
-//     const double ref_accuracy = 1;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm sigmoid manual dataset",
-//                      "[svm][integration][batch][sigmoid]",
-//                      svm_types) {
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
-//     SKIP_IF(this->kernel_not_available_on_device());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = sigmoid::descriptor<float_t, sigmoid::method::dense>;
-
-//     constexpr std::int64_t row_count_train = 19;
-//     constexpr std::int64_t column_count = 2;
-//     constexpr std::int64_t element_count_train = row_count_train * column_count;
-
-//     constexpr std::array<float_t, element_count_train> x_data = {
-//         -5, 2, -4, 1,  -3, 0, -2, -1, -1, -2, 0, -3, 1, -2, 2, -1, 3, 0, 4,
-//         1,  5, 2,  -1, 1,  0, 1,  1,  1,  -2, 2, -1, 2, 0,  2, 1,  2, 2, 2,
-//     };
-//     const auto x_train = homogen_table::wrap(x_data.data(), row_count_train, column_count);
-
-//     constexpr std::array<float_t, row_count_train> y_data = { -1, -1, -1, -1, -1, -1, -1,
-//                                                               -1, -1, -1, -1, 1,  1,  1,
-//                                                               1,  1,  1,  1,  1 };
-//     const auto y_train = homogen_table::wrap(y_data.data(), row_count_train, 1);
-
-//     constexpr std::int64_t row_count_test = 3;
-//     constexpr std::int64_t element_count_test = row_count_test * column_count;
-
-//     constexpr std::array<float_t, element_count_test> x_data_train = { 0, 0, -1, -1, 1, -1 };
-//     const auto x_test = homogen_table::wrap(x_data_train.data(), row_count_test, column_count);
-
-//     constexpr std::array<float_t, row_count_test> y_data_train = { 1, -1, -1 };
-//     const auto y_test = homogen_table::wrap(y_data_train.data(), row_count_test, 1);
-
-//     const double scale = 1;
-//     const double shift = 0;
-//     const double c = 1;
-
-//     const auto kernel_desc = kernel_t{}.set_scale(scale).set_shift(shift);
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-//             .set_c(c);
-
-//     const double ref_accuracy = 0.66666;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm polynomial mnist 2k",
-//                      "[svm][integration][batch][polynomial][external-dataset]",
-//                      svm_types) {
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
-//     SKIP_IF(this->kernel_not_available_on_device());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = polynomial::descriptor<float_t, polynomial::method::dense>;
-
-//     const te::dataframe train_data =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ "svm/mnist_train_38_binary.csv" });
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train = train_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const te::dataframe test_data =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ "svm/mnist_test_38_binary.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test = test_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const auto kernel_desc = kernel_t{}.set_scale(3).set_shift(4).set_degree(3);
-
-//     const double c = 1.5e-3;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-//             .set_c(c);
-
-//     const double ref_accuracy = 0.992;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm can classify linear separable surface with big margin",
-//                      "[svm][integration][batch][linear]",
-//                      svm_types) {
-//     // TODO: Fix problem with incorrect number of support vectors on CPU
-//     SKIP_IF(this->get_policy().is_cpu());
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
-
-//     constexpr std::int64_t row_count_train = 6;
-//     constexpr std::int64_t column_count = 2;
-//     constexpr std::int64_t element_count_train = row_count_train * column_count;
-
-//     constexpr std::array<float_t, element_count_train> x_data = {
-//         -2.0, -1.0, -1.0, -1.0, -1.0, -2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0,
-//     };
-//     const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
-
-//     constexpr std::array<float_t, row_count_train> y_data = {
-//         -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
-//     };
-//     const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
-
-//     const double scale = 1.0;
-//     const double c = 1e-1;
-
-//     const auto kernel_desc = kernel_t{}.set_scale(scale);
-//     const auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-//             .set_c(c);
-
-//     constexpr std::int64_t support_vector_count = 6;
-
-//     constexpr std::array<float_t, support_vector_count> support_indices_data = { 0, 1, 2, 3, 4, 5 };
-//     const auto support_indices =
-//         homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
-
-//     constexpr std::array<float_t, row_count_train> decision_function_data = { -1.0, -2.0 / 3,
-//                                                                               -1.0, 2.0 / 3,
-//                                                                               1.0,  1.0 };
-//     const auto decision_function =
-//         homogen_table::wrap(decision_function_data.data(), row_count_train, 1);
-
-//     constexpr std::array<float_t, row_count_train> responses_data = {
-//         -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
-//     };
-//     const auto responses = homogen_table::wrap(responses_data.data(), row_count_train, 1);
-
-//     this->check_kernel(x,
-//                        y,
-//                        svm_desc,
-//                        support_vector_count,
-//                        support_indices,
-//                        decision_function,
-//                        responses);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm can classify linear not separable surface",
-//                      "[svm][integration][batch][linear]",
-//                      svm_types) {
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
-
-//     constexpr std::int64_t row_count_train = 8;
-//     constexpr std::int64_t column_count = 2;
-//     constexpr std::int64_t element_count_train = row_count_train * column_count;
-
-//     constexpr std::array<float_t, element_count_train> x_data = {
-//         -2.0, -1.0, -1.0, -1.0, -1.0, -2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0, -3.0, -3.0, 3.0, 3.0
-//     };
-//     const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
-
-//     constexpr std::array<float_t, row_count_train> y_data = { -1.0, -1.0, -1.0, 1.0,
-//                                                               1.0,  1.0,  1.0,  -1.0 };
-//     const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
-
-//     const double scale = 1.0;
-//     const double c = 1.0;
-
-//     const auto kernel_desc = kernel_t{}.set_scale(scale);
-//     const auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-//     constexpr std::int64_t support_vector_count = 8;
-
-//     constexpr std::array<float_t, support_vector_count> support_indices_data = { 0, 1, 2, 3,
-//                                                                                  4, 5, 6, 7 };
-//     const auto support_indices =
-//         homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
-
-//     constexpr std::array<float_t, row_count_train> decision_function_data = {
-//         -1.0, -2.0 / 3, -1.0, 2.0 / 3, 1.0, 1.0, -2.0, 2.0
-//     };
-//     const auto decision_function =
-//         homogen_table::wrap(decision_function_data.data(), row_count_train, 1);
-
-//     constexpr std::array<float_t, row_count_train> responses_data = { -1.0, -1.0, -1.0, 1.0,
-//                                                                       1.0,  1.0,  -1.0, 1.0 };
-//     const auto responses = homogen_table::wrap(responses_data.data(), row_count_train, 1);
-
-//     this->check_kernel(x,
-//                        y,
-//                        svm_desc,
-//                        support_vector_count,
-//                        support_indices,
-//                        decision_function,
-//                        responses);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm can classify quadric separable surface with rbf kernel",
-//                      "[svm][integration][batch][rbf]",
-//                      svm_types) {
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
-
-//     constexpr std::int64_t row_count_train = 12;
-//     constexpr std::int64_t column_count = 2;
-//     constexpr std::int64_t element_count_train = row_count_train * column_count;
-
-//     constexpr std::array<float_t, element_count_train> x_data = {
-//         -2.0, 0.0, -2.0, -1.0, -2.0, 1.0, 2.0, 0.0, 2.0, -1.0, 2.0, 1.0,
-//         -1.0, 0.0, -1.0, -0.5, -1.0, 0.5, 1.0, 0.5, 1.0, -0.5, 1.0, 0.5
-//     };
-//     const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
-
-//     constexpr std::array<float_t, row_count_train> y_data = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,
-//                                                               1.0,  1.0,  1.0,  1.0,  1.0,  1.0 };
-//     const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
-
-//     const double sigma = 1.0;
-//     const double c = 1.0;
-
-//     const auto kernel_desc = kernel_t{}.set_sigma(sigma);
-//     const auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-//             .set_c(c);
-
-//     constexpr std::int64_t support_vector_count = 12;
-
-//     constexpr std::array<float_t, support_vector_count> support_indices_data = {
-//         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
-//     };
-//     const auto support_indices =
-//         homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
-
-//     this->check_kernel(x, y, svm_desc, support_vector_count, support_indices, homogen_table{}, y);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm can classify any two responses",
-//                      "[svm][integration][batch][linear]",
-//                      svm_types) {
-//     // TODO: Fix problem with incorrect number of support vectors on CPU
-//     SKIP_IF(this->get_policy().is_cpu());
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
-
-//     constexpr std::int64_t row_count_train = 6;
-//     constexpr std::int64_t column_count = 2;
-//     constexpr std::int64_t element_count_train = row_count_train * column_count;
-
-//     using responses_pair_t =
-//         std::pair<std::array<float_t, row_count_train>, std::array<float_t, 2>>;
-
-//     constexpr std::array<float_t, element_count_train> x_data = { -2.0, -1.0, -1.0, -1.0,
-//                                                                   -1.0, -2.0, 1.0,  1.0,
-//                                                                   1.0,  2.0,  2.0,  1.0 };
-//     const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
-
-//     responses_pair_t responses =
-//         GENERATE_COPY(responses_pair_t({ -1.0, -1.0, -1.0, 1.0, 1.0, 1.0 }, { -1.0, 1.0 }),
-//                       responses_pair_t({ 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 }, { 0.0, 1.0 }),
-//                       responses_pair_t({ 0.0, 0.0, 0.0, 2.0, 2.0, 2.0 }, { 0.0, 2.0 }),
-//                       responses_pair_t({ -1.0, -1.0, -1.0, 0.0, 0.0, 0.0 }, { -1.0, 0.0 }));
-
-//     const auto y = homogen_table::wrap(responses.first.data(), row_count_train, 1);
-
-//     const double scale = 1.0;
-//     const double c = 1e-1;
-
-//     const auto kernel_desc = kernel_t{}.set_scale(scale);
-//     const auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-//             .set_c(c);
-
-//     constexpr std::int64_t support_vector_count = 6;
-
-//     constexpr std::array<float_t, support_vector_count> support_indices_data = { 0, 1, 2, 3, 4, 5 };
-//     const auto support_indices =
-//         homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
-
-//     this->check_different_responses(x,
-//                                     y,
-//                                     svm_desc,
-//                                     support_vector_count,
-//                                     support_indices,
-//                                     responses.second.data());
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm can classify linear separable surface with weights",
-//                      "[svm][integration][batch][linear]",
-//                      svm_types) {
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->weights_not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
-
-//     constexpr std::int64_t row_count_train = 6;
-//     constexpr std::int64_t column_count = 2;
-//     constexpr std::int64_t element_count_train = row_count_train * column_count;
-
-//     using weights_pair_t = std::pair<std::array<float_t, row_count_train>, std::array<float_t, 1>>;
-
-//     constexpr std::array<float_t, element_count_train> x_data = { -2.0, 0.0, -1.0, -1.0, 0.0, -2.0,
-//                                                                   0.0,  2.0, 1.0,  1.0,  2.0, 0.0 };
-//     const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
-
-//     constexpr std::array<float_t, row_count_train> y_data = {
-//         -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
-//     };
-//     const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
-
-//     weights_pair_t weights_data =
-//         GENERATE_COPY(weights_pair_t({ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }, { 0.0 }),
-//                       weights_pair_t({ 10.0, 0.1, 0.1, 0.1, 0.1, 10.0 }, { -0.44 }),
-//                       weights_pair_t({ 0.1, 0.1, 10.0, 10.0, 0.1, 0.1 }, { 0.44 }));
-
-//     const auto weights = homogen_table::wrap(weights_data.first.data(), row_count_train, 1);
-
-//     constexpr std::array<float_t, 2> x_test_data = { -1.0, 1.0 };
-//     const auto x_test = homogen_table::wrap(x_test_data.data(), 1, column_count);
-
-//     const double scale = 1.0;
-//     const double c = 1e-1;
-
-//     const auto kernel_desc = kernel_t{}.set_scale(scale);
-//     const auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-//             .set_c(c);
-
-//     constexpr std::int64_t support_vector_count = 6;
-
-//     constexpr std::array<float_t, support_vector_count> support_indices_data = { 0, 1, 2, 3, 4, 5 };
-//     const auto support_indices =
-//         homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
-
-//     const auto decision_function = homogen_table::wrap(weights_data.second.data(), 1, 1);
-
-//     this->check_weights(x,
-//                         y,
-//                         weights,
-//                         svm_desc,
-//                         support_vector_count,
-//                         support_indices,
-//                         x_test,
-//                         decision_function);
-// }
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm polynomial manual dataset",
+                     "[svm][integration][batch][polynomial]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->kernel_not_available_on_device());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = polynomial::descriptor<float_t, polynomial::method::dense>;
+
+    constexpr std::int64_t row_count_train = 19;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t element_count_train = row_count_train * column_count;
+
+    constexpr std::array<float_t, element_count_train> x_data = {
+        -5, 2, -4, 1,  -3, 0, -2, -1, -1, -2, 0, -3, 1, -2, 2, -1, 3, 0, 4,
+        1,  5, 2,  -1, 1,  0, 1,  1,  1,  -2, 2, -1, 2, 0,  2, 1,  2, 2, 2,
+    };
+    const auto x_train = homogen_table::wrap(x_data.data(), row_count_train, column_count);
+
+    constexpr std::array<float_t, row_count_train> y_data = { -1, -1, -1, -1, -1, -1, -1,
+                                                              -1, -1, -1, -1, 1,  1,  1,
+                                                              1,  1,  1,  1,  1 };
+    const auto y_train = homogen_table::wrap(y_data.data(), row_count_train, 1);
+
+    constexpr std::int64_t row_count_test = 3;
+    constexpr std::int64_t element_count_test = row_count_test * column_count;
+
+    constexpr std::array<float_t, element_count_test> x_data_train = { 0, 0, -1, -1, 1, -1 };
+    const auto x_test = homogen_table::wrap(x_data_train.data(), row_count_test, column_count);
+
+    constexpr std::array<float_t, row_count_test> y_data_train = { 1, -1, -1 };
+    const auto y_test = homogen_table::wrap(y_data_train.data(), row_count_test, 1);
+
+    const double scale = 1;
+    const double shift = 4;
+    const double degree = 2;
+    const double c = 1;
+
+    const auto kernel_desc = kernel_t{}.set_scale(scale).set_shift(shift).set_degree(degree);
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
+    const double ref_accuracy = 1;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm sigmoid manual dataset",
+                     "[svm][integration][batch][sigmoid]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->kernel_not_available_on_device());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = sigmoid::descriptor<float_t, sigmoid::method::dense>;
+
+    constexpr std::int64_t row_count_train = 19;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t element_count_train = row_count_train * column_count;
+
+    constexpr std::array<float_t, element_count_train> x_data = {
+        -5, 2, -4, 1,  -3, 0, -2, -1, -1, -2, 0, -3, 1, -2, 2, -1, 3, 0, 4,
+        1,  5, 2,  -1, 1,  0, 1,  1,  1,  -2, 2, -1, 2, 0,  2, 1,  2, 2, 2,
+    };
+    const auto x_train = homogen_table::wrap(x_data.data(), row_count_train, column_count);
+
+    constexpr std::array<float_t, row_count_train> y_data = { -1, -1, -1, -1, -1, -1, -1,
+                                                              -1, -1, -1, -1, 1,  1,  1,
+                                                              1,  1,  1,  1,  1 };
+    const auto y_train = homogen_table::wrap(y_data.data(), row_count_train, 1);
+
+    constexpr std::int64_t row_count_test = 3;
+    constexpr std::int64_t element_count_test = row_count_test * column_count;
+
+    constexpr std::array<float_t, element_count_test> x_data_train = { 0, 0, -1, -1, 1, -1 };
+    const auto x_test = homogen_table::wrap(x_data_train.data(), row_count_test, column_count);
+
+    constexpr std::array<float_t, row_count_test> y_data_train = { 1, -1, -1 };
+    const auto y_test = homogen_table::wrap(y_data_train.data(), row_count_test, 1);
+
+    const double scale = 1;
+    const double shift = 0;
+    const double c = 1;
+
+    const auto kernel_desc = kernel_t{}.set_scale(scale).set_shift(shift);
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
+    const double ref_accuracy = 0.66666;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm polynomial mnist 2k",
+                     "[svm][integration][batch][polynomial][external-dataset]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->kernel_not_available_on_device());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = polynomial::descriptor<float_t, polynomial::method::dense>;
+
+    const te::dataframe train_data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "svm/mnist_train_38_binary.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "svm/mnist_test_38_binary.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const auto kernel_desc = kernel_t{}.set_scale(3).set_shift(4).set_degree(3);
+
+    const double c = 1.5e-3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
+    const double ref_accuracy = 0.992;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm can classify linear separable surface with big margin",
+                     "[svm][integration][batch][linear]",
+                     svm_types) {
+    // TODO: Fix problem with incorrect number of support vectors on CPU
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t element_count_train = row_count_train * column_count;
+
+    constexpr std::array<float_t, element_count_train> x_data = {
+        -2.0, -1.0, -1.0, -1.0, -1.0, -2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0,
+    };
+    const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
+
+    constexpr std::array<float_t, row_count_train> y_data = {
+        -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
+    };
+    const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
+
+    const double scale = 1.0;
+    const double c = 1e-1;
+
+    const auto kernel_desc = kernel_t{}.set_scale(scale);
+    const auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
+    constexpr std::int64_t support_vector_count = 6;
+
+    constexpr std::array<float_t, support_vector_count> support_indices_data = { 0, 1, 2, 3, 4, 5 };
+    const auto support_indices =
+        homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
+
+    constexpr std::array<float_t, row_count_train> decision_function_data = { -1.0, -2.0 / 3,
+                                                                              -1.0, 2.0 / 3,
+                                                                              1.0,  1.0 };
+    const auto decision_function =
+        homogen_table::wrap(decision_function_data.data(), row_count_train, 1);
+
+    constexpr std::array<float_t, row_count_train> responses_data = {
+        -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
+    };
+    const auto responses = homogen_table::wrap(responses_data.data(), row_count_train, 1);
+
+    this->check_kernel(x,
+                       y,
+                       svm_desc,
+                       support_vector_count,
+                       support_indices,
+                       decision_function,
+                       responses);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm can classify linear not separable surface",
+                     "[svm][integration][batch][linear]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    constexpr std::int64_t row_count_train = 8;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t element_count_train = row_count_train * column_count;
+
+    constexpr std::array<float_t, element_count_train> x_data = {
+        -2.0, -1.0, -1.0, -1.0, -1.0, -2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0, -3.0, -3.0, 3.0, 3.0
+    };
+    const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
+
+    constexpr std::array<float_t, row_count_train> y_data = { -1.0, -1.0, -1.0, 1.0,
+                                                              1.0,  1.0,  1.0,  -1.0 };
+    const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
+
+    const double scale = 1.0;
+    const double c = 1.0;
+
+    const auto kernel_desc = kernel_t{}.set_scale(scale);
+    const auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    constexpr std::int64_t support_vector_count = 8;
+
+    constexpr std::array<float_t, support_vector_count> support_indices_data = { 0, 1, 2, 3,
+                                                                                 4, 5, 6, 7 };
+    const auto support_indices =
+        homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
+
+    constexpr std::array<float_t, row_count_train> decision_function_data = {
+        -1.0, -2.0 / 3, -1.0, 2.0 / 3, 1.0, 1.0, -2.0, 2.0
+    };
+    const auto decision_function =
+        homogen_table::wrap(decision_function_data.data(), row_count_train, 1);
+
+    constexpr std::array<float_t, row_count_train> responses_data = { -1.0, -1.0, -1.0, 1.0,
+                                                                      1.0,  1.0,  -1.0, 1.0 };
+    const auto responses = homogen_table::wrap(responses_data.data(), row_count_train, 1);
+
+    this->check_kernel(x,
+                       y,
+                       svm_desc,
+                       support_vector_count,
+                       support_indices,
+                       decision_function,
+                       responses);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm can classify quadric separable surface with rbf kernel",
+                     "[svm][integration][batch][rbf]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    constexpr std::int64_t row_count_train = 12;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t element_count_train = row_count_train * column_count;
+
+    constexpr std::array<float_t, element_count_train> x_data = {
+        -2.0, 0.0, -2.0, -1.0, -2.0, 1.0, 2.0, 0.0, 2.0, -1.0, 2.0, 1.0,
+        -1.0, 0.0, -1.0, -0.5, -1.0, 0.5, 1.0, 0.5, 1.0, -0.5, 1.0, 0.5
+    };
+    const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
+
+    constexpr std::array<float_t, row_count_train> y_data = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,
+                                                              1.0,  1.0,  1.0,  1.0,  1.0,  1.0 };
+    const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
+
+    const double sigma = 1.0;
+    const double c = 1.0;
+
+    const auto kernel_desc = kernel_t{}.set_sigma(sigma);
+    const auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
+    constexpr std::int64_t support_vector_count = 12;
+
+    constexpr std::array<float_t, support_vector_count> support_indices_data = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+    };
+    const auto support_indices =
+        homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
+
+    this->check_kernel(x, y, svm_desc, support_vector_count, support_indices, homogen_table{}, y);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm can classify any two responses",
+                     "[svm][integration][batch][linear]",
+                     svm_types) {
+    // TODO: Fix problem with incorrect number of support vectors on CPU
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t element_count_train = row_count_train * column_count;
+
+    using responses_pair_t =
+        std::pair<std::array<float_t, row_count_train>, std::array<float_t, 2>>;
+
+    constexpr std::array<float_t, element_count_train> x_data = { -2.0, -1.0, -1.0, -1.0,
+                                                                  -1.0, -2.0, 1.0,  1.0,
+                                                                  1.0,  2.0,  2.0,  1.0 };
+    const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
+
+    responses_pair_t responses =
+        GENERATE_COPY(responses_pair_t({ -1.0, -1.0, -1.0, 1.0, 1.0, 1.0 }, { -1.0, 1.0 }),
+                      responses_pair_t({ 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 }, { 0.0, 1.0 }),
+                      responses_pair_t({ 0.0, 0.0, 0.0, 2.0, 2.0, 2.0 }, { 0.0, 2.0 }),
+                      responses_pair_t({ -1.0, -1.0, -1.0, 0.0, 0.0, 0.0 }, { -1.0, 0.0 }));
+
+    const auto y = homogen_table::wrap(responses.first.data(), row_count_train, 1);
+
+    const double scale = 1.0;
+    const double c = 1e-1;
+
+    const auto kernel_desc = kernel_t{}.set_scale(scale);
+    const auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
+    constexpr std::int64_t support_vector_count = 6;
+
+    constexpr std::array<float_t, support_vector_count> support_indices_data = { 0, 1, 2, 3, 4, 5 };
+    const auto support_indices =
+        homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
+
+    this->check_different_responses(x,
+                                    y,
+                                    svm_desc,
+                                    support_vector_count,
+                                    support_indices,
+                                    responses.second.data());
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm can classify linear separable surface with weights",
+                     "[svm][integration][batch][linear]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->weights_not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t element_count_train = row_count_train * column_count;
+
+    using weights_pair_t = std::pair<std::array<float_t, row_count_train>, std::array<float_t, 1>>;
+
+    constexpr std::array<float_t, element_count_train> x_data = { -2.0, 0.0, -1.0, -1.0, 0.0, -2.0,
+                                                                  0.0,  2.0, 1.0,  1.0,  2.0, 0.0 };
+    const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
+
+    constexpr std::array<float_t, row_count_train> y_data = {
+        -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
+    };
+    const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
+
+    weights_pair_t weights_data =
+        GENERATE_COPY(weights_pair_t({ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }, { 0.0 }),
+                      weights_pair_t({ 10.0, 0.1, 0.1, 0.1, 0.1, 10.0 }, { -0.44 }),
+                      weights_pair_t({ 0.1, 0.1, 10.0, 10.0, 0.1, 0.1 }, { 0.44 }));
+
+    const auto weights = homogen_table::wrap(weights_data.first.data(), row_count_train, 1);
+
+    constexpr std::array<float_t, 2> x_test_data = { -1.0, 1.0 };
+    const auto x_test = homogen_table::wrap(x_test_data.data(), 1, column_count);
+
+    const double scale = 1.0;
+    const double c = 1e-1;
+
+    const auto kernel_desc = kernel_t{}.set_scale(scale);
+    const auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
+    constexpr std::int64_t support_vector_count = 6;
+
+    constexpr std::array<float_t, support_vector_count> support_indices_data = { 0, 1, 2, 3, 4, 5 };
+    const auto support_indices =
+        homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
+
+    const auto decision_function = homogen_table::wrap(weights_data.second.data(), 1, 1);
+
+    this->check_weights(x,
+                        y,
+                        weights,
+                        svm_desc,
+                        support_vector_count,
+                        support_indices,
+                        x_test,
+                        decision_function);
+}
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm linear gisette 6k x 5k",
@@ -723,308 +723,308 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm rbf covertype 100k x 54",
-//                      "[svm][integration][batch][rbf][external-dataset]",
-//                      svm_types) {
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
-
-//     const te::dataframe train_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_train_100k.csv" });
-//     const auto feature_count = train_data.get_column_count();
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train =
-//         train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const te::dataframe test_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_test_100k.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test =
-//         test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
-
-//     const double c = 1.0e3;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-//             .set_c(c);
-
-//     const double ref_accuracy = 0.9878;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm rbf epsilon 16k x 2k",
-//                      "[svm][integration][batch][rbf][nightly][external-dataset]",
-//                      svm_nightly_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
-
-//     const te::dataframe train_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_16k_train.csv" });
-//     const auto feature_count = train_data.get_column_count();
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train =
-//         train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const te::dataframe test_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_16k_test.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test =
-//         test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
-
-//     const double c = 9.0e2;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-//     const double ref_accuracy = 0.8538;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm linear higgs 100k x 28",
-//                      "[svm][integration][batch][linear][nightly][external-dataset]",
-//                      svm_nightly_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
-
-//     const te::dataframe train_data =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_100t_train.csv" });
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train = train_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const te::dataframe test_data =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_50t_test.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test = test_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const double c = 1.0;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-//     const double ref_accuracy = 0.6395;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm linear cifar 50k x 3072",
-//                      "[svm][integration][batch][linear][weekly][external-dataset]",
-//                      svm_nightly_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
-
-//     const te::dataframe train_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/cifar/dataset/cifar_50k_train_binary.csv" });
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train = train_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const te::dataframe test_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/cifar/dataset/cifar_10k_test_binary.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test = test_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const double c = 1.0e-7;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-//     const double ref_accuracy = 0.9;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm rbf imdb_drama 121k x 1001",
-//                      "[svm][integration][batch][rbf][weekly][external-dataset]",
-//                      svm_nightly_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
-
-//     const te::dataframe train_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
-//     const auto feature_count = train_data.get_column_count();
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train =
-//         train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const te::dataframe test_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test =
-//         test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
-
-//     const double c = 50;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-//     const double ref_accuracy = 0.6379;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm rbf epsilon 50k x 2k",
-//                      "[svm][integration][batch][rbf][weekly][external-dataset]",
-//                      svm_nightly_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
-
-//     const te::dataframe train_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_50k_train.csv" });
-//     const auto feature_count = train_data.get_column_count();
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train =
-//         train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const te::dataframe test_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_50k_train.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test =
-//         test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
-
-//     const double c = 1.0e3;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-//     const double ref_accuracy = 0.8842;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm linear epsilon 80k x 2k",
-//                      "[svm][integration][batch][linear][weekly][external-dataset]",
-//                      svm_nightly_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
-
-//     const te::dataframe train_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train = train_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const te::dataframe test_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test = test_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const double c = 1.0;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-//     const double ref_accuracy = 0.9025;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm rbf cifar 50k x 3072",
-//                      "[svm][integration][batch][rbf][weekly][external-dataset]",
-//                      svm_nightly_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
-
-//     const te::dataframe train_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/cifar/dataset/cifar_50k_train_binary.csv" });
-//     const auto feature_count = train_data.get_column_count();
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train =
-//         train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const te::dataframe test_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/cifar/dataset/cifar_10k_test_binary.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test =
-//         test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-//     const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
-
-//     const double c = 1.0e-5;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-//     const double ref_accuracy = 0.8999;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
-
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm linear imdb_drama 121k x 1001",
-//                      "[svm][integration][batch][linear][weekly][external-dataset]",
-//                      svm_nightly_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
-
-//     const te::dataframe train_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train = train_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const te::dataframe test_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test = test_data.get_table(
-//         this->get_homogen_table_id(),
-//         range(train_data.get_column_count() - 1, train_data.get_column_count()));
-
-//     const double c = 1.0e-3;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-//     const double ref_accuracy = 0.6379;
-
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf covertype 100k x 54",
+                     "[svm][integration][batch][rbf][external-dataset]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_train_100k.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_test_100k.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 1.0e3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
+    const double ref_accuracy = 0.9878;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf epsilon 16k x 2k",
+                     "[svm][integration][batch][rbf][nightly][external-dataset]",
+                     svm_nightly_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_16k_train.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_16k_test.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 9.0e2;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.8538;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm linear higgs 100k x 28",
+                     "[svm][integration][batch][linear][nightly][external-dataset]",
+                     svm_nightly_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    const te::dataframe train_data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_100t_train.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_50t_test.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const double c = 1.0;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.6395;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm linear cifar 50k x 3072",
+                     "[svm][integration][batch][linear][weekly][external-dataset]",
+                     svm_nightly_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/cifar/dataset/cifar_50k_train_binary.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/cifar/dataset/cifar_10k_test_binary.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const double c = 1.0e-7;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.9;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf imdb_drama 121k x 1001",
+                     "[svm][integration][batch][rbf][weekly][external-dataset]",
+                     svm_nightly_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 50;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.6379;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf epsilon 50k x 2k",
+                     "[svm][integration][batch][rbf][weekly][external-dataset]",
+                     svm_nightly_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_50k_train.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_50k_train.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 1.0e3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.8842;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm linear epsilon 80k x 2k",
+                     "[svm][integration][batch][linear][weekly][external-dataset]",
+                     svm_nightly_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const double c = 1.0;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.9025;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf cifar 50k x 3072",
+                     "[svm][integration][batch][rbf][weekly][external-dataset]",
+                     svm_nightly_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/cifar/dataset/cifar_50k_train_binary.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/cifar/dataset/cifar_10k_test_binary.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 1.0e-5;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.8999;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm linear imdb_drama 121k x 1001",
+                     "[svm][integration][batch][linear][weekly][external-dataset]",
+                     svm_nightly_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const double c = 1.0e-3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.6379;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
 
 } // namespace oneapi::dal::svm::test
