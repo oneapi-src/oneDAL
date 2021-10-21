@@ -19,7 +19,7 @@ COMPILER ?= icc
 
 $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
 
-CPUs := sse2 ssse3 sse42 avx2 avx512 avx
+CPUs := sse2 ssse3 sse42 avx2 avx512_mic avx512 avx
 CPUs.files := nrh mrm neh snb hsw skx
 USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
 USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
@@ -125,13 +125,14 @@ skx_OPT  := $(skx_OPT.$(COMPILER))
 
 _OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,$(if $(OS_is_fbsd),fre,)))
 
-USECPUS.files := $(subst sse2,nrh,$(subst ssse3,mrm,$(subst sse42,neh,$(subst avx,snb,$(subst avx2,hsw,$(subst avx512,skx,$(USECPUS)))))))
+USECPUS.files := $(subst sse2,nrh,$(subst ssse3,mrm,$(subst sse42,neh,$(subst avx,snb,$(subst avx2,hsw,$(subst avx512,skx,$(subst avx512_mic,,$(USECPUS))))))))
 USECPUS.out := $(filter-out $(USECPUS),$(CPUs))
 USECPUS.out.for.grep.filter := $(addprefix _,$(addsuffix _,$(subst $(space),_|_,$(USECPUS.out))))
 USECPUS.out.grep.filter := $(if $(USECPUS.out),| grep -v -E '$(USECPUS.out.for.grep.filter)')
 USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2\b,$(subst ssse3,^\#define DAAL_KERNEL_SSSE3\b,\
                     $(subst sse42,^\#define DAAL_KERNEL_SSE42\b,$(subst avx,^\#define DAAL_KERNEL_AVX\b,\
-                    $(subst avx2,^\#define DAAL_KERNEL_AVX2\b,$(subst avx512,^\#define DAAL_KERNEL_AVX512\b,$(USECPUS.out)))))))
+                    $(subst avx2,^\#define DAAL_KERNEL_AVX2\b,$(subst avx512,^\#define DAAL_KERNEL_AVX512\b,\
+                    $(subst avx512_mic,^\#define DAAL_KERNEL_AVX512_MIC\b,$(USECPUS.out))))))))
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
 USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.out.defs)/$(sed.eol)/')
 
