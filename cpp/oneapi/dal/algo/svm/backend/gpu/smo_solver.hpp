@@ -45,7 +45,6 @@ struct local_variables {
     Float delta_b_j;
     Float local_diff;
     Float local_eps;
-    enumerate_value<Float> max_val_ind;
 };
 
 template <typename Float>
@@ -60,17 +59,10 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
     Float x = objective_func[local_id];
     std::uint32_t x_index = local_id;
 
-    Float res_max = sycl::reduce_over_group(wg, x, maximum<Float>());
+    result.value = sycl::reduce_over_group(wg, x, maximum<Float>());
 
-    std::uint32_t res_index =
-        sycl::reduce_over_group(wg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
-
-    if (local_id == 0) {
-        result.value = res_max;
-        result.index = res_index;
-    }
-
-    item.barrier(sycl::access::fence_space::local_space);
+    result.index =
+        sycl::reduce_over_group(wg, result.value == x ? x_index : int_max, minimum<std::uint32_t>());
 }
 
 template <typename Float>
@@ -135,6 +127,8 @@ sycl::event solve_smo(sycl::queue& q,
             std::uint32_t b_i = 0;
             std::uint32_t b_j = 0;
 
+            enumerate_value<Float> max_val_ind;
+
             Float* local_kernel_values_ptr = local_kernel_values.get_pointer().get();
             Float* objective_func_ptr = objective_func.get_pointer().get();
             local_variables<Float>* local_vars_ptr = local_vars.get_pointer().get();
@@ -149,23 +143,19 @@ sycl::event solve_smo(sycl::queue& q,
                     is_upper_edge<Float>(labels_i, alpha_i, C) ? -grad_i : fp_min;
 
                 /* Find i index of the working set (b_i) */
-                reduce_arg_max(item,
-                               objective_func_ptr,
-                               local_vars_ptr[0].max_val_ind);
-                b_i = local_vars_ptr[0].max_val_ind.index;
-                const Float ma = -local_vars_ptr[0].max_val_ind.value;
+                reduce_arg_max(item, objective_func_ptr, max_val_ind);
+                b_i = max_val_ind.index;
+                const Float ma = -max_val_ind.value;
 
                 /* max_f(alpha) = max(grad[i]): i belongs to i_low (alpha)  */
                 objective_func_ptr[i] =
                     is_lower_edge<Float>(labels_i, alpha_i, C) ? grad_i : fp_min;
 
                 /* Find max gradient */
-                reduce_arg_max(item,
-                               objective_func_ptr,
-                               local_vars_ptr[0].max_val_ind);
+                reduce_arg_max(item, objective_func_ptr, max_val_ind);
 
                 if (i == 0) {
-                    const Float max_f = local_vars_ptr[0].max_val_ind.value;
+                    const Float max_f = max_val_ind.value;
 
                     /* for condition check: m(alpha) >= max_f */
                     local_vars_ptr[0].local_diff = max_f - ma;
@@ -198,10 +188,8 @@ sycl::event solve_smo(sycl::queue& q,
                 }
 
                 /* Find j index of the working set (b_j) */
-                reduce_arg_max(item,
-                               objective_func_ptr,
-                               local_vars_ptr[0].max_val_ind);
-                b_j = local_vars_ptr[0].max_val_ind.index;
+                reduce_arg_max(item, objective_func_ptr, max_val_ind);
+                b_j = max_val_ind.index;
 
                 const Float ki_bj = kernel_values_ptr[b_j * row_count + ws_index];
 
