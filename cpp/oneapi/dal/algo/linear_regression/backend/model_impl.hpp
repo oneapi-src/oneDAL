@@ -26,6 +26,8 @@ template <typename Task>
 class detail::v1::model_impl : public base {
 public:
     model_impl() = default;
+
+    virtual const table& get_betas() const = 0;
 };
 
 namespace backend {
@@ -50,7 +52,7 @@ public:
         ar(betas_);
     }
 
-    table get_betas() {
+    const table& get_betas() const override {
         return betas_;
     }
 

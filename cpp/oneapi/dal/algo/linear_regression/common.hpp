@@ -158,6 +158,8 @@ public:
     /// Creates a new instance of the class with the default property values.
     model();
 
+    const table& get_betas() const;
+
 private:
     void serialize(dal::detail::output_archive& ar) const;
     void deserialize(dal::detail::input_archive& ar);

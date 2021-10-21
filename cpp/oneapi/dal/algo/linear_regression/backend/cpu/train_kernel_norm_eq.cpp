@@ -63,35 +63,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const auto ext_feature_count = feature_count + intercept;
 
-    /*const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
-    auto xtx_arr = array<Float>::empty( xtx_size );
-
-    const auto xty_size = check_mul_overflow(ext_feature_count, response_count);
-    auto xty_arr = array<Float>::empty( xty_size );
-
-    const auto betas_size = check_mul_overflow(feature_count + 1, response_count);
-    auto betas_arr = array<Float>::empty( betas_size );
-
-    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
-    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, ext_feature_count, response_count);
-    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, feature_count + 1, response_count);
-
-    auto x_daal_table = interop::convert_to_daal_table<Float>(data);
-    auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
-
-    const auto status = interop::call_daal_kernel<Float, daal_lr_kernel_t>(ctx,
-                                                                           *x_daal_table,
-                                                                           *y_daal_table,
-                                                                           *xtx_daal_table,
-                                                                           *xty_daal_table,
-                                                                           *betas_daal_table,
-                                                                           intercept);
-
-    interop::status_to_exception(status);
-
-    auto betas = homogen_table::wrap(betas_arr, feature_count + 1, response_count);*/
-
-
     const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
     auto xtx_arr = array<Float>::empty( xtx_size );
 

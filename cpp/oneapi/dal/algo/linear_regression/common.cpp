@@ -66,6 +66,11 @@ template <typename Task>
 model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}
 
 template <typename Task>
+const table& model<Task>::get_betas() const {
+    return impl_->get_betas();
+}
+
+template <typename Task>
 void model<Task>::serialize(dal::detail::output_archive& ar) const {
     dal::detail::serialize_polymorphic_shared(impl_, ar);
 }

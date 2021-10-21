@@ -67,20 +67,18 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     const auto ext_feature_count = feature_count + intercept;
 
-    const auto xtx_size = check_mul_overflow(ext_feature_count, feature_count + 1);
-    auto xtx_arr = array<Float>::empty( queue, xtx_size );
+    const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
+    auto xtx_arr = array<Float>::empty(queue, xtx_size);
 
-    ONEDAL_ASSERT(xtx_size >= check_mul_overflow(feature_count, feature_count));
+    const auto xty_size = check_mul_overflow(response_count, ext_feature_count);
+    auto xty_arr = array<Float>::empty(queue, xty_size);
 
-    const auto xty_size = check_mul_overflow(ext_feature_count, response_count);
-    auto xty_arr = array<Float>::empty( queue, xty_size );
+    const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
+    auto betas_arr = array<Float>::empty(queue, betas_size);
 
-    const auto betas_size = check_mul_overflow(ext_feature_count, response_count);
-    auto betas_arr = array<Float>::empty( queue, betas_size );
-
-    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, feature_count + 1);
-    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, ext_feature_count, response_count);
-    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, ext_feature_count, response_count);
+    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
+    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
+    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
 
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);

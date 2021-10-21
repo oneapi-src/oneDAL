@@ -38,7 +38,9 @@ void run() {
     const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
     const auto train_result = dal::train(lr_desc, x_train, y_train);
-    [[maybe_unused]] const auto lr_model = train_result.get_model();
+    const auto lr_model = train_result.get_model();
+
+    std::cout << "Betas:\n" << lr_model.get_betas() << std::endl;
 
     /*const auto test_result_uniform =
         dal::infer(q, knn_desc_uniform, x_test, train_result_uniform.get_model());
