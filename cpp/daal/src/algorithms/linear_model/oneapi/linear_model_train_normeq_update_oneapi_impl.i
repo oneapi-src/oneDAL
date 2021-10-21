@@ -27,7 +27,7 @@
 #include "src/externals/service_profiler.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/reduce_results.cl"
 #include "src/services/service_data_utils.h"
-#include <iostream>
+
 namespace daal
 {
 namespace algorithms
@@ -121,8 +121,8 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
         DAAL_ASSERT(endRow >= startRow);
         const size_t xNRows   = endRow - startRow;
         const size_t xNCols   = nCols;
-        const size_t yNCols   = nResponses;
         const size_t xtxNCols = nBetasIntercept;
+        const size_t yNCols   = nResponses;
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.syrkX);
 
@@ -131,11 +131,9 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNCols, xNCols);
             DAAL_ASSERT(xtxBuff.size() >= xNCols * xNCols);
 
-            std::cout << xtxBuff.size() << ' ' << xNCols << ' ' << xtxNCols << ' ' << xNRows << std::endl;
-
             /* Compute XTX for each block and reduce to final result */
-            status = BlasGpu<algorithmFPType>::xsyrk(math::Layout::RowMajor, math::UpLo::Upper, math::Transpose::NoTrans, xNCols, xNRows,
-                                                     algorithmFPType(1.0), xBuf, xNCols, 0, algorithmFPType(1.0), xtxBuff, nBetasIntercept, 0);
+            status = BlasGpu<algorithmFPType>::xsyrk(math::Layout::RowMajor, math::UpLo::Upper, math::Transpose::Trans, xNCols, xNRows,
+                                                     algorithmFPType(1.0), xBuf, xNCols, 0, algorithmFPType(1.0), xtxBuff, xtxNCols, 0);
         }
         DAAL_CHECK_STATUS_VAR(status);
 

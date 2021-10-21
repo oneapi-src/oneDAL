@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-//#include <daal/src/algorithms/linear_model/linear_model_predict_kernel.h>
+#include <daal/src/algorithms/linear_model/linear_model_predict_kernel.h>
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -34,60 +34,53 @@ using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace be = dal::backend;
-//namespace daal_lm = daal::algorithms::linear_model;
+namespace daal_lm = daal::algorithms::linear_model;
 namespace interop = dal::backend::interop;
 
-/*constexpr auto daal_method = daal_lm::prediction::Method::defaultDense;
+constexpr auto daal_method = daal_lm::prediction::Method::defaultDense;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_lm_kernel_t =
-    daal_lm::prediction::internal::PredictKernel<Float, daal_method, Cpu>;*/
+    daal_lm::prediction::internal::PredictKernel<Float, daal_method, Cpu>;
 
 
 template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
-                                           const table& data) {
-/*    using dal::detail::check_mul_overflow;
+                                           const table& infer,
+                                           const model<Task>& m) {
+    using dal::detail::check_mul_overflow;
 
+    const auto& betas = m.get_betas();
     const bool intercept = desc.get_compute_intercept();
 
-    const auto sample_count = data.get_row_count();
-    const auto feature_count = data.get_column_count();
-    const auto response_count = responses.get_column_count();
+    const auto sample_count = infer.get_row_count();
+    const auto response_count = betas.get_row_count();
 
+    const auto feature_count = infer.get_column_count();
     const auto ext_feature_count = feature_count + intercept;
+    ONEDAL_ASSERT(ext_feature_count == betas.get_column_count());
 
-    const auto xtx_size = check_mul_overflow(feature_count, feature_count);
-    auto xtx_arr = array<Float>{ xtx_size };
+    const auto resps_size = check_mul_overflow(sample_count, response_count);
+    auto resps_arr = array<Float>::empty( resps_size );
+    auto resps_daal_table = interop::convert_to_daal_homogen_table(resps_arr, sample_count, response_count);
 
-    const auto xty_size = check_mul_overflow(feature_count, response_count);
-    auto xty_arr = array<Float>{ xty_size };
+    auto betas_daal_table = interop::convert_to_daal_table<Float>(betas);
+    auto infer_daal_table = interop::convert_to_daal_table<Float>(infer);
 
-    const auto betas_size = check_mul_overflow(ext_feature_count, response_count);
-    auto betas_arr = array<Float>{ betas_size};
-
-    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, feature_count, feature_count);
-    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, feature_count, response_count);
-    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, ext_feature_count, betas_count);
-
-    auto x_daal_table = interop::convert_to_daal_table<Float>(data);
-    auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
-
-    const auto status = interop::call_daal_kernel<Float, daal_lr_kernel_t>(
-        ctx,
-        x_daal_table,
-        y_daal_table,
-        xtx_daal_table,
-        xty_daal_table,
-        betas_daal_table,
-        intercept);
+    const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+        return daal_lm_kernel_t<Float, cpu_type>().compute_impl(infer_daal_table.get(),
+                                                                betas_daal_table.get(),
+                                                                resps_daal_table.get(),
+                                                                intercept);
+    });
 
     interop::status_to_exception(status);
 
-    auto betas = homogen_table::wrap(betas_arr, ext_feature_count, response_count);
-*/
-    auto result = infer_result<Task>();
+    auto responses = homogen_table::wrap(resps_arr, sample_count, response_count);
+
+    auto result = infer_result<Task>().set_responses(responses);
 
     return result;
 }
@@ -96,7 +89,7 @@ template <typename Float, typename Task>
 static infer_result<Task> infer(const context_cpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
                                 const infer_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data());
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float, typename Task>

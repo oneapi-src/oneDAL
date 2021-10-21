@@ -196,7 +196,6 @@ private:
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
-            std::cout << "2 " << c_buffer.template get<T>().size()  << ' '  << ldc << ' ' << n << ' ' << getCExpectedSize() + offsetC << ' ' << offsetC << std::endl;
             DAAL_ASSERT_UNIVERSAL_BUFFER(a_buffer, T, getAExpectedSize() + offsetA);
             DAAL_ASSERT_UNIVERSAL_BUFFER(c_buffer, T, getCExpectedSize() + offsetC);
 
@@ -221,7 +220,6 @@ public:
                     const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
                     UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, Status & status)
     {
-        std::cout << "1 "  << ' '  << ldc << ' ' << n  << ' ' << offsetC << std::endl;
         DAAL_ASSERT(!a_buffer.empty());
         DAAL_ASSERT(!c_buffer.empty());
         DAAL_ASSERT(a_buffer.type() == c_buffer.type());

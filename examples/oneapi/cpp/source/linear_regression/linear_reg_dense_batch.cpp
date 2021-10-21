@@ -40,18 +40,11 @@ void run() {
     const auto train_result = dal::train(lr_desc, x_train, y_train);
     const auto lr_model = train_result.get_model();
 
-    std::cout << "Betas:\n" << lr_model.get_betas() << std::endl;
+    const auto test_result_uniform = dal::infer(lr_desc, x_test, lr_model);
 
-    /*const auto test_result_uniform =
-        dal::infer(q, knn_desc_uniform, x_test, train_result_uniform.get_model());
-    const auto test_result_distance =
-        dal::infer(q, knn_desc_distance, x_test, train_result_distance.get_model());
-
-    std::cout << "Test results (uniform regression):\n"
+    std::cout << "Test results:\n"
               << test_result_uniform.get_responses() << std::endl;
-    std::cout << "Test results (distance regression):\n"
-              << test_result_distance.get_responses() << std::endl;
-    std::cout << "True responses:\n" << y_test << std::endl;*/
+    std::cout << "True responses:\n" << y_test << std::endl;
 }
 
 int main(int argc, char const* argv[]) {

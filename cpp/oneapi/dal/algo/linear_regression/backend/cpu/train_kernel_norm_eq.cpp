@@ -57,7 +57,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const bool intercept = desc.get_compute_intercept();
 
-    [[maybe_unused]] const auto sample_count = data.get_row_count();
     const auto feature_count = data.get_column_count();
     const auto response_count = resp.get_column_count();
 
