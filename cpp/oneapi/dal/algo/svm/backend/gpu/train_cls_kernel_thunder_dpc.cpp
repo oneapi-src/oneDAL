@@ -176,14 +176,8 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         prev_diff = diff;
     }
 
-    auto [bias,
-          sv_count,
-          sv_coeffs,
-          support_indices,
-          support_vectors,
-          compute_train_results_event] =
+    auto [bias, sv_count, sv_coeffs, support_indices, support_vectors] =
         compute_train_results<Float>(q, data_nd, responses_nd, grad_nd, alpha_nd, C);
-    compute_train_results_event.wait_and_throw();
 
     if (sv_count == 0) {
         return result_t{};

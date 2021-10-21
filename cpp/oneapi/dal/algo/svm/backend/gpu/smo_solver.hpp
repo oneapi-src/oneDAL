@@ -130,7 +130,7 @@ sycl::event solve_smo(sycl::queue& q,
     ONEDAL_ASSERT(labels.get_dimension(0) == grad.get_dimension(0));
     ONEDAL_ASSERT(alpha.get_dimension(0) == grad.get_dimension(0));
 
-    const Float fp_min = dal::detail::limits<Float>::min();
+    const Float fp_min = -dal::detail::limits<Float>::max();
 
     const Float* labels_ptr = labels.get_data();
     const Float* kernel_values_ptr = kernel_values.get_data();
@@ -191,10 +191,7 @@ sycl::event solve_smo(sycl::queue& q,
                     is_lower_edge<Float>(labels_i, alpha_i, C) ? grad_i : fp_min;
 
                 /* Find max gradient */
-                reduce_arg_max(item,
-                               objective_func_ptr,
-                               sg_cache_values_ptr,
-                               sg_cache_index_ptr);
+                reduce_arg_max(item, objective_func_ptr, sg_cache_values_ptr, sg_cache_index_ptr);
 
                 if (i == 0) {
                     const Float max_f = sg_cache_values_ptr[max_val_ind];
@@ -230,10 +227,7 @@ sycl::event solve_smo(sycl::queue& q,
                 }
 
                 /* Find j index of the working set (b_j) */
-                reduce_arg_max(item,
-                               objective_func_ptr,
-                               sg_cache_values_ptr,
-                               sg_cache_index_ptr);
+                reduce_arg_max(item, objective_func_ptr, sg_cache_values_ptr, sg_cache_index_ptr);
                 b_j = sg_cache_index_ptr[max_val_ind];
 
                 const Float ki_bj = kernel_values_ptr[b_j * row_count + ws_index];
