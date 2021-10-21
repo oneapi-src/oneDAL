@@ -169,7 +169,7 @@ public:
     }
 
     /// Blocks until all ranks in the communicator have reached this function
-    void barrier() {
+    void barrier() const {
         impl_->barrier();
     }
 
