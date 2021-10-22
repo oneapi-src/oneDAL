@@ -55,7 +55,7 @@ void link(const std::int32_t &u, const std::int32_t &v, std::int32_t *components
 //Reduces component trees to single-level depth
 template <typename Cpu>
 void compress(const std::int32_t &u, std::int32_t *components) {
-    if (components[components[u]] != components[u]) {
+    while (components[components[u]] != components[u]) {
         components[u] = components[components[u]];
     }
 }
@@ -129,10 +129,14 @@ struct afforest {
 
         const std::int32_t neighbors_round = 2;
 
-        for (std::int32_t u = 0; u < vertex_count; ++u) {
-            std::int32_t neighbors_count = t.get_vertex_degree(u);
-            for (std::int32_t i = 0; (i < neighbors_count) && (i < neighbors_round); ++i) {
-                link<Cpu>(u, t.get_vertex_neighbors_begin(u)[i], components);
+        for (std::int32_t i = 0; i < neighbors_round; ++i) {
+            for (std::int32_t u = 0; u < vertex_count; ++u) {
+                if (i < t.get_vertex_degree(u)) {
+                    link<Cpu>(u, t.get_vertex_neighbors_begin(u)[i], components);
+                }
+            }
+            for (std::int32_t u = 0; u < vertex_count; ++u) {
+                compress<Cpu>(u, components);
             }
         }
 
@@ -142,7 +146,7 @@ struct afforest {
         for (std::int32_t u = 0; u < vertex_count; ++u) {
             if (components[u] != sample_comp) {
                 if (t.get_vertex_degree(u) >= neighbors_round) {
-                    for (auto v = t.get_vertex_neighbors_begin(u);
+                    for (auto v = t.get_vertex_neighbors_begin(u) + neighbors_round;
                          v != t.get_vertex_neighbors_end(u);
                          ++v) {
                         link<Cpu>(u, *v, components);
