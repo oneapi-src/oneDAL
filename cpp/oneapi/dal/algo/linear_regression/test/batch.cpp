@@ -28,7 +28,6 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/test/engine/metrics/classification.hpp"
 
 namespace oneapi::dal::linear_regression::test {
 

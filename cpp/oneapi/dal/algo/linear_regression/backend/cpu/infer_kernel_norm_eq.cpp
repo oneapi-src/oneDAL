@@ -58,7 +58,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto response_count = betas.get_row_count();
 
     const auto feature_count = infer.get_column_count();
-    const auto ext_feature_count = feature_count + intercept;
+    [[maybe_unused]] const auto ext_feature_count = feature_count + intercept;
     ONEDAL_ASSERT(ext_feature_count == betas.get_column_count());
 
     const auto resps_size = check_mul_overflow(sample_count, response_count);
