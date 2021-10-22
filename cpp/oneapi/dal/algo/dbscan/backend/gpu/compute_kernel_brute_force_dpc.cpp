@@ -14,103 +14,158 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/backend/transfer.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/algo/dbscan/backend/fill_core_flags.hpp"
+#include "oneapi/dal/algo/dbscan/backend/gpu/data_keeper.hpp"
+#include "oneapi/dal/algo/dbscan/backend/gpu/results.hpp"
 
-#include <daal/src/algorithms/dbscan/oneapi/dbscan_kernel_ucapi.h>
+namespace bk = oneapi::dal::backend;
+namespace pr = oneapi::dal::backend::primitives;
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::dbscan::backend {
 
 using dal::backend::context_gpu;
-using dal::backend::to_host_sync;
 
 using descriptor_t = detail::descriptor_base<task::clustering>;
 using result_t = compute_result<task::clustering>;
 using input_t = compute_input<task::clustering>;
 
-namespace daal_dbscan = daal::algorithms::dbscan;
-namespace interop = dal::backend::interop;
-
-template <typename Float>
-using daal_dbscan_t = daal_dbscan::internal::DBSCANBatchKernelUCAPI<Float>;
-
 template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
-                                 const table& data,
-                                 const table& weights) {
+                                 const table& local_data,
+                                 const table& local_weights) {
+    auto& comm = ctx.get_communicator();
     auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
 
-    const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
+    data_keeper<Float> keeper(ctx);
+    keeper.init(local_data, local_weights);
+    const std::int64_t block_size = keeper.get_block_size();
+    const std::int64_t block_start = keeper.get_block_start();
+    const std::int64_t block_end = block_start + block_size;
+    const std::int64_t row_count = keeper.get_row_count();
+    auto arr_data = keeper.get_data();
+    auto arr_weights = keeper.get_weights();
 
-    const double epsilon = desc.get_epsilon();
-    const int64_t min_observations = desc.get_min_observations();
+    std::int32_t rank = comm.get_rank();
+    std::int32_t rank_count = comm.get_rank_count();
 
-    daal_dbscan::Parameter par(epsilon, dal::detail::integral_cast<std::size_t>(min_observations));
-    par.memorySavingMode = desc.get_mem_save_mode();
-    if (desc.get_result_options().test(result_options::core_observation_indices)) {
-        par.resultsToCompute = daal_dbscan::computeCoreIndices;
+    const double epsilon = desc.get_epsilon() * desc.get_epsilon();
+    const std::int64_t min_observations = desc.get_min_observations();
+
+    auto [arr_cores, cores_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, block_size, 0, sycl::usm::alloc::device);
+    auto [arr_responses, responses_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, block_size, -1, sycl::usm::alloc::device);
+    auto [arr_queue, queue_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
+    auto [arr_queue_front, queue_front_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
+
+    sycl::event::wait({ cores_event, responses_event, queue_event, queue_front_event });
+
+    if (local_weights.get_row_count() == block_size) {
+        kernels_fp<Float>::get_cores(queue,
+                                     arr_data,
+                                     arr_weights,
+                                     arr_cores,
+                                     epsilon,
+                                     min_observations,
+                                     block_start,
+                                     block_end)
+            .wait_and_throw();
     }
-    else if (desc.get_result_options().test(result_options::core_observations)) {
-        par.resultsToCompute = daal_dbscan::computeCoreObservations;
-    }
-    if (desc.get_result_options().test(result_options::core_observations)) {
-        par.resultsToCompute |= daal_dbscan::computeCoreObservations;
-    }
-
-    const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_weights = interop::convert_to_daal_table(queue, weights);
-
-    array<std::int32_t> arr_responses =
-        array<std::int32_t>::empty(queue, row_count * 1, sycl::usm::alloc::device);
-    array<std::int32_t> arr_cluster_count =
-        array<std::int32_t>::empty(queue, 1, sycl::usm::alloc::device);
-
-    const auto daal_responses = interop::convert_to_daal_table(queue, arr_responses, row_count, 1);
-    const auto daal_cluster_count = interop::convert_to_daal_table(queue, arr_cluster_count, 1, 1);
-
-    /* Tables for core observation indices and core observations are allocated inside the kernel */
-    const auto daal_core_observation_indices = interop::empty_daal_homogen_table<std::int32_t>(1);
-    const auto daal_core_observations = interop::empty_daal_homogen_table<Float>(column_count);
-
-    interop::status_to_exception(daal_dbscan_t<Float>{}.compute(daal_data.get(),
-                                                                daal_weights.get(),
-                                                                daal_responses.get(),
-                                                                daal_cluster_count.get(),
-                                                                daal_core_observation_indices.get(),
-                                                                daal_core_observations.get(),
-                                                                &par));
-    auto core_observation_indices =
-        interop::convert_from_daal_homogen_table<std::int32_t>(daal_core_observation_indices);
-    auto core_observations =
-        interop::convert_from_daal_homogen_table<Float>(daal_core_observations);
-
-    auto results = result_t()
-                       .set_cluster_count(to_host_sync(arr_cluster_count)[0])
-                       .set_result_options(desc.get_result_options());
-
-    if (desc.get_result_options().test(result_options::responses)) {
-        results.set_responses(dal::homogen_table::wrap(arr_responses, row_count, 1));
-    }
-    if (desc.get_result_options().test(result_options::core_flags)) {
-        auto arr_core_flags = fill_core_flags(core_observation_indices, row_count);
-        results.set_core_flags(dal::homogen_table::wrap(arr_core_flags, row_count, 1));
+    else {
+        kernels_fp<Float>::get_cores(queue,
+                                     arr_data,
+                                     arr_cores,
+                                     epsilon,
+                                     min_observations,
+                                     block_start,
+                                     block_end)
+            .wait_and_throw();
     }
 
-    if (desc.get_result_options().test(result_options::core_observation_indices)) {
-        results.set_core_observation_indices(core_observation_indices);
+    std::int64_t cluster_count = 0;
+    std::int32_t cluster_index = kernels_fp<Float>::start_next_cluster(queue,
+                                                                       arr_cores,
+                                                                       arr_responses,
+                                                                       arr_queue,
+                                                                       arr_queue_front,
+                                                                       cluster_count,
+                                                                       block_start,
+                                                                       block_end);
+    cluster_index = cluster_index < block_size ? cluster_index + block_start : row_count;
+    comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
+    if (cluster_index < 0) {
+        return make_results(queue, desc, arr_data, arr_responses, arr_cores, 0, 0);
     }
+    std::int32_t queue_begin = 0;
+    std::int32_t queue_end = 0;
+    while (cluster_index < row_count) {
+        cluster_count++;
+        bool in_range = cluster_index >= block_start && cluster_index < block_end;
+        if (in_range) {
+            set_arr_value(queue, arr_responses, cluster_index - block_start, cluster_count - 1);
+            set_queue_ptr(queue, arr_queue, arr_queue_front, cluster_index);
+            queue_end++;
+        }
+        std::int32_t local_queue_size = queue_end - queue_begin;
+        std::int32_t total_queue_size = local_queue_size;
+        comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
+        while (total_queue_size > 0) {
+            auto recv_counts = array<std::int64_t>::zeros(rank_count);
+            recv_counts.get_mutable_data()[rank] = local_queue_size;
+            comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
+            auto displs = array<std::int64_t>::zeros(rank_count);
+            size_t total_count = 0;
+            for (std::int64_t i = 0; i < rank_count; i++) {
+                displs.get_mutable_data()[i] = total_count;
+                total_count += recv_counts.get_data()[i];
+            }
+            auto send_queue = pr::ndarray<std::int32_t, 1>::wrap(arr_queue.get_data() + queue_begin,
+                                                                 recv_counts[rank]);
+            auto recv_queue =
+                pr::ndarray<std::int32_t, 1>::wrap(arr_queue.get_data() + queue_begin, total_count);
+            comm.allgatherv(send_queue.flatten(queue),
+                            recv_queue.flatten(queue),
+                            recv_counts.get_data(),
+                            displs.get_data())
+                .wait();
+            queue_end = queue_begin + total_queue_size;
+            arr_queue_front.fill(queue, queue_end).wait_and_throw();
+            kernels_fp<Float>::update_queue(queue,
+                                            arr_data,
+                                            arr_cores,
+                                            arr_queue,
+                                            queue_begin,
+                                            queue_end,
+                                            arr_responses,
+                                            arr_queue_front,
+                                            epsilon,
+                                            cluster_count - 1,
+                                            block_start,
+                                            block_end)
+                .wait_and_throw();
+            queue_begin = queue_end;
+            queue_end = kernels_fp<Float>::get_queue_front(queue, arr_queue_front);
+            local_queue_size = queue_end - queue_begin;
+            total_queue_size = local_queue_size;
+            comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
+        }
 
-    if (desc.get_result_options().test(result_options::core_observations)) {
-        results.set_core_observations(core_observations);
+        cluster_index = kernels_fp<Float>::start_next_cluster(queue,
+                                                              arr_cores,
+                                                              arr_responses,
+                                                              arr_queue,
+                                                              arr_queue_front,
+                                                              cluster_count,
+                                                              block_start,
+                                                              block_end);
+        cluster_index = cluster_index < block_size ? cluster_index + block_start : row_count;
+        comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
     }
-
-    return results;
+    return make_results(queue, desc, arr_data, arr_responses, arr_cores, 0);
 }
 
 template <typename Float>

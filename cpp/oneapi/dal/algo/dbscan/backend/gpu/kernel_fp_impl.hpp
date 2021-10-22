@@ -1,0 +1,403 @@
+/*******************************************************************************
+* Copyright 2021 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+#pragma once
+
+#include "oneapi/dal/algo/dbscan/backend/gpu/kernels_fp.hpp"
+
+namespace oneapi::dal::dbscan::backend {
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+namespace bk = dal::backend;
+namespace pr = dal::backend::primitives;
+
+inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
+    // TODO optimization/dispatching
+    return 16;
+}
+
+inline std::int64_t get_recommended_wg_count(sycl::queue& queue) {
+    // TODO optimization/dispatching
+    return 128;
+}
+
+inline std::int64_t get_gpu_sg_size(sycl::queue& queue) {
+    // TODO optimization/dispatching
+    return 16;
+}
+
+// DBSCAN
+template <typename Float>
+sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
+                                         const pr::ndview<Float, 2>& data,
+                                         pr::ndview<std::int32_t, 1>& cores,
+                                         Float epsilon,
+                                         std::int64_t min_observations,
+                                         std::int64_t block_start,
+                                         std::int64_t block_end,
+                                         const bk::event_vector& deps) {
+    const auto row_count = data.get_dimension(0);
+    if (block_start < 0)
+        block_start = 0;
+    if (block_end < 0)
+        block_end = row_count;
+    if (block_end > row_count)
+        block_end = row_count;
+    ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
+    ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
+    ONEDAL_ASSERT(block_start < block_end);
+    const auto block_size = block_end - block_start;
+    const std::int64_t column_count = data.get_dimension(1);
+
+    const Float* data_ptr = data.get_data();
+    std::int32_t* cores_ptr = cores.get_mutable_data();
+    auto event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        std::int64_t wg_size = get_recommended_sg_size(queue);
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::uint32_t wg_id = item.get_global_id(1);
+                if (wg_id >= block_size)
+                    return;
+                const std::uint32_t local_id = item.get_local_id(0);
+                const std::uint32_t local_size = item.get_local_range()[0];
+
+                int count = 0;
+                for (int j = 0; j < row_count; j++) {
+                    Float sum = 0.0;
+                    for (int i = local_id; i < column_count; i += local_size) {
+                        Float val = data_ptr[(block_start + wg_id) * column_count + i] -
+                                    data_ptr[j * column_count + i];
+                        sum += val * val;
+                    }
+                    Float distance =
+                        sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                    count += (int)(distance <= epsilon);
+                }
+                if (local_id == 0) {
+                    cores_ptr[wg_id] = (int)(count >= min_observations);
+                }
+            });
+    });
+    return event;
+}
+
+template <typename Float>
+sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
+                                         const pr::ndview<Float, 2>& data,
+                                         const pr::ndview<Float, 2>& weights,
+                                         pr::ndview<std::int32_t, 1>& cores,
+                                         Float epsilon,
+                                         std::int64_t min_observations,
+                                         std::int64_t block_start,
+                                         std::int64_t block_end,
+                                         const bk::event_vector& deps) {
+    const auto row_count = data.get_dimension(0);
+    if (block_start < 0)
+        block_start = 0;
+    if (block_end < 0)
+        block_end = row_count;
+    if (block_end > row_count)
+        block_end = row_count;
+    ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
+    ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
+    ONEDAL_ASSERT(block_start < block_end);
+    const auto block_size = block_end - block_start;
+    const std::int64_t column_count = data.get_dimension(1);
+
+    const Float* data_ptr = data.get_data();
+    const Float* weights_ptr = weights.get_data();
+    std::int32_t* cores_ptr = cores.get_mutable_data();
+    auto event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        std::int64_t wg_size = get_recommended_sg_size(queue);
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::uint32_t wg_id = item.get_global_id(1);
+                if (wg_id >= block_size)
+                    return;
+                const std::uint32_t local_id = item.get_local_id(0);
+                const std::uint32_t local_size = item.get_local_range()[0];
+
+                Float count = Float(0);
+                for (int j = 0; j < row_count; j++) {
+                    Float sum = 0.0;
+                    for (int i = local_id; i < column_count; i += local_size) {
+                        Float val = data_ptr[(block_start + wg_id) * column_count + i] -
+                                    data_ptr[j * column_count + i];
+                        sum += val * val;
+                    }
+                    Float distance =
+                        sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                    Float incr = (distance <= epsilon) ? weights_ptr[j] : 0.0;
+                    count += incr;
+                }
+                if (local_id == 0) {
+                    cores_ptr[wg_id] = (int)(count >= min_observations);
+                }
+            });
+    });
+    return event;
+}
+
+template <typename Float>
+std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
+                                                   const pr::ndview<std::int32_t, 1>& cores,
+                                                   pr::ndview<std::int32_t, 1>& responses,
+                                                   pr::ndview<std::int32_t, 1>& algo_queue,
+                                                   pr::ndview<std::int32_t, 1>& queue_front,
+                                                   std::int32_t cluster_count,
+                                                   std::int64_t block_start,
+                                                   std::int64_t block_end,
+                                                   const bk::event_vector& deps) {
+    ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
+    ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
+    ONEDAL_ASSERT(local_queue.get_dimension(0) > 0);
+    const auto block_size = block_end - block_start;
+
+    auto [start_index, start_index_event] = pr::ndarray<std::int32_t, 1>::full(queue, 1, block_end);
+    start_index_event.wait_and_throw();
+    auto start_index_ptr = start_index.get_mutable_data();
+    start_index_ptr[0] = block_end;
+
+    const std::int32_t* cores_ptr = cores.get_data();
+    std::int32_t* responses_ptr = responses.get_mutable_data();
+    std::int64_t wg_size = get_recommended_sg_size(queue);
+    queue
+        .submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for(
+                bk::make_multiple_nd_range_2d({ wg_size, 1 }, { wg_size, 1 }),
+                [=](sycl::nd_item<2> item) {
+                    auto sg = item.get_sub_group();
+                    const std::uint32_t sg_id = sg.get_group_id()[0];
+                    if (sg_id > 0)
+                        return;
+                    const std::uint32_t local_id = item.get_local_id(0);
+                    const std::uint32_t local_size = item.get_local_range()[0];
+                    std::int32_t adjusted_block_size =
+                        local_size * (block_size / local_size + bool(block_size % local_size));
+
+                    for (int i = local_id; i < adjusted_block_size; i += local_size) {
+                        const bool found =
+                            i < block_size ? cores_ptr[i] == 1 && responses_ptr[i] < 0 : false;
+                        const std::int32_t index =
+                            sycl::reduce_over_group(sg,
+                                                    (int)(found ? i : block_end),
+                                                    sycl::ext::oneapi::minimum<std::int32_t>());
+                        if (index < block_end) {
+                            if (local_id == 0) {
+                                start_index_ptr[0] = index;
+                            }
+                            break;
+                        }
+                    }
+                });
+        })
+        .wait_and_throw();
+    return *start_index_ptr;
+}
+
+void set_queue_ptr(sycl::queue& queue,
+                   pr::ndview<std::int32_t, 1>& algo_queue,
+                   pr::ndview<std::int32_t, 1>& queue_front,
+                   std::int32_t start_index,
+                   const bk::event_vector& deps) {
+    auto queue_ptr = algo_queue.get_mutable_data();
+    auto queue_front_ptr = queue_front.get_mutable_data();
+
+    queue
+        .submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for(bk::make_multiple_nd_range_2d({ 1, 1 }, { 1, 1 }),
+                             [=](sycl::nd_item<2> item) {
+                                 queue_ptr[queue_front_ptr[0]] = start_index;
+                                 queue_front_ptr[0]++;
+                             });
+        })
+        .wait_and_throw();
+}
+
+void set_arr_value(sycl::queue& queue,
+                   pr::ndview<std::int32_t, 1>& arr,
+                   std::int32_t offset,
+                   std::int32_t value,
+                   const bk::event_vector& deps) {
+    auto arr_ptr = arr.get_mutable_data();
+
+    queue
+        .submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for(bk::make_multiple_nd_range_2d({ 1, 1 }, { 1, 1 }),
+                             [=](sycl::nd_item<2> item) {
+                                 arr_ptr[offset] = value;
+                             });
+        })
+        .wait_and_throw();
+}
+
+template <typename Float>
+sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
+                                            const pr::ndview<Float, 2>& data,
+                                            const pr::ndview<std::int32_t, 1>& cores,
+                                            pr::ndview<std::int32_t, 1>& algo_queue,
+                                            std::int32_t queue_begin,
+                                            std::int32_t queue_end,
+                                            pr::ndview<std::int32_t, 1>& responses,
+                                            pr::ndview<std::int32_t, 1>& queue_front,
+                                            Float epsilon,
+                                            std::int32_t cluster_id,
+                                            std::int64_t block_start,
+                                            std::int64_t block_end,
+                                            const bk::event_vector& deps) {
+    const auto row_count = data.get_dimension(0);
+    if (block_start < 0)
+        block_start = 0;
+    if (block_end < 0)
+        block_end = row_count;
+    if (block_end > row_count)
+        block_end = row_count;
+    ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
+    ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
+    const auto block_size = block_end - block_start;
+    const std::int64_t column_count = data.get_dimension(1);
+    const std::int32_t algo_queue_size = queue_end - queue_begin;
+
+    const Float* data_ptr = data.get_data();
+    std::int32_t* cores_ptr = cores.get_mutable_data();
+    std::int32_t* queue_ptr = algo_queue.get_mutable_data();
+    std::int32_t* queue_front_ptr = queue_front.get_mutable_data();
+    std::int32_t* responses_ptr = responses.get_mutable_data();
+    auto event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        std::int64_t wg_size = get_recommended_sg_size(queue);
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::uint32_t wg_id = item.get_global_id(1);
+                if (wg_id >= block_size)
+                    return;
+                const std::uint32_t local_id = item.get_local_id(0);
+                const std::uint32_t local_size = item.get_local_range()[0];
+                const std::int32_t probe = block_start + wg_id;
+                if (responses_ptr[wg_id] >= 0)
+                    return;
+
+                for (int j = 0; j < algo_queue_size; j++) {
+                    const int index = queue_ptr[j + queue_begin];
+                    Float sum = 0.0;
+                    for (int i = local_id; i < column_count; i += local_size) {
+                        Float val =
+                            data_ptr[probe * column_count + i] - data_ptr[index * column_count + i];
+                        sum += val * val;
+                    }
+                    Float distance =
+                        sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                    if (distance > epsilon)
+                        continue;
+                    if (local_id == 0) {
+                        responses_ptr[wg_id] = cluster_id;
+                    }
+
+                    if (cores_ptr[wg_id] == 0)
+                        continue;
+                    if (local_id == 0) {
+                        sycl::ext::oneapi::atomic_ref<
+                            std::int32_t,
+                            cl::sycl::ext::oneapi::memory_order::relaxed,
+                            cl::sycl::ext::oneapi::memory_scope::device,
+                            cl::sycl::access::address_space::global_device_space>
+                            counter_atomic(queue_front_ptr[0]);
+                        std::int32_t new_front = counter_atomic.fetch_add(1);
+                        queue_ptr[new_front] = probe;
+                    }
+                    break;
+                }
+            });
+    });
+    return event;
+}
+
+template <typename Float>
+void kernels_fp<Float>::set_queue_front_and_value(sycl::queue& queue,
+                                                  pr::ndarray<std::int32_t, 1>& arr_queue,
+                                                  pr::ndarray<std::int32_t, 1>& queue_front,
+                                                  std::int32_t value,
+                                                  std::int32_t cluster_index) {
+    auto queue_ptr = arr_queue.get_mutable_data();
+    auto queue_front_ptr = queue_front.get_mutable_data();
+    queue
+        .submit([&](sycl::handler& cgh) {
+            cgh.parallel_for(bk::make_multiple_nd_range_2d({ 1, 1 }, { 1, 1 }),
+                             [=](sycl::nd_item<2> item) {
+                                 queue_front_ptr[0] = value;
+                                 queue_ptr[value] = cluster_index;
+                             });
+        })
+        .wait_and_throw();
+    return;
+}
+template <typename Float>
+void kernels_fp<Float>::set_queue_front(sycl::queue& queue,
+                                        pr::ndarray<std::int32_t, 1>& queue_front,
+                                        std::int64_t value) {
+    auto host_ptr = queue_front.to_host(queue).get_mutable_data();
+    host_ptr[0] = value;
+    return;
+}
+
+template <typename Float>
+std::int32_t kernels_fp<Float>::get_queue_front(sycl::queue& queue,
+                                                const pr::ndarray<std::int32_t, 1>& queue_front) {
+    return queue_front.to_host(queue).get_data()[0];
+}
+
+std::int64_t count_cores(sycl::queue& queue, const pr::ndview<std::int32_t, 1>& cores) {
+    const std::uint64_t row_count = cores.get_dimension(0);
+    std::int64_t sumResult = 0;
+    auto cores_ptr = cores.get_data();
+    sycl::buffer<std::int64_t> sumBuf{ &sumResult, 1 };
+    queue
+        .submit([&](sycl::handler& cgh) {
+            auto sumReduction = reduction(sumBuf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+            cgh.parallel_for(sycl::range<1>{ row_count },
+                             sumReduction,
+                             [=](sycl::id<1> idx, auto& sum) {
+                                 sum.combine(cores_ptr[idx]);
+                             });
+        })
+        .wait_and_throw();
+    return sumBuf.get_host_access()[0];
+}
+
+#endif
+
+} // namespace oneapi::dal::dbscan::backend
