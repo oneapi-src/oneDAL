@@ -7,13 +7,13 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 dal_module(
-    name = "oneccl",
+    name = "ccl",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
     ],
     extra_deps = [
-        "@oneccl//:oneccl",
+        "@ccl//:ccl",
         "@mpi//:mpi",
     ]
 )

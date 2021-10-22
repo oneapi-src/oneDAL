@@ -16,7 +16,7 @@
 
 load("@onedal//dev/bazel:repos.bzl", "repos")
 
-oneccl_repo = repos.prebuilt_libs_repo_rule(
+ccl_repo = repos.prebuilt_libs_repo_rule(
     includes = [
         "include/cpu_gpu_dpcpp/oneapi/",
     ],
@@ -26,7 +26,7 @@ oneccl_repo = repos.prebuilt_libs_repo_rule(
         "lib/cpu_gpu_dpcpp/libccl.so.1",
         "lib/cpu_gpu_dpcpp/libccl.so.1.0",
     ],
-    build_template = "@onedal//dev/bazel/deps:oneccl.tpl.BUILD",
+    build_template = "@onedal//dev/bazel/deps:ccl.tpl.BUILD",
 
 )
 
@@ -59,7 +59,7 @@ def _generate_mpiexec_wrapper(ctx, mpiexec, executable, fi_dir):
     return exec_wrapper
 
 
-def _oneccl_test_impl(ctx):
+def _ccl_test_impl(ctx):
     exec = ctx.executable.src
     mpiexec = ctx.files.mpiexec[0]
     fi_files = ctx.files.fi
@@ -74,8 +74,8 @@ def _oneccl_test_impl(ctx):
         executable = exec_wrapper,
     )
 
-oneccl_test = rule(
-    implementation = _oneccl_test_impl,
+ccl_test = rule(
+    implementation = _ccl_test_impl,
     attrs = {
         "src": attr.label(mandatory=True,
                           executable=True,

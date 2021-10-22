@@ -24,11 +24,9 @@
 
 #include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/io/csv.hpp"
-#include "oneapi/dal/spmd/mpi/communicator.hpp"
+#include "oneapi/dal/spmd/ccl/communicator.hpp"
 
 #include "utils.hpp"
-
-namespace dal = oneapi::dal;
 
 void run(sycl::queue& queue) {
     const auto train_data_file_name = get_data_path("data/kmeans_dense_train_data.csv");
@@ -42,7 +40,7 @@ void run(sycl::queue& queue) {
                                  .set_cluster_count(20)
                                  .set_max_iteration_count(5)
                                  .set_accuracy_threshold(0.001);
-    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(queue);
+    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(queue);
     auto rank_id = comm.get_rank();
     auto rank_count = comm.get_rank_count();
 
@@ -59,6 +57,7 @@ void run(sycl::queue& queue) {
 }
 
 int main(int argc, char const *argv[]) {
+    ccl::init();
     int status = MPI_Init(nullptr, nullptr);
     if (status != MPI_SUCCESS) {
         throw std::runtime_error{ "Problem occurred during MPI init" };

@@ -23,6 +23,7 @@ namespace oneapi::dal::kmeans::backend {
 
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
+namespace spmd = oneapi::dal::preview::spmd;
 
 template <typename Float>
 class centroid_candidates {
@@ -72,7 +73,7 @@ auto find_candidates(sycl::queue& queue,
 
 template <typename Float>
 auto fill_empty_clusters(sycl::queue& queue,
-                         bk::communicator& comm,
+                         bk::communicator<spmd::device_memory_access::usm>& comm,
                          const pr::ndview<Float, 2>& data,
                          const centroid_candidates<Float>& candidates,
                          pr::ndview<Float, 2>& centroids,
@@ -115,7 +116,7 @@ inline Float correct_objective_function(sycl::queue& queue,
 /// @return The correction coefficient needs to be added to the value of the objective function
 template <typename Float>
 inline auto handle_empty_clusters(sycl::queue& queue,
-                                  bk::communicator& comm,
+                                  bk::communicator<spmd::device_memory_access::usm>& comm,
                                   std::int64_t candidate_count,
                                   const pr::ndview<Float, 2>& data,
                                   const pr::ndarray<Float, 2>& closest_distances,
