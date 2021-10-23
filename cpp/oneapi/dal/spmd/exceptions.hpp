@@ -17,39 +17,39 @@
 #pragma once
 
 #include "oneapi/dal/common.hpp"
-#include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/spmd/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::preview::spmd {
-
-namespace device_memory_access {
 namespace v1 {
 
-struct usm {};
-struct none {};
+class ONEDAL_EXPORT error_holder : public runtime_error, public std::runtime_error {
+public:
+    error_holder() = delete;
+    explicit error_holder(const std::exception_ptr& actual);
+    const char* what() const noexcept override;
+    std::exception_ptr get_actual() const;
+    void rethrow_actual() const;
+
+private:
+    std::exception_ptr actual_exception_;
+};
+
+class ONEDAL_EXPORT coworker_error : public runtime_error, public std::runtime_error {
+public:
+    using std::runtime_error::runtime_error;
+    const char* what() const noexcept override;
+};
+
+class ONEDAL_EXPORT communication_error : public runtime_error, public std::runtime_error {
+public:
+    using std::runtime_error::runtime_error;
+    const char* what() const noexcept override;
+};
+
 } // namespace v1
 
-using v1::usm;
-using v1::none;
-
-} // namespace device_memory_access
-
-namespace v1 {
-
-enum class reduce_op { max, min, sum };
-
-template <typename T>
-using enable_if_device_memory_accessible_t =
-    std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm>>;
-
-template <typename T>
-using enable_if_device_memory_not_accessible_t =
-    std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::none>>;
-
-} // namespace v1
-
-using v1::reduce_op;
-using v1::enable_if_device_memory_accessible_t;
-using v1::enable_if_device_memory_not_accessible_t;
+using v1::error_holder;
+using v1::coworker_error;
+using v1::communication_error;
 
 } // namespace oneapi::dal::preview::spmd
