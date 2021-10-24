@@ -31,7 +31,7 @@ namespace bk = dal::backend;
 
 template <typename Float, typename Bin, typename Index = std::int32_t>
 class indexed_features {
-    using comm_t = bk::communicator;
+    using comm_t = bk::communicator<spmd::device_memory_access::usm>;
 
 public:
     struct feature_entry {

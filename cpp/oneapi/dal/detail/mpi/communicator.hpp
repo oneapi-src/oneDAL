@@ -21,12 +21,15 @@
 // TODO: In the future this can be solved via __has_include C++17 feature
 
 #include <mpi.h>
+#include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
+
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class mpi_error : public communication_error {};
+class mpi_error : public preview::spmd::communication_error {};
 
 inline void mpi_call(int mpi_status) {}
 
@@ -48,17 +51,17 @@ inline MPI_Datatype make_mpi_data_type(const data_type& dtype) {
     return MPI_DATATYPE_NULL;
 }
 
-inline MPI_Op make_mpi_reduce_op(const spmd_reduce_op& op) {
+inline MPI_Op make_mpi_reduce_op(const preview::spmd::reduce_op& op) {
     switch (op) {
-        case spmd_reduce_op::max: return MPI_MAX;
-        case spmd_reduce_op::min: return MPI_MIN;
-        case spmd_reduce_op::sum: return MPI_SUM;
+        case spmd::reduce_op::max: return MPI_MAX;
+        case spmd::reduce_op::min: return MPI_MIN;
+        case spmd::reduce_op::sum: return MPI_SUM;
         default: ONEDAL_ASSERT(!"Unknown reduce operation");
     }
     return MPI_OP_NULL;
 }
 
-class mpi_request_impl : public dal::detail::spmd_request_iface {
+class mpi_request_impl : public preview::spmd::request_iface {
 public:
     explicit mpi_request_impl(const MPI_Request& request) : mpi_request_(request) {}
 
@@ -82,19 +85,27 @@ private:
 /// Implementation of the low-level SPMD communicator interface via MPI
 /// TODO: Currently message sizes are limited via `int` type.
 ///       Large message sizes should be handled on the communicator side in the future.
-class mpi_communicator_impl : public spmd_communicator_via_host_impl {
+template <typename MemoryAccessKind>
+class mpi_communicator_impl : public via_host_interface_selector<MemoryAccessKind>::type {
 public:
     // Explicitly declare all virtual functions with overloads to workaround Clang warning
     // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
-    using spmd_communicator_iface::bcast;
-    using spmd_communicator_iface::gather;
-    using spmd_communicator_iface::gatherv;
-    using spmd_communicator_iface::allgather;
-    using spmd_communicator_iface::allreduce;
+    using base_t = typename via_host_interface_selector<MemoryAccessKind>::type;
+    using base_t::bcast;
+    using base_t::allgatherv;
+    using base_t::allreduce;
 
-    explicit mpi_communicator_impl(const MPI_Comm& mpi_comm, std::int64_t default_root = 0)
-            : mpi_comm_(mpi_comm),
+    explicit mpi_communicator_impl(std::int64_t default_root = 0)
+            : mpi_comm_(MPI_COMM_WORLD),
               default_root_(default_root) {}
+
+#ifdef ONEDAL_DATA_PARALLEL
+    //    template<typename T = MemoryAccessKind, spmd::enable_if_device_memory_accessible_t<T>>
+    explicit mpi_communicator_impl(sycl::queue& queue, std::int64_t default_root = 0)
+            : base_t(queue),
+              mpi_comm_(MPI_COMM_WORLD),
+              default_root_(default_root) {}
+#endif
 
     std::int64_t get_rank() override {
         if (rank_ < 0) {
@@ -122,10 +133,10 @@ public:
         mpi_call(MPI_Barrier(mpi_comm_));
     }
 
-    spmd_request_iface* bcast(byte_t* send_buf,
-                              std::int64_t count,
-                              const data_type& dtype,
-                              std::int64_t root) override {
+    spmd::request_iface* bcast(byte_t* send_buf,
+                               std::int64_t count,
+                               const data_type& dtype,
+                               std::int64_t root) override {
         ONEDAL_ASSERT(root >= 0);
 
         if (count == 0) {
@@ -135,23 +146,21 @@ public:
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(count > 0);
 
-        MPI_Request mpi_request;
-        mpi_call(MPI_Ibcast(send_buf,
-                            integral_cast<int>(count),
-                            make_mpi_data_type(dtype),
-                            integral_cast<int>(root),
-                            mpi_comm_,
-                            &mpi_request));
-
-        return new mpi_request_impl{ mpi_request };
+        // TODO replace with MPI_Ibcast
+        mpi_call(MPI_Bcast(send_buf,
+                           integral_cast<int>(count),
+                           make_mpi_data_type(dtype),
+                           integral_cast<int>(root),
+                           mpi_comm_));
+        return nullptr;
     }
 
-    spmd_request_iface* gather(const byte_t* send_buf,
-                               std::int64_t send_count,
-                               byte_t* recv_buf,
-                               std::int64_t recv_count,
-                               const data_type& dtype,
-                               std::int64_t root) override {
+    spmd::request_iface* allgatherv(const byte_t* send_buf,
+                                    std::int64_t send_count,
+                                    byte_t* recv_buf,
+                                    const std::int64_t* recv_counts,
+                                    const std::int64_t* displs,
+                                    const data_type& dtype) override {
         ONEDAL_ASSERT(root >= 0);
 
         if (send_count == 0) {
@@ -159,111 +168,49 @@ public:
         }
 
         ONEDAL_ASSERT(send_buf);
-        if (get_rank() == root) {
-            ONEDAL_ASSERT(recv_buf);
-        }
-
-        MPI_Request mpi_request;
-        mpi_call(MPI_Igather(send_buf,
-                             integral_cast<int>(send_count),
-                             make_mpi_data_type(dtype),
-                             recv_buf,
-                             integral_cast<int>(recv_count),
-                             make_mpi_data_type(dtype),
-                             integral_cast<int>(root),
-                             mpi_comm_,
-                             &mpi_request));
-
-        return new mpi_request_impl{ mpi_request };
-    }
-
-    spmd_request_iface* gatherv(const byte_t* send_buf,
-                                std::int64_t send_count,
-                                byte_t* recv_buf,
-                                const std::int64_t* recv_counts,
-                                const std::int64_t* displs,
-                                const data_type& dtype,
-                                std::int64_t root) override {
-        ONEDAL_ASSERT(root >= 0);
-
-        if (send_count == 0) {
-            return nullptr;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        if (get_rank() == root) {
-            ONEDAL_ASSERT(recv_counts);
-            ONEDAL_ASSERT(displs);
-            ONEDAL_ASSERT(recv_buf);
-        }
+        ONEDAL_ASSERT(recv_counts);
+        ONEDAL_ASSERT(displs);
+        ONEDAL_ASSERT(recv_buf);
 
         array<int> recv_counts_int;
         array<int> displs_int;
 
-        if (get_rank() == root) {
-            const std::int64_t rank_count = get_rank_count();
-            recv_counts_int.reset(rank_count);
-            displs_int.reset(rank_count);
+        const std::int64_t rank_count = get_rank_count();
+        recv_counts_int.reset(rank_count);
+        displs_int.reset(rank_count);
 
-            auto recv_counts_int_ptr = recv_counts_int.get_mutable_data();
-            auto displs_int_ptr = displs_int.get_mutable_data();
+        auto recv_counts_int_ptr = recv_counts_int.get_mutable_data();
+        auto displs_int_ptr = displs_int.get_mutable_data();
 
-            [[maybe_unused]] std::int64_t displs_counter = 0;
-            for (std::int64_t i = 0; i < rank_count; ++i) {
-                ONEDAL_ASSERT(recv_counts[i] > 0);
-                ONEDAL_ASSERT(displs[i] >= displs_counter);
-                displs_counter += recv_counts[i];
+        [[maybe_unused]] std::int64_t displs_counter = 0;
+        for (std::int64_t i = 0; i < rank_count; ++i) {
+            ONEDAL_ASSERT(recv_counts[i] > 0);
+            ONEDAL_ASSERT(displs[i] >= displs_counter);
+            displs_counter += recv_counts[i];
 
-                recv_counts_int_ptr[i] = dal::detail::integral_cast<int>(recv_counts[i]);
-                displs_int_ptr[i] = dal::detail::integral_cast<int>(displs[i]);
-            }
+            recv_counts_int_ptr[i] = dal::detail::integral_cast<int>(recv_counts[i]);
+            displs_int_ptr[i] = dal::detail::integral_cast<int>(displs[i]);
         }
 
         MPI_Request mpi_request;
-        mpi_call(MPI_Igatherv(send_buf,
-                              integral_cast<int>(send_count),
-                              make_mpi_data_type(dtype),
-                              recv_buf,
-                              recv_counts_int.get_data(),
-                              displs_int.get_data(),
-                              make_mpi_data_type(dtype),
-                              integral_cast<int>(root),
-                              mpi_comm_,
-                              &mpi_request));
+        mpi_call(MPI_Iallgatherv(send_buf,
+                                 integral_cast<int>(send_count),
+                                 make_mpi_data_type(dtype),
+                                 recv_buf,
+                                 recv_counts_int.get_data(),
+                                 displs_int.get_data(),
+                                 make_mpi_data_type(dtype),
+                                 mpi_comm_,
+                                 &mpi_request));
 
         return new mpi_request_impl{ mpi_request };
     }
 
-    spmd_request_iface* allgather(const byte_t* send_buf,
-                                  std::int64_t send_count,
-                                  byte_t* recv_buf,
-                                  std::int64_t recv_count,
-                                  const data_type& dtype) override {
-        if (send_count == 0) {
-            return nullptr;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(recv_buf);
-
-        MPI_Request mpi_request;
-        mpi_call(MPI_Iallgather(send_buf,
-                                integral_cast<int>(send_count),
-                                make_mpi_data_type(dtype),
-                                recv_buf,
-                                integral_cast<int>(recv_count),
-                                make_mpi_data_type(dtype),
-                                mpi_comm_,
-                                &mpi_request));
-
-        return new mpi_request_impl{ mpi_request };
-    }
-
-    spmd_request_iface* allreduce(const byte_t* send_buf,
-                                  byte_t* recv_buf,
-                                  std::int64_t count,
-                                  const data_type& dtype,
-                                  const spmd_reduce_op& op) override {
+    spmd::request_iface* allreduce(const byte_t* send_buf,
+                                   byte_t* recv_buf,
+                                   std::int64_t count,
+                                   const data_type& dtype,
+                                   const spmd::reduce_op& op) override {
         if (count == 0) {
             return nullptr;
         }
@@ -316,10 +263,19 @@ private:
     std::int64_t rank_count_ = -1;
 };
 
-class mpi_communicator : public spmd_communicator {
+template <typename MemoryAccessKind>
+class mpi_communicator : public spmd::communicator<MemoryAccessKind> {
 public:
-    explicit mpi_communicator(const MPI_Comm& mpi_comm, std::int64_t default_root = 0)
-            : spmd_communicator(new mpi_communicator_impl{ mpi_comm, default_root }) {}
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T = MemoryAccessKind,
+              typename = spmd::enable_if_device_memory_accessible_t<T>>
+    explicit mpi_communicator(sycl::queue& queue, std::int64_t default_root = 0)
+            : spmd::communicator<MemoryAccessKind>(
+                  new mpi_communicator_impl<MemoryAccessKind>(queue, default_root)) {}
+#endif
+    explicit mpi_communicator(std::int64_t default_root = 0)
+            : spmd::communicator<MemoryAccessKind>(
+                  new mpi_communicator_impl<MemoryAccessKind>(default_root)) {}
 };
 
 } // namespace v1

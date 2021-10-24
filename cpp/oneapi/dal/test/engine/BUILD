@@ -9,8 +9,8 @@ dal_test_module(
     auto_exclude = [
         "gtest_main.cpp",
         "catch_main.cpp",
-        "mpi.*",
-        "oneccl.*",
+        "mpi*.*",
+        "ccl*.*",
     ],
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
@@ -30,10 +30,10 @@ dal_test_module(
 dal_test_module(
     name = "mpi",
     hdrs = [
-        "mpi.hpp",
+        "mpi_global.hpp",
     ],
     srcs = [
-        "mpi.cpp",
+        "mpi_global.cpp",
     ],
     dal_deps = [
         "@onedal//cpp/oneapi/dal/detail/mpi",
@@ -44,15 +44,15 @@ dal_test_module(
 )
 
 dal_test_module(
-    name = "oneccl",
+    name = "ccl",
     hdrs = [
-        "oneccl.hpp",
+        "ccl_global.hpp",
     ],
     srcs = [
-        "oneccl.cpp",
+        "ccl_global.cpp",
     ],
     dal_deps = [
-        "@onedal//cpp/oneapi/dal/detail/oneccl",
+        "@onedal//cpp/oneapi/dal/detail/ccl",
     ],
     dal_test_deps = [
         ":common",

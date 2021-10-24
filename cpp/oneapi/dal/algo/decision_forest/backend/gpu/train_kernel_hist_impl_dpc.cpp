@@ -135,7 +135,7 @@ Index train_kernel_hist_impl<Float, Bin, Index, Task>::get_global_row_offset(boo
     if (distr_mode) {
         auto row_count_list_host = pr::ndarray<Index, 1>::empty({ comm_.get_rank_count() });
         Index* row_count_list_host_ptr = row_count_list_host.get_mutable_data();
-        comm_.allgather(&row_count, 1, row_count_list_host.get_mutable_data(), 1).wait();
+        comm_.allgather(row_count, row_count_list_host.flatten()).wait();
 
         for (std::int64_t i = 0; i < comm_.get_rank(); ++i) {
             global_row_offset += row_count_list_host_ptr[i];

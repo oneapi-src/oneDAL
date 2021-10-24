@@ -64,7 +64,7 @@ dal_public_includes(
         ":core",
         ":optional",
         "@onedal//cpp/oneapi/dal/detail/mpi",
-        "@onedal//cpp/oneapi/dal/detail/oneccl",
+        "@onedal//cpp/oneapi/dal/detail/ccl",
     ],
 )
 
@@ -109,7 +109,7 @@ dal_test_suite(
         "test/*.cpp",
     ], exclude=[
         "test/mpi_*.cpp",
-        "test/oneccl_*.cpp"
+        "test/ccl_*.cpp"
     ]),
     dal_deps = [ ":common" ],
 )
@@ -128,14 +128,14 @@ dal_test_suite(
 )
 
 dal_test_suite(
-    name = "oneccl_communicator_test",
+    name = "ccl_communicator_test",
     framework = "catch2",
     srcs = glob([
-        "test/oneccl_*.cpp"
+        "test/ccl_*.cpp"
     ]),
     dal_deps = [
         ":common",
-        "@onedal//cpp/oneapi/dal/test/engine:oneccl",
+        "@onedal//cpp/oneapi/dal/test/engine:ccl",
     ],
 )
 

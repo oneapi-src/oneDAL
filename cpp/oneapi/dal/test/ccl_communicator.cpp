@@ -14,53 +14,40 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/engine/mpi_global.hpp"
+#include "oneapi/dal/test/engine/ccl_global.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 
-namespace spmd = oneapi::dal::preview::spmd;
+#ifdef ONEDAL_DATA_PARALLEL
 
 namespace oneapi::dal::test {
 
 namespace te = dal::test::engine;
 
-class mpi_comm_test : public te::policy_fixture {
+class ccl_comm_test : public te::policy_fixture {
 public:
-#ifdef ONEDAL_DATA_PARALLEL
     using comm_t = spmd::communicator<spmd::device_memory_access::usm>;
-#else
-    using comm_t = spmd::communicator<spmd::device_memory_access::none>;
-#endif
 
     comm_t get_new_comm() {
-#ifdef ONEDAL_DATA_PARALLEL
-        return te::get_global_mpi_device_communicator(get_queue());
-#else
-        return te::get_global_mpi_host_communicator();
-#endif
+        return te::get_global_ccl_device_communicator(get_queue());
     }
 
     template <typename T>
     void test_bcast(T* buffer, std::int64_t count) {
-        auto comm = get_new_comm();
-        comm.bcast(buffer, count).wait();
+        get_new_comm().bcast(buffer, count).wait();
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     void test_bcast_on_device(T* buffer, std::int64_t count) {
         auto buffer_device = copy_to_device(buffer, count);
-        auto comm = get_new_comm();
-        comm.bcast(get_queue(), buffer_device.get_mutable_data(), count).wait();
+        get_new_comm().bcast(get_queue(), buffer_device.get_mutable_data(), count).wait();
         copy_to_host(buffer, buffer_device.get_data(), count);
     }
-#endif
 
     template <typename T>
     void test_allreduce(T* buffer, std::int64_t count) {
         get_new_comm().allreduce(buffer, buffer, count, spmd::reduce_op::sum).wait();
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     void test_allreduce_on_device(T* buffer, std::int64_t count) {
         auto buffer_device = copy_to_device(buffer, count);
@@ -73,7 +60,6 @@ public:
             .wait();
         copy_to_host(buffer, buffer_device.get_data(), count);
     }
-#endif
 
     template <typename T>
     void test_allgatherv(T* send_buffer,
@@ -84,7 +70,6 @@ public:
         get_new_comm().allgatherv(send_buffer, send_count, recv_buffer, recv_counts, displs).wait();
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     void test_allgatherv_on_device(T* send_buf,
                                    std::int64_t send_count,
@@ -108,27 +93,22 @@ public:
             .wait();
         copy_to_host(recv_buf, recv_buffer_device.get_data(), total_count);
     }
-#endif
 
 private:
-#ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     array<T> copy_to_device(const T* data, std::int64_t count) {
         auto x = array<T>::empty(get_queue(), count, sycl::usm::alloc::device);
         dal::detail::memcpy_host2usm(get_queue(), x.get_mutable_data(), data, sizeof(T) * count);
         return x;
     }
-#endif
 
-#ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     void copy_to_host(T* dst, const T* src, std::int64_t count) {
         dal::detail::memcpy_usm2host(get_queue(), dst, src, sizeof(T) * count);
     }
-#endif
 };
 
-TEST_M(mpi_comm_test, "bcast") {
+TEST_M(ccl_comm_test, "bcast") {
     constexpr std::int64_t count = 100;
 
     float buffer[count] = { 0.0 };
@@ -142,18 +122,16 @@ TEST_M(mpi_comm_test, "bcast") {
         test_bcast(buffer, count);
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
     SECTION("device") {
         test_bcast_on_device(buffer, count);
     }
-#endif
 
     for (std::int64_t i = 0; i < count; i++) {
         REQUIRE(buffer[i] == float(i));
     }
 }
 
-TEST_M(mpi_comm_test, "allreduce") {
+TEST_M(ccl_comm_test, "allreduce") {
     constexpr std::int64_t count = 100;
 
     float buffer[count];
@@ -165,11 +143,9 @@ TEST_M(mpi_comm_test, "allreduce") {
         test_allreduce(buffer, count);
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
     SECTION("device") {
         test_allreduce_on_device(buffer, count);
     }
-#endif
 
     const std::int64_t rank_count = get_new_comm().get_rank_count();
     for (std::int64_t i = 0; i < count; i++) {
@@ -177,7 +153,7 @@ TEST_M(mpi_comm_test, "allreduce") {
     }
 }
 
-TEST_M(mpi_comm_test, "allgatherv") {
+TEST_M(ccl_comm_test, "allgatherv") {
     auto comm = get_new_comm();
     const std::int64_t granularity = 10;
     const std::int64_t rank_count = comm.get_rank_count();
@@ -232,3 +208,4 @@ TEST_M(mpi_comm_test, "allgatherv") {
 }
 
 } // namespace oneapi::dal::test
+#endif

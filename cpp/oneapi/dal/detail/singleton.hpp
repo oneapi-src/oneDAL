@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,11 +16,32 @@
 
 #pragma once
 
-#include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/detail/communicator.hpp"
+#include <mutex>
 
-namespace oneapi::dal::test::engine {
+namespace oneapi::dal::detail {
 
-dal::detail::spmd_communicator get_global_mpi_communicator();
+namespace v1 {
 
-} // namespace oneapi::dal::test::engine
+template <class T>
+class singleton {
+public:
+    static T& get() {
+        static std::once_flag flag;
+        std::call_once(flag, [] {
+            get_instance();
+        });
+        return get_instance();
+    }
+
+private:
+    static T& get_instance() {
+        static T instance;
+        return instance;
+    }
+};
+
+} // namespace v1
+
+using v1::singleton;
+
+} // namespace oneapi::dal::detail
