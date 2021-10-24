@@ -452,12 +452,16 @@ using v1::communicator;
 template <typename Backend>
 communicator<device_memory_access::none> make_communicator() {
     static_assert(std::is_same_v<Backend, Backend>, "Unsupported communicator backend");
+
+    throw communication_error(dal::detail::error_messages::unsupported_communicator_backend());
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Backend>
 communicator<device_memory_access::usm> make_communicator(sycl::queue& queue) {
     static_assert(std::is_same_v<Backend, Backend>, "Unsupported communicator backend");
+
+    throw communication_error(dal::detail::error_messages::unsupported_communicator_backend());
 }
 #endif
 
