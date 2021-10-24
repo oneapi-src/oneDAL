@@ -207,7 +207,6 @@ public:
                                    std::int64_t count,
                                    const data_type& dtype,
                                    const spmd::reduce_op& op) override {
-        std::cout << "allreduce count " << count << std::endl;
         if (count == 0) {
             return nullptr;
         }
