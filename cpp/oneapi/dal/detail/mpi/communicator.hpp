@@ -235,11 +235,11 @@ public:
 
             // TODO Replace with MPI_Iallreduce
             mpi_call(MPI_Allreduce(send_buf,
-                                    recv_buf_backup.get_mutable_data(),
-                                    integral_cast<int>(count),
-                                    make_mpi_data_type(dtype),
-                                    make_mpi_reduce_op(op),
-                                    mpi_comm_));
+                                   recv_buf_backup.get_mutable_data(),
+                                   integral_cast<int>(count),
+                                   make_mpi_data_type(dtype),
+                                   make_mpi_reduce_op(op),
+                                   mpi_comm_));
 
             memcpy(default_host_policy{}, recv_buf, recv_buf_backup.get_data(), size);
 

@@ -34,13 +34,13 @@ using result_t = compute_result<task::clustering>;
 
 template <typename Float>
 inline auto make_results(sycl::queue& queue,
-                  const descriptor_t& desc,
-                  const pr::ndarray<Float, 2> data,
-                  const pr::ndarray<std::int32_t, 1> responses,
-                  const pr::ndarray<std::int32_t, 1> cores,
+                         const descriptor_t& desc,
+                         const pr::ndarray<Float, 2> data,
+                         const pr::ndarray<std::int32_t, 1> responses,
+                         const pr::ndarray<std::int32_t, 1> cores,
 
-                  std::int64_t cluster_count,
-                  std::int64_t core_count = -1) {
+                         std::int64_t cluster_count,
+                         std::int64_t core_count = -1) {
     const std::int64_t column_count = data.get_dimension(1);
     ONEDAL_ASSERT(column_count > 0);
     const std::int64_t block_size = cores.get_dimension(0);
