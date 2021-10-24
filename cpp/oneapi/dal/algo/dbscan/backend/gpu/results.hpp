@@ -33,7 +33,7 @@ using descriptor_t = detail::descriptor_base<task::clustering>;
 using result_t = compute_result<task::clustering>;
 
 template <typename Float>
-auto make_results(sycl::queue& queue,
+inline auto make_results(sycl::queue& queue,
                   const descriptor_t& desc,
                   const pr::ndarray<Float, 2> data,
                   const pr::ndarray<std::int32_t, 1> responses,

@@ -165,7 +165,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         cluster_index = cluster_index < block_size ? cluster_index + block_start : row_count;
         comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
     }
-    return make_results(queue, desc, arr_data, arr_responses, arr_cores, 0);
+    return make_results(queue, desc, arr_data, arr_responses, arr_cores, cluster_count);
 }
 
 template <typename Float>

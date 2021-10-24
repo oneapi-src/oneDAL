@@ -314,10 +314,6 @@ public:
                                     const std::int64_t* recv_counts,
                                     const std::int64_t* displs,
                                     const data_type& dtype) override {
-        if (send_count == 0) {
-            return nullptr;
-        }
-
         std::vector<size_t> internal_recv_counts(rank_count_);
         for (std::int64_t i = 0; i < rank_count_; i++) {
             internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
