@@ -84,10 +84,10 @@ sycl::event check_violating_edge(sycl::queue& q,
     return check_event;
 }
 
-template <typename Float>
+template <typename Float, typename Integer>
 auto copy_by_indices(sycl::queue& q,
                      const pr::ndview<Float, 2>& x,
-                     const pr::ndview<std::uint32_t, 1>& x_indices,
+                     const pr::ndview<Integer, 1>& x_indices,
                      pr::ndview<Float, 2>& res,
                      const std::int64_t row_count,
                      const std::int64_t column_count,
@@ -98,7 +98,7 @@ auto copy_by_indices(sycl::queue& q,
     ONEDAL_ASSERT(res.has_mutable_data());
 
     const Float* x_ptr = x.get_data();
-    const std::uint32_t* x_indices_ptr = x_indices.get_mutable_data();
+    const Integer* x_indices_ptr = x_indices.get_mutable_data();
     Float* res_ptr = res.get_mutable_data();
 
     return q.submit([&](sycl::handler& cgh) {
@@ -109,7 +109,7 @@ auto copy_by_indices(sycl::queue& q,
             const std::uint32_t col_index = idx % column_count;
             const std::uint32_t row_index = idx / column_count;
 
-            const std::uint32_t row_x_index = x_indices_ptr[row_index];
+            const Integer row_x_index = x_indices_ptr[row_index];
 
             const Float* const x_i = &x_ptr[row_x_index * column_count];
             Float* res_i = &res_ptr[row_index * column_count];

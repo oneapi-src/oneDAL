@@ -140,7 +140,7 @@ public:
             la::matrix<std::uint32_t>::wrap(inner_iter_count_arr).to_host();
         const auto inner_iter_count_arr_host = inner_iter_count_mat_host.get_array();
 
-        REQUIRE(expected_inner_iter_count == inner_iter_count_arr_host[0]);
+        REQUIRE(expected_inner_iter_count >= inner_iter_count_arr_host[0]);
     }
 };
 
@@ -216,15 +216,15 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
     constexpr float_t C = 3.0;
     constexpr float_t eps = 1.0e-3;
     constexpr std::int64_t max_inner_iter = 1000;
-    constexpr std::int64_t expected_inner_iter_count = 17;
+    constexpr std::int64_t expected_inner_iter_count = 15;
     constexpr float_t expected_f_diff = 2.0;
 
-    const std::vector<float_t> expected_alpha = { 0, 0, 0, 0, 1.15481, 0.658399, 0, 3,
-                                                  3, 0, 0, 3, 0,       0,        0, 2.50359 };
+    const std::vector<float_t> expected_alpha = { 0, 0, 0, 0, 0.931198, 0.584559, 0, 3,
+                                                  3, 0, 0, 3, 0.14977,  0,        0, 2.50359 };
 
-    const std::vector<float_t> expected_delta_alpha = { 0,  0,  0,  -0,      -1.15481, 0.658399,
-                                                        0,  3,  3,  0,       0,        -3,
-                                                        -0, -0, -0, -2.50359 };
+    const std::vector<float_t> expected_delta_alpha = { 0,  0,       0, -0, -0.931198, 0.584559, 0,
+                                                        3,  3,       0, 0,  -3,        -0.14977, -0,
+                                                        -0, -2.50359 };
 
     this->test_smo_solver(x,
                           y,
@@ -261,7 +261,7 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
 
     constexpr float_t C = 100.0;
     constexpr float_t eps = 1.0e-3;
-    constexpr std::int64_t max_inner_iter = 117;
+    constexpr std::int64_t max_inner_iter = 1000;
     constexpr std::int64_t expected_inner_iter_count = 117;
     constexpr float_t expected_f_diff = 2.0;
 

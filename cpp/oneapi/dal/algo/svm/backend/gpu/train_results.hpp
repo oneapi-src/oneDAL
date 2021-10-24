@@ -198,28 +198,28 @@ auto compute_support_indices(sycl::queue& q,
                              const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_train_results.compute_support_indices, q);
     if (sv_count == 0) {
-        return std::make_tuple(pr::ndarray<std::uint32_t, 1>(), sycl::event());
+        return std::make_tuple(pr::ndarray<std::int32_t, 1>(), sycl::event());
     }
 
     auto row_count = indicator.get_dimension(0);
     auto support_indices =
-        pr::ndarray<std::uint32_t, 1>::empty(q, { sv_count }, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::empty(q, { sv_count }, sycl::usm::alloc::device);
     auto tmp_index =
-        pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
 
     auto tmp_range =
-        pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
     auto arange_event = tmp_range.arange(q);
 
     std::int64_t check_sv_count = 0;
-    auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint8_t>{ q };
+    auto select_flagged = pr::select_flagged_index<std::int32_t, std::uint8_t>{ q };
     select_flagged(indicator, tmp_range, tmp_index, check_sv_count, { arange_event })
         .wait_and_throw();
 
     ONEDAL_ASSERT(check_sv_count == sv_count);
 
-    const std::uint32_t* tmp_index_ptr = tmp_index.get_data();
-    std::uint32_t* support_indices_ptr = support_indices.get_mutable_data();
+    const std::int32_t* tmp_index_ptr = tmp_index.get_data();
+    std::int32_t* support_indices_ptr = support_indices.get_mutable_data();
 
     auto copy_event = dal::backend::copy(q, support_indices_ptr, tmp_index_ptr, sv_count);
 
@@ -229,7 +229,7 @@ auto compute_support_indices(sycl::queue& q,
 template <typename Float>
 auto compute_support_vectors(sycl::queue& q,
                              const pr::ndview<Float, 2>& x,
-                             const pr::ndview<std::uint32_t, 1>& support_indices,
+                             const pr::ndview<std::int32_t, 1>& support_indices,
                              const std::int64_t sv_count,
                              const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_train_results.compute_support_vectors, q);
