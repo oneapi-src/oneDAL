@@ -172,9 +172,6 @@ public:
                                     const std::vector<sycl::event>& deps = {}) override {
         preview::detail::check_if_pointer_matches_queue(queue_, send_buf);
         preview::detail::check_if_pointer_matches_queue(queue_, recv_buf);
-        if (send_count == 0) {
-            return nullptr;
-        }
 
         ONEDAL_ASSERT(send_buf != nullptr);
         ONEDAL_ASSERT(recv_buf);
