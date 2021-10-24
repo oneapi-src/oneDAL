@@ -17,7 +17,7 @@
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
+#include <sycl/ext/oneapi/experimental/builtins.hpp>
 
 namespace oneapi::dal::backend::primitives {
 

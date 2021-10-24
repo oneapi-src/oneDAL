@@ -18,7 +18,7 @@
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/loops.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
+#include <sycl/ext/oneapi/experimental/builtins.hpp>
 
 namespace oneapi::dal::backend::primitives {
 

@@ -372,7 +372,10 @@ public:
         return SharedPtr<OpenClKernelNative>(ptr);
     }
 
-    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const DAAL_C11_OVERRIDE { return cl::sycl::kernel(_clKernelRef.get(), ctx); }
+    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const DAAL_C11_OVERRIDE
+    {
+        return cl::sycl::detail::make_kernel(cl::sycl::detail::pi::cast<pi_native_handle>(_clKernelRef.get()), ctx, cl::sycl::backend::opencl);
+    }
 
 private:
     explicit OpenClKernelNative(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelRef & kernelRef)
