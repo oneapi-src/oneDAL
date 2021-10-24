@@ -12,16 +12,16 @@ cc_library(
 )
 
 cc_library(
-    name = "liboneccl",
+    name = "libccl",
     srcs = [
         "lib/cpu_gpu_dpcpp/libccl.so.1.0",
     ],
 )
 
 cc_library(
-    name = "oneccl",
+    name = "ccl",
     deps = [
         ":headers",
-        ":liboneccl",
+        ":libccl",
     ],
 )

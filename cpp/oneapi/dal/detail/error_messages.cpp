@@ -305,5 +305,10 @@ MSG(negative_initial_partition_label, "Input initial partition label is negative
 MSG(initial_partition_label_gte_vertex_count,
     "Input initial partition label is greater than or equal to vertex count")
 
+/* SPMD */
+MSG(unsupported_communicator_backend, "Unsupported communicator backend")
+MSG(unknown_data_type, "Unknown data type")
+MSG(unknown_reduce_op, "Unknown reduce operation")
+
 } // namespace v1
 } // namespace oneapi::dal::detail

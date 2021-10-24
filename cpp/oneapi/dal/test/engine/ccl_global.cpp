@@ -17,21 +17,22 @@
 #ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/test/engine/spmd.hpp"
-#include "oneapi/dal/detail/oneccl/communicator.hpp"
-#include <memory>
+#include "oneapi/dal/spmd/ccl/communicator.hpp"
 
 namespace oneapi::dal::test::engine {
 
-std::unique_ptr<dal::detail::spmd_communicator> global_oneccl_communicator;
-
-dal::detail::spmd_communicator get_oneccl_communicator(const sycl::queue& queue) {
-    if (!global_oneccl_communicator) {
-        global_oneccl_communicator.reset(new dal::detail::oneccl_communicator{ queue });
-    }
-    return *global_oneccl_communicator;
+spmd::communicator<spmd::device_memory_access::none> get_global_ccl_host_communicator() {
+    return dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>();
 }
 
-class oneccl_communicator_global_setup : public global_setup_action {
+#ifdef ONEDAL_DATA_PARALLEL
+spmd::communicator<spmd::device_memory_access::usm> get_global_ccl_device_communicator(
+    sycl::queue& queue) {
+    return dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(queue);
+}
+#endif
+
+class ccl_communicator_global_setup : public global_setup_action {
 public:
     void init(const global_config& config) override {
         // TODO: Pass argc/argv to the init via global config?
@@ -43,7 +44,6 @@ public:
     }
 
     void tear_down() override {
-        global_oneccl_communicator.reset(nullptr);
         const int status = MPI_Finalize();
         if (status != MPI_SUCCESS) {
             throw std::runtime_error{ "Problem occurred during MPI finalize" };
@@ -51,7 +51,7 @@ public:
     }
 };
 
-REGISTER_GLOBAL_SETUP(oneccl_communicator, oneccl_communicator_global_setup)
+REGISTER_GLOBAL_SETUP(ccl_communicator, ccl_communicator_global_setup)
 
 } // namespace oneapi::dal::test::engine
 #endif
