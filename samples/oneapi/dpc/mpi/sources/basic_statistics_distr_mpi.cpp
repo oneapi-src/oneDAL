@@ -24,30 +24,29 @@
 #endif
 
 #include "oneapi/dal/algo/basic_statistics.hpp"
-#include "oneapi/dal/detail/mpi/communicator.hpp"
-#include "oneapi/dal/detail/spmd_policy.hpp"
+#include "oneapi/dal/spmd/mpi/communicator.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
 #include "utils.hpp"
 
 namespace dal = oneapi::dal;
 
-void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
+void run(sycl::queue& queue) {
   const auto data_file_name = get_data_path("data/covcormoments_dense.csv");
 
   const auto data = dal::read<dal::table>(
-      policy.get_local(), dal::csv::data_source{data_file_name});
+      queue, dal::csv::data_source{data_file_name});
 
   const auto bs_desc = dal::basic_statistics::descriptor{};
 
-  auto comm = policy.get_communicator();
+  auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(queue);
   auto rank_id = comm.get_rank();
   auto rank_count = comm.get_rank_count();
 
   auto input_vec =
-      split_table_by_rows<float>(policy.get_local(), data, rank_count);
+      split_table_by_rows<float>(queue, data, rank_count);
 
-  const auto result = dal::compute(policy, bs_desc, input_vec[rank_id]);
+  const auto result = dal::preview::compute(comm, bs_desc, input_vec[rank_id]);
   if (comm.get_rank() == 0) {
     std::cout << "Minimum:\n" << result.get_min() << std::endl;
     std::cout << "Maximum:\n" << result.get_max() << std::endl;
@@ -75,12 +74,7 @@ int main(int argc, char const *argv[]) {
   std::cout << "Running on " << device.get_info<sycl::info::device::name>()
             << std::endl;
   sycl::queue q{device};
-
-  dal::detail::mpi_communicator comm{MPI_COMM_WORLD};
-  dal::detail::data_parallel_policy local_policy{q};
-  dal::detail::spmd_policy spmd_policy{local_policy, comm};
-
-  run(spmd_policy);
+  run(q);
 
   status = MPI_Finalize();
   if (status != MPI_SUCCESS) {
