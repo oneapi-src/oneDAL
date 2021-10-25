@@ -29,9 +29,25 @@ namespace spmd = oneapi::dal::preview::spmd;
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class mpi_error : public preview::spmd::communication_error {};
+using preview::spmd::communication_error;
 
-inline void mpi_call(int mpi_status) {}
+inline void mpi_call(int mpi_status) {
+    if (mpi_status == MPI_SUCCESS) {
+        return;
+    }
+    switch (mpi_status) {
+        case MPI_ERR_BUFFER:
+            throw communication_error(dal::detail::error_messages::invalid_buffer());
+        case MPI_ERR_COUNT: throw communication_error(dal::detail::error_messages::invalid_count());
+        case MPI_ERR_TYPE:
+            throw communication_error(dal::detail::error_messages::invalid_data_type());
+        case MPI_ERR_OP: throw communication_error(dal::detail::error_messages::invalid_op());
+        case MPI_ERR_COMM:
+            throw communication_error(dal::detail::error_messages::invalid_mpi_comm());
+        case MPI_ERR_ROOT: throw communication_error(dal::detail::error_messages::invalid_root());
+        default: throw internal_error(dal::detail::error_messages::unknown_mpi_error());
+    }
+}
 
 inline MPI_Datatype make_mpi_data_type(const data_type& dtype) {
     switch (dtype) {

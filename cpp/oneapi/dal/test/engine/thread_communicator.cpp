@@ -125,8 +125,6 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
     ONEDAL_ASSERT(send_buf);
     ONEDAL_ASSERT(send_count > 0);
     ONEDAL_ASSERT(recv_buf);
-    ONEDAL_ASSERT(recv_count > 0);
-    ONEDAL_ASSERT(send_count == recv_count);
 
     const std::int64_t rank = ctx_.get_this_thread_rank();
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
