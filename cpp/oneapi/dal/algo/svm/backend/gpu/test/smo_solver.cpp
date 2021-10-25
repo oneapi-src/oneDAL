@@ -31,7 +31,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename TestType>
-class smo_solver_test : public te::policy_fixture {
+class smo_solver_test : public te::float_algo_fixture<TestType> {
 public:
     using Float = TestType;
 
@@ -151,6 +151,7 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
                      "[svm][smo_solver]",
                      smo_solver_types) {
     SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
 
     using float_t = TestType;
 
@@ -196,6 +197,7 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
                      "[svm][smo_solver]",
                      smo_solver_types) {
     SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
 
     using float_t = TestType;
 
@@ -244,6 +246,7 @@ TEMPLATE_LIST_TEST_M(smo_solver_test,
                      "[svm][smo_solver]",
                      smo_solver_types) {
     SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
 
     using float_t = TestType;
 
