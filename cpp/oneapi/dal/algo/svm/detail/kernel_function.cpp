@@ -201,7 +201,8 @@ const table kernel_function<linear_kernel_t<F, M>>::compute_kernel_function(
     const dal::detail::data_parallel_policy& policy,
     const table& x,
     const table& y) {
-    return kernel_compute_ops_(policy, kernel_, linear_kernel::compute_input(x, y)).get_values();
+    dal::linear_kernel::detail::compute_ops<linear_kernel::descriptor<F, M>> kernel_compute_ops;
+    return kernel_compute_ops(policy, kernel_, linear_kernel::compute_input(x, y)).get_values();
 }
 #endif
 
@@ -223,8 +224,9 @@ const table kernel_function<polynomial_kernel_t<F, M>>::compute_kernel_function(
     const dal::detail::data_parallel_policy& policy,
     const table& x,
     const table& y) {
-    return kernel_compute_ops_(policy, kernel_, polynomial_kernel::compute_input(x, y))
-        .get_values();
+    dal::polynomial_kernel::detail::compute_ops<polynomial_kernel::descriptor<F, M>>
+        kernel_compute_ops;
+    return kernel_compute_ops(policy, kernel_, polynomial_kernel::compute_input(x, y)).get_values();
 }
 #endif
 
@@ -244,7 +246,8 @@ const table kernel_function<rbf_kernel_t<F, M>>::compute_kernel_function(
     const dal::detail::data_parallel_policy& policy,
     const table& x,
     const table& y) {
-    return kernel_compute_ops_(policy, kernel_, rbf_kernel::compute_input(x, y)).get_values();
+    dal::rbf_kernel::detail::compute_ops<rbf_kernel::descriptor<F, M>> kernel_compute_ops;
+    return kernel_compute_ops(policy, kernel_, rbf_kernel::compute_input(x, y)).get_values();
 }
 #endif
 
@@ -265,7 +268,8 @@ const table kernel_function<sigmoid_kernel_t<F, M>>::compute_kernel_function(
     const dal::detail::data_parallel_policy& policy,
     const table& x,
     const table& y) {
-    return kernel_compute_ops_(policy, kernel_, sigmoid_kernel::compute_input(x, y)).get_values();
+    dal::sigmoid_kernel::detail::compute_ops<sigmoid_kernel::descriptor<F, M>> kernel_compute_ops;
+    return kernel_compute_ops(policy, kernel_, sigmoid_kernel::compute_input(x, y)).get_values();
 }
 #endif
 

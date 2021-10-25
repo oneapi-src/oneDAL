@@ -72,10 +72,6 @@ public:
 
 private:
     kernel_t kernel_;
-#ifdef ONEDAL_DATA_PARALLEL
-    dal::linear_kernel::detail::compute_ops<linear_kernel::descriptor<Float, Method>>
-        kernel_compute_ops_;
-#endif
     dal::detail::pimpl<kernel_function_impl> impl_;
 };
 
@@ -94,10 +90,6 @@ public:
 
 private:
     kernel_t kernel_;
-#ifdef ONEDAL_DATA_PARALLEL
-    dal::polynomial_kernel::detail::compute_ops<polynomial_kernel::descriptor<Float, Method>>
-        kernel_compute_ops_;
-#endif
     dal::detail::pimpl<kernel_function_impl> impl_;
 };
 
@@ -116,9 +108,6 @@ public:
 
 private:
     kernel_t kernel_;
-#ifdef ONEDAL_DATA_PARALLEL
-    dal::rbf_kernel::detail::compute_ops<rbf_kernel::descriptor<Float, Method>> kernel_compute_ops_;
-#endif
     dal::detail::pimpl<kernel_function_impl> impl_;
 };
 
