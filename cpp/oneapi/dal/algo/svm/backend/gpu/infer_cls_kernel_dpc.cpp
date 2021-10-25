@@ -14,16 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/svm/oneapi/svm_predict_kernel_oneapi.h>
+//#include <daal/src/algorithms/svm/oneapi/svm_predict_kernel_oneapi.h>
 
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/svm_predict.hpp"
 #include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
+
+#include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+
 
 namespace oneapi::dal::svm::backend {
 
@@ -36,80 +41,170 @@ using descriptor_t = detail::descriptor_base<task::classification>;
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
 namespace interop = dal::backend::interop;
+namespace pr = dal::backend::primitives;
+
+// template <typename Float>
+// using daal_svm_predict_kernel_t =
+//     daal_svm::prediction::internal::SVMPredictImplOneAPI<daal_svm::prediction::defaultDense, Float>;
+
+// template <typename Float>
+// static result_t call_daal_kernel(const context_gpu& ctx,
+//                                  const descriptor_t& desc,
+//                                  const model_t& trained_model,
+//                                  const table& data) {
+//     auto& queue = ctx.get_queue();
+//     interop::execution_context_guard guard(queue);
+
+//     const std::uint64_t class_count = desc.get_class_count();
+//     if (class_count > 2) {
+//         throw unimplemented(dal::detail::error_messages::svm_multiclass_not_implemented_for_gpu());
+//     }
+
+//     const std::int64_t row_count = data.get_row_count();
+
+//     const auto daal_data = interop::convert_to_daal_table(queue, data);
+//     const auto daal_support_vectors =
+//         interop::convert_to_daal_table(queue, trained_model.get_support_vectors());
+//     const auto daal_coeffs = interop::convert_to_daal_table(queue, trained_model.get_coeffs());
+
+//     const auto biases = trained_model.get_biases();
+//     const auto biases_acc = row_accessor<const Float>{ biases }.pull();
+//     const double bias = biases_acc[0];
+
+//     auto daal_model = daal_model_builder{}
+//                           .set_support_vectors(daal_support_vectors)
+//                           .set_coeffs(daal_coeffs)
+//                           .set_bias(bias);
+
+//     auto kernel_impl = detail::get_kernel_function_impl(desc);
+//     if (!kernel_impl) {
+//         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
+//     }
+//     const bool is_dense{ data.get_kind() == homogen_table::kind() };
+//     const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
+
+//     daal_svm::Parameter daal_parameter(daal_kernel);
+
+//     auto arr_decision_func = array<Float>::empty(queue, row_count * 1, sycl::usm::alloc::device);
+//     const auto daal_decision_function =
+//         interop::convert_to_daal_table(queue, arr_decision_func, row_count, 1);
+
+//     interop::status_to_exception(daal_svm_predict_kernel_t<Float>().compute(daal_data,
+//                                                                             &daal_model,
+//                                                                             *daal_decision_function,
+//                                                                             &daal_parameter));
+
+//     const auto arr_decision_func_host = dal::backend::to_host_sync(arr_decision_func);
+
+//     // TODO: rework with help dpcpp code
+//     auto arr_response = array<Float>::empty(row_count * 1);
+//     auto response_data = arr_response.get_mutable_data();
+//     for (std::int64_t i = 0; i < row_count; ++i) {
+//         response_data[i] = arr_decision_func_host[i] >= 0
+//                                ? trained_model.get_second_class_response()
+//                                : trained_model.get_first_class_response();
+//     }
+
+//     return result_t()
+//         .set_decision_function(dal::detail::homogen_table_builder{}
+//                                    .reset(arr_decision_func_host, row_count, 1)
+//                                    .build())
+//         .set_responses(
+//             dal::detail::homogen_table_builder{}.reset(arr_response, row_count, 1).build());
+// }
 
 template <typename Float>
-using daal_svm_predict_kernel_t =
-    daal_svm::prediction::internal::SVMPredictImplOneAPI<daal_svm::prediction::defaultDense, Float>;
-
-template <typename Float>
-static result_t call_daal_kernel(const context_gpu& ctx,
-                                 const descriptor_t& desc,
-                                 const model_t& trained_model,
-                                 const table& data) {
+static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+//    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
     auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
 
     const std::uint64_t class_count = desc.get_class_count();
     if (class_count > 2) {
         throw unimplemented(dal::detail::error_messages::svm_multiclass_not_implemented_for_gpu());
     }
 
-    const std::int64_t row_count = data.get_row_count();
+    const auto data = input.get_data();
+    const auto data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
+    const auto trained_model = input.get_model();
 
-    const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_support_vectors =
-        interop::convert_to_daal_table(queue, trained_model.get_support_vectors());
-    const auto daal_coeffs = interop::convert_to_daal_table(queue, trained_model.get_coeffs());
-
-    const auto biases = trained_model.get_biases();
-    const auto biases_acc = row_accessor<const Float>{ biases }.pull();
-    const double bias = biases_acc[0];
-
-    auto daal_model = daal_model_builder{}
-                          .set_support_vectors(daal_support_vectors)
-                          .set_coeffs(daal_coeffs)
-                          .set_bias(bias);
-
-    auto kernel_impl = detail::get_kernel_function_impl(desc);
-    if (!kernel_impl) {
+    const auto kernel_ptr = detail::get_kernel_ptr(desc);
+    if (!kernel_ptr) {
         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
     }
-    const bool is_dense{ data.get_kind() == homogen_table::kind() };
-    const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
 
-    daal_svm::Parameter daal_parameter(daal_kernel);
+    const std::int64_t row_count  = data.get_row_count();
 
-    auto arr_decision_func = array<Float>::empty(queue, row_count * 1, sycl::usm::alloc::device);
-    const auto daal_decision_function =
-        interop::convert_to_daal_table(queue, arr_decision_func, row_count, 1);
+// DAAL_ASSERT(result.getNumberOfRows() == nVectors)
+// DAAL_ASSERT(result.getNumberOfColumns() == 1)
 
-    interop::status_to_exception(daal_svm_predict_kernel_t<Float>().compute(daal_data,
-                                                                            &daal_model,
-                                                                            *daal_decision_function,
-                                                                            &daal_parameter));
+//    BlockDescriptor<algorithmFPType> resultBlock;
+//    DAAL_CHECK_STATUS(status, result.getBlockOfRows(0, nVectors, ReadWriteMode::writeOnly, resultBlock));
+//    auto distanceBuff = resultBlock.getBuffer();
 
-    const auto arr_decision_func_host = dal::backend::to_host_sync(arr_decision_func);
+     auto distance_nd = pr::ndarray<Float, 1>::empty(queue, { row_count }, sycl::usm::alloc::device);
+
+    auto svCoeffTable = trained_model.get_coeffs();
+    const std::int64_t nSV  = trained_model.get_support_vector_count();
+
+    if (nSV == 0) {
+        auto fill_event = distance_nd.fill(queue, Float(0.0));
+        fill_event.wait_and_throw();
+    } else {
+        const auto svCoeffBuff = pr::table2ndarray_1d<Float>(queue, svCoeffTable, sycl::usm::alloc::device);
+
+        const auto bieses = pr::table2ndarray_1d<Float>(trained_model.get_biases());
+        const auto bias = *(bieses.get_data());
+        auto fill_event = distance_nd.fill(queue, bias);
+        fill_event.wait_and_throw();
+
+        auto svTable = trained_model.get_support_vectors();
+
+        // const std::int64_t nRowsPerBlock = xTable->getDataLayout() == NumericTableIface::csrArray ? nVectors : 1024;
+        // const std::int64_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
+
+        const std::int64_t nRowsPerBlock = 1024;
+        const std::int64_t nBlocks       = row_count / nRowsPerBlock + !!(row_count % nRowsPerBlock);
+
+        std::cout << "NBlocks" << nBlocks << "\n";
+
+        std::shared_ptr<predict_task<Float>> predictTask =
+            std::make_shared<predict_task_dense<Float>>(queue, nRowsPerBlock, data, svTable, kernel_ptr);
+
+        for (std::int64_t iBlock = 0; iBlock < nBlocks; ++iBlock)
+        {
+//            std::cout << "IBlock:" << iBlock << "\n nBlocks: " << nBlocks << "\n";
+            const std::int64_t startRow          = iBlock * nRowsPerBlock;
+            const std::int64_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : row_count - iBlock * nRowsPerBlock;
+
+            auto distance_view = pr::ndview<Float, 2>::wrap(distance_nd.get_mutable_data() + startRow, {nRowsPerBlockReal, 1});
+
+            auto kernelResBuff = predictTask->kernel_compute(queue, startRow, nRowsPerBlockReal);
+
+            auto reshape_sv_coeff = svCoeffBuff.reshape(pr::ndshape<2>{ nSV, 1 });
+
+            auto gemm_event =pr::gemm(queue, kernelResBuff, reshape_sv_coeff, distance_view, Float(1), Float(1));
+            /// m = nRowsPerBlockReal n = 1 k = nSV alpha =  algorithmFPType(1.0) a_buffer = kernelResBuff lda = nSV offsetA = 0 b_buffer = svCoeffBuff ldb = 1 offsetB = 0 beta = 1.0 c_buffer = distaceBuff  ldc = 1 offsetC = startRow
+            // A = m x k ; B = k x n
+            gemm_event.wait_and_throw();
+        }
+        }
+///
+
+    const auto arr_decision_func_host = distance_nd.to_host(queue);
+    const auto arr_decision_data = arr_decision_func_host.get_data();
 
     // TODO: rework with help dpcpp code
-    auto arr_response = array<Float>::empty(row_count * 1);
+    auto arr_response = pr::ndarray<Float, 1>::empty(row_count * 1);
     auto response_data = arr_response.get_mutable_data();
     for (std::int64_t i = 0; i < row_count; ++i) {
-        response_data[i] = arr_decision_func_host[i] >= 0
+        response_data[i] = arr_decision_data[i] >= 0
                                ? trained_model.get_second_class_response()
                                : trained_model.get_first_class_response();
     }
 
     return result_t()
-        .set_decision_function(dal::detail::homogen_table_builder{}
-                                   .reset(arr_decision_func_host, row_count, 1)
-                                   .build())
-        .set_responses(
-            dal::detail::homogen_table_builder{}.reset(arr_response, row_count, 1).build());
-}
-
-template <typename Float>
-static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
+        .set_decision_function(homogen_table::wrap(arr_decision_func_host.flatten(), row_count, 1))
+        .set_responses(homogen_table::wrap(arr_response.flatten(), row_count, 1));
 }
 
 template <typename Float>
