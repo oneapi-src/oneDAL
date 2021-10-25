@@ -28,6 +28,8 @@
 #include "src/services/service_defines.h"
 #include "mkl_daal.h"
 #include "src/threading/threading.h"
+#include <cstdio>
+#include <iostream>
 
 #include <stdint.h>
 #if defined(_MSC_VER)
@@ -80,6 +82,7 @@ static int check_cpuid(uint32_t eax, uint32_t ecx, int abcd_index, uint32_t mask
     uint32_t abcd[4];
 
     run_cpuid(eax, ecx, abcd);
+    std::cout << "##vmeshche_check_cpuid" << abcd[abcd_index] << "##" << std::endl;
 
     return ((abcd[abcd_index] & mask) == mask);
 }
@@ -110,6 +113,7 @@ static int check_avx512_features()
     CPUID.(EAX=07H, ECX=0H):EBX.AVX512VL[bit 31]==1
     */
     uint32_t avx512_mask = (1 << 16) | (1 << 17) | (1 << 30) | (1 << 31);
+    std::cout << "##vmeshcheAVX512mask" << avx512_mask << "##" << std::endl;
 
     /*
     E0H - KMASK state, upper 256-bit of ZMM0-ZMM15 and ZMM16-ZMM31 state are enabled by OS
@@ -148,7 +152,8 @@ static int check_avx512_mic_features()
     CPUID.(EAX=07H, ECX=0H):EBX.AVX512CD[bit 28]==1
     */
     uint32_t avx512_mic_mask = (1 << 16) | (1 << 26) | (1 << 27) | (1 << 28);
-
+    std::cout << "##vmeshcheAVX512-micmask" << avx512_mic_mask << "##" << std::endl;
+    
     /*
     E0H - KMASK state, upper 256-bit of ZMM0-ZMM15 and ZMM16-ZMM31 state are enabled by OS
     06H - XMM state and YMM state are enabled by OS
@@ -261,36 +266,49 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 #if defined(__APPLE__)
     __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
+    if (daal_check_is_intel_cpu())
+    {
+        std::cout << "##vmeshcheThisIsIntelCPU##" << std::endl;
+    } else {
+        std::cout << "##vmeshche_NOTIntelCPU##" << std::endl;
+    }
+
     if (check_avx512_features() && daal_check_is_intel_cpu())
     {
+        std::cout << "##vmeshcheAVX512##" << std::endl;
         return daal::avx512;
     }
 
     if (check_avx512_mic_features() && daal_check_is_intel_cpu())
     {
+        std::cout << "##vmeshcheAVX512_MIC##" << std::endl;
         return daal::avx512;
     }
 
-
     if (check_avx2_features())
     {
+        std::cout << "##vmeshcheAVX2##" << std::endl;
         return daal::avx2;
     }
 
     if (check_avx_features())
     {
+        std::cout << "##vmeshcheAVX##" << std::endl;
         return daal::avx;
     }
 
     if (check_sse42_features())
     {
+        std::cout << "##vmeshcheSSE42##" << std::endl;
         return daal::sse42;
     }
 
     if (check_ssse3_features())
     {
+        std::cout << "##vmeshcheSSE3##" << std::endl;
         return daal::ssse3;
     }
 
+    std::cout << "##vmeshcheGOING-TO-DEFAULT-SSE2##" << std::endl;
     return daal::sse2;
 }
