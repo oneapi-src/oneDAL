@@ -77,8 +77,6 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
     const std::int64_t* displs_host,
     const data_type& dtype,
     const std::vector<sycl::event>& deps) {
-    ONEDAL_ASSERT(root >= 0);
-
     if (send_count == 0) {
         return nullptr;
     }

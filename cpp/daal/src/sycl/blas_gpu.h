@@ -72,12 +72,15 @@ struct BlasGpu
 
         ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
+        const auto inv_trans = (trans == math::Transpose::Trans) ? math::Transpose::NoTrans : math::Transpose::Trans;
+
         if (layout == math::Layout::ColMajor)
         {
             ctx.syrk(upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
         }
         else
         {
+            //ctx.syrk(upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
             ctx.syrk(upper_lower, trans, k, n, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
         }
 
