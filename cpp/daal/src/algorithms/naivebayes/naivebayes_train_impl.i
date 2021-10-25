@@ -40,17 +40,8 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
-#if (__CPUID__(DAAL_CPU) >= __avx512_mic__)
-
-    #define _CALLOC_ service_scalable_calloc
-    #define _FREE_   service_scalable_free
-
-#else
-
-    #define _CALLOC_ service_calloc
-    #define _FREE_   service_free
-
-#endif
+#define _CALLOC_ service_calloc
+#define _FREE_   service_free
 
 using namespace daal::internal;
 using namespace daal::services;

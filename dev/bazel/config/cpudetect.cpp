@@ -217,7 +217,7 @@ std::string detect_cpu() {
         return "avx512";
     }
     else if (check_avx512_mic_features()) {
-        return "avx512_mic";
+        return "avx512";
     }
     else if (check_avx2_features()) {
         return "avx2";
