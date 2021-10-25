@@ -25,6 +25,8 @@
 #define __DAAL_KERNEL_DEFINES_H__
 
 #include "services/env_detect.h"
+#include <cstdio>
+#include <iostream>
 
 /** \file daal_kernel_defines.h */
 /**
@@ -41,6 +43,7 @@
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>
 #define DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, cpuType, ...)                              \
 case cpuType:                                                                                    \
+    std::cout << "##AAAAAAAAAAAAAAAA" << cpuType << "AAAAAAAA##" << std::endl; \
     _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, __VA_ARGS__)(daalEnv)); \
     break;
 #define DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, cpuType, ...)                        \
