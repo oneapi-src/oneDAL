@@ -153,7 +153,7 @@ static int check_avx512_mic_features()
     */
     uint32_t avx512_mic_mask = (1 << 16) | (1 << 26) | (1 << 27) | (1 << 28);
     std::cout << "##vmeshcheAVX512-micmask" << avx512_mic_mask << "##" << std::endl;
-    
+
     /*
     E0H - KMASK state, upper 256-bit of ZMM0-ZMM15 and ZMM16-ZMM31 state are enabled by OS
     06H - XMM state and YMM state are enabled by OS
