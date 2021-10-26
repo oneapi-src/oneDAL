@@ -112,6 +112,14 @@ public:
         return public_comm_.allreduce(std::forward<Args>(args)...);
     }
 
+    void set_active_exception(const std::exception_ptr& ex_ptr) const {
+        public_comm_.set_active_exception(ex_ptr);
+    }
+
+    void wait_for_exception_handling() const {
+        public_comm_.wait_for_exception_handling();
+    }
+
 private:
     spmd::communicator<MemoryAccessKind> public_comm_;
     bool is_distributed_;

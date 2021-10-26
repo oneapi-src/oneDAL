@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,42 +14,36 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/common.hpp"
-#include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/spmd/exceptions.hpp"
+#include "oneapi/dal/spmd/common.hpp"
 
 namespace oneapi::dal::preview::spmd {
-
-namespace device_memory_access {
 namespace v1 {
 
-struct usm {};
-struct none {};
+error_holder::error_holder(const std::exception_ptr& actual)
+        : std::runtime_error(oneapi::dal::detail::error_messages::spmd_error_holder_message()),
+          actual_exception_(actual) {}
+
+const char* error_holder::what() const noexcept {
+    return std::runtime_error::what();
+}
+
+std::exception_ptr error_holder::get_actual() const {
+    return actual_exception_;
+}
+
+void error_holder::rethrow_actual() const {
+    if (actual_exception_) {
+        std::rethrow_exception(actual_exception_);
+    }
+}
+
+const char* coworker_error::what() const noexcept {
+    return std::runtime_error::what();
+}
+
+const char* communication_error::what() const noexcept {
+    return std::runtime_error::what();
+}
+
 } // namespace v1
-
-using v1::usm;
-using v1::none;
-
-} // namespace device_memory_access
-
-namespace v1 {
-
-enum class reduce_op { max, min, sum };
-
-template <typename T>
-using enable_if_device_memory_accessible_t =
-    std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm>>;
-
-template <typename T>
-using enable_if_device_memory_not_accessible_t =
-    std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::none>>;
-
-} // namespace v1
-
-using v1::reduce_op;
-using v1::enable_if_device_memory_accessible_t;
-using v1::enable_if_device_memory_not_accessible_t;
-
 } // namespace oneapi::dal::preview::spmd

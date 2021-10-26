@@ -104,7 +104,6 @@ public:
                           const data_type& dtype) override {
         ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
-        ONEDAL_ASSERT(recv_counts[0] == send_count);
 
         copy_if_different_pointers(recv_buf + displs[0], send_buf, send_count, dtype);
 
@@ -188,7 +187,6 @@ public:
                           const event_vector& deps) override {
         ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
-        ONEDAL_ASSERT(recv_counts[0] == send_count);
 
         sycl::event::wait_and_throw(deps);
         copy_if_different_pointers(q, recv_buf + displs[0], send_buf, send_count, dtype);

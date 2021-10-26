@@ -170,6 +170,7 @@ public:
 
     /// Blocks until all ranks in the communicator have reached this function
     void barrier() const {
+        wait_for_exception_handling();
         impl_->barrier();
     }
 
@@ -186,6 +187,7 @@ public:
                   std::int64_t count,
                   const data_type& dtype,
                   std::int64_t root = -1) const {
+        wait_for_exception_handling();
         return dal::detail::make_private<request>(
             impl_->bcast(buf, count, dtype, fix_root_rank(root)));
     }
@@ -198,6 +200,7 @@ public:
                   const data_type& dtype,
                   const std::vector<sycl::event>& deps = {},
                   std::int64_t root = -1) const {
+        wait_for_exception_handling();
         return dal::detail::make_private<request>(
             impl_->bcast(queue, buf, count, dtype, deps, fix_root_rank(root)));
     }
@@ -271,6 +274,7 @@ public:
                        const std::int64_t* recv_counts,
                        const std::int64_t* displs,
                        const data_type& dtype) const {
+        wait_for_exception_handling();
         return dal::detail::make_private<request>(
             impl_->allgatherv(send_buf, send_count, recv_buf, recv_counts, displs, dtype));
     }
@@ -285,6 +289,7 @@ public:
                        const std::int64_t* displs,
                        const data_type& dtype,
                        const std::vector<sycl::event>& deps = {}) const {
+        wait_for_exception_handling();
         return dal::detail::make_private<request>(impl_->allgatherv(queue,
                                                                     send_buf,
                                                                     send_count,
@@ -351,6 +356,7 @@ public:
                       std::int64_t count,
                       const data_type& dtype,
                       const reduce_op& op) const {
+        wait_for_exception_handling();
         return dal::detail::make_private<request>(
             impl_->allreduce(send_buf, recv_buf, count, dtype, op));
     }
@@ -364,6 +370,7 @@ public:
                       const data_type& dtype,
                       const reduce_op& op,
                       const std::vector<sycl::event>& deps = {}) const {
+        wait_for_exception_handling();
         return dal::detail::make_private<request>(
             impl_->allreduce(queue, send_buf, recv_buf, count, dtype, op, deps));
     }
@@ -414,6 +421,9 @@ public:
     }
 #endif
 
+    void set_active_exception(const std::exception_ptr& ex_ptr) const;
+    void wait_for_exception_handling() const;
+
 protected:
     template <typename Impl>
     Impl& get_impl() const {
@@ -421,6 +431,12 @@ protected:
     }
     explicit communicator(interface_type* impl) : impl_(impl) {}
     dal::detail::pimpl<interface_type> impl_;
+
+private:
+    void reset_error_flag() const;
+
+    mutable std::int32_t error_flag_ = 0;
+    mutable std::exception_ptr active_exception_;
 };
 
 } // namespace v1
@@ -435,12 +451,16 @@ using v1::communicator;
 
 template <typename Backend>
 communicator<device_memory_access::none> make_communicator() {
+    static_assert(!std::is_same_v<Backend, Backend>, "Unsupported communicator backend");
+
     throw communication_error(dal::detail::error_messages::unsupported_communicator_backend());
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Backend>
 communicator<device_memory_access::usm> make_communicator(sycl::queue& queue) {
+    static_assert(!std::is_same_v<Backend, Backend>, "Unsupported communicator backend");
+
     throw communication_error(dal::detail::error_messages::unsupported_communicator_backend());
 }
 #endif

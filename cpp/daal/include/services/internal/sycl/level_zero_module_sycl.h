@@ -50,12 +50,15 @@ namespace sycl
 {
 namespace interface1
 {
+#define DAAL_LEVEL_ZERO_VERSION_SUFF          ".1"
+#define DAAL_LEVEL_ZERO_LIB_VERSIONED_NAME(n) #n DAAL_LEVEL_ZERO_VERSION_SUFF
+
 #ifdef __linux__
-static const char * zeLoaderName = "libze_loader.so";
+static const char * zeLoaderName = DAAL_LEVEL_ZERO_LIB_VERSIONED_NAME(libze_loader.so);
 static const int libLoadFlags    = RTLD_NOLOAD | RTLD_NOW | RTLD_LOCAL;
 #elif defined(_WIN64)
 static const char * zeLoaderName = "ze_loader.dll";
-static const int libLoadFlags    = 0;
+static const int libLoadFlags    = LOAD_LIBRARY_SEARCH_SYSTEM32;
 #else
     #error "Level Zero support is unavailable for this platform"
 #endif
