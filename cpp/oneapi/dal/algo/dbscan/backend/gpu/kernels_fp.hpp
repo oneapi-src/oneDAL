@@ -32,14 +32,16 @@ struct kernels_fp {
     static std::int64_t get_part_count_for_partial_centroids(sycl::queue& queue,
                                                              std::int64_t column_count,
                                                              std::int64_t cluster_count);
-    static sycl::event get_cores(sycl::queue& queue,
-                                 const pr::ndview<Float, 2>& data,
-                                 pr::ndview<std::int32_t, 1>& cores,
-                                 Float epsilon,
-                                 std::int64_t min_observations,
-                                 std::int64_t block_start = -1,
-                                 std::int64_t block_end = -1,
-                                 const bk::event_vector& deps = {});
+    template <bool use_weights>
+    static sycl::event get_cores_impl(sycl::queue& queue,
+                                      const pr::ndview<Float, 2>& data,
+                                      const pr::ndview<Float, 2>& weights,
+                                      pr::ndview<std::int32_t, 1>& cores,
+                                      Float epsilon,
+                                      std::int64_t min_observations,
+                                      std::int64_t block_start,
+                                      std::int64_t block_end,
+                                      const bk::event_vector& deps);
     static sycl::event get_cores(sycl::queue& queue,
                                  const pr::ndview<Float, 2>& data,
                                  const pr::ndview<Float, 2>& weights,

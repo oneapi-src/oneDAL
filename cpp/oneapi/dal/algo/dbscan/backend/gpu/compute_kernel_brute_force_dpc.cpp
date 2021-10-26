@@ -64,27 +64,15 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     sycl::event::wait({ cores_event, responses_event, queue_event, queue_front_event });
 
-    if (local_weights.get_row_count() == block_size) {
-        kernels_fp<Float>::get_cores(queue,
-                                     arr_data,
-                                     arr_weights,
-                                     arr_cores,
-                                     epsilon,
-                                     min_observations,
-                                     block_start,
-                                     block_end)
-            .wait_and_throw();
-    }
-    else {
-        kernels_fp<Float>::get_cores(queue,
-                                     arr_data,
-                                     arr_cores,
-                                     epsilon,
-                                     min_observations,
-                                     block_start,
-                                     block_end)
-            .wait_and_throw();
-    }
+    kernels_fp<Float>::get_cores(queue,
+                                 arr_data,
+                                 arr_weights,
+                                 arr_cores,
+                                 epsilon,
+                                 min_observations,
+                                 block_start,
+                                 block_end)
+        .wait_and_throw();
 
     std::int64_t cluster_count = 0;
     std::int32_t cluster_index = kernels_fp<Float>::start_next_cluster(queue,

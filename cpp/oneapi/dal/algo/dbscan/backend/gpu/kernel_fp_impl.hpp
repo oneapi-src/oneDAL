@@ -40,77 +40,27 @@ inline std::int64_t get_gpu_sg_size(sycl::queue& queue) {
     return 16;
 }
 
-// DBSCAN
-template <typename Float>
-sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
-                                         const pr::ndview<Float, 2>& data,
-                                         pr::ndview<std::int32_t, 1>& cores,
-                                         Float epsilon,
-                                         std::int64_t min_observations,
-                                         std::int64_t block_start,
-                                         std::int64_t block_end,
-                                         const bk::event_vector& deps) {
-    const auto row_count = data.get_dimension(0);
-    if (block_start < 0)
-        block_start = 0;
-    if (block_end < 0)
-        block_end = row_count;
-    if (block_end > row_count)
-        block_end = row_count;
-    ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
-    ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
-    ONEDAL_ASSERT(block_start < block_end);
-    const auto block_size = block_end - block_start;
-    const std::int64_t column_count = data.get_dimension(1);
-
-    const Float* data_ptr = data.get_data();
-    std::int32_t* cores_ptr = cores.get_mutable_data();
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        std::int64_t wg_size = get_recommended_sg_size(queue);
-        cgh.parallel_for(
-            bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
-            [=](sycl::nd_item<2> item) {
-                auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
-                if (sg_id > 0)
-                    return;
-                const std::uint32_t wg_id = item.get_global_id(1);
-                if (wg_id >= block_size)
-                    return;
-                const std::uint32_t local_id = item.get_local_id(0);
-                const std::uint32_t local_size = item.get_local_range()[0];
-
-                int count = 0;
-                for (int j = 0; j < row_count; j++) {
-                    Float sum = 0.0;
-                    for (int i = local_id; i < column_count; i += local_size) {
-                        Float val = data_ptr[(block_start + wg_id) * column_count + i] -
-                                    data_ptr[j * column_count + i];
-                        sum += val * val;
-                    }
-                    Float distance =
-                        sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                    count += (int)(distance <= epsilon);
-                }
-                if (local_id == 0) {
-                    cores_ptr[wg_id] = (int)(count >= min_observations);
-                }
-            });
-    });
-    return event;
-}
+template <typename CountType>
+struct count_keeper {
+    CountType value = CountType(0);
+    void incr(bool do_incr, CountType incr = CountType(1)) {
+        value += do_incr ? incr : CountType(0);
+    }
+};
 
 template <typename Float>
-sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
-                                         const pr::ndview<Float, 2>& data,
-                                         const pr::ndview<Float, 2>& weights,
-                                         pr::ndview<std::int32_t, 1>& cores,
-                                         Float epsilon,
-                                         std::int64_t min_observations,
-                                         std::int64_t block_start,
-                                         std::int64_t block_end,
-                                         const bk::event_vector& deps) {
+template <bool use_weights>
+sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
+                                              const pr::ndview<Float, 2>& data,
+                                              const pr::ndview<Float, 2>& weights,
+                                              pr::ndview<std::int32_t, 1>& cores,
+                                              Float epsilon,
+                                              std::int64_t min_observations,
+                                              std::int64_t block_start,
+                                              std::int64_t block_end,
+                                              const bk::event_vector& deps) {
+    using count_keeper_type = typename std::
+        conditional<use_weights, count_keeper<Float>, count_keeper<std::int64_t>>::type;
     const auto row_count = data.get_dimension(0);
     if (block_start < 0)
         block_start = 0;
@@ -143,25 +93,61 @@ sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
                 const std::uint32_t local_id = item.get_local_id(0);
                 const std::uint32_t local_size = item.get_local_range()[0];
 
-                Float count = Float(0);
-                for (int j = 0; j < row_count; j++) {
+                count_keeper_type count;
+                for (std::int64_t j = 0; j < row_count; j++) {
                     Float sum = 0.0;
-                    for (int i = local_id; i < column_count; i += local_size) {
+                    for (std::int64_t i = local_id; i < column_count; i += local_size) {
                         Float val = data_ptr[(block_start + wg_id) * column_count + i] -
                                     data_ptr[j * column_count + i];
                         sum += val * val;
                     }
                     Float distance =
                         sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                    Float incr = (distance <= epsilon) ? weights_ptr[j] : 0.0;
-                    count += incr;
+                    if constexpr (use_weights) {
+                        count.incr(distance <= epsilon, weights_ptr[j]);
+                    }
+                    else {
+                        count.incr(distance <= epsilon);
+                    }
                 }
                 if (local_id == 0) {
-                    cores_ptr[wg_id] = (int)(count >= min_observations);
+                    cores_ptr[wg_id] = (std::int32_t)(count.value >= min_observations);
                 }
             });
     });
     return event;
+}
+
+template <typename Float>
+sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
+                                         const pr::ndview<Float, 2>& data,
+                                         const pr::ndview<Float, 2>& weights,
+                                         pr::ndview<std::int32_t, 1>& cores,
+                                         Float epsilon,
+                                         std::int64_t min_observations,
+                                         std::int64_t block_start,
+                                         std::int64_t block_end,
+                                         const bk::event_vector& deps) {
+    if (weights.get_dimension(0) == data.get_dimension(0)) {
+        return get_cores_impl<true>(queue,
+                                    data,
+                                    weights,
+                                    cores,
+                                    epsilon,
+                                    min_observations,
+                                    block_start,
+                                    block_end,
+                                    deps);
+    }
+    return get_cores_impl<false>(queue,
+                                 data,
+                                 weights,
+                                 cores,
+                                 epsilon,
+                                 min_observations,
+                                 block_start,
+                                 block_end,
+                                 deps);
 }
 
 template <typename Float>
@@ -202,12 +188,12 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
                     std::int32_t adjusted_block_size =
                         local_size * (block_size / local_size + bool(block_size % local_size));
 
-                    for (int i = local_id; i < adjusted_block_size; i += local_size) {
+                    for (int32_t i = local_id; i < adjusted_block_size; i += local_size) {
                         const bool found =
                             i < block_size ? cores_ptr[i] == 1 && responses_ptr[i] < 0 : false;
                         const std::int32_t index =
                             sycl::reduce_over_group(sg,
-                                                    (int)(found ? i : block_end),
+                                                    (std::int32_t)(found ? i : block_end),
                                                     sycl::ext::oneapi::minimum<std::int32_t>());
                         if (index < block_end) {
                             if (local_id == 0) {
@@ -311,10 +297,10 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                 if (responses_ptr[wg_id] >= 0)
                     return;
 
-                for (int j = 0; j < algo_queue_size; j++) {
-                    const int index = queue_ptr[j + queue_begin];
+                for (std::int32_t j = 0; j < algo_queue_size; j++) {
+                    const int32_t index = queue_ptr[j + queue_begin];
                     Float sum = 0.0;
-                    for (int i = local_id; i < column_count; i += local_size) {
+                    for (std::int64_t i = local_id; i < column_count; i += local_size) {
                         Float val =
                             data_ptr[probe * column_count + i] - data_ptr[index * column_count + i];
                         sum += val * val;
