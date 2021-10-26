@@ -82,7 +82,7 @@ static int check_cpuid(uint32_t eax, uint32_t ecx, int abcd_index, uint32_t mask
     uint32_t abcd[4];
 
     run_cpuid(eax, ecx, abcd);
-    std::cout << "##vmeshche_check_cpuid" << abcd[abcd_index] << "##" << std::endl;
+    std::cout << "##vmeshche_check_cpuid-" << abcd[abcd_index] << "-##" << std::endl;
 
     return ((abcd[abcd_index] & mask) == mask);
 }
@@ -113,7 +113,7 @@ static int check_avx512_features()
     CPUID.(EAX=07H, ECX=0H):EBX.AVX512VL[bit 31]==1
     */
     uint32_t avx512_mask = (1 << 16) | (1 << 17) | (1 << 30) | (1 << 31);
-    std::cout << "##vmeshcheAVX512mask" << avx512_mask << "##" << std::endl;
+    std::cout << "##vmeshcheAVX512mask-" << avx512_mask << "-##" << std::endl;
 
     /*
     E0H - KMASK state, upper 256-bit of ZMM0-ZMM15 and ZMM16-ZMM31 state are enabled by OS
@@ -152,7 +152,7 @@ static int check_avx512_mic_features()
     CPUID.(EAX=07H, ECX=0H):EBX.AVX512CD[bit 28]==1
     */
     uint32_t avx512_mic_mask = (1 << 16) | (1 << 26) | (1 << 27) | (1 << 28);
-    std::cout << "##vmeshcheAVX512-micmask" << avx512_mic_mask << "##" << std::endl;
+    std::cout << "##vmeshcheAVX512-micmask-" << avx512_mic_mask << "-##" << std::endl;
 
     /*
     E0H - KMASK state, upper 256-bit of ZMM0-ZMM15 and ZMM16-ZMM31 state are enabled by OS
@@ -188,7 +188,7 @@ static int check_avx2_features()
         CPUID.(EAX=07H, ECX=0H):EBX.BMI1[bit 3]==1  &&
         CPUID.(EAX=07H, ECX=0H):EBX.BMI2[bit 8]==1  */
     uint32_t avx2_bmi12_mask = (1 << 5) | (1 << 3) | (1 << 8);
-
+    std::cout << "##vmeshcheAVX2mask-" << avx2_bmi12_mask << "-##" << std::endl;
     /* CPUID.(EAX=80000001H):ECX.LZCNT[bit 5]==1 */
     uint32_t lzcnt_mask = (1 << 5);
 
@@ -217,6 +217,7 @@ static int check_avx_features()
     /* CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 &&
        CPUID.(EAX=01H, ECX=0H):ECX.AVX[bit 28]==1 */
     uint32_t avx_mask = 0x18000000;
+    std::cout << "##vmeshcheAVXmask-" << avx_mask << "-##" << std::endl;
 
     if (!check_cpuid(1, 0, 2, avx_mask))
     {
@@ -234,6 +235,7 @@ static int check_sse42_features()
 {
     /* CPUID.(EAX=01H, ECX=0H):ECX.SSE4.2[bit 20]==1 */
     uint32_t sse42_mask = 0x100000;
+    std::cout << "##vmeshcheSSE42mask-" << sse42_mask << "-##" << std::endl;
 
     if (!check_cpuid(1, 0, 2, sse42_mask))
     {
@@ -247,6 +249,7 @@ static int check_ssse3_features()
 {
     /* CPUID.(EAX=01H, ECX=0H):ECX.SSSE3[bit 9]==1 */
     uint32_t ssse3_mask = 0x200;
+    std::cout << "##vmeshcheSSE3mask-" << ssse3_mask << "-##" << std::endl;
 
     if (!check_cpuid(1, 0, 2, ssse3_mask))
     {
@@ -276,12 +279,6 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
     if (check_avx512_features() && daal_check_is_intel_cpu())
     {
         std::cout << "##vmeshcheAVX512##" << std::endl;
-        return daal::avx512;
-    }
-
-    if (check_avx512_mic_features() && daal_check_is_intel_cpu())
-    {
-        std::cout << "##vmeshcheAVX512_MIC##" << std::endl;
         return daal::avx512;
     }
 
