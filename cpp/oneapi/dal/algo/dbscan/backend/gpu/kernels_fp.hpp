@@ -54,11 +54,6 @@ struct kernels_fp {
     static std::int32_t start_next_cluster(sycl::queue& queue,
                                            const pr::ndview<std::int32_t, 1>& cores,
                                            pr::ndview<std::int32_t, 1>& responses,
-                                           pr::ndview<std::int32_t, 1>& algo_queue,
-                                           pr::ndview<std::int32_t, 1>& queue_front,
-                                           std::int32_t cluster_count,
-                                           std::int64_t block_start = -1,
-                                           std::int64_t block_end = -1,
                                            const bk::event_vector& deps = {});
 
     static sycl::event update_queue(sycl::queue& queue,

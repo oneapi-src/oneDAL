@@ -154,21 +154,15 @@ template <typename Float>
 std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
                                                    const pr::ndview<std::int32_t, 1>& cores,
                                                    pr::ndview<std::int32_t, 1>& responses,
-                                                   pr::ndview<std::int32_t, 1>& algo_queue,
-                                                   pr::ndview<std::int32_t, 1>& queue_front,
-                                                   std::int32_t cluster_count,
-                                                   std::int64_t block_start,
-                                                   std::int64_t block_end,
                                                    const bk::event_vector& deps) {
-    ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
-    ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
-    ONEDAL_ASSERT(local_queue.get_dimension(0) > 0);
-    const auto block_size = block_end - block_start;
+    ONEDAL_ASSERT(cores.get_dimension(0) == responses.get_dimension(0));
+    std::int64_t block_size = cores.get_dimension(0);
 
-    auto [start_index, start_index_event] = pr::ndarray<std::int32_t, 1>::full(queue, 1, block_end);
+    auto [start_index, start_index_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, 1, block_size);
     start_index_event.wait_and_throw();
     auto start_index_ptr = start_index.get_mutable_data();
-    start_index_ptr[0] = block_end;
+    start_index_ptr[0] = block_size;
 
     const std::int32_t* cores_ptr = cores.get_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
@@ -193,9 +187,9 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
                             i < block_size ? cores_ptr[i] == 1 && responses_ptr[i] < 0 : false;
                         const std::int32_t index =
                             sycl::reduce_over_group(sg,
-                                                    (std::int32_t)(found ? i : block_end),
+                                                    (std::int32_t)(found ? i : block_size),
                                                     sycl::ext::oneapi::minimum<std::int32_t>());
-                        if (index < block_end) {
+                        if (index < block_size) {
                             if (local_id == 0) {
                                 start_index_ptr[0] = index;
                             }

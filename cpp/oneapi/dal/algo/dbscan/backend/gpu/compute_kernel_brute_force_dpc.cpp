@@ -75,14 +75,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         .wait_and_throw();
 
     std::int64_t cluster_count = 0;
-    std::int32_t cluster_index = kernels_fp<Float>::start_next_cluster(queue,
-                                                                       arr_cores,
-                                                                       arr_responses,
-                                                                       arr_queue,
-                                                                       arr_queue_front,
-                                                                       cluster_count,
-                                                                       block_start,
-                                                                       block_end);
+    std::int32_t cluster_index =
+        kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
     cluster_index = cluster_index < block_size ? cluster_index + block_start : row_count;
     comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
     if (cluster_index < 0) {
@@ -142,14 +136,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
             comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
         }
 
-        cluster_index = kernels_fp<Float>::start_next_cluster(queue,
-                                                              arr_cores,
-                                                              arr_responses,
-                                                              arr_queue,
-                                                              arr_queue_front,
-                                                              cluster_count,
-                                                              block_start,
-                                                              block_end);
+        cluster_index = kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
         cluster_index = cluster_index < block_size ? cluster_index + block_start : row_count;
         comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
     }

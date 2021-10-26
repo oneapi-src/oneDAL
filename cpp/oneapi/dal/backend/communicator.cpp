@@ -102,12 +102,6 @@ public:
                           const std::int64_t* recv_counts,
                           const std::int64_t* displs,
                           const data_type& dtype) override {
-        ONEDAL_ASSERT(root == root_rank);
-
-        if (send_count == 0) {
-            return nullptr;
-        }
-
         ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
         ONEDAL_ASSERT(recv_counts[0] == send_count);
@@ -175,12 +169,6 @@ public:
                           const std::int64_t* recv_counts,
                           const std::int64_t* displs,
                           const data_type& dtype) override {
-        ONEDAL_ASSERT(root == root_rank);
-
-        if (send_count == 0) {
-            return nullptr;
-        }
-
         ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
         ONEDAL_ASSERT(recv_counts[0] == send_count);
@@ -198,12 +186,6 @@ public:
                           const std::int64_t* displs,
                           const data_type& dtype,
                           const event_vector& deps) override {
-        ONEDAL_ASSERT(root == root_rank);
-
-        if (send_count == 0) {
-            return nullptr;
-        }
-
         ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
         ONEDAL_ASSERT(recv_counts[0] == send_count);
