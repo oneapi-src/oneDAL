@@ -309,6 +309,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
     return services::Status();
 }
 
+
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posx, DataType * posy, const IdxType nNodes,
                                          const IdxType N, const IdxType & bottom)
@@ -328,6 +329,148 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     auto k         = bottom;
 
     //initialize array
+    services::internal::service_memset<DataType, cpu>(mass, DataType(1), k); //  memset -1 ?
+    services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
+
+    //for (int i = 0; i < (nNodes+1)*4; i++) std::cout << i << ": child[" << i <<"] = "<<child[i] << std::endl;
+
+    const auto restart = k;
+
+    // iterate over all cells assigned to thread
+    while (k <= nNodes)
+    {
+        //std::cout << "k = " << k << std::endl;
+        if (mass[k] < 0.)
+        {
+            for (IdxType i = 0; i < 4; i++)
+            {
+                const auto ch = child[k * 4 + i];
+                curChild[i]   = ch;
+
+
+                curMass[i] = mass[ch]; // Its my
+            }
+
+            // all children are ready
+            cm       = 0.;
+            px       = 0.;
+            py       = 0.;
+            auto cnt = 0;
+
+            for (IdxType i = 0; i < 4; i++)
+            {
+                const IdxType ch = curChild[i];
+                //std::cout << "ch = " << ch << std::endl;
+
+                if (ch >= 0)
+                {
+                    const DataType m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]); // mass[ch] == curMass[i] always!
+                    //std::cout << "m = " << m << std::endl;
+                    // add child's contribution
+                    cm += m;
+                    px += posx[ch] * m;
+                    py += posy[ch] * m;
+                }
+            }
+           // std::cout << "cm = " << cm << std::endl;
+
+            count[k]         = cnt;
+            const DataType m = cm ? 1. / cm : 1.;
+
+            posx[k]          = px * m;
+            posy[k]          = py * m;
+
+            mass[k] = cm;
+        }
+
+        k += inc; // move on to next cell
+        //getchar();
+        //std::cout << std::endl;
+    }
+    //k = restart;
+
+    
+    //std::cout << "nNodes = " << nNodes << std::endl;
+    //for (int i = 0; i < nNodes; i++) std::cout << i << ": mass[" << i <<"] = "<<mass[i] << std::endl;
+
+    // getchar();
+
+    // IdxType j = 0;
+    // // iterate over all cells assigned to thread
+    // while (k <= nNodes)
+    // {
+    //     //std::cout << k << ": SECOND LOOP" << std::endl;
+    //     //for (int i = 0; i < nNodes; i++) std::cout << i << ": mass[" << i <<"] = "<<mass[i] << std::endl;
+
+    //     for (IdxType i = 0; i < 4; i++)
+    //     {
+    //         const auto ch = child[k * 4 + i];
+
+    //         curChild[i] = ch;
+    //         //std::cout << "First IF: ch = " << ch << std::endl;
+    //         //if ((ch < N) || ((curMass[i] = mass[ch]) >= 0)) j--;
+    //         curMass[i] = mass[ch];
+    //     }
+
+    //     if (j == 0)
+    //     {
+    //         // all children are ready
+    //         cm       = 0.;
+    //         px       = 0.;
+    //         py       = 0.;
+    //         auto cnt = 0;
+
+    //         for (IdxType i = 0; i < 4; i++)
+    //         {
+    //             const auto ch = curChild[i];
+    //             if (ch >= 0)
+    //             {
+    //                 const auto m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+    //                 // add child's contribution
+    //                 cm += m;
+    //                 px += posx[ch] * m;
+    //                 py += posy[ch] * m;
+    //             }
+    //         }
+
+    //         count[k]         = cnt;
+    //         const DataType m = cm ? 1. / cm : 1.;
+    //         posx[k]          = px * m;
+    //         posy[k]          = py * m;
+    //         //flag             = true;
+    //     }
+
+    //     if (cm < 0.) cm = 1.;
+    //     mass[k] = cm;
+    //     k += inc;
+    //     //flag = false;
+
+    // }
+    return services::Status();
+}
+
+
+
+/*template <typename IdxType, typename DataType, daal::CpuType cpu>
+services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posx, DataType * posy, const IdxType nNodes,
+                                         const IdxType N, const IdxType & bottom)
+{
+    DAAL_CHECK_MALLOC(count);
+    DAAL_CHECK_MALLOC(child);
+    DAAL_CHECK_MALLOC(mass);
+    DAAL_CHECK_MALLOC(posx);
+    DAAL_CHECK_MALLOC(posy);
+
+    bool flag = false;
+    DataType cm, px, py;
+    IdxType curChild[4];
+    DataType curMass[4];
+
+    const auto inc = 1;
+    auto k         = bottom;//& -32;
+    //if (k < bottom) k += inc;
+
+    //initialize array
     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
     services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
 
@@ -336,12 +479,18 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     // iterate over all cells assigned to thread
     while (k <= nNodes)
     {
+        //std::cout << k << ": FIRST LOOP" << px << std::endl;
         if (mass[k] < 0.)
         {
             for (IdxType i = 0; i < 4; i++)
             {
                 const auto ch = child[k * 4 + i];
                 curChild[i]   = ch;
+
+
+                curMass[i] = mass[ch]; // Its my
+                //if ((ch >= N) && ((curMass[i] = mass[ch]) < 0))
+                //    goto CONTINUE_LOOP;
             }
 
             // all children are ready
@@ -349,6 +498,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             px       = 0.;
             py       = 0.;
             auto cnt = 0;
+            //const DataType eps = 0.000001;
 
             for (IdxType i = 0; i < 4; i++)
             {
@@ -365,20 +515,41 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 
             count[k]         = cnt;
             const DataType m = cm ? 1. / cm : 1.;
+
+            //const DataType m = cm ? 1. / (cm + eps) : 1.;
+
+            //const DataType m = (cm > eps || cm < -eps) ? 1. / cm : 1.;
+
+            //std::cout << k << ": px = " << px << std::endl;
+            //std::cout << k << ": m = " << m << std::endl;
+
             posx[k]          = px * m;
             posy[k]          = py * m;
 
             mass[k] = cm;
         }
 
+        //CONTINUE_LOOP:
         k += inc; // move on to next cell
     }
     k = restart;
+
+    std::cout << "k = " << k << std::endl;
+    std::cout << "nNodes = " << nNodes << std::endl;
+    for (int i = 0; i < nNodes; i++) std::cout << i << ": mass[" << i <<"] = "<<mass[i] << std::endl;
+
+    getchar();
 
     IdxType j = 0;
     // iterate over all cells assigned to thread
     while (k <= nNodes)
     {
+        std::cout << k << ": SECOND LOOP" << std::endl;
+        for (int i = 0; i < nNodes; i++) std::cout << i << ": mass[" << i <<"] = "<<mass[i] << std::endl;
+       // if (mass[k] >= 0) {
+       //     k += inc;
+       //     goto SKIP_LOOP;
+       // }
         if (j == 0)
         {
             j = 4;
@@ -387,6 +558,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                 const auto ch = child[k * 4 + i];
 
                 curChild[i] = ch;
+                std::cout << "First IF: ch = " << ch << std::endl;
                 if ((ch < N) || ((curMass[i] = mass[ch]) >= 0)) j--;
             }
         }
@@ -396,13 +568,17 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             for (IdxType i = 0; i < 4; i++)
             {
                 const auto ch = curChild[i];
-
+                std::cout << "Second IF: ch = " << ch << std::endl;
                 if ((ch < N) || (curMass[i] >= 0) || ((curMass[i] = mass[ch]) >= 0)) j--;
             }
+            //j = 0;
+            //k += inc;
+            //goto SKIP_LOOP;
         }
 
         if (j == 0)
         {
+            std::cout << k << ": if (j == 0)" << std::endl;
             // all children are ready
             cm       = 0.;
             px       = 0.;
@@ -429,15 +605,17 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             flag             = true;
         }
 
+        //SKIP_LOOP:
         if (flag)
         {
             mass[k] = cm;
             k += inc;
             flag = false;
         }
+        //getchar();
     }
     return services::Status();
-}
+}*/
 
 template <typename IdxType, daal::CpuType cpu>
 services::Status sortKernelImpl(IdxType * sort, const IdxType * count, IdxType * start, IdxType * child, const IdxType nNodes, const IdxType N,
@@ -598,12 +776,22 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
         IdxType * pos       = tls->posData;
         IdxType * node      = tls->nodeData;
         DataType * localSum = tls->sumData;
+        //for (int i = 0; i < nNodes; ++i) std::cout << iBlock << ": posx["<< i <<"] = " << posx[i] << std::endl; 
         for (IdxType k = iStart; k < iEnd; ++k)
         {
             const auto i = sort[k];
 
+            //if (i < 0 || i >= MAX_SIZE) continue;
+
+            //if (i < 0 || i >= nNodes) continue;
+
+            //std::cout << iBlock << ": nNodes = " << nNodes << std::endl;
+            //std::cout << iBlock << ": i = " << i << std::endl;
+
             const DataType px = posx[i];
             const DataType py = posy[i];
+
+            //std::cout << iBlock << ": px = " << px << std::endl;
 
             DataType vx = 0.;
             DataType vy = 0.;
@@ -621,6 +809,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
 
                 while (pd < 4)
                 {
+                    //std::cout << iBlock << ": pd = " << pd << std::endl;
                     const auto index = nd + pd++;
                     if (index < 0 || index >= MAX_SIZE) break;
 
@@ -632,6 +821,12 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
                     const DataType dx   = px - posx[n];
                     const DataType dy   = py - posy[n];
                     const DataType dxy1 = dx * dx + dy * dy + epsInc;
+                    //std::cout << iBlock << ": dx = " << dx << std::endl;
+                    //std::cout << iBlock << ": dy = " << dy << std::endl;
+                    //std::cout << iBlock << ": dx * dx = " << dx * dx << std::endl;
+                    //std::cout << iBlock << ": dy * dy = " << dy * dy << std::endl;
+                    //std::cout << iBlock << ": dxy1 = " << dxy1 << std::endl;
+
 
                     if ((n < N) || (dxy1 >= dq[depth]))
                     {
@@ -642,6 +837,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
                     }
                     else
                     {
+                        //std::cout << iBlock << ": depth = " << depth << std::endl;
                         pos[depth]  = pd;
                         node[depth] = nd;
                         depth++;
@@ -734,7 +930,6 @@ services::Status attractiveKernelImpl(const DataType * val, const size_t * col, 
     });
     divTlsData.reduceTo(&divergence, 1);
     divergence *= exaggeration;
-
     logTlsData.reduce([&](DataType * buf) { services::internal::service_scalable_free<DataType, cpu>(buf); });
 
     //Find_Normalization
@@ -922,28 +1117,45 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     //start iterations
     for (IdxType i = 0; i < explorationIter; ++i)
     {
+        //std::cout << "start boundingBoxKernelImpl" << std::endl;
         auto kernel0 = std::chrono::high_resolution_clock::now();
         status       = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
 
+        //std::cout << std::endl;
+        //for (int i = 0; i < nNodes; ++i) std::cout << "boundingBoxKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl;
+
+        //std::cout << "start qTreeBuildingKernelImpl" << std::endl;
         auto kernel1 = std::chrono::high_resolution_clock::now();
         boundingBox += std::chrono::duration<double, std::milli>(kernel1 - kernel0).count();
 
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child, posx, posy, nNodes, N, maxDepth, bottom, radius);
         DAAL_CHECK_STATUS_VAR(status);
 
+        //std::cout << std::endl;
+        //for (int i = 0; i < nNodes; ++i) std::cout << "qTreeBuildingKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
+
+        //std::cout << "start summarizationKernelImpl" << std::endl;
         auto kernel2 = std::chrono::high_resolution_clock::now();
         treeBuild += std::chrono::duration<double, std::milli>(kernel2 - kernel1).count();
 
         status = summarizationKernelImpl<IdxType, DataType, cpu>(count, child, mass, posx, posy, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
+        //std::cout << std::endl;
+        //for (int i = 0; i < nNodes; ++i) std::cout << "summarizationKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
+
+        //std::cout << "start sortKernelImpl" << std::endl;
         auto kernel3 = std::chrono::high_resolution_clock::now();
         summarization += std::chrono::duration<double, std::milli>(kernel3 - kernel2).count();
 
         status = sortKernelImpl<IdxType, cpu>(sort, count, start, child, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
+        //std::cout << std::endl;
+        //for (int i = 0; i < nNodes; ++i) std::cout << "sortKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
+
+        //std::cout << "start repulsionKernelImpl" << std::endl;
         auto kernel4 = std::chrono::high_resolution_clock::now();
         sorting += std::chrono::duration<double, std::milli>(kernel4 - kernel3).count();
 
@@ -951,9 +1163,13 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
             repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort, child, mass, posx, posy, repx, repy, zNorm, nNodes, N, radius, maxDepth);
         DAAL_CHECK_STATUS_VAR(status);
 
+        //std::cout << std::endl;
+        //for (int i = 0; i < nNodes; ++i) std::cout << "repulsionKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
+
         auto kernel5 = std::chrono::high_resolution_clock::now();
         repulsion += std::chrono::duration<double, std::milli>(kernel5 - kernel4).count();
 
+        //std::cout << "start attractiveKernelImpl" << std::endl;
         if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
         {
             status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx, posy, attrx, attry, zNorm, divergence, nNodes, N, nnz,
@@ -966,12 +1182,19 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         }
         DAAL_CHECK_STATUS_VAR(status);
 
+        //std::cout << std::endl;
+        //for (int i = 0; i < nNodes; ++i) std::cout << "attractiveKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
+
+        //std::cout << "start integrationKernelImpl" << std::endl;
         auto kernel6 = std::chrono::high_resolution_clock::now();
         attractive += std::chrono::duration<double, std::milli>(kernel6 - kernel5).count();
 
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx, posy, attrx, attry, repx, repy, gainx, gainy,
                                                                oldForcex, oldForcey, gradNorm, zNorm, nNodes, N);
         DAAL_CHECK_STATUS_VAR(status);
+
+        //std::cout << std::endl;
+        //for (int i = 0; i < nNodes; ++i) std::cout << "integrationKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
 
         auto kernel7 = std::chrono::high_resolution_clock::now();
         integration += std::chrono::duration<double, std::milli>(kernel7 - kernel6).count();
@@ -995,6 +1218,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     momentum     = 0.8;
     exaggeration = 1.;
 
+    //std::cout << "\n MAIN LOOP" << std::endl; 
     for (IdxType i = explorationIter; i < maxIter; ++i)
     {
         auto kernel0 = std::chrono::high_resolution_clock::now();
