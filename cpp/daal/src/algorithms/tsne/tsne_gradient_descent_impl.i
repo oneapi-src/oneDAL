@@ -332,14 +332,11 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k); //  memset -1 ?
     services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
 
-    //for (int i = 0; i < (nNodes+1)*4; i++) std::cout << i << ": child[" << i <<"] = "<<child[i] << std::endl;
-
     const auto restart = k;
 
     // iterate over all cells assigned to thread
     while (k <= nNodes)
     {
-        //std::cout << "k = " << k << std::endl;
         if (mass[k] < 0.)
         {
             for (IdxType i = 0; i < 4; i++)
@@ -389,7 +386,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     }
     //k = restart;
 
-    
+
     //std::cout << "nNodes = " << nNodes << std::endl;
     //for (int i = 0; i < nNodes; i++) std::cout << i << ": mass[" << i <<"] = "<<mass[i] << std::endl;
 
@@ -1122,18 +1119,12 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         status       = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << std::endl;
-        //for (int i = 0; i < nNodes; ++i) std::cout << "boundingBoxKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl;
-
         //std::cout << "start qTreeBuildingKernelImpl" << std::endl;
         auto kernel1 = std::chrono::high_resolution_clock::now();
         boundingBox += std::chrono::duration<double, std::milli>(kernel1 - kernel0).count();
 
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child, posx, posy, nNodes, N, maxDepth, bottom, radius);
         DAAL_CHECK_STATUS_VAR(status);
-
-        //std::cout << std::endl;
-        //for (int i = 0; i < nNodes; ++i) std::cout << "qTreeBuildingKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
 
         //std::cout << "start summarizationKernelImpl" << std::endl;
         auto kernel2 = std::chrono::high_resolution_clock::now();
@@ -1142,18 +1133,12 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         status = summarizationKernelImpl<IdxType, DataType, cpu>(count, child, mass, posx, posy, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << std::endl;
-        //for (int i = 0; i < nNodes; ++i) std::cout << "summarizationKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
-
         //std::cout << "start sortKernelImpl" << std::endl;
         auto kernel3 = std::chrono::high_resolution_clock::now();
         summarization += std::chrono::duration<double, std::milli>(kernel3 - kernel2).count();
 
         status = sortKernelImpl<IdxType, cpu>(sort, count, start, child, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
-
-        //std::cout << std::endl;
-        //for (int i = 0; i < nNodes; ++i) std::cout << "sortKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
 
         //std::cout << "start repulsionKernelImpl" << std::endl;
         auto kernel4 = std::chrono::high_resolution_clock::now();
@@ -1162,9 +1147,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         status =
             repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort, child, mass, posx, posy, repx, repy, zNorm, nNodes, N, radius, maxDepth);
         DAAL_CHECK_STATUS_VAR(status);
-
-        //std::cout << std::endl;
-        //for (int i = 0; i < nNodes; ++i) std::cout << "repulsionKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
 
         auto kernel5 = std::chrono::high_resolution_clock::now();
         repulsion += std::chrono::duration<double, std::milli>(kernel5 - kernel4).count();
@@ -1182,9 +1164,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << std::endl;
-        //for (int i = 0; i < nNodes; ++i) std::cout << "attractiveKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
-
         //std::cout << "start integrationKernelImpl" << std::endl;
         auto kernel6 = std::chrono::high_resolution_clock::now();
         attractive += std::chrono::duration<double, std::milli>(kernel6 - kernel5).count();
@@ -1192,9 +1171,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx, posy, attrx, attry, repx, repy, gainx, gainy,
                                                                oldForcex, oldForcey, gradNorm, zNorm, nNodes, N);
         DAAL_CHECK_STATUS_VAR(status);
-
-        //std::cout << std::endl;
-        //for (int i = 0; i < nNodes; ++i) std::cout << "integrationKernelImpl: posx["<< i <<"] = " << posx[i] << std::endl; 
 
         auto kernel7 = std::chrono::high_resolution_clock::now();
         integration += std::chrono::duration<double, std::milli>(kernel7 - kernel6).count();
@@ -1218,7 +1194,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     momentum     = 0.8;
     exaggeration = 1.;
 
-    //std::cout << "\n MAIN LOOP" << std::endl; 
     for (IdxType i = explorationIter; i < maxIter; ++i)
     {
         auto kernel0 = std::chrono::high_resolution_clock::now();
