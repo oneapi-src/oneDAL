@@ -49,30 +49,36 @@
 #define __DAAL_MKLFN_CALL(f_pref, f_name, f_args)        __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)
 #define __DAAL_MKLFN_CALL_RETURN(f_pref, f_name, f_args) __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)
 
-#define __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)             \
-    if (avx512 == cpu)                                         \
-    {                                                          \
-        __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;          \
-    }                                                          \
-    if (avx2 == cpu)                                           \
-    {                                                          \
-        __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
-    }                                                          \
-    if (avx == cpu)                                            \
-    {                                                          \
-        __DAAL_MKLFN(avx_, f_pref, f_name) f_args;             \
-    }                                                          \
-    if (sse42 == cpu)                                          \
-    {                                                          \
-        __DAAL_MKLFN(sse42_, f_pref, f_name) f_args;           \
-    }                                                          \
-    if (ssse3 == cpu)                                          \
-    {                                                          \
-        __DAAL_MKLFN(__DAAL_MKL_SSSE3, f_pref, f_name) f_args; \
-    }                                                          \
-    if (sse2 == cpu)                                           \
-    {                                                          \
-        __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
+#define __DAAL_MKLFPK_KNL avx2_
+
+#define __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)              \
+    if (avx512 == cpu)                                          \
+    {                                                           \
+        __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;           \
+    }                                                           \
+    if (avx512_mic == cpu)                                      \
+    {                                                           \
+        __DAAL_MKLFN(__DAAL_MKLFPK_KNL, f_pref, f_name) f_args; \
+    }                                                           \
+    if (avx2 == cpu)                                            \
+    {                                                           \
+        __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;             \
+    }                                                           \
+    if (avx == cpu)                                             \
+    {                                                           \
+        __DAAL_MKLFN(avx_, f_pref, f_name) f_args;              \
+    }                                                           \
+    if (sse42 == cpu)                                           \
+    {                                                           \
+        __DAAL_MKLFN(sse42_, f_pref, f_name) f_args;            \
+    }                                                           \
+    if (ssse3 == cpu)                                           \
+    {                                                           \
+        __DAAL_MKLFN(__DAAL_MKL_SSSE3, f_pref, f_name) f_args;  \
+    }                                                           \
+    if (sse2 == cpu)                                            \
+    {                                                           \
+        __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;   \
     }
 
 #define __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)                    \
@@ -80,6 +86,10 @@
     {                                                                 \
         return __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;          \
     }                                                                 \
+    if (avx512_mic == cpu)                                             \
+    {                                                                  \
+        return __DAAL_MKLFN(__DAAL_MKLFPK_KNL, f_pref, f_name) f_args; \
+    }                                                                  \
     if (avx2 == cpu)                                                  \
     {                                                                 \
         return __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
