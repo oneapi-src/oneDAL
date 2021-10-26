@@ -43,8 +43,7 @@ class infer_kernel_impl {
 
 public:
     infer_kernel_impl(const bk::context_gpu& ctx)
-            : ctx_gpu_(ctx),
-              queue_(ctx.get_queue()),
+            : queue_(ctx.get_queue()),
               comm_(ctx.get_communicator()) {}
     ~infer_kernel_impl() = default;
 
@@ -82,7 +81,6 @@ private:
         const dal::backend::primitives::ndview<Float, 1>& response_list,
         const dal::backend::event_vector& deps = {});
 
-    const bk::context_gpu& ctx_gpu_;
     sycl::queue queue_;
     comm_t comm_;
 };
