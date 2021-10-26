@@ -28,15 +28,20 @@ struct ops_error_handling_dispatcher {
         using result_t = decltype(op());
         if constexpr (is_distributed_policy_v<std::decay_t<Policy>>) {
             try {
-                return op();
+                try {
+                    return op();
+                }
+                catch (const dal::preview::spmd::error_holder& e) {
+                    throw e;
+                }
+                catch (...) {
+                    policy.get_communicator().set_active_exception(std::current_exception());
+                }
+                policy.get_communicator().wait_for_exception_handling();
             }
             catch (const dal::preview::spmd::error_holder& e) {
-                throw e;
+                e.rethrow_actual();
             }
-            catch (...) {
-                policy.get_communicator().set_active_exception(std::current_exception());
-            }
-            policy.get_communicator().wait_for_exception_handling();
         }
         else {
             return op();
