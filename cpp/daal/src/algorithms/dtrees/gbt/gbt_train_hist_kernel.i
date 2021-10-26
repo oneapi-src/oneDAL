@@ -320,12 +320,6 @@ struct MergeGHSums
         #define AVX_ALL avx
     #endif
 
-    #if __CPUID__(DAAL_CPU) >= __avx512_mic__
-        #define AVX512_ALL DAAL_CPU
-    #else
-        #define AVX512_ALL avx512_mic
-    #endif
-
 template <typename RowIndexType, typename BinIndexType>
 struct ComputeGHSumByRows<RowIndexType, BinIndexType, float, SSE42_ALL>
 {
@@ -443,83 +437,6 @@ struct ComputeGHSumByRows<RowIndexType, BinIndexType, double, AVX_ALL>
                 __m256d newHist1 = _mm256_add_pd(adds, hist1);
                 _mm256_store_pd(aGHSumFP + idx, newHist1);
             }
-        }
-    }
-};
-
-template <typename algorithmFPType, typename RowIndexType, typename BinIndexType>
-struct MergeGHSums<algorithmFPType, RowIndexType, BinIndexType, AVX512_ALL>
-{
-    using GHSumType = ghSum<algorithmFPType, AVX512_ALL>;
-
-    static void run(const size_t nUnique, const size_t iStart, const size_t iEnd, algorithmFPType ** results, const size_t nBlocks,
-                    Result<algorithmFPType, AVX512_ALL> & res)
-    {
-        const size_t align = ((64 - ((size_t)(results[0] + 4 * iStart) & 63)) & 63) / sizeof(algorithmFPType);
-
-        algorithmFPType * cur = (algorithmFPType *)res.ghSums;
-        if (4 * nUnique > 16 + align)
-        {
-            size_t i = 0;
-
-            for (; i < align; i++)
-            {
-                cur[i] = results[0][4 * iStart + i];
-                for (size_t iB = 1; iB < nBlocks; ++iB) cur[i] += results[iB][4 * iStart + i];
-            }
-
-    #if (__FPTYPE__(DAAL_FPTYPE) == __float__)
-            for (; i < 4 * nUnique - 16; i += 16)
-            {
-                __m512 sum = _mm512_load_ps(results[0] + 4 * iStart + i);
-                DAAL_PREFETCH_READ_T0(results[0] + 4 * iStart + i + 16);
-
-                for (size_t iB = 1; iB < nBlocks; ++iB)
-                {
-                    __m512 adder = _mm512_load_ps(results[iB] + 4 * iStart + i);
-                    sum          = _mm512_add_ps(sum, adder);
-                    DAAL_PREFETCH_READ_T0(results[iB] + 4 * iStart + i + 16);
-                }
-                _mm512_store_ps(cur + i, sum);
-            }
-    #else
-            for (; i < 4 * nUnique - 8; i += 8)
-            {
-                __m512d sum = _mm512_load_pd(results[0] + 4 * iStart + i);
-                DAAL_PREFETCH_READ_T0(results[0] + 4 * iStart + i + 8);
-
-                for (size_t iB = 1; iB < nBlocks; ++iB)
-                {
-                    __m512d adder = _mm512_load_pd(results[iB] + 4 * iStart + i);
-                    sum           = _mm512_add_pd(sum, adder);
-                    DAAL_PREFETCH_READ_T0(results[iB] + 4 * iStart + i + 8);
-                }
-                _mm512_store_pd(cur + i, sum);
-            }
-    #endif
-
-            for (; i < 4 * nUnique; i++)
-            {
-                cur[i] = results[0][4 * iStart + i];
-                for (size_t iB = 1; iB < nBlocks; ++iB) cur[i] += results[iB][4 * iStart + i];
-            }
-        }
-        else
-        {
-            algorithmFPType * ptr = results[0] + 4 * iStart;
-            for (size_t i = 0; i < 4 * nUnique; i++) cur[i] = ptr[i];
-
-            for (size_t iB = 1; iB < nBlocks; ++iB)
-            {
-                algorithmFPType * ptr = results[iB] + 4 * iStart;
-                for (size_t i = 0; i < 4 * nUnique; i++) cur[i] += ptr[i];
-            }
-        }
-
-        for (size_t i = 0; i < nUnique; ++i)
-        {
-            res.gTotal += res.ghSums[i].g;
-            res.hTotal += res.ghSums[i].h;
         }
     }
 };
