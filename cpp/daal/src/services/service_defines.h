@@ -120,6 +120,7 @@ enum DataFormat
 #define __sse42__  (2)
 #define __avx__    (3)
 #define __avx2__   (4)
+#define __avx512_mic__ (5)
 #define __avx512__ (6)
 
 #define __float__  (0)
@@ -130,6 +131,7 @@ enum DataFormat
 #define CPU_sse42  __sse42__
 #define CPU_avx    __avx__
 #define CPU_avx2   __avx2__
+#define CPU_avx512_mic __avx512_mic__
 #define CPU_avx512 __avx512__
 
 #define FPTYPE_float  __float__
