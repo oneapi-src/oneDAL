@@ -21,6 +21,7 @@
 namespace bk = oneapi::dal::backend;
 namespace pr = oneapi::dal::backend::primitives;
 namespace spmd = oneapi::dal::preview::spmd;
+namespace de = oneapi::dal::detail;
 
 namespace oneapi::dal::dbscan::backend {
 
@@ -47,8 +48,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto arr_data = keeper.get_data();
     auto arr_weights = keeper.get_weights();
 
-    std::int32_t rank = comm.get_rank();
-    std::int32_t rank_count = comm.get_rank_count();
+    std::int64_t rank = comm.get_rank();
+    std::int64_t rank_count = comm.get_rank_count();
 
     const double epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
@@ -84,7 +85,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     }
     std::int32_t queue_begin = 0;
     std::int32_t queue_end = 0;
-    while (cluster_index < row_count) {
+    while (cluster_index < de::integral_cast<std::int32_t>(row_count)) {
         cluster_count++;
         bool in_range = cluster_index >= block_start && cluster_index < block_end;
         if (in_range) {
@@ -100,15 +101,14 @@ static result_t call_daal_kernel(const context_gpu& ctx,
             recv_counts.get_mutable_data()[rank] = local_queue_size;
             comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
             auto displs = array<std::int64_t>::zeros(rank_count);
-            size_t total_count = 0;
+            auto displs_ptr = displs.get_mutable_data();
+            std::int64_t total_count = 0;
             for (std::int64_t i = 0; i < rank_count; i++) {
-                displs.get_mutable_data()[i] = total_count;
+                displs_ptr[i] = total_count;
                 total_count += recv_counts.get_data()[i];
             }
-            auto send_queue = pr::ndarray<std::int32_t, 1>::wrap(arr_queue.get_data() + queue_begin,
-                                                                 recv_counts[rank]);
-            auto recv_queue =
-                pr::ndarray<std::int32_t, 1>::wrap(arr_queue.get_data() + queue_begin, total_count);
+            auto send_queue = arr_queue.slice(queue_begin, recv_counts[rank]);
+            auto recv_queue = arr_queue.slice(queue_begin, total_count);
             comm.allgatherv(send_queue.flatten(queue),
                             recv_queue.flatten(queue),
                             recv_counts.get_data(),

@@ -20,8 +20,8 @@
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/communicator.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::dbscan::backend {
 
@@ -35,30 +35,30 @@ public:
     explicit data_keeper(const bk::context_gpu& ctx)
             : comm_(ctx.get_communicator()),
               queue_(ctx.get_queue()) {}
-    auto get_data() {
+    auto get_data() const {
         return data_;
     }
-    bool has_weights() {
+    bool has_weights() const {
         return weights_.count() > 0;
     }
-    auto get_weights() {
+    auto get_weights() const {
         return weights_;
     }
-    auto get_block_start() {
+    auto get_block_start() const {
         return block_start_;
     }
-    auto get_block_size() {
+    auto get_block_size() const {
         return block_size_;
     }
-    auto get_row_count() {
+    auto get_row_count() const {
         return row_count_;
     }
-    auto get_column_count() {
+    auto get_column_count() const {
         return column_count_;
     }
     void init(const table& local_data, const table& local_weights) {
-        std::int32_t rank = comm_.get_rank();
-        std::int32_t rank_count = comm_.get_rank_count();
+        std::int64_t rank = comm_.get_rank();
+        std::int64_t rank_count = comm_.get_rank_count();
 
         init_data_dimensions(local_data);
         collect_local_row_counts(rank, rank_count);
@@ -118,10 +118,8 @@ protected:
         ONEDAL_ASSERT(row_count_ > 0);
         ONEDAL_ASSERT(column_count_ > 0);
         ONEDAL_ASSERT(block_size_ > 0);
-        auto local_data_ptr =
-            row_accessor<const Float>(local_data).pull(queue_, { 0, -1 }, sycl::usm::alloc::device);
         auto arr_local_data =
-            pr::ndarray<Float, 2>::wrap(local_data_ptr, { block_size_, column_count_ });
+            pr::table2ndarray<Float>(queue_, local_data, sycl::usm::alloc::device);
         data_ = pr::ndarray<Float, 2>::empty(queue_,
                                              { row_count_, column_count_ },
                                              sycl::usm::alloc::device);
@@ -137,10 +135,8 @@ protected:
             ONEDAL_ASSERT(local_weights.get_column_count() == 1);
             ONEDAL_ASSERT(block_size_ > 0);
             ONEDAL_ASSERT(row_count_ > 0);
-            auto local_weights_ptr = row_accessor<const Float>(local_weights)
-                                         .pull(queue_, { 0, -1 }, sycl::usm::alloc::device);
             auto arr_local_weights =
-                pr::ndarray<Float, 2>::wrap(local_weights_ptr, { block_size_, 1 });
+                pr::table2ndarray<Float>(queue_, local_weights, sycl::usm::alloc::device);
             weights_ =
                 pr::ndarray<Float, 2>::empty(queue_, { row_count_, 1 }, sycl::usm::alloc::device);
             comm_
