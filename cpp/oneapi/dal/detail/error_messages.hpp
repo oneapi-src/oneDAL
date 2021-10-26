@@ -285,8 +285,13 @@ public:
 
     /*SPMD*/
     MSG(unsupported_communicator_backend);
-    MSG(unknown_data_type);
-    MSG(unknown_reduce_op);
+    MSG(invalid_data_type);
+    MSG(invalid_op);
+    MSG(invalid_buffer);
+    MSG(invalid_count);
+    MSG(invalid_mpi_comm);
+    MSG(invalid_root);
+    MSG(unknown_mpi_error);
 };
 
 #undef MSG

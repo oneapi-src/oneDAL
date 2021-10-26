@@ -308,9 +308,15 @@ MSG(initial_partition_label_gte_vertex_count,
     "Input initial partition label is greater than or equal to vertex count")
 
 /* SPMD */
-MSG(unsupported_communicator_backend, "Unsupported communicator backend")
-MSG(unknown_data_type, "Unknown data type")
-MSG(unknown_reduce_op, "Unknown reduce operation")
+MSG(unsupported_communicator_backend, "SPMD: unsupported communicator backend")
+MSG(invalid_data_type, "SPMD: invalid data type")
+MSG(invalid_op,
+    "SPMD: invalid operation. Only predefined reduction and other operations can be used")
+MSG(invalid_buffer, "SPMD: invalid buffer pointer")
+MSG(invalid_count, "SPMD: invalid data count")
+MSG(invalid_mpi_comm, "SPMD: invalid mpi communicator")
+MSG(invalid_root, "SPMD: invalid root")
+MSG(unknown_mpi_error, "SPMD: unknown MPI error")
 
 } // namespace v1
 } // namespace oneapi::dal::detail
