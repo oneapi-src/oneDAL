@@ -187,7 +187,7 @@ double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIn
     }
 
     /* Process tail elements in scalar loop */
-    sum += computeDotProductBaseline<double, avx512>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
+    sum += computeDotProductBaseline<double, avx512_mic>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
 
     return sum;
 }
@@ -298,7 +298,7 @@ float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t startInde
     }
 
     /* Process tail elements in scalar loop */
-    sum += computeDotProductBaseline<float, avx512>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
+    sum += computeDotProductBaseline<float, avx512_mic>(offsetA, endIndexA, valuesA, indicesA, offsetB, endIndexB, valuesB, indicesB);
 
     return (float)sum;
 }

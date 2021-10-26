@@ -36,9 +36,28 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
-#define _BLOCKSIZE_ (128)
-#define _CALLOC_    service_calloc
-#define _FREE_      service_free
+#if (__CPUID__(DAAL_CPU) >= __avx512_mic__)
+
+    #if (__FPTYPE__(DAAL_FPTYPE) == __double__)
+
+        #define _BLOCKSIZE_ (((p <= 100) && (p < c)) ? ((p <= 20) ? 32 : 64) : 256)
+
+    #else /* float */
+
+        #define _BLOCKSIZE_ ((c > 100) ? 128 : 256)
+
+    #endif
+
+    #define _CALLOC_ service_scalable_calloc
+    #define _FREE_   service_scalable_free
+
+#else
+
+    #define _BLOCKSIZE_ (128)
+    #define _CALLOC_    service_calloc
+    #define _FREE_      service_free
+
+#endif
 
 using namespace daal::services::internal;
 using namespace daal::internal;
