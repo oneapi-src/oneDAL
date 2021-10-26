@@ -773,7 +773,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
         IdxType * pos       = tls->posData;
         IdxType * node      = tls->nodeData;
         DataType * localSum = tls->sumData;
-        //for (int i = 0; i < nNodes; ++i) std::cout << iBlock << ": posx["<< i <<"] = " << posx[i] << std::endl; 
+        //for (int i = 0; i < nNodes; ++i) std::cout << iBlock << ": posx["<< i <<"] = " << posx[i] << std::endl;
         for (IdxType k = iStart; k < iEnd; ++k)
         {
             const auto i = sort[k];
