@@ -106,7 +106,6 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan degenerated test", "[dbscan][batc
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
 
-    std::cout << "Test #2" << std::endl;
     using float_t = std::tuple_element_t<0, TestType>;
 
     constexpr float_t data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0,
@@ -131,7 +130,6 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan boundary test", "[dbscan][batch]"
     SKIP_IF(this->get_policy().is_cpu());
 
     this->set_rank_count(2);
-    std::cout << "Test #3" << std::endl;
     using float_t = std::tuple_element_t<0, TestType>;
 
     constexpr std::int64_t min_observations = 2;
@@ -159,7 +157,6 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan weight test", "[dbscan][batch]", 
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
 
-    std::cout << "Test #4" << std::endl;
     using float_t = std::tuple_element_t<0, TestType>;
 
     constexpr float_t data[] = { 0.0, 1.0 };

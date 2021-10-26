@@ -69,28 +69,21 @@ struct kernels_fp {
                                     std::int64_t block_start = -1,
                                     std::int64_t block_end = -1,
                                     const bk::event_vector& deps = {});
-    static void set_queue_front_and_value(sycl::queue& queue,
-                                          pr::ndarray<std::int32_t, 1>& arr_queue,
-                                          pr::ndarray<std::int32_t, 1>& queue_front,
-                                          std::int32_t value,
-                                          std::int32_t cluster_index);
-    static void set_queue_front(sycl::queue& queue,
-                                pr::ndarray<std::int32_t, 1>& queue_front,
-                                std::int64_t value);
     static std::int32_t get_queue_front(sycl::queue& queue,
-                                        const pr::ndarray<std::int32_t, 1>& queue_front);
+                                        const pr::ndarray<std::int32_t, 1>& queue_front,
+                                        const bk::event_vector& deps = {});
 };
 
-void set_queue_ptr(sycl::queue& queue,
-                   pr::ndview<std::int32_t, 1>& algo_queue,
-                   pr::ndview<std::int32_t, 1>& queue_front,
-                   std::int32_t start_index,
-                   const bk::event_vector& deps = {});
-void set_arr_value(sycl::queue& queue,
-                   pr::ndview<std::int32_t, 1>& arr,
-                   std::int32_t offset,
-                   std::int32_t value,
-                   const bk::event_vector& deps = {});
+sycl::event set_queue_ptr(sycl::queue& queue,
+                          pr::ndview<std::int32_t, 1>& algo_queue,
+                          pr::ndview<std::int32_t, 1>& queue_front,
+                          std::int32_t start_index,
+                          const bk::event_vector& deps = {});
+sycl::event set_arr_value(sycl::queue& queue,
+                          pr::ndview<std::int32_t, 1>& arr,
+                          std::int32_t offset,
+                          std::int32_t value,
+                          const bk::event_vector& deps = {});
 std::int64_t count_cores(sycl::queue& queue, const pr::ndview<std::int32_t, 1>& cores);
 #endif
 

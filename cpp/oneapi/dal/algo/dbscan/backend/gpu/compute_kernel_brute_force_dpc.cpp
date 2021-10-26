@@ -54,6 +54,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const double epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
 
+    auto dummy_int_array = pr::ndarray<std::int32_t, 1>::empty(queue, 1, sycl::usm::alloc::device);
     auto [arr_cores, cores_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, block_size, 0, sycl::usm::alloc::device);
     auto [arr_responses, responses_event] =
@@ -89,8 +90,9 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         cluster_count++;
         bool in_range = cluster_index >= block_start && cluster_index < block_end;
         if (in_range) {
-            set_arr_value(queue, arr_responses, cluster_index - block_start, cluster_count - 1);
-            set_queue_ptr(queue, arr_queue, arr_queue_front, cluster_index);
+            set_arr_value(queue, arr_responses, cluster_index - block_start, cluster_count - 1)
+                .wait_and_throw();
+            set_queue_ptr(queue, arr_queue, arr_queue_front, cluster_index).wait_and_throw();
             queue_end++;
         }
         std::int32_t local_queue_size = queue_end - queue_begin;
@@ -107,7 +109,10 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                 displs_ptr[i] = total_count;
                 total_count += recv_counts.get_data()[i];
             }
-            auto send_queue = arr_queue.slice(queue_begin, recv_counts[rank]);
+            ONEDAL_ASSERT(total_count > 0);
+            auto send_queue = recv_counts[rank] > 0
+                                  ? arr_queue.slice(queue_begin, recv_counts[rank])
+                                  : dummy_int_array;
             auto recv_queue = arr_queue.slice(queue_begin, total_count);
             comm.allgatherv(send_queue.flatten(queue),
                             recv_queue.flatten(queue),

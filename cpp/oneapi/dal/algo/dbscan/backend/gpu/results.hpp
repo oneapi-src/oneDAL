@@ -103,7 +103,7 @@ inline auto make_results(sycl::queue& queue,
             auto host_cores_ptr = host_cores.get_data();
             for (std::int64_t i = 0; i < block_size; i++) {
                 if (host_cores_ptr[i] > 0) {
-                    ONEDAL_ASSERT(pos < core_count);
+                    ONEDAL_ASSERT(pos < core_count * column_count);
                     bk::memcpy(queue,
                                observations_ptr + pos * column_count,
                                data.get_data() + i * column_count,

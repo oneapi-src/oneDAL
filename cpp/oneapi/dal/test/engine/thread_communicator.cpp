@@ -131,7 +131,6 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
 #ifdef ONEDAL_ENABLE_ASSERT
     if (rank == ctx_.get_root_rank()) {
         for (const auto& info : send_buffers_) {
-            ONEDAL_ASSERT(info.count == send_count);
             ONEDAL_ASSERT(info.buf != nullptr);
         }
     }
