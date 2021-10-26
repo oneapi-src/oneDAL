@@ -88,6 +88,8 @@ public:
     MSG(capacity_leq_zero);
     MSG(empty_set_of_result_options);
     MSG(this_result_is_not_enabled_via_result_options);
+    MSG(spmd_error_holder_message);
+    MSG(spmd_coworker_failure);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
