@@ -50,6 +50,7 @@ public:
 
 private:
     std::int64_t get_row_block_count(std::int64_t row_count);
+
     std::int64_t get_column_block_count(std::int64_t column_count);
     std::tuple<local_result_t, sycl::event> compute_single_pass(const pr::ndarray<Float, 2> data);
     std::tuple<local_result_t, sycl::event> compute_by_blocks(const pr::ndarray<Float, 2> data,

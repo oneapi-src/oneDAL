@@ -33,11 +33,14 @@ public:
     using Method = std::tuple_element_t<1, TestType>;
 
     auto get_descriptor() const {
-        return covariance::descriptor<Float, Method, covariance::task::compute>{};
+        return covariance::
+            descriptor<float, covariance::method::dense, covariance::task::compute>{};
     }
 };
 
-using cov_types = COMBINE_TYPES((float, double), (covariance::method::dense), (covariance::task::compute));
+using cov_types = COMBINE_TYPES((float, double),
+                                (covariance::method::dense),
+                                (covariance::task::compute));
 
 #define COVARIANCE_BADARG_TEST(name) \
     TEMPLATE_TEST_M(covariance_badarg_test, name, "[covariance][badarg]", cov_types)
