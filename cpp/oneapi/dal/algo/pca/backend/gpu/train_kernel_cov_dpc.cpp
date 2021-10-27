@@ -19,6 +19,7 @@
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
@@ -60,8 +61,8 @@ auto compute_correlation(sycl::queue& q,
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-
-    auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, deps);
+    auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
+    auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, { gemm_event });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, means, vars, smart_event);

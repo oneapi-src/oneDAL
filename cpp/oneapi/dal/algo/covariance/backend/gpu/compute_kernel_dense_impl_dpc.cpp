@@ -109,21 +109,19 @@ result_t compute_kernel_dense_impl<Float, List>::get_result(const descriptor_t& 
     res.set_result_options(desc.get_result_options());
 
     if (res_op.test(result_options::cor_matrix)) {
-        //ONEDAL_ASSERT(ndres.get_min().get_count() == column_count);
-        res.set_cor_matrix(homogen_table::wrap(ndres.get_cor_matrix().flatten(q_, deps),
-                                               column_count,
-                                               column_count));
+        //ONEDAL_ASSERT(ndres.get_cov().get_count() == column_count);
+        res.set_cor_matrix(
+            homogen_table::wrap(ndres.get_cov().flatten(q_, deps), column_count, column_count));
     }
     if (res_op.test(result_options::cor_matrix)) {
         //ONEDAL_ASSERT(ndres.get_min().get_count() == column_count);
-        res.set_cov_matrix(homogen_table::wrap(ndres.get_cov_matrix().flatten(q_, deps),
-                                               column_count,
-                                               column_count));
+        res.set_cov_matrix(
+            homogen_table::wrap(ndres.get_cor().flatten(q_, deps), column_count, column_count));
     }
 
     if (res_op.test(result_options::means)) {
         ONEDAL_ASSERT(ndres.get_mean().get_count() == column_count);
-        res.set_means(homogen_table::wrap(ndres.get_means().flatten(q_, deps), 1, column_count));
+        res.set_means(homogen_table::wrap(ndres.get_mean().flatten(q_, deps), 1, column_count));
     }
     return res;
 }
@@ -206,12 +204,12 @@ result_t compute_kernel_dense_impl<Float, List>::get_result(const descriptor_t& 
 // }
 
 /* single pass kernel for device execution */
-template <typename Float, bool DefferedFin>
+template <typename Float, cov_list List, bool DefferedFin>
 inline void single_pass_block_processor(const Float* data_ptr,
-                                        //Float* nObservations_,
-                                        //Float* crossProduct_,
-                                        Float* rsums_,
-                                        Float* rmeans,
+                                        Float* rsum_ptr,
+                                        Float* rsum2cent_ptr,
+                                        Float* rmean_ptr,
+                                        Float* rvarc_ptr,
                                         std::int64_t row_count,
                                         std::int64_t column_count,
                                         std::int64_t col_block_idx,
@@ -223,28 +221,40 @@ inline void single_pass_block_processor(const Float* data_ptr,
 
     if (x < column_count) {
         std::int64_t row_block_size = row_count;
+
         Float sum = Float(0);
         Float mean = Float(0);
+        Float sum2cent = Float(0);
 
         for (std::int64_t row = 0; row < row_block_size; ++row) {
             const std::int64_t y = row * column_count;
             const Float el = data_ptr[y + x];
             Float inv_n = Float(1) / (row + 1);
             Float delta = el - mean;
+
             sum += el;
             mean += delta * inv_n;
+            sum2cent += delta * (el - mean);
         }
 
-        rsums_[x] = sum;
-        rmeans[x] = mean;
+        rsum_ptr[x] = sum;
+        if constexpr (!DefferedFin && check_mask_flag(cov_list::mean, List)) {
+            rmean_ptr[x] = mean;
+        }
+        rsum2cent_ptr[x] = sum2cent;
+        Float variance = sum2cent / (row_block_size - Float(1));
+        if constexpr (!DefferedFin && check_mask_flag(cov_list::cov | cov_list::cor, List)) {
+            rvarc_ptr[x] = variance;
+        }
     }
 }
 
 /* block processing kernel for device execution */
-template <typename Float>
+template <typename Float, cov_list List>
 inline void block_processor(const Float* data_ptr,
                             std::int64_t* brc_ptr,
                             Float* bsum_ptr,
+                            Float* bsum2cent_ptr,
                             std::int64_t row_count,
                             std::int64_t row_block_idx,
                             std::int64_t row_block_count,
@@ -266,28 +276,39 @@ inline void block_processor(const Float* data_ptr,
 
         Float sum = Float(0);
         Float mean = Float(0);
+        Float sum2cent = Float(0);
 
         for (std::int64_t row = 0; row < row_block_size; ++row) {
             const std::int64_t y = (row + row_offset) * column_count;
             const Float el = data_ptr[y + x];
             Float inv_n = Float(1) / (row + 1);
             Float delta = el - mean;
+
             sum += el;
             mean += delta * inv_n;
+            sum2cent += delta * (el - mean);
         }
+
         bsum_ptr[x * row_block_count + row_block_idx] = sum;
+
+        bsum2cent_ptr[x * row_block_count + row_block_idx] = sum2cent;
     }
 }
 
 /* block processing kernel for device execution */
-template <typename Float, bool DefferedFin>
+template <typename Float, cov_list List, bool DefferedFin>
 inline void merge_blocks_kernel(sycl::nd_item<1> item,
                                 const std::int64_t* brc_ptr,
                                 const Float* bsum_ptr,
+                                const Float* bsum2cent_ptr,
                                 std::int64_t* lrc_ptr,
                                 Float* lsum_ptr,
+                                Float* lsum2cent_ptr,
                                 Float* lmean_ptr,
-                                Float* rsums_,
+                                Float* rsum_ptr,
+                                Float* rsum2cent_ptr,
+                                Float* rmean_ptr,
+                                Float* rvarc_ptr,
                                 std::int64_t id,
                                 std::int64_t group_id,
                                 std::int64_t local_size,
@@ -295,6 +316,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
     Float mrgsum = Float(0);
     Float mrgmean = Float(0);
     Float mrgvectors = Float(0);
+    Float mrgsum2cent = Float(0);
     lrc_ptr[id] = 0;
 
     for (std::int64_t i = id; i < block_count; i += local_size) {
@@ -302,21 +324,24 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
 
         Float sum = Float(0);
         sum = bsum_ptr[offset];
-        std::int64_t rcnt = 1;
 
+        std::int64_t rcnt = 1;
         rcnt = brc_ptr[offset];
+
+        Float sum2cent = Float(0);
+        sum2cent = bsum2cent_ptr[offset];
 
         Float mean = sum / static_cast<Float>(rcnt);
 
         const Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
-        // const Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
-        // const Float delta_scale = mul_n1n2 / sum_n1n2;
+        const Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
+        const Float delta_scale = mul_n1n2 / sum_n1n2;
         const Float mean_scale = Float(1) / sum_n1n2;
-        // const Float delta = mean - mrgmean;
+        const Float delta = mean - mrgmean;
 
         mrgsum += sum;
         mrgmean = (mrgmean * mrgvectors + mean * static_cast<Float>(rcnt)) * mean_scale;
-        //mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
+        mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
         mrgmean = (mrgmean * mrgvectors + mean * static_cast<Float>(rcnt)) * mean_scale;
         mrgvectors = sum_n1n2;
 
@@ -324,31 +349,40 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
 
         lsum_ptr[id] = mrgsum;
 
+        lsum2cent_ptr[id] = mrgsum2cent;
+
         lmean_ptr[id] = mrgmean;
     }
 
     for (std::int64_t stride = sycl::min(local_size, block_count) / 2; stride > 0; stride /= 2) {
         item.barrier(sycl::access::fence_space::local_space);
+
         if (stride > id) {
             std::int64_t offset = id + stride;
+
             Float sum = Float(0);
-            Float mean = Float(0);
             sum = lsum_ptr[offset];
-            mean = lmean_ptr[offset];
+
             std::int64_t rcnt = 1;
             rcnt = lrc_ptr[offset];
 
+            Float sum2cent = Float(0);
+            sum2cent = lsum2cent_ptr[offset];
+
+            Float mean = Float(0);
+            mean = lmean_ptr[offset];
+
             const Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
-            //const Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
-            //const Float delta_scale = mul_n1n2 / sum_n1n2;
+            const Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
+            const Float delta_scale = mul_n1n2 / sum_n1n2;
             const Float mean_scale = Float(1) / sum_n1n2;
-            //const Float delta = mean - mrgmean;
+            const Float delta = mean - mrgmean;
 
             //mrgmin = sycl::fmin(min, mrgmin);
             //mrgmax = sycl::fmax(max, mrgmax);
             mrgsum += sum;
             //mrgsum2 += sum2;
-            //mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
+            mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
             mrgmean = (mrgmean * mrgvectors + mean * static_cast<Float>(rcnt)) * mean_scale;
             mrgvectors = sum_n1n2;
 
@@ -356,35 +390,30 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
             // but all others need to store it
             if (0 < id) {
                 lsum_ptr[id] = mrgsum;
+
                 lrc_ptr[id] += rcnt;
+
+                lsum2cent_ptr[id] = mrgsum2cent;
+
                 lmean_ptr[id] = mrgmean;
             }
         }
     }
 
     if (0 == id) {
-        rsums_[group_id] = mrgsum;
-    }
+        rsum_ptr[group_id] = mrgsum;
 
-    // if constexpr (!DefferedFin) {
-    //     Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
-    //     Float mrgstdev = (Float)sqrt(mrgvariance);
-    //     if constexpr (check_mask_flag(cov_list::mean, List)) {
-    //         rmean_ptr[group_id] = mrgmean;
-    //     }
-    //     if constexpr (check_mask_flag(cov_list::sorm, List)) {
-    //         rsorm_ptr[group_id] = mrgsum2 / mrgvectors;
-    //     }
-    //     if constexpr (check_mask_flag(cov_list::varc, List)) {
-    //         rvarc_ptr[group_id] = mrgvariance;
-    //     }
-    //     if constexpr (check_mask_flag(cov_list::stdev, List)) {
-    //         rstdev_ptr[group_id] = mrgstdev;
-    //     }
-    //     if constexpr (check_mask_flag(cov_list::vart, List)) {
-    //         rvart_ptr[group_id] = mrgstdev / mrgmean;
-    //     }
-    // }
+        rsum2cent_ptr[group_id] = mrgsum2cent;
+
+        if constexpr (!DefferedFin) {
+            Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
+
+            rmean_ptr[group_id] = mrgmean;
+            if constexpr (check_mask_flag(cov_list::cov | cov_list::cor, List)) {
+                rvarc_ptr[group_id] = mrgvariance;
+            }
+        }
+    }
 }
 
 template <typename Float, cov_list List>
@@ -402,62 +431,38 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
     auto ndres = local_result<Float, List>::empty(q_, column_count, distr_mode);
 
     // ndres asserts
-    // ASSERT_IF(cov_list::min, ndres.get_min().get_count() == column_count);
-    // ASSERT_IF(cov_list::max, ndres.get_max().get_count() == column_count);
-    // if (distr_mode) {
-    //     ASSERT_IF(cov_list::mean | sum2cent_based_stat, ndres.get_sum().get_count() == column_count);
-    // }
-    // else {
-    //     ASSERT_IF(cov_list::sum, ndres.get_sum().get_count() == column_count);
-    // }
-    // ASSERT_IF(cov_list::sum2 | cov_list::sorm, ndres.get_sum2().get_count() == column_count);
-    // if (distr_mode) {
-    //     ASSERT_IF(cov_list::varc | cov_list::stdev | cov_list::vart,
-    //               ndres.get_sum2cent().get_count() == column_count);
-    // }
-    // else {
-    //     ASSERT_IF(cov_list::sum2cent, ndres.get_sum2cent().get_count() == column_count);
-    // }
-    // ASSERT_IF(cov_list::mean, ndres.get_mean().get_count() == column_count);
-    // ASSERT_IF(cov_list::sorm, ndres.get_sorm().get_count() == column_count);
-    // ASSERT_IF(cov_list::varc, ndres.get_varc().get_count() == column_count);
-    // ASSERT_IF(cov_list::stdev, ndres.get_stdev().get_count() == column_count);
-    // ASSERT_IF(cov_list::vart, ndres.get_vart().get_count() == column_count);
+    if (distr_mode) {
+        ASSERT_IF(cov_list::mean | cov_list::cor | cov_list::cov,
+                  ndres.get_sum().get_count() == column_count);
+    }
+    else {
+        ASSERT_IF(cov_list::mean, ndres.get_sum().get_count() == column_count);
+    }
+    if (distr_mode) {
+        ASSERT_IF(cov_list::cov | cov_list::cor | cov_list::mean,
+                  ndres.get_sum2cent().get_count() == column_count);
+    }
+    else {
+        ASSERT_IF(cov_list::mean, ndres.get_sum2cent().get_count() == column_count);
+    }
+    ASSERT_IF(cov_list::mean, ndres.get_mean().get_count() == column_count);
+    ASSERT_IF(cov_list::cov | cov_list::cor, ndres.get_varc().get_count() == column_count);
 
-    // // ndbuf asserts
-    // ASSERT_IF(cov_list::mean | sum2cent_based_stat,
-    //           ndbuf.get_rc_list().get_count() == block_count * column_count);
-    // ASSERT_IF(cov_list::min, ndbuf.get_min().get_count() == block_count * column_count);
-    // ASSERT_IF(cov_list::max, ndbuf.get_max().get_count() == block_count * column_count);
-    // ASSERT_IF(cov_list::sum | cov_list::mean | sum2cent_based_stat,
-    //           ndbuf.get_sum().get_count() == block_count * column_count);
-    // ASSERT_IF(cov_list::sum2 | cov_list::sorm,
-    //           ndbuf.get_sum2().get_count() == block_count * column_count);
-    // ASSERT_IF(sum2cent_based_stat, ndbuf.get_sum2cent().get_count() == block_count * column_count);
+    // ndbuf asserts
+    ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+              ndbuf.get_rc_list().get_count() == block_count * column_count);
+    ASSERT_IF(cov_list::mean, ndbuf.get_sum().get_count() == block_count * column_count);
+
+    ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+              ndbuf.get_sum2cent().get_count() == block_count * column_count);
 
     const std::int64_t* brc_ptr = ndbuf.get_rc_list().get_data();
-    //const Float* bmin_ptr = ndbuf.get_min().get_data();
-    //const Float* bmax_ptr = ndbuf.get_max().get_data();
-    const Float* bsum_ptr = ndbuf.get_sums().get_data();
-    //const Float* bsum2_ptr = ndbuf.get_sum2().get_data();
-    //const Float* bsum2cent_ptr = ndbuf.get_sum2cent().get_data();
+    const Float* bsum_ptr = ndbuf.get_sum().get_data();
+    const Float* bsum2cent_ptr = ndbuf.get_sum2cent().get_data();
 
-    // DECLSET_IF(Float*, rmin_ptr, cov_list::min, ndres.get_min().get_mutable_data())
-    // DECLSET_IF(Float*, rmax_ptr, cov_list::max, ndres.get_max().get_mutable_data())
-    // DECLSET_IF(Float*,
-    //            rsum2_ptr,
-    //            cov_list::sum2 | cov_list::sorm,
-    //            ndres.get_sum2().get_mutable_data())
+    Float* rsum_ptr = ndres.get_sum().get_mutable_data();
 
-    Float* rsum_ptr = nullptr;
-    // if (distr_mode) {
-    //     SET_IF(rsum_ptr, cov_list::mean | sum2cent_based_stat, ndres.get_sum().get_mutable_data())
-    // }
-    // else {
-    //     SET_IF(rsum_ptr, cov_list::sum, ndres.get_sum().get_mutable_data())
-    // }
-
-    // Float* rsum2cent_ptr = nullptr;
+    Float* rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
     // if (distr_mode) {
     //     SET_IF(rsum2cent_ptr,
     //            cov_list::varc | cov_list::stdev | cov_list::vart,
@@ -467,11 +472,8 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
     //     SET_IF(rsum2cent_ptr, cov_list::sum2cent, ndres.get_sum2cent().get_mutable_data())
     // }
 
-    // DECLSET_IF(Float*, rmean_ptr, cov_list::mean, ndres.get_mean().get_mutable_data())
-    // DECLSET_IF(Float*, rsorm_ptr, cov_list::sorm, ndres.get_sorm().get_mutable_data())
-    // DECLSET_IF(Float*, rvarc_ptr, cov_list::varc, ndres.get_varc().get_mutable_data())
-    // DECLSET_IF(Float*, rstdev_ptr, cov_list::stdev, ndres.get_stdev().get_mutable_data())
-    // DECLSET_IF(Float*, rvart_ptr, cov_list::vart, ndres.get_vart().get_mutable_data())
+    DECLSET_IF(Float*, rmean_ptr, cov_list::mean, ndres.get_mean().get_mutable_data())
+    DECLSET_IF(Float*, rvarc_ptr, cov_list::mean, ndres.get_varc().get_mutable_data())
 
     std::int64_t local_size = bk::device_max_sg_size(q_);
     auto global_size = de::check_mul_overflow(column_count, local_size);
@@ -485,11 +487,8 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
     auto last_event = q_.submit([&](cl::sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<std::int64_t> lrc_buf(local_buffer_size, cgh);
-        //local_accessor_rw_t<Float> lmin_buf(local_buffer_size, cgh);
-        //local_accessor_rw_t<Float> lmax_buf(local_buffer_size, cgh);
         local_accessor_rw_t<Float> lsum_buf(local_buffer_size, cgh);
-        //local_accessor_rw_t<Float> lsum2_buf(local_buffer_size, cgh);
-        //local_accessor_rw_t<Float> lsum2cent_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lsum2cent_buf(local_buffer_size, cgh);
         local_accessor_rw_t<Float> lmean_buf(local_buffer_size, cgh);
 
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
@@ -498,33 +497,23 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
             const std::int64_t group_id = item.get_group().get_id(0);
 
             std::int64_t* lrc_ptr = lrc_buf.get_pointer().get();
-            //Float* lmin_ptr = lmin_buf.get_pointer().get();
-            //Float* lmax_ptr = lmax_buf.get_pointer().get();
             Float* lsum_ptr = lsum_buf.get_pointer().get();
-            //Float* lsum2_ptr = lsum2_buf.get_pointer().get();
-            //Float* lsum2cent_ptr = lsum2cent_buf.get_pointer().get();
+            Float* lsum2cent_ptr = lsum2cent_buf.get_pointer().get();
             Float* lmean_ptr = lmean_buf.get_pointer().get();
 
             if (distr_mode) {
                 merge_blocks_kernel<Float, List, deffered_fin_true>(item,
                                                                     brc_ptr,
                                                                     bsum_ptr,
+                                                                    bsum2cent_ptr,
                                                                     lrc_ptr,
-                                                                    //lmin_ptr,
-                                                                    //lmax_ptr,
                                                                     lsum_ptr,
-                                                                    //lsum2_ptr,
-                                                                    //lsum2cent_ptr,
                                                                     lmean_ptr,
-                                                                    //rmin_ptr,
-                                                                    //rmax_ptr,
+                                                                    lsum2cent_ptr,
                                                                     rsum_ptr,
-                                                                    //rsum2_ptr,
-                                                                    //rsum2cent_ptr,
-                                                                    //rsorm_ptr,
-                                                                    //rvarc_ptr,
-                                                                    //rstdev_ptr,
-                                                                    //rvart_ptr,
+                                                                    rsum2cent_ptr,
+                                                                    rmean_ptr,
+                                                                    rvarc_ptr,
                                                                     id,
                                                                     group_id,
                                                                     local_size,
@@ -534,22 +523,15 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
                 merge_blocks_kernel<Float, List, deffered_fin_false>(item,
                                                                      brc_ptr,
                                                                      bsum_ptr,
+                                                                     bsum2cent_ptr,
                                                                      lrc_ptr,
-                                                                     //lmin_ptr,
-                                                                     //lmax_ptr,
                                                                      lsum_ptr,
-                                                                     //lsum2_ptr,
-                                                                     //lsum2cent_ptr,
                                                                      lmean_ptr,
-                                                                     //rmin_ptr,
-                                                                     //rmax_ptr,
+                                                                     lsum2cent_ptr,
                                                                      rsum_ptr,
-                                                                     //rsum2_ptr,
-                                                                     //rsum2cent_ptr,
-                                                                     //rsorm_ptr,
-                                                                     //rvarc_ptr,
-                                                                     //rstdev_ptr,
-                                                                     //rvart_ptr,
+                                                                     rsum2cent_ptr,
+                                                                     rmean_ptr,
+                                                                     rvarc_ptr,
                                                                      id,
                                                                      group_id,
                                                                      local_size,
@@ -558,12 +540,7 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
         });
     });
 
-    const bool is_opencl_backend =
-        !q_.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
-    if (is_opencl_backend) {
-        // there is an issue in opencl backend with keeping memory dependencies in events.
-        last_event.wait_and_throw();
-    }
+    last_event.wait_and_throw();
     return std::make_tuple(std::move(ndres), std::move(last_event));
 }
 
@@ -585,46 +562,31 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
     ONEDAL_ASSERT(block_stride > 0);
 
     // ndres asserts
-    // ASSERT_IF(cov_list::mean | sum2cent_based_stat, ndres.get_sum().get_count() == column_count);
-    // ASSERT_IF(cov_list::sum2 | cov_list::sorm, ndres.get_sum2().get_count() == column_count);
-    // ASSERT_IF(cov_list::varc | cov_list::stdev | cov_list::vart,
-    //           ndres.get_sum2cent().get_count() == column_count);
-    // ASSERT_IF(cov_list::mean, ndres.get_mean().get_count() == column_count);
-    // ASSERT_IF(cov_list::sorm, ndres.get_sorm().get_count() == column_count);
-    // ASSERT_IF(cov_list::varc, ndres.get_varc().get_count() == column_count);
-    // ASSERT_IF(cov_list::stdev, ndres.get_stdev().get_count() == column_count);
-    // ASSERT_IF(cov_list::vart, ndres.get_vart().get_count() == column_count);
+    ASSERT_IF(cov_list::mean | cov_list::cov, ndres.get_sum().get_count() == column_count);
+    ASSERT_IF(cov_list::cov | cov_list::cor | cov_list::mean,
+              ndres.get_sum2cent().get_count() == column_count);
+    ASSERT_IF(cov_list::mean, ndres.get_mean().get_count() == column_count);
+    ASSERT_IF(cov_list::cov | cov_list::cor, ndres.get_varc().get_count() == column_count);
 
-    // ASSERT_IF(cov_list::mean | sum2cent_based_stat,
-    //           com_row_count.get_count() == comm_.get_rank_count());
-    // ASSERT_IF(cov_list::mean | sum2cent_based_stat,
-    //           com_sum.get_count() == comm_.get_rank_count() * column_count);
-    // ASSERT_IF(sum2cent_based_stat,
-    //           com_sum2cent.get_count() == comm_.get_rank_count() * column_count);
+    ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+              com_row_count.get_count() == comm_.get_rank_count());
+    ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+              com_sum.get_count() == comm_.get_rank_count() * column_count);
+    ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+              com_sum2cent.get_count() == comm_.get_rank_count() * column_count);
 
-    // DECLSET_IF(Float*,
-    //            rsum_ptr,
-    //            cov_list::mean | sum2cent_based_stat,
-    //            ndres.get_sum().get_mutable_data())
-    // DECLSET_IF(Float*,
-    //            rsum2cent_ptr,
-    //            cov_list::varc | cov_list::stdev | cov_list::vart,
-    //            ndres.get_sum2cent().get_mutable_data())
-    // DECLSET_IF(Float*, rmean_ptr, cov_list::mean, ndres.get_mean().get_mutable_data())
-    // DECLSET_IF(Float*, rsorm_ptr, cov_list::sorm, ndres.get_sorm().get_mutable_data())
-    // DECLSET_IF(Float*, rvarc_ptr, cov_list::varc, ndres.get_varc().get_mutable_data())
-    // DECLSET_IF(Float*, rstdev_ptr, cov_list::stdev, ndres.get_stdev().get_mutable_data())
-    // DECLSET_IF(Float*, rvart_ptr, cov_list::vart, ndres.get_vart().get_mutable_data())
-
-    //const Float* rsum2_ptr = ndres.get_sum2().get_data();
+    DECLSET_IF(Float*, rsum_ptr, cov_list::mean, ndres.get_sum().get_mutable_data())
+    DECLSET_IF(Float*, rsum2cent_ptr, cov_list::mean, ndres.get_sum2cent().get_mutable_data())
+    DECLSET_IF(Float*, rmean_ptr, cov_list::mean, ndres.get_mean().get_mutable_data())
+    DECLSET_IF(Float*, rvarc_ptr, cov_list::mean, ndres.get_varc().get_mutable_data())
 
     const std::int64_t* brc_ptr = com_row_count.get_data();
     const Float* bsum_ptr = com_sum.get_data();
-    //const Float* bsum2cent_ptr = com_sum2cent.get_data();
+    const Float* bsum2cent_ptr = com_sum2cent.get_data();
 
-    const sycl::range<1> range{ de::integral_cast<size_t>(column_count) };
+    sycl::range<1> range{ de::integral_cast<size_t>(column_count) };
 
-    auto last_event = q_.submit([&](cl::sycl::handler& cgh) {
+    auto last_event = q_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> id) {
             Float mrgsum = Float(0);
@@ -637,12 +599,11 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
                 std::int64_t offset = id + i * block_stride;
 
                 Float sum = Float(0);
-                ///if constexpr (check_mask_flag(cov_list::sum | cov_list::mean | sum2cent_based_stat,
-                //List)) {
                 sum = bsum_ptr[offset];
-                //}
 
                 Float rcnt = static_cast<Float>(brc_ptr[i]);
+                Float sum2cent = Float(0);
+                sum2cent = bsum2cent_ptr[offset];
                 Float mean = sum / rcnt;
 
                 Float sum_n1n2 = mrgvectors + rcnt;
@@ -653,27 +614,23 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
 
                 mrgsum += sum;
 
-                //mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
+                mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
                 mrgmean = (mrgmean * mrgvectors + mean * rcnt) * mean_scale;
                 mrgvectors = sum_n1n2;
             }
-            Float* rsum_ptr = ndres.get_sums().get_mutable_data();
-            //if constexpr (check_mask_flag(cov_list::sum, List)) {
             rsum_ptr[id] = mrgsum;
-            //}
-            Float* rmean_ptr = ndres.get_mean().get_mutable_data();
-            //if constexpr (check_mask_flag(cov_list::mean, List)) {
             rmean_ptr[id] = mrgmean;
-            //}
+            Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
+
+            if constexpr (check_mask_flag(cov_list::cov | cov_list::cor, List)) {
+                rvarc_ptr[id] = mrgvariance;
+            }
         });
     });
 
-    const bool is_opencl_backend =
-        !q_.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
-    if (is_opencl_backend) {
-        // there is an issue in opencl backend with keeping memory dependencies in events.
-        last_event.wait_and_throw();
-    }
+    // there is an issue in opencl backend with keeping memory dependencies in events.
+    last_event.wait_and_throw();
+
     return std::make_tuple(std::forward<local_result_t>(ndres), last_event);
 }
 
@@ -694,52 +651,32 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
 
     auto ndres = local_result<Float, List>::empty(q_, column_count, distr_mode);
 
-    // ASSERT_IF(cov_list::min, ndres.get_min().get_count() == column_count);
-    // ASSERT_IF(cov_list::max, ndres.get_max().get_count() == column_count);
-    // if (distr_mode) {
-    //     ASSERT_IF(cov_list::mean | sum2cent_based_stat, ndres.get_sum().get_count() == column_count);
-    // }
-    // else {
-    //     ASSERT_IF(cov_list::sum, ndres.get_sum().get_count() == column_count);
-    // }
-    // ASSERT_IF(cov_list::sum2 | cov_list::sorm, ndres.get_sum2().get_count() == column_count);
-    // if (distr_mode) {
-    //     ASSERT_IF(cov_list::varc | cov_list::stdev | cov_list::vart,
-    //               ndres.get_sum2cent().get_count() == column_count);
-    // }
-    // else {
-    //     ASSERT_IF(cov_list::sum2cent, ndres.get_sum2cent().get_count() == column_count);
-    // }
-    // ASSERT_IF(cov_list::mean, ndres.get_mean().get_count() == column_count);
-    // ASSERT_IF(cov_list::sorm, ndres.get_sorm().get_count() == column_count);
-    // ASSERT_IF(cov_list::varc, ndres.get_varc().get_count() == column_count);
-    // ASSERT_IF(cov_list::stdev, ndres.get_stdev().get_count() == column_count);
-    // ASSERT_IF(cov_list::vart, ndres.get_vart().get_count() == column_count);
+    ASSERT_IF(cov_list::mean | cov_list::cor, ndres.get_sum().get_count() == column_count);
+
+    ASSERT_IF(cov_list::mean | cov_list::cor, ndres.get_sum2cent().get_count() == column_count);
+
+    ASSERT_IF(cov_list::mean | cov_list::cor | cov_list::cov,
+              ndres.get_mean().get_count() == column_count);
+
+    ASSERT_IF(cov_list::cov | cov_list::cor, ndres.get_varc().get_count() == column_count);
 
     const auto column_block_count = get_column_block_count(column_count);
 
     auto data_ptr = data.get_data();
 
-    // DECLSET_IF(Float*, rmin_ptr, cov_list::min, ndres.get_min().get_mutable_data())
-    // DECLSET_IF(Float*, rmax_ptr, cov_list::max, ndres.get_max().get_mutable_data())
-    // DECLSET_IF(Float*,
-    //            rsum2_ptr,
-    //            cov_list::sum2 | cov_list::sorm,
-    //            ndres.get_sum2().get_mutable_data())
-
     Float* rsum_ptr = nullptr;
-    if (distr_mode) {
-        SET_IF(rsum_ptr, cov_list::mean, ndres.get_sum().get_mutable_data())
-    }
-    else {
-        SET_IF(rsum_ptr, cov_list::mean, ndres.get_sum().get_mutable_data())
-    }
-
+    SET_IF(rsum_ptr,
+           cov_list::mean | cov_list::cov | cov_list::cor,
+           ndres.get_sum().get_mutable_data())
+    Float* rsum2cent_ptr = nullptr;
+    SET_IF(rsum2cent_ptr,
+           cov_list::mean | cov_list::cov | cov_list::cor,
+           ndres.get_sum2cent().get_mutable_data())
     DECLSET_IF(Float*, rmean_ptr, cov_list::mean, ndres.get_mean().get_mutable_data())
-    //DECLSET_IF(Float*, rsorm_ptr, cov_list::sorm, ndres.get_sorm().get_mutable_data())
-    //DECLSET_IF(Float*, rvarc_ptr, cov_list::varc, ndres.get_varc().get_mutable_data())
-    //DECLSET_IF(Float*, rstdev_ptr, cov_list::stdev, ndres.get_stdev().get_mutable_data())
-    //DECLSET_IF(Float*, rvart_ptr, cov_list::vart, ndres.get_vart().get_mutable_data())
+    DECLSET_IF(Float*,
+               rvarc_ptr,
+               cov_list::cov | cov_list::cor,
+               ndres.get_varc().get_mutable_data())
 
     std::int64_t max_work_group_size =
         q_.get_device().get_info<sycl::info::device::max_work_group_size>();
@@ -760,7 +697,9 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
             if (distr_mode) {
                 single_pass_block_processor<Float, List, deffered_fin_true>(data_ptr,
                                                                             rsum_ptr,
+                                                                            rsum2cent_ptr,
                                                                             rmean_ptr,
+                                                                            rvarc_ptr,
                                                                             row_count,
                                                                             column_count,
                                                                             col_block_idx,
@@ -771,7 +710,9 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
             else {
                 single_pass_block_processor<Float, List, deffered_fin_false>(data_ptr,
                                                                              rsum_ptr,
+                                                                             rsum2cent_ptr,
                                                                              rmean_ptr,
+                                                                             rvarc_ptr,
                                                                              row_count,
                                                                              column_count,
                                                                              col_block_idx,
@@ -800,23 +741,26 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Floa
     auto ndbuf = local_buffer_list<Float, List>::empty(q_, aux_buf_size);
 
     // // ndbuf asserts
-    // ASSERT_IF(cov_list::mean | sum2cent_based_stat, ndbuf.get_rc_list().get_count() == aux_buf_size);
-    // ASSERT_IF(cov_list::min, ndbuf.get_min().get_count() == aux_buf_size);
-    // ASSERT_IF(cov_list::max, ndbuf.get_max().get_count() == aux_buf_size);
-    // ASSERT_IF(cov_list::sum | cov_list::mean | sum2cent_based_stat,
-    //           ndbuf.get_sum().get_count() == aux_buf_size);
-    // ASSERT_IF(cov_list::sum2 | cov_list::sorm, ndbuf.get_sum2().get_count() == aux_buf_size);
-    // ASSERT_IF(sum2cent_based_stat, ndbuf.get_sum2cent().get_count() == aux_buf_size);
+    ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+              ndbuf.get_rc_list().get_count() == aux_buf_size);
 
-    DECLSET_IF(std::int64_t*, ablock_rc_ptr, cov_list::mean, ndbuf.get_rc_list().get_mutable_data())
-    // DECLSET_IF(Float*, amin_ptr, cov_list::min, ndbuf.get_min().get_mutable_data())
-    // DECLSET_IF(Float*, amax_ptr, cov_list::max, ndbuf.get_max().get_mutable_data())
-    DECLSET_IF(Float*, asum_ptr, cov_list::mean, ndbuf.get_sum().get_mutable_data())
-    // DECLSET_IF(Float*,
-    //            asum2_ptr,
-    //            cov_list::sum2 | cov_list::sorm,
-    //            ndbuf.get_sum2().get_mutable_data())
-    // DECLSET_IF(Float*, asum2cent_ptr, sum2cent_based_stat, ndbuf.get_sum2cent().get_mutable_data())
+    ASSERT_IF(cov_list::mean | cov_list::cor | cov_list::cov,
+              ndbuf.get_sum().get_count() == aux_buf_size);
+    ASSERT_IF(cov_list::cor | cov_list::cov, ndbuf.get_sum2cent().get_count() == aux_buf_size);
+
+    DECLSET_IF(std::int64_t*,
+               ablock_rc_ptr,
+               cov_list::mean | cov_list::cor | cov_list::cov,
+               ndbuf.get_rc_list().get_mutable_data())
+    DECLSET_IF(Float*,
+               asum_ptr,
+               cov_list::mean | cov_list::cor | cov_list::cov,
+               ndbuf.get_sum().get_mutable_data())
+
+    DECLSET_IF(Float*,
+               asum2cent_ptr,
+               cov_list::mean | cov_list::cor | cov_list::cov,
+               ndbuf.get_sum2cent().get_mutable_data())
 
     auto data_ptr = data.get_data();
 
@@ -842,6 +786,7 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Floa
                 block_processor<Float, List>(data_ptr,
                                              ablock_rc_ptr,
                                              asum_ptr,
+                                             asum2cent_ptr,
                                              row_count,
                                              row_block_idx,
                                              row_block_count,
@@ -870,22 +815,10 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
 
     const bool distr_mode = comm_.get_rank_count() > 1;
     // ndres asserts
-    // ASSERT_IF(cov_list::min, ndres.get_min().get_count() == column_count);
-    // ASSERT_IF(cov_list::max, ndres.get_max().get_count() == column_count);
-    // if (distr_mode) {
-    //     ASSERT_IF(cov_list::mean | sum2cent_based_stat, ndres.get_sum().get_count() == column_count);
-    // }
-    // else {
-    //     ASSERT_IF(cov_list::sum, ndres.get_sum().get_count() == column_count);
-    // }
-    // ASSERT_IF(cov_list::sum2 | cov_list::sorm, ndres.get_sum2().get_count() == column_count);
-    // if (distr_mode) {
-    //     ASSERT_IF(cov_list::varc | cov_list::stdev | cov_list::vart,
-    //               ndres.get_sum2cent().get_count() == column_count);
-    // }
-    // else {
-    //     ASSERT_IF(cov_list::sum2cent, ndres.get_sum2cent().get_count() == column_count);
-    // }
+    ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+              ndres.get_sum().get_count() == column_count);
+    ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+              ndres.get_sum2cent().get_count() == column_count);
 
     sycl::event last_event;
 
@@ -894,7 +827,7 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
         pr::ndarray<Float, 1> com_sum;
         pr::ndarray<Float, 1> com_sum2cent;
 
-        if constexpr (check_mask_flag(cov_list::mean, List)) {
+        if constexpr (check_mask_flag(cov_list::mean | cov_list::cov | cov_list::cor, List)) {
             auto com_row_count_host =
                 pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
             comm_.allgather(&row_count, 1, com_row_count_host.get_mutable_data(), 1).wait();
@@ -913,18 +846,19 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
                            column_count)
                 .wait();
         }
-        else if constexpr (check_mask_flag(cov_list::mean, List)) {
+        if constexpr (check_mask_flag(cov_list::mean | cov_list::cov | cov_list::cor, List)) {
+            com_sum2cent = pr::ndarray<Float, 1>::empty(q_,
+                                                        { comm_.get_rank_count() * column_count },
+                                                        alloc::device);
             comm_
-                .allreduce(q_,
-                           ndres.get_sum().get_data(),
-                           ndres.get_sum().get_mutable_data(),
-                           ndres.get_sum().get_count(),
-                           de::v1::spmd_reduce_op::sum,
-                           deps)
+                .allgather(q_,
+                           ndres.get_sum2cent().get_data(),
+                           column_count,
+                           com_sum2cent.get_mutable_data(),
+                           column_count)
                 .wait();
         }
-
-        if constexpr (check_mask_flag(cov_list::mean, List)) {
+        if constexpr (check_mask_flag(cov_list::mean | cov_list::cov | cov_list::cor, List)) {
             auto [merge_res, merge_event] = merge_distr_blocks(com_row_count,
                                                                com_sum,
                                                                com_sum2cent,
@@ -932,8 +866,8 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
                                                                comm_.get_rank_count(),
                                                                column_count,
                                                                column_count);
-            ndres = std::move(merge_res);
-            last_event = std::move(merge_event);
+            ndres = merge_res;
+            last_event = merge_event;
         }
     }
     else {
@@ -965,9 +899,17 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
         .set_result_options(desc.get_result_options());
 }
 
-#define INSTANTIATE(LIST)                            \
-    template class compute_kernel_dense_impl<float>; \
-    template class compute_kernel_dense_impl<double>;
+#define INSTANTIATE(LIST)                                  \
+    template class compute_kernel_dense_impl<float, LIST>; \
+    template class compute_kernel_dense_impl<double, LIST>;
+
+INSTANTIATE(cov_mode_mean);
+INSTANTIATE(cov_mode_cov);
+INSTANTIATE(cov_mode_cor);
+INSTANTIATE(cov_mode_cov_mean);
+INSTANTIATE(cov_mode_cov_cor);
+INSTANTIATE(cov_mode_cor_mean);
+INSTANTIATE(cov_mode_all);
 
 } // namespace oneapi::dal::covariance::backend
 

@@ -53,49 +53,51 @@ class local_result {
 public:
     static own_t empty(sycl::queue& q, std::int64_t count, bool deffered_fin = false) {
         own_t res;
-        res.nObservations_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
-        res.crossProduct_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
-        res.sums_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
-        // if constexpr (check_mask_flag(cov_list::mean, List)) {
-        //     res.rmeans_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
-        // }
-        // if constexpr (check_mask_flag(cov_list::cov, List)) {
-        //     res.cov_matrix_ = pr::ndarray<Float, 1>::empty(q, { count, count }, alloc::device);
-        // }
-        // if constexpr (check_mask_flag(cov_list::cor, List)) {
-        //     res.cor_matrix_ = pr::ndarray<Float, 1>::empty(q, { count, count }, alloc::device);
-        // }
+        //res.nObservations_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        //res.crossProduct_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rsum_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rsum2cent_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rmean_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        if constexpr (check_mask_flag(cov_list::cov | cov_list::cor, List)) {
+            res.rvarc_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        }
+        if constexpr (check_mask_flag(cov_list::cov, List)) {
+            res.rcov_matrix_ = pr::ndarray<Float, 2>::empty(q, { count, count }, alloc::device);
+        }
+        if constexpr (check_mask_flag(cov_list::cor, List)) {
+            res.rcor_matrix_ = pr::ndarray<Float, 2>::empty(q, { count, count }, alloc::device);
+        }
         return res;
     }
 
-    auto& get_means() const {
-        return rmeans_;
-    }
     auto& get_cov() const {
         return rcov_matrix_;
     }
     auto& get_cor() const {
         return rcor_matrix_;
     }
-    auto& get_nObservations() const {
-        return nObservations_;
+    auto& get_sum() const {
+        return rsum_;
     }
-    auto& get_crossProduct() const {
-        return crossProduct_;
+    auto& get_sum2cent() const {
+        return rsum2cent_;
     }
-    auto& get_sums() const {
-        return sums_;
+    auto& get_mean() const {
+        return rmean_;
+    }
+    auto& get_varc() const {
+        return rvarc_;
     }
 
 private:
     local_result() = default;
 
-    pr::ndarray<Float, 1> rmeans_;
+    pr::ndarray<Float, 1> rsum_;
+    pr::ndarray<Float, 1> rmean_;
+    pr::ndarray<Float, 1> rsum2cent_;
     pr::ndarray<Float, 2> rcov_matrix_;
     pr::ndarray<Float, 2> rcor_matrix_;
-    pr::ndarray<Float, 1> nObservations_;
-    pr::ndarray<Float, 1> crossProduct_;
-    pr::ndarray<Float, 1> sums_;
+    pr::ndarray<Float, 1> rvarc_;
 };
 
 template <typename Float, cov_list List>
@@ -106,25 +108,23 @@ class local_buffer_list {
 public:
     static own_t empty(sycl::queue& q, std::int64_t count) {
         own_t res;
-        res.nObservations_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
-        res.crossProduct_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
-        res.sums_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
-        // if constexpr (check_mask_flag(cov_list::mean, List)) {
-        //     res.rmeans_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
-        // }
-        // if constexpr (check_mask_flag(cov_list::cov, List)) {
-        //     res.cov_matrix_ = pr::ndarray<Float, 1>::empty(q, { count, count }, alloc::device);
-        // }
-        // if constexpr (check_mask_flag(cov_list::cor, List)) {
-        //     res.cor_matrix_ = pr::ndarray<Float, 2>::empty(q, { count, count }, alloc::device);
-        // }
+        res.rrow_count_ = pr::ndarray<std::int64_t, 1>::empty(q, { count }, alloc::device);
+        res.rsum_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rsum2cent_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rmean_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        if constexpr (check_mask_flag(cov_list::cov | cov_list::cor, List)) {
+            res.rvarc_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        }
+        if constexpr (check_mask_flag(cov_list::cov, List)) {
+            res.rcov_matrix_ = pr::ndarray<Float, 2>::empty(q, { count, count }, alloc::device);
+        }
+        if constexpr (check_mask_flag(cov_list::cor, List)) {
+            res.rcor_matrix_ = pr::ndarray<Float, 2>::empty(q, { count, count }, alloc::device);
+        }
         return res;
     }
     auto& get_rc_list() const {
         return rrow_count_;
-    }
-    auto& get_means() const {
-        return rmeans_;
     }
     auto& get_cov() const {
         return rcov_matrix_;
@@ -132,26 +132,29 @@ public:
     auto& get_cor() const {
         return rcor_matrix_;
     }
-    auto& get_nObservations() const {
-        return nObservations_;
+    auto& get_sum() const {
+        return rsum_;
     }
-    auto& get_crossProduct() const {
-        return crossProduct_;
+    auto& get_sum2cent() const {
+        return rsum2cent_;
     }
-    auto& get_sums() const {
-        return sums_;
+    auto& get_mean() const {
+        return rmean_;
+    }
+    auto& get_varc() const {
+        return rvarc_;
     }
 
 private:
     local_buffer_list() = default;
 
     pr::ndarray<std::int64_t, 1> rrow_count_;
-    pr::ndarray<Float, 1> rmeans_;
+    pr::ndarray<Float, 1> rsum_;
+    pr::ndarray<Float, 1> rmean_;
+    pr::ndarray<Float, 1> rsum2cent_;
     pr::ndarray<Float, 2> rcov_matrix_;
     pr::ndarray<Float, 2> rcor_matrix_;
-    pr::ndarray<Float, 1> nObservations_;
-    pr::ndarray<Float, 1> crossProduct_;
-    pr::ndarray<Float, 1> sums_;
+    pr::ndarray<Float, 1> rvarc_;
 };
 
 } // namespace oneapi::dal::covariance::backend

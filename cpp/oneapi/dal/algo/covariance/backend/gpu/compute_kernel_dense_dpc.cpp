@@ -31,9 +31,9 @@ namespace pr = oneapi::dal::backend::primitives;
 
 using method_t = method::dense;
 using task_t = task::compute;
-using input_t = compute_input<task::compute>;
-using result_t = compute_result<task::compute>;
-using descriptor_t = detail::descriptor_base<task::compute>;
+using input_t = compute_input<task_t>;
+using result_t = compute_result<task_t>;
+using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float>
 static result_t compute(const bk::context_gpu& ctx,
