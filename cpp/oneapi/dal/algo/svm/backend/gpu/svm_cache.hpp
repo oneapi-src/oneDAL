@@ -125,7 +125,7 @@ public:
             std::make_shared<sub_data_task_dense<Float>>(q, block_size, data_nd.get_dimension(1));
         res_nd_ =
             pr::ndarray<Float, 2>::empty(q, { block_size, line_size }, sycl::usm::alloc::device);
-        res_table_ = homogen_table::wrap(res_nd_.flatten(q), block_size, line_size);
+        res_table_ = homogen_table::wrap(q, res_nd_.get_mutable_data(), block_size, line_size);
     }
 
     pr::ndarray<Float, 2> compute(const detail::kernel_function_ptr& kernel_ptr,
