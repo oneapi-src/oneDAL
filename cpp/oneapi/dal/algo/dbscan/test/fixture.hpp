@@ -88,8 +88,7 @@ public:
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data);
 
         const auto cluster_count = compute_result.get_cluster_count();
-        if (cluster_count == 0)
-            return;
+        REQUIRE(cluster_count > 0);
 
         const auto responses = compute_result.get_responses();
 

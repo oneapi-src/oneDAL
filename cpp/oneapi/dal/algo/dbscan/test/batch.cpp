@@ -34,7 +34,6 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "[dbscan][batch]",
                      dbscan_types) {
     SKIP_IF(this->not_float64_friendly());
-    std::cout << "Test #1" << std::endl;
     using float_t = std::tuple_element_t<0, TestType>;
 
     constexpr float_t data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0,
@@ -60,7 +59,6 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "[dbscan][batch]",
                      dbscan_types) {
     SKIP_IF(this->not_float64_friendly());
-    std::cout << "Test #2" << std::endl;
     using float_t = std::tuple_element_t<0, TestType>;
 
     constexpr float_t data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0,
@@ -81,7 +79,6 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test, "dbscan boundary test", "[dbscan][batch]", dbscan_types) {
     SKIP_IF(this->not_float64_friendly());
-    std::cout << "Test #3" << std::endl;
     using float_t = std::tuple_element_t<0, TestType>;
 
     constexpr std::int64_t min_observations = 2;
@@ -107,7 +104,6 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test, "dbscan boundary test", "[dbscan][batch]
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test, "dbscan weight test", "[dbscan][batch]", dbscan_types) {
     SKIP_IF(this->not_float64_friendly());
-    std::cout << "Test #4" << std::endl;
     using float_t = std::tuple_element_t<0, TestType>;
 
     constexpr float_t data[] = { 0.0, 1.0 };
