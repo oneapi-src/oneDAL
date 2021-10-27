@@ -110,13 +110,13 @@ result_t compute_kernel_dense_impl<Float, List>::get_result(const descriptor_t& 
 
     if (res_op.test(result_options::cor_matrix)) {
         //ONEDAL_ASSERT(ndres.get_cov().get_count() == column_count);
-        res.set_cor_matrix(
-            homogen_table::wrap(ndres.get_cov().flatten(q_, deps), column_count, column_count));
+        // res.set_cor_matrix(
+        //     homogen_table::wrap(cor_matrix.flatten(q_, deps), column_count, column_count));
     }
     if (res_op.test(result_options::cor_matrix)) {
         //ONEDAL_ASSERT(ndres.get_min().get_count() == column_count);
-        res.set_cov_matrix(
-            homogen_table::wrap(ndres.get_cor().flatten(q_, deps), column_count, column_count));
+        // res.set_cov_matrix(
+        //     homogen_table::wrap(cov_matrix.flatten(q_, deps), column_count, column_count));
     }
 
     if (res_op.test(result_options::means)) {
@@ -127,26 +127,11 @@ result_t compute_kernel_dense_impl<Float, List>::get_result(const descriptor_t& 
 }
 
 // template <typename Float>
-// auto compute_means(sycl::queue& q,
-//                    const pr::ndview<Float, 2>& data,
-//                    const dal::backend::event_vector& deps = {}) {
-//     ONEDAL_PROFILER_TASK(compute_means, q);
-//     ONEDAL_ASSERT(data.has_data());
-//     const std::int64_t column_count = data.get_dimension(1);
-//     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-//     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-//     auto reduce_event =
-//         pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-//     auto means_event = pr::means(q, data, sums, means, { reduce_event });
-
-//     return std::make_tuple(means, sums, means_event);
-// }
-
-// template <typename Float>
 // auto compute_covariance(sycl::queue& q,
 //                         const pr::ndview<Float, 2>& data,
-//                         const pr::ndview<Float, 1>& sums,
-//                         pr::ndview<Float, 1>& means,
+//                         const pr::ndarray<Float, 1>& sums,
+//                         constpr::ndarray<Float, 1>& means,
+//                         pr::ndarray<Float, 1>& vars,
 //                         const dal::backend::event_vector& deps = {}) {
 //     ONEDAL_PROFILER_TASK(compute_covariance, q);
 //     ONEDAL_ASSERT(data.has_data());
@@ -155,13 +140,43 @@ result_t compute_kernel_dense_impl<Float, List>::get_result(const descriptor_t& 
 //     const std::int64_t column_count = data.get_dimension(1);
 //     auto cov =
 //         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-//     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+//     //auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 //     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 //     auto gemm_event = gemm(q, data.t(), data, cov, Float(1), Float(0), deps);
 
-//     auto cov_event = pr::covariance(q, data, sums, means, cov, vars, tmp, gemm_event);
+//     //auto cov_event = pr::covariance(q, data, sums, means, cov, vars, tmp, gemm_event);
+//     const auto n = column_count;
+//     const auto p = sums.get_count();
+//     const Float inv_n = Float(1.0 / double(n));
+//     const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
 
-//     return std::make_tuple(cov, tmp, cov_event);
+//     const Float* sums_ptr = sums.get_data();
+//     //const Float* corr_ptr = corr.get_mutable_data();
+//     Float* means_ptr = means.get_mutable_data();
+//     //Float* vars_ptr = vars.get_mutable_data();
+//     //Float* tmp_ptr = tmp.get_mutable_data();
+
+//     const Float eps = std::numeric_limits<Float>::epsilon();
+
+//     Float* cov_ptr = cov.get_mutable_data();
+
+//     return q.submit([&](sycl::handler& cgh) {
+//         const auto range = make_range_2d(p, p);
+
+//         cgh.depends_on(deps);
+//         cgh.parallel_for(range, [=](sycl::item<2> id) {
+//             const std::int64_t gi = id.get_linear_id();
+//             const std::int64_t i = id.get_id(0);
+//             const std::int64_t j = id.get_id(1);
+
+//             if (i < p && j < p) {
+//                 Float c = cov_ptr[gi];
+//                 c -= inv_n * sums_ptr[i] * sums_ptr[j];
+//                 cov_ptr[gi] = c * inv_n1;
+//             }
+//         });
+//     });
+//     return std::make_tuple(cov, cov_event);
 // }
 
 // template <typename Float>
@@ -378,10 +393,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
             const Float mean_scale = Float(1) / sum_n1n2;
             const Float delta = mean - mrgmean;
 
-            //mrgmin = sycl::fmin(min, mrgmin);
-            //mrgmax = sycl::fmax(max, mrgmax);
             mrgsum += sum;
-            //mrgsum2 += sum2;
             mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
             mrgmean = (mrgmean * mrgvectors + mean * static_cast<Float>(rcnt)) * mean_scale;
             mrgvectors = sum_n1n2;
@@ -463,14 +475,6 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
     Float* rsum_ptr = ndres.get_sum().get_mutable_data();
 
     Float* rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
-    // if (distr_mode) {
-    //     SET_IF(rsum2cent_ptr,
-    //            cov_list::varc | cov_list::stdev | cov_list::vart,
-    //            ndres.get_sum2cent().get_mutable_data())
-    // }
-    // else {
-    //     SET_IF(rsum2cent_ptr, cov_list::sum2cent, ndres.get_sum2cent().get_mutable_data())
-    // }
 
     DECLSET_IF(Float*, rmean_ptr, cov_list::mean, ndres.get_mean().get_mutable_data())
     DECLSET_IF(Float*, rvarc_ptr, cov_list::mean, ndres.get_varc().get_mutable_data())
@@ -892,6 +896,7 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     auto [ndres, last_event] = (row_block_count > 1) ? compute_by_blocks(data_nd, row_block_count)
                                                      : compute_single_pass(data_nd);
 
+    //auto [cov, cov_event] = compute_covariance(q_, data_nd, ndres.get_sum(), ndres.get_mean(), ndres.get_varc(), {last_event});
     std::tie(ndres, last_event) =
         finalize(std::move(ndres), row_count, column_count, { last_event });
 
