@@ -102,10 +102,6 @@ public:
                           const std::int64_t* recv_counts,
                           const std::int64_t* displs,
                           const data_type& dtype) override {
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         if (send_count == 0) {
             return nullptr;
         }

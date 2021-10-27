@@ -146,7 +146,6 @@ TEMPLATE_LIST_TEST_M(linear_regression_serialization_test,
                      "serialize/deserialize linear_regression models",
                      "[reg]",
                      linear_regression_types) {
-    SKIP_IF(this->get_policy().is_gpu());
     SKIP_IF(this->not_float64_friendly());
 
     this->run_test();
