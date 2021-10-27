@@ -507,6 +507,10 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
         res.set_responses(homogen_table::wrap(response_list_host.flatten(), ctx.row_count, 1));
     }
 
+    if (comm_.get_rank_count() > 1) {
+        comm_.wait_for_exception_handling();
+    }
+
     return res;
 }
 
