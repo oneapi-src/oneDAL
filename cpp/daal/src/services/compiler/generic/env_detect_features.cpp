@@ -268,6 +268,7 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
     if ((enable & daal::services::Environment::avx512_mic_e1) == daal::services::Environment::avx512_mic_e1)
     {
+        #define MKL_ENABLE_AVX2 2
         fpk_serv_enable_instructions(MKL_ENABLE_AVX2);
     }
 
