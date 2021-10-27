@@ -168,7 +168,11 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
 }
 
 /* Max number of blocks depending on arch */
-#define DEF_MAX_BLOCKS 128
+#if (__CPUID__(DAAL_CPU) >= __avx512_mic__)
+    #define DEF_MAX_BLOCKS 256
+#else
+    #define DEF_MAX_BLOCKS 128
+#endif
 
 /*
     Algorithm for parallel SVD computation:
