@@ -37,7 +37,6 @@
 #define DAAL_KERNEL_SSE42
 #define DAAL_KERNEL_AVX
 #define DAAL_KERNEL_AVX2
-#define DAAL_KERNEL_AVX512_MIC
 #define DAAL_KERNEL_AVX512
 
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>
@@ -136,35 +135,6 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX2_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
-#endif
-
-#if defined(DAAL_KERNEL_AVX512_MIC)
-    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
-    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID                 daal::avx2
-    #define DAAL_KERNEL_AVX512_MIC_ONLY(something)                   , something
-    #define DAAL_KERNEL_AVX512_MIC_ONLY_CODE(...)                    __VA_ARGS__
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...) \
-        extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__);
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...)                           \
-    case avx512_mic:                                                                                \
-        _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__)(daalEnv)); \
-    break;
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                     \
-    case avx512_mic:                                                                               \
-    {                                                                                              \
-        using contTemplType = DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__); \
-        static volatile daal::services::internal::GpuSupportRegistrar<contTemplType> registrar;    \
-        _cntr = (new contTemplType(daalEnv));                                                      \
-        break;                                                                                     \
-    }
-#else
-    #define DAAL_KERNEL_AVX512_MIC_ONLY(something)
-    #define DAAL_KERNEL_AVX512_MIC_ONLY_CODE(...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
 #if defined(DAAL_KERNEL_AVX512)
