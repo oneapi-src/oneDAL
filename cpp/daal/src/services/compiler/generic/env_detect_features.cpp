@@ -270,7 +270,7 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
     {
         fpk_serv_enable_instructions(MKL_ENABLE_AVX2);
     }
-    
+
 #if defined(__APPLE__)
     __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
