@@ -43,76 +43,6 @@ namespace daal_kernel_function = daal::algorithms::kernel_function;
 namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
 
-// template <typename Float>
-// using daal_svm_predict_kernel_t =
-//     daal_svm::prediction::internal::SVMPredictImplOneAPI<daal_svm::prediction::defaultDense, Float>;
-
-// template <typename Float>
-// static result_t call_daal_kernel(const context_gpu& ctx,
-//                                  const descriptor_t& desc,
-//                                  const model_t& trained_model,
-//                                  const table& data) {
-//     auto& queue = ctx.get_queue();
-//     interop::execution_context_guard guard(queue);
-
-//     const std::uint64_t class_count = desc.get_class_count();
-//     if (class_count > 2) {
-//         throw unimplemented(dal::detail::error_messages::svm_multiclass_not_implemented_for_gpu());
-//     }
-
-//     const std::int64_t row_count = data.get_row_count();
-
-//     const auto daal_data = interop::convert_to_daal_table(queue, data);
-//     const auto daal_support_vectors =
-//         interop::convert_to_daal_table(queue, trained_model.get_support_vectors());
-//     const auto daal_coeffs = interop::convert_to_daal_table(queue, trained_model.get_coeffs());
-
-//     const auto biases = trained_model.get_biases();
-//     const auto biases_acc = row_accessor<const Float>{ biases }.pull();
-//     const double bias = biases_acc[0];
-
-//     auto daal_model = daal_model_builder{}
-//                           .set_support_vectors(daal_support_vectors)
-//                           .set_coeffs(daal_coeffs)
-//                           .set_bias(bias);
-
-//     auto kernel_impl = detail::get_kernel_function_impl(desc);
-//     if (!kernel_impl) {
-//         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
-//     }
-//     const bool is_dense{ data.get_kind() == homogen_table::kind() };
-//     const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
-
-//     daal_svm::Parameter daal_parameter(daal_kernel);
-
-//     auto arr_decision_func = array<Float>::empty(queue, row_count * 1, sycl::usm::alloc::device);
-//     const auto daal_decision_function =
-//         interop::convert_to_daal_table(queue, arr_decision_func, row_count, 1);
-
-//     interop::status_to_exception(daal_svm_predict_kernel_t<Float>().compute(daal_data,
-//                                                                             &daal_model,
-//                                                                             *daal_decision_function,
-//                                                                             &daal_parameter));
-
-//     const auto arr_decision_func_host = dal::backend::to_host_sync(arr_decision_func);
-
-//     // TODO: rework with help dpcpp code
-//     auto arr_response = array<Float>::empty(row_count * 1);
-//     auto response_data = arr_response.get_mutable_data();
-//     for (std::int64_t i = 0; i < row_count; ++i) {
-//         response_data[i] = arr_decision_func_host[i] >= 0
-//                                ? trained_model.get_second_class_response()
-//                                : trained_model.get_first_class_response();
-//     }
-
-//     return result_t()
-//         .set_decision_function(dal::detail::homogen_table_builder{}
-//                                    .reset(arr_decision_func_host, row_count, 1)
-//                                    .build())
-//         .set_responses(
-//             dal::detail::homogen_table_builder{}.reset(arr_response, row_count, 1).build());
-// }
-
 template <typename Float>
 static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
 //    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
@@ -143,52 +73,90 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
 
      auto distance_nd = pr::ndarray<Float, 1>::empty(queue, { row_count }, sycl::usm::alloc::device);
 
-    auto svCoeffTable = trained_model.get_coeffs();
-    const std::int64_t nSV  = trained_model.get_support_vector_count();
+    auto sv_coeff_table = trained_model.get_coeffs();
+    const std::int64_t n_sv  = trained_model.get_support_vector_count();
 
-    if (nSV == 0) {
+    if (n_sv == 0) {
         auto fill_event = distance_nd.fill(queue, Float(0.0));
         fill_event.wait_and_throw();
     } else {
-        const auto svCoeffBuff = pr::table2ndarray_1d<Float>(queue, svCoeffTable, sycl::usm::alloc::device);
+        const auto sv_coeff_buff = pr::table2ndarray_1d<Float>(queue, sv_coeff_table, sycl::usm::alloc::device);
 
         const auto bieses = pr::table2ndarray_1d<Float>(trained_model.get_biases());
         const auto bias = *(bieses.get_data());
+        std::cout << "bias=" << bias << "\n";
         auto fill_event = distance_nd.fill(queue, bias);
         fill_event.wait_and_throw();
 
         auto svTable = trained_model.get_support_vectors();
 
-        // const std::int64_t nRowsPerBlock = xTable->getDataLayout() == NumericTableIface::csrArray ? nVectors : 1024;
-        // const std::int64_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
+        // const std::int64_t n_rows_per_block = xTable->getDataLayout() == NumericTableIface::csrArray ? nVectors : 1024;
+        // const std::int64_t nblocks       = nVectors / n_rows_per_block + !!(nVectors % n_rows_per_block);
 
-        const std::int64_t nRowsPerBlock = 1024;
-        const std::int64_t nBlocks       = row_count / nRowsPerBlock + !!(row_count % nRowsPerBlock);
+        const std::int64_t n_rows_per_block = 1024;
+        const std::int64_t nblocks       = row_count / n_rows_per_block + !!(row_count % n_rows_per_block);
 
-        std::cout << "NBlocks" << nBlocks << "\n";
+//        std::cout << "NBlocks" << nblocks << "\n";
 
-        std::shared_ptr<predict_task<Float>> predictTask =
-            std::make_shared<predict_task_dense<Float>>(queue, nRowsPerBlock, data, svTable, kernel_ptr);
+        std::shared_ptr<predict_task<Float>> predict_task =
+            std::make_shared<predict_task_dense<Float>>(queue, n_rows_per_block, data, svTable, kernel_ptr);
 
-        for (std::int64_t iBlock = 0; iBlock < nBlocks; ++iBlock)
+        for (std::int64_t iblock = 0; iblock < nblocks; ++iblock)
         {
-//            std::cout << "IBlock:" << iBlock << "\n nBlocks: " << nBlocks << "\n";
-            const std::int64_t startRow          = iBlock * nRowsPerBlock;
-            const std::int64_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : row_count - iBlock * nRowsPerBlock;
+//            std::cout << "IBlock:" << iblock << "\n nblocks: " << nblocks << "\n";
+            const std::int64_t start_row          = iblock * n_rows_per_block;
 
-            auto distance_view = pr::ndview<Float, 2>::wrap(distance_nd.get_mutable_data() + startRow, {nRowsPerBlockReal, 1});
+            // std::cout << "startrow=" << start_row << "\n";
+            const std::int64_t n_rows_per_block_real = (iblock != nblocks - 1) ? n_rows_per_block : row_count - iblock * n_rows_per_block;
+                        // std::cout << "n_rows_per_block_real=" << n_rows_per_block_real << "\n";
 
-            auto kernelResBuff = predictTask->kernel_compute(queue, startRow, nRowsPerBlockReal);
+            auto distance_view = pr::ndarray<Float, 2>::wrap(distance_nd.get_mutable_data() + start_row, {n_rows_per_block_real, 1});
+            
+            auto kernelResBuff = predict_task->kernel_compute(queue, start_row, n_rows_per_block_real);
 
-            auto reshape_sv_coeff = svCoeffBuff.reshape(pr::ndshape<2>{ nSV, 1 });
+            // std::cout << "****kernelResBuff****\n";
 
-            auto gemm_event =pr::gemm(queue, kernelResBuff, reshape_sv_coeff, distance_view, Float(1), Float(1));
-            /// m = nRowsPerBlockReal n = 1 k = nSV alpha =  algorithmFPType(1.0) a_buffer = kernelResBuff lda = nSV offsetA = 0 b_buffer = svCoeffBuff ldb = 1 offsetB = 0 beta = 1.0 c_buffer = distaceBuff  ldc = 1 offsetC = startRow
+            // auto print1 = kernelResBuff.to_host(queue).get_data();
+            // for(int i = 1079000; i < 1084000; ++i) {
+            //     std::cout << print1[i] << " ";
+            // }
+            
+            // std::cout << "\n****kernelResBuff****\n";
+
+            auto reshape_sv_coeff = sv_coeff_buff.reshape(pr::ndshape<2>{ n_sv, 1 });
+
+            // std::cout << "****reshape_sv_coeff****\n";
+
+            // auto print2 = sv_coeff_buff.to_host(queue).get_data();
+            // for(int i = 0; i <  sv_coeff_buff.to_host(queue).get_count() && i < 1000; ++i) {
+            //     std::cout << print2[i] << " ";
+            // }
+            
+            // std::cout << "\n****reshape_sv_coeff****\n";
+
+            auto gemm_event = pr::gemm(queue, kernelResBuff, reshape_sv_coeff, distance_view, Float(1), Float(1));
+            /// m = n_rows_per_block_real n = 1 k = n_sv alpha =  algorithmFPType(1.0) a_buffer = kernelResBuff lda = n_sv offsetA = 0 b_buffer = sv_coeff_buff ldb = 1 offsetB = 0 beta = 1.0 c_buffer = distaceBuff  ldc = 1 offsetC = start_row
             // A = m x k ; B = k x n
             gemm_event.wait_and_throw();
+            // std::cout << "****distance_nd****\n" ;
+
+            // auto print3 = distance_nd.to_host(queue).get_data();
+            // for(int i = 0; i < distance_nd.to_host(queue).get_count() && i < 1000; ++i) {
+            //     std::cout << print3[i] << " ";
+            // }
+
+            // std::cout << "\n****distance_nd****\n";
         }
         }
 ///
+    // std::cout << "********\n";
+
+    // auto print = distance_nd.to_host(queue).get_data();
+    // for(int i = 0; i < distance_nd.get_count(); ++i) {
+    //     std::cout << print[i] << " ";
+    // }
+
+    // std::cout << "\n********\n";
 
     const auto arr_decision_func_host = distance_nd.to_host(queue);
     const auto arr_decision_data = arr_decision_func_host.get_data();

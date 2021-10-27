@@ -35,7 +35,20 @@ public:
 
     pr::ndarray<Float, 2> kernel_compute(sycl::queue& q, const std::int64_t start_row, const std::int64_t n_rows)
     {
-        auto x_block_nt = get_block_nt_data(start_row, n_rows);
+
+        auto data_nd = pr::table2ndarray<Float>(this->queue_, this->x_table_);
+        auto data = data_nd.get_data() + data_nd.get_dimension(1) * start_row;
+
+        table x_block_nt = homogen_table::wrap(q, data, n_rows, data_nd.get_dimension(1));
+        //auto x_block_nt = get_block_nt_data(start_row, n_rows);
+
+        // auto byaka = pr::table2ndarray<Float>(q, x_block_nt, sycl::usm::alloc::device);
+        // auto byaka_host = byaka.to_host(q);
+        // auto byaka_data = byaka_host.get_data();
+
+        // for(int i = 0; i < byaka.get_count(); ++i) {
+        //     std::cout << byaka_data[i] << ' ';
+        // }
 
         // std::cout << x_block_nt.get_row_count() << " ";
         // std::cout << x_block_nt.get_column_count() << "\n";
@@ -82,8 +95,7 @@ public:
         auto data_nd = pr::table2ndarray<Float>(this->queue_, this->x_table_);
         auto data = data_nd.get_data() + data_nd.get_dimension(1) * start_row;
 
-
-        table x_block_nt = homogen_table::wrap(data, n_rows, data_nd.get_dimension(1));
+        table x_block_nt = homogen_table::wrap(this->queue_, data, n_rows, data_nd.get_dimension(1));
         return x_block_nt;
     }
 
