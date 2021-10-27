@@ -95,6 +95,28 @@ public:
         INFO("check references")
         base_t::check_responses_against_ref(joined_result.get_responses(), ref_responses);
     }
+    void run_spmd_dbi_checks(const table& data,
+                             float_t epsilon,
+                             std::int64_t min_observations,
+                             float_t ref_dbi,
+                             float_t dbi_ref_tol = 1.0e-4) {
+        INFO("create descriptor")
+        const auto dbscan_desc = this->get_descriptor(epsilon, min_observations);
+
+        INFO("run computation");
+        const auto compute_results =
+            this->compute_via_spmd_threads(rank_count_, dbscan_desc, data, table{});
+
+        auto joined_result = this->merge_compute_result(compute_results);
+        const auto cluster_count = joined_result.get_cluster_count();
+        REQUIRE(cluster_count > 0);
+
+        const auto responses = joined_result.get_responses();
+        const auto centroids = te::centers_of_mass(data, responses, cluster_count);
+
+        auto dbi = te::davies_bouldin_index(data, centroids, responses);
+        REQUIRE(base_t::check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
+    }
 
 private:
     std::int64_t rank_count_ = 1;
@@ -277,6 +299,67 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
 
     this->set_rank_count(GENERATE(2, 4));
     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
+}
+
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
+                     "mnist: samples=10K, epsilon=1.7e3, min_observations=3",
+                     "[dbscan][nightly][batch][external-dataset]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+    using float_t = std::tuple_element_t<0, TestType>;
+    constexpr bool is_double = std::is_same_v<float_t, double>;
+    // Skipped due to known issue
+    SKIP_IF(is_double);
+
+    const te::dataframe data =
+        te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" }.build();
+
+    const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
+
+    constexpr double epsilon = 1.7e3;
+    constexpr std::int64_t min_observations = 3;
+    constexpr float_t ref_dbi = 1.584515;
+    this->set_rank_count(GENERATE(2, 4));
+    this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
+}
+
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
+                     "hepmass: samples=10K, epsilon=5, min_observations=3",
+                     "[dbscan][nightly][batch][external-dataset]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+    using float_t = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
+    const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
+
+    constexpr double epsilon = 5;
+    constexpr std::int64_t min_observations = 3;
+    constexpr float_t ref_dbi = 0.78373;
+    this->set_rank_count(GENERATE(2, 4));
+    this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
+}
+
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
+                     "road_network: samples=20K, epsilon=1.0e3, min_observations=220",
+                     "[dbscan][nightly][batch][external-dataset]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+    using float_t = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/road_network/dataset/road_network_20t_cluster.csv" });
+    const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
+
+    constexpr double epsilon = 1.0e3;
+    constexpr std::int64_t min_observations = 220;
+    constexpr float_t ref_dbi = float_t(0.00036);
+    this->set_rank_count(GENERATE(2, 4));
+    this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-1);
 }
 
 } // namespace oneapi::dal::dbscan::test
