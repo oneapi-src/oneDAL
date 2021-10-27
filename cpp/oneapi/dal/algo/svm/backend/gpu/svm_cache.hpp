@@ -123,6 +123,9 @@ public:
             : svm_cache_iface<Float>(q, block_size, line_size) {
         sub_data_task_ptr_ =
             std::make_shared<sub_data_task_dense<Float>>(q, block_size, data_nd.get_dimension(1));
+        res_nd_ =
+            pr::ndarray<Float, 2>::empty(q, { block_size, line_size }, sycl::usm::alloc::device);
+        res_table_ = homogen_table::wrap(res_nd_.flatten(q), block_size, line_size);
     }
 
     pr::ndarray<Float, 2> compute(const detail::kernel_function_ptr& kernel_ptr,
@@ -135,17 +138,20 @@ public:
                                                                    ws_indices,
                                                                    work_elements_count,
                                                                    x_nd);
+        copy_event.wait_and_throw();
 
-        const auto result =
-            kernel_ptr->compute_kernel_function(dal::detail::data_parallel_policy(this->q_),
-                                                sub_data_task_ptr_->get_table(),
-                                                x_table);
+        kernel_ptr->compute_kernel_function(dal::detail::data_parallel_policy(this->q_),
+                                            sub_data_task_ptr_->get_table(),
+                                            x_table,
+                                            res_table_);
 
-        return pr::table2ndarray<Float>(this->q_, result, sycl::usm::alloc::device);
+        return res_nd_;
     }
 
 private:
     std::shared_ptr<sub_data_task_base<Float>> sub_data_task_ptr_;
+    homogen_table res_table_;
+    pr::ndarray<Float, 2> res_nd_;
 };
 
 #endif

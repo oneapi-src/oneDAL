@@ -153,6 +153,24 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
                         const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void operator()(const context_gpu& ctx,
+                    const descriptor_t& desc,
+                    const table& x,
+                    const table& y,
+                    homogen_table& res) {
+        auto& queue = ctx.get_queue();
+        const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
+        const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
+
+        auto res_ptr = res.get_data<Float>();
+        auto res_nd = pr::ndarray<Float, 2>::wrap(const_cast<Float*>(res_ptr),
+                                                  { x.get_row_count(), y.get_row_count() });
+
+        compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma()).wait_and_throw();
+    }
+#endif
 };
 
 template struct compute_kernel_gpu<float, method::dense, task::compute>;

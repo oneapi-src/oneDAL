@@ -83,6 +83,16 @@ struct compute_kernel_cpu<Float, method::dense, task::compute> {
                         const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void operator()(const context_cpu& ctx,
+                    const descriptor_t& desc,
+                    const table& x,
+                    const table& y,
+                    homogen_table& res) const {
+        // throw not implemented
+    }
+#endif
 };
 
 template struct compute_kernel_cpu<float, method::dense, task::compute>;
