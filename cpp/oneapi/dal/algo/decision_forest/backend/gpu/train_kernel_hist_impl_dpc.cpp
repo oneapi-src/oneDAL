@@ -2752,7 +2752,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     de::check_mul_overflow<size_t>((ctx.tree_count_ - 1), skip_num);
 
-    pr::engine_collection collection(ctx.tree_count_);
+    pr::engine_collection collection(ctx.tree_count_, desc.get_seed());
     rng_engine_list_t engine_arr = collection([&](size_t i, size_t& skip) {
         skip = i * skip_num;
     });
