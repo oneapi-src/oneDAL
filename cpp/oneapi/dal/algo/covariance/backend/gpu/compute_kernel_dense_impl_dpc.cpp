@@ -23,6 +23,7 @@
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
@@ -131,6 +132,7 @@ auto compute_covariance(sycl::queue& q,
                         const pr::ndview<Float, 2>& data,
                         const pr::ndarray<Float, 1>& sums,
                         const pr::ndarray<Float, 1>& means,
+                        const pr::ndarray<Float, 1>& vars,
                         const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(data.has_data());
@@ -139,34 +141,34 @@ auto compute_covariance(sycl::queue& q,
     const std::int64_t column_count = data.get_dimension(1);
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    //auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto cov_event = pr::covariance(q, data, sums, means, cov, vars, tmp, deps);
 
     return std::make_tuple(cov, tmp, cov_event);
 }
 
-// template <typename Float>
-// auto compute_correlation(sycl::queue& q,
-//                          const pr::ndview<Float, 2>& data,
-//                          const pr::ndview<Float, 1>& sums,
-//                          pr::ndview<Float, 1>& means,
-//                          const dal::backend::event_vector& deps = {}) {
-//     ONEDAL_PROFILER_TASK(compute_correlation, q);
-//     ONEDAL_ASSERT(data.has_data());
-//     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
-//     ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
-//     const std::int64_t column_count = data.get_dimension(1);
-//     auto corr =
-//         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-//     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-//     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-//     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-//     auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, gemm_event);
+template <typename Float>
+auto compute_correlation(sycl::queue& q,
+                         const pr::ndview<Float, 2>& data,
+                         const pr::ndarray<Float, 1>& sums,
+                         const pr::ndarray<Float, 1>& means,
+                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_correlation, q);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+    ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
+    const std::int64_t column_count = data.get_dimension(1);
+    auto corr =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
+    auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, { gemm_event });
 
-//     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
-//     return std::make_tuple(corr, smart_event);
-// }
+    auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
+    return std::make_tuple(corr, smart_event);
+}
 
 // template <typename Float>
 // auto compute_correlation_with_covariance(sycl::queue& q,
@@ -852,9 +854,10 @@ template <typename Float, cov_list List>
 result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& desc,
                                                             const input_t& input) {
     const auto data = input.get_data();
-
+    //bool is_corr_computed = false;
     std::int64_t row_count = data.get_row_count();
     std::int64_t column_count = data.get_column_count();
+    auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
@@ -863,26 +866,44 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     auto [ndres, last_event] = (row_block_count > 1) ? compute_by_blocks(data_nd, row_block_count)
                                                      : compute_single_pass(data_nd);
 
-    auto [cov, tmp, cov_event] =
-        compute_covariance<Float>(q_, data_nd, ndres.get_sum(), ndres.get_mean(), { last_event });
+    // auto [cov, tmp, cov_event] =
+    //     compute_covariance<Float>(q_, data_nd, ndres.get_sum(), ndres.get_mean(), { last_event });
     std::tie(ndres, last_event) =
         finalize(std::move(ndres), row_count, column_count, { last_event });
+    // if (desc.get_result_options().test(result_options::cov_matrix)) {
+    //     auto [cov, tmp, cov_event] = compute_covariance(q_, data_nd, ndres.get_sum(), ndres.get_mean(), { last_event });
 
-    return get_result(desc, std::move(ndres), column_count, { last_event })
-        .set_result_options(desc.get_result_options());
+    //     result.set_cov_matrix(
+    //         (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
+
+    // }
+    // if (desc.get_result_options().test(result_options::cor_matrix) && !is_corr_computed) {
+    //     auto [corr, corr_event] = compute_correlation(q_, data_nd, ndres.get_sum(), ndres.get_mean(), { last_event });
+
+    //     result.set_cor_matrix(
+    //         (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
+    // }
+    if (desc.get_result_options().test(result_options::means)) {
+        result.set_means(
+            homogen_table::wrap(std::move(ndres).get_mean().flatten(q_, { last_event }),
+                                1,
+                                column_count));
+    }
+
+    return result;
 }
 
 #define INSTANTIATE(LIST)                                  \
     template class compute_kernel_dense_impl<float, LIST>; \
     template class compute_kernel_dense_impl<double, LIST>;
 
-// INSTANTIATE(cov_mode_mean);
+INSTANTIATE(cov_mode_mean);
 // INSTANTIATE(cov_mode_cov);
 // INSTANTIATE(cov_mode_cor);
 // INSTANTIATE(cov_mode_cov_mean);
 // INSTANTIATE(cov_mode_cov_cor);
 // INSTANTIATE(cov_mode_cor_mean);
-INSTANTIATE(cov_mode_all);
+//INSTANTIATE(cov_mode_all);
 
 } // namespace oneapi::dal::covariance::backend
 

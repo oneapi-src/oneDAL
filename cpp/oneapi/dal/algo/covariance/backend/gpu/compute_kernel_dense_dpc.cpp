@@ -66,7 +66,7 @@ static result_t compute(const bk::context_gpu& ctx,
     //     return compute_kernel_dense_impl<Float, cov_mode_cor_mean>(ctx)(desc, input);
     // }
 
-    return compute_kernel_dense_impl<Float, cov_mode_all>(ctx)(desc, input);
+    return compute_kernel_dense_impl<Float, cov_mode_mean>(ctx)(desc, input);
 }
 
 template <typename Float>

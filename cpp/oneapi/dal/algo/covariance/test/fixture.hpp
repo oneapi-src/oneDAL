@@ -22,7 +22,7 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-
+#include <iostream>
 namespace oneapi::dal::covariance::test {
 
 namespace te = dal::test::engine;
@@ -142,6 +142,14 @@ public:
 
     void check_means_values(const table& data, const table& means) {
         const auto reference_means = compute_reference_means(data);
+        const auto data_matrix = la::matrix<double>::wrap(means);
+        for (int i = 0; i < means.get_column_count(); i++) {
+            std::cout << data_matrix.get(0, i) << " ";
+        }
+        std::cout << std::endl;
+        for (int i = 0; i < means.get_column_count(); i++) {
+            std::cout << reference_means.get(0, i) << " ";
+        }
         const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
         const double diff = te::abs_error(reference_means, means);
         CHECK(diff < tol);
