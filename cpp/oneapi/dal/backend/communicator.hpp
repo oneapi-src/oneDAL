@@ -67,46 +67,60 @@ public:
             : public_comm_(comm),
               is_distributed_(false) {}
 
+    /// Returns true if it is a fake communicator
     bool is_distributed() const {
         return is_distributed_;
     }
 
+    /// Returns current executor identifier
     std::int64_t get_rank() const {
         return public_comm_.get_rank();
     }
 
+    /// Returns number of executors
     std::int64_t get_rank_count() const {
         return public_comm_.get_rank_count();
     }
 
+    /// Returns identifier of the root rank
     std::int64_t get_default_root_rank() const {
         return public_comm_.get_default_root_rank();
     }
 
+    /// Returns `true` if the current rank is root
     template <typename... Args>
     bool is_root_rank(Args&&... args) const {
         return public_comm_.is_root_rank(std::forward<Args>(args)...);
     }
 
+    /// Synchronizes all executors
     void barrier() const {
         public_comm_.barrier();
     }
 
+    /// Broadcasts a message from the `root` rank to all other ranks
     template <typename... Args>
     communicator_event bcast(Args&&... args) const {
         return public_comm_.bcast(std::forward<Args>(args)...);
     }
 
+    /// Collects data from all the ranks within a communicator into a single buffer
+    /// and redistribute to all ranks.
+    /// The data size send by each rank may be different.
     template <typename... Args>
     communicator_event allgatherv(Args&&... args) const {
         return public_comm_.allgatherv(std::forward<Args>(args)...);
     }
 
+    /// Collects data from all the ranks within a communicator into a single buffer
+    /// and redistribute to all ranks.
     template <typename... Args>
     communicator_event allgather(Args&&... args) const {
         return public_comm_.allgather(std::forward<Args>(args)...);
     }
 
+    /// Combines data from all ranks using reduction operation and
+    /// distributes the result back to all ranks
     template <typename... Args>
     communicator_event allreduce(Args&&... args) const {
         return public_comm_.allreduce(std::forward<Args>(args)...);

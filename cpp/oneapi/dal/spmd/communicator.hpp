@@ -39,14 +39,17 @@ class request : public base {
     friend dal::detail::pimpl_accessor;
 
 public:
+    /// Creates empty request
     request() : impl_(nullptr) {}
 
+    /// Waits for the request to be completed
     void wait() {
         if (impl_) {
             impl_->wait();
         }
     }
 
+    /// Checks if the request has been completed
     bool test() {
         if (impl_) {
             return impl_->test();
@@ -63,22 +66,72 @@ class communicator_iface_base {
 public:
     virtual ~communicator_iface_base() = default;
 
+    /// Returns current executor rank identifier
     virtual std::int64_t get_rank() = 0;
+
+    /// Returns executors count
     virtual std::int64_t get_rank_count() = 0;
+
+    /// Returns default root rak identifier
     virtual std::int64_t get_default_root_rank() = 0;
 
+    /// Synchronizes all executors
     virtual void barrier() = 0;
 
+    /// Shares specified data with the root rank
+    ///
+    /// @param send_buf     Raw pointer to the buffer
+    ///                     to be broadcasted
+    /// @param count        Buffer size in bytes
+    ///                     to be broadcasted
+    /// @param dtype        Data type flag
+    /// @param root         The root rank identifier
+    ///
+    /// @return Pointer to the request object that
+    ///         represents broadcast operation status
     virtual request_iface* bcast(byte_t* send_buf,
                                  std::int64_t count,
                                  const data_type& dtype,
                                  std::int64_t root) = 0;
+
+    /// Gathers data from all executors and
+    /// delivers data back to all executors
+    ///
+    /// @param send_buf     Raw pointer to the buffer
+    ///                     to be sent
+    /// @param send_count   Number of elements in
+    ///                     send buffer
+    /// @param recv_buf     Raw pointer to the buffer
+    ///                     to be received
+    /// @param recv_count   Numbers of elements in
+    ///                     recv buffer
+    /// @param displs_host  Specifies array of
+    ///                     displacements
+    /// @param dtype        Data type flag
+    ///
+    /// @return Pointer to the request object that
+    ///         represents allgetherv operation status
     virtual request_iface* allgatherv(const byte_t* send_buf,
                                       std::int64_t send_count,
                                       byte_t* recv_buf,
                                       const std::int64_t* recv_counts_host,
                                       const std::int64_t* displs_host,
                                       const data_type& dtype) = 0;
+
+    /// Reduces data from all executrors
+    /// with specified binary operation
+    ///
+    /// @param send_buf     Raw pointer to the buffer
+    ///                     to be sent
+    /// @param recv_buf     Raw pointer to the buffer
+    ///                     to be received and reduced
+    /// @param count        Number of elements to be
+    ///                     reduced
+    /// @param dtype        Data type flag
+    /// @param op           Reduction binary operation
+    ///
+    /// @return Pointer to the request object that
+    ///         represents allreduce operation status
     virtual request_iface* allreduce(const byte_t* send_buf,
                                      byte_t* recv_buf,
                                      std::int64_t count,
@@ -103,12 +156,47 @@ public:
     using base_t::allgatherv;
     using base_t::allreduce;
 
+    /// Shares specified data with the root rank
+    ///
+    /// @param queue        Represents executor device
+    /// @param send_buf     Raw pointer to the buffer
+    ///                     to be broadcasted
+    /// @param count        Buffer size in bytes
+    ///                     to be broadcasted
+    /// @param dtype        Data type flag
+    /// @param root         The root rank identifier
+    /// @param deps         Dependencies of this
+    ///                     request
+    ///
+    /// @return Pointer to the request object that
+    ///         represents broadcast operation status
     virtual request_iface* bcast(sycl::queue& q,
                                  byte_t* send_buf,
                                  std::int64_t count,
                                  const data_type& dtype,
                                  const std::vector<sycl::event>& deps,
                                  std::int64_t root) = 0;
+
+    /// Gathers data from all executors and
+    /// delivers data back to all executors
+    ///
+    /// @param queue        Represents executor device
+    /// @param send_buf     Raw pointer to the buffer
+    ///                     to be sent
+    /// @param send_count   Number of elements in
+    ///                     send buffer
+    /// @param recv_buf     Raw pointer to the buffer
+    ///                     to be received
+    /// @param recv_count   Numbers of elements in
+    ///                     recv buffer
+    /// @param displs_host  Specifies array of
+    ///                     displacements
+    /// @param dtype        Data type flag
+    /// @param deps         Dependencies of this
+    ///                     request
+    ///
+    /// @return Pointer to the request object that
+    ///         represents allgetherv operation status
     virtual request_iface* allgatherv(sycl::queue& q,
                                       const byte_t* send_buf,
                                       std::int64_t send_count,
@@ -117,6 +205,24 @@ public:
                                       const std::int64_t* displs_host,
                                       const data_type& dtype,
                                       const std::vector<sycl::event>& deps) = 0;
+
+    /// Reduces data from all executrors
+    /// with specified binary operation
+    ///
+    /// @param queue        Represents executor device
+    /// @param send_buf     Raw pointer to the buffer
+    ///                     to be sent
+    /// @param recv_buf     Raw pointer to the buffer
+    ///                     to be received and reduced
+    /// @param count        Number of elements to be
+    ///                     reduced
+    /// @param dtype        Data type flag
+    /// @param op           Reduction binary operation
+    /// @param deps         Dependencies of this
+    ///                     request
+    ///
+    /// @return Pointer to the request object that
+    ///         represents allreduce operation status
     virtual request_iface* allreduce(sycl::queue& q,
                                      const byte_t* send_buf,
                                      byte_t* recv_buf,
@@ -147,12 +253,17 @@ private:
     using interface_type = typename interface_selector<MemoryAccessKind>::type;
 
 public:
+    /// Returns current executor identifier
     std::int64_t get_rank() const {
         return impl_->get_rank();
     }
+
+    /// Returns number of executors
     std::int64_t get_rank_count() const {
         return impl_->get_rank_count();
     }
+
+    /// Returns identifier of the root rank
     std::int64_t get_default_root_rank() const {
         return impl_->get_default_root_rank();
     }
@@ -161,6 +272,7 @@ public:
     bool is_root_rank(std::int64_t root = -1) const {
         return get_rank() == fix_root_rank(root);
     }
+
     std::int64_t fix_root_rank(std::int64_t root) const {
         if (root < 0) {
             return get_default_root_rank();
@@ -192,7 +304,18 @@ public:
             impl_->bcast(buf, count, dtype, fix_root_rank(root)));
     }
 #ifdef ONEDAL_DATA_PARALLEL
-    /// `bcast` that accepts USM pointers
+    /// Broadcasts a message from the `root` rank to all other ranks
+    ///
+    /// @param queue        Represents executor device
+    /// @param buf   The buffer which content is broadcasted
+    /// @param count The number of elements of `dtype` in `send_buf`
+    /// @param dtype The type of elements in the passed buffers
+    /// @param root  The rank of the broadcasting process, if the passed
+    ///              rank is negative, the default root rank is used
+    /// @param deps         Dependencies of this
+    ///                     request
+    ///
+    /// @return The object to track the progress of the operation
     template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     request bcast(sycl::queue& queue,
                   byte_t* buf,
@@ -205,6 +328,14 @@ public:
             impl_->bcast(queue, buf, count, dtype, deps, fix_root_rank(root)));
     }
 #endif
+    /// Broadcasts a message from the `root` rank to all other ranks
+    ///
+    /// @param buf   The buffer which content is broadcasted
+    /// @param count The number of elements of `dtype` in `send_buf`
+    /// @param root  The rank of the broadcasting process, if the passed
+    ///              rank is negative, the default root rank is used
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D, typename = enable_if_primitive_t<D>>
     request bcast(D* buf, std::int64_t count, std::int64_t root = -1) const {
         auto ret =
@@ -212,6 +343,16 @@ public:
         return ret;
     }
 #ifdef ONEDAL_DATA_PARALLEL
+    /// Broadcasts a message from the `root` rank to all other ranks
+    ///
+    /// @param queue        Represents executor device
+    /// @param buf          The buffer which content is broadcasted
+    /// @param count        The number of elements of `dtype` in `send_buf`
+    /// @param root         The rank of the broadcasting process, if the passed
+    ///                     rank is negative, the default root rank is used
+    /// @param deps         Dependencies of this request
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D,
               typename T = MemoryAccessKind,
               typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
@@ -229,12 +370,30 @@ public:
                      root);
     }
 #endif
+
+    /// Broadcasts a message from the `root` rank to all other ranks
+    ///
+    /// @param value        The value which content is broadcasted
+    /// @param root         The rank of the broadcasting process, if the passed
+    ///                     rank is negative, the default root rank is used
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D, typename = enable_if_primitive_t<D>>
     request bcast(D& value, std::int64_t root = -1) const {
         return bcast(&value, 1, root);
     }
+
+    /// Broadcasts a message from the `root` rank to all other ranks
+    ///
+    /// @param ary   The buffer which content is broadcasted
+    /// @param count The number of elements of `dtype` in `send_buf`
+    /// @param root  The rank of the broadcasting process, if the passed
+    ///              rank is negative, the default root rank is used
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D>
     request bcast(const array<D>& ary, std::int64_t root = -1) const;
+
     /// Gathers data from all ranks and distributes the results back to all ranks
     ///
     /// @param send_buf   The send buffer
@@ -247,6 +406,12 @@ public:
     template <typename D>
     request allgather(const array<D>& send, const array<D>& recv) const;
 
+    /// Gathers data from all ranks and distributes the results back to all ranks
+    ///
+    /// @param scalar     The send value
+    /// @param recv       The receiving array
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D>
     request allgather(D& scalar, const array<D>& recv) const;
     /// Collects data from all the ranks within a communicator into a single buffer
@@ -279,7 +444,27 @@ public:
             impl_->allgatherv(send_buf, send_count, recv_buf, recv_counts, displs, dtype));
     }
 #ifdef ONEDAL_DATA_PARALLEL
-    /// `allgatherv` that accepts USM pointers
+    /// Collects data from all the ranks within a communicator into a single buffer
+    /// and redistribute to all ranks.
+    /// The data size send by each rank may be different.
+    ///
+    /// @param queue      Represents executor device
+    /// @param send_buf   The send buffer
+    /// @param send_count The number of elements of `dtype` in `send_buf`
+    /// @param recv_buf   The receiveing buffer, must contain at least
+    ///                   `rank_count * recv_count` elements,
+    ///                   significant only at `root`
+    /// @param recv_count The number of elements of `dtype` received from
+    ///                   each rank, must contain at least `rank_count` elements,
+    ///                   significant only at `root`
+    /// @param displs     Entry $i$ specifies the displacement relative to
+    ///                   `recv_buf` at which to place the incoming data
+    ///                   from process $i$, must contain at least `rank_count`
+    ///                   elements, significant only at `root`
+    /// @param dtype      The type of elements in the passed buffers
+    /// @param deps       Dependencies of this request
+    ///
+    /// @return The object to track the progress of the operation
     template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     request allgatherv(sycl::queue& queue,
                        const byte_t* send_buf,
@@ -300,6 +485,24 @@ public:
                                                                     deps));
     }
 #endif
+    /// Collects data from all the ranks within a communicator into a single buffer
+    /// and redistribute to all ranks.
+    /// The data size send by each rank may be different.
+    ///
+    /// @param send_buf   The send buffer
+    /// @param send_count The number of elements of `dtype` in `send_buf`
+    /// @param recv_buf   The receiveing buffer, must contain at least
+    ///                   `rank_count * recv_count` elements,
+    ///                   significant only at `root`
+    /// @param recv_count The number of elements of `dtype` received from
+    ///                   each rank, must contain at least `rank_count` elements,
+    ///                   significant only at `root`
+    /// @param displs     Entry $i$ specifies the displacement relative to
+    ///                   `recv_buf` at which to place the incoming data
+    ///                   from process $i$, must contain at least `rank_count`
+    ///                   elements, significant only at `root`
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D, enable_if_primitive_t<D>* = nullptr>
     request allgatherv(const D* send_buf,
                        std::int64_t send_count,
@@ -314,6 +517,26 @@ public:
                           dal::detail::make_data_type<D>());
     }
 #ifdef ONEDAL_DATA_PARALLEL
+    /// Collects data from all the ranks within a communicator into a single buffer
+    /// and redistribute to all ranks.
+    /// The data size send by each rank may be different.
+    ///
+    /// @param queue      Represents executor device
+    /// @param send_buf   The send buffer
+    /// @param send_count The number of elements of `dtype` in `send_buf`
+    /// @param recv_buf   The receiveing buffer, must contain at least
+    ///                   `rank_count * recv_count` elements,
+    ///                   significant only at `root`
+    /// @param recv_count The number of elements of `dtype` received from
+    ///                   each rank, must contain at least `rank_count` elements,
+    ///                   significant only at `root`
+    /// @param displs     Entry $i$ specifies the displacement relative to
+    ///                   `recv_buf` at which to place the incoming data
+    ///                   from process $i$, must contain at least `rank_count`
+    ///                   elements, significant only at `root`
+    /// @param deps       Dependencies of this request
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D,
               typename T = MemoryAccessKind,
               typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
@@ -335,6 +558,24 @@ public:
                           deps);
     }
 #endif
+    /// Collects data from all the ranks within a communicator into a single buffer
+    /// and redistribute to all ranks.
+    /// The data size send by each rank may be different.
+    ///
+    /// @param send_buf   The send buffer
+    /// @param send_count The number of elements of `dtype` in `send_buf`
+    /// @param recv_buf   The receiveing buffer, must contain at least
+    ///                   `rank_count * recv_count` elements,
+    ///                   significant only at `root`
+    /// @param recv_count The number of elements of `dtype` received from
+    ///                   each rank, must contain at least `rank_count` elements,
+    ///                   significant only at `root`
+    /// @param displs     Entry $i$ specifies the displacement relative to
+    ///                   `recv_buf` at which to place the incoming data
+    ///                   from process $i$, must contain at least `rank_count`
+    ///                   elements, significant only at `root`
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D>
     request allgatherv(const array<D>& send,
                        const array<D>& recv,
@@ -361,7 +602,19 @@ public:
             impl_->allreduce(send_buf, recv_buf, count, dtype, op));
     }
 #ifdef ONEDAL_DATA_PARALLEL
-    /// `allreduce` that accepts USM pointers
+    /// Combines data from all ranks using reduction operation and
+    /// distributes the result back to all ranks
+    ///
+    /// @param queue    Represents executor device
+    /// @param send_buf The send buffer
+    /// @param recv_buf The receiving buffer
+    /// @param count    The number of elements of `dtype` sent to and
+    ///                 received from each rank
+    /// @param dtype    The type of elements in the passed buffers
+    /// @param op       The reduction operation
+    /// @param deps     Dependencies of this request
+    ///
+    /// @return The object to track the progress of the operation
     template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     request allreduce(sycl::queue& queue,
                       const byte_t* send_buf,
@@ -375,6 +628,17 @@ public:
             impl_->allreduce(queue, send_buf, recv_buf, count, dtype, op, deps));
     }
 #endif
+    /// Combines data from all ranks using reduction operation and
+    /// distributes the result back to all ranks
+    ///
+    /// @param send_buf The send buffer
+    /// @param recv_buf The receiving buffer
+    /// @param count    The number of elements of `dtype` sent to and
+    ///                 received from each rank
+    /// @param dtype    The type of elements in the passed buffers
+    /// @param op       The reduction operation
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D, enable_if_primitive_t<D>* = nullptr>
     request allreduce(const D* send_buf,
                       D* recv_buf,
@@ -387,6 +651,18 @@ public:
                          op);
     }
 #ifdef ONEDAL_DATA_PARALLEL
+    /// Combines data from all ranks using reduction operation and
+    /// distributes the result back to all ranks
+    ///
+    /// @param queue    Represents executor device
+    /// @param send_buf The send buffer
+    /// @param recv_buf The receiving buffer
+    /// @param count    The number of elements of `dtype` sent to and
+    ///                 received from each rank
+    /// @param op       The reduction operation
+    /// @param deps     Dependencies of this request
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D,
               typename T = MemoryAccessKind,
               typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
@@ -407,14 +683,30 @@ public:
                          deps);
     }
 #endif
+    /// Combines data from all ranks using reduction operation and
+    /// distributes the result back to all ranks
+    ///
+    /// @param queue    Represents executor device
+    /// @param scalar   Source and return value
+    /// @param op       The reduction operation
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D, typename = enable_if_primitive_t<D>>
     request allreduce(D& scalar, const reduce_op& op = reduce_op::sum) const {
         return allreduce(&scalar, &scalar, 1, op);
     }
+    /// Combines data from all ranks using reduction operation and
+    /// distributes the result back to all ranks
+    ///
+    /// @param queue    Represents executor device
+    /// @param scalar   Source and return value
+    /// @param op       The reduction operation
+    /// @param deps     Dependencies of this request
+    ///
+    /// @return The object to track the progress of the operation
     template <typename D>
     request allreduce(const array<D>& ary, const reduce_op& op = reduce_op::sum) const;
 #ifdef ONEDAL_DATA_PARALLEL
-    /// `bcast` that accepts USM pointers
     template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     sycl::queue get_queue() const {
         return impl_->get_queue();
@@ -422,6 +714,8 @@ public:
 #endif
 
     void set_active_exception(const std::exception_ptr& ex_ptr) const;
+
+    /// Waits for all exceptions to be handled
     void wait_for_exception_handling() const;
 
 protected:
