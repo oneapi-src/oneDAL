@@ -110,14 +110,11 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                 total_count += recv_counts.get_data()[i];
             }
             ONEDAL_ASSERT(total_count > 0);
-            auto send_queue = recv_counts[rank] > 0
-                                  ? arr_queue.slice(queue_begin, recv_counts[rank])
-                                  : dummy_int_array;
-            auto recv_queue = arr_queue.slice(queue_begin, total_count);
-            comm.allgatherv(send_queue.flatten(queue),
-                            recv_queue.flatten(queue),
-                            recv_counts.get_data(),
-                            displs.get_data())
+            auto send_array = recv_counts[rank] > 0
+                                  ? arr_queue.slice(queue_begin, recv_counts[rank]).flatten(queue)
+                                  : array<std::int32_t>::wrap(queue, arr_queue.get_data(), 0);
+            auto recv_array = arr_queue.slice(queue_begin, total_count).flatten(queue);
+            comm.allgatherv(send_array, recv_array, recv_counts.get_data(), displs.get_data())
                 .wait();
             queue_end = queue_begin + total_queue_size;
             arr_queue_front.fill(queue, queue_end).wait_and_throw();
