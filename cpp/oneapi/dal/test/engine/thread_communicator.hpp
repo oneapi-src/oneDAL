@@ -261,7 +261,10 @@ private:
                        const data_type& dtype,
                        const spmd::reduce_op& op);
 
-    static void fill_with_zeros(byte_t* dst, std::int64_t count, const data_type& dtype);
+    static void fill_by_op_id(byte_t* dst,
+                              std::int64_t count,
+                              const data_type& dtype,
+                              const spmd::reduce_op& op_id);
 
     template <typename T>
     static void reduce_impl(const byte_t* src,
@@ -271,6 +274,12 @@ private:
 
     template <typename T>
     static void fill_with_zeros_impl(byte_t* dst, std::int64_t count);
+
+    template <typename T>
+    static void fill_with_min_impl(byte_t* dst, std::int64_t count);
+
+    template <typename T>
+    static void fill_with_max_impl(byte_t* dst, std::int64_t count);
 
     static bool data_blocks_has_intersection(const byte_t* x, const byte_t* y, std::int64_t count) {
         const std::uintptr_t x_address = std::uintptr_t(x);
