@@ -33,27 +33,24 @@ void run(sycl::queue& q) {
     const auto test_response_file_name = get_data_path("linear_regression_test_responses.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
-    const auto y_train =
-        dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
-
-    const auto lr_desc = dal::linear_regression::descriptor<>();
-
+    const auto y_train = dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
 
+
+    const auto lr_desc = dal::linear_regression::descriptor<>(true);
+
+    std::cout << x_train.get_row_count() << x_train.get_column_count() << std::endl;
+    std::cout << y_train.get_row_count() << y_train.get_column_count() << std::endl;
+
     const auto train_result = dal::train(q, lr_desc, x_train, y_train);
-    [[maybe_unused]] const auto lr_model = train_result.get_model();
+    const auto lr_model = train_result.get_model();
 
-    /*const auto test_result_uniform =
-        dal::infer(q, knn_desc_uniform, x_test, train_result_uniform.get_model());
-    const auto test_result_distance =
-        dal::infer(q, knn_desc_distance, x_test, train_result_distance.get_model());
+    const auto test_result_uniform = dal::infer(lr_desc, x_test, lr_model);
 
-    std::cout << "Test results (uniform regression):\n"
+    std::cout << "Test results:\n"
               << test_result_uniform.get_responses() << std::endl;
-    std::cout << "Test results (distance regression):\n"
-              << test_result_distance.get_responses() << std::endl;
-    std::cout << "True responses:\n" << y_test << std::endl;*/
+    std::cout << "True responses:\n" << y_test << std::endl;
 }
 
 int main(int argc, char const* argv[]) {

@@ -20,7 +20,7 @@
 //  Implementation of common base classes for normal equations model training.
 //--
 */
-#include <iostream>
+
 #include "src/algorithms/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
 #include "src/sycl/blas_gpu.h"
 #include "services/internal/execution_context.h"
