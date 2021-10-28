@@ -337,7 +337,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             {
                 const auto ch = child[k * 4 + i];
                 curChild[i]   = ch;
-                curMass[i] = mass[ch];
+                curMass[i]    = mass[ch];
             }
 
             // all children are ready
@@ -846,7 +846,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     //start iterations
     for (IdxType i = 0; i < explorationIter; ++i)
     {
-        status       = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
+        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
 
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child, posx, posy, nNodes, N, maxDepth, bottom, radius);
@@ -900,7 +900,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
     for (IdxType i = explorationIter; i < maxIter; ++i)
     {
-        status       = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
+        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
 
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child, posx, posy, nNodes, N, maxDepth, bottom, radius);
