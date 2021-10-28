@@ -39,34 +39,34 @@ template <typename Float>
 static result_t compute(const bk::context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) {
-    //const auto res_op = desc.get_result_options();
-    // const auto cov_mode_mean = cov_list::mean;
-    // const auto cov_mode_cov = cov_list::cov;
-    // const auto cov_mode_cor = cov_list::cor;
-    // const auto cov_mode_cov_mean = cov_list::cov |cov_list::mean;
-    // const auto cov_mode_cov_cor = cov_list::cov |cov_list::cor;
-    // const auto cov_mode_cor_mean = cov_list::cor |cov_list::mean;
+    const auto res_op = desc.get_result_options();
+    const auto mode_mean = result_options::means;
+    const auto mode_cov = result_options::cov_matrix;
+    const auto mode_cor = result_options::cor_matrix;
+    const auto mode_cov_mean = result_options::cov_matrix | result_options::means;
+    const auto mode_cov_cor = result_options::cov_matrix | result_options::cor_matrix;
+    const auto mode_cor_mean = result_options::cor_matrix | result_options::means;
 
-    // if (res_op.test(cov_mode_mean)) {
-    //     return compute_kernel_dense_impl<Float, cov_mode_mean>(ctx)(desc, input);
-    // }
-    // else if (res_op.test(cov_mode_cov)) {
-    //     return compute_kernel_dense_impl<Float, cov_mode_cov>(ctx)(desc, input);
-    // }
-    // else if (res_op.test(cov_mode_cor)) {
-    //     return compute_kernel_dense_impl<Float, cov_mode_cor>(ctx)(desc, input);
-    // }
-    // else if (res_op.test(cov_mode_cov_mean)) {
-    //     return compute_kernel_dense_impl<Float, cov_mode_cov_mean>(ctx)(desc, input);
-    // }
-    // else if (res_op.test(cov_mode_cov_cor)) {
-    //     return compute_kernel_dense_impl<Float, cov_mode_cov_cor>(ctx)(desc, input);
-    // }
-    // else if (res_op.test(cov_mode_cor_mean)) {
-    //     return compute_kernel_dense_impl<Float, cov_mode_cor_mean>(ctx)(desc, input);
-    // }
+    if (res_op.test(mode_mean)) {
+        return compute_kernel_dense_impl<Float, cov_mode_mean>(ctx)(desc, input);
+    }
+    else if (res_op.test(mode_cov)) {
+        return compute_kernel_dense_impl<Float, cov_mode_cov>(ctx)(desc, input);
+    }
+    else if (res_op.test(mode_cor)) {
+        return compute_kernel_dense_impl<Float, cov_mode_cor>(ctx)(desc, input);
+    }
+    else if (res_op.test(mode_cov_mean)) {
+        return compute_kernel_dense_impl<Float, cov_mode_cov_mean>(ctx)(desc, input);
+    }
+    else if (res_op.test(mode_cov_cor)) {
+        return compute_kernel_dense_impl<Float, cov_mode_cov_cor>(ctx)(desc, input);
+    }
+    else if (res_op.test(mode_cor_mean)) {
+        return compute_kernel_dense_impl<Float, cov_mode_cor_mean>(ctx)(desc, input);
+    }
 
-    return compute_kernel_dense_impl<Float, cov_mode_mean>(ctx)(desc, input);
+    return compute_kernel_dense_impl<Float, cov_mode_all>(ctx)(desc, input);
 }
 
 template <typename Float>

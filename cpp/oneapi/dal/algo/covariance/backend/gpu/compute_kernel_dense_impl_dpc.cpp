@@ -1034,7 +1034,6 @@ template <typename Float, cov_list List>
 result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& desc,
                                                             const input_t& input) {
     const auto data = input.get_data();
-    //bool is_corr_computed = false;
     std::int64_t row_count = data.get_row_count();
     std::int64_t column_count = data.get_column_count();
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
@@ -1050,18 +1049,22 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     //     compute_covariance<Float>(q_, data_nd, ndres.get_sum(), ndres.get_mean(), { last_event });
     std::tie(ndres, last_event) =
         finalize(std::move(ndres), row_count, column_count, { last_event });
-    // if (desc.get_result_options().test(result_options::cov_matrix)) {
-    //     auto [cov, cov_event] = compute_covariance(q_, data_nd, ndres.get_sum(), { last_event });
-    //     result.set_cov_matrix(
-    //          (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
+    if (desc.get_result_options().test(result_options::cov_matrix)) {
+        auto [cov, cov_event] = compute_covariance(q_, data_nd, ndres.get_sum(), { last_event });
+        result.set_cov_matrix(
+            (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
+    }
+    if (desc.get_result_options().test(result_options::cor_matrix)) {
+        auto [corr, corr_event] = compute_correlation(q_,
+                                                      data_nd,
+                                                      ndres.get_sum(),
+                                                      ndres.get_mean(),
+                                                      ndres.get_varc(),
+                                                      { last_event });
 
-    // }
-    // if (desc.get_result_options().test(result_options::cor_matrix) && !is_corr_computed) {
-    //     auto [corr, corr_event] = compute_correlation(q_, data_nd, ndres.get_sum(), ndres.get_mean(), ndres.get_varc(), { last_event });
-
-    //     result.set_cor_matrix(
-    //         (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
-    // }
+        result.set_cor_matrix(
+            (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
+    }
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(
             homogen_table::wrap(std::move(ndres).get_mean().flatten(q_, { last_event }),
@@ -1077,12 +1080,12 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     template class compute_kernel_dense_impl<double, LIST>;
 
 INSTANTIATE(cov_mode_mean);
-// INSTANTIATE(cov_mode_cov);
-// INSTANTIATE(cov_mode_cor);
-//INSTANTIATE(cov_mode_cov_mean);
-// INSTANTIATE(cov_mode_cov_cor);
-// INSTANTIATE(cov_mode_cor_mean);
-//INSTANTIATE(cov_mode_all);
+INSTANTIATE(cov_mode_cov);
+INSTANTIATE(cov_mode_cor);
+INSTANTIATE(cov_mode_cov_mean);
+INSTANTIATE(cov_mode_cov_cor);
+INSTANTIATE(cov_mode_cor_mean);
+INSTANTIATE(cov_mode_all);
 
 } // namespace oneapi::dal::covariance::backend
 
