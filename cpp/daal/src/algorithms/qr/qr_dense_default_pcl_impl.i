@@ -103,6 +103,20 @@ inline int * get_nblocks_array<double, avx2>(int * size)
     return array;
 }
 template <>
+inline int * get_nblocks_array<float, avx512_mic>(int * size)
+{
+    static int array[] = { 1, 1, 1, 2, 4, 8, 8, 16, 32, 32, 32, 64, 0 };
+    *size              = sizeof(array) / sizeof(int) - 1;
+    return array;
+}
+template <>
+inline int * get_nblocks_array<double, avx512_mic>(int * size)
+{
+    static int array[] = { 1, 1, 1, 2, 4, 8, 8, 16, 32, 32, 32, 32, 0 };
+    *size              = sizeof(array) / sizeof(int) - 1;
+    return array;
+}
+template <>
 inline int * get_nblocks_array<float, avx512>(int * size)
 {
     static int array[] = { 1, 1, 1, 2, 4, 8, 8, 16, 24, 32, 32, 32, 0 };

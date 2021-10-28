@@ -196,7 +196,11 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, 
     }
 
     /* Split rows by blocks. Each block should contain at least nBetasIntercept rows */
+#if (__CPUID__(DAAL_CPU) == __avx512_mic__)
+    size_t nRowsInBlock = (nRows <= 10000) ? 1024 : ((nRows >= 1000000) ? 512 : 2048);
+#else
     size_t nRowsInBlock = 128;
+#endif
     if (nRowsInBlock < nBetasIntercept) nRowsInBlock = nBetasIntercept;
 
     size_t nBlocks  = nRows / nRowsInBlock;
