@@ -25,6 +25,8 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_ONEAPI_IMPL_I__
 #define __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_ONEAPI_IMPL_I__
 
+#include <iostream>
+
 #include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
 
 namespace daal
@@ -41,6 +43,11 @@ template <typename algorithmFPType>
 services::Status BatchKernelOneAPI<algorithmFPType, training::normEqDense>::compute(NumericTable & x, NumericTable & y, NumericTable & xtx,
                                                                                     NumericTable & xty, NumericTable & beta, bool interceptFlag) const
 {
+    std::cout << x.getNumberOfRows() << ' ' << x.getNumberOfColumns() << std::endl;
+    std::cout << y.getNumberOfRows() << ' ' << y.getNumberOfColumns() << std::endl;
+    std::cout << xtx.getNumberOfRows() << ' ' << xtx.getNumberOfColumns() << std::endl;
+    std::cout << xty.getNumberOfRows() << ' ' << xty.getNumberOfColumns() << std::endl;
+    std::cout << beta.getNumberOfRows() << ' ' << beta.getNumberOfColumns() << std::endl;
     services::Status status = UpdateKernelType::compute(x, y, xtx, xty, interceptFlag);
     if (status) status = FinalizeKernelType::compute(xtx, xty, xtx, xty, beta, interceptFlag, KernelHelperOneAPI<algorithmFPType>());
     return status;

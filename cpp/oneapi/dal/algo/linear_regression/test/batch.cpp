@@ -48,10 +48,14 @@ public:
     using task_t = std::tuple_element_t<2, TestType>;
 
     void generate_dimensions() {
-        intercept_ = bool(GENERATE(0, 1));
+        /*intercept_ = bool(GENERATE(0, 1));
         s_count_ = GENERATE(13, 16, 24, 101);
         f_count_ = GENERATE(1, 3, 4, 8, 12);
-        r_count_ = GENERATE(1, 2, 5, 9, 13);
+        r_count_ = GENERATE(1, 2, 5, 9, 13);*/
+        intercept_ = bool(GENERATE(1));
+        s_count_ = GENERATE(3);
+        f_count_ = GENERATE(2);
+        r_count_ = GENERATE(2);
     }
 
     te::table_id get_homogen_table_id() const {
@@ -171,7 +175,7 @@ private:
 using lr_types = COMBINE_TYPES((float, double), (linear_regression::method::norm_eq), (linear_regression::task::regression));
 
 TEMPLATE_LIST_TEST_M(lr_batch_test, "LR common flow", "[lr][batch]", lr_types) {
-    SKIP_IF(this->get_policy().is_gpu());
+    //SKIP_IF(this->get_policy().is_gpu());
     SKIP_IF(this->not_float64_friendly());
 
     this->generate();
