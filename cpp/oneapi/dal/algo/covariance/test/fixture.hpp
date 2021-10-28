@@ -49,21 +49,21 @@ public:
     void general_checks(const te::dataframe& input, const te::table_id& input_table_id) {
         const table data = input.get_table(this->get_policy(), input_table_id);
 
-        // INFO("create descriptor cov cor means")
-        // auto cov_desc =
-        //     covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
-        //         covariance::result_options::cov_matrix | covariance::result_options::cor_matrix |
-        //         covariance::result_options::means);
-        // INFO("run compute optional: cov cor means");
-        // auto compute_result = this->compute(cov_desc, data);
-        // check_compute_result(data, compute_result);
+        INFO("create descriptor cov cor means")
+        auto cov_desc =
+            covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
+                covariance::result_options::cov_matrix | covariance::result_options::cor_matrix |
+                covariance::result_options::means);
+        INFO("run compute optional: cov cor means");
+        auto compute_result = this->compute(cov_desc, data);
+        check_compute_result(data, compute_result);
 
         INFO("create descriptor cov")
-        auto cov_desc =
+        cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix);
         INFO("run compute optional: cov");
-        auto compute_result = this->compute(cov_desc, data);
+        compute_result = this->compute(cov_desc, data);
         check_compute_result(data, compute_result);
 
         INFO("create descriptor cor")
@@ -98,13 +98,13 @@ public:
         compute_result = this->compute(cov_desc, data);
         check_compute_result(data, compute_result);
 
-        // INFO("create descriptor cor means")
-        // cov_desc =
-        //     covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
-        //         covariance::result_options::cor_matrix | covariance::result_options::means);
-        // INFO("run compute optional: cor means");
-        // compute_result = this->compute(cov_desc, data);
-        // check_compute_result(data, compute_result);
+        INFO("create descriptor cor means")
+        cov_desc =
+            covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
+                covariance::result_options::cor_matrix | covariance::result_options::means);
+        INFO("run compute optional: cor means");
+        compute_result = this->compute(cov_desc, data);
+        check_compute_result(data, compute_result);
     }
 
     void check_compute_result(const table& data, const covariance::compute_result<>& result) {
@@ -166,19 +166,19 @@ public:
     void check_cov_matrix_values(const table& data, const table& cov_matrix) {
         const auto reference_cov = compute_reference_cov(data);
         const auto data_matrix = la::matrix<double>::wrap(cov_matrix);
-        // for (int i = 0; i < data_matrix.get_column_count(); i++) {
-        //     for (int j = 0; j < data_matrix.get_column_count(); j++) {
-        //         std::cout << data_matrix.get(i, j) << " ";
-        //     }
-        //     std::cout << std::endl;
-        // }
-        // for (int i = 0; i < data_matrix.get_column_count(); i++) {
-        //     for (int j = 0; j < data_matrix.get_column_count(); j++) {
-        //         std::cout << reference_cov.get(i, j) << " ";
-        //     }
-        //     std::cout << std::endl;
-        // }
-        const double tol = te::get_tolerance<Float>(10000, 1000000);
+        for (int i = 0; i < data_matrix.get_column_count(); i++) {
+            for (int j = 0; j < data_matrix.get_column_count(); j++) {
+                std::cout << data_matrix.get(i, j) << " ";
+            }
+            std::cout << std::endl;
+        }
+        for (int i = 0; i < data_matrix.get_column_count(); i++) {
+            for (int j = 0; j < data_matrix.get_column_count(); j++) {
+                std::cout << reference_cov.get(i, j) << " ";
+            }
+            std::cout << std::endl;
+        }
+        const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
         const double diff = te::abs_error(reference_cov, cov_matrix);
         CHECK(diff < tol);
     }
@@ -204,7 +204,7 @@ public:
     }
     void check_cor_matrix_values(const table& data, const table& cor_matrix) {
         const auto reference_cor = compute_reference_cor(data);
-        const double tol = te::get_tolerance<Float>(10000, 100000);
+        const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
         const double diff = te::abs_error(reference_cor, cor_matrix);
         CHECK(diff < tol);
     }

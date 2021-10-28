@@ -96,6 +96,23 @@ sycl::event correlation_with_covariance(sycl::queue& queue,
                                         ndview<Float, 1>& tmp,
                                         const event_vector& deps = {});
 
+template <typename Float>
+sycl::event correlation_with_distributed(sycl::queue& q,
+                        const ndview<Float, 2>& data,
+                        const ndview<Float, 1>& sums,
+                        const ndview<Float, 1>& means,
+                        ndview<Float, 2>& corr,
+                        const ndview<Float, 1>& vars,
+                        ndview<Float, 1>& tmp,
+                        const event_vector& deps = {});
+
+template <typename Float>
+sycl::event covariance_with_distributed(sycl::queue& q,
+                       const ndview<Float, 2>& data,
+                       const ndview<Float, 1>& sums,
+                       ndview<Float, 2>& cov,
+                       const event_vector& deps = {});
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives
