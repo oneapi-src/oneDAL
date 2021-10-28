@@ -136,8 +136,8 @@ inline sycl::event finalize_covariance(sycl::queue& q,
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
 
     const std::int64_t n = row_count;
     const std::int64_t p = sums.get_count();
@@ -180,9 +180,9 @@ sycl::event covariance(sycl::queue& q,
     ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
                   "Element count of sums must match feature count");
 
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
 
     auto finalize_event = finalize_covariance(q, data.get_dimension(0), sums, cov, deps);
     finalize_event.wait_and_throw();
@@ -197,6 +197,7 @@ auto compute_covariance(sycl::queue& q,
                         const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
     const std::int64_t column_count = data.get_dimension(1);
     auto cov =
@@ -221,24 +222,24 @@ inline sycl::event prepare_correlation(sycl::queue& q,
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(vars.has_mutable_data());
+    //ONEDAL_ASSERT(vars.has_mutable_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
     const auto n = row_count;
     const auto p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
-    //const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
+    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
 
     const Float* sums_ptr = sums.get_data();
     const Float* corr_ptr = corr.get_mutable_data();
     //Float* means_ptr = means.get_mutable_data();
-    //Float* vars_ptr = vars.get_mutable_data();
+    Float* vars_ptr = vars.get_mutable_data();
     Float* tmp_ptr = tmp.get_mutable_data();
 
     const Float eps = std::numeric_limits<Float>::epsilon();
@@ -249,12 +250,13 @@ inline sycl::event prepare_correlation(sycl::queue& q,
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
             const Float s = sums_ptr[idx];
+            //std::cout<<s<<std::endl;
             const Float m = inv_n * s * s;
             const Float c = corr_ptr[idx * p + idx];
             const Float v = c - m;
 
             //means_ptr[idx] = inv_n * s;
-            //vars_ptr[idx] = inv_n1 * v;
+            vars_ptr[idx] = inv_n1 * v;
 
             // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
             // to avoid NaN/Inf in the resulting correlation matrix
@@ -272,8 +274,8 @@ inline sycl::event finalize_correlation(sycl::queue& q,
                                         const dal::backend::event_vector& deps) {
     ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
-    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
     const auto n = row_count;
     const auto p = sums.get_count();
@@ -315,7 +317,7 @@ sycl::event correlation(sycl::queue& q,
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(vars.has_mutable_data());
+    //ONEDAL_ASSERT(vars.has_mutable_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
@@ -323,18 +325,18 @@ sycl::event correlation(sycl::queue& q,
                   "Dimensions of correlation matrix must match feature count");
     ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
                   "Element count of sums must match feature count");
-    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
-                  "Element count of vars must match feature count");
+    //ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
+    //"Element count of vars must match feature count");
     ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
                   "Element count of means must match feature count");
     ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
                   "Element count of temporary buffer must match feature count");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
     auto prepare_event =
         prepare_correlation(q, data.get_dimension(0), sums, corr, means, vars, tmp, deps);
@@ -407,7 +409,8 @@ inline void single_pass_block_processor(const Float* data_ptr,
         }
         rsum2cent_ptr[x] = sum2cent;
         Float variance = sum2cent / (row_block_size - Float(1));
-        if constexpr (!DefferedFin && check_mask_flag(cov_list::cov | cov_list::cor, List)) {
+        if constexpr (!DefferedFin &&
+                      check_mask_flag(cov_list::cov | cov_list::cor | cov_list::mean, List)) {
             rvarc_ptr[x] = variance;
         }
     }
@@ -1050,16 +1053,17 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     std::tie(ndres, last_event) =
         finalize(std::move(ndres), row_count, column_count, { last_event });
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, cov_event] = compute_covariance(q_, data_nd, ndres.get_sum(), { last_event });
+        auto [cov, cov_event] =
+            compute_covariance(q_, data_nd, std::move(ndres).get_sum(), { last_event });
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
         auto [corr, corr_event] = compute_correlation(q_,
                                                       data_nd,
-                                                      ndres.get_sum(),
-                                                      ndres.get_mean(),
-                                                      ndres.get_varc(),
+                                                      std::move(ndres).get_sum(),
+                                                      std::move(ndres).get_mean(),
+                                                      std::move(ndres).get_varc(),
                                                       { last_event });
 
         result.set_cor_matrix(

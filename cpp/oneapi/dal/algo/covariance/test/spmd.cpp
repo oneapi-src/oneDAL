@@ -97,19 +97,31 @@ TEMPLATE_LIST_TEST_M(covariance_spmd_test,
             //te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777),
             //te::dataframe_builder{ 6000, 20 }.fill_normal(-30, 30, 7777),
             //te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777),
-            te::dataframe_builder{ 10000, 10000 }.fill_normal(-30, 30, 7777),
-            te::dataframe_builder{ 20000, 20000 }.fill_normal(-30, 30, 7777));
+            //te::dataframe_builder{ 10, 10 }.fill_normal(-30, 30, 7777),
+            te::dataframe_builder{ 100, 100 }.fill_normal(-30, 30, 7777));
     this->set_rank_count(2);
 
-    cov::result_option_id cov_mode_mean = result_options::means;
+    cov::result_option_id mode_mean = result_options::means;
+    cov::result_option_id mode_cov = result_options::cov_matrix;
+    cov::result_option_id mode_cor = result_options::cor_matrix;
+    cov::result_option_id mode_cov_mean = result_options::cov_matrix | result_options::means;
+    cov::result_option_id mode_cov_cor = result_options::cov_matrix | result_options::cor_matrix;
+    cov::result_option_id mode_cor_mean = result_options::cor_matrix | result_options::means;
     // bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    //cov::result_option_id res_all = bs::result_option_id(dal::result_option_id_base(mask_full));
+    cov::result_option_id res_all =
+        result_options::cov_matrix | result_options::cor_matrix | result_options::means;
 
-    //const cov::result_option_id compute_mode = GENERATE_COPY(cov_mode_mean);
+    const cov::result_option_id compute_mode = GENERATE_COPY(mode_mean,
+                                                             mode_cor,
+                                                             mode_cov,
+                                                             mode_cor_mean,
+                                                             mode_cov_mean,
+                                                             mode_cov_cor,
+                                                             res_all);
 
     const auto data_table_id = this->get_homogen_table_id();
 
-    this->spmd_general_checks(data, cov_mode_mean, data_table_id);
+    this->spmd_general_checks(data, compute_mode, data_table_id);
 }
 
 } // namespace oneapi::dal::covariance::test
