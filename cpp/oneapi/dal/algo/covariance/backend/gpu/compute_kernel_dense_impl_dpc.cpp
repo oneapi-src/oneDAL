@@ -99,8 +99,6 @@ std::int64_t compute_kernel_dense_impl<Float, List>::get_column_block_count(
     return (column_count + max_work_group_size - 1) / max_work_group_size;
 }
 
-
-
 template <typename Float>
 auto compute_covariance(sycl::queue& q,
                         const pr::ndview<Float, 2>& data,
@@ -134,7 +132,8 @@ auto compute_correlation(sycl::queue& q,
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-    auto corr_event = pr::correlation_with_distributed(q, data, sums, means, corr, tmp, { gemm_event });
+    auto corr_event =
+        pr::correlation_with_distributed(q, data, sums, means, corr, tmp, { gemm_event });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);

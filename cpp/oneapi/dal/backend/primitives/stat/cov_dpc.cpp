@@ -364,10 +364,10 @@ sycl::event correlation_with_covariance(sycl::queue& q,
 
 template <typename Float>
 inline sycl::event finalize_covariance_distributed(sycl::queue& q,
-                                       std::int64_t row_count,
-                                       const ndview<Float, 1>& sums,
-                                       ndview<Float, 2>& cov,
-                                       const event_vector& deps) {
+                                                   std::int64_t row_count,
+                                                   const ndview<Float, 1>& sums,
+                                                   ndview<Float, 2>& cov,
+                                                   const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
@@ -401,10 +401,10 @@ inline sycl::event finalize_covariance_distributed(sycl::queue& q,
 
 template <typename Float>
 sycl::event covariance_with_distributed(sycl::queue& q,
-                       const ndview<Float, 2>& data,
-                       const ndview<Float, 1>& sums,
-                       ndview<Float, 2>& cov,
-                       const event_vector& deps) {
+                                        const ndview<Float, 2>& data,
+                                        const ndview<Float, 1>& sums,
+                                        ndview<Float, 2>& cov,
+                                        const event_vector& deps) {
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
@@ -419,19 +419,20 @@ sycl::event covariance_with_distributed(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
 
-    auto finalize_event = finalize_covariance_distributed(q, data.get_dimension(0), sums, cov, deps);
+    auto finalize_event =
+        finalize_covariance_distributed(q, data.get_dimension(0), sums, cov, deps);
     finalize_event.wait_and_throw();
     return finalize_event;
 }
 
 template <typename Float>
 inline sycl::event prepare_correlation_distributed(sycl::queue& q,
-                                       std::int64_t row_count,
-                                       const ndview<Float, 1>& sums,
-                                       const ndview<Float, 2>& corr,
-                                       const ndview<Float, 1>& means,
-                                       ndview<Float, 1>& tmp,
-                                       const event_vector& deps) {
+                                                   std::int64_t row_count,
+                                                   const ndview<Float, 1>& sums,
+                                                   const ndview<Float, 2>& corr,
+                                                   const ndview<Float, 1>& means,
+                                                   ndview<Float, 1>& tmp,
+                                                   const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(means.has_mutable_data());
@@ -465,7 +466,6 @@ inline sycl::event prepare_correlation_distributed(sycl::queue& q,
             const Float c = corr_ptr[idx * p + idx];
             const Float v = c - m;
 
-
             // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
             // to avoid NaN/Inf in the resulting correlation matrix
             tmp_ptr[idx] = v + eps * Float(v < eps);
@@ -475,11 +475,11 @@ inline sycl::event prepare_correlation_distributed(sycl::queue& q,
 
 template <typename Float>
 inline sycl::event finalize_correlation_distributed(sycl::queue& q,
-                                        std::int64_t row_count,
-                                        const ndview<Float, 1>& sums,
-                                        const ndview<Float, 1>& tmp,
-                                        ndview<Float, 2>& corr,
-                                        const event_vector& deps) {
+                                                    std::int64_t row_count,
+                                                    const ndview<Float, 1>& sums,
+                                                    const ndview<Float, 1>& tmp,
+                                                    ndview<Float, 2>& corr,
+                                                    const event_vector& deps) {
     ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
@@ -514,12 +514,12 @@ inline sycl::event finalize_correlation_distributed(sycl::queue& q,
 
 template <typename Float>
 sycl::event correlation_with_distributed(sycl::queue& q,
-                        const ndview<Float, 2>& data,
-                        const ndview<Float, 1>& sums,
-                        const ndview<Float, 1>& means,
-                        ndview<Float, 2>& corr,
-                        ndview<Float, 1>& tmp,
-                        const event_vector& deps) {
+                                         const ndview<Float, 2>& data,
+                                         const ndview<Float, 1>& sums,
+                                         const ndview<Float, 1>& means,
+                                         ndview<Float, 2>& corr,
+                                         ndview<Float, 1>& tmp,
+                                         const event_vector& deps) {
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
@@ -596,7 +596,7 @@ INSTANTIATE_COR(double)
 INSTANTIATE_COR_WITH_COV(float)
 INSTANTIATE_COR_WITH_COV(double)
 
-#define INSTANTIATE_COV_DISTR(F)                                                        \
+#define INSTANTIATE_COV_DISTR(F)                                                           \
     template ONEDAL_EXPORT sycl::event covariance_with_distributed<F>(sycl::queue&,        \
                                                                       const ndview<F, 2>&, \
                                                                       const ndview<F, 1>&, \
@@ -606,14 +606,14 @@ INSTANTIATE_COR_WITH_COV(double)
 INSTANTIATE_COV_DISTR(float)
 INSTANTIATE_COV_DISTR(double)
 
-#define INSTANTIATE_COR_DISTR(F)                                                        \
+#define INSTANTIATE_COR_DISTR(F)                                                            \
     template ONEDAL_EXPORT sycl::event correlation_with_distributed<F>(sycl::queue&,        \
-                                                                      const ndview<F, 2>&, \
-                                                                      const ndview<F, 1>&, \
-                                                                      const ndview<F, 1>&, \
-                                                                      ndview<F, 2>&,       \
-                                                                      ndview<F, 1>&,       \
-                                                                      const event_vector&);
+                                                                       const ndview<F, 2>&, \
+                                                                       const ndview<F, 1>&, \
+                                                                       const ndview<F, 1>&, \
+                                                                       ndview<F, 2>&,       \
+                                                                       ndview<F, 1>&,       \
+                                                                       const event_vector&);
 
 INSTANTIATE_COR_DISTR(float)
 INSTANTIATE_COR_DISTR(double)
