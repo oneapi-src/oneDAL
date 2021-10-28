@@ -29,8 +29,7 @@ void run() {
     const auto test_response_file_name = get_data_path("linear_regression_test_responses.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
-    const auto y_train =
-        dal::read<dal::table>(dal::csv::data_source{ train_response_file_name });
+    const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_response_file_name });
 
     const auto lr_desc = dal::linear_regression::descriptor<>();
 
@@ -42,8 +41,7 @@ void run() {
 
     const auto test_result_uniform = dal::infer(lr_desc, x_test, lr_model);
 
-    std::cout << "Test results:\n"
-              << test_result_uniform.get_responses() << std::endl;
+    std::cout << "Test results:\n" << test_result_uniform.get_responses() << std::endl;
     std::cout << "True responses:\n" << y_test << std::endl;
 }
 

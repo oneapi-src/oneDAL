@@ -44,8 +44,7 @@ void run(sycl::queue& q) {
 
     const auto test_result_uniform = dal::infer(lr_desc, x_test, lr_model);
 
-    std::cout << "Test results:\n"
-              << test_result_uniform.get_responses() << std::endl;
+    std::cout << "Test results:\n" << test_result_uniform.get_responses() << std::endl;
     std::cout << "True responses:\n" << y_test << std::endl;
 }
 

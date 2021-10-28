@@ -137,7 +137,8 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute_impl(const NumericTable * a, const NumericTable * b, NumericTable * r, bool intercept_flag)
+services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute_impl(const NumericTable * a, const NumericTable * b, NumericTable * r,
+                                                                                 bool intercept_flag)
 {
     /* Get numeric tables with input data */
     NumericTable * dataTable = const_cast<NumericTable *>(a);

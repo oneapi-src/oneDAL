@@ -86,17 +86,18 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 }
 
 template <typename algorithmFPType>
-services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute_impl(const NumericTable * a, const NumericTable * b, NumericTable * r, bool interceptFlag)
+services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute_impl(const NumericTable * a, const NumericTable * b, NumericTable * r,
+                                                                                  bool interceptFlag)
 {
     services::Status status;
 
     NumericTable * xTable    = const_cast<NumericTable *>(a);
     NumericTable * yTable    = const_cast<NumericTable *>(r);
-    NumericTable * betaTable  = const_cast<NumericTable *>(b);
+    NumericTable * betaTable = const_cast<NumericTable *>(b);
 
-    const size_t nRows       = xTable->getNumberOfRows();
-    const size_t nBetas      = betaTable->getNumberOfColumns();
-    const size_t nResponses  = betaTable->getNumberOfRows();
+    const size_t nRows      = xTable->getNumberOfRows();
+    const size_t nBetas     = betaTable->getNumberOfColumns();
+    const size_t nResponses = betaTable->getNumberOfRows();
 
     const size_t nRowsPerBlock = 90000;
 
