@@ -304,7 +304,6 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
     return services::Status();
 }
 
-
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posx, DataType * posy, const IdxType nNodes,
                                          const IdxType N, const IdxType & bottom)
@@ -324,7 +323,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     auto k         = bottom;
 
     //initialize array
-    services::internal::service_memset<DataType, cpu>(mass, DataType(1), k); //  memset -1 ?
+    services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
     services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
 
     const auto restart = k;
@@ -350,7 +349,6 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             for (IdxType i = 0; i < 4; i++)
             {
                 const IdxType ch = curChild[i];
-
                 if (ch >= 0)
                 {
                     const DataType m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
@@ -362,7 +360,6 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             }
             count[k]         = cnt;
             const DataType m = cm ? 1. / cm : 1.;
-
             posx[k]          = px * m;
             posy[k]          = py * m;
 
@@ -417,7 +414,7 @@ services::Status sortKernelImpl(IdxType * sort, const IdxType * count, IdxType *
                 {
                     // child is a cell
                     start[ch] = begin;
-                    begin += count[ch];// add #bodies in subtree
+                    begin += count[ch]; // add #bodies in subtree
                 }
                 else if (begin <= nNodes && begin >= 0)
                 {
