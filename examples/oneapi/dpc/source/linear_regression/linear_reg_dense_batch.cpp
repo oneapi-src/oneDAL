@@ -32,16 +32,12 @@ void run(sycl::queue& q) {
     const auto test_data_file_name = get_data_path("linear_regression_test_data.csv");
     const auto test_response_file_name = get_data_path("linear_regression_test_responses.csv");
 
-    const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
-    const auto y_train = dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
-    const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
+    const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
+    const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_response_file_name });
+    const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
+    const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
-
-    const auto lr_desc = dal::linear_regression::descriptor<>(true);
-
-    std::cout << x_train.get_row_count() << x_train.get_column_count() << std::endl;
-    std::cout << y_train.get_row_count() << y_train.get_column_count() << std::endl;
+    const auto lr_desc = dal::linear_regression::descriptor<>();
 
     const auto train_result = dal::train(q, lr_desc, x_train, y_train);
     const auto lr_model = train_result.get_model();
