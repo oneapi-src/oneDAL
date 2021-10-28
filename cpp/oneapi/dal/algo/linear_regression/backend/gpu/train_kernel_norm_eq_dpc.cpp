@@ -43,9 +43,7 @@ namespace daal_lr = daal::algorithms::linear_regression;
 constexpr auto daal_method = daal_lr::training::normEqDense;
 
 template <typename Float>
-using daal_lr_kernel_t =
-    daal_lr::training::internal::OnlineKernelOneAPI<Float, daal_method>;
-
+using daal_lr_kernel_t = daal_lr::training::internal::OnlineKernelOneAPI<Float, daal_method>;
 
 template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_gpu& ctx,
@@ -69,30 +67,32 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     // xtx - Input matrix $X'^T \times X'$ of size P' x P'
     const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
-    auto xtx_arr = array<Float>::zeros( queue, xtx_size );
+    auto xtx_arr = array<Float>::zeros(queue, xtx_size);
 
     // xty - Input matrix $X'^T \times Y$ of size Ny x P'
     const auto xty_size = check_mul_overflow(response_count, ext_feature_count);
-    auto xty_arr = array<Float>::zeros( queue, xty_size );
+    auto xty_arr = array<Float>::zeros(queue, xty_size);
 
     // beta - Matrix with regression coefficients of size Ny x (P + 1)
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
-    auto betas_arr = array<Float>::zeros( queue, betas_size );
+    auto betas_arr = array<Float>::zeros(queue, betas_size);
 
-    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
-    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
-    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, response_count,  feature_count + 1);
+    auto xtx_daal_table =
+        interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
+    auto xty_daal_table =
+        interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
+    auto betas_daal_table =
+        interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
 
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
-
 
     {
         const auto status = daal_lr_kernel_t<Float>().compute(*x_daal_table,
                                                               *y_daal_table,
                                                               *xtx_daal_table,
                                                               *xty_daal_table,
-                                                               intercept);
+                                                              intercept);
 
         interop::status_to_exception(status);
     }
@@ -103,7 +103,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                                       *xtx_daal_table,
                                                                       *xty_daal_table,
                                                                       *betas_daal_table,
-                                                                       intercept);
+                                                                      intercept);
 
         interop::status_to_exception(status);
     }

@@ -41,9 +41,7 @@ namespace daal_lr = daal::algorithms::linear_regression;
 constexpr auto daal_method = daal_lr::training::normEqDense;
 
 template <typename Float, daal::CpuType Cpu>
-using online_kernel_t =
-    daal_lr::training::internal::OnlineKernel<Float, daal_method, Cpu>;
-
+using online_kernel_t = daal_lr::training::internal::OnlineKernel<Float, daal_method, Cpu>;
 
 template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
@@ -63,45 +61,47 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto ext_feature_count = feature_count + intercept;
 
     const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
-    auto xtx_arr = array<Float>::zeros( xtx_size );
+    auto xtx_arr = array<Float>::zeros(xtx_size);
 
     const auto xty_size = check_mul_overflow(response_count, ext_feature_count);
-    auto xty_arr = array<Float>::zeros( xty_size );
+    auto xty_arr = array<Float>::zeros(xty_size);
 
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
-    auto betas_arr = array<Float>::zeros( betas_size );
+    auto betas_arr = array<Float>::zeros(betas_size);
 
-    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
-    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
-    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, response_count,  feature_count + 1);
+    auto xtx_daal_table =
+        interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
+    auto xty_daal_table =
+        interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
+    auto betas_daal_table =
+        interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
 
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
 
     {
         const auto status = interop::call_daal_kernel<Float, online_kernel_t>(ctx,
-                                                                               *x_daal_table,
-                                                                               *y_daal_table,
-                                                                               *xtx_daal_table,
-                                                                               *xty_daal_table,
-                                                                               intercept);
+                                                                              *x_daal_table,
+                                                                              *y_daal_table,
+                                                                              *xtx_daal_table,
+                                                                              *xty_daal_table,
+                                                                              intercept);
 
         interop::status_to_exception(status);
-
     }
 
     {
         const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-        constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-        return online_kernel_t<Float, cpu_type>().finalizeCompute(*xtx_daal_table,
-                                                                  *xty_daal_table,
-                                                                  *xtx_daal_table,
-                                                                  *xty_daal_table,
-                                                                  *betas_daal_table,
-                                                                  intercept);
-    });
+            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+            return online_kernel_t<Float, cpu_type>().finalizeCompute(*xtx_daal_table,
+                                                                      *xty_daal_table,
+                                                                      *xtx_daal_table,
+                                                                      *xty_daal_table,
+                                                                      *betas_daal_table,
+                                                                      intercept);
+        });
 
-    interop::status_to_exception(status);
+        interop::status_to_exception(status);
     }
 
     auto betas = homogen_table::wrap(betas_arr, response_count, feature_count + 1);

@@ -40,9 +40,7 @@ namespace interop = dal::backend::interop;
 constexpr auto daal_method = daal_lm::prediction::Method::defaultDense;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_lm_kernel_t =
-    daal_lm::prediction::internal::PredictKernel<Float, daal_method, Cpu>;
-
+using daal_lm_kernel_t = daal_lm::prediction::internal::PredictKernel<Float, daal_method, Cpu>;
 
 template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
@@ -62,8 +60,9 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     ONEDAL_ASSERT(ext_feature_count == betas.get_column_count());
 
     const auto resps_size = check_mul_overflow(sample_count, response_count);
-    auto resps_arr = array<Float>::empty( resps_size );
-    auto resps_daal_table = interop::convert_to_daal_homogen_table(resps_arr, sample_count, response_count);
+    auto resps_arr = array<Float>::empty(resps_size);
+    auto resps_daal_table =
+        interop::convert_to_daal_homogen_table(resps_arr, sample_count, response_count);
 
     auto betas_daal_table = interop::convert_to_daal_table<Float>(betas);
     auto infer_daal_table = interop::convert_to_daal_table<Float>(infer);

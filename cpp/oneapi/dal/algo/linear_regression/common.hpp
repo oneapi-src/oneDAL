@@ -67,8 +67,7 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v =
-    dal::detail::is_one_of_v<Method, method::norm_eq>;
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::norm_eq>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = std::is_same_v<Task, task::regression>;
@@ -112,7 +111,7 @@ namespace v1 {
 ///                     intermediate computations. Can be :expr:`float` or
 ///                     :expr:`double`.
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
-///                     be :expr:`method::brute_force` or :expr:`method::kd_tree`.
+///                     be :expr:`method::norm_eq`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
 ///                     be :expr:`task::regression`.
 template <typename Float = float,

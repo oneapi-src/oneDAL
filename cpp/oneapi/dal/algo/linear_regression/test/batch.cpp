@@ -32,8 +32,6 @@
 
 #include "oneapi/dal/test/engine/metrics/regression.hpp"
 
-
-
 namespace oneapi::dal::linear_regression::test {
 
 namespace te = dal::test::engine;
@@ -57,17 +55,15 @@ public:
         return te::table_id::homogen<float_t>();
     }
 
-    table compute_responses(const table& beta,
-                            const table& bias,
-                            const table& data) const {
+    table compute_responses(const table& beta, const table& bias, const table& data) const {
         auto res_arr = array<float_t>::zeros(this->s_count_ * this->r_count_);
-        const auto beta_arr = row_accessor<const float_t>(beta).pull({0, -1});
-        const auto bias_arr = row_accessor<const float_t>(bias).pull({0, -1});
-        const auto data_arr = row_accessor<const float_t>(data).pull({0, -1});
+        const auto beta_arr = row_accessor<const float_t>(beta).pull({ 0, -1 });
+        const auto bias_arr = row_accessor<const float_t>(bias).pull({ 0, -1 });
+        const auto data_arr = row_accessor<const float_t>(data).pull({ 0, -1 });
 
-        for(std::int64_t s = 0; s < this->s_count_; ++s) {
-            for(std::int64_t r = 0; r < this->r_count_; ++r) {
-                for(std::int64_t f = 0; f < this->f_count_; ++f) {
+        for (std::int64_t s = 0; s < this->s_count_; ++s) {
+            for (std::int64_t r = 0; r < this->r_count_; ++r) {
+                for (std::int64_t f = 0; f < this->f_count_; ++f) {
                     const auto& v = data_arr[s * this->f_count_ + f];
                     const auto& b = beta_arr[f * this->r_count_ + r];
                     *(res_arr.get_mutable_data() + s * this->r_count_ + r) += v * b;
@@ -75,8 +71,8 @@ public:
             }
         }
 
-        for(std::int64_t s = 0; s < this->s_count_; ++s) {
-            for(std::int64_t r = 0; r < this->r_count_; ++r) {
+        for (std::int64_t s = 0; s < this->s_count_; ++s) {
+            for (std::int64_t r = 0; r < this->r_count_; ++r) {
                 *(res_arr.get_mutable_data() + s * this->r_count_ + r) += bias_arr[r];
             }
         }
@@ -85,15 +81,16 @@ public:
     }
 
     std::tuple<table, table> generate_betas() const {
-        std::tuple<table, table> result{{}, {}};
+        std::tuple<table, table> result{ {}, {} };
         const auto betas_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->f_count_, this->r_count_ }.fill_uniform(-10.1, 10.1));
         std::get<0>(result) = betas_dataframe.get_table(this->get_homogen_table_id());
-        if(this->intercept_) {
+        if (this->intercept_) {
             const auto bias_dataframe = GENERATE_DATAFRAME(
                 te::dataframe_builder{ std::int64_t(1), this->r_count_ }.fill_uniform(-15.5, 15.5));
             std::get<1>(result) = betas_dataframe.get_table(this->get_homogen_table_id());
-        } else {
+        }
+        else {
             auto bias_arr = array<float_t>::zeros(this->r_count_);
             std::get<1>(result) = homogen_table::wrap(bias_arr, std::int64_t(1), this->r_count_);
         }
@@ -141,7 +138,7 @@ public:
 
         const auto score = row_accessor<const float_t>(scr_table).pull({ 0, -1 });
 
-        for(std::int64_t r = 0; r < this->r_count_; ++r) {
+        for (std::int64_t r = 0; r < this->r_count_; ++r) {
             REQUIRE(score[r] < tol);
         }
     }
@@ -153,7 +150,6 @@ public:
 
         check_results(infer_res);
     }
-
 
 private:
     bool intercept_ = true;
@@ -167,7 +163,9 @@ private:
     table y_train_;
 };
 
-using lr_types = COMBINE_TYPES((float, double), (linear_regression::method::norm_eq), (linear_regression::task::regression));
+using lr_types = COMBINE_TYPES((float, double),
+                               (linear_regression::method::norm_eq),
+                               (linear_regression::task::regression));
 
 TEMPLATE_LIST_TEST_M(lr_batch_test, "LR common flow", "[lr][batch]", lr_types) {
     //SKIP_IF(this->get_policy().is_gpu());

@@ -40,12 +40,12 @@ descriptor_base<Task>::descriptor_base(bool compute_intercept)
     impl_->compute_intercept = compute_intercept;
 }
 
-template<typename Task>
+template <typename Task>
 bool descriptor_base<Task>::get_compute_intercept() const {
     return impl_->compute_intercept;
 }
 
-template<typename Task>
+template <typename Task>
 void descriptor_base<Task>::set_compute_intercept_impl(bool compute_intercept) {
     impl_->compute_intercept = compute_intercept;
 }

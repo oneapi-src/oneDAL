@@ -38,7 +38,7 @@ using model_impl = detail::model_impl<Task>;
 using norm_eq_proto = ONEDAL_SERIALIZABLE(linear_regression_norm_eq_model_impl_id);
 
 template <typename Task>
-class norm_eq_model_impl : public norm_eq_proto, public model_impl<Task>{
+class norm_eq_model_impl : public norm_eq_proto, public model_impl<Task> {
 public:
     norm_eq_model_impl() = default;
 
