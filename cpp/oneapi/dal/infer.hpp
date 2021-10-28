@@ -17,6 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/detail/infer_ops.hpp"
+#include "oneapi/dal/detail/spmd_policy.hpp"
+#include "oneapi/dal/spmd/communicator.hpp"
 
 namespace oneapi::dal {
 namespace v1 {
@@ -37,5 +39,26 @@ auto infer(sycl::queue& queue, Args&&... args) {
 } // namespace v1
 
 using v1::infer;
+
+namespace preview {
+
+template <typename... Args>
+auto infer(spmd::communicator<spmd::device_memory_access::none>& comm, Args&&... args) {
+    return dal::detail::infer_dispatch(dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
+                                       std::forward<Args>(args)...);
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename... Args>
+auto infer(spmd::communicator<spmd::device_memory_access::usm>& comm, Args&&... args) {
+    return dal::detail::infer_dispatch(
+        dal::detail::spmd_policy<dal::detail::data_parallel_policy>{
+            dal::detail::data_parallel_policy{ comm.get_queue() },
+            comm },
+        std::forward<Args>(args)...);
+}
+#endif
+
+} // namespace preview
 
 } // namespace oneapi::dal

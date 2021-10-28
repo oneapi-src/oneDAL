@@ -30,10 +30,6 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_model_manager.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_impl.hpp"
 
-#ifdef DISTRIBUTED_SUPPORT_ENABLED
-#include "oneapi/dal/policy/mpi.hpp"
-#endif
-
 namespace oneapi::dal::decision_forest::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -57,14 +53,15 @@ class train_kernel_hist_impl {
     using rng_engine_t = pr::engine;
     using rng_engine_list_t = std::vector<rng_engine_t>;
     using msg = dal::detail::error_messages;
-#ifdef DISTRIBUTED_SUPPORT_ENABLED
-    using comm_t = dal::preview::detail::mpi_communicator;
-#endif
+    using comm_t = bk::communicator<spmd::device_memory_access::usm>;
 
 public:
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
 
-    train_kernel_hist_impl(sycl::queue& q) : queue_(q), train_service_kernels_(q) {}
+    train_kernel_hist_impl(const bk::context_gpu& ctx)
+            : queue_(ctx.get_queue()),
+              comm_(ctx.get_communicator()),
+              train_service_kernels_(queue_) {}
     ~train_kernel_hist_impl() = default;
 
     result_t operator()(const descriptor_t& desc, const table& data, const table& labels);
@@ -76,12 +73,6 @@ private:
     std::int64_t get_part_hist_elem_count(Index selected_ftr_count,
                                           Index max_bin_count_among_ftrs,
                                           Index class_count) const;
-
-    sycl::event allreduce_ndarray_inplace(pr::ndarray<Index, 1>& src_dst,
-                                          const bk::event_vector& deps = {});
-
-    sycl::event allreduce_ndarray_inplace(pr::ndarray<Float, 1>& src_dst,
-                                          const bk::event_vector& deps = {});
 
     sycl::event gen_initial_tree_order(train_context_t& ctx,
                                        rng_engine_list_t& rng_engine_list,
@@ -326,9 +317,7 @@ private:
 
 private:
     sycl::queue queue_;
-#ifdef DISTRIBUTED_SUPPORT_ENABLED
     comm_t comm_;
-#endif
 
     train_service_kernels_t train_service_kernels_;
 

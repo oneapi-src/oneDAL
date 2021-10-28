@@ -63,7 +63,14 @@ public:
     #ifdef __linux__
         _handle = dlopen(libName, flag);
     #elif defined(_WIN32) || defined(_WIN64)
-        _handle = _daal_load_win_dynamic_lib(libName);
+        if (static_cast<DWORD>(flag) & LOAD_LIBRARY_SEARCH_SYSTEM32)
+        {
+            _handle = LoadLibraryExA(libName, nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+        }
+        else
+        {
+            _handle = _daal_load_win_dynamic_lib(libName);
+        }
     #endif
         if (!_handle)
         {

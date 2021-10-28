@@ -17,13 +17,10 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/backend/communicator.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
-
-#ifdef DISTRIBUTED_SUPPORT_ENABLED
-#include "oneapi/dal/policy/mpi.hpp"
-#endif
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -34,9 +31,8 @@ namespace bk = dal::backend;
 
 template <typename Float, typename Bin, typename Index = std::int32_t>
 class indexed_features {
-#ifdef DISTRIBUTED_SUPPORT_ENABLED
-    using comm_t = dal::preview::detail::mpi_communicator;
-#endif
+    using comm_t = bk::communicator<spmd::device_memory_access::usm>;
+
 public:
     struct feature_entry {
         Index bin_count_ = 0;
@@ -44,14 +40,10 @@ public:
         pr::ndarray<Float, 1> bin_borders_nd_; //right bin borders
     };
 
-#ifdef DISTRIBUTED_SUPPORT_ENABLED
     indexed_features(sycl::queue& q,
                      comm_t& comm,
                      std::int64_t min_bin_size,
                      std::int64_t max_bins);
-#else
-    indexed_features(sycl::queue& q, std::int64_t min_bin_size, std::int64_t max_bins);
-#endif
     ~indexed_features() = default;
 
     static std::int64_t get_required_mem_size(std::int64_t row_count,
@@ -93,8 +85,10 @@ private:
                                Index feature_id,
                                const bk::event_vector& deps = {});
     sycl::event collect_bin_borders(const pr::ndarray<Float, 1>& values_nd,
+                                    Index row_count,
                                     const pr::ndarray<Index, 1>& bin_offsets_nd,
                                     pr::ndarray<Float, 1>& bin_borders_nd,
+                                    Index max_bins,
                                     const bk::event_vector& deps = {});
 
     std::tuple<pr::ndarray<Float, 1>, Index, sycl::event> gather_bin_borders(
@@ -129,9 +123,7 @@ private:
                              const bk::event_vector& deps);
 
     sycl::queue queue_;
-#ifdef DISTRIBUTED_SUPPORT_ENABLED
     comm_t comm_;
-#endif
 
     pr::ndarray<Bin, 2> full_data_nd_;
     pr::ndarray<Index, 1> bin_offsets_nd_;

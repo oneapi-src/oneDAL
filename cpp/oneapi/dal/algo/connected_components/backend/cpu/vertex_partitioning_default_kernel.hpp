@@ -13,7 +13,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
 #pragma once
+
+#include <atomic>
 
 #include "oneapi/dal/algo/connected_components/common.hpp"
 #include "oneapi/dal/algo/connected_components/vertex_partitioning_types.hpp"
@@ -22,6 +25,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
 using namespace oneapi::dal::preview::detail;
@@ -29,7 +33,7 @@ using namespace oneapi::dal::preview::backend;
 
 //Given an edge (u, v), ensures that u and v are within the same component tree, or connects them otherwise
 template <typename Cpu>
-void link(const std::int32_t &u, const std::int32_t &v, std::int32_t *components) {
+void link(const std::int32_t &u, const std::int32_t &v, std::atomic<std::int32_t> *components) {
     std::int32_t p1 = components[u];
     std::int32_t p2 = components[v];
     std::int32_t h = 0;
@@ -43,8 +47,7 @@ void link(const std::int32_t &u, const std::int32_t &v, std::int32_t *components
             h = p2;
             l = p1;
         }
-        if (components[h] == h) {
-            components[h] = l;
+        if (components[h].compare_exchange_strong(h, l)) {
             break;
         }
         p1 = components[components[h]];
@@ -54,32 +57,34 @@ void link(const std::int32_t &u, const std::int32_t &v, std::int32_t *components
 
 //Reduces component trees to single-level depth
 template <typename Cpu>
-void compress(const std::int32_t &u, std::int32_t *components) {
-    if (components[components[u]] != components[u]) {
-        components[u] = components[components[u]];
+void compress(const std::int32_t &u, std::atomic<std::int32_t> *components) {
+    while (components[components[u]] != components[u]) {
+        components[u].store(components[components[u]]);
     }
 }
 
 template <typename Cpu>
 void order_component_ids(const std::int64_t &vertex_count,
                          std::int64_t &component_count,
-                         std::int32_t *components) {
+                         std::atomic<std::int32_t> *components,
+                         std::int32_t *labels) {
     std::int32_t ordered_comp_id = 0;
-
+    std::int32_t root_u = 0;
     for (std::int32_t u = 0; u < vertex_count; ++u) {
-        if (components[u] == u) {
-            components[u] = ordered_comp_id;
+        root_u = components[u].load();
+        if (root_u == u) {
+            labels[u] = ordered_comp_id;
             component_count++;
             ordered_comp_id++;
         }
         else {
-            components[u] = components[components[u]];
+            labels[u] = labels[root_u];
         }
     }
 }
 
 template <typename Cpu>
-std::int32_t most_frequent_element(const std::int32_t *components,
+std::int32_t most_frequent_element(const std::atomic<std::int32_t> *components,
                                    const std::int64_t &vertex_count,
                                    inner_alloc<std::int32_t> &vertex_allocator,
                                    const std::int64_t &samples_count = 1024) {
@@ -91,9 +96,10 @@ std::int32_t most_frequent_element(const std::int32_t *components,
 
     std::int32_t *root_sample_counts = allocate(vertex_allocator, vertex_count);
 
-    for (std::int32_t u = 0; u < vertex_count; ++u) {
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
         root_sample_counts[u] = 0;
-    }
+    });
+
     for (std::int32_t i = 0; i < samples_count; ++i) {
         root_sample_counts[components[rnd_vertex_ids[i]]]++;
     }
@@ -120,48 +126,62 @@ struct afforest {
         byte_alloc_iface *alloc_ptr) {
         using vertex_allocator_type = inner_alloc<std::int32_t>;
         vertex_allocator_type vertex_allocator(alloc_ptr);
+
+        using atomic_type = std::atomic<std::int32_t>;
+        using atomic_value_allocator_type = inner_alloc<atomic_type>;
+        atomic_value_allocator_type atomic_value_allocator(alloc_ptr);
+
         const auto vertex_count = t.get_vertex_count();
 
-        std::int32_t *components = allocate(vertex_allocator, vertex_count);
-        for (std::int32_t u = 0; u < vertex_count; ++u) {
-            components[u] = u;
-        }
+        atomic_type *components = allocate(atomic_value_allocator, vertex_count);
+
+        dal::detail::shared<atomic_type> components_shared(
+            components,
+            destroy_delete<atomic_type, atomic_value_allocator_type>(vertex_count,
+                                                                     atomic_value_allocator));
+
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+            new (components + u) atomic_type(u);
+        });
 
         const std::int32_t neighbors_round = 2;
 
-        for (std::int32_t u = 0; u < vertex_count; ++u) {
-            std::int32_t neighbors_count = t.get_vertex_degree(u);
-            for (std::int32_t i = 0; (i < neighbors_count) && (i < neighbors_round); ++i) {
-                link<Cpu>(u, t.get_vertex_neighbors_begin(u)[i], components);
-            }
+        for (std::int32_t i = 0; i < neighbors_round; ++i) {
+            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+                if (i < t.get_vertex_degree(u)) {
+                    link<Cpu>(u, t.get_vertex_neighbors_begin(u)[i], components);
+                }
+            });
+
+            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t v) {
+                compress<Cpu>(v, components);
+            });
         }
 
         const std::int32_t sample_comp =
             most_frequent_element<Cpu>(components, vertex_count, vertex_allocator);
 
-        for (std::int32_t u = 0; u < vertex_count; ++u) {
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
             if (components[u] != sample_comp) {
                 if (t.get_vertex_degree(u) >= neighbors_round) {
-                    for (auto v = t.get_vertex_neighbors_begin(u);
+                    for (auto v = t.get_vertex_neighbors_begin(u) + neighbors_round;
                          v != t.get_vertex_neighbors_end(u);
                          ++v) {
                         link<Cpu>(u, *v, components);
                     }
                 }
             }
-        }
+        });
 
-        for (std::int32_t u = 0; u < vertex_count; ++u) {
-            compress<Cpu>(u, components);
-        }
-
-        std::int64_t component_count = 0;
-        order_component_ids<Cpu>(vertex_count, component_count, components);
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t v) {
+            compress<Cpu>(v, components);
+        });
 
         auto labels_arr = array<std::int32_t>::empty(vertex_count);
         std::int32_t *labels = labels_arr.get_mutable_data();
-        dal::backend::copy<std::int32_t>(labels, components, vertex_count);
-        deallocate(vertex_allocator, components, vertex_count);
+
+        std::int64_t component_count = 0;
+        order_component_ids<Cpu>(vertex_count, component_count, components, labels);
 
         return vertex_partitioning_result<task::vertex_partitioning>()
             .set_labels(homogen_table::wrap(labels_arr, vertex_count, 1))

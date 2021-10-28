@@ -88,6 +88,8 @@ public:
     MSG(capacity_leq_zero);
     MSG(empty_set_of_result_options);
     MSG(this_result_is_not_enabled_via_result_options);
+    MSG(spmd_error_holder_message);
+    MSG(spmd_coworker_failure);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
@@ -280,6 +282,16 @@ public:
     /* DBSCAN */
     MSG(weight_dimension_doesnt_match_data_dimension);
     MSG(weights_column_count_ne_1);
+
+    /*SPMD*/
+    MSG(unsupported_communicator_backend);
+    MSG(invalid_data_type);
+    MSG(invalid_op);
+    MSG(invalid_buffer);
+    MSG(invalid_count);
+    MSG(invalid_mpi_comm);
+    MSG(invalid_root);
+    MSG(unknown_mpi_error);
 };
 
 #undef MSG

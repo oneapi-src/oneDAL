@@ -17,106 +17,61 @@
 #include <CL/sycl.hpp>
 #include <iomanip>
 #include <iostream>
-#include <mpi.h>
 
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
 #endif
 
 #include "oneapi/dal/algo/kmeans.hpp"
-#include "oneapi/dal/detail/mpi/communicator.hpp"
-#include "oneapi/dal/detail/spmd_policy.hpp"
 #include "oneapi/dal/io/csv.hpp"
+#include "oneapi/dal/spmd/mpi/communicator.hpp"
 
 #include "utils.hpp"
 
 namespace dal = oneapi::dal;
 
-template <typename Float>
-std::vector<dal::table>
-split_table_by_rows(const dal::detail::data_parallel_policy &p,
-                    const dal::table &t, std::int64_t split_count) {
-  ONEDAL_ASSERT(split_count > 0);
-  ONEDAL_ASSERT(split_count <= t.get_row_count());
+void run(sycl::queue& queue) {
+    const auto train_data_file_name = get_data_path("data/kmeans_dense_train_data.csv");
+    const auto initial_centroids_file_name = get_data_path("data/kmeans_dense_train_centroids.csv");
 
-  const std::int64_t row_count = t.get_row_count();
-  const std::int64_t column_count = t.get_column_count();
-  const std::int64_t block_size_regular =
-      row_count / split_count + bool(row_count % split_count);
+    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
+    const auto initial_centroids =
+        dal::read<dal::table>(queue, dal::csv::data_source{ initial_centroids_file_name });
 
-  std::vector<dal::table> result(split_count);
+    const auto kmeans_desc = dal::kmeans::descriptor<>()
+                                 .set_cluster_count(20)
+                                 .set_max_iteration_count(5)
+                                 .set_accuracy_threshold(0.001);
+    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(queue);
+    auto rank_id = comm.get_rank();
+    auto rank_count = comm.get_rank_count();
 
-  for (std::int64_t i = 0; i < split_count; i++) {
-    const std::int64_t block_start = i * block_size_regular;
-    std::int64_t block_end = block_start + block_size_regular;
-    if (block_end > row_count)
-      block_end = row_count - block_start;
-    const std::int64_t block_size = block_end - block_start;
+    auto input_vec = split_table_by_rows<float>(queue, x_train, rank_count);
+    dal::kmeans::train_input local_input { input_vec[rank_id], initial_centroids };
 
-    const auto row_range = dal::range{block_start, block_end};
-    const auto block = dal::row_accessor<const Float>{t}.pull(
-        p.get_queue(), row_range, sycl::usm::alloc::device);
-    result[i] = dal::homogen_table::wrap(block, block_size, column_count);
-  }
-
-  return result;
-}
-
-void run(dal::detail::spmd_policy<dal::detail::data_parallel_policy> &policy) {
-  const auto train_data_file_name =
-      get_data_path("data/kmeans_dense_train_data.csv");
-  const auto initial_centroids_file_name =
-      get_data_path("data/kmeans_dense_train_centroids.csv");
-
-  const auto x_train = dal::read<dal::table>(
-      policy.get_local(), dal::csv::data_source{train_data_file_name});
-  const auto initial_centroids = dal::read<dal::table>(
-      policy.get_local(), dal::csv::data_source{initial_centroids_file_name});
-
-  const auto kmeans_desc = dal::kmeans::descriptor<>()
-                               .set_cluster_count(20)
-                               .set_max_iteration_count(5)
-                               .set_accuracy_threshold(0.001);
-
-  auto comm = policy.get_communicator();
-  auto rank_id = comm.get_rank();
-  auto rank_count = comm.get_rank_count();
-
-  auto input_vec =
-      split_table_by_rows<float>(policy.get_local(), x_train, rank_count);
-  dal::kmeans::train_input local_input{input_vec[rank_id], initial_centroids};
-
-  const auto result_train = dal::train(policy, kmeans_desc, local_input);
-  if (comm.get_rank() == 0) {
-    std::cout << "Iteration count: " << result_train.get_iteration_count()
-              << std::endl;
-    std::cout << "Objective function value: "
-              << result_train.get_objective_function_value() << std::endl;
-    std::cout << "Centroids:\n"
-              << result_train.get_model().get_centroids() << std::endl;
-  }
+    const auto result_train = dal::preview::train(comm, kmeans_desc, local_input);
+    if(comm.get_rank() == 0) {
+        std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
+        std::cout << "Objective function value: " << result_train.get_objective_function_value()
+                << std::endl;
+        std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
+    }
 }
 
 int main(int argc, char const *argv[]) {
-  int status = MPI_Init(nullptr, nullptr);
-  if (status != MPI_SUCCESS) {
-    throw std::runtime_error{"Problem occurred during MPI init"};
-  }
+    int status = MPI_Init(nullptr, nullptr);
+    if (status != MPI_SUCCESS) {
+        throw std::runtime_error{ "Problem occurred during MPI init" };
+    }
 
-  auto device = sycl::gpu_selector{}.select_device();
-  std::cout << "Running on " << device.get_info<sycl::info::device::name>()
-            << std::endl;
-  sycl::queue q{device};
+    auto device = sycl::gpu_selector{}.select_device();
+    std::cout << "Running on " << device.get_info<sycl::info::device::name>() << std::endl;
+    sycl::queue q{ device };
+    run(q);
 
-  dal::detail::mpi_communicator comm{MPI_COMM_WORLD};
-  dal::detail::data_parallel_policy local_policy{q};
-  dal::detail::spmd_policy spmd_policy{local_policy, comm};
-
-  run(spmd_policy);
-
-  status = MPI_Finalize();
-  if (status != MPI_SUCCESS) {
-    throw std::runtime_error{"Problem occurred during MPI finalize"};
-  }
-  return 0;
+    status = MPI_Finalize();
+    if (status != MPI_SUCCESS) {
+        throw std::runtime_error{ "Problem occurred during MPI finalize" };
+    }
+    return 0;
 }

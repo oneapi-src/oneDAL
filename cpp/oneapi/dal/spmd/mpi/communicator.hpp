@@ -16,23 +16,24 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <fstream>
+#include "oneapi/dal/detail/mpi/communicator.hpp"
 
-inline bool check_file(const std::string& name) {
-    return std::ifstream{ name }.good();
+namespace oneapi::dal::preview::spmd {
+
+namespace backend {
+struct mpi {};
+} // namespace backend
+
+template <>
+communicator<device_memory_access::none> make_communicator<backend::mpi>() {
+    return dal::detail::mpi_communicator<device_memory_access::none>{};
 }
 
-inline std::string get_data_path(const std::string& name) {
-    const std::vector<std::string> paths = { "./data", "samples/oneapi/dpc/mpi/data" };
-
-    for (const auto& path : paths) {
-        const std::string try_path = path + "/" + name;
-        if (check_file(try_path)) {
-            return try_path;
-        }
-    }
-
-    return name;
+#ifdef ONEDAL_DATA_PARALLEL
+template <>
+communicator<device_memory_access::usm> make_communicator<backend::mpi>(sycl::queue& queue) {
+    return dal::detail::mpi_communicator<device_memory_access::usm>{ queue };
 }
+#endif
+
+} // namespace oneapi::dal::preview::spmd

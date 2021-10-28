@@ -154,8 +154,14 @@ public:
         ONEDAL_ASSERT(thread_count > 0);
 
         CAPTURE(thread_count);
-        thread_communicator comm{ thread_count };
 
+#ifdef ONEDAL_DATA_PARALLEL
+        using comm_t = thread_communicator<spmd::device_memory_access::usm>;
+        comm_t comm{ this->get_queue(), thread_count };
+#else
+        using comm_t = thread_communicator<spmd::device_memory_access::none>;
+        comm_t comm{ thread_count };
+#endif
         const auto input_per_rank =
             this->split_train_input(thread_count, std::forward<Args>(args)...);
         ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
@@ -190,7 +196,13 @@ public:
         ONEDAL_ASSERT(thread_count > 0);
 
         CAPTURE(thread_count);
-        thread_communicator comm{ thread_count };
+#ifdef ONEDAL_DATA_PARALLEL
+        using comm_t = thread_communicator<spmd::device_memory_access::usm>;
+        comm_t comm{ this->get_queue(), thread_count };
+#else
+        using comm_t = thread_communicator<spmd::device_memory_access::none>;
+        comm_t comm{ thread_count };
+#endif
 
         const auto input_per_rank =
             this->split_compute_input(thread_count, std::forward<Args>(args)...);

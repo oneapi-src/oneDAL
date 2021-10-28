@@ -4,10 +4,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
   name = "bazel_skylib",
   urls = [
-    "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
-    "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
+    "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+    "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
   ],
-  sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
+  sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
 )
 
 load("@onedal//dev/bazel/config:config.bzl", "declare_onedal_config")
@@ -72,9 +72,9 @@ mpi_repo(
     ]
 )
 
-load("@onedal//dev/bazel/deps:oneccl.bzl", "oneccl_repo")
-oneccl_repo(
-    name = "oneccl",
+load("@onedal//dev/bazel/deps:ccl.bzl", "ccl_repo")
+ccl_repo(
+    name = "ccl",
     root_env_var = "CCL_ROOT",
     urls = [
         "https://files.pythonhosted.org/packages/ea/d9/3cb54d9b31aea0db527fc3480fc2e92438602ed53de3e45993c0643cf68f/oneccl_devel-2021.3.0-py2.py3-none-manylinux1_x86_64.whl",
@@ -117,9 +117,9 @@ http_archive(
 
 http_archive(
     name = "catch2",
-    url = "https://github.com/catchorg/Catch2/archive/v2.13.6.tar.gz",
-    sha256 = "48dfbb77b9193653e4e72df9633d2e0383b9b625a47060759668480fdf24fbd4",
-    strip_prefix = "Catch2-2.13.6",
+    url = "https://github.com/catchorg/Catch2/archive/v2.13.7.tar.gz",
+    sha256 = "3cdb4138a072e4c0290034fe22d9f0a80d3bcfb8d7a8a5c49ad75d3a5da24fae",
+    strip_prefix = "Catch2-2.13.7",
 )
 
 http_archive(

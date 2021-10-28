@@ -17,6 +17,7 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -60,8 +61,9 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
     pr::ndarray<Index, 1>& tree_order,
     Index tree_count,
     Index row_count,
+    Index stride,
     const bk::event_vector& deps) {
-    ONEDAL_ASSERT(tree_order.get_count() == tree_count * row_count);
+    ONEDAL_ASSERT(tree_order.get_count() == tree_count * stride);
 
     Index* tree_order_ptr = tree_order.get_mutable_data();
     const sycl::range<2> range{ de::integral_cast<size_t>(row_count),
@@ -70,7 +72,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<2> id) {
-            tree_order_ptr[id[1] * row_count + id[0]] = id[0];
+            tree_order_ptr[id[1] * stride + id[0]] = id[0];
         });
     });
 
@@ -81,13 +83,15 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
 template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_groups_by_size(
     const context_t& ctx,
-    const dal::backend::primitives::ndarray<Index, 1>& node_list,
-    dal::backend::primitives::ndarray<Index, 1>& node_groups,
-    dal::backend::primitives::ndarray<Index, 1>& node_indices,
+    const pr::ndarray<Index, 1>& node_list,
+    pr::ndarray<Index, 1>& node_groups,
+    pr::ndarray<Index, 1>& node_indices,
     Index node_count,
     Index group_count,
     Index group_prop_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(split_node_list_on_groups_by_size, queue_);
+
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(node_groups.get_count() == group_count * group_prop_count);
     ONEDAL_ASSERT(node_indices.get_count() == node_count);
@@ -186,10 +190,11 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_g
 
 template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count(
-    const dal::backend::primitives::ndarray<Index, 1>& node_list,
+    const pr::ndarray<Index, 1>& node_list,
     Index node_count,
     Index& split_node_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(get_split_node_count, queue_);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
 
     const Index node_prop_count =
@@ -353,6 +358,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
     Index node_count,
     Index tree_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(do_level_partition, queue_);
+
     ONEDAL_ASSERT(data.get_count() == data_row_count * data_column_count);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(tree_order.get_count() == data_selected_row_count * tree_count);
@@ -599,14 +606,16 @@ template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
     const pr::ndarray<Index, 1>& row_list,
     pr::ndarray<Index, 1>& row_buffer,
-    Index row_count,
-    Index tree_count,
-    Index tree_idx,
+    Index global_row_count,
+    Index block_row_count,
+    Index node_row_count,
+    Index node_count,
+    Index node_idx,
     Index krn_local_size,
     Index sbg_sum_count,
     const bk::event_vector& deps) {
-    ONEDAL_ASSERT(row_list.get_count() == row_count * tree_count);
-    ONEDAL_ASSERT(row_buffer.get_count() == row_count * tree_count);
+    ONEDAL_ASSERT(row_list.get_count() == de::check_mul_overflow(global_row_count, node_count));
+    ONEDAL_ASSERT(row_buffer.get_count() == de::check_mul_overflow(block_row_count, node_count));
 
     const Index* rows_list_ptr = row_list.get_data();
     Index* rows_buffer_ptr = row_buffer.get_mutable_data();
@@ -624,7 +633,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
             const Index n_sub_groups = sbg.get_group_range()[0];
             const Index n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
-                row_count / n_total_sub_groups + bool(row_count % n_total_sub_groups);
+                node_row_count / n_total_sub_groups + bool(node_row_count % n_total_sub_groups);
 
             const Index local_size = sbg.get_local_range()[0];
 
@@ -633,11 +642,11 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
             const Index group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
-            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, row_count);
+            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, node_row_count);
 
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
-                rows_buffer_ptr[row_count * tree_idx + rows_list_ptr[row_count * tree_idx + i]] =
-                    item_present_mark;
+                rows_buffer_ptr[block_row_count * node_idx +
+                                rows_list_ptr[global_row_count * node_idx + i]] = item_present_mark;
             }
         });
     });
@@ -651,13 +660,13 @@ template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_for_blocks(
     const pr::ndarray<Index, 1>& row_buffer,
     pr::ndarray<Index, 1>& part_sum_list,
-    Index row_count,
-    Index tree_count,
-    Index tree_idx,
+    Index block_row_count,
+    Index node_count,
+    Index node_idx,
     Index krn_local_size,
     Index sbg_sum_count,
     const bk::event_vector& deps) {
-    ONEDAL_ASSERT(row_buffer.get_count() == row_count * tree_count);
+    ONEDAL_ASSERT(row_buffer.get_count() == block_row_count * node_count);
     ONEDAL_ASSERT(part_sum_list.get_count() == sbg_sum_count);
 
     const Index* rows_buffer_ptr = row_buffer.get_data();
@@ -676,7 +685,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
             const Index n_sub_groups = sbg.get_group_range()[0];
             const Index n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
-                row_count / n_total_sub_groups + bool(row_count % n_total_sub_groups);
+                block_row_count / n_total_sub_groups + bool(block_row_count % n_total_sub_groups);
 
             const Index local_size = sbg.get_local_range()[0];
 
@@ -685,12 +694,13 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
             const Index group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
-            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, row_count);
+            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, block_row_count);
 
             Index sub_sum = 0;
 
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
-                sub_sum += Index(item_absent_mark == rows_buffer_ptr[row_count * tree_idx + i]);
+                sub_sum +=
+                    Index(item_absent_mark == rows_buffer_ptr[block_row_count * node_idx + i]);
             }
 
             Index sum = sycl::reduce_over_group(sbg, sub_sum, plus<Index>());
@@ -759,16 +769,16 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
     const pr::ndarray<Index, 1>& part_pref_sum_list,
     const pr::ndarray<Index, 1>& oob_row_num_list,
     pr::ndarray<Index, 1>& oob_row_list,
-    Index row_count,
-    Index tree_count,
-    Index tree_idx,
+    Index block_row_count,
+    Index node_count,
+    Index node_idx,
     Index total_oob_row_num,
     Index krn_local_size,
     Index sbg_sum_count,
     const bk::event_vector& deps) {
-    ONEDAL_ASSERT(row_buffer.get_count() == row_count * tree_count);
-    ONEDAL_ASSERT(part_pref_sum_list.get_count() == sbg_sum_count * tree_count);
-    ONEDAL_ASSERT(oob_row_num_list.get_count() == tree_count + 1);
+    ONEDAL_ASSERT(row_buffer.get_count() == block_row_count * node_count);
+    ONEDAL_ASSERT(part_pref_sum_list.get_count() == sbg_sum_count * node_count);
+    ONEDAL_ASSERT(oob_row_num_list.get_count() == node_count + 1);
     ONEDAL_ASSERT(oob_row_list.get_count() == total_oob_row_num);
 
     const Index* rows_buffer_ptr = row_buffer.get_data();
@@ -790,7 +800,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
             const Index n_sub_groups = sbg.get_group_range()[0];
             const Index n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
-                row_count / n_total_sub_groups + bool(row_count % n_total_sub_groups);
+                block_row_count / n_total_sub_groups + bool(block_row_count % n_total_sub_groups);
 
             const Index local_size = sbg.get_local_range()[0];
 
@@ -799,16 +809,16 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
             const Index group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
-            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, row_count);
+            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, block_row_count);
 
-            const Index oob_row_list_offset = oob_row_num_list_ptr[tree_idx];
+            const Index oob_row_list_offset = oob_row_num_list_ptr[node_idx];
 
-            Index group_offset = part_pref_sum_list_ptr[n_groups * tree_idx + group_id];
+            Index group_offset = part_pref_sum_list_ptr[n_groups * node_idx + group_id];
             Index sum = 0;
 
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 Index oob_row =
-                    Index(item_absent_mark == rows_buffer_ptr[row_count * tree_idx + i]);
+                    Index(item_absent_mark == rows_buffer_ptr[block_row_count * node_idx + i]);
                 Index pos = group_offset + sum +
                             sycl::exclusive_scan_over_group(sbg, oob_row, plus<Index>());
                 if (oob_row) {
@@ -825,59 +835,71 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
 template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_service_kernels<Float, Bin, Index, Task>::get_oob_row_list(
     const pr::ndarray<Index, 1>& row_list,
+    const pr::ndarray<Index, 1>& node_list,
     pr::ndarray<Index, 1>& oob_row_count_list,
     pr::ndarray<Index, 1>& oob_row_list,
-    Index row_count,
-    Index tree_count,
+    Index global_row_count,
+    Index block_row_count,
+    Index node_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(get_oob_row_list, queue_);
+
     const Index absent_mark = -1;
     const Index krn_local_size = preferable_sbg_size_;
-    const Index sbg_sum_count = max_local_sums_ * krn_local_size < row_count
-                                    ? max_local_sums_
-                                    : (row_count / krn_local_size + !(row_count / krn_local_size));
+    const Index sbg_sum_count =
+        max_local_sums_ * krn_local_size < block_row_count
+            ? max_local_sums_
+            : (block_row_count / krn_local_size + !(block_row_count / krn_local_size));
 
-    ONEDAL_ASSERT(row_list.get_count() == row_count * tree_count);
-    ONEDAL_ASSERT(oob_row_count_list.get_count() == tree_count + 1);
+    ONEDAL_ASSERT(row_list.get_count() == global_row_count * node_count);
+    ONEDAL_ASSERT(oob_row_count_list.get_count() == node_count + 1);
     // oob_row_list will be created here
 
     sycl::event::wait_and_throw(deps);
 
-    auto [row_buffer, last_event] = pr::ndarray<Index, 1>::full(
-        queue_,
-        { row_count * tree_count },
-        absent_mark,
-        alloc::device); // it is filled with marks Present/Absent for each rows
+    // it is filled with marks Present/Absent for each rows
+    auto [row_buffer, last_event] = pr::ndarray<Index, 1>::full(queue_,
+                                                                { block_row_count * node_count },
+                                                                absent_mark,
+                                                                alloc::device);
     last_event.wait_and_throw();
 
     auto part_sum_list = pr::ndarray<Index, 1>::empty(queue_, { sbg_sum_count }, alloc::device);
     auto part_prefix_sum_list =
-        pr::ndarray<Index, 1>::empty(queue_, { sbg_sum_count * tree_count }, alloc::device);
+        pr::ndarray<Index, 1>::empty(queue_, { sbg_sum_count * node_count }, alloc::device);
     Index total_oob_row_count = 0;
 
     last_event = oob_row_count_list.fill(queue_, 0);
 
-    for (Index tree_idx = 0; tree_idx < tree_count; ++tree_idx) {
+    auto node_list_host = node_list.to_host(queue_, deps);
+    auto node_list_host_ptr = node_list_host.get_data();
+
+    for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
+        auto node_row_count =
+            node_list_host_ptr[node_idx * impl_const_t::node_prop_count_ + impl_const_t::ind_lrc];
         last_event = mark_present_rows(row_list,
                                        row_buffer,
-                                       row_count,
-                                       tree_count,
-                                       tree_idx,
+                                       global_row_count,
+                                       block_row_count,
+                                       node_row_count,
+                                       node_count,
+                                       node_idx,
                                        krn_local_size,
                                        sbg_sum_count,
                                        { last_event });
         last_event = count_absent_rows_for_blocks(row_buffer,
                                                   part_sum_list,
-                                                  row_count,
-                                                  tree_count,
-                                                  tree_idx,
+                                                  block_row_count,
+                                                  node_count,
+                                                  node_idx,
                                                   krn_local_size,
                                                   sbg_sum_count,
                                                   { last_event });
         last_event = count_absent_rows_total(part_sum_list,
                                              part_prefix_sum_list,
                                              oob_row_count_list,
-                                             tree_count,
-                                             tree_idx,
+                                             node_count,
+                                             node_idx,
                                              krn_local_size,
                                              sbg_sum_count,
                                              { last_event });
@@ -885,24 +907,24 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_oob_row_list(
 
     auto oob_row_count_host = oob_row_count_list.to_host(queue_, { last_event });
     const Index* oob_row_count_host_ptr = oob_row_count_host.get_data();
-    total_oob_row_count = oob_row_count_host_ptr[tree_count];
+    total_oob_row_count = oob_row_count_host_ptr[node_count];
 
     if (total_oob_row_count > 0) {
         // assign buffer of required size to the input oob_row_list buffer
         oob_row_list = pr::ndarray<Index, 1>::empty(queue_, { total_oob_row_count }, alloc::device);
 
-        for (Index tree_idx = 0; tree_idx < tree_count; ++tree_idx) {
+        for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
             Index oob_row_count =
-                oob_row_count_host_ptr[tree_idx + 1] - oob_row_count_host_ptr[tree_idx];
+                oob_row_count_host_ptr[node_idx + 1] - oob_row_count_host_ptr[node_idx];
 
             if (oob_row_count > 0) {
                 last_event = fill_oob_rows_list_by_blocks(row_buffer,
                                                           part_prefix_sum_list,
                                                           oob_row_count_list,
                                                           oob_row_list,
-                                                          row_count,
-                                                          tree_count,
-                                                          tree_idx,
+                                                          block_row_count,
+                                                          node_count,
+                                                          node_idx,
                                                           total_oob_row_count,
                                                           krn_local_size,
                                                           sbg_sum_count,
