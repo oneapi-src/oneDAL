@@ -62,7 +62,8 @@ private:
 
 class engine {
 public:
-    engine() : engine_(daal::algorithms::engines::mt2203::Batch<>::create()) {
+    explicit engine(std::int64_t seed = 777)
+            : engine_(daal::algorithms::engines::mt2203::Batch<>::create(seed)) {
         impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine_.get());
         if (!impl_) {
             throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());

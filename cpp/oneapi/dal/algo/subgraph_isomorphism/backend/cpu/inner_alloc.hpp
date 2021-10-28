@@ -40,7 +40,8 @@ struct inner_alloc {
 
     template <typename T>
     void deallocate(T* ptr, std::int64_t n) {
-        return byte_allocator_->deallocate(reinterpret_cast<byte_t*>(ptr), n * sizeof(T));
+        byte_allocator_->deallocate(reinterpret_cast<byte_t*>(ptr), n * sizeof(T));
+        return;
     }
 
     template <typename T>
