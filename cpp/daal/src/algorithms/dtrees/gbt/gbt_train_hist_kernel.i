@@ -317,7 +317,7 @@ struct MergeGHSums
     #if __CPUID__(DAAL_CPU) >= __avx512_mic__
         #define AVX512_ALL DAAL_CPU
     #else
-        #define AVX512_ALL __avx512_mic__
+        #define AVX512_ALL avx512_mic
     #endif
 
     #if __CPUID__(DAAL_CPU) >= __avx__
