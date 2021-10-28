@@ -123,7 +123,7 @@ struct get_core_narrow_kernel {
         ONEDAL_ASSERT(!use_weights || weights.get_dimension(0) == row_count);
         ONEDAL_ASSERT(!use_weights || weights.get_dimension(1) == 1);
         block_start = (block_start < 0) ? 0 : block_start;
-        block_start = (block_end < 0 || block_end > row_count) ? row_count : block_end;
+        block_end = (block_end < 0 || block_end > row_count) ? row_count : block_end;
         ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
         ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
         ONEDAL_ASSERT(block_start < block_end);
@@ -337,12 +337,8 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     ONEDAL_ASSERT(queue_begin >= 0);
     ONEDAL_ASSERT(queue_end >= 0);
     ONEDAL_ASSERT(queue_front.get_dimension(0) == 1);
-    if (block_start < 0)
-        block_start = 0;
-    if (block_end < 0)
-        block_end = row_count;
-    if (block_end > row_count)
-        block_end = row_count;
+    block_start = (block_start < 0) ? 0 : block_start;
+    block_end = (block_end < 0 || block_end > row_count) ? row_count : block_end;
     ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
     ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
     const auto block_size = block_end - block_start;
