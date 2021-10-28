@@ -19,6 +19,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/memory.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -44,6 +45,8 @@ sycl::event indexed_features<Float, Bin, Index>::extract_column(
     pr::ndarray<Index, 1>& indices_nd,
     Index feature_id,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(indexed_features.extract_column, queue_);
+
     ONEDAL_ASSERT(data_nd.get_count() == row_count_ * column_count_);
     ONEDAL_ASSERT(values_nd.get_count() == row_count_);
     ONEDAL_ASSERT(indices_nd.get_count() == row_count_);
@@ -105,6 +108,8 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
     size_t local_size,
     size_t local_blocks_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(indexed_features.fill_bin_map, queue_);
+
     ONEDAL_ASSERT(values_nd.get_count() == row_count_);
     ONEDAL_ASSERT(indices_nd.get_count() == row_count_);
     ONEDAL_ASSERT(bin_borders_nd.get_count() >= bin_count);
@@ -159,6 +164,8 @@ std::tuple<pr::ndarray<Float, 1>, Index, sycl::event>
 indexed_features<Float, Bin, Index>::gather_bin_borders(const pr::ndarray<Float, 1>& values_nd,
                                                         Index row_count,
                                                         const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(indexed_features.gather_bin_borders, queue_);
+
     ONEDAL_ASSERT(values_nd.get_count() == row_count);
 
     sycl::event::wait_and_throw(deps);
@@ -210,6 +217,8 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     const pr::ndarray<Float, 1>& values_nd,
     Index row_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(indexed_features.gather_bin_borders, queue_);
+
     ONEDAL_ASSERT(values_nd.get_count() == row_count);
 
     sycl::event::wait_and_throw(deps);
@@ -326,6 +335,8 @@ sycl::event indexed_features<Float, Bin, Index>::store_column(
     Index column_idx,
     Index column_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(indexed_features.store_column, queue_);
+
     ONEDAL_ASSERT(column_data_nd.get_count() == row_count_);
     ONEDAL_ASSERT(full_data_nd.get_count() == row_count_ * column_count_);
 
