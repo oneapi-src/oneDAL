@@ -140,7 +140,6 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         if (iter != 0) {
             std::tie(ws_indices_copy_count, copy_ws_indices_event) =
                 copy_last_to_first(q, ws_indices_nd);
-            svm_cache_ptr->copy_last_to_first_cache();
         }
 
         working_set
@@ -190,7 +189,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         return result_t{};
     }
 
-    auto arr_biases = array<Float>::full(1, static_cast<Float>(bias));
+    auto arr_biases = array<Float>::full(q, 1, static_cast<Float>(bias));
     auto model =
         model_t()
             .set_support_vectors(homogen_table::wrap(support_vectors.flatten(q),

@@ -42,7 +42,7 @@ auto compute_linear(sycl::queue& queue,
     const Float shift = desc.get_shift();
 
     sycl::event fill_res_event;
-    if (shift != 0.0) {
+    if (shift != Float(0)) {
         fill_res_event = res_nd.fill(queue, Float(1));
     }
 
