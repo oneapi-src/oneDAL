@@ -79,7 +79,6 @@ echo "Calling make"
 make ${target:-daal} ${make_op} \
     PLAT=${platform} \
     COMPILER=${compiler} \
-    REQCPU="${CPU_OPTIMIZATIONS}" \
-    CORE.ALGORITHMS.CUSTOM="kmeans"
+    REQCPU="${CPU_OPTIMIZATIONS}"
 
 exit $?
