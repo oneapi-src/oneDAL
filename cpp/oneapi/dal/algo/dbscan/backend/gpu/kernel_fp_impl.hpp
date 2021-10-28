@@ -122,12 +122,8 @@ struct get_core_narrow_kernel {
         ONEDAL_ASSERT(row_count > 0);
         ONEDAL_ASSERT(!use_weights || weights.get_dimension(0) == row_count);
         ONEDAL_ASSERT(!use_weights || weights.get_dimension(1) == 1);
-        if (block_start < 0)
-            block_start = 0;
-        if (block_end < 0)
-            block_end = row_count;
-        if (block_end > row_count)
-            block_end = row_count;
+        block_start = (block_start < 0) ? 0 : block_start;
+        block_start = (block_end < 0 || block_end > row_count) ? row_count : block_end;
         ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
         ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
         ONEDAL_ASSERT(block_start < block_end);
