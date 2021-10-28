@@ -48,7 +48,7 @@ auto compute_linear(sycl::queue& queue,
 
     sycl::event gemm_event;
     {
-        ONEDAL_PROFILER_TASK(linear_kernel.compute.gemm, queue);
+        ONEDAL_PROFILER_TASK(linear_kernel.gemm, queue);
         gemm_event = gemm(queue, x_nd, y_nd.t(), res_nd, scale, shift, { fill_res_event });
     }
     return gemm_event;
@@ -57,7 +57,6 @@ auto compute_linear(sycl::queue& queue,
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     auto& queue = ctx.get_queue();
-    ONEDAL_PROFILER_TASK(linear_kernel.compute, queue);
     const auto x = input.get_x();
     const auto y = input.get_y();
 

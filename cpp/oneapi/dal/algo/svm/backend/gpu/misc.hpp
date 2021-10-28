@@ -28,12 +28,12 @@ namespace pr = dal::backend::primitives;
 enum class violating_edge { up, low };
 
 template <typename Float>
-inline std::uint8_t is_upper_edge(const Float y, const Float alpha, const Float C) {
+inline bool is_upper_edge(const Float& y, const Float& alpha, const Float& C) {
     return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
 }
 
 template <typename Float>
-inline std::uint8_t is_lower_edge(const Float y, const Float alpha, const Float C) {
+inline bool is_lower_edge(const Float& y, const Float& alpha, const Float& C) {
     return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
 }
 
@@ -67,7 +67,8 @@ sycl::event check_violating_edge(sycl::queue& q,
 
             cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
                 const std::int32_t i = item.get_global_id(0);
-                indicator_ptr[i] = is_upper_edge<Float>(y_ptr[i], alpha_ptr[i], C);
+                indicator_ptr[i] =
+                    static_cast<std::uint8_t>(is_upper_edge<Float>(y_ptr[i], alpha_ptr[i], C));
             });
         });
     }
@@ -77,7 +78,8 @@ sycl::event check_violating_edge(sycl::queue& q,
 
             cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
                 const std::int32_t i = item.get_global_id(0);
-                indicator_ptr[i] = is_lower_edge<Float>(y_ptr[i], alpha_ptr[i], C);
+                indicator_ptr[i] =
+                    static_cast<std::uint8_t>(is_lower_edge<Float>(y_ptr[i], alpha_ptr[i], C));
             });
         });
     }
@@ -105,12 +107,12 @@ auto copy_by_indices(sycl::queue& q,
     Float* res_ptr = res.get_mutable_data();
 
     return q.submit([&](sycl::handler& cgh) {
-        const auto range = dal::backend::make_range_1d(column_count * row_count);
+        const auto range = dal::backend::make_range_2d(column_count, row_count);
 
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            const std::int32_t col_index = idx % column_count;
-            const std::int32_t row_index = idx / column_count;
+        cgh.parallel_for(range, [=](sycl::id<2> idx) {
+            const auto& col_index = idx[0];
+            const auto& row_index = idx[1];
 
             const Integer row_x_index = x_indices_ptr[row_index];
 

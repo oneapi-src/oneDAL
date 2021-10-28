@@ -37,7 +37,7 @@ inline auto compute_exponents(sycl::queue& queue,
                               pr::ndview<Float, 2>& res_nd,
                               double sigma,
                               const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(rbf_kernel.compute.compute_rbf.compute_exponents, queue);
+    ONEDAL_PROFILER_TASK(rbf_kernel.compute_exponents, queue);
     const std::int64_t x_row_count = sqr_x_nd.get_dimension(0);
     const std::int64_t y_row_count = sqr_y_nd.get_dimension(0);
     ONEDAL_ASSERT(res_nd.get_count() == x_row_count * y_row_count);
@@ -74,17 +74,16 @@ inline auto compute_exponents(sycl::queue& queue,
 }
 
 template <typename Float>
-inline auto compute_rbf(sycl::queue& queue,
-                        const pr::ndview<Float, 2>& x_nd,
-                        const pr::ndview<Float, 2>& y_nd,
-                        pr::ndview<Float, 2>& res_nd,
-                        double sigma,
-                        const dal::backend::event_vector& deps = {}) {
+void compute_rbf(sycl::queue& queue,
+                 const pr::ndview<Float, 2>& x_nd,
+                 const pr::ndview<Float, 2>& y_nd,
+                 pr::ndview<Float, 2>& res_nd,
+                 double sigma,
+                 const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(x_nd.get_dimension(0) == res_nd.get_dimension(0));
     ONEDAL_ASSERT(y_nd.get_dimension(0) == res_nd.get_dimension(1));
     ONEDAL_ASSERT(x_nd.get_dimension(1) == y_nd.get_dimension(1));
 
-    ONEDAL_PROFILER_TASK(rbf_kernel.compute.compute_rbf, queue);
     const std::int64_t x_row_count = x_nd.get_dimension(0);
     const std::int64_t y_row_count = y_nd.get_dimension(0);
 
@@ -94,7 +93,7 @@ inline auto compute_rbf(sycl::queue& queue,
     sycl::event reduce_x_event;
     sycl::event reduce_y_event;
     {
-        ONEDAL_PROFILER_TASK(rbf_kernel.compute.compute_rbf.reduce, queue);
+        ONEDAL_PROFILER_TASK(rbf_kernel.reduce, queue);
         reduce_x_event =
             pr::reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
         reduce_y_event =
@@ -105,11 +104,10 @@ inline auto compute_rbf(sycl::queue& queue,
     constexpr Float beta = 0.0;
     sycl::event gemm_event;
     {
-        ONEDAL_PROFILER_TASK(rbf_kernel.compute.compute_rbf.gemm, queue);
+        ONEDAL_PROFILER_TASK(rbf_kernel.gemm, queue);
         gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
     }
 
-    // auto compute_exponents_event =
     compute_exponents(queue,
                       sqr_x_nd,
                       sqr_y_nd,
@@ -117,19 +115,11 @@ inline auto compute_rbf(sycl::queue& queue,
                       sigma,
                       { reduce_x_event, reduce_y_event, gemm_event })
         .wait_and_throw();
-
-    // auto smart_event =
-    //     dal::backend::smart_event{ compute_exponents_event }.attach(sqr_x_nd).attach(sqr_y_nd);
-
-    sycl::event smart_event;
-
-    return smart_event;
 }
 
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     auto& queue = ctx.get_queue();
-    ONEDAL_PROFILER_TASK(rbf_kernel.compute, queue);
     const auto x = input.get_x();
     const auto y = input.get_y();
 
@@ -145,9 +135,9 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     auto res_nd =
         pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
 
-    auto compute_rbf_event = compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
+    compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
 
-    const auto res_array = res_nd.flatten(queue, { compute_rbf_event });
+    const auto res_array = res_nd.flatten(queue);
     auto res_table = homogen_table::wrap(res_array, x_row_count, y_row_count);
 
     return result_t{}.set_values(res_table);
@@ -179,7 +169,7 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
         auto res_nd = pr::ndarray<Float, 2>::wrap(const_cast<Float*>(res_ptr),
                                                   { res.get_row_count(), res.get_column_count() });
 
-        compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma()).wait_and_throw();
+        compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
     }
 #endif
 };

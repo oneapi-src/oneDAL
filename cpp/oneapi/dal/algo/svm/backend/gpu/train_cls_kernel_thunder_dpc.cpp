@@ -40,9 +40,11 @@ namespace pr = dal::backend::primitives;
 
 template <typename Float>
 inline auto update_grad(sycl::queue& q,
-                        const pr::ndview<Float, 2>& kernel_values_nd,
-                        const pr::ndview<Float, 1>& delta_alpha_nd,
+                        const pr::ndview<Float, 2>& kernel_values_nd, // n * m
+                        const pr::ndview<Float, 1>& delta_alpha_nd, // n * k
                         pr::ndview<Float, 1>& grad_nd) {
+    ONEDAL_ASSERT(kernel_values_nd.get_dimension(0) == delta_alpha_nd.get_dimension(0));
+    ONEDAL_ASSERT(kernel_values_nd.get_dimension(1) == grad_nd.get_dimension(0));
     ONEDAL_PROFILER_TASK(update_grad, q);
     auto reshape_delta =
         delta_alpha_nd.reshape(pr::ndshape<2>{ delta_alpha_nd.get_dimension(0), 1 });
@@ -138,7 +140,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         if (iter != 0) {
             std::tie(ws_indices_copy_count, copy_ws_indices_event) =
                 copy_last_to_first(q, ws_indices_nd);
-            copy_cache_event = svm_cache_ptr->copy_last_to_first_cache();
+            svm_cache_ptr->copy_last_to_first_cache();
         }
 
         working_set
@@ -146,10 +148,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
                     grad_nd,
                     ws_indices_nd,
                     ws_indices_copy_count,
-                    { alpha_zeros_event,
-                      invert_responses_event,
-                      copy_ws_indices_event,
-                      copy_cache_event })
+                    { alpha_zeros_event, invert_responses_event, copy_ws_indices_event })
             .wait_and_throw();
 
         const auto kernel_values_nd =

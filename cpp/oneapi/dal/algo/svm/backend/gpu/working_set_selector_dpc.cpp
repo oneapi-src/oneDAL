@@ -60,6 +60,9 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
     const std::int64_t already_selected,
     violating_edge edge,
     const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(ws_indices.get_dimension(0) >= need_select_count);
+    ONEDAL_ASSERT(ws_indices.get_dimension(0) == ws_count_);
+    ONEDAL_ASSERT(alpha.get_dimension(0) == row_count_);
     ONEDAL_PROFILER_TASK(select_ws.select_ws_edge, q_);
     auto select_ws_edge_event =
         check_violating_edge(q_, labels_, alpha, indicator_, C_, edge, deps);

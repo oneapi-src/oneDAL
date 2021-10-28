@@ -207,7 +207,7 @@ auto compute_support_indices(sycl::queue& q,
     ONEDAL_ASSERT(indicator.has_mutable_data());
 
     if (sv_count == 0) {
-        return std::make_tuple(pr::ndarray<std::int32_t, 1>(), sycl::event());
+        return pr::ndarray<std::int32_t, 1>();
     }
 
     auto row_count = indicator.get_dimension(0);
@@ -230,9 +230,9 @@ auto compute_support_indices(sycl::queue& q,
     const std::int32_t* tmp_index_ptr = tmp_index.get_data();
     std::int32_t* support_indices_ptr = support_indices.get_mutable_data();
 
-    auto copy_event = dal::backend::copy(q, support_indices_ptr, tmp_index_ptr, sv_count);
+    dal::backend::copy(q, support_indices_ptr, tmp_index_ptr, sv_count).wait_and_throw();
 
-    return std::make_tuple(support_indices, copy_event);
+    return support_indices;
 }
 
 template <typename Float>
@@ -279,15 +279,11 @@ auto compute_train_results(sycl::queue& q,
     auto [sv_coeffs, sv_count, compute_sv_coeffs_event] =
         compute_sv_coeffs<Float>(q, coeffs, tmp_values, indicator, { compute_dual_coeffs_event });
 
-    auto [support_indices, compute_support_indices_event] =
+    auto support_indices =
         compute_support_indices<Float>(q, indicator, sv_count, { compute_sv_coeffs_event });
 
     auto [support_vectors, compute_support_vectors_event] =
-        compute_support_vectors<Float>(q,
-                                       x,
-                                       support_indices,
-                                       sv_count,
-                                       { compute_support_indices_event });
+        compute_support_vectors<Float>(q, x, support_indices, sv_count);
     compute_support_vectors_event.wait_and_throw();
 
     return std::make_tuple(bias, sv_count, sv_coeffs, support_indices, support_vectors);

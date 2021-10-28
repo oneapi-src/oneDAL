@@ -97,7 +97,7 @@ public:
                                           const pr::ndarray<Float, 2>& x_nd,
                                           const pr::ndview<std::int32_t, 1>& ws_indices) = 0;
 
-    virtual sycl::event copy_last_to_first_cache() = 0;
+    virtual void copy_last_to_first_cache() = 0;
 
 protected:
     svm_cache_iface(sycl::queue& q, const std::int64_t block_size, const std::int64_t line_size)
@@ -136,11 +136,8 @@ public:
                                   const pr::ndview<std::int32_t, 1>& ws_indices) override {
         ONEDAL_PROFILER_TASK(cache_compute, this->q_);
         const std::int64_t work_elements_count = ws_indices.get_count();
-        auto copy_event = sub_data_task_ptr_->copy_data_by_indices(this->q_,
-                                                                   ws_indices,
-                                                                   work_elements_count,
-                                                                   x_nd);
-        copy_event.wait_and_throw();
+        sub_data_task_ptr_->copy_data_by_indices(this->q_, ws_indices, work_elements_count, x_nd)
+            .wait_and_throw();
 
         kernel_ptr->compute_kernel_function(dal::detail::data_parallel_policy(this->q_),
                                             sub_data_task_ptr_->get_table(),
@@ -150,12 +147,12 @@ public:
         return res_nd_;
     }
 
-    sycl::event copy_last_to_first_cache() override {
+    void copy_last_to_first_cache() override {
         auto reshape_res_nd =
             res_nd_.reshape(pr::ndshape<1>{ this->block_size_ * this->line_size_ });
         auto [copy_count, copy_event] = copy_last_to_first(this->q_, reshape_res_nd);
 
-        return copy_event;
+        copy_event.wait_and_throw();
     }
 
 private:
