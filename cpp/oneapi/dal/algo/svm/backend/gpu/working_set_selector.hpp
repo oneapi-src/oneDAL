@@ -27,8 +27,8 @@ namespace pr = dal::backend::primitives;
 
 inline std::int64_t propose_working_set_size(const sycl::queue& q, const std::int64_t row_count) {
     const std::int64_t max_wg_size = dal::backend::device_max_wg_size(q);
-    return std::min(dal::backend::down_pow2<std::uint32_t>(row_count),
-                    dal::backend::down_pow2<std::uint32_t>(max_wg_size));
+    return std::min(dal::backend::down_pow2<std::int32_t>(row_count),
+                    dal::backend::down_pow2<std::int32_t>(max_wg_size));
 }
 
 template <typename Float>
@@ -41,19 +41,19 @@ public:
 
     sycl::event select(const pr::ndview<Float, 1>& alpha,
                        const pr::ndview<Float, 1>& f,
-                       pr::ndview<std::uint32_t, 1>& ws_indices,
+                       pr::ndview<std::int32_t, 1>& ws_indices,
                        std::int64_t selected_count,
                        const dal::backend::event_vector& deps = {});
 
 private:
-    sycl::event reset_indicator(const pr::ndview<std::uint32_t, 1>& idx,
+    sycl::event reset_indicator(const pr::ndview<std::int32_t, 1>& idx,
                                 pr::ndview<std::uint8_t, 1>& indicator,
                                 const std::int64_t need_to_reset,
                                 const dal::backend::event_vector& deps = {});
 
     std::tuple<const std::int64_t, sycl::event> select_ws_edge(
         const pr::ndview<Float, 1>& alpha,
-        pr::ndview<std::uint32_t, 1>& ws_indices,
+        pr::ndview<std::int32_t, 1>& ws_indices,
         const std::int64_t need_select_count,
         const std::int64_t already_selected,
         violating_edge edge,
@@ -69,8 +69,8 @@ private:
     std::int64_t ws_count_;
     Float C_;
 
-    pr::ndarray<std::uint32_t, 1> sorted_f_indices_;
-    pr::ndarray<std::uint32_t, 1> buff_indices_;
+    pr::ndarray<std::int32_t, 1> sorted_f_indices_;
+    pr::ndarray<std::int32_t, 1> buff_indices_;
     pr::ndarray<std::uint8_t, 1> indicator_;
     pr::ndarray<Float, 1> tmp_sort_values_;
     pr::ndarray<Float, 1> labels_;

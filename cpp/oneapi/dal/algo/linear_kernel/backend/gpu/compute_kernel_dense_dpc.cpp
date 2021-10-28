@@ -34,6 +34,10 @@ auto compute_linear(sycl::queue& queue,
                     const pr::ndarray<Float, 2>& y_nd,
                     pr::ndarray<Float, 2>& res_nd,
                     const descriptor_t& desc) {
+    ONEDAL_ASSERT(x_nd.get_dimension(0) == res_nd.get_dimension(0));
+    ONEDAL_ASSERT(y_nd.get_dimension(0) == res_nd.get_dimension(1));
+    ONEDAL_ASSERT(x_nd.get_dimension(1) == y_nd.get_dimension(1));
+
     const Float scale = desc.get_scale();
     const Float shift = desc.get_shift();
 
@@ -92,13 +96,17 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
                     const table& x,
                     const table& y,
                     homogen_table& res) {
+        ONEDAL_ASSERT(x.get_row_count() == res.get_row_count());
+        ONEDAL_ASSERT(y.get_row_count() == res.get_column_count());
+        ONEDAL_ASSERT(x.get_column_count() == y.get_column_count());
+
         auto& queue = ctx.get_queue();
         const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
         const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
 
         auto res_ptr = res.get_data<Float>();
         auto res_nd = pr::ndarray<Float, 2>::wrap(const_cast<Float*>(res_ptr),
-                                                  { x.get_row_count(), y.get_row_count() });
+                                                  { res.get_row_count(), res.get_column_count() });
 
         compute_linear(queue, x_nd, y_nd, res_nd, desc).wait_and_throw();
     }

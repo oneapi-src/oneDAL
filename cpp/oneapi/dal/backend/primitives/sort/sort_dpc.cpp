@@ -43,7 +43,6 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_scan(sycl::queue& qu
                                                                  std::int64_t local_size,
                                                                  std::int64_t local_hist_count,
                                                                  sycl::event& deps) {
-    ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace.radix_scan, queue);
     ONEDAL_ASSERT(part_hist.get_count() == hist_buff_size_);
 
     const sycl::nd_range<1> nd_range =
@@ -107,7 +106,6 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_hist_scan(
     std::int64_t local_size,
     std::int64_t local_hist_count,
     sycl::event& deps) {
-    ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace.radix_hist_scan, queue);
     ONEDAL_ASSERT(part_hist.get_count() == hist_buff_size_);
     ONEDAL_ASSERT(part_prefix_hist.get_count() == hist_buff_size_);
 
@@ -168,7 +166,6 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
     std::int64_t local_size,
     std::int64_t local_hist_count,
     sycl::event& deps) {
-    ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace.radix_reorder, queue);
     ONEDAL_ASSERT(part_prefix_hist.get_count() == ((local_hist_count + 1) << radix_bits_));
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
     ONEDAL_ASSERT(val_in.get_count() == val_out.get_count());

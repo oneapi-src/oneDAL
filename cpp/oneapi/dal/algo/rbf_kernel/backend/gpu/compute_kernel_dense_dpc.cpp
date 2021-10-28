@@ -80,6 +80,10 @@ inline auto compute_rbf(sycl::queue& queue,
                         pr::ndview<Float, 2>& res_nd,
                         double sigma,
                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(x_nd.get_dimension(0) == res_nd.get_dimension(0));
+    ONEDAL_ASSERT(y_nd.get_dimension(0) == res_nd.get_dimension(1));
+    ONEDAL_ASSERT(x_nd.get_dimension(1) == y_nd.get_dimension(1));
+
     ONEDAL_PROFILER_TASK(rbf_kernel.compute.compute_rbf, queue);
     const std::int64_t x_row_count = x_nd.get_dimension(0);
     const std::int64_t y_row_count = y_nd.get_dimension(0);
@@ -162,13 +166,17 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
                     const table& x,
                     const table& y,
                     homogen_table& res) {
+        ONEDAL_ASSERT(x.get_row_count() == res.get_row_count());
+        ONEDAL_ASSERT(y.get_row_count() == res.get_column_count());
+        ONEDAL_ASSERT(x.get_column_count() == y.get_column_count());
+
         auto& queue = ctx.get_queue();
         const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
         const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
 
         auto res_ptr = res.get_data<Float>();
         auto res_nd = pr::ndarray<Float, 2>::wrap(const_cast<Float*>(res_ptr),
-                                                  { x.get_row_count(), y.get_row_count() });
+                                                  { res.get_row_count(), res.get_column_count() });
 
         compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma()).wait_and_throw();
     }

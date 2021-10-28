@@ -33,19 +33,19 @@ namespace la = te::linalg;
 template <typename TestType>
 class smo_solver_test : public te::float_algo_fixture<TestType> {
 public:
-    using Float = TestType;
+    using float_t = TestType;
 
-    void test_smo_solver(const std::vector<Float>& x,
-                         const std::vector<Float>& y,
-                         const Float C,
-                         const Float eps,
+    void test_smo_solver(const std::vector<float_t>& x,
+                         const std::vector<float_t>& y,
+                         const float_t C,
+                         const float_t eps,
                          const std::int64_t max_inner_iter,
                          const std::int64_t row_count,
                          const std::int64_t column_count,
                          const std::int64_t expected_inner_iter_count,
-                         const Float expected_f_diff,
-                         const std::vector<Float>& expected_alpha,
-                         const std::vector<Float>& expected_delta_alpha) {
+                         const float_t expected_f_diff,
+                         const std::vector<float_t>& expected_alpha,
+                         const std::vector<float_t>& expected_delta_alpha) {
         auto& q = this->get_queue();
 
         INFO("compute kernel function values");
@@ -53,31 +53,31 @@ public:
         const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
         const auto result = dal::compute(q, kernel_desc, x_table, x_table);
         const auto kernel_values_nd =
-            pr::table2ndarray<Float>(q, result.get_values(), sycl::usm::alloc::device);
+            pr::table2ndarray<float_t>(q, result.get_values(), sycl::usm::alloc::device);
 
         INFO("allocate ndarray");
-        auto y_host_nd = pr::ndarray<Float, 1>::wrap(y.data(), row_count);
+        auto y_host_nd = pr::ndarray<float_t, 1>::wrap(y.data(), row_count);
         auto y_nd = y_host_nd.to_device(q);
 
         auto ws_indices_nd =
-            pr::ndarray<std::uint32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+            pr::ndarray<std::int32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
         auto arange_event = ws_indices_nd.arange(q);
 
-        auto f_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+        auto f_nd = pr::ndarray<float_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
         auto invert_y_event = invert_values(q, y_nd, f_nd);
 
         auto [alpha_nd, alpha_event] =
-            pr::ndarray<Float, 1>::zeros(q, { row_count }, sycl::usm::alloc::device);
+            pr::ndarray<float_t, 1>::zeros(q, { row_count }, sycl::usm::alloc::device);
         auto delta_alpha_nd =
-            pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
-        auto f_diff_nd = pr::ndarray<Float, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
+            pr::ndarray<float_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+        auto f_diff_nd = pr::ndarray<float_t, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
         auto inner_iter_count_nd =
-            pr::ndarray<std::uint32_t, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
+            pr::ndarray<std::int32_t, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
 
-        const Float tau = 1.0e-12;
+        const float_t tau = 1.0e-12;
 
         INFO("run solve smo");
-        solve_smo<Float>(q,
+        solve_smo<float_t>(q,
                          kernel_values_nd,
                          ws_indices_nd,
                          y_nd,
@@ -108,36 +108,36 @@ public:
         check_inner_iter_count(inner_iter_count_nd, expected_inner_iter_count);
     }
 
-    void check_ndarray(const pr::ndarray<Float, 1>& res, const std::vector<Float>& expected_res) {
+    void check_ndarray(const pr::ndarray<float_t, 1>& res, const std::vector<float_t>& expected_res) {
         auto row_count = res.get_count();
 
         const auto res_host = res.to_host(this->get_queue());
-        auto expected_res_host = pr::ndarray<Float, 1>::wrap(expected_res.data(), row_count);
-        const Float* res_ptr = res_host.get_data();
-        const Float* expected_res_ptr = expected_res_host.get_data();
+        auto expected_res_host = pr::ndarray<float_t, 1>::wrap(expected_res.data(), row_count);
+        const float_t* res_ptr = res_host.get_data();
+        const float_t* expected_res_ptr = expected_res_host.get_data();
 
         for (std::int64_t el = 0; el < row_count; el++) {
             REQUIRE(fabs(res_ptr[el] - expected_res_ptr[el]) < 1.0e-3);
         }
     }
 
-    void check_f_diff(const pr::ndarray<Float, 1>& f_diff_nd, const Float expected_f_diff) {
+    void check_f_diff(const pr::ndarray<float_t, 1>& f_diff_nd, const float_t expected_f_diff) {
         auto& q = this->get_queue();
 
         const auto f_diff_arr = f_diff_nd.flatten(q);
-        const auto f_diff_mat_host = la::matrix<Float>::wrap(f_diff_arr).to_host();
+        const auto f_diff_mat_host = la::matrix<float_t>::wrap(f_diff_arr).to_host();
         const auto f_diff_arr_host = f_diff_mat_host.get_array();
 
         REQUIRE(fabs(expected_f_diff - f_diff_arr_host[0]) < 1.0e-3);
     }
 
-    void check_inner_iter_count(const pr::ndarray<std::uint32_t, 1>& inner_iter_count_nd,
+    void check_inner_iter_count(const pr::ndarray<std::int32_t, 1>& inner_iter_count_nd,
                                 const std::int64_t expected_inner_iter_count) {
         auto& q = this->get_queue();
 
         const auto inner_iter_count_arr = inner_iter_count_nd.flatten(q);
         const auto inner_iter_count_mat_host =
-            la::matrix<std::uint32_t>::wrap(inner_iter_count_arr).to_host();
+            la::matrix<std::int32_t>::wrap(inner_iter_count_arr).to_host();
         const auto inner_iter_count_arr_host = inner_iter_count_mat_host.get_array();
 
         REQUIRE(expected_inner_iter_count >= inner_iter_count_arr_host[0]);

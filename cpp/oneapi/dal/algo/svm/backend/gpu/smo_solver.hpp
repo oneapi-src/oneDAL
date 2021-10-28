@@ -33,36 +33,36 @@ template <typename Data>
 using local_accessor_rw_t =
     sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
 
-constexpr std::uint32_t delta_b_i = 0;
-constexpr std::uint32_t delta_b_j = 1;
-constexpr std::uint32_t local_diff = 2;
-constexpr std::uint32_t local_eps = 3;
-constexpr std::uint32_t max_val_ind = 64;
+constexpr std::int32_t delta_b_i = 0;
+constexpr std::int32_t delta_b_j = 1;
+constexpr std::int32_t local_diff = 2;
+constexpr std::int32_t local_eps = 3;
+constexpr std::int32_t max_val_ind = 64;
 
 template <typename Float>
 inline void reduce_arg_max(sycl::nd_item<1> item,
                            const Float* objective_func,
                            Float* sg_cache_values,
-                           std::uint32_t* sg_cache_index) {
+                           std::int32_t* sg_cache_index) {
     auto sg = item.get_sub_group();
 
-    const std::uint32_t local_id = item.get_local_id(0);
-    const std::uint32_t wg_size = item.get_local_range()[0];
-    const std::uint32_t sg_size = sg.get_local_range()[0];
-    const std::uint32_t sg_count = wg_size / sg_size;
-    const std::uint32_t sg_id = local_id / sg_size;
+    const std::int32_t local_id = item.get_local_id(0);
+    const std::int32_t wg_size = item.get_local_range()[0];
+    const std::int32_t sg_size = sg.get_local_range()[0];
+    const std::int32_t sg_count = wg_size / sg_size;
+    const std::int32_t sg_id = sg.get_group_id();
 
-    const std::uint32_t sg_local_id = sg.get_local_id();
+    const std::int32_t sg_local_id = sg.get_local_id();
 
-    const std::uint32_t int_max = dal::detail::limits<std::uint32_t>::max();
+    const std::int32_t int_max = dal::detail::limits<std::int32_t>::max();
 
     Float x = objective_func[local_id];
-    std::uint32_t x_index = local_id;
+    std::int32_t x_index = local_id;
 
     Float res_max = sycl::reduce_over_group(sg, x, maximum<Float>());
 
-    std::uint32_t res_index =
-        sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
+    std::int32_t res_index =
+        sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::int32_t>());
 
     if (sg_local_id == 0) {
         sg_cache_values[sg_id] = res_max;
@@ -76,9 +76,9 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
         x_index = sg_cache_index[sg_local_id];
         res_max = sycl::reduce_over_group(sg, x, maximum<Float>());
         res_index =
-            sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::uint32_t>());
+            sycl::reduce_over_group(sg, res_max == x ? x_index : int_max, minimum<std::int32_t>());
 
-        for (std::uint32_t group_index = sg_size; group_index < sg_count; group_index += sg_size) {
+        for (std::int32_t group_index = sg_size; group_index < sg_count; group_index += sg_size) {
             x = sg_cache_values[group_index + sg_local_id];
             x_index = sg_cache_index[group_index + sg_local_id];
 
@@ -87,7 +87,7 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
                 res_max = inner_max;
                 res_index = sycl::reduce_over_group(sg,
                                                     res_max == x ? x_index : int_max,
-                                                    minimum<std::uint32_t>());
+                                                    minimum<std::int32_t>());
             }
         }
 
@@ -103,7 +103,7 @@ inline void reduce_arg_max(sycl::nd_item<1> item,
 template <typename Float>
 sycl::event solve_smo(sycl::queue& q,
                       const pr::ndview<Float, 2>& kernel_values,
-                      const pr::ndview<std::uint32_t, 1>& ws_indices,
+                      const pr::ndview<std::int32_t, 1>& ws_indices,
                       const pr::ndarray<Float, 1>& labels,
                       const pr::ndview<Float, 1>& grad,
                       const std::int64_t row_count,
@@ -115,16 +115,18 @@ sycl::event solve_smo(sycl::queue& q,
                       pr::ndview<Float, 1>& alpha,
                       pr::ndview<Float, 1>& delta_alpha,
                       pr::ndview<Float, 1>& grad_diff,
-                      pr::ndview<std::uint32_t, 1>& inner_iter_count,
+                      pr::ndview<std::int32_t, 1>& inner_iter_count,
                       const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(solve_smo, q);
     ONEDAL_ASSERT(row_count > 0);
-    ONEDAL_ASSERT(row_count <= dal::detail::limits<std::uint32_t>::max());
+    ONEDAL_ASSERT(row_count <= dal::detail::limits<std::int32_t>::max());
     ONEDAL_ASSERT(row_count == labels.get_dimension(0));
     ONEDAL_ASSERT(max_inner_iter > 0);
-    ONEDAL_ASSERT(max_inner_iter <= dal::detail::limits<std::uint32_t>::max());
+    ONEDAL_ASSERT(max_inner_iter <= dal::detail::limits<std::int32_t>::max());
     ONEDAL_ASSERT(ws_count > 0);
-    ONEDAL_ASSERT(ws_count <= dal::detail::limits<std::uint32_t>::max());
+    ONEDAL_ASSERT(ws_count <= dal::detail::limits<std::int32_t>::max());
+    ONEDAL_ASSERT(kernel_values.get_dimension(0) == ws_count);
+    ONEDAL_ASSERT(kernel_values.get_dimension(1) == row_count);
     ONEDAL_ASSERT(ws_indices.get_dimension(0) == ws_count);
     ONEDAL_ASSERT(delta_alpha.get_dimension(0) == ws_count);
     ONEDAL_ASSERT(labels.get_dimension(0) == grad.get_dimension(0));
@@ -134,14 +136,14 @@ sycl::event solve_smo(sycl::queue& q,
 
     const Float* labels_ptr = labels.get_data();
     const Float* kernel_values_ptr = kernel_values.get_data();
-    const std::uint32_t* ws_indices_ptr = ws_indices.get_data();
+    const std::int32_t* ws_indices_ptr = ws_indices.get_data();
     const Float* grad_ptr = grad.get_data();
     Float* alpha_ptr = alpha.get_mutable_data();
     Float* delta_alpha_ptr = delta_alpha.get_mutable_data();
     Float* grad_diff_ptr = grad_diff.get_mutable_data();
-    std::uint32_t* inner_iter_count_ptr = inner_iter_count.get_mutable_data();
+    std::int32_t* inner_iter_count_ptr = inner_iter_count.get_mutable_data();
 
-    constexpr std::uint32_t max_sg_size = 64;
+    constexpr std::int32_t max_sg_size = 64;
 
     const sycl::nd_range<1> nd_range = dal::backend::make_multiple_nd_range_1d(ws_count, ws_count);
 
@@ -150,32 +152,32 @@ sycl::event solve_smo(sycl::queue& q,
         local_accessor_rw_t<Float> local_kernel_values(ws_count, cgh);
         local_accessor_rw_t<Float> objective_func(ws_count, cgh);
         local_accessor_rw_t<Float> sg_cache_values(max_sg_size + 1, cgh);
-        local_accessor_rw_t<std::uint32_t> sg_cache_index(max_sg_size + 1, cgh);
+        local_accessor_rw_t<std::int32_t> sg_cache_index(max_sg_size + 1, cgh);
         local_accessor_rw_t<Float> local_vars(4, cgh);
 
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
-            const std::uint32_t i = item.get_local_id(0);
+            const std::int32_t i = item.get_local_id(0);
 
-            const std::uint32_t ws_index = ws_indices_ptr[i];
+            const std::int32_t ws_index = ws_indices_ptr[i];
 
             Float grad_i = grad_ptr[ws_index];
             Float alpha_i = alpha_ptr[ws_index];
             const Float old_alpha_i = alpha_i;
             const Float labels_i = labels_ptr[ws_index];
 
-            std::uint32_t b_i = 0;
-            std::uint32_t b_j = 0;
+            std::int32_t b_i = 0;
+            std::int32_t b_j = 0;
 
             Float* local_kernel_values_ptr = local_kernel_values.get_pointer().get();
             Float* objective_func_ptr = objective_func.get_pointer().get();
             Float* sg_cache_values_ptr = sg_cache_values.get_pointer().get();
-            std::uint32_t* sg_cache_index_ptr = sg_cache_index.get_pointer().get();
+            std::int32_t* sg_cache_index_ptr = sg_cache_index.get_pointer().get();
             Float* local_vars_ptr = local_vars.get_pointer().get();
 
             local_kernel_values_ptr[i] = kernel_values_ptr[i * row_count + ws_index];
             item.barrier(sycl::access::fence_space::local_space);
 
-            std::uint32_t inner_iter = 0;
+            std::int32_t inner_iter = 0;
             for (; inner_iter < max_inner_iter; ++inner_iter) {
                 /* m(alpha) = min(grad[i]): i belongs to I_UP (alpha) */
                 objective_func_ptr[i] =

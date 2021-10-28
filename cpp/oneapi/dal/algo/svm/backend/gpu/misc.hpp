@@ -28,12 +28,12 @@ namespace pr = dal::backend::primitives;
 enum class violating_edge { up, low };
 
 template <typename Float>
-inline bool is_upper_edge(const Float y, const Float alpha, const Float C) {
+inline std::uint8_t is_upper_edge(const Float y, const Float alpha, const Float C) {
     return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
 }
 
 template <typename Float>
-inline bool is_lower_edge(const Float y, const Float alpha, const Float C) {
+inline std::uint8_t is_lower_edge(const Float y, const Float alpha, const Float C) {
     return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
 }
 
@@ -66,7 +66,7 @@ sycl::event check_violating_edge(sycl::queue& q,
             cgh.depends_on(deps);
 
             cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-                const std::uint32_t i = item.get_global_id(0);
+                const std::int32_t i = item.get_global_id(0);
                 indicator_ptr[i] = is_upper_edge<Float>(y_ptr[i], alpha_ptr[i], C);
             });
         });
@@ -76,7 +76,7 @@ sycl::event check_violating_edge(sycl::queue& q,
             cgh.depends_on(deps);
 
             cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-                const std::uint32_t i = item.get_global_id(0);
+                const std::int32_t i = item.get_global_id(0);
                 indicator_ptr[i] = is_lower_edge<Float>(y_ptr[i], alpha_ptr[i], C);
             });
         });
@@ -95,6 +95,9 @@ auto copy_by_indices(sycl::queue& q,
     ONEDAL_PROFILER_TASK(copy_by_indices, q);
     ONEDAL_ASSERT(x_indices.get_count() == row_count);
     ONEDAL_ASSERT(res.get_count() == row_count * column_count);
+    ONEDAL_ASSERT(x.get_dimension(1) == column_count);
+    ONEDAL_ASSERT(column_count > 0);
+    ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(res.has_mutable_data());
 
     const Float* x_ptr = x.get_data();
@@ -106,8 +109,8 @@ auto copy_by_indices(sycl::queue& q,
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            const std::uint32_t col_index = idx % column_count;
-            const std::uint32_t row_index = idx / column_count;
+            const std::int32_t col_index = idx % column_count;
+            const std::int32_t row_index = idx / column_count;
 
             const Integer row_x_index = x_indices_ptr[row_index];
 
@@ -124,7 +127,9 @@ inline sycl::event invert_values(sycl::queue& q,
                                  pr::ndview<Float, 1>& res,
                                  const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(invert_values, q);
-    ONEDAL_ASSERT(data.get_dimension(0) == res.get_dimension(0));
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(res.has_mutable_data());
+    ONEDAL_ASSERT(data.get_count() == res.get_count());
 
     const Float* data_ptr = data.get_data();
     Float* res_ptr = res.get_mutable_data();

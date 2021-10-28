@@ -33,7 +33,6 @@ sycl::event check_coeffs_border(sycl::queue& q,
                                 pr::ndview<std::uint8_t, 1>& indicator,
                                 const Float C,
                                 const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_train_results.compute_bias.check_coeffs_border, q);
     ONEDAL_ASSERT(indicator.has_mutable_data());
     ONEDAL_ASSERT(indicator.get_dimension(0) == coeffs.get_dimension(0));
 
@@ -60,7 +59,15 @@ Float compute_bias(sycl::queue& q,
                    pr::ndview<std::uint8_t, 1>& indicator,
                    const Float C,
                    const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_train_results.compute_bias, q);
+    auto row_count = labels.get_dimension(0);
+    ONEDAL_ASSERT(labels.get_dimension(0) == row_count);
+    ONEDAL_ASSERT(f.get_dimension(0) == row_count);
+    ONEDAL_ASSERT(coeffs.get_dimension(0) == row_count);
+    ONEDAL_ASSERT(tmp_values.get_dimension(0) == row_count);
+    ONEDAL_ASSERT(indicator.get_dimension(0) == row_count);
+    ONEDAL_ASSERT(tmp_values.has_mutable_data());
+    ONEDAL_ASSERT(indicator.has_mutable_data());
+
     Float bias = 0;
     auto reduce_res = pr::ndarray<Float, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
 
@@ -74,7 +81,7 @@ Float compute_bias(sycl::queue& q,
     if (free_sv_count > 0) {
         auto reduce_event = pr::reduce_by_columns(
             q,
-            tmp_values.reshape(pr::ndshape<2>{ tmp_values.get_dimension(0), 1 }),
+            tmp_values.reshape(pr::ndshape<2>{ row_count, 1 }),
             reduce_res,
             pr::sum<Float>{},
             pr::identity<Float>{});
@@ -90,7 +97,7 @@ Float compute_bias(sycl::queue& q,
             select_flagged(indicator, f, tmp_values, up_edge_count, { check_edge_event });
         auto reduce_event = pr::reduce_by_columns(
             q,
-            tmp_values.reshape(pr::ndshape<2>{ tmp_values.get_dimension(0), 1 }),
+            tmp_values.reshape(pr::ndshape<2>{ row_count, 1 }),
             reduce_res,
             pr::min<Float>{},
             pr::identity<Float>{},
@@ -106,7 +113,7 @@ Float compute_bias(sycl::queue& q,
             select_flagged(indicator, f, tmp_values, low_edge_count, { check_edge_event });
         reduce_event = pr::reduce_by_columns(
             q,
-            tmp_values.reshape(pr::ndshape<2>{ tmp_values.get_dimension(0), 1 }),
+            tmp_values.reshape(pr::ndshape<2>{ row_count, 1 }),
             reduce_res,
             pr::max<Float>{},
             pr::identity<Float>{},
@@ -125,7 +132,6 @@ auto compute_dual_coeffs(sycl::queue& q,
                          const pr::ndview<Float, 1>& labels,
                          pr::ndview<Float, 1>& coeffs,
                          const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_train_results.compute_dual_coeffs, q);
     ONEDAL_ASSERT(labels.get_dimension(0) == coeffs.get_dimension(0));
     ONEDAL_ASSERT(coeffs.has_mutable_data());
 
@@ -147,7 +153,6 @@ auto check_non_zero_binary(sycl::queue& q,
                            const pr::ndview<Float, 1>& coeffs,
                            pr::ndview<std::uint8_t, 1>& indicator,
                            const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_train_results.compute_sv_coeffs.check_non_zero_binary, q);
     ONEDAL_ASSERT(indicator.get_dimension(0) == coeffs.get_dimension(0));
     ONEDAL_ASSERT(indicator.has_mutable_data());
 
@@ -170,7 +175,11 @@ auto compute_sv_coeffs(sycl::queue& q,
                        pr::ndview<Float, 1>& tmp_values,
                        pr::ndview<std::uint8_t, 1>& indicator,
                        const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_train_results.compute_sv_coeffs, q);
+    ONEDAL_ASSERT(indicator.get_dimension(0) == coeffs.get_dimension(0));
+    ONEDAL_ASSERT(tmp_values.get_dimension(0) == coeffs.get_dimension(0));
+    ONEDAL_ASSERT(tmp_values.has_mutable_data());
+    ONEDAL_ASSERT(indicator.has_mutable_data());
+
     auto check_non_zero_binary_event = check_non_zero_binary(q, coeffs, indicator, deps);
 
     std::int64_t sv_count = 0;
@@ -196,7 +205,8 @@ auto compute_support_indices(sycl::queue& q,
                              pr::ndview<std::uint8_t, 1>& indicator,
                              const std::int64_t sv_count,
                              const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_train_results.compute_support_indices, q);
+    ONEDAL_ASSERT(indicator.has_mutable_data());
+    
     if (sv_count == 0) {
         return std::make_tuple(pr::ndarray<std::int32_t, 1>(), sycl::event());
     }
@@ -209,7 +219,7 @@ auto compute_support_indices(sycl::queue& q,
 
     auto tmp_range =
         pr::ndarray<std::int32_t, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
-    auto arange_event = tmp_range.arange(q);
+    auto arange_event = tmp_range.arange(q, deps);
 
     std::int64_t check_sv_count = 0;
     auto select_flagged = pr::select_flagged_index<std::int32_t, std::uint8_t>{ q };
@@ -232,7 +242,6 @@ auto compute_support_vectors(sycl::queue& q,
                              const pr::ndview<std::int32_t, 1>& support_indices,
                              const std::int64_t sv_count,
                              const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_train_results.compute_support_vectors, q);
     if (sv_count == 0) {
         return std::make_tuple(pr::ndarray<Float, 2>(), sycl::event());
     }
@@ -252,6 +261,11 @@ auto compute_train_results(sycl::queue& q,
                            pr::ndarray<Float, 1>& coeffs,
                            const Float C) {
     ONEDAL_PROFILER_TASK(compute_train_results, q);
+
+    ONEDAL_ASSERT(x.get_dimension(0) == labels.get_dimension(0));
+    ONEDAL_ASSERT(f.get_dimension(0) == labels.get_dimension(0));
+    ONEDAL_ASSERT(coeffs.get_dimension(0) == labels.get_dimension(0));
+
     auto row_count = labels.get_dimension(0);
     auto [tmp_values, tmp_values_event] =
         pr::ndarray<Float, 1>::zeros(q, { row_count }, sycl::usm::alloc::device);

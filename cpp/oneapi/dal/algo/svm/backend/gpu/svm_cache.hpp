@@ -32,7 +32,7 @@ class sub_data_task_base {
 public:
     virtual ~sub_data_task_base() = default;
     virtual sycl::event copy_data_by_indices(sycl::queue& q,
-                                             const pr::ndview<std::uint32_t, 1>& ws_indices,
+                                             const pr::ndview<std::int32_t, 1>& ws_indices,
                                              const std::int64_t subset_vectors_count,
                                              const pr::ndview<Float, 2>& x) = 0;
     table get_table() const {
@@ -66,7 +66,7 @@ public:
     }
 
     sycl::event copy_data_by_indices(sycl::queue& q,
-                                     const pr::ndview<std::uint32_t, 1>& ws_indices,
+                                     const pr::ndview<std::int32_t, 1>& ws_indices,
                                      const std::int64_t subset_vectors_count,
                                      const pr::ndview<Float, 2>& x) override {
         ONEDAL_PROFILER_TASK(cache_compute.copy_data_by_indices, q);
@@ -95,7 +95,7 @@ public:
     virtual pr::ndarray<Float, 2> compute(const detail::kernel_function_ptr& kernel_ptr,
                                           const table& x_table,
                                           const pr::ndarray<Float, 2>& x_nd,
-                                          const pr::ndview<std::uint32_t, 1>& ws_indices) = 0;
+                                          const pr::ndview<std::int32_t, 1>& ws_indices) = 0;
 
     virtual sycl::event copy_last_to_first_cache() = 0;
 
@@ -133,7 +133,7 @@ public:
     pr::ndarray<Float, 2> compute(const detail::kernel_function_ptr& kernel_ptr,
                                   const table& x_table,
                                   const pr::ndarray<Float, 2>& x_nd,
-                                  const pr::ndview<std::uint32_t, 1>& ws_indices) override {
+                                  const pr::ndview<std::int32_t, 1>& ws_indices) override {
         ONEDAL_PROFILER_TASK(cache_compute, this->q_);
         const std::int64_t work_elements_count = ws_indices.get_count();
         auto copy_event = sub_data_task_ptr_->copy_data_by_indices(this->q_,

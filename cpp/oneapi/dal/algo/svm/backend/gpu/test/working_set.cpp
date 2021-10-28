@@ -29,33 +29,33 @@ namespace la = te::linalg;
 template <typename TestType>
 class working_set_test : public te::policy_fixture {
 public:
-    using Float = TestType;
+    using float_t = TestType;
 
-    void test_working_set(const std::vector<Float>& f,
-                          const std::vector<Float>& y,
-                          const std::vector<Float>& alpha,
-                          const Float C,
+    void test_working_set(const std::vector<float_t>& f,
+                          const std::vector<float_t>& y,
+                          const std::vector<float_t>& alpha,
+                          const float_t C,
                           const std::int64_t row_count,
                           const std::int64_t expected_ws_count,
-                          const std::vector<std::uint32_t>& expected_ws_indices) {
+                          const std::vector<std::int32_t>& expected_ws_indices) {
         auto& q = this->get_queue();
 
         INFO("Allocate ndarray");
-        auto f_host_nd = pr::ndarray<Float, 1>::wrap(f.data(), row_count);
+        auto f_host_nd = pr::ndarray<float_t, 1>::wrap(f.data(), row_count);
         auto f_nd = f_host_nd.to_device(q);
 
-        auto y_host_nd = pr::ndarray<Float, 1>::wrap(y.data(), row_count);
+        auto y_host_nd = pr::ndarray<float_t, 1>::wrap(y.data(), row_count);
         auto y_nd = y_host_nd.to_device(q);
 
-        auto alpha_host_nd = pr::ndarray<Float, 1>::wrap(alpha.data(), row_count);
+        auto alpha_host_nd = pr::ndarray<float_t, 1>::wrap(alpha.data(), row_count);
         auto alpha_nd = alpha_host_nd.to_device(q);
 
         auto ws_count = propose_working_set_size(q, row_count);
         auto ws_indices =
-            pr::ndarray<std::uint32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
+            pr::ndarray<std::int32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
 
         INFO("Init working set");
-        auto ws = working_set_selector<Float>(q, y_nd, C, row_count);
+        auto ws = working_set_selector<float_t>(q, y_nd, C, row_count);
 
         INFO("Run select");
         ws.select(alpha_nd, f_nd, ws_indices, 0).wait_and_throw();
@@ -63,7 +63,7 @@ public:
         INFO("Check ws_indices");
         const auto indices_arr = ws_indices.flatten(q);
 
-        const auto indices_mat_host = la::matrix<std::uint32_t>::wrap(indices_arr).to_host();
+        const auto indices_mat_host = la::matrix<std::int32_t>::wrap(indices_arr).to_host();
         const auto indices_arr_host = indices_mat_host.get_array();
         for (std::int64_t i = 0; i < ws_indices.get_dimension(0); i++)
             REQUIRE(indices_arr_host[i] == expected_ws_indices[i]);
@@ -90,7 +90,7 @@ TEMPLATE_LIST_TEST_M(working_set_test,
 
     constexpr std::int64_t expected_ws_count = 8;
 
-    const std::vector<std::uint32_t> expected_ws_indices = { 0, 7, 4, 8, 2, 1, 6, 3 };
+    const std::vector<std::int32_t> expected_ws_indices = { 0, 7, 4, 8, 2, 1, 6, 3 };
 
     this->test_working_set(f, y, alpha, C, row_count, expected_ws_count, expected_ws_indices);
 }
@@ -113,7 +113,7 @@ TEMPLATE_LIST_TEST_M(working_set_test,
 
     constexpr std::int64_t expected_ws_count = 8;
 
-    const std::vector<std::uint32_t> expected_ws_indices = { 5, 3, 6, 8, 7, 9, 4, 0 };
+    const std::vector<std::int32_t> expected_ws_indices = { 5, 3, 6, 8, 7, 9, 4, 0 };
 
     this->test_working_set(f, y, alpha, C, row_count, expected_ws_count, expected_ws_indices);
 }
@@ -136,7 +136,7 @@ TEMPLATE_LIST_TEST_M(working_set_test,
 
     constexpr std::int64_t expected_ws_count = 8;
 
-    const std::vector<std::uint32_t> expected_ws_indices = { 5, 1, 2, 7, 8, 4, 0, 3 };
+    const std::vector<std::int32_t> expected_ws_indices = { 5, 1, 2, 7, 8, 4, 0, 3 };
 
     this->test_working_set(f, y, alpha, C, row_count, expected_ws_count, expected_ws_indices);
 }

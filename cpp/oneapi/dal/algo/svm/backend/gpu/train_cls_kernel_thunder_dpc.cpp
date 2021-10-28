@@ -84,6 +84,8 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     const auto new_responses =
         convert_binary_responses(q, responses, { Float(-1.0), Float(1.0) }, old_unique_responses);
 
+    ONEDAL_ASSERT(data.get_row_count() == new_responses.get_row_count());
+
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
     const auto responses_nd =
         pr::table2ndarray_1d<Float>(q, new_responses, sycl::usm::alloc::device);
@@ -106,7 +108,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
     const std::int64_t ws_count = propose_working_set_size(q, row_count);
     auto ws_indices_nd =
-        pr::ndarray<std::uint32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
     auto working_set = working_set_selector<Float>(q, responses_nd, C, row_count);
 
     // The maximum numbers of iteration of the subtask is number of observation in WS x inner_iterations.
@@ -117,7 +119,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     auto delta_alpha_nd = pr::ndarray<Float, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
     auto f_diff_nd = pr::ndarray<Float, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
     auto inner_iter_count_nd =
-        pr::ndarray<std::uint32_t, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
 
     Float diff = Float(0);
     Float prev_diff = Float(0);

@@ -34,17 +34,19 @@ working_set_selector<Float>::working_set_selector(const sycl::queue& q,
           C_(C),
           labels_(labels) {
     ONEDAL_ASSERT(row_count > 0);
-    ONEDAL_ASSERT(row_count <= dal::detail::limits<std::uint32_t>::max());
+    ONEDAL_ASSERT(row_count <= dal::detail::limits<std::int32_t>::max());
+    ONEDAL_ASSERT(labels.get_count() == row_count);
+
     auto [indicator, indicator_event] =
         pr::ndarray<std::uint8_t, 1>::zeros(q_, { row_count_ }, sycl::usm::alloc::device);
     sorted_f_indices_ =
-        pr::ndarray<std::uint32_t, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
 
     ws_count_ = propose_working_set_size(q_, row_count);
 
     tmp_sort_values_ = pr::ndarray<Float, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
     buff_indices_ =
-        pr::ndarray<std::uint32_t, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::empty(q_, { row_count_ }, sycl::usm::alloc::device);
 
     indicator_event.wait_and_throw();
     indicator_ = indicator;
@@ -53,7 +55,7 @@ working_set_selector<Float>::working_set_selector(const sycl::queue& q,
 template <typename Float>
 std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_ws_edge(
     const pr::ndview<Float, 1>& alpha,
-    pr::ndview<std::uint32_t, 1>& ws_indices,
+    pr::ndview<std::int32_t, 1>& ws_indices,
     const std::int64_t need_select_count,
     const std::int64_t already_selected,
     violating_edge edge,
@@ -68,7 +70,7 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
             reset_indicator(ws_indices, indicator_, already_selected, { select_ws_edge_event });
     }
     std::int64_t select_flagged_count = 0;
-    auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint8_t>{ q_ };
+    auto select_flagged = pr::select_flagged_index<std::int32_t, std::uint8_t>{ q_ };
     select_ws_edge_event = select_flagged(indicator_,
                                           sorted_f_indices_,
                                           buff_indices_,
@@ -77,8 +79,8 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
 
     const std::int64_t select_count = std::min(select_flagged_count, need_select_count);
 
-    std::uint32_t* ws_indices_ptr = ws_indices.get_mutable_data();
-    const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
+    std::int32_t* ws_indices_ptr = ws_indices.get_mutable_data();
+    const std::int32_t* buff_indices_ptr = buff_indices_.get_data();
 
     if (select_count > 0) {
         std::int64_t offset = 0;
@@ -98,7 +100,7 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
 template <typename Float>
 sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alpha,
                                                 const pr::ndview<Float, 1>& f,
-                                                pr::ndview<std::uint32_t, 1>& ws_indices,
+                                                pr::ndview<std::int32_t, 1>& ws_indices,
                                                 std::int64_t selected_count,
                                                 const dal::backend::event_vector& deps) {
     ONEDAL_PROFILER_TASK(select_ws, q_);
@@ -149,7 +151,7 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
 }
 
 template <typename Float>
-sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::uint32_t, 1>& idx,
+sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::int32_t, 1>& idx,
                                                          pr::ndview<std::uint8_t, 1>& indicator,
                                                          const std::int64_t need_to_reset,
                                                          const dal::backend::event_vector& deps) {
@@ -159,7 +161,7 @@ sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::u
     ONEDAL_ASSERT(indicator.get_dimension(0) == row_count_);
     ONEDAL_ASSERT(indicator.has_mutable_data());
 
-    const std::uint32_t* idx_ptr = idx.get_data();
+    const std::int32_t* idx_ptr = idx.get_data();
     std::uint8_t* indicator_ptr = indicator.get_mutable_data();
 
     const auto wg_size = std::min(dal::backend::propose_wg_size(q_), need_to_reset);
@@ -169,7 +171,7 @@ sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::u
         cgh.depends_on(deps);
 
         cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-            const std::uint32_t i = item.get_global_id(0);
+            const std::int32_t i = item.get_global_id(0);
             indicator_ptr[idx_ptr[i]] = 0;
         });
     });
@@ -189,7 +191,7 @@ sycl::event working_set_selector<Float>::sort_f_indices(sycl::queue& q,
 
     auto copy_event = dal::backend::copy(q, tmp_sort_ptr, f_ptr, row_count_, deps);
     auto arange_event = sorted_f_indices_.arange(q);
-    auto radix_sort = pr::radix_sort_indices_inplace<Float, std::uint32_t>{ q };
+    auto radix_sort = pr::radix_sort_indices_inplace<Float, std::int32_t>{ q };
     auto radix_sort_event =
         radix_sort(tmp_sort_values_, sorted_f_indices_, { copy_event, arange_event });
 
