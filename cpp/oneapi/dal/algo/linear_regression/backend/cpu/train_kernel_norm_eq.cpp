@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-#include <iostream>
+
 #include <daal/src/algorithms/linear_regression/linear_regression_train_kernel.h>
 
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -89,15 +89,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         interop::status_to_exception(status);
 
     }
-
-    std::cout <<"CPU!!!" << std::endl <<  std::endl;
-    for(std::int32_t i = 0; i < ext_feature_count; ++i) {
-        for(std::int32_t j = 0; j < ext_feature_count; ++j) {
-            std::cout << xtx_arr[i * ext_feature_count + j] << '\t';
-        }
-        std::cout << std::endl;
-    }
-        std::cout << std::endl;
 
     {
         const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {

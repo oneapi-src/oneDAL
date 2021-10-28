@@ -97,15 +97,6 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
         interop::status_to_exception(status);
     }
 
-        std::cout << "GPU!!!" << std::endl << std::endl;
-    for(std::int32_t i = 0; i < ext_feature_count; ++i) {
-        for(std::int32_t j = 0; j < ext_feature_count; ++j) {
-            std::cout << xtx_arr[i * ext_feature_count + j] << '\t';
-        }
-        std::cout << std::endl;
-    }
-        std::cout << std::endl;
-
     {
         const auto status = daal_lr_kernel_t<Float>().finalizeCompute(*xtx_daal_table,
                                                                       *xty_daal_table,

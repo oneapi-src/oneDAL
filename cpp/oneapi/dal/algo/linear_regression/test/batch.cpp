@@ -48,14 +48,9 @@ public:
     using task_t = std::tuple_element_t<2, TestType>;
 
     void generate_dimensions() {
-        /*intercept_ = bool(GENERATE(0, 1));
-        s_count_ = GENERATE(13, 16, 24, 101);
-        f_count_ = GENERATE(1, 3, 4, 8, 12);
-        r_count_ = GENERATE(1, 2, 5, 9, 13);*/
-        intercept_ = bool(GENERATE(1));
-        s_count_ = GENERATE(3);
-        f_count_ = GENERATE(2);
-        r_count_ = GENERATE(2);
+        s_count_ = GENERATE(111, 113);
+        f_count_ = GENERATE(2, 3, 5);
+        r_count_ = GENERATE(2, 7, 9);
     }
 
     te::table_id get_homogen_table_id() const {
@@ -161,7 +156,7 @@ public:
 
 
 private:
-    bool intercept_;
+    bool intercept_ = true;
     std::int64_t s_count_;
     std::int64_t f_count_;
     std::int64_t r_count_;

@@ -132,10 +132,8 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
             DAAL_ASSERT(xtxBuff.size() >= xNCols * xNCols);
 
             /* Compute XTX for each block and reduce to final result */
-            status = BlasGpu<algorithmFPType>::xsyrk(math::Layout::ColMajor, math::UpLo::Upper, math::Transpose::NoTrans, xNCols, xNRows,
+            status = BlasGpu<algorithmFPType>::xsyrk(math::Layout::RowMajor, math::UpLo::Upper, math::Transpose::Trans, xNCols, xNRows,
                                                      algorithmFPType(1.0), xBuf, xNCols, 0, algorithmFPType(1.0), xtxBuff, xtxNCols, 0);
-            //status = BlasGpu<algorithmFPType>::xsyrk(math::Layout::ColMajor, math::UpLo::Lower, math::Transpose::Trans, xNCols, xNRows,
-            //                                         algorithmFPType(1.0), xBuf, xNCols, 0, algorithmFPType(1.0), xtxBuff, xtxNCols, 0);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
