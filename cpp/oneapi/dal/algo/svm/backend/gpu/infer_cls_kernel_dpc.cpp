@@ -105,7 +105,8 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
             row_count / n_rows_per_block + !!(row_count % n_rows_per_block);
 
         std::shared_ptr<predict_task<Float>> predict_task =
-            std::make_shared<predict_task_dense<Float>>(n_rows_per_block,
+            std::make_shared<predict_task_dense<Float>>(queue,
+                                                        n_rows_per_block,
                                                         data,
                                                         sv_table,
                                                         kernel_ptr);
@@ -118,7 +119,7 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
             auto distance_view =
                 pr::ndarray<Float, 2>::wrap(distance_nd.get_mutable_data() + start_row,
                                             { n_rows_per_block_real, 1 });
-            auto kernel_res = predict_task->kernel_compute(queue, start_row, n_rows_per_block_real);
+            auto kernel_res = predict_task->kernel_compute(start_row, n_rows_per_block_real);
             auto reshape_sv_coeff = sv_coeff_buff.reshape(pr::ndshape<2>{ n_sv, 1 });
             {
                 ONEDAL_PROFILER_TASK(gemm, queue);

@@ -197,11 +197,13 @@ kernel_function_impl* kernel_function<linear_kernel_t<F, M>>::get_impl() const {
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-const table kernel_function<linear_kernel_t<F, M>>::compute_kernel_function(
+void kernel_function<linear_kernel_t<F, M>>::compute_kernel_function(
     const dal::detail::data_parallel_policy& policy,
     const table& x,
-    const table& y) {
-    return kernel_compute_ops_(policy, kernel_, linear_kernel::compute_input(x, y)).get_values();
+    const table& y,
+    homogen_table& res) {
+    dal::linear_kernel::detail::compute_ops<linear_kernel::descriptor<F, M>> kernel_compute_ops;
+    kernel_compute_ops(policy, kernel_, x, y, res);
 }
 #endif
 
@@ -219,12 +221,14 @@ kernel_function_impl* kernel_function<polynomial_kernel_t<F, M>>::get_impl() con
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-const table kernel_function<polynomial_kernel_t<F, M>>::compute_kernel_function(
+void kernel_function<polynomial_kernel_t<F, M>>::compute_kernel_function(
     const dal::detail::data_parallel_policy& policy,
     const table& x,
-    const table& y) {
-    return kernel_compute_ops_(policy, kernel_, polynomial_kernel::compute_input(x, y))
-        .get_values();
+    const table& y,
+    homogen_table& res) {
+    dal::polynomial_kernel::detail::compute_ops<polynomial_kernel::descriptor<F, M>>
+        kernel_compute_ops;
+    kernel_compute_ops(policy, kernel_, x, y, res);
 }
 #endif
 
@@ -240,11 +244,13 @@ kernel_function_impl* kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-const table kernel_function<rbf_kernel_t<F, M>>::compute_kernel_function(
+void kernel_function<rbf_kernel_t<F, M>>::compute_kernel_function(
     const dal::detail::data_parallel_policy& policy,
     const table& x,
-    const table& y) {
-    return kernel_compute_ops_(policy, kernel_, rbf_kernel::compute_input(x, y)).get_values();
+    const table& y,
+    homogen_table& res) {
+    dal::rbf_kernel::detail::compute_ops<rbf_kernel::descriptor<F, M>> kernel_compute_ops;
+    kernel_compute_ops(policy, kernel_, x, y, res);
 }
 #endif
 
@@ -261,11 +267,13 @@ kernel_function_impl* kernel_function<sigmoid_kernel_t<F, M>>::get_impl() const 
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-const table kernel_function<sigmoid_kernel_t<F, M>>::compute_kernel_function(
+void kernel_function<sigmoid_kernel_t<F, M>>::compute_kernel_function(
     const dal::detail::data_parallel_policy& policy,
     const table& x,
-    const table& y) {
-    return kernel_compute_ops_(policy, kernel_, sigmoid_kernel::compute_input(x, y)).get_values();
+    const table& y,
+    homogen_table& res) {
+    dal::sigmoid_kernel::detail::compute_ops<sigmoid_kernel::descriptor<F, M>> kernel_compute_ops;
+    kernel_compute_ops(policy, kernel_, x, y, res);
 }
 #endif
 

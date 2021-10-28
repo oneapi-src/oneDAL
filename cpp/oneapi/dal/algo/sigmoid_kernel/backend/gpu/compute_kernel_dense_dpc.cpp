@@ -32,6 +32,16 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
         throw unimplemented(
             dal::detail::error_messages::sigmoid_kernel_is_not_implemented_for_gpu());
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void operator()(const context_gpu& ctx,
+                    const descriptor_t& desc,
+                    const table& x,
+                    const table& y,
+                    homogen_table& res) {
+        throw unimplemented(dal::detail::error_messages::method_not_implemented());
+    }
+#endif
 };
 
 template struct compute_kernel_gpu<float, method::dense, task::compute>;
