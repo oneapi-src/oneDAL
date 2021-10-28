@@ -52,7 +52,7 @@ namespace oneapi::dal::covariance::backend {
     }
 
 namespace de = dal::detail;
-namespace be = dal::backend;
+namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 using alloc = sycl::usm::alloc;
@@ -94,8 +94,7 @@ std::int64_t compute_kernel_dense_impl<Float, List>::get_column_block_count(
     std::int64_t column_count) {
     ONEDAL_ASSERT(column_count > 0);
 
-    std::int64_t max_work_group_size =
-        q_.get_device().get_info<sycl::info::device::max_work_group_size>();
+    std::int64_t max_work_group_size = dal::backend::device_max_wg_size(q_);
     return (column_count + max_work_group_size - 1) / max_work_group_size;
 }
 
@@ -112,7 +111,7 @@ auto compute_covariance(sycl::queue& q,
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
     auto gemm_event = gemm(q, data.t(), data, cov, Float(1), Float(0), deps);
-    auto cov_event = pr::covariance_with_distributed(q, data, sums, cov, deps);
+    auto cov_event = pr::covariance_with_distributed(q, data, sums, cov, { gemm_event });
 
     return std::make_tuple(cov, cov_event);
 }
@@ -604,8 +603,7 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
                cov_list::cov | cov_list::cor,
                ndres.get_varc().get_mutable_data())
 
-    std::int64_t max_work_group_size =
-        q_.get_device().get_info<sycl::info::device::max_work_group_size>();
+    std::int64_t max_work_group_size = bk::device_max_wg_size(q_);
     auto local_size = (max_work_group_size < column_count) ? max_work_group_size : column_count;
     auto global_size = de::check_mul_overflow(column_block_count, local_size);
 
