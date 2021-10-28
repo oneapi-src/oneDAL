@@ -91,7 +91,13 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
         const auto bias = *(biases.get_data());
         auto fill_event = distance_nd.fill(q, bias);
 
-        auto support_vectors = trained_model.get_support_vectors();
+        auto support_vectors_nd = pr::table2ndarray<Float>(q,
+                                                           trained_model.get_support_vectors(),
+                                                           sycl::usm::alloc::device);
+        auto support_vectors = homogen_table::wrap(q,
+                                                   support_vectors_nd.get_data(),
+                                                   support_vectors_nd.get_dimension(0),
+                                                   support_vectors_nd.get_dimension(1));
 
         const std::int64_t max_rows_per_block = 1024;
         const std::int64_t blocks_count =
