@@ -105,16 +105,18 @@ inline auto compute_rbf(sycl::queue& queue,
         gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
     }
 
-    auto compute_exponents_event =
-        compute_exponents(queue,
+    // auto compute_exponents_event =
+    compute_exponents(queue,
                           sqr_x_nd,
                           sqr_y_nd,
                           res_nd,
                           sigma,
-                          { reduce_x_event, reduce_y_event, gemm_event });
+                          { reduce_x_event, reduce_y_event, gemm_event }).wait_and_throw();
 
-    auto smart_event =
-        dal::backend::smart_event{ compute_exponents_event }.attach(sqr_x_nd).attach(sqr_y_nd);
+    // auto smart_event =
+    //     dal::backend::smart_event{ compute_exponents_event }.attach(sqr_x_nd).attach(sqr_y_nd);
+
+    sycl::event smart_event;
 
     return smart_event;
 }

@@ -97,6 +97,8 @@ public:
                                           const pr::ndarray<Float, 2>& x_nd,
                                           const pr::ndview<std::uint32_t, 1>& ws_indices) = 0;
 
+    virtual sycl::event copy_last_to_first_cache() = 0;
+
 protected:
     svm_cache_iface(sycl::queue& q, const std::int64_t block_size, const std::int64_t line_size)
             : q_(q),
@@ -146,6 +148,13 @@ public:
                                             res_table_);
 
         return res_nd_;
+    }
+
+    sycl::event copy_last_to_first_cache() override {
+        auto reshape_res_nd = res_nd_.reshape(pr::ndshape<1>{ this->block_size_ * this->line_size_});
+        auto [copy_count, copy_event] = copy_last_to_first(this->q_, reshape_res_nd);
+        
+        return copy_event;
     }
 
 private:

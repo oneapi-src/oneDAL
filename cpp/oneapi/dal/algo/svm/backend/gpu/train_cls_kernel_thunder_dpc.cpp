@@ -127,13 +127,15 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     std::shared_ptr<svm_cache_iface<Float>> svm_cache_ptr =
         std::make_shared<svm_cache<no_cache, Float>>(q, data_nd, cache_size, ws_count, row_count);
 
-    sycl::event copy_event;
+    sycl::event copy_ws_indices_event;
+    sycl::event copy_cache_event;
     std::int64_t ws_indices_copy_count = 0;
 
     std::int64_t iter = 0;
     for (; iter < max_iteration_count; iter++) {
         if (iter != 0) {
-            std::tie(ws_indices_copy_count, copy_event) = copy_last_to_first(q, ws_indices_nd);
+            std::tie(ws_indices_copy_count, copy_ws_indices_event) = copy_last_to_first(q, ws_indices_nd);
+            copy_cache_event = svm_cache_ptr->copy_last_to_first_cache();
         }
 
         working_set
@@ -141,7 +143,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
                     grad_nd,
                     ws_indices_nd,
                     ws_indices_copy_count,
-                    { alpha_zeros_event, invert_responses_event, copy_event })
+                    { alpha_zeros_event, invert_responses_event, copy_ws_indices_event, copy_cache_event })
             .wait_and_throw();
 
         const auto kernel_values_nd =

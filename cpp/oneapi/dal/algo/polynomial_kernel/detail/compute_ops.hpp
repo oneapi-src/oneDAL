@@ -31,6 +31,14 @@ struct compute_ops_dispatcher {
     compute_result<Task> operator()(const Context&,
                                     const descriptor_base<Task>&,
                                     const compute_input<Task>&) const;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void operator()(const Context&,
+                    const descriptor_base<Task>&,
+                    const table& x,
+                    const table& y,
+                    homogen_table& res);
+#endif
 };
 
 template <typename Descriptor>
@@ -80,7 +88,7 @@ struct compute_ops {
                     const table& x,
                     const table& y,
                     homogen_table& res) {
-        // compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, x, y, res);
+        compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, x, y, res);
     }
 #endif
 };

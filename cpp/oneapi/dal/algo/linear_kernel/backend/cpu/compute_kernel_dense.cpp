@@ -19,6 +19,7 @@
 #include "oneapi/dal/algo/linear_kernel/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -90,7 +91,8 @@ struct compute_kernel_cpu<Float, method::dense, task::compute> {
                     const table& x,
                     const table& y,
                     homogen_table& res) const {
-        // throw not implemented
+        throw unimplemented(
+            dal::detail::error_messages::method_not_implemented());
     }
 #endif
 };
