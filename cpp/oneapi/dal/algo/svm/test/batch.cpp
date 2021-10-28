@@ -723,41 +723,41 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
-// TEMPLATE_LIST_TEST_M(svm_batch_test,
-//                      "svm rbf covertype 100k x 54",
-//                      "[svm][integration][batch][rbf][external-dataset]",
-//                      svm_types) {
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf covertype 100k x 54",
+                     "[svm][integration][batch][rbf][external-dataset]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
-//     using float_t = std::tuple_element_t<0, TestType>;
-//     using method_t = std::tuple_element_t<1, TestType>;
-//     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
 
-//     const te::dataframe train_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_train_100k.csv" });
-//     const auto feature_count = train_data.get_column_count();
-//     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const auto y_train =
-//         train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_train_100k.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
 
-//     const te::dataframe test_data = GENERATE_DATAFRAME(
-//         te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_test_100k.csv" });
-//     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-//     const table y_test =
-//         test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_test_100k.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
 
-//     const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
 
-//     const double c = 1.0e3;
-//     auto svm_desc =
-//         svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-//             .set_c(c);
+    const double c = 1.0e3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
-//     const double ref_accuracy = 0.9878;
+    const double ref_accuracy = 0.9878;
 
-//     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-// }
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm rbf epsilon 16k x 2k",

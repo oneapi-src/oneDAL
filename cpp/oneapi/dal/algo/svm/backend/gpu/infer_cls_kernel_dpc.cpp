@@ -14,12 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/svm_predict.hpp"
-#include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
-#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
-#include "oneapi/dal/backend/transfer.hpp"
 
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
@@ -34,37 +30,34 @@ using input_t = infer_input<task::classification>;
 using result_t = infer_result<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
-namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
 namespace be = dal::backend;
 
 template <typename Float>
-pr::ndarray<Float, 1> get_responses(sycl::queue& queue,
-                                    const pr::ndarray<Float, 1>& distances,
-                                    const model_t& model,
-                                    const be::event_vector& deps = {}) {
+auto make_responses(sycl::queue& q,
+                    const pr::ndarray<Float, 1>& distances,
+                    const int64_t first_class_response,
+                    const int64_t second_class_response,
+                    const be::event_vector& deps = {}) {
     const auto size = distances.get_count();
-    auto response = pr::ndarray<Float, 1>::empty(queue, size, sycl::usm::alloc::device);
+    auto response = pr::ndarray<Float, 1>::empty(q, size, sycl::usm::alloc::device);
 
     auto response_data = response.get_mutable_data();
     const auto distance_data = distances.get_data();
 
-    const auto second_class_response = model.get_second_class_response();
-    const auto first_class_response = model.get_first_class_response();
-
-    auto res_event = queue.submit([&](sycl::handler& h) {
-        h.depends_on(deps);
-        h.parallel_for(be::make_range_1d(size), [=](sycl::id<1> idx) {
+    auto res_event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(be::make_range_1d(size), [=](sycl::id<1> idx) {
             response_data[idx] =
                 distance_data[idx] >= 0 ? second_class_response : first_class_response;
         });
     });
-    return response;
+    return std::make_tuple(response, res_event);
 }
 
 template <typename Float>
 static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    auto& queue = ctx.get_queue();
+    auto& q = ctx.get_queue();
 
     const std::uint64_t class_count = desc.get_class_count();
     if (class_count > 2) {
@@ -72,7 +65,7 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     }
 
     const auto data = input.get_data();
-    const auto data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
+    const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
     const auto trained_model = input.get_model();
 
     const auto kernel_ptr = detail::get_kernel_ptr(desc);
@@ -82,51 +75,52 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
 
     const std::int64_t row_count = data.get_row_count();
 
-    auto distance_nd = pr::ndarray<Float, 1>::empty(queue, { row_count }, sycl::usm::alloc::device);
+    auto distance_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
 
-    auto sv_coeff_table = trained_model.get_coeffs();
-    const std::int64_t n_sv = trained_model.get_support_vector_count();
+    auto sv_coeffs = trained_model.get_coeffs();
+    const std::int64_t sv_count = trained_model.get_support_vector_count();
 
-    if (n_sv == 0) {
-        distance_nd.fill(queue, Float(0)).wait_and_throw();
+    if (sv_count == 0) {
+        distance_nd.fill(q, Float(0)).wait_and_throw();
     }
     else {
-        const auto sv_coeff_buff =
-            pr::table2ndarray_1d<Float>(queue, sv_coeff_table, sycl::usm::alloc::device);
+        const auto sv_coeff_nd =
+            pr::table2ndarray_1d<Float>(q, sv_coeffs, sycl::usm::alloc::device);
 
-        const auto bieses = pr::table2ndarray_1d<Float>(trained_model.get_biases());
-        const auto bias = *(bieses.get_data());
-        auto fill_event = distance_nd.fill(queue, bias);
+        const auto biases = pr::table2ndarray_1d<Float>(trained_model.get_biases());
+        const auto bias = *(biases.get_data());
+        auto fill_event = distance_nd.fill(q, bias);
 
-        auto sv_table = trained_model.get_support_vectors();
+        auto support_vectors = trained_model.get_support_vectors();
 
-        const std::int64_t n_rows_per_block = 1024;
-        const std::int64_t nblocks =
-            row_count / n_rows_per_block + !!(row_count % n_rows_per_block);
+        const std::int64_t max_rows_per_block = 1024;
+        const std::int64_t blocks_count =
+            row_count / max_rows_per_block + !!(row_count % max_rows_per_block);
 
         std::shared_ptr<predict_task<Float>> predict_task =
-            std::make_shared<predict_task_dense<Float>>(queue,
-                                                        n_rows_per_block,
-                                                        data,
-                                                        sv_table,
+            std::make_shared<predict_task_dense<Float>>(q,
+                                                        max_rows_per_block,
+                                                        data_nd,
+                                                        support_vectors,
                                                         kernel_ptr);
 
-        for (std::int64_t iblock = 0; iblock < nblocks; ++iblock) {
-            const std::int64_t start_row = iblock * n_rows_per_block;
-            const std::int64_t n_rows_per_block_real =
-                (iblock != nblocks - 1) ? n_rows_per_block : row_count - iblock * n_rows_per_block;
+        for (std::int64_t block_i = 0; block_i < blocks_count; ++block_i) {
+            const std::int64_t start_row = block_i * max_rows_per_block;
+            const std::int64_t rows_per_block_count =
+                (block_i != blocks_count - 1) ? max_rows_per_block
+                                              : row_count - block_i * max_rows_per_block;
 
-            auto distance_view =
+            auto distance_block_nd =
                 pr::ndarray<Float, 2>::wrap(distance_nd.get_mutable_data() + start_row,
-                                            { n_rows_per_block_real, 1 });
-            auto kernel_res = predict_task->kernel_compute(start_row, n_rows_per_block_real);
-            auto reshape_sv_coeff = sv_coeff_buff.reshape(pr::ndshape<2>{ n_sv, 1 });
+                                            { rows_per_block_count, 1 });
+            auto kernel_values_nd = predict_task->kernel_compute(start_row, rows_per_block_count);
+            auto reshape_sv_coeff = sv_coeff_nd.reshape(pr::ndshape<2>{ sv_count, 1 });
             {
-                ONEDAL_PROFILER_TASK(gemm, queue);
-                pr::gemm(queue,
-                         kernel_res,
+                ONEDAL_PROFILER_TASK(gemm, q);
+                pr::gemm(q,
+                         kernel_values_nd,
                          reshape_sv_coeff,
-                         distance_view,
+                         distance_block_nd,
                          Float(1),
                          Float(1),
                          { fill_event })
@@ -135,11 +129,16 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
         }
     }
 
-    auto response_nd = get_responses(queue, distance_nd, trained_model, {});
+    auto [response_nd, responses_event] = make_responses(q,
+                                                         distance_nd,
+                                                         trained_model.get_first_class_response(),
+                                                         trained_model.get_second_class_response(),
+                                                         {});
+    responses_event.wait_and_throw();
 
     return result_t()
-        .set_decision_function(homogen_table::wrap(distance_nd.flatten(queue), row_count, 1))
-        .set_responses(homogen_table::wrap(response_nd.flatten(queue), row_count, 1));
+        .set_decision_function(homogen_table::wrap(distance_nd.flatten(q), row_count, 1))
+        .set_responses(homogen_table::wrap(response_nd.flatten(q), row_count, 1));
 }
 
 template <typename Float>
