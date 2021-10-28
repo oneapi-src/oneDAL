@@ -79,12 +79,12 @@ Float compute_bias(sycl::queue& q,
     select_flagged(indicator, f, tmp_values, free_sv_count, { check_coeffs_border_event })
         .wait_and_throw();
     if (free_sv_count > 0) {
-        auto reduce_event = pr::reduce_by_columns(
-            q,
-            tmp_values.reshape(pr::ndshape<2>{ row_count, 1 }),
-            reduce_res,
-            pr::sum<Float>{},
-            pr::identity<Float>{});
+        auto reduce_event =
+            pr::reduce_by_columns(q,
+                                  tmp_values.reshape(pr::ndshape<2>{ row_count, 1 }),
+                                  reduce_res,
+                                  pr::sum<Float>{},
+                                  pr::identity<Float>{});
         auto reduce_res_host = reduce_res.to_host(q, { reduce_event }).flatten();
         bias = -*reduce_res_host.get_data() / Float(free_sv_count);
     }
@@ -95,13 +95,13 @@ Float compute_bias(sycl::queue& q,
         std::int64_t up_edge_count = 0;
         auto select_flagged_event =
             select_flagged(indicator, f, tmp_values, up_edge_count, { check_edge_event });
-        auto reduce_event = pr::reduce_by_columns(
-            q,
-            tmp_values.reshape(pr::ndshape<2>{ row_count, 1 }),
-            reduce_res,
-            pr::min<Float>{},
-            pr::identity<Float>{},
-            { select_flagged_event });
+        auto reduce_event =
+            pr::reduce_by_columns(q,
+                                  tmp_values.reshape(pr::ndshape<2>{ row_count, 1 }),
+                                  reduce_res,
+                                  pr::min<Float>{},
+                                  pr::identity<Float>{},
+                                  { select_flagged_event });
         auto reduce_res_up_host = reduce_res.to_host(q, { reduce_event }).flatten();
         ub = *reduce_res_up_host.get_data();
 
@@ -111,13 +111,12 @@ Float compute_bias(sycl::queue& q,
         std::int64_t low_edge_count = 0;
         select_flagged_event =
             select_flagged(indicator, f, tmp_values, low_edge_count, { check_edge_event });
-        reduce_event = pr::reduce_by_columns(
-            q,
-            tmp_values.reshape(pr::ndshape<2>{ row_count, 1 }),
-            reduce_res,
-            pr::max<Float>{},
-            pr::identity<Float>{},
-            { select_flagged_event });
+        reduce_event = pr::reduce_by_columns(q,
+                                             tmp_values.reshape(pr::ndshape<2>{ row_count, 1 }),
+                                             reduce_res,
+                                             pr::max<Float>{},
+                                             pr::identity<Float>{},
+                                             { select_flagged_event });
         auto reduce_res_low_host = reduce_res.to_host(q, { reduce_event }).flatten();
         lb = *reduce_res_low_host.get_data();
 
@@ -206,7 +205,7 @@ auto compute_support_indices(sycl::queue& q,
                              const std::int64_t sv_count,
                              const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(indicator.has_mutable_data());
-    
+
     if (sv_count == 0) {
         return std::make_tuple(pr::ndarray<std::int32_t, 1>(), sycl::event());
     }

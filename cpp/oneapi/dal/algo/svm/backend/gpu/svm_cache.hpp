@@ -151,9 +151,10 @@ public:
     }
 
     sycl::event copy_last_to_first_cache() override {
-        auto reshape_res_nd = res_nd_.reshape(pr::ndshape<1>{ this->block_size_ * this->line_size_});
+        auto reshape_res_nd =
+            res_nd_.reshape(pr::ndshape<1>{ this->block_size_ * this->line_size_ });
         auto [copy_count, copy_event] = copy_last_to_first(this->q_, reshape_res_nd);
-        
+
         return copy_event;
     }
 

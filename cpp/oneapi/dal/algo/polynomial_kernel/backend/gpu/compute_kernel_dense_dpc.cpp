@@ -39,8 +39,7 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
                     const table& x,
                     const table& y,
                     homogen_table& res) {
-        throw unimplemented(
-            dal::detail::error_messages::method_not_implemented());
+        throw unimplemented(dal::detail::error_messages::method_not_implemented());
     }
 #endif
 };

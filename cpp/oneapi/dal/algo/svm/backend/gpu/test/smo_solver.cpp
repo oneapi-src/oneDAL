@@ -78,21 +78,21 @@ public:
 
         INFO("run solve smo");
         solve_smo<float_t>(q,
-                         kernel_values_nd,
-                         ws_indices_nd,
-                         y_nd,
-                         f_nd,
-                         row_count,
-                         row_count,
-                         max_inner_iter,
-                         C,
-                         eps,
-                         tau,
-                         alpha_nd,
-                         delta_alpha_nd,
-                         f_diff_nd,
-                         inner_iter_count_nd,
-                         { invert_y_event, alpha_event, arange_event })
+                           kernel_values_nd,
+                           ws_indices_nd,
+                           y_nd,
+                           f_nd,
+                           row_count,
+                           row_count,
+                           max_inner_iter,
+                           C,
+                           eps,
+                           tau,
+                           alpha_nd,
+                           delta_alpha_nd,
+                           f_diff_nd,
+                           inner_iter_count_nd,
+                           { invert_y_event, alpha_event, arange_event })
             .wait_and_throw();
 
         INFO("check if alpha is expected");
@@ -108,7 +108,8 @@ public:
         check_inner_iter_count(inner_iter_count_nd, expected_inner_iter_count);
     }
 
-    void check_ndarray(const pr::ndarray<float_t, 1>& res, const std::vector<float_t>& expected_res) {
+    void check_ndarray(const pr::ndarray<float_t, 1>& res,
+                       const std::vector<float_t>& expected_res) {
         auto row_count = res.get_count();
 
         const auto res_host = res.to_host(this->get_queue());

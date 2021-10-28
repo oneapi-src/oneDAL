@@ -136,7 +136,8 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     std::int64_t iter = 0;
     for (; iter < max_iteration_count; iter++) {
         if (iter != 0) {
-            std::tie(ws_indices_copy_count, copy_ws_indices_event) = copy_last_to_first(q, ws_indices_nd);
+            std::tie(ws_indices_copy_count, copy_ws_indices_event) =
+                copy_last_to_first(q, ws_indices_nd);
             copy_cache_event = svm_cache_ptr->copy_last_to_first_cache();
         }
 
@@ -145,7 +146,10 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
                     grad_nd,
                     ws_indices_nd,
                     ws_indices_copy_count,
-                    { alpha_zeros_event, invert_responses_event, copy_ws_indices_event, copy_cache_event })
+                    { alpha_zeros_event,
+                      invert_responses_event,
+                      copy_ws_indices_event,
+                      copy_cache_event })
             .wait_and_throw();
 
         const auto kernel_values_nd =

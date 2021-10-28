@@ -111,11 +111,12 @@ inline auto compute_rbf(sycl::queue& queue,
 
     // auto compute_exponents_event =
     compute_exponents(queue,
-                          sqr_x_nd,
-                          sqr_y_nd,
-                          res_nd,
-                          sigma,
-                          { reduce_x_event, reduce_y_event, gemm_event }).wait_and_throw();
+                      sqr_x_nd,
+                      sqr_y_nd,
+                      res_nd,
+                      sigma,
+                      { reduce_x_event, reduce_y_event, gemm_event })
+        .wait_and_throw();
 
     // auto smart_event =
     //     dal::backend::smart_event{ compute_exponents_event }.attach(sqr_x_nd).attach(sqr_y_nd);

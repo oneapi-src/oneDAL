@@ -91,8 +91,7 @@ struct compute_kernel_cpu<Float, method::dense, task::compute> {
                     const table& x,
                     const table& y,
                     homogen_table& res) const {
-        throw unimplemented(
-            dal::detail::error_messages::method_not_implemented());
+        throw unimplemented(dal::detail::error_messages::method_not_implemented());
     }
 #endif
 };
