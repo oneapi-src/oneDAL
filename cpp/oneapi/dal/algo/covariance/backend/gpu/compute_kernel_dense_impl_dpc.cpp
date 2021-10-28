@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
@@ -98,54 +99,249 @@ std::int64_t compute_kernel_dense_impl<Float, List>::get_column_block_count(
     return (column_count + max_work_group_size - 1) / max_work_group_size;
 }
 
-template <typename Float, cov_list List>
-result_t compute_kernel_dense_impl<Float, List>::get_result(const descriptor_t& desc,
-                                                            const local_result<Float, List>& ndres,
-                                                            std::int64_t column_count,
-                                                            const bk::event_vector& deps) {
-    ONEDAL_ASSERT(column_count > 0);
-    result_t res;
+// template <typename Float, cov_list List>
+// result_t compute_kernel_dense_impl<Float, List>::get_result(const descriptor_t& desc,
+//                                                             const local_result<Float, List>& ndres,
+//                                                             std::int64_t column_count,
+//                                                             const bk::event_vector& deps) {
+//     ONEDAL_ASSERT(column_count > 0);
+//     result_t res;
 
-    const auto res_op = desc.get_result_options();
-    res.set_result_options(desc.get_result_options());
+//     const auto res_op = desc.get_result_options();
+//     res.set_result_options(desc.get_result_options());
 
-    if (res_op.test(result_options::cor_matrix)) {
-        ONEDAL_ASSERT(ndres.get_cov().get_count() == column_count);
-        res.set_cor_matrix(
-            homogen_table::wrap(ndres.get_cor().flatten(q_, deps), column_count, column_count));
-    }
-    if (res_op.test(result_options::cor_matrix)) {
-        ONEDAL_ASSERT(ndres.get_cov().get_count() == column_count);
-        res.set_cov_matrix(
-            homogen_table::wrap(ndres.get_cov().flatten(q_, deps), column_count, column_count));
-    }
+//     if (res_op.test(result_options::cor_matrix)) {
+//         ONEDAL_ASSERT(ndres.get_cov().get_count() == column_count);
+//         res.set_cor_matrix(
+//             homogen_table::wrap(ndres.get_cor().flatten(q_, deps), column_count, column_count));
+//     }
+//     if (res_op.test(result_options::cor_matrix)) {
+//         ONEDAL_ASSERT(ndres.get_cov().get_count() == column_count);
+//         res.set_cov_matrix(
+//             homogen_table::wrap(ndres.get_cov().flatten(q_, deps), column_count, column_count));
+//     }
 
-    if (res_op.test(result_options::means)) {
-        ONEDAL_ASSERT(ndres.get_mean().get_count() == column_count);
-        res.set_means(homogen_table::wrap(ndres.get_mean().flatten(q_, deps), 1, column_count));
-    }
-    return res;
+//     if (res_op.test(result_options::means)) {
+//         ONEDAL_ASSERT(ndres.get_mean().get_count() == column_count);
+//         res.set_means(homogen_table::wrap(ndres.get_mean().flatten(q_, deps), 1, column_count));
+//     }
+//     return res;
+// }
+template <typename Float>
+inline sycl::event finalize_covariance(sycl::queue& q,
+                                       std::int64_t row_count,
+                                       const pr::ndview<Float, 1>& sums,
+                                       pr::ndview<Float, 2>& cov,
+                                       const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(cov.has_mutable_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
+
+    const std::int64_t n = row_count;
+    const std::int64_t p = sums.get_count();
+    const Float inv_n = Float(1.0 / double(n));
+    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
+    const Float* sums_ptr = sums.get_data();
+    Float* cov_ptr = cov.get_mutable_data();
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = dal::backend::make_range_2d(p, p);
+
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::item<2> id) {
+            const std::int64_t gi = id.get_linear_id();
+            const std::int64_t i = id.get_id(0);
+            const std::int64_t j = id.get_id(1);
+
+            if (i < p && j < p) {
+                Float c = cov_ptr[gi];
+                c -= inv_n * sums_ptr[i] * sums_ptr[j];
+                cov_ptr[gi] = c * inv_n1;
+            }
+        });
+    });
 }
 
+template <typename Float>
+sycl::event covariance(sycl::queue& q,
+                       const pr::ndview<Float, 2>& data,
+                       const pr::ndview<Float, 1>& sums,
+                       pr::ndview<Float, 2>& cov,
+                       const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(cov.has_mutable_data());
+
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+    ONEDAL_ASSERT(cov.get_dimension(0) == data.get_dimension(1),
+                  "Dimensions of covariance matrix must match feature count");
+    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
+                  "Element count of sums must match feature count");
+
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
+
+    auto finalize_event = finalize_covariance(q, data.get_dimension(0), sums, cov, deps);
+    finalize_event.wait_and_throw();
+    return finalize_event;
+}
 template <typename Float>
 auto compute_covariance(sycl::queue& q,
                         const pr::ndview<Float, 2>& data,
                         const pr::ndarray<Float, 1>& sums,
-                        const pr::ndarray<Float, 1>& means,
-                        const pr::ndarray<Float, 1>& vars,
+                        //const pr::ndarray<Float, 1>& means,
+                        //const pr::ndarray<Float, 1>& vars,
                         const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
-    ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
     const std::int64_t column_count = data.get_dimension(1);
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+    auto gemm_event = gemm(q, data.t(), data, cov, Float(1), Float(0), deps);
     //auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto cov_event = pr::covariance(q, data, sums, means, cov, vars, tmp, deps);
+    //auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto cov_event = covariance(q, data, sums, cov, deps);
 
-    return std::make_tuple(cov, tmp, cov_event);
+    return std::make_tuple(cov, cov_event);
+}
+
+template <typename Float>
+inline sycl::event prepare_correlation(sycl::queue& q,
+                                       std::int64_t row_count,
+                                       const pr::ndview<Float, 1>& sums,
+                                       const pr::ndview<Float, 2>& corr,
+                                       const pr::ndview<Float, 1>& means,
+                                       const pr::ndview<Float, 1>& vars,
+                                       pr::ndview<Float, 1>& tmp,
+                                       const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(corr.has_mutable_data());
+    ONEDAL_ASSERT(means.has_mutable_data());
+    ONEDAL_ASSERT(vars.has_mutable_data());
+    ONEDAL_ASSERT(tmp.has_mutable_data());
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
+                  "Correlation matrix must be square");
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
+    const auto n = row_count;
+    const auto p = sums.get_count();
+    const Float inv_n = Float(1.0 / double(n));
+    //const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
+
+    const Float* sums_ptr = sums.get_data();
+    const Float* corr_ptr = corr.get_mutable_data();
+    //Float* means_ptr = means.get_mutable_data();
+    //Float* vars_ptr = vars.get_mutable_data();
+    Float* tmp_ptr = tmp.get_mutable_data();
+
+    const Float eps = std::numeric_limits<Float>::epsilon();
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = dal::backend::make_range_1d(p);
+
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            const Float s = sums_ptr[idx];
+            const Float m = inv_n * s * s;
+            const Float c = corr_ptr[idx * p + idx];
+            const Float v = c - m;
+
+            //means_ptr[idx] = inv_n * s;
+            //vars_ptr[idx] = inv_n1 * v;
+
+            // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
+            // to avoid NaN/Inf in the resulting correlation matrix
+            tmp_ptr[idx] = v + eps * Float(v < eps);
+        });
+    });
+}
+
+template <typename Float>
+inline sycl::event finalize_correlation(sycl::queue& q,
+                                        std::int64_t row_count,
+                                        const pr::ndview<Float, 1>& sums,
+                                        const pr::ndview<Float, 1>& tmp,
+                                        pr::ndview<Float, 2>& corr,
+                                        const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(corr.has_mutable_data());
+    ONEDAL_ASSERT(tmp.has_mutable_data());
+    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
+
+    const auto n = row_count;
+    const auto p = sums.get_count();
+    const Float inv_n = Float(1.0 / double(n));
+
+    const Float* sums_ptr = sums.get_data();
+    const Float* tmp_ptr = tmp.get_mutable_data();
+    Float* corr_ptr = corr.get_mutable_data();
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = dal::backend::make_range_2d(p, p);
+
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::id<2> idx) {
+            const std::int64_t i = idx[0];
+            const std::int64_t j = idx[1];
+            const std::int64_t gi = i * p + j;
+
+            const Float is_diag = Float(i == j);
+
+            Float c = corr_ptr[gi];
+            c -= inv_n * sums_ptr[i] * sums_ptr[j];
+            c *= sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
+            corr_ptr[gi] = c * (Float(1.0) - is_diag) + is_diag;
+        });
+    });
+}
+
+template <typename Float>
+sycl::event correlation(sycl::queue& q,
+                        const pr::ndview<Float, 2>& data,
+                        const pr::ndview<Float, 1>& sums,
+                        const pr::ndview<Float, 1>& means,
+                        pr::ndview<Float, 2>& corr,
+                        const pr::ndview<Float, 1>& vars,
+                        pr::ndview<Float, 1>& tmp,
+                        const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(corr.has_mutable_data());
+    ONEDAL_ASSERT(means.has_mutable_data());
+    ONEDAL_ASSERT(vars.has_mutable_data());
+    ONEDAL_ASSERT(tmp.has_mutable_data());
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
+                  "Correlation matrix must be square");
+    ONEDAL_ASSERT(corr.get_dimension(0) == data.get_dimension(1),
+                  "Dimensions of correlation matrix must match feature count");
+    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
+                  "Element count of sums must match feature count");
+    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
+                  "Element count of vars must match feature count");
+    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
+                  "Element count of means must match feature count");
+    ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
+                  "Element count of temporary buffer must match feature count");
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
+
+    auto prepare_event =
+        prepare_correlation(q, data.get_dimension(0), sums, corr, means, vars, tmp, deps);
+    auto finalize_event =
+        finalize_correlation(q, data.get_dimension(0), sums, tmp, corr, { prepare_event });
+    finalize_event.wait_and_throw();
+    return finalize_event;
 }
 
 template <typename Float>
@@ -153,6 +349,7 @@ auto compute_correlation(sycl::queue& q,
                          const pr::ndview<Float, 2>& data,
                          const pr::ndarray<Float, 1>& sums,
                          const pr::ndarray<Float, 1>& means,
+                         const pr::ndarray<Float, 1>& vars,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_correlation, q);
     ONEDAL_ASSERT(data.has_data());
@@ -161,31 +358,14 @@ auto compute_correlation(sycl::queue& q,
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    //auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-    auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, { gemm_event });
+    auto corr_event = correlation(q, data, sums, means, corr, vars, tmp, { gemm_event });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
 }
-
-// template <typename Float>
-// auto compute_correlation_with_covariance(sycl::queue& q,
-//                                          const pr::ndview<Float, 2>& data,
-//                                          const pr::ndview<Float, 2>& cov,
-//                                          pr::ndview<Float, 1>& tmp,
-//                                          const dal::backend::event_vector& deps = {}) {
-//     ONEDAL_PROFILER_TASK(compute_correlation_with_covariance, q);
-//     ONEDAL_ASSERT(data.has_data());
-//     const std::int64_t column_count = data.get_dimension(1);
-//     auto corr =
-//         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-//     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-//     auto corr_event = pr::correlation_with_covariance(q, data, cov, corr, tmp, gemm_event);
-
-//     return std::make_tuple(corr, corr_event);
-// }
 
 /* single pass kernel for device execution */
 template <typename Float, cov_list List, bool DefferedFin>
@@ -871,14 +1051,13 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     std::tie(ndres, last_event) =
         finalize(std::move(ndres), row_count, column_count, { last_event });
     // if (desc.get_result_options().test(result_options::cov_matrix)) {
-    //     auto [cov, tmp, cov_event] = compute_covariance(q_, data_nd, ndres.get_sum(), ndres.get_mean(), { last_event });
-
+    //     auto [cov, cov_event] = compute_covariance(q_, data_nd, ndres.get_sum(), { last_event });
     //     result.set_cov_matrix(
-    //         (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
+    //          (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
 
     // }
     // if (desc.get_result_options().test(result_options::cor_matrix) && !is_corr_computed) {
-    //     auto [corr, corr_event] = compute_correlation(q_, data_nd, ndres.get_sum(), ndres.get_mean(), { last_event });
+    //     auto [corr, corr_event] = compute_correlation(q_, data_nd, ndres.get_sum(), ndres.get_mean(), ndres.get_varc(), { last_event });
 
     //     result.set_cor_matrix(
     //         (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
@@ -900,7 +1079,7 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
 INSTANTIATE(cov_mode_mean);
 // INSTANTIATE(cov_mode_cov);
 // INSTANTIATE(cov_mode_cor);
-// INSTANTIATE(cov_mode_cov_mean);
+//INSTANTIATE(cov_mode_cov_mean);
 // INSTANTIATE(cov_mode_cov_cor);
 // INSTANTIATE(cov_mode_cor_mean);
 //INSTANTIATE(cov_mode_all);

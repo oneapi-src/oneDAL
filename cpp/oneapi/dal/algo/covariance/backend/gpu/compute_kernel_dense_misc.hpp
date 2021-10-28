@@ -53,29 +53,15 @@ class local_result {
 public:
     static own_t empty(sycl::queue& q, std::int64_t count, bool deffered_fin = false) {
         own_t res;
-        //res.nObservations_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
-        //res.crossProduct_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         res.rsum_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         res.rsum2cent_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         res.rmean_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         if constexpr (check_mask_flag(cov_list::cov | cov_list::cor, List)) {
             res.rvarc_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         }
-        if constexpr (check_mask_flag(cov_list::cov, List)) {
-            res.rcov_matrix_ = pr::ndarray<Float, 2>::empty(q, { count, count }, alloc::device);
-        }
-        if constexpr (check_mask_flag(cov_list::cor, List)) {
-            res.rcor_matrix_ = pr::ndarray<Float, 2>::empty(q, { count, count }, alloc::device);
-        }
         return res;
     }
 
-    auto& get_cov() const {
-        return rcov_matrix_;
-    }
-    auto& get_cor() const {
-        return rcor_matrix_;
-    }
     auto& get_sum() const {
         return rsum_;
     }
@@ -95,8 +81,6 @@ private:
     pr::ndarray<Float, 1> rsum_;
     pr::ndarray<Float, 1> rmean_;
     pr::ndarray<Float, 1> rsum2cent_;
-    pr::ndarray<Float, 2> rcov_matrix_;
-    pr::ndarray<Float, 2> rcor_matrix_;
     pr::ndarray<Float, 1> rvarc_;
 };
 
@@ -115,22 +99,11 @@ public:
         if constexpr (check_mask_flag(cov_list::cov | cov_list::cor, List)) {
             res.rvarc_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         }
-        if constexpr (check_mask_flag(cov_list::cov, List)) {
-            res.rcov_matrix_ = pr::ndarray<Float, 2>::empty(q, { count, count }, alloc::device);
-        }
-        if constexpr (check_mask_flag(cov_list::cor, List)) {
-            res.rcor_matrix_ = pr::ndarray<Float, 2>::empty(q, { count, count }, alloc::device);
-        }
+
         return res;
     }
     auto& get_rc_list() const {
         return rrow_count_;
-    }
-    auto& get_cov() const {
-        return rcov_matrix_;
-    }
-    auto& get_cor() const {
-        return rcor_matrix_;
     }
     auto& get_sum() const {
         return rsum_;
