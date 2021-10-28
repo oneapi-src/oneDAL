@@ -430,30 +430,27 @@ inline sycl::event prepare_correlation_distributed(sycl::queue& q,
                                        const ndview<Float, 1>& sums,
                                        const ndview<Float, 2>& corr,
                                        const ndview<Float, 1>& means,
-                                       const ndview<Float, 1>& vars,
                                        ndview<Float, 1>& tmp,
                                        const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(vars.has_mutable_data());
+
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
+
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
     const auto n = row_count;
     const auto p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
-    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
 
     const Float* sums_ptr = sums.get_data();
     const Float* corr_ptr = corr.get_mutable_data();
-    //Float* means_ptr = means.get_mutable_data();
-    Float* vars_ptr = vars.get_mutable_data();
+
     Float* tmp_ptr = tmp.get_mutable_data();
 
     const Float eps = std::numeric_limits<Float>::epsilon();
@@ -464,13 +461,10 @@ inline sycl::event prepare_correlation_distributed(sycl::queue& q,
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
             const Float s = sums_ptr[idx];
-            //std::cout<<s<<std::endl;
             const Float m = inv_n * s * s;
             const Float c = corr_ptr[idx * p + idx];
             const Float v = c - m;
 
-            //means_ptr[idx] = inv_n * s;
-            vars_ptr[idx] = inv_n1 * v;
 
             // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
             // to avoid NaN/Inf in the resulting correlation matrix
@@ -524,14 +518,12 @@ sycl::event correlation_with_distributed(sycl::queue& q,
                         const ndview<Float, 1>& sums,
                         const ndview<Float, 1>& means,
                         ndview<Float, 2>& corr,
-                        const ndview<Float, 1>& vars,
                         ndview<Float, 1>& tmp,
                         const event_vector& deps) {
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(vars.has_mutable_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
@@ -539,8 +531,6 @@ sycl::event correlation_with_distributed(sycl::queue& q,
                   "Dimensions of correlation matrix must match feature count");
     ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
                   "Element count of sums must match feature count");
-    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
-    "Element count of vars must match feature count");
     ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
                   "Element count of means must match feature count");
     ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
@@ -549,11 +539,10 @@ sycl::event correlation_with_distributed(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
     auto prepare_event =
-        prepare_correlation_distributed(q, data.get_dimension(0), sums, corr, means, vars, tmp, deps);
+        prepare_correlation_distributed(q, data.get_dimension(0), sums, corr, means, tmp, deps);
     auto finalize_event =
         finalize_correlation(q, data.get_dimension(0), sums, tmp, corr, { prepare_event });
     finalize_event.wait_and_throw();
@@ -623,7 +612,6 @@ INSTANTIATE_COV_DISTR(double)
                                                                       const ndview<F, 1>&, \
                                                                       const ndview<F, 1>&, \
                                                                       ndview<F, 2>&,       \
-                                                                      const ndview<F, 1>&, \
                                                                       ndview<F, 1>&,       \
                                                                       const event_vector&);
 

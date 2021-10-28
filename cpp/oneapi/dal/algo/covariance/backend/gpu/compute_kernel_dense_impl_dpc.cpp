@@ -61,7 +61,7 @@ template <typename Data>
 using local_accessor_rw_t =
     sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
 
-using comm_t = bk::communicator;
+using comm_t = bk::communicator<spmd::device_memory_access::usm>;
 using dal::backend::context_gpu;
 using method_t = method::dense;
 using task_t = task::compute;
@@ -124,20 +124,17 @@ auto compute_correlation(sycl::queue& q,
                          const pr::ndview<Float, 2>& data,
                          const pr::ndarray<Float, 1>& sums,
                          const pr::ndarray<Float, 1>& means,
-                         const pr::ndarray<Float, 1>& vars,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_correlation, q);
     ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(vars.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
     ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    //auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-    auto corr_event = pr::correlation_with_distributed(q, data, sums, means, corr, vars, tmp, { gemm_event });
+    auto corr_event = pr::correlation_with_distributed(q, data, sums, means, corr, tmp, { gemm_event });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
@@ -552,7 +549,7 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
             rmean_ptr[id] = mrgmean;
             Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
 
-            if constexpr (check_mask_flag(cov_list::cov | cov_list::cor, List)) {
+            if constexpr (check_mask_flag(cov_list::cov | cov_list::cor | cov_list::mean, List)) {
                 rvarc_ptr[id] = mrgvariance;
             }
         });
@@ -760,7 +757,7 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
         if constexpr (check_mask_flag(cov_list::mean | cov_list::cov | cov_list::cor, List)) {
             auto com_row_count_host =
                 pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
-            comm_.allgather(&row_count, 1, com_row_count_host.get_mutable_data(), 1).wait();
+            comm_.allgather(row_count, com_row_count_host.flatten()).wait();
             com_row_count = com_row_count_host.to_device(q_);
 
             de::check_mul_overflow(comm_.get_rank_count(), column_count);
@@ -768,24 +765,13 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
             com_sum = pr::ndarray<Float, 1>::empty(q_,
                                                    { comm_.get_rank_count() * column_count },
                                                    alloc::device);
-            comm_
-                .allgather(q_,
-                           ndres.get_sum().get_data(),
-                           column_count,
-                           com_sum.get_mutable_data(),
-                           column_count)
-                .wait();
+            comm_.allgather(ndres.get_sum().flatten(q_, deps), com_sum.flatten(q_)).wait();
         }
         if constexpr (check_mask_flag(cov_list::mean | cov_list::cov | cov_list::cor, List)) {
             com_sum2cent = pr::ndarray<Float, 1>::empty(q_,
                                                         { comm_.get_rank_count() * column_count },
                                                         alloc::device);
-            comm_
-                .allgather(q_,
-                           ndres.get_sum2cent().get_data(),
-                           column_count,
-                           com_sum2cent.get_mutable_data(),
-                           column_count)
+            comm_.allgather(ndres.get_sum2cent().flatten(q_, deps), com_sum2cent.flatten(q_))
                 .wait();
         }
         if constexpr (check_mask_flag(cov_list::mean | cov_list::cov | cov_list::cor, List)) {
@@ -835,7 +821,6 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
                                                       data_nd,
                                                       std::move(ndres).get_sum(),
                                                       std::move(ndres).get_mean(),
-                                                      std::move(ndres).get_varc(),
                                                       { last_event });
 
         result.set_cor_matrix(

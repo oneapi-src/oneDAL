@@ -102,7 +102,6 @@ sycl::event correlation_with_distributed(sycl::queue& q,
                         const ndview<Float, 1>& sums,
                         const ndview<Float, 1>& means,
                         ndview<Float, 2>& corr,
-                        const ndview<Float, 1>& vars,
                         ndview<Float, 1>& tmp,
                         const event_vector& deps = {});
 
