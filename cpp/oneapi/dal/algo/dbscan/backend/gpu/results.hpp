@@ -91,7 +91,7 @@ inline auto make_results(sycl::queue& queue,
             dal::detail::memcpy_host2usm(queue,
                                          device_indices.get_mutable_data(),
                                          host_indices_ptr,
-                                         core_count);
+                                         core_count * sizeof(std::int32_t));
             results.set_core_observation_indices(
                 dal::homogen_table::wrap(device_indices.flatten(queue), core_count, 1));
         }
@@ -107,7 +107,7 @@ inline auto make_results(sycl::queue& queue,
                     bk::memcpy(queue,
                                observations_ptr + pos * column_count,
                                data.get_data() + i * column_count,
-                               std::size_t(column_count));
+                               std::size_t(column_count) * sizeof(Float));
                     pos += column_count;
                 }
             }
