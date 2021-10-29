@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,32 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/dbscan/backend/gpu/kernel_fp_impl.hpp"
 
-namespace oneapi::dal::detail {
+namespace oneapi::dal::dbscan::backend {
 
-namespace v1 {
+template struct kernels_fp<float>;
+template struct kernels_fp<double>;
 
-template <class T>
-class singleton {
-public:
-    static T& get() {
-        static std::once_flag flag;
-        std::call_once(flag, [] {
-            get_instance();
-        });
-        return get_instance();
-    }
-
-private:
-    static T& get_instance() {
-        static T instance;
-        return instance;
-    }
-};
-
-} // namespace v1
-
-using v1::singleton;
-
-} // namespace oneapi::dal::detail
+} // namespace oneapi::dal::dbscan::backend

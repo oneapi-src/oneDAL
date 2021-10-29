@@ -77,13 +77,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
     const std::int64_t* displs_host,
     const data_type& dtype,
     const std::vector<sycl::event>& deps) {
-    if (send_count == 0) {
-        return nullptr;
-    }
-
     ONEDAL_ASSERT(send_buf);
-    ONEDAL_ASSERT(send_count > 0);
-
     ONEDAL_ASSERT(recv_buf);
     ONEDAL_ASSERT(recv_counts_host);
     ONEDAL_ASSERT(displs_host);
@@ -108,16 +102,17 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
     const std::int64_t dtype_size = get_data_type_size(dtype);
     const std::int64_t send_size = check_mul_overflow(dtype_size, send_count);
     const std::int64_t total_recv_size = check_mul_overflow(dtype_size, total_recv_count);
-
-    const auto send_buff_host = array<byte_t>::empty(send_size);
-    memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
+    // Workaround for zero send_size
+    const auto send_buff_host = array<byte_t>::empty(send_size > 0 ? send_size : 1);
+    if (send_size > 0) {
+        memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
+    }
 
     array<byte_t> recv_buf_host;
     byte_t* recv_buf_host_ptr = nullptr;
     ONEDAL_ASSERT(total_recv_size > 0);
     recv_buf_host.reset(total_recv_size);
     recv_buf_host_ptr = recv_buf_host.get_mutable_data();
-
     wait_request(allgatherv(send_buff_host.get_data(),
                             send_count,
                             recv_buf_host_ptr,
@@ -134,10 +129,10 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
         const std::int64_t src_offset = check_mul_overflow(dtype_size, displs_host_root_ptr[i]);
         const std::int64_t dst_offset = check_mul_overflow(dtype_size, displs_host[i]);
         const std::int64_t copy_size = check_mul_overflow(dtype_size, recv_counts_host[i]);
-
-        memcpy_host2usm(q, recv_buf + dst_offset, recv_buf_host_ptr + src_offset, copy_size);
+        if (copy_size > 0) {
+            memcpy_host2usm(q, recv_buf + dst_offset, recv_buf_host_ptr + src_offset, copy_size);
+        }
     }
-
     return nullptr;
 }
 #endif

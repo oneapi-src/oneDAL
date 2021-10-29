@@ -179,10 +179,6 @@ public:
                                     const data_type& dtype) override {
         ONEDAL_ASSERT(root >= 0);
 
-        if (send_count == 0) {
-            return nullptr;
-        }
-
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
@@ -253,15 +249,13 @@ public:
             const std::int64_t size = check_mul_overflow(count, dtype_size);
             auto recv_buf_backup = array<byte_t>::empty(size);
 
-            MPI_Request mpi_request;
-            mpi_call(MPI_Iallreduce(send_buf,
-                                    recv_buf_backup.get_mutable_data(),
-                                    integral_cast<int>(count),
-                                    make_mpi_data_type(dtype),
-                                    make_mpi_reduce_op(op),
-                                    mpi_comm_,
-                                    &mpi_request));
-            mpi_call(MPI_Wait(&mpi_request, MPI_STATUSES_IGNORE));
+            // TODO Replace with MPI_Iallreduce
+            mpi_call(MPI_Allreduce(send_buf,
+                                   recv_buf_backup.get_mutable_data(),
+                                   integral_cast<int>(count),
+                                   make_mpi_data_type(dtype),
+                                   make_mpi_reduce_op(op),
+                                   mpi_comm_));
 
             memcpy(default_host_policy{}, recv_buf, recv_buf_backup.get_data(), size);
 

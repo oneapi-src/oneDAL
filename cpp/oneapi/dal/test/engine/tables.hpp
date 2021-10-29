@@ -112,7 +112,6 @@ inline std::vector<table> split_table_by_rows(TestPolicy& policy,
                                               const table& t,
                                               std::int64_t split_count) {
     ONEDAL_ASSERT(split_count > 0);
-    ONEDAL_ASSERT(split_count <= t.get_row_count());
 
     const std::int64_t row_count = t.get_row_count();
     const std::int64_t column_count = t.get_column_count();
@@ -126,9 +125,14 @@ inline std::vector<table> split_table_by_rows(TestPolicy& policy,
         const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
         const std::int64_t block_size = block_size_regular + tail;
 
-        const auto row_range = range{ row_offset, row_offset + block_size };
-        const auto block = get_table_block<Float>(policy, t, row_range);
-        result[i] = homogen_table::wrap(block, block_size, column_count);
+        if (block_size > 0) {
+            const auto row_range = range{ row_offset, row_offset + block_size };
+            const auto block = get_table_block<Float>(policy, t, row_range);
+            result[i] = homogen_table::wrap(block, block_size, column_count);
+        }
+        else {
+            result[i] = homogen_table{};
+        }
         row_offset += block_size;
     }
 

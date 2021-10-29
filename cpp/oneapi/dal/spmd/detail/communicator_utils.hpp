@@ -117,12 +117,6 @@ spmd::request allgatherv(const spmd::communicator<MemoryAccessKind>& comm,
                          const array<T>& recv,
                          const std::int64_t* recv_counts,
                          const std::int64_t* displs) {
-    if (send.get_count() == 0) {
-        ONEDAL_ASSERT(recv.get_count() == 0);
-        return spmd::request{};
-    }
-
-    ONEDAL_ASSERT(send.get_count() > 0);
     ONEDAL_ASSERT(recv.has_mutable_data());
 
     spmd::request request;
@@ -130,7 +124,6 @@ spmd::request allgatherv(const spmd::communicator<MemoryAccessKind>& comm,
     if constexpr (!std::is_same_v<MemoryAccessKind, spmd::device_memory_access::none>) {
         __ONEDAL_IF_QUEUE__(send.get_queue(), {
             auto q = send.get_queue().value();
-
             ONEDAL_ASSERT(recv.get_queue().has_value());
             ONEDAL_ASSERT(recv.get_queue().value().get_context() == q.get_context());
 
