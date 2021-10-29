@@ -432,7 +432,7 @@ inline sycl::event prepare_correlation_distributed(sycl::queue& q,
                                                    ndview<Float, 1>& tmp,
                                                    const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(corr.has_mutable_data());
+    ONEDAL_ASSERT(corr.has_data());
 
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
@@ -476,8 +476,10 @@ inline sycl::event finalize_correlation_distributed(sycl::queue& q,
                                                     const ndview<Float, 1>& tmp,
                                                     ndview<Float, 2>& corr,
                                                     const event_vector& deps) {
-    ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(tmp.has_mutable_data());
+    ONEDAL_ASSERT(corr.has_data());
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(tmp.has_data());
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
