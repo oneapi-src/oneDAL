@@ -1131,7 +1131,7 @@ $2: $1 | $(dir $2)/. ; $(value cpy)
 	$(if $(filter %.sh %.bat,$2),chmod +x $$@)
 endef
 $(foreach d,$(release.SAMPLES.CPP),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_c)))
-$(foreach d,$(release.SAMPLES.ONEDAL.DPC),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),onedal_dpc)))
+$(foreach d,$(release.SAMPLES.ONEDAL.DPC),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_oneapi_dpc)))
 $(foreach d,$(release.SAMPLES.JAVA),  $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 $(foreach d,$(release.SAMPLES.SCALA), $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 
