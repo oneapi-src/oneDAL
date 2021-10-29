@@ -74,7 +74,6 @@ public:
         const auto compute_result = this->compute(cov_desc, data);
 
         base_t::check_compute_result(data, compute_result);
-        //base_t::check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
 private:
@@ -104,7 +103,6 @@ TEMPLATE_LIST_TEST_M(covariance_spmd_test,
     cov::result_option_id mode_cov_mean = result_options::cov_matrix | result_options::means;
     cov::result_option_id mode_cov_cor = result_options::cov_matrix | result_options::cor_matrix;
     cov::result_option_id mode_cor_mean = result_options::cor_matrix | result_options::means;
-    // bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
     cov::result_option_id res_all =
         result_options::cov_matrix | result_options::cor_matrix | result_options::means;
 

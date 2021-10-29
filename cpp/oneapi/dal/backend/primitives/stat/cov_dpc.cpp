@@ -421,7 +421,6 @@ sycl::event covariance_with_distributed(sycl::queue& q,
 
     auto finalize_event =
         finalize_covariance_distributed(q, data.get_dimension(0), sums, cov, deps);
-    finalize_event.wait_and_throw();
     return finalize_event;
 }
 
