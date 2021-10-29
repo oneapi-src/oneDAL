@@ -119,7 +119,7 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
             auto distance_block_nd =
                 pr::ndarray<Float, 2>::wrap(distance_nd.get_mutable_data() + start_row,
                                             { rows_per_block_count, 1 });
-            auto kernel_values_nd = predict_task->kernel_compute(start_row, rows_per_block_count);
+            auto kernel_values_nd = predict_task->kernel_compute(start_row, rows_per_block_count, sv_count);
             auto reshape_sv_coeff = sv_coeff_nd.reshape(pr::ndshape<2>{ sv_count, 1 });
             {
                 ONEDAL_PROFILER_TASK(gemm, q);

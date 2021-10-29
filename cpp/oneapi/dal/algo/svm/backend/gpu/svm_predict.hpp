@@ -32,7 +32,7 @@ public:
     virtual ~predict_task() = default;
 
     virtual pr::ndarray<Float, 2> kernel_compute(const std::int64_t start_row,
-                                                 const std::int64_t n_rows) = 0;
+                                                 const std::int64_t n_rows, const std::int64_t sv_count) = 0;
 
 protected:
     predict_task(sycl::queue& q,
@@ -70,9 +70,8 @@ public:
                        const detail::kernel_function_ptr& kernel)
             : predict_task<Float>(q, max_row_per_block, data_nd, sv_table, kernel) {}
 
-    pr::ndarray<Float, 2> kernel_compute(const std::int64_t start_row, const std::int64_t n_rows) {
+    pr::ndarray<Float, 2> kernel_compute(const std::int64_t start_row, const std::int64_t n_rows, const std::int64_t sv_count) {
         auto data = this->data_nd_.get_data() + this->data_nd_.get_dimension(1) * start_row;
-        const auto sv_table_row_count = this->sv_table_.get_row_count();
 
         table x_block_nt =
             homogen_table::wrap(this->q_, data, n_rows, this->data_nd_.get_dimension(1));
@@ -80,14 +79,14 @@ public:
         this->res_table_ = homogen_table::wrap(this->q_,
                                                this->res_nd_.get_mutable_data(),
                                                n_rows,
-                                               sv_table_row_count);
+                                               sv_count);
         this->kernel_->compute_kernel_function(dal::detail::data_parallel_policy(this->q_),
                                                x_block_nt,
                                                this->sv_table_,
                                                this->res_table_);
 
         return pr::ndarray<Float, 2>::wrap(this->res_nd_.get_data(),
-                                           { n_rows, sv_table_row_count });
+                                           { n_rows, sv_count });
     }
 };
 }
