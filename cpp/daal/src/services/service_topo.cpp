@@ -1951,7 +1951,7 @@ static __inline void get_cache_info(int cache_num, int * type, int * level, long
 static __inline void detect_data_caches(int cache_sizes_len, volatile long long * cache_sizes)
 {
     int cache_num = 0, cache_sizes_idx = 0;
-    while (cache_sizes_idx <= cache_sizes_len)
+    while (cache_sizes_idx < cache_sizes_len)
     {
         int type, level, line_size, partitions, ways;
         long long sets, size;
