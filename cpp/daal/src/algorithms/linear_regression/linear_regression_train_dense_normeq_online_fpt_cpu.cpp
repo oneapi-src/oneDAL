@@ -39,7 +39,6 @@ template class OnlineContainer<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 }
 namespace internal
 {
-
 template class DAAL_EXPORT OnlineKernel<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 
 }
