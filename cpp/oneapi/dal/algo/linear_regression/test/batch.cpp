@@ -20,6 +20,7 @@
 #include <numeric>
 #include <vector>
 
+#include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/algo/linear_regression/train.hpp"
 #include "oneapi/dal/algo/linear_regression/infer.hpp"
 
