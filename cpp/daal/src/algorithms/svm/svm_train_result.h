@@ -132,7 +132,8 @@ protected:
         const algorithmFPType zero(0.0);
         NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
         services::Status s;
-        DAAL_CHECK_STATUS(s, svCoeffTable->resize(nSV));
+        const size_t nCols = svCoeffTable->getNumberOfColumns();
+        svCoeffTable       = HomogenNumericTable<algorithmFPType>::create(DictionaryIface::equal, nCols, nSV, NumericTable::doAllocate, zero, &s);
 
         WriteOnlyRows<algorithmFPType, cpu> mtSvCoeff(*svCoeffTable, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSvCoeff);
@@ -159,13 +160,14 @@ protected:
     {
         NumericTablePtr svIndicesTable = model.getSupportIndices();
         services::Status s;
-        DAAL_CHECK_STATUS(s, svIndicesTable->resize(nSV));
+        const size_t nCols = svIndicesTable->getNumberOfColumns();
+        const algorithmFPType zero(0.0);
+        svIndicesTable = HomogenNumericTable<algorithmFPType>::create(DictionaryIface::equal, nCols, nSV, NumericTable::doAllocate, zero, &s);
 
         WriteOnlyRows<int, cpu> mtSvIndices(*svIndicesTable, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSvIndices);
         int * const svIndices = mtSvIndices.get();
 
-        const algorithmFPType zero(0.0);
         for (size_t i = 0, iSV = 0; i < _nVectors; ++i)
         {
             if (_alpha[i] != zero)
@@ -185,7 +187,9 @@ protected:
         const size_t nSV = svIndicesTable->getNumberOfRows();
         if (nSV == 0) return s;
 
-        DAAL_CHECK_STATUS(s, svTable->resize(nSV));
+        const size_t nCols = svTable->getNumberOfColumns();
+        const algorithmFPType zero(0.0);
+        svTable        = HomogenNumericTable<algorithmFPType>::create(DictionaryIface::equal, nCols, nSV, NumericTable::doAllocate, zero, &s);
         const size_t p = xTable->getNumberOfColumns();
 
         ReadRows<int, cpu> mtSvIndices(svIndicesTable.get(), 0, nSV);
