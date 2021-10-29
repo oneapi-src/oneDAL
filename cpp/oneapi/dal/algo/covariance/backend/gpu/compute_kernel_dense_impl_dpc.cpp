@@ -120,19 +120,16 @@ template <typename Float>
 auto compute_correlation(sycl::queue& q,
                          const pr::ndview<Float, 2>& data,
                          const pr::ndarray<Float, 1>& sums,
-                         const pr::ndarray<Float, 1>& means,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_correlation, q);
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
-    ONEDAL_ASSERT(data.get_dimension(1) == means.get_dimension(0));
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-    auto corr_event =
-        pr::correlation_with_distributed(q, data, sums, means, corr, tmp, { gemm_event });
+    auto corr_event = pr::correlation_with_distributed(q, data, sums, corr, tmp, { gemm_event });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
@@ -361,7 +358,7 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
     ONEDAL_ASSERT(block_count > 0);
 
     const bool distr_mode = comm_.get_rank_count() > 1;
-    auto ndres = local_result<Float, List>::empty(q_, column_count, distr_mode);
+    auto ndres = local_result<Float, List>::empty(q_, column_count);
 
     // ndres asserts
     if (distr_mode) {
@@ -574,7 +571,7 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
 
     const bool distr_mode = comm_.get_rank_count() > 1;
 
-    auto ndres = local_result<Float, List>::empty(q_, column_count, distr_mode);
+    auto ndres = local_result<Float, List>::empty(q_, column_count);
 
     ASSERT_IF(cov_list::mean | cov_list::cor, ndres.get_sum().get_count() == column_count);
 
@@ -814,11 +811,8 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
-        auto [corr, corr_event] = compute_correlation(q_,
-                                                      data_nd,
-                                                      std::move(ndres).get_sum(),
-                                                      std::move(ndres).get_mean(),
-                                                      { last_event });
+        auto [corr, corr_event] =
+            compute_correlation(q_, data_nd, std::move(ndres).get_sum(), { last_event });
 
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));

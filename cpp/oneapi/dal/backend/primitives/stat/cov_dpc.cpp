@@ -430,19 +430,16 @@ inline sycl::event prepare_correlation_distributed(sycl::queue& q,
                                                    std::int64_t row_count,
                                                    const ndview<Float, 1>& sums,
                                                    const ndview<Float, 2>& corr,
-                                                   const ndview<Float, 1>& means,
                                                    ndview<Float, 1>& tmp,
                                                    const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(means.has_mutable_data());
 
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, corr.get_data()));
 
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
     const auto n = row_count;
@@ -450,7 +447,7 @@ inline sycl::event prepare_correlation_distributed(sycl::queue& q,
     const Float inv_n = Float(1.0 / double(n));
 
     const Float* sums_ptr = sums.get_data();
-    const Float* corr_ptr = corr.get_mutable_data();
+    const Float* corr_ptr = corr.get_data();
 
     Float* tmp_ptr = tmp.get_mutable_data();
 
@@ -516,14 +513,12 @@ template <typename Float>
 sycl::event correlation_with_distributed(sycl::queue& q,
                                          const ndview<Float, 2>& data,
                                          const ndview<Float, 1>& sums,
-                                         const ndview<Float, 1>& means,
                                          ndview<Float, 2>& corr,
                                          ndview<Float, 1>& tmp,
                                          const event_vector& deps) {
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(means.has_mutable_data());
+    ONEDAL_ASSERT(corr.has_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
@@ -531,21 +526,17 @@ sycl::event correlation_with_distributed(sycl::queue& q,
                   "Dimensions of correlation matrix must match feature count");
     ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
                   "Element count of sums must match feature count");
-    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
-                  "Element count of means must match feature count");
     ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
                   "Element count of temporary buffer must match feature count");
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
     auto prepare_event =
-        prepare_correlation_distributed(q, data.get_dimension(0), sums, corr, means, tmp, deps);
+        prepare_correlation_distributed(q, data.get_dimension(0), sums, corr, tmp, deps);
     auto finalize_event =
         finalize_correlation(q, data.get_dimension(0), sums, tmp, corr, { prepare_event });
-    finalize_event.wait_and_throw();
     return finalize_event;
 }
 
@@ -609,7 +600,6 @@ INSTANTIATE_COV_DISTR(double)
 #define INSTANTIATE_COR_DISTR(F)                                                            \
     template ONEDAL_EXPORT sycl::event correlation_with_distributed<F>(sycl::queue&,        \
                                                                        const ndview<F, 2>&, \
-                                                                       const ndview<F, 1>&, \
                                                                        const ndview<F, 1>&, \
                                                                        ndview<F, 2>&,       \
                                                                        ndview<F, 1>&,       \

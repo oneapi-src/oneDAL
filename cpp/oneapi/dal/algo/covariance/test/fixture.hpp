@@ -166,18 +166,6 @@ public:
     void check_cov_matrix_values(const table& data, const table& cov_matrix) {
         const auto reference_cov = compute_reference_cov(data);
         const auto data_matrix = la::matrix<double>::wrap(cov_matrix);
-        // for (int i = 0; i < data_matrix.get_column_count(); i++) {
-        //     for (int j = 0; j < data_matrix.get_column_count(); j++) {
-        //         std::cout << data_matrix.get(i, j) << " ";
-        //     }
-        //     std::cout << std::endl;
-        // }
-        // for (int i = 0; i < data_matrix.get_column_count(); i++) {
-        //     for (int j = 0; j < data_matrix.get_column_count(); j++) {
-        //         std::cout << reference_cov.get(i, j) << " ";
-        //     }
-        //     std::cout << std::endl;
-        // }
         const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
         const double diff = te::abs_error(reference_cov, cov_matrix);
         CHECK(diff < tol);
