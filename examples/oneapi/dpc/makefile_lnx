@@ -127,7 +127,7 @@ so sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,decision_forest dbscan kmeans kmeans_init knn linear_kernel pca rbf_kernel svm table covariance basic_statistics)
+vpath %.cpp $(addprefix ./source/,decision_forest dbscan kmeans kmeans_init knn linear_kernel linear_regression pca rbf_kernel svm table covariance basic_statistics)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

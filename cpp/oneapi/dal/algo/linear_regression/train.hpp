@@ -1,6 +1,5 @@
-/* file: linear_model_predict_dense_default_batch_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,28 +14,19 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of prediction stage of linear regression algorithm.
-//--
-*/
+#pragma once
 
-#include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
-#include "src/algorithms/linear_model/oneapi/linear_model_predict_dense_default_batch_oneapi_impl.i"
+#include "oneapi/dal/algo/linear_regression/common.hpp"
+#include "oneapi/dal/algo/linear_regression/detail/train_ops.hpp"
+#include "oneapi/dal/algo/linear_regression/train_types.hpp"
+#include "oneapi/dal/train.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace linear_model
-{
-namespace prediction
-{
-namespace internal
-{
-template class DAAL_EXPORT PredictKernelOneAPI<DAAL_FPTYPE, defaultDense>;
-} // namespace internal
-} // namespace prediction
-} // namespace linear_model
-} // namespace algorithms
-} // namespace daal
+namespace oneapi::dal::detail {
+namespace v1 {
+
+template <typename Descriptor>
+struct train_ops<Descriptor, dal::linear_regression::detail::descriptor_tag>
+        : dal::linear_regression::detail::train_ops<Descriptor> {};
+
+} // namespace v1
+} // namespace oneapi::dal::detail

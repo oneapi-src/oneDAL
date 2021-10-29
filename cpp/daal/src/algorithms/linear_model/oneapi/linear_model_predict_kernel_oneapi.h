@@ -61,6 +61,7 @@ class PredictKernelOneAPI<algorithmFPType, defaultDense> : public daal::algorith
 {
 public:
     services::Status compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r);
+    services::Status compute_impl(const NumericTable * a, const NumericTable * b, NumericTable * r, bool interceptFlag);
 
 protected:
     services::Status addBetaIntercept(const services::internal::Buffer<algorithmFPType> & betaTable, const size_t nBetas,
