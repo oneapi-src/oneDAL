@@ -581,7 +581,6 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
                         nd = n * 4;
                     }
                 }
-
             } while (--depth >= 0); // done with this level
 
             // update velocity
