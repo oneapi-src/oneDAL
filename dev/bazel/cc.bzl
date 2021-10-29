@@ -57,7 +57,6 @@ def _cc_module_impl(ctx):
         cpus = ctx.attr._cpus[CpuInfo].enabled,
         cpu_defines = ctx.attr.cpu_defines,
         fpt_defines = ctx.attr.fpt_defines,
-        disable_mic = ctx.attr.disable_mic,
         srcs = ctx.files.srcs,
         public_hdrs = ctx.files.hdrs,
         private_hdrs = ctx.files.private_hdrs,
@@ -109,7 +108,6 @@ _cc_module = rule(
         "includes": attr.string_list(),
         "quote_includes": attr.string_list(),
         "system_includes": attr.string_list(),
-        "disable_mic": attr.bool(default=False),
         "_cpus": attr.label(
             default = "@config//:cpu",
         ),

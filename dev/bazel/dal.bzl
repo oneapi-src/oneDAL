@@ -477,7 +477,6 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         features = [ "pedantic", "c++17" ] + features + (
             ["dpc++"] if is_dpc else []
         ),
-        disable_mic = True,
         cpu_defines = {
             "sse2":   [ "__CPU_TAG__=__CPU_TAG_SSE2__"   ],
             "ssse3":  [ "__CPU_TAG__=__CPU_TAG_SSSE3__"  ],
