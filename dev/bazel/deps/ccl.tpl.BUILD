@@ -7,7 +7,8 @@ cc_library(
            glob(["include/cpu_gpu_dpcpp/oneapi/ccl/*.hpp"]) +
            glob(["include/cpu_gpu_dpcpp/oneapi/ccl/*.h"]) +
            glob(["include/cpu_gpu_dpcpp/oneapi/ccl/native_device_api/*.hpp"]) +
-           glob(["include/cpu_gpu_dpcpp/oneapi/ccl/native_device_api/sycl/*.hpp"]),
+           glob(["include/cpu_gpu_dpcpp/oneapi/ccl/native_device_api/sycl/*.hpp"]) +
+           glob(["include/cpu_gpu_dpcpp/oneapi/ccl/native_device_api/sycl_l0/*.hpp"]),
     includes = [ "include/cpu_gpu_dpcpp/oneapi" ] + [ "include/cpu_gpu_dpcpp/" ],
 )
 
