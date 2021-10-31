@@ -98,15 +98,7 @@ public:
                                           const pr::ndview<std::int32_t, 1>& ws_indices) = 0;
 
 protected:
-    svm_cache_iface(sycl::queue& q, const std::int64_t block_size, const std::int64_t line_size)
-            : q_(q),
-              block_size_(block_size),
-              line_size_(line_size) {}
-
-    sycl::queue q_;
-
-    const std::int64_t block_size_;
-    const std::int64_t line_size_;
+    svm_cache_iface() {}
 };
 
 template <svm_cache_type CacheType, typename Float>
@@ -120,7 +112,8 @@ public:
               const double cache_size,
               const std::int64_t block_size,
               const std::int64_t line_size)
-            : svm_cache_iface<Float>(q, block_size, line_size) {
+            : svm_cache_iface<Float>(),
+              q_(q) {
         sub_data_task_ptr_ =
             std::make_shared<sub_data_task_dense<Float>>(q, block_size, data_nd.get_dimension(1));
         res_nd_ =
@@ -146,6 +139,7 @@ public:
     }
 
 private:
+    sycl::queue q_;
     std::shared_ptr<sub_data_task_base<Float>> sub_data_task_ptr_;
     homogen_table res_table_;
     pr::ndarray<Float, 2> res_nd_;

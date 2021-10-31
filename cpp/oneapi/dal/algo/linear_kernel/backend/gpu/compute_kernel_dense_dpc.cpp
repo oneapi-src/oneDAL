@@ -104,6 +104,8 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
         const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
 
         auto res_ptr = res.get_data<Float>();
+
+        // Temporary workaround until the table_builder approach is ready
         auto res_nd = pr::ndarray<Float, 2>::wrap(const_cast<Float*>(res_ptr),
                                                   { res.get_row_count(), res.get_column_count() });
 
