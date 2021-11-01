@@ -53,12 +53,12 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     using model_t = model<Task>;
     using model_impl_t = backend::norm_eq_model_impl<Task>;
 
-    const bool intercept = desc.get_compute_intercept();
+    bool intp = desc.get_compute_intercept();
 
     const auto feature_count = data.get_column_count();
     const auto response_count = resp.get_column_count();
 
-    const auto ext_feature_count = feature_count + intercept;
+    const auto ext_feature_count = feature_count + intp;
 
     const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
     auto xtx_arr = array<Float>::zeros(xtx_size);
@@ -85,7 +85,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                               *y_daal_table,
                                                                               *xtx_daal_table,
                                                                               *xty_daal_table,
-                                                                              intercept);
+                                                                              intp);
 
         interop::status_to_exception(status);
     }
@@ -98,7 +98,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                       *xtx_daal_table,
                                                                       *xty_daal_table,
                                                                       *betas_daal_table,
-                                                                      intercept);
+                                                                      intp);
         });
 
         interop::status_to_exception(status);

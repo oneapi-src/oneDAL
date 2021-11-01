@@ -50,13 +50,13 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     using dal::detail::check_mul_overflow;
 
     const auto& betas = m.get_betas();
-    const bool intercept = desc.get_compute_intercept();
+    bool intp = desc.get_compute_intercept();
 
     const auto sample_count = infer.get_row_count();
     const auto response_count = betas.get_row_count();
 
     const auto feature_count = infer.get_column_count();
-    [[maybe_unused]] const auto ext_feature_count = feature_count + intercept;
+    [[maybe_unused]] const auto ext_feature_count = feature_count + intp;
     ONEDAL_ASSERT(ext_feature_count == betas.get_column_count());
 
     const auto resps_size = check_mul_overflow(sample_count, response_count);
@@ -68,11 +68,12 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     auto infer_daal_table = interop::convert_to_daal_table<Float>(infer);
 
     const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-        constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-        return daal_lm_kernel_t<Float, cpu_type>().compute_impl(infer_daal_table.get(),
-                                                                betas_daal_table.get(),
-                                                                resps_daal_table.get(),
-                                                                intercept);
+        using cpu_t = daal::CpuType;
+        constexpr cpu_t cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+        return daal_lm_kernel_t<Float, cpu_t(cpu_type)>().compute_impl(infer_daal_table.get(),
+                                                                       betas_daal_table.get(),
+                                                                       resps_daal_table.get(),
+                                                                       intp);
     });
 
     interop::status_to_exception(status);
