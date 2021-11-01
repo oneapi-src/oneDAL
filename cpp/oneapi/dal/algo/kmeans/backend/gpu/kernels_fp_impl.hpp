@@ -238,12 +238,12 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
         {
             ONEDAL_PROFILER_TASK(gemm, queue);
             distance_event = pr::gemm(queue,
-                                        data_block,
-                                        centroids.t(),
-                                        distance_block,
-                                        Float(-2.0),
-                                        Float(0.0),
-                                        { selection_event });
+                                      data_block,
+                                      centroids.t(),
+                                      distance_block,
+                                      Float(-2.0),
+                                      Float(0.0),
+                                      { selection_event });
         }
         auto response_block =
             pr::ndview<int32_t, 2>::wrap(responses.get_mutable_data() + row_offset,
@@ -322,7 +322,7 @@ sycl::event kernels_fp<Float>::partial_reduce_centroids(
     std::int64_t part_count,
     pr::ndview<Float, 2>& partial_centroids,
     const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(partial_reduce_centroids, queue);
+    //    ONEDAL_PROFILER_TASK(partial_reduce_centroids, queue);
     ONEDAL_ASSERT(data.get_dimension(1) == partial_centroids.get_dimension(1));
     ONEDAL_ASSERT(partial_centroids.get_dimension(0) == cluster_count * part_count);
     ONEDAL_ASSERT(responses.get_dimension(0) == data.get_dimension(0));
