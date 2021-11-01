@@ -166,7 +166,7 @@ public:
             else
             {
                 // Level zero branch
-                auto kernelRef = OpenClKernelLevelZeroRef(kernelNameStr, status);
+                auto kernelRef = OpenClKernelLevelZeroRef(*_currentProgramRef, kernelNameStr, status);
                 DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
 
                 kernel = OpenClKernelLevelZero::create(_executionTarget, *_currentProgramRef, kernelRef, status);
