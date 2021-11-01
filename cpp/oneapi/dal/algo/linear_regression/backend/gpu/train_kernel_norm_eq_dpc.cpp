@@ -58,12 +58,12 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const bool intercept = desc.get_compute_intercept();
+    bool intp = desc.get_compute_intercept();
 
     const auto feature_count = data.get_column_count();
     const auto response_count = resp.get_column_count();
 
-    const auto ext_feature_count = feature_count + intercept;
+    const auto ext_feature_count = feature_count + intp;
 
     // xtx - Input matrix $X'^T \times X'$ of size P' x P'
     const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
@@ -92,7 +92,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                               *y_daal_table,
                                                               *xtx_daal_table,
                                                               *xty_daal_table,
-                                                              intercept);
+                                                              intp);
 
         interop::status_to_exception(status);
     }
@@ -103,7 +103,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                                       *xtx_daal_table,
                                                                       *xty_daal_table,
                                                                       *betas_daal_table,
-                                                                      intercept);
+                                                                      intp);
 
         interop::status_to_exception(status);
     }
