@@ -70,10 +70,10 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
         using cpu_t = daal::CpuType;
         constexpr cpu_t cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-        return daal_lm_kernel_t<Float, cpu_type>().compute_impl(infer_daal_table.get(),
-                                                                betas_daal_table.get(),
-                                                                resps_daal_table.get(),
-                                                                intp);
+        return daal_lm_kernel_t<Float, cpu_t(cpu_type)>().compute_impl(infer_daal_table.get(),
+                                                                       betas_daal_table.get(),
+                                                                       resps_daal_table.get(),
+                                                                       intp);
     });
 
     interop::status_to_exception(status);
