@@ -135,7 +135,7 @@ static train_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
         return train_result<Task>{};
     }
     auto table_support_indices =
-        interop::convert_from_daal_homogen_table<Float>(daal_svm_model->getSupportIndices());
+        interop::convert_from_daal_homogen_table<std::int32_t>(daal_svm_model->getSupportIndices());
     const auto trained_model = std::make_shared<ModelImpl>(new model_interop_cls{ daal_model });
     trained_model->class_count = class_count;
 

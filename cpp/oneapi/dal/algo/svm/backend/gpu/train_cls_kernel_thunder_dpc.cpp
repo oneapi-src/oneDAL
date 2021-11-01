@@ -202,14 +202,8 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
     dal::detail::get_impl(model).bias = bias;
 
-    auto support_indices_table =
-        homogen_table::wrap(support_indices.flatten(q), support_indices.get_dimension(0), 1);
-
-    row_accessor<const Float> accessor{ support_indices_table };
-    const auto support_indices_data = accessor.pull({ 0, -1 });
-
     return result_t().set_model(model).set_support_indices(
-        homogen_table::wrap(support_indices_data, support_indices.get_dimension(0), 1));
+        homogen_table::wrap(support_indices.flatten(q), support_indices.get_dimension(0), 1));
 }
 
 template <typename Float>
