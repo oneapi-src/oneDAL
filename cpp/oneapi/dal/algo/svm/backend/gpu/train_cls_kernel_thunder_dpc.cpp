@@ -80,6 +80,19 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     const auto data = input.get_data();
     const auto responses = input.get_responses();
 
+    if (data.get_row_count() > dal::detail::limits<std::int32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::invalid_range_of_rows());
+    }
+    if (data.get_column_count() > dal::detail::limits<std::int32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::invalid_range_of_columns());
+    }
+    if (responses.get_row_count() > dal::detail::limits<std::int32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::invalid_range_of_rows());
+    }
+    if (responses.get_column_count() > dal::detail::limits<std::int32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::invalid_range_of_columns());
+    }
+
     const std::int64_t row_count = data.get_row_count();
 
     const binary_response_t<Float> old_unique_responses = get_unique_responses<Float>(q, responses);
@@ -202,14 +215,8 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
     dal::detail::get_impl(model).bias = bias;
 
-    auto support_indices_table =
-        homogen_table::wrap(support_indices.flatten(q), support_indices.get_dimension(0), 1);
-
-    row_accessor<const Float> accessor{ support_indices_table };
-    const auto support_indices_data = accessor.pull(q, { 0, -1 });
-
     return result_t().set_model(model).set_support_indices(
-        homogen_table::wrap(support_indices_data, support_indices.get_dimension(0), 1));
+        homogen_table::wrap(support_indices.flatten(q), support_indices.get_dimension(0), 1));
 }
 
 template <typename Float>
