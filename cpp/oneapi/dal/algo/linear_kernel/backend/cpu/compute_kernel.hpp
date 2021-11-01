@@ -19,9 +19,7 @@
 #include "oneapi/dal/algo/linear_kernel/compute_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-#ifdef ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/table/homogen.hpp"
-#endif
 
 namespace oneapi::dal::linear_kernel::backend {
 

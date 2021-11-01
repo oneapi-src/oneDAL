@@ -18,10 +18,7 @@
 
 #include "oneapi/dal/algo/polynomial_kernel/compute_types.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
-
-#ifdef ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/table/homogen.hpp"
-#endif
 
 namespace oneapi::dal::polynomial_kernel::detail {
 namespace v1 {

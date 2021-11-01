@@ -18,10 +18,7 @@
 
 #include "oneapi/dal/algo/sigmoid_kernel/compute_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-
-#ifdef ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/table/homogen.hpp"
-#endif
 
 namespace oneapi::dal::sigmoid_kernel::backend {
 
