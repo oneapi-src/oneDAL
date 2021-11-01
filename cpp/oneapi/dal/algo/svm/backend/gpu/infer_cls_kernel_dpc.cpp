@@ -31,14 +31,17 @@ using result_t = infer_result<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace pr = dal::backend::primitives;
-namespace be = dal::backend;
+namespace bk = dal::backend;
 
 template <typename Float>
 auto make_responses(sycl::queue& q,
                     const pr::ndarray<Float, 1>& distances,
                     const int64_t first_class_response,
                     const int64_t second_class_response,
-                    const be::event_vector& deps = {}) {
+                    const bk::event_vector& deps = {}) {
+    ONEDAL_ASSERT(distances.has_data());
+    ONEDAL_ASSERT(distances.get_dimension(0) > 0);
+    
     const auto size = distances.get_count();
     auto response = pr::ndarray<Float, 1>::empty(q, size, sycl::usm::alloc::device);
 
@@ -47,7 +50,7 @@ auto make_responses(sycl::queue& q,
 
     auto res_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(be::make_range_1d(size), [=](sycl::id<1> idx) {
+        cgh.parallel_for(bk::make_range_1d(size), [=](sycl::id<1> idx) {
             response_data[idx] =
                 distance_data[idx] >= 0 ? second_class_response : first_class_response;
         });
