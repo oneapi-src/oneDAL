@@ -51,9 +51,9 @@ protected:
     }
 
 protected:
-    sycl::queue& q_;
-    const pr::ndarray<Float, 2>& data_nd_;
-    const table& sv_table_;
+    sycl::queue q_;
+    const pr::ndarray<Float, 2> data_nd_;
+    const table sv_table_;
     homogen_table res_table_;
     pr::ndarray<Float, 1> res_nd_;
     detail::kernel_function_ptr kernel_;
