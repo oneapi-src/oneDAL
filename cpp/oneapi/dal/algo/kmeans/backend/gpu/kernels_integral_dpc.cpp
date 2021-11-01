@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/distance.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -46,6 +47,7 @@ sycl::event count_clusters(sycl::queue& queue,
                            std::int64_t cluster_count,
                            pr::ndview<std::int32_t, 1>& counters,
                            const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(count_clusters, queue);
     ONEDAL_ASSERT(counters.get_dimension(0) == cluster_count);
     ONEDAL_ASSERT(responses.get_dimension(1) == 1);
     ONEDAL_ASSERT(cluster_count <= dal::detail::limits<std::int32_t>::max());
@@ -108,6 +110,7 @@ std::int64_t count_empty_clusters(sycl::queue& queue,
                                   std::int64_t cluster_count,
                                   pr::ndview<std::int32_t, 1>& counters,
                                   const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(count_empty_clusters, queue);
     ONEDAL_ASSERT(counters.get_dimension(0) == cluster_count);
     ONEDAL_ASSERT(cluster_count <= dal::detail::limits<std::int32_t>::max());
     ONEDAL_ASSERT(cluster_count > 0);

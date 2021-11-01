@@ -19,6 +19,7 @@
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -124,6 +125,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                                       pr::ndview<Float, 2>& selection,
                                       pr::ndview<std::int32_t, 2>& indices,
                                       const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(select_min_distance, queue);
     ONEDAL_ASSERT(indices.get_dimension(0) == distances.get_dimension(0));
     ONEDAL_ASSERT(indices.get_dimension(1) == 1);
     ONEDAL_ASSERT(selection.get_dimension(0) == distances.get_dimension(0));
@@ -232,13 +234,17 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
             pr::ndview<Float, 2>::wrap(distances.get_mutable_data(), { cur_rows, centroid_count });
         auto data_block = pr::ndview<Float, 2>::wrap(data.get_data() + row_offset * column_count,
                                                      { cur_rows, column_count });
-        auto distance_event = pr::gemm(queue,
-                                       data_block,
-                                       centroids.t(),
-                                       distance_block,
-                                       Float(-2.0),
-                                       Float(0.0),
-                                       { selection_event });
+        sycl::event distance_event;
+        {
+            ONEDAL_PROFILER_TASK(gemm, queue);
+            distance_event = pr::gemm(queue,
+                                        data_block,
+                                        centroids.t(),
+                                        distance_block,
+                                        Float(-2.0),
+                                        Float(0.0),
+                                        { selection_event });
+        }
         auto response_block =
             pr::ndview<int32_t, 2>::wrap(responses.get_mutable_data() + row_offset,
                                          { cur_rows, 1 });
@@ -264,6 +270,7 @@ sycl::event kernels_fp<Float>::merge_reduce_centroids(sycl::queue& queue,
                                                       std::int64_t part_count,
                                                       pr::ndview<Float, 2>& centroids,
                                                       const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(merge_reduce_centroids, queue);
     ONEDAL_ASSERT(partial_centroids.get_dimension(0) == centroids.get_dimension(0) * part_count);
     ONEDAL_ASSERT(partial_centroids.get_dimension(1) == centroids.get_dimension(1));
     ONEDAL_ASSERT(counters.get_dimension(0) == centroids.get_dimension(0));
@@ -315,6 +322,7 @@ sycl::event kernels_fp<Float>::partial_reduce_centroids(
     std::int64_t part_count,
     pr::ndview<Float, 2>& partial_centroids,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(partial_reduce_centroids, queue);
     ONEDAL_ASSERT(data.get_dimension(1) == partial_centroids.get_dimension(1));
     ONEDAL_ASSERT(partial_centroids.get_dimension(0) == cluster_count * part_count);
     ONEDAL_ASSERT(responses.get_dimension(0) == data.get_dimension(0));
@@ -362,6 +370,7 @@ sycl::event kernels_fp<Float>::compute_objective_function(
     const pr::ndview<Float, 2>& closest_distances,
     pr::ndview<Float, 1>& objective_function,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_objective_function, queue);
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
     ONEDAL_ASSERT(objective_function.get_dimension(0) == 1);
     const Float* distance_ptr = closest_distances.get_data();
@@ -396,6 +405,7 @@ sycl::event kernels_fp<Float>::compute_squares(sycl::queue& queue,
                                                const pr::ndview<Float, 2>& data,
                                                pr::ndview<Float, 1>& squares,
                                                const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_squares, queue);
     ONEDAL_ASSERT(data.get_dimension(0) == squares.get_dimension(0));
     const Float* data_ptr = data.get_data();
     Float* squares_ptr = squares.get_mutable_data();
@@ -436,6 +446,7 @@ sycl::event kernels_fp<Float>::complete_closest_distances(sycl::queue& queue,
                                                           const pr::ndview<Float, 1>& data_squares,
                                                           pr::ndview<Float, 2>& closest_distances,
                                                           const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(complete_closest_distances, queue);
     ONEDAL_ASSERT(data_squares.get_dimension(0) == closest_distances.get_dimension(0));
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
 
