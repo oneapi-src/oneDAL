@@ -109,11 +109,11 @@ auto compute_rbf(sycl::queue& queue,
     }
 
     return compute_exponents(queue,
-                      sqr_x_nd,
-                      sqr_y_nd,
-                      res_nd,
-                      sigma,
-                      { reduce_x_event, reduce_y_event, gemm_event });
+                             sqr_x_nd,
+                             sqr_y_nd,
+                             res_nd,
+                             sigma,
+                             { reduce_x_event, reduce_y_event, gemm_event });
 }
 
 template <typename Float>

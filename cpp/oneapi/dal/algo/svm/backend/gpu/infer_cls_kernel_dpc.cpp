@@ -41,7 +41,7 @@ auto make_responses(sycl::queue& q,
                     const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(distances.has_data());
     ONEDAL_ASSERT(distances.get_dimension(0) > 0);
-    
+
     const auto size = distances.get_count();
     auto response = pr::ndarray<Float, 1>::empty(q, size, sycl::usm::alloc::device);
 
