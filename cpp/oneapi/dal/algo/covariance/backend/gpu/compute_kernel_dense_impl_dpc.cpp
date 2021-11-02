@@ -105,17 +105,16 @@ auto compute_covariance(sycl::queue& q,
                         const pr::ndarray<Float, 1>& sums,
                         const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
-    //ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
-    //ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
-    //std::cout<<"ROWS!!:="<<data.get_dimension(0)<<std::endl;
+
     const std::int64_t column_count = xtx.get_dimension(1);
 
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    copy(q, cov, xtx, { deps }).wait_and_throw();
 
-    auto cov_event = pr::covariance_with_distributed(q, row_count, sums, cov, { deps });
+    auto copy_event = copy(q, cov, xtx, { deps });
+
+    auto cov_event = pr::covariance_with_distributed(q, row_count, sums, cov, { copy_event });
 
     return std::make_tuple(cov, cov_event);
 }
@@ -127,15 +126,19 @@ auto compute_correlation(sycl::queue& q,
                          const pr::ndarray<Float, 1>& sums,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_correlation, q);
-    //ONEDAL_ASSERT(data.has_data());
-    //ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+    ONEDAL_ASSERT(sums.has_data());
+
     const std::int64_t column_count = xtx.get_dimension(1);
-    auto corr =
-        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    copy(q, corr, xtx, { deps }).wait_and_throw();
+
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
-    auto corr_event = pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { deps });
+    auto corr =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+
+    auto copy_event = copy(q, corr, xtx, { deps });
+
+    auto corr_event =
+        pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { copy_event });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
@@ -817,6 +820,7 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     gemm_event.wait_and_throw();
 
     comm_.allreduce(xtx.flatten(q_, { last_event }), spmd::reduce_op::sum).wait();
+
     comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
     std::tie(ndres, last_event) =
         finalize(std::move(ndres), row_count, column_count, { last_event });
