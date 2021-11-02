@@ -33,7 +33,7 @@ public:
     virtual ~sub_data_task_base() = default;
     virtual sycl::event copy_data_by_indices(sycl::queue& q,
                                              const pr::ndview<std::int32_t, 1>& ws_indices,
-                                             const std::int64_t subset_vectors_count,
+                                             const std::int32_t subset_vectors_count,
                                              const pr::ndview<Float, 2>& x) = 0;
     table get_table() const {
         return data_table_;
@@ -41,8 +41,8 @@ public:
 
 protected:
     sub_data_task_base(sycl::queue& q,
-                       const std::int64_t row_count,
-                       const std::int64_t column_count) {
+                       const std::int32_t row_count,
+                       const std::int32_t column_count) {
         data_nd_ =
             pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, sycl::usm::alloc::device);
     }
@@ -57,8 +57,8 @@ template <typename Float>
 class sub_data_task_dense : public sub_data_task_base<Float> {
 public:
     sub_data_task_dense(sycl::queue& q,
-                        const std::int64_t max_subset_vectors_count,
-                        const std::int64_t features_count)
+                        const std::int32_t max_subset_vectors_count,
+                        const std::int32_t features_count)
             : sub_data_task_base<Float>(q, max_subset_vectors_count, features_count) {
         this->data_table_ = homogen_table::wrap(this->data_nd_.flatten(q),
                                                 max_subset_vectors_count,
@@ -67,7 +67,7 @@ public:
 
     sycl::event copy_data_by_indices(sycl::queue& q,
                                      const pr::ndview<std::int32_t, 1>& ws_indices,
-                                     const std::int64_t subset_vectors_count,
+                                     const std::int32_t subset_vectors_count,
                                      const pr::ndview<Float, 2>& x) override {
         ONEDAL_PROFILER_TASK(cache_compute.copy_data_by_indices, q);
         auto event = copy_by_indices(q,
@@ -110,8 +110,8 @@ public:
     svm_cache(sycl::queue& q,
               const pr::ndarray<Float, 2>& data_nd,
               const double cache_size,
-              const std::int64_t block_size,
-              const std::int64_t line_size)
+              const std::int32_t block_size,
+              const std::int32_t line_size)
             : svm_cache_iface<Float>(),
               q_(q) {
         sub_data_task_ptr_ =
@@ -126,7 +126,7 @@ public:
                                   const pr::ndarray<Float, 2>& x_nd,
                                   const pr::ndview<std::int32_t, 1>& ws_indices) override {
         ONEDAL_PROFILER_TASK(cache_compute, this->q_);
-        const std::int64_t work_elements_count = ws_indices.get_count();
+        const std::int32_t work_elements_count = ws_indices.get_count();
         sub_data_task_ptr_->copy_data_by_indices(this->q_, ws_indices, work_elements_count, x_nd)
             .wait_and_throw();
 

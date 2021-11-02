@@ -23,18 +23,19 @@
 namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
+namespace de = dal::detail;
 
 template <typename Float>
 working_set_selector<Float>::working_set_selector(const sycl::queue& q,
                                                   const pr::ndarray<Float, 1>& labels,
                                                   const Float C,
-                                                  const std::int64_t row_count)
+                                                  const std::int32_t row_count)
         : q_(q),
           row_count_(row_count),
           C_(C),
           labels_(labels) {
     ONEDAL_ASSERT(row_count > 0);
-    ONEDAL_ASSERT(row_count <= dal::detail::limits<std::int32_t>::max());
+    ONEDAL_ASSERT(row_count <= de::limits<std::int32_t>::max());
     ONEDAL_ASSERT(labels.get_count() == row_count);
 
     auto [indicator, indicator_event] =
@@ -53,11 +54,11 @@ working_set_selector<Float>::working_set_selector(const sycl::queue& q,
 }
 
 template <typename Float>
-std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_ws_edge(
+std::tuple<const std::int32_t, sycl::event> working_set_selector<Float>::select_ws_edge(
     const pr::ndview<Float, 1>& alpha,
     pr::ndview<std::int32_t, 1>& ws_indices,
-    const std::int64_t need_select_count,
-    const std::int64_t already_selected,
+    const std::int32_t need_select_count,
+    const std::int32_t already_selected,
     violating_edge edge,
     const dal::backend::event_vector& deps) {
     ONEDAL_ASSERT(ws_indices.get_dimension(0) >= need_select_count);
@@ -80,13 +81,14 @@ std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_
                                           select_flagged_count,
                                           { select_ws_edge_event });
 
-    const std::int64_t select_count = std::min(select_flagged_count, need_select_count);
+    const std::int32_t select_count =
+        std::min(de::integral_cast<std::int32_t>(select_flagged_count), need_select_count);
 
     std::int32_t* ws_indices_ptr = ws_indices.get_mutable_data();
     const std::int32_t* buff_indices_ptr = buff_indices_.get_data();
 
     if (select_count > 0) {
-        std::int64_t offset = 0;
+        std::int32_t offset = 0;
         if (edge == violating_edge::low) {
             offset = select_flagged_count - select_count;
         }
@@ -104,7 +106,7 @@ template <typename Float>
 sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alpha,
                                                 const pr::ndview<Float, 1>& f,
                                                 pr::ndview<std::int32_t, 1>& ws_indices,
-                                                std::int64_t selected_count,
+                                                std::int32_t selected_count,
                                                 const dal::backend::event_vector& deps) {
     ONEDAL_PROFILER_TASK(select_ws, q_);
     ONEDAL_ASSERT(labels_.get_dimension(0) == alpha.get_dimension(0));
@@ -113,12 +115,12 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
     ONEDAL_ASSERT(ws_indices.get_dimension(0) == ws_count_);
     ONEDAL_ASSERT(ws_indices.has_mutable_data());
 
-    std::int64_t left_to_select = ws_count_ - selected_count;
-    std::int64_t already_selected = selected_count;
+    std::int32_t left_to_select = ws_count_ - selected_count;
+    std::int32_t already_selected = selected_count;
 
     auto event = sort_f_indices(q_, f, deps);
 
-    const std::int64_t need_select_up = left_to_select / 2;
+    const std::int32_t need_select_up = left_to_select / 2;
     std::tie(selected_count, event) = select_ws_edge(alpha,
                                                      ws_indices,
                                                      need_select_up,
@@ -128,7 +130,7 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
     left_to_select -= selected_count;
     already_selected += selected_count;
 
-    const std::int64_t need_select_count_low = left_to_select;
+    const std::int32_t need_select_count_low = left_to_select;
     std::tie(selected_count, event) = select_ws_edge(alpha,
                                                      ws_indices,
                                                      need_select_count_low,
@@ -156,7 +158,7 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
 template <typename Float>
 sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::int32_t, 1>& idx,
                                                          pr::ndview<std::uint8_t, 1>& indicator,
-                                                         const std::int64_t need_to_reset,
+                                                         const std::int32_t need_to_reset,
                                                          const dal::backend::event_vector& deps) {
     ONEDAL_PROFILER_TASK(select_ws.select_ws_edge.reset_indicator, q_);
     ONEDAL_ASSERT(idx.get_dimension(0) == ws_count_);
@@ -167,7 +169,8 @@ sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::i
     const std::int32_t* idx_ptr = idx.get_data();
     std::uint8_t* indicator_ptr = indicator.get_mutable_data();
 
-    const auto wg_size = std::min(dal::backend::propose_wg_size(q_), need_to_reset);
+    const auto wg_size =
+        std::min(de::integral_cast<std::int32_t>(dal::backend::propose_wg_size(q_)), need_to_reset);
     const auto range = dal::backend::make_multiple_nd_range_1d(need_to_reset, wg_size);
 
     auto reset_indicator_event = q_.submit([&](sycl::handler& cgh) {

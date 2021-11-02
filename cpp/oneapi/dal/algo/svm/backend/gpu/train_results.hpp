@@ -181,10 +181,11 @@ auto compute_sv_coeffs(sycl::queue& q,
 
     auto check_non_zero_binary_event = check_non_zero_binary(q, coeffs, indicator, deps);
 
-    std::int64_t sv_count = 0;
+    std::int64_t select_count = 0;
     auto select_flagged = pr::select_flagged<Float, std::uint8_t>{ q };
-    select_flagged(indicator, coeffs, tmp_values, sv_count, { check_non_zero_binary_event })
+    select_flagged(indicator, coeffs, tmp_values, select_count, { check_non_zero_binary_event })
         .wait_and_throw();
+    std::int32_t sv_count = dal::detail::integral_cast<std::int32_t>(select_count);
 
     if (sv_count == 0) {
         return std::make_tuple(pr::ndarray<Float, 1>(), sv_count, sycl::event());
@@ -202,7 +203,7 @@ auto compute_sv_coeffs(sycl::queue& q,
 template <typename Float>
 auto compute_support_indices(sycl::queue& q,
                              pr::ndview<std::uint8_t, 1>& indicator,
-                             const std::int64_t sv_count,
+                             const std::int32_t sv_count,
                              const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(indicator.has_mutable_data());
 
@@ -239,7 +240,7 @@ template <typename Float>
 auto compute_support_vectors(sycl::queue& q,
                              const pr::ndview<Float, 2>& x,
                              const pr::ndview<std::int32_t, 1>& support_indices,
-                             const std::int64_t sv_count,
+                             const std::int32_t sv_count,
                              const dal::backend::event_vector& deps = {}) {
     if (sv_count == 0) {
         return std::make_tuple(pr::ndarray<Float, 2>(), sycl::event());

@@ -37,11 +37,12 @@ using result_t = train_result<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace pr = dal::backend::primitives;
+namespace de = dal::detail;
 
 template <typename Float>
 inline auto update_grad(sycl::queue& q,
-                        const pr::ndview<Float, 2>& kernel_values_nd, // n * m
-                        const pr::ndview<Float, 1>& delta_alpha_nd, // n * k
+                        const pr::ndview<Float, 2>& kernel_values_nd,
+                        const pr::ndview<Float, 1>& delta_alpha_nd,
                         pr::ndview<Float, 1>& grad_nd) {
     ONEDAL_ASSERT(kernel_values_nd.get_dimension(0) == delta_alpha_nd.get_dimension(0));
     ONEDAL_ASSERT(kernel_values_nd.get_dimension(1) == grad_nd.get_dimension(0));
@@ -58,8 +59,8 @@ template <typename Float>
 inline bool check_stop_condition(const Float diff,
                                  const Float prev_diff,
                                  const Float eps,
-                                 std::int64_t& same_local_diff_count) {
-    constexpr std::int64_t max_unchanged_repetitions = 5;
+                                 std::int32_t& same_local_diff_count) {
+    constexpr std::int32_t max_unchanged_repetitions = 5;
     same_local_diff_count = std::abs(diff - prev_diff) < eps * 1e-2 ? same_local_diff_count + 1 : 0;
 
     if (same_local_diff_count > max_unchanged_repetitions || diff < eps) {
@@ -74,26 +75,26 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
     const std::uint64_t class_count = desc.get_class_count();
     if (class_count > 2) {
-        throw unimplemented(dal::detail::error_messages::svm_multiclass_not_implemented_for_gpu());
+        throw unimplemented(de::error_messages::svm_multiclass_not_implemented_for_gpu());
     }
 
     const auto data = input.get_data();
     const auto responses = input.get_responses();
 
-    if (data.get_row_count() > dal::detail::limits<std::int32_t>::max()) {
-        throw domain_error(dal::detail::error_messages::invalid_range_of_rows());
+    if (data.get_row_count() > de::limits<std::int32_t>::max()) {
+        throw domain_error(de::error_messages::invalid_range_of_rows());
     }
-    if (data.get_column_count() > dal::detail::limits<std::int32_t>::max()) {
-        throw domain_error(dal::detail::error_messages::invalid_range_of_columns());
+    if (data.get_column_count() > de::limits<std::int32_t>::max()) {
+        throw domain_error(de::error_messages::invalid_range_of_columns());
     }
-    if (responses.get_row_count() > dal::detail::limits<std::int32_t>::max()) {
-        throw domain_error(dal::detail::error_messages::invalid_range_of_rows());
+    if (responses.get_row_count() > de::limits<std::int32_t>::max()) {
+        throw domain_error(de::error_messages::invalid_range_of_rows());
     }
-    if (responses.get_column_count() > dal::detail::limits<std::int32_t>::max()) {
-        throw domain_error(dal::detail::error_messages::invalid_range_of_columns());
+    if (responses.get_column_count() > de::limits<std::int32_t>::max()) {
+        throw domain_error(de::error_messages::invalid_range_of_columns());
     }
 
-    const std::int64_t row_count = data.get_row_count();
+    const std::int32_t row_count = de::integral_cast<std::int32_t>(data.get_row_count());
 
     const binary_response_t<Float> old_unique_responses = get_unique_responses<Float>(q, responses);
     const auto new_responses =
@@ -111,9 +112,10 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     const double cache_size(desc.get_cache_size());
     const auto kernel_ptr = detail::get_kernel_ptr(desc);
     if (!kernel_ptr) {
-        throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
+        throw internal_error{ de::error_messages::unknown_kernel_function_type() };
     }
-    const std::int64_t max_iteration_count(desc.get_max_iteration_count());
+    const std::int32_t max_iteration_count(
+        de::integral_cast<std::int32_t>(desc.get_max_iteration_count()));
 
     auto [alpha_nd, alpha_zeros_event] =
         pr::ndarray<Float, 1>::zeros(q, row_count, sycl::usm::alloc::device);
@@ -121,15 +123,15 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     auto grad_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
     auto invert_responses_event = invert_values<Float>(q, responses_nd, grad_nd);
 
-    const std::int64_t ws_count = propose_working_set_size(q, row_count);
+    const std::int32_t ws_count = propose_working_set_size(q, row_count);
     auto ws_indices_nd =
         pr::ndarray<std::int32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
     auto working_set = working_set_selector<Float>(q, responses_nd, C, row_count);
 
     // The maximum numbers of iteration of the subtask is number of observation in WS x inner_iterations.
     // It's enough to find minimum for subtask.
-    constexpr std::int64_t inner_iterations = 1000;
-    const std::int64_t max_inner_iterations_count(ws_count * inner_iterations);
+    constexpr std::int32_t inner_iterations = 1000;
+    const std::int32_t max_inner_iterations_count(ws_count * inner_iterations);
 
     auto delta_alpha_nd = pr::ndarray<Float, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
     auto f_diff_nd = pr::ndarray<Float, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
@@ -139,16 +141,16 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     Float diff = Float(0);
     Float prev_diff = Float(0);
 
-    std::int64_t same_local_diff_count = 0;
+    std::int32_t same_local_diff_count = 0;
 
     std::shared_ptr<svm_cache_iface<Float>> svm_cache_ptr =
         std::make_shared<svm_cache<no_cache, Float>>(q, data_nd, cache_size, ws_count, row_count);
 
     sycl::event copy_ws_indices_event;
     sycl::event copy_cache_event;
-    std::int64_t ws_indices_copy_count = 0;
+    std::int32_t ws_indices_copy_count = 0;
 
-    std::int64_t iter = 0;
+    std::int32_t iter = 0;
     for (; iter < max_iteration_count; iter++) {
         if (iter != 0) {
             std::tie(ws_indices_copy_count, copy_ws_indices_event) =
@@ -213,7 +215,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
             .set_first_class_response(old_unique_responses.first)
             .set_second_class_response(old_unique_responses.second);
 
-    dal::detail::get_impl(model).bias = bias;
+    de::get_impl(model).bias = bias;
 
     return result_t().set_model(model).set_support_indices(
         homogen_table::wrap(support_indices.flatten(q), support_indices.get_dimension(0), 1));
@@ -234,8 +236,7 @@ struct train_kernel_gpu<Float, method::thunder, task::nu_classification> {
         const dal::backend::context_gpu& ctx,
         const detail::descriptor_base<task::nu_classification>& params,
         const train_input<task::nu_classification>& input) const {
-        throw unimplemented(
-            dal::detail::error_messages::nu_svm_thunder_method_is_not_implemented_for_gpu());
+        throw unimplemented(de::error_messages::nu_svm_thunder_method_is_not_implemented_for_gpu());
     }
 };
 

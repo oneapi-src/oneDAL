@@ -54,9 +54,11 @@ sycl::event check_violating_edge(sycl::queue& q,
     const Float* alpha_ptr = alpha.get_data();
     std::uint8_t* indicator_ptr = indicator.get_mutable_data();
 
-    const std::int64_t row_count = y.get_dimension(0);
+    const std::int32_t row_count = y.get_dimension(0);
 
-    const auto wg_size = std::min(dal::backend::propose_wg_size(q), row_count);
+    const auto wg_size =
+        std::min(dal::detail::integral_cast<std::int32_t>(dal::backend::propose_wg_size(q)),
+                 row_count);
     const auto range = dal::backend::make_multiple_nd_range_1d(row_count, wg_size);
 
     sycl::event check_event;
@@ -91,8 +93,8 @@ auto copy_by_indices(sycl::queue& q,
                      const pr::ndview<Float, 2>& x,
                      const pr::ndview<Integer, 1>& x_indices,
                      pr::ndview<Float, 2>& res,
-                     const std::int64_t row_count,
-                     const std::int64_t column_count,
+                     const std::int32_t row_count,
+                     const std::int32_t column_count,
                      const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(copy_by_indices, q);
     ONEDAL_ASSERT(x_indices.get_count() == row_count);
@@ -146,14 +148,14 @@ inline sycl::event invert_values(sycl::queue& q,
 }
 
 template <typename Type>
-std::tuple<const std::int64_t, sycl::event> copy_last_to_first(
+std::tuple<const std::int32_t, sycl::event> copy_last_to_first(
     sycl::queue& q,
     pr::ndview<Type, 1>& data,
     const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(copy_last_to_first, q);
     ONEDAL_ASSERT(data.has_mutable_data());
-    std::int64_t data_size = data.get_count();
-    const std::int64_t copy_count = data_size / 2;
+    std::int32_t data_size = data.get_count();
+    const std::int32_t copy_count = data_size / 2;
     Type* data_ptr = data.get_mutable_data();
     auto copy_event =
         dal::backend::copy(q, data_ptr, data_ptr + copy_count, data_size - copy_count, deps);

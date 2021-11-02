@@ -25,8 +25,8 @@ namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
 
-inline std::int64_t propose_working_set_size(const sycl::queue& q, const std::int64_t row_count) {
-    const std::int64_t max_wg_size = dal::backend::device_max_wg_size(q);
+inline std::int32_t propose_working_set_size(const sycl::queue& q, const std::int32_t row_count) {
+    const std::int32_t max_wg_size = dal::backend::device_max_wg_size(q);
     return std::min(dal::backend::down_pow2<std::int32_t>(row_count),
                     dal::backend::down_pow2<std::int32_t>(max_wg_size));
 }
@@ -37,25 +37,25 @@ public:
     working_set_selector(const sycl::queue& q,
                          const pr::ndarray<Float, 1>& labels,
                          const Float C,
-                         const std::int64_t row_count);
+                         const std::int32_t row_count);
 
     sycl::event select(const pr::ndview<Float, 1>& alpha,
                        const pr::ndview<Float, 1>& f,
                        pr::ndview<std::int32_t, 1>& ws_indices,
-                       std::int64_t selected_count,
+                       std::int32_t selected_count,
                        const dal::backend::event_vector& deps = {});
 
 private:
     sycl::event reset_indicator(const pr::ndview<std::int32_t, 1>& idx,
                                 pr::ndview<std::uint8_t, 1>& indicator,
-                                const std::int64_t need_to_reset,
+                                const std::int32_t need_to_reset,
                                 const dal::backend::event_vector& deps = {});
 
-    std::tuple<const std::int64_t, sycl::event> select_ws_edge(
+    std::tuple<const std::int32_t, sycl::event> select_ws_edge(
         const pr::ndview<Float, 1>& alpha,
         pr::ndview<std::int32_t, 1>& ws_indices,
-        const std::int64_t need_select_count,
-        const std::int64_t already_selected,
+        const std::int32_t need_select_count,
+        const std::int32_t already_selected,
         violating_edge edge,
         const dal::backend::event_vector& deps = {});
 
@@ -65,8 +65,8 @@ private:
 
     sycl::queue q_;
 
-    std::int64_t row_count_;
-    std::int64_t ws_count_;
+    std::int32_t row_count_;
+    std::int32_t ws_count_;
     Float C_;
 
     pr::ndarray<std::int32_t, 1> sorted_f_indices_;
