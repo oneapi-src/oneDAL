@@ -108,10 +108,13 @@ auto compute_covariance(sycl::queue& q,
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
     const std::int64_t column_count = data.get_dimension(1);
+
+    std::cout << std::endl;
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    auto gemm_event = gemm(q, data.t(), data, cov, Float(1), Float(0), deps);
-    auto cov_event = pr::covariance_with_distributed(q, data, sums, cov, { gemm_event });
+    copy(q, cov, data, { deps }).wait_and_throw();
+
+    auto cov_event = pr::covariance_with_distributed(q, data, sums, cov, { deps });
 
     return std::make_tuple(cov, cov_event);
 }
@@ -127,9 +130,10 @@ auto compute_correlation(sycl::queue& q,
     const std::int64_t column_count = data.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+    copy(q, corr, data, { deps }).wait_and_throw();
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-    auto corr_event = pr::correlation_with_distributed(q, data, sums, corr, tmp, { gemm_event });
+
+    auto corr_event = pr::correlation_with_distributed(q, data, sums, corr, tmp, { deps });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
@@ -497,7 +501,10 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
     ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
               com_sum2cent.get_count() == comm_.get_rank_count() * column_count);
 
-    DECLSET_IF(Float*, rsum_ptr, cov_list::mean, ndres.get_sum().get_mutable_data())
+    DECLSET_IF(Float*,
+               rsum_ptr,
+               cov_list::mean | cov_list::cov | cov_list::cor,
+               ndres.get_sum().get_mutable_data())
     DECLSET_IF(Float*, rsum2cent_ptr, cov_list::mean, ndres.get_sum2cent().get_mutable_data())
     DECLSET_IF(Float*, rmean_ptr, cov_list::mean, ndres.get_mean().get_mutable_data())
     DECLSET_IF(Float*, rvarc_ptr, cov_list::mean, ndres.get_varc().get_mutable_data())
@@ -796,32 +803,35 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
-
     const auto row_block_count = get_row_block_count(row_count);
 
     auto [ndres, last_event] = (row_block_count > 1) ? compute_by_blocks(data_nd, row_block_count)
                                                      : compute_single_pass(data_nd);
+    last_event.wait_and_throw();
+    auto xtx =
+        pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, sycl::usm::alloc::device);
+
+    auto gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1), Float(0));
+    gemm_event.wait_and_throw();
+
+    comm_.allreduce(xtx.flatten(q_, { last_event }), spmd::reduce_op::sum).wait();
 
     std::tie(ndres, last_event) =
         finalize(std::move(ndres), row_count, column_count, { last_event });
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, cov_event] =
-            compute_covariance(q_, data_nd, std::move(ndres).get_sum(), { last_event });
+        auto [cov, cov_event] = compute_covariance(q_, xtx, ndres.get_sum(), { last_event });
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
-        auto [corr, corr_event] =
-            compute_correlation(q_, data_nd, std::move(ndres).get_sum(), { last_event });
+        auto [corr, corr_event] = compute_correlation(q_, xtx, ndres.get_sum(), { last_event });
 
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(
-            homogen_table::wrap(std::move(ndres).get_mean().flatten(q_, { last_event }),
-                                1,
-                                column_count));
+            homogen_table::wrap(ndres.get_mean().flatten(q_, { last_event }), 1, column_count));
     }
 
     return result;

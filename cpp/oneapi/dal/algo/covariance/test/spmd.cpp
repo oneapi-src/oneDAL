@@ -92,9 +92,9 @@ TEMPLATE_LIST_TEST_M(covariance_spmd_test,
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 10, 10 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 20, 20 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 200, 200 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 500, 500 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 1000, 1000 }.fill_normal(-30, 30, 7777));
+                           te::dataframe_builder{ 100, 100 }.fill_normal(-30, 30, 7777),
+                           te::dataframe_builder{ 200, 200 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 250, 250 }.fill_normal(-30, 30, 7777));
     this->set_rank_count(GENERATE(2, 4));
 
     cov::result_option_id mode_mean = result_options::means;
