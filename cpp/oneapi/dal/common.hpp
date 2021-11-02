@@ -33,7 +33,6 @@
 #define ONEDAL_ASSERT(...)
 #else
 #include <cassert>
-#include <iostream>
 #define __ONEDAL_ASSERT_NO_MESSAGE__(condition) assert(condition)
 
 #define __ONEDAL_ASSERT_MESSAGE__(condition, message) \
