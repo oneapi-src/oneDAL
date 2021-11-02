@@ -24,7 +24,6 @@
 // TODO: In the future this can be solved via __has_include C++17 feature
 
 #include <oneapi/dal/array.hpp>
-//#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 #include <mpi.h>
 #include <ccl.hpp>
@@ -49,7 +48,7 @@ inline ccl::datatype make_ccl_data_type(const data_type& dtype) {
         case data_type::float32: return ccl::datatype::float32;
         case data_type::float64: return ccl::datatype::float64;
         case data_type::bfloat16: return ccl::datatype::uint16;
-        default: throw communication_error(dal::detail::error_messages::unknown_data_type());
+        default: throw communication_error(dal::detail::error_messages::invalid_data_type());
     }
 }
 
@@ -58,7 +57,7 @@ inline ccl::reduction make_ccl_reduce_op(const spmd::reduce_op& op) {
         case spmd::reduce_op::sum: return ccl::reduction::sum;
         case spmd::reduce_op::min: return ccl::reduction::min;
         case spmd::reduce_op::max: return ccl::reduction::max;
-        default: throw communication_error(dal::detail::error_messages::unknown_reduce_op());
+        default: throw communication_error(dal::detail::error_messages::invalid_op());
     }
 }
 
@@ -172,9 +171,6 @@ public:
                                     const std::vector<sycl::event>& deps = {}) override {
         preview::detail::check_if_pointer_matches_queue(queue_, send_buf);
         preview::detail::check_if_pointer_matches_queue(queue_, recv_buf);
-        if (send_count == 0) {
-            return nullptr;
-        }
 
         ONEDAL_ASSERT(send_buf != nullptr);
         ONEDAL_ASSERT(recv_buf);
@@ -314,10 +310,6 @@ public:
                                     const std::int64_t* recv_counts,
                                     const std::int64_t* displs,
                                     const data_type& dtype) override {
-        if (send_count == 0) {
-            return nullptr;
-        }
-
         std::vector<size_t> internal_recv_counts(rank_count_);
         for (std::int64_t i = 0; i < rank_count_; i++) {
             internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);

@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <mutex>
-
 namespace oneapi::dal::detail {
 
 namespace v1 {

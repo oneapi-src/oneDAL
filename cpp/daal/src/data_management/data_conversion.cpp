@@ -49,9 +49,6 @@ static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * d
     #ifdef DAAL_KERNEL_AVX512
         case avx512: DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorCopy<T, avx512>); break;
     #endif
-    #ifdef DAAL_KERNEL_AVX512_MIC
-        case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorCopy<T, avx512_mic>); break;
-    #endif
         default: return false;
         }
     }

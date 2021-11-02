@@ -38,6 +38,7 @@ dal_algo_example_suite(
         "kmeans_init",
         "knn",
         "linear_kernel",
+        "linear_regression",
         "pca",
         "rbf_kernel",
         "svm",

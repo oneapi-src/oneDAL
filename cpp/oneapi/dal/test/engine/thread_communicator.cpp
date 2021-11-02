@@ -118,15 +118,8 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
                                                 const std::int64_t* recv_counts,
                                                 const std::int64_t* displs,
                                                 const data_type& dtype) {
-    if (send_count == 0) {
-        return;
-    }
-
     ONEDAL_ASSERT(send_buf);
-    ONEDAL_ASSERT(send_count > 0);
     ONEDAL_ASSERT(recv_buf);
-    ONEDAL_ASSERT(recv_count > 0);
-    ONEDAL_ASSERT(send_count == recv_count);
 
     const std::int64_t rank = ctx_.get_this_thread_rank();
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
@@ -138,7 +131,6 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
 #ifdef ONEDAL_ENABLE_ASSERT
     if (rank == ctx_.get_root_rank()) {
         for (const auto& info : send_buffers_) {
-            ONEDAL_ASSERT(info.count == send_count);
             ONEDAL_ASSERT(info.buf != nullptr);
         }
     }
@@ -255,7 +247,7 @@ void thread_communicator_allreduce::operator()(const byte_t* send_buf,
     }
 #endif
 
-    fill_with_zeros(recv_buf, count, dtype);
+    fill_by_op_id(recv_buf, count, dtype, op);
     for (const auto& info : send_buffers_) {
         ONEDAL_ASSERT(info.send_buf != recv_buf);
         reduce(info.send_buf, recv_buf, count, dtype, op);
@@ -340,13 +332,34 @@ void thread_communicator_allreduce::reduce(const byte_t* src,
     });
 }
 
-void thread_communicator_allreduce::fill_with_zeros(byte_t* dst,
-                                                    std::int64_t count,
-                                                    const data_type& dtype) {
-    switch_by_dtype(dtype, [&](auto _) {
-        using value_t = decltype(_);
-        fill_with_zeros_impl<value_t>(dst, count);
-    });
+void thread_communicator_allreduce::fill_by_op_id(byte_t* dst,
+                                                  std::int64_t count,
+                                                  const data_type& dtype,
+                                                  const spmd::reduce_op& op_id) {
+    switch (op_id) {
+        case spmd::reduce_op::sum:
+            switch_by_dtype(dtype, [&](auto _) {
+                using value_t = decltype(_);
+                fill_with_zeros_impl<value_t>(dst, count);
+            });
+            break;
+        case spmd::reduce_op::min:
+            switch_by_dtype(dtype, [&](auto _) {
+                using value_t = decltype(_);
+                fill_with_max_impl<value_t>(dst, count);
+            });
+            break;
+        case spmd::reduce_op::max:
+            switch_by_dtype(dtype, [&](auto _) {
+                using value_t = decltype(_);
+                fill_with_min_impl<value_t>(dst, count);
+            });
+            break;
+        default:
+            throw std::runtime_error{
+                "Thread communicator does not support reduction for given operation"
+            };
+    }
 }
 
 template <typename T>
@@ -374,6 +387,28 @@ void thread_communicator_allreduce::fill_with_zeros_impl(byte_t* dst_bytes, std:
     T* dst = reinterpret_cast<T*>(dst_bytes);
     for (std::int64_t i = 0; i < count; i++) {
         dst[i] = T(0);
+    }
+}
+
+template <typename T>
+void thread_communicator_allreduce::fill_with_min_impl(byte_t* dst_bytes, std::int64_t count) {
+    ONEDAL_ASSERT(dst_bytes);
+    ONEDAL_ASSERT(count >= 0);
+
+    T* dst = reinterpret_cast<T*>(dst_bytes);
+    for (std::int64_t i = 0; i < count; i++) {
+        dst[i] = dal::detail::limits<T>::min();
+    }
+}
+
+template <typename T>
+void thread_communicator_allreduce::fill_with_max_impl(byte_t* dst_bytes, std::int64_t count) {
+    ONEDAL_ASSERT(dst_bytes);
+    ONEDAL_ASSERT(count >= 0);
+
+    T* dst = reinterpret_cast<T*>(dst_bytes);
+    for (std::int64_t i = 0; i < count; i++) {
+        dst[i] = dal::detail::limits<T>::max();
     }
 }
 

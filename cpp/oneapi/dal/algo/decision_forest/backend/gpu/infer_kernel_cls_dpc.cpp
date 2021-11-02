@@ -30,9 +30,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
                                  const model_t& trained_model,
                                  const table& data) {
-    auto& queue = ctx.get_queue();
-
-    infer_kernel_impl<Float, std::int32_t, task::classification> infer_impl(queue);
+    infer_kernel_impl<Float, std::int32_t, task::classification> infer_impl(ctx);
     return infer_impl(desc, trained_model, data);
 }
 

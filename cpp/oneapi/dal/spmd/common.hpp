@@ -17,26 +17,10 @@
 #pragma once
 
 #include "oneapi/dal/common.hpp"
-#include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/spmd/exceptions.hpp"
 
 namespace oneapi::dal::preview::spmd {
-
-namespace v1 {
-
-class communication_error : public std::runtime_error {
-public:
-    using std::runtime_error::runtime_error;
-    const char* what() const noexcept override {
-        return std::runtime_error::what();
-    }
-};
-
-enum class reduce_op { max, min, sum };
-
-} // namespace v1
-
-using v1::communication_error;
-using v1::reduce_op;
 
 namespace device_memory_access {
 namespace v1 {
@@ -50,11 +34,22 @@ using v1::none;
 
 } // namespace device_memory_access
 
+namespace v1 {
+
+enum class reduce_op { max, min, sum };
+
 template <typename T>
 using enable_if_device_memory_accessible_t =
     std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm>>;
+
 template <typename T>
 using enable_if_device_memory_not_accessible_t =
     std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::none>>;
+
+} // namespace v1
+
+using v1::reduce_op;
+using v1::enable_if_device_memory_accessible_t;
+using v1::enable_if_device_memory_not_accessible_t;
 
 } // namespace oneapi::dal::preview::spmd

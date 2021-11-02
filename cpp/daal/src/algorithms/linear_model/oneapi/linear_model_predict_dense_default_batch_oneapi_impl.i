@@ -86,19 +86,18 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 }
 
 template <typename algorithmFPType>
-services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r)
+services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute_impl(const NumericTable * a, const NumericTable * b, NumericTable * r,
+                                                                                  bool interceptFlag)
 {
     services::Status status;
-    linear_model::Model * const model = const_cast<linear_model::Model *>(m);
 
     NumericTable * xTable    = const_cast<NumericTable *>(a);
     NumericTable * yTable    = const_cast<NumericTable *>(r);
-    NumericTable * betaTable = model->getBeta().get();
+    NumericTable * betaTable = const_cast<NumericTable *>(b);
 
-    const size_t nRows       = xTable->getNumberOfRows();
-    const size_t nBetas      = betaTable->getNumberOfColumns();
-    const size_t nResponses  = betaTable->getNumberOfRows();
-    const bool interceptFlag = model->getInterceptFlag();
+    const size_t nRows      = xTable->getNumberOfRows();
+    const size_t nBetas     = betaTable->getNumberOfColumns();
+    const size_t nResponses = betaTable->getNumberOfRows();
 
     const size_t nRowsPerBlock = 90000;
 
@@ -157,6 +156,13 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
     DAAL_CHECK_STATUS(status, betaTable->releaseBlockOfRows(betaBlock));
 
     return status;
+}
+
+template <typename algorithmFPType>
+services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r)
+{
+    linear_model::Model * model = const_cast<linear_model::Model *>(m);
+    return compute_impl(a, model->getBeta().get(), r, model->getInterceptFlag());
 }
 
 } // namespace internal

@@ -17,6 +17,7 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -364,6 +365,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
     pr::ndarray<Index, 1>& tree_order_level,
     Index engine_offset,
     Index node_count) {
+    ONEDAL_PROFILER_TASK(gen_initial_tree_order, queue_);
+
     ONEDAL_ASSERT(node_list_host.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(tree_order_level.get_count() ==
                   ctx.tree_in_block_ * ctx.selected_row_total_count_);
@@ -455,6 +458,8 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
     Index node_count,
     const pr::ndarray<Index, 1>& node_vs_tree_map_list,
     rng_engine_list_t& rng_engine_list) {
+    ONEDAL_PROFILER_TASK(gen_feature_list, queue_);
+
     ONEDAL_ASSERT(node_vs_tree_map_list.get_count() == node_count);
 
     de::check_mul_overflow((node_count + 1), ctx.selected_ftr_count_);
@@ -1061,6 +1066,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
     imp_data_t& imp_data_list,
     Index node_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_initial_histogram, queue_);
+
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
@@ -1372,6 +1379,8 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram(
     Index part_hist_count,
     Index node_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_histogram, queue_);
+
     ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
@@ -1493,6 +1502,8 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
         last_event.wait_and_throw();
     }
     else {
+        ONEDAL_PROFILER_TASK(compute_histogram, queue_);
+
         const Index part_hist_size = get_part_hist_elem_count(ctx.selected_ftr_count_,
                                                               ctx.max_bin_count_among_ftrs_,
                                                               impl_const_t::hist_prop_count_);
@@ -2284,6 +2295,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
     Index node_count,
     Index node_count_new,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(do_node_split, queue_);
+
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(node_vs_tree_map_list.get_count() == node_count);
     ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() ==
@@ -2522,6 +2535,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
     Index tree_in_block_count,
     Index built_tree_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_results, queue_);
+
     ONEDAL_ASSERT(oob_row_count_list.get_count() == tree_in_block_count + 1);
     ONEDAL_ASSERT(
         (ctx.mdi_required_ || ctx.mda_required_) ? var_imp.get_count() == ctx.column_count_ : true);
@@ -2752,7 +2767,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     de::check_mul_overflow<size_t>((ctx.tree_count_ - 1), skip_num);
 
-    pr::engine_collection collection(ctx.tree_count_);
+    pr::engine_collection collection(ctx.tree_count_, desc.get_seed());
     rng_engine_list_t engine_arr = collection([&](size_t i, size_t& skip) {
         skip = i * skip_num;
     });

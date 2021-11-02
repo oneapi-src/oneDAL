@@ -17,9 +17,39 @@
 #pragma once
 
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/spmd/common.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
+
+struct ops_error_handling_dispatcher {
+    template <typename Policy, typename Ops>
+    auto operator()(Policy&& policy, Ops&& op) {
+        using result_t = decltype(op());
+        if constexpr (is_distributed_policy_v<std::decay_t<Policy>>) {
+            try {
+                try {
+                    return op();
+                }
+                catch (const dal::preview::spmd::error_holder& e) {
+                    throw e;
+                }
+                catch (...) {
+                    policy.get_communicator().set_active_exception(std::current_exception());
+                }
+                policy.get_communicator().wait_for_exception_handling();
+            }
+            catch (const dal::preview::spmd::error_holder& e) {
+                e.rethrow_actual();
+            }
+        }
+        else {
+            return op();
+        }
+
+        return result_t{};
+    }
+};
 
 template <typename T, typename Ops, bool IsInput = std::is_same_v<T, typename Ops::input_t>>
 struct ops_input_dispatcher;
@@ -37,9 +67,12 @@ struct ops_input_dispatcher<T, Ops, /* IsInput = */ false> {
     template <typename Policy, typename Descriptor, typename... Args>
     auto operator()(Policy&& policy, Descriptor&& desc, Args&&... args) {
         using input_t = typename Ops::input_t;
-        return Ops{}(std::forward<Policy>(policy),
-                     std::forward<Descriptor>(desc),
-                     input_t{ std::forward<Args>(args)... });
+
+        return ops_error_handling_dispatcher{}(std::forward<Policy>(policy), [&]() {
+            return Ops{}(std::forward<Policy>(policy),
+                         std::forward<Descriptor>(desc),
+                         input_t{ std::forward<Args>(args)... });
+        });
     }
 };
 
@@ -85,7 +118,9 @@ struct ops_policy_dispatcher_object<Object, T, Ops, /* IsPolicy = */ true> {
     auto operator()(Policy&& policy, Descriptor&& desc) {
         using ops_t = Ops<std::decay_t<Object>, std::decay_t<Descriptor>>;
         using input_t = typename ops_t::input_t;
-        return ops_t{}(std::forward<Policy>(policy), std::forward<Descriptor>(desc), input_t{});
+        return ops_error_handling_dispatcher{}(std::forward<Policy>(policy), [&]() {
+            return ops_t{}(std::forward<Policy>(policy), std::forward<Descriptor>(desc), input_t{});
+        });
     }
 
     template <typename Policy, typename Descriptor, typename Head, typename... Tail>
