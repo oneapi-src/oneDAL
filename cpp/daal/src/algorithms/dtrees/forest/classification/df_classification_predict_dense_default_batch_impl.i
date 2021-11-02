@@ -1167,7 +1167,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
                     services::internal::service_memset_seq<algorithmFPType, cpu>(prob, algorithmFPType(0), nRowsToProcess * _nClasses);
                 }
 
-                if (nRowsToProcess < 2 * nThreads || cpu == __avx512_mic__)
+                if (nRowsToProcess < 2 * nThreads)
                 {
                     for (size_t iRow = 0; iRow < nRowsToProcess; ++iRow)
                     {
@@ -1197,7 +1197,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
             else
             {
                 algorithmFPType * counts = aClsCount + iStartRow * _nClasses;
-                if (nRowsToProcess < 2 * nThreads || cpu == __avx512_mic__)
+                if (nRowsToProcess < 2 * nThreads)
                 {
                     for (size_t iRow = 0; iRow < nRowsToProcess; ++iRow)
                     {

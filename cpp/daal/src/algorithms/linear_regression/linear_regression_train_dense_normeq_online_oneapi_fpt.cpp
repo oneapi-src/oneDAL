@@ -35,7 +35,7 @@ namespace training
 {
 namespace internal
 {
-template class OnlineKernelOneAPI<DAAL_FPTYPE, normEqDense>;
+template class DAAL_EXPORT OnlineKernelOneAPI<DAAL_FPTYPE, normEqDense>;
 
 } // namespace internal
 } // namespace training

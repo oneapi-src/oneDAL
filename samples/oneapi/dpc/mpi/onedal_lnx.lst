@@ -18,7 +18,8 @@
 ##     Intel(R) oneAPI Data Analytics Library samples list
 ##******************************************************************************
 
-MPI  =  basic_statistics_distr_mpi \
-        decision_forest_cls_hist_distr_mpi \
-        decision_forest_reg_hist_distr_mpi \
+MPI  =  basic_statistics_distr_mpi              \
+        dbscan_distr_mpi                        \
+        decision_forest_cls_hist_distr_mpi      \
+        decision_forest_reg_hist_distr_mpi      \
         kmeans_distr_mpi

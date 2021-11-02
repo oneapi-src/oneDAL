@@ -46,13 +46,9 @@ public final class CpuTypeEnable{
     }
 
     private static final int _cpu_default = 0;
-    private static final int _avx512_mic = 1;
-    private static final int _avx512 = 2;
-    private static final int _avx512_mic_e1 = 4;
+    private static final int _avx512 = 1;
 
     public static final CpuTypeEnable cpu_default = new CpuTypeEnable(_cpu_default);       /*!< Default processor type */
-    public static final CpuTypeEnable avx512_mic = new CpuTypeEnable(_avx512_mic);         /*!< Intel(R) Xeon Phi(TM) processors/coprocessors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
     public static final CpuTypeEnable avx512 = new CpuTypeEnable(_avx512);                 /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
-    public static final CpuTypeEnable avx512_mic_e1 = new CpuTypeEnable(_avx512_mic_e1);   /*!< Intel(R) Xeon Phi(TM) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups */
 }
 /** @} */

@@ -17,29 +17,34 @@
 #pragma once
 
 #include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/detail/communicator.hpp"
+#include "oneapi/dal/spmd/communicator.hpp"
+
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
+template <typename MemoryAccessKind>
 class spmd_policy_impl;
 
-class ONEDAL_EXPORT spmd_policy_base : public base {
+template <typename MemoryAccessKind>
+class spmd_policy_base : public base {
 public:
-    explicit spmd_policy_base(const spmd_communicator& comm);
+    explicit spmd_policy_base(const spmd::communicator<MemoryAccessKind>& comm);
 
-    const spmd_communicator& get_communicator() const;
+    const spmd::communicator<MemoryAccessKind>& get_communicator() const;
 
 private:
-    pimpl<spmd_policy_impl> impl_;
+    pimpl<spmd_policy_impl<MemoryAccessKind>> impl_;
 };
 
 template <typename LocalPolicy>
-class spmd_policy : public spmd_policy_base {
+class spmd_policy : public spmd_policy_base<spmd::device_memory_access::none> {
     static_assert(is_execution_policy_v<LocalPolicy>, "Unknown local policy type");
 
 public:
-    explicit spmd_policy(const LocalPolicy& local_policy, const spmd_communicator& comm)
+    explicit spmd_policy(const LocalPolicy& local_policy,
+                         const spmd::communicator<spmd::device_memory_access::none>& comm)
             : spmd_policy_base(comm),
               local_policy_(local_policy) {}
 
@@ -50,6 +55,24 @@ public:
 private:
     LocalPolicy local_policy_;
 };
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <>
+class spmd_policy<data_parallel_policy> : public spmd_policy_base<spmd::device_memory_access::usm> {
+public:
+    explicit spmd_policy(const data_parallel_policy& local_policy,
+                         const spmd::communicator<spmd::device_memory_access::usm>& comm)
+            : spmd_policy_base(comm),
+              local_policy_(local_policy) {}
+
+    const data_parallel_policy& get_local() const {
+        return local_policy_;
+    }
+
+private:
+    data_parallel_policy local_policy_;
+};
+#endif
 
 template <typename LocalPolicy>
 struct is_execution_policy<spmd_policy<LocalPolicy>> : std::bool_constant<true> {};

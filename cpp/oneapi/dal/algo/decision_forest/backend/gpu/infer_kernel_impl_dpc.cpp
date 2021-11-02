@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl.hpp"
 
@@ -95,6 +96,8 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
     const pr::ndview<Float, 2>& data,
     const model_manager_t& mng,
     const be::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(predict_by_tree_group_weighted, queue_);
+
     const Index max_tree_size = mng.get_max_tree_size();
 
     auto [ftr_idx_list, lch_idx_or_class_id_list, ftr_value_list] = mng.get_serialized_data();
@@ -197,6 +200,8 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
                                                              const pr::ndview<Float, 2>& data,
                                                              const model_manager_t& mng,
                                                              const be::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(predict_by_tree_group, queue_);
+
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
     const Index max_tree_size = mng.get_max_tree_size();
 
@@ -304,6 +309,8 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
     const infer_context_t& ctx,
     const pr::ndview<Float, 1>& obs_response_list,
     const be::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(reduce_tree_group_response, queue_);
+
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
 
     Index response_count = ctx.row_count;
@@ -405,6 +412,8 @@ std::tuple<pr::ndarray<Float, 1>, sycl::event>
 infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& ctx,
                                                         const pr::ndview<Float, 1>& response_list,
                                                         const be::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(determine_winner, queue_);
+
     ONEDAL_ASSERT(response_list.get_count() == ctx.row_count * ctx.class_count);
     auto winner_list = pr::ndarray<Float, 1>::empty(queue_, { ctx.row_count }, alloc::device);
 
@@ -492,19 +501,25 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
         auto [response, winner_event] = determine_winner(ctx, response_list, { predict_event });
 
         if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_responses)) {
-            auto response_host = response.to_host(queue_, { winner_event });
-            res.set_responses(homogen_table::wrap(response_host.flatten(), ctx.row_count, 1));
+            res.set_responses(
+                homogen_table::wrap(response.flatten(queue_, { winner_event }), ctx.row_count, 1));
         }
 
         if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
-            auto response_list_host = response_list.to_host(queue_, { predict_event });
             res.set_probabilities(
-                homogen_table::wrap(response_list_host.flatten(), ctx.row_count, ctx.class_count));
+                homogen_table::wrap(response_list.flatten(queue_, { predict_event }),
+                                    ctx.row_count,
+                                    ctx.class_count));
         }
     }
     else {
-        auto response_list_host = response_list.to_host(queue_, { predict_event });
-        res.set_responses(homogen_table::wrap(response_list_host.flatten(), ctx.row_count, 1));
+        res.set_responses(homogen_table::wrap(response_list.flatten(queue_, { predict_event }),
+                                              ctx.row_count,
+                                              1));
+    }
+
+    if (comm_.get_rank_count() > 1) {
+        comm_.wait_for_exception_handling();
     }
 
     return res;

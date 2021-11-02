@@ -62,6 +62,7 @@ class PredictKernel<algorithmFpType, defaultDense, cpu> : public daal::algorithm
 {
 public:
     services::Status compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r);
+    services::Status compute_impl(const NumericTable * a, const NumericTable * b, NumericTable * r, bool intercept_flag);
 
 protected:
     services::Status computeBlockOfResponses(size_t startRow, size_t numRows, NumericTable * dataTable, size_t numBetas, const algorithmFpType * beta,
