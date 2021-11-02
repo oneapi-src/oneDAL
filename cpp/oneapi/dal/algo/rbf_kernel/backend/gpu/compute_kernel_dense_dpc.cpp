@@ -74,7 +74,7 @@ inline auto compute_exponents(sycl::queue& queue,
 }
 
 template <typename Float>
-auto compute_rbf(sycl::queue& queue,
+void compute_rbf(sycl::queue& queue,
                  const pr::ndview<Float, 2>& x_nd,
                  const pr::ndview<Float, 2>& y_nd,
                  pr::ndview<Float, 2>& res_nd,
@@ -108,12 +108,13 @@ auto compute_rbf(sycl::queue& queue,
         gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
     }
 
-    return compute_exponents(queue,
-                             sqr_x_nd,
-                             sqr_y_nd,
-                             res_nd,
-                             sigma,
-                             { reduce_x_event, reduce_y_event, gemm_event });
+    compute_exponents(queue,
+                      sqr_x_nd,
+                      sqr_y_nd,
+                      res_nd,
+                      sigma,
+                      { reduce_x_event, reduce_y_event, gemm_event })
+        .wait_and_throw();
 }
 
 template <typename Float>
@@ -134,7 +135,7 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     auto res_nd =
         pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
 
-    compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma()).wait_and_throw();
+    compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
 
     const auto res_array = res_nd.flatten(queue);
     auto res_table = homogen_table::wrap(res_array, x_row_count, y_row_count);
@@ -168,7 +169,7 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
         auto res_nd = pr::ndarray<Float, 2>::wrap(const_cast<Float*>(res_ptr),
                                                   { res.get_row_count(), res.get_column_count() });
 
-        compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma()).wait_and_throw();
+        compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
     }
 #endif
 };
