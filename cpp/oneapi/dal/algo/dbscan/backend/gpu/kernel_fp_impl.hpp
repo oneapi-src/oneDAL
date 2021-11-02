@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/dbscan/backend/gpu/kernels_fp.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::dbscan::backend {
 
@@ -198,6 +199,7 @@ sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
                                          std::int64_t block_start,
                                          std::int64_t block_end,
                                          const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(get_cores, queue);
     if (weights.get_dimension(0) == data.get_dimension(0)) {
         return get_cores_impl<true>(queue,
                                     data,
@@ -225,6 +227,7 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
                                                    const pr::ndview<std::int32_t, 1>& cores,
                                                    pr::ndview<std::int32_t, 1>& responses,
                                                    const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(start_next_cluster, queue);
     ONEDAL_ASSERT(cores.get_dimension(0) > 0);
     ONEDAL_ASSERT(cores.get_dimension(0) == responses.get_dimension(0));
     std::int64_t block_size = cores.get_dimension(0);
@@ -322,6 +325,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                                             std::int64_t block_start,
                                             std::int64_t block_end,
                                             const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(update_algo_queue, queue);
     const auto row_count = data.get_dimension(0);
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(queue_begin < algo_queue.get_dimension(0));
