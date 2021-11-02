@@ -11,7 +11,7 @@ imagesize==1.2.0
 importlib-metadata==4.8.1
 importlib-resources==5.3.0
 Jinja2==3.0.2
-lxml==4.6.3
+lxml==4.6.4
 MarkupSafe==2.0.1
 packaging==21.0
 pydata-sphinx-theme==0.7.1
