@@ -363,63 +363,20 @@ sycl::event correlation_with_covariance(sycl::queue& q,
 }
 
 template <typename Float>
-inline sycl::event finalize_covariance_distributed(sycl::queue& q,
-                                                   std::int64_t row_count,
-                                                   const ndview<Float, 1>& sums,
-                                                   ndview<Float, 2>& cov,
-                                                   const event_vector& deps) {
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(cov.has_mutable_data());
-    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
-
-    const std::int64_t n = row_count;
-    const std::int64_t p = sums.get_count();
-    const Float inv_n = Float(1.0 / double(n));
-    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
-    const Float* sums_ptr = sums.get_data();
-    Float* cov_ptr = cov.get_mutable_data();
-
-    return q.submit([&](sycl::handler& cgh) {
-        const auto range = dal::backend::make_range_2d(p, p);
-
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<2> id) {
-            const std::int64_t gi = id.get_linear_id();
-            const std::int64_t i = id.get_id(0);
-            const std::int64_t j = id.get_id(1);
-
-            if (i < p && j < p) {
-                Float c = cov_ptr[gi];
-                c -= inv_n * sums_ptr[i] * sums_ptr[j];
-                cov_ptr[gi] = c * inv_n1;
-            }
-        });
-    });
-}
-
-template <typename Float>
 sycl::event covariance_with_distributed(sycl::queue& q,
                                         std::int64_t row_count,
                                         const ndview<Float, 1>& sums,
                                         ndview<Float, 2>& cov,
                                         const event_vector& deps) {
-    //ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
 
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-    // ONEDAL_ASSERT(cov.get_dimension(0) == data.get_dimension(1),
-    //               "Dimensions of covariance matrix must match feature count");
-    //ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
-    //"Element count of sums must match feature count");
 
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    //ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
 
-    auto finalize_event = finalize_covariance_distributed(q, row_count, sums, cov, deps);
+    auto finalize_event = finalize_covariance(q, row_count, sums, cov, deps);
     return finalize_event;
 }
 
