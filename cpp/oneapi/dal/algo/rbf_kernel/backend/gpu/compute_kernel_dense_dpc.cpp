@@ -31,21 +31,12 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-<<<<<<< HEAD
-inline auto compute_exponents(sycl::queue& queue,
-                              const pr::ndview<Float, 1>& sqr_x_nd,
-                              const pr::ndview<Float, 1>& sqr_y_nd,
-                              pr::ndview<Float, 2>& res_nd,
-                              double sigma,
-                              const dal::backend::event_vector& deps = {}) {
-=======
 void compute_exponents(sycl::queue& queue,
                        const pr::ndview<Float, 1>& sqr_x_nd,
                        const pr::ndview<Float, 1>& sqr_y_nd,
                        pr::ndview<Float, 2>& res_nd,
                        double sigma,
                        const dal::backend::event_vector& deps = {}) {
->>>>>>> 34c3e685c248ee073631068a7215068eb5445504
     ONEDAL_PROFILER_TASK(rbf_kernel.compute_exponents, queue);
     const std::int64_t x_row_count = sqr_x_nd.get_dimension(0);
     const std::int64_t y_row_count = sqr_y_nd.get_dimension(0);
@@ -105,17 +96,12 @@ void compute_rbf(sycl::queue& queue,
         ONEDAL_PROFILER_TASK(rbf_kernel.reduce, queue);
         reduce_x_event =
             pr::reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
-<<<<<<< HEAD
-        reduce_y_event =
-            pr::reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
-=======
         reduce_y_event = pr::reduce_by_rows(queue,
                                             y_nd,
                                             sqr_y_nd,
                                             pr::sum<Float>{},
                                             pr::square<Float>{},
                                             { reduce_x_event });
->>>>>>> 34c3e685c248ee073631068a7215068eb5445504
     }
 
     constexpr Float alpha = -2.0;
@@ -123,23 +109,10 @@ void compute_rbf(sycl::queue& queue,
     sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(rbf_kernel.gemm, queue);
-<<<<<<< HEAD
-        gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
-    }
-
-    compute_exponents(queue,
-                      sqr_x_nd,
-                      sqr_y_nd,
-                      res_nd,
-                      sigma,
-                      { reduce_x_event, reduce_y_event, gemm_event })
-        .wait_and_throw();
-=======
         gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta, { reduce_y_event });
     }
 
     compute_exponents(queue, sqr_x_nd, sqr_y_nd, res_nd, sigma, { gemm_event });
->>>>>>> 34c3e685c248ee073631068a7215068eb5445504
 }
 
 template <typename Float>
