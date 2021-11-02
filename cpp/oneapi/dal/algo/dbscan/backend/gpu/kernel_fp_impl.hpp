@@ -387,7 +387,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                             std::int32_t,
                             cl::sycl::ext::oneapi::memory_order::relaxed,
                             cl::sycl::ext::oneapi::memory_scope::device,
-                            cl::sycl::access::address_space::global_device_space>
+                            cl::sycl::access::address_space::ext_intel_global_device_space>
                             counter_atomic(queue_front_ptr[0]);
                         std::int32_t new_front = counter_atomic.fetch_add(1);
                         queue_ptr[new_front] = probe;
