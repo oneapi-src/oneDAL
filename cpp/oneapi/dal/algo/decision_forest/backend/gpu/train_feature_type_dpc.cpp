@@ -205,8 +205,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders(const pr::ndarray<Float,
         }
     }
 
-    last_event = bin_borders_nd_device.assign_from_host(queue_, bin_borders_nd_host);
-    bin_borders_nd_device = bin_borders_nd_device.reshape(pr::ndshape<1>{ bin_count });
+    bin_borders_nd_device = bin_borders_nd_host.slice(0, bin_count).to_device(queue_);
 
     return std::make_tuple(bin_borders_nd_device, bin_count, last_event);
 }
