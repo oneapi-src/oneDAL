@@ -22,7 +22,7 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include <iostream>
+
 namespace oneapi::dal::covariance::test {
 
 namespace te = dal::test::engine;
