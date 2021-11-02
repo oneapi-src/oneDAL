@@ -100,40 +100,42 @@ std::int64_t compute_kernel_dense_impl<Float, List>::get_column_block_count(
 
 template <typename Float>
 auto compute_covariance(sycl::queue& q,
-                        const pr::ndview<Float, 2>& data,
+                        std::int64_t row_count,
+                        const pr::ndview<Float, 2>& xtx,
                         const pr::ndarray<Float, 1>& sums,
                         const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
-    ONEDAL_ASSERT(data.has_data());
+    //ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
-    const std::int64_t column_count = data.get_dimension(1);
+    //ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+    //std::cout<<"ROWS!!:="<<data.get_dimension(0)<<std::endl;
+    const std::int64_t column_count = xtx.get_dimension(1);
 
-    std::cout << std::endl;
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    copy(q, cov, data, { deps }).wait_and_throw();
+    copy(q, cov, xtx, { deps }).wait_and_throw();
 
-    auto cov_event = pr::covariance_with_distributed(q, data, sums, cov, { deps });
+    auto cov_event = pr::covariance_with_distributed(q, row_count, sums, cov, { deps });
 
     return std::make_tuple(cov, cov_event);
 }
 
 template <typename Float>
 auto compute_correlation(sycl::queue& q,
-                         const pr::ndview<Float, 2>& data,
+                         std::int64_t row_count,
+                         const pr::ndview<Float, 2>& xtx,
                          const pr::ndarray<Float, 1>& sums,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_correlation, q);
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
-    const std::int64_t column_count = data.get_dimension(1);
+    //ONEDAL_ASSERT(data.has_data());
+    //ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+    const std::int64_t column_count = xtx.get_dimension(1);
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    copy(q, corr, data, { deps }).wait_and_throw();
+    copy(q, corr, xtx, { deps }).wait_and_throw();
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
-    auto corr_event = pr::correlation_with_distributed(q, data, sums, corr, tmp, { deps });
+    auto corr_event = pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { deps });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
@@ -799,12 +801,12 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
                                                             const input_t& input) {
     const auto data = input.get_data();
     std::int64_t row_count = data.get_row_count();
+    auto rows_count_global = row_count;
     std::int64_t column_count = data.get_column_count();
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
     const auto row_block_count = get_row_block_count(row_count);
-
     auto [ndres, last_event] = (row_block_count > 1) ? compute_by_blocks(data_nd, row_block_count)
                                                      : compute_single_pass(data_nd);
     last_event.wait_and_throw();
@@ -815,16 +817,18 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     gemm_event.wait_and_throw();
 
     comm_.allreduce(xtx.flatten(q_, { last_event }), spmd::reduce_op::sum).wait();
-
+    comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
     std::tie(ndres, last_event) =
         finalize(std::move(ndres), row_count, column_count, { last_event });
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, cov_event] = compute_covariance(q_, xtx, ndres.get_sum(), { last_event });
+        auto [cov, cov_event] =
+            compute_covariance(q_, rows_count_global, xtx, ndres.get_sum(), { last_event });
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
-        auto [corr, corr_event] = compute_correlation(q_, xtx, ndres.get_sum(), { last_event });
+        auto [corr, corr_event] =
+            compute_correlation(q_, rows_count_global, xtx, ndres.get_sum(), { last_event });
 
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));

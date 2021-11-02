@@ -98,7 +98,7 @@ sycl::event correlation_with_covariance(sycl::queue& queue,
 
 template <typename Float>
 sycl::event correlation_with_distributed(sycl::queue& q,
-                                         const ndview<Float, 2>& data,
+                                         std::int64_t row_count,
                                          const ndview<Float, 1>& sums,
                                          ndview<Float, 2>& corr,
                                          ndview<Float, 1>& tmp,
@@ -106,7 +106,7 @@ sycl::event correlation_with_distributed(sycl::queue& q,
 
 template <typename Float>
 sycl::event covariance_with_distributed(sycl::queue& q,
-                                        const ndview<Float, 2>& data,
+                                        std::int64_t row_count,
                                         const ndview<Float, 1>& sums,
                                         ndview<Float, 2>& cov,
                                         const event_vector& deps = {});
