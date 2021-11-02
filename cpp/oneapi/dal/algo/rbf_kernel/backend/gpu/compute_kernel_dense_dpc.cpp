@@ -31,12 +31,21 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
+<<<<<<< HEAD
 inline auto compute_exponents(sycl::queue& queue,
                               const pr::ndview<Float, 1>& sqr_x_nd,
                               const pr::ndview<Float, 1>& sqr_y_nd,
                               pr::ndview<Float, 2>& res_nd,
                               double sigma,
                               const dal::backend::event_vector& deps = {}) {
+=======
+void compute_exponents(sycl::queue& queue,
+                       const pr::ndview<Float, 1>& sqr_x_nd,
+                       const pr::ndview<Float, 1>& sqr_y_nd,
+                       pr::ndview<Float, 2>& res_nd,
+                       double sigma,
+                       const dal::backend::event_vector& deps = {}) {
+>>>>>>> 34c3e685c248ee073631068a7215068eb5445504
     ONEDAL_PROFILER_TASK(rbf_kernel.compute_exponents, queue);
     const std::int64_t x_row_count = sqr_x_nd.get_dimension(0);
     const std::int64_t y_row_count = sqr_y_nd.get_dimension(0);
@@ -54,23 +63,23 @@ inline auto compute_exponents(sycl::queue& queue,
     const auto range =
         dal::backend::make_multiple_nd_range_2d({ x_row_count, y_row_count }, { wg_size, 1 });
 
-    auto compute_rbf_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        const std::size_t ld = y_row_count;
+    queue
+        .submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            const std::size_t ld = y_row_count;
 
-        cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
-            const std::size_t i = item.get_global_id(0);
-            const std::size_t j = item.get_global_id(1);
-            const Float sqr_x_i = sqr_x_ptr[i];
-            const Float sqr_y_j = sqr_y_ptr[j];
-            const Float res_rbf_ij = res_ptr[i * ld + j];
-            const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
+            cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
+                const std::size_t i = item.get_global_id(0);
+                const std::size_t j = item.get_global_id(1);
+                const Float sqr_x_i = sqr_x_ptr[i];
+                const Float sqr_y_j = sqr_y_ptr[j];
+                const Float res_rbf_ij = res_ptr[i * ld + j];
+                const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
 
-            res_ptr[i * ld + j] = sycl::exp(arg);
-        });
-    });
-
-    return compute_rbf_event;
+                res_ptr[i * ld + j] = sycl::exp(arg);
+            });
+        })
+        .wait_and_throw();
 }
 
 template <typename Float>
@@ -96,8 +105,17 @@ void compute_rbf(sycl::queue& queue,
         ONEDAL_PROFILER_TASK(rbf_kernel.reduce, queue);
         reduce_x_event =
             pr::reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
+<<<<<<< HEAD
         reduce_y_event =
             pr::reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
+=======
+        reduce_y_event = pr::reduce_by_rows(queue,
+                                            y_nd,
+                                            sqr_y_nd,
+                                            pr::sum<Float>{},
+                                            pr::square<Float>{},
+                                            { reduce_x_event });
+>>>>>>> 34c3e685c248ee073631068a7215068eb5445504
     }
 
     constexpr Float alpha = -2.0;
@@ -105,6 +123,7 @@ void compute_rbf(sycl::queue& queue,
     sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(rbf_kernel.gemm, queue);
+<<<<<<< HEAD
         gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
     }
 
@@ -115,6 +134,12 @@ void compute_rbf(sycl::queue& queue,
                       sigma,
                       { reduce_x_event, reduce_y_event, gemm_event })
         .wait_and_throw();
+=======
+        gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta, { reduce_y_event });
+    }
+
+    compute_exponents(queue, sqr_x_nd, sqr_y_nd, res_nd, sigma, { gemm_event });
+>>>>>>> 34c3e685c248ee073631068a7215068eb5445504
 }
 
 template <typename Float>
@@ -166,6 +191,8 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
         const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
 
         auto res_ptr = res.get_data<Float>();
+
+        // Temporary workaround until the table_builder approach is ready
         auto res_nd = pr::ndarray<Float, 2>::wrap(const_cast<Float*>(res_ptr),
                                                   { res.get_row_count(), res.get_column_count() });
 

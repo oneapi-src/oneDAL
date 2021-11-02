@@ -20,6 +20,8 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
+#include "oneapi/dal/table/homogen.hpp"
+
 namespace oneapi::dal::linear_kernel::backend {
 
 template <typename Float, typename Method, typename Task>
