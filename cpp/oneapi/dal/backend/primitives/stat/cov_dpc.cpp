@@ -473,20 +473,12 @@ sycl::event correlation_with_distributed(sycl::queue& q,
                                          ndview<Float, 2>& corr,
                                          ndview<Float, 1>& tmp,
                                          const event_vector& deps) {
-    //ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
-    //ONEDAL_ASSERT(corr.get_dimension(0) == data.get_dimension(1),
-    // "Dimensions of correlation matrix must match feature count");
-    //ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
-    // "Element count of sums must match feature count");
-    //ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
-    //"Element count of temporary buffer must match feature count");
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    //ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
