@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/rbf_kernel/compute_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::rbf_kernel::backend {
 
@@ -26,6 +27,14 @@ struct compute_kernel_cpu {
     compute_result<Task> operator()(const dal::backend::context_cpu& ctx,
                                     const detail::descriptor_base<Task>& params,
                                     const compute_input<Task>& input) const;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void operator()(const dal::backend::context_cpu& ctx,
+                    const detail::descriptor_base<Task>& params,
+                    const table& x,
+                    const table& y,
+                    homogen_table& res) const;
+#endif
 };
 
 } // namespace oneapi::dal::rbf_kernel::backend

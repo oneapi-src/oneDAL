@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/math.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::rbf_kernel::backend {
 
@@ -30,12 +31,13 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-inline auto compute_exponents(sycl::queue& queue,
-                              const pr::ndview<Float, 1>& sqr_x_nd,
-                              const pr::ndview<Float, 1>& sqr_y_nd,
-                              pr::ndview<Float, 2>& res_nd,
-                              double sigma,
-                              const dal::backend::event_vector& deps = {}) {
+void compute_exponents(sycl::queue& queue,
+                       const pr::ndview<Float, 1>& sqr_x_nd,
+                       const pr::ndview<Float, 1>& sqr_y_nd,
+                       pr::ndview<Float, 2>& res_nd,
+                       double sigma,
+                       const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(rbf_kernel.compute_exponents, queue);
     const std::int64_t x_row_count = sqr_x_nd.get_dimension(0);
     const std::int64_t y_row_count = sqr_y_nd.get_dimension(0);
     ONEDAL_ASSERT(res_nd.get_count() == x_row_count * y_row_count);
@@ -52,67 +54,72 @@ inline auto compute_exponents(sycl::queue& queue,
     const auto range =
         dal::backend::make_multiple_nd_range_2d({ x_row_count, y_row_count }, { wg_size, 1 });
 
-    auto compute_rbf_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        const std::size_t ld = y_row_count;
+    queue
+        .submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            const std::size_t ld = y_row_count;
 
-        cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
-            const std::size_t i = item.get_global_id(0);
-            const std::size_t j = item.get_global_id(1);
-            const Float sqr_x_i = sqr_x_ptr[i];
-            const Float sqr_y_j = sqr_y_ptr[j];
-            const Float res_rbf_ij = res_ptr[i * ld + j];
-            const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
+            cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
+                const std::size_t i = item.get_global_id(0);
+                const std::size_t j = item.get_global_id(1);
+                const Float sqr_x_i = sqr_x_ptr[i];
+                const Float sqr_y_j = sqr_y_ptr[j];
+                const Float res_rbf_ij = res_ptr[i * ld + j];
+                const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
 
-            res_ptr[i * ld + j] = sycl::exp(arg);
-        });
-    });
-
-    return compute_rbf_event;
+                res_ptr[i * ld + j] = sycl::exp(arg);
+            });
+        })
+        .wait_and_throw();
 }
 
 template <typename Float>
-inline auto compute_rbf(sycl::queue& queue,
-                        const pr::ndview<Float, 2>& x_nd,
-                        const pr::ndview<Float, 2>& y_nd,
-                        pr::ndview<Float, 2>& res_nd,
-                        double sigma,
-                        const dal::backend::event_vector& deps = {}) {
+void compute_rbf(sycl::queue& queue,
+                 const pr::ndview<Float, 2>& x_nd,
+                 const pr::ndview<Float, 2>& y_nd,
+                 pr::ndview<Float, 2>& res_nd,
+                 double sigma,
+                 const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(x_nd.get_dimension(0) == res_nd.get_dimension(0));
+    ONEDAL_ASSERT(y_nd.get_dimension(0) == res_nd.get_dimension(1));
+    ONEDAL_ASSERT(x_nd.get_dimension(1) == y_nd.get_dimension(1));
+
     const std::int64_t x_row_count = x_nd.get_dimension(0);
     const std::int64_t y_row_count = y_nd.get_dimension(0);
 
     auto sqr_x_nd = pr::ndarray<Float, 1>::empty(queue, { x_row_count }, sycl::usm::alloc::device);
     auto sqr_y_nd = pr::ndarray<Float, 1>::empty(queue, { y_row_count }, sycl::usm::alloc::device);
 
-    auto reduce_x_event =
-        pr::reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
-    auto reduce_y_event =
-        pr::reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
+    sycl::event reduce_x_event;
+    sycl::event reduce_y_event;
+    {
+        ONEDAL_PROFILER_TASK(rbf_kernel.reduce, queue);
+        reduce_x_event =
+            pr::reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
+        reduce_y_event = pr::reduce_by_rows(queue,
+                                            y_nd,
+                                            sqr_y_nd,
+                                            pr::sum<Float>{},
+                                            pr::square<Float>{},
+                                            { reduce_x_event });
+    }
 
     constexpr Float alpha = -2.0;
     constexpr Float beta = 0.0;
-    auto gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
+    sycl::event gemm_event;
+    {
+        ONEDAL_PROFILER_TASK(rbf_kernel.gemm, queue);
+        gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta, { reduce_y_event });
+    }
 
-    auto compute_exponents_event =
-        compute_exponents(queue,
-                          sqr_x_nd,
-                          sqr_y_nd,
-                          res_nd,
-                          sigma,
-                          { reduce_x_event, reduce_y_event, gemm_event });
-
-    auto smart_event =
-        dal::backend::smart_event{ compute_exponents_event }.attach(sqr_x_nd).attach(sqr_y_nd);
-
-    return smart_event;
+    compute_exponents(queue, sqr_x_nd, sqr_y_nd, res_nd, sigma, { gemm_event });
 }
 
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+    auto& queue = ctx.get_queue();
     const auto x = input.get_x();
     const auto y = input.get_y();
-
-    auto& queue = ctx.get_queue();
 
     const std::int64_t x_row_count = x.get_row_count();
     const std::int64_t y_row_count = y.get_row_count();
@@ -126,9 +133,9 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     auto res_nd =
         pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
 
-    auto compute_rbf_event = compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
+    compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
 
-    const auto res_array = res_nd.flatten(queue, { compute_rbf_event });
+    const auto res_array = res_nd.flatten(queue);
     auto res_table = homogen_table::wrap(res_array, x_row_count, y_row_count);
 
     return result_t{}.set_values(res_table);
@@ -141,6 +148,30 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
                         const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void operator()(const context_gpu& ctx,
+                    const descriptor_t& desc,
+                    const table& x,
+                    const table& y,
+                    homogen_table& res) {
+        ONEDAL_ASSERT(x.get_row_count() == res.get_row_count());
+        ONEDAL_ASSERT(y.get_row_count() == res.get_column_count());
+        ONEDAL_ASSERT(x.get_column_count() == y.get_column_count());
+
+        auto& queue = ctx.get_queue();
+        const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
+        const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
+
+        auto res_ptr = res.get_data<Float>();
+
+        // Temporary workaround until the table_builder approach is ready
+        auto res_nd = pr::ndarray<Float, 2>::wrap(const_cast<Float*>(res_ptr),
+                                                  { res.get_row_count(), res.get_column_count() });
+
+        compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
+    }
+#endif
 };
 
 template struct compute_kernel_gpu<float, method::dense, task::compute>;
