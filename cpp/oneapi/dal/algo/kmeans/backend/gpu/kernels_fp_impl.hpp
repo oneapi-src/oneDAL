@@ -322,7 +322,8 @@ sycl::event kernels_fp<Float>::partial_reduce_centroids(
     std::int64_t part_count,
     pr::ndview<Float, 2>& partial_centroids,
     const bk::event_vector& deps) {
-    //    ONEDAL_PROFILER_TASK(partial_reduce_centroids, queue);
+    //  TODO: Enable the task below 
+    //  ONEDAL_PROFILER_TASK(partial_reduce_centroids, queue);
     ONEDAL_ASSERT(data.get_dimension(1) == partial_centroids.get_dimension(1));
     ONEDAL_ASSERT(partial_centroids.get_dimension(0) == cluster_count * part_count);
     ONEDAL_ASSERT(responses.get_dimension(0) == data.get_dimension(0));
