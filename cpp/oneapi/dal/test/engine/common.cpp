@@ -118,7 +118,7 @@ private:
         try {
             return sycl::queue{ sycl::gpu_selector{} };
         }
-        catch (const sycl::runtime_error& ex) {
+        catch (const std::exception& ex) {
             return sycl::queue{ sycl::cpu_selector{} };
         }
     }
