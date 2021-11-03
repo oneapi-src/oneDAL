@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/selection/select_flagged.hpp"
 
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
+#include <sycl/ext/oneapi/experimental/builtins.hpp>
 
 namespace oneapi::dal::backend::primitives {
 

@@ -234,7 +234,7 @@ public:
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    cl::sycl::program getProgramLevelZero() const { return _moduleLevelZeroPtr->getZeProgram(); }
+    ZeModulePtr getModuleLevelZeroPtr() const { return _moduleLevelZeroPtr; }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
     const String & getName() const { return _programName; }
@@ -316,19 +316,16 @@ class OpenClKernelLevelZeroRef : public Base
 public:
     OpenClKernelLevelZeroRef() = default;
 
-    explicit OpenClKernelLevelZeroRef(const String & kernelName, Status & status) : _kernelName(kernelName)
+    explicit OpenClKernelLevelZeroRef(const OpenClProgramRef & programRef, const String & kernelName, Status & status)
     {
-        if (!_kernelName.c_str())
-        {
-            status |= ErrorMemoryAllocationFailed;
-            return;
-        }
+        _kernelLevelZeroPtr = programRef.getModuleLevelZeroPtr()->createKernel(kernelName.c_str(), status);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     }
 
-    const String & getName() const { return _kernelName; }
+    ZeKernelPtr getKernelLevelZeroPtr() const { return _kernelLevelZeroPtr; }
 
 private:
-    String _kernelName;
+    ZeKernelPtr _kernelLevelZeroPtr;
 };
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
@@ -372,7 +369,10 @@ public:
         return SharedPtr<OpenClKernelNative>(ptr);
     }
 
-    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const DAAL_C11_OVERRIDE { return cl::sycl::kernel(_clKernelRef.get(), ctx); }
+    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const DAAL_C11_OVERRIDE
+    {
+        return cl::sycl::make_kernel<cl::sycl::backend::opencl>(_clKernelRef.get(), ctx);
+    }
 
 private:
     explicit OpenClKernelNative(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelRef & kernelRef)
@@ -389,25 +389,25 @@ public:
     static SharedPtr<OpenClKernelLevelZero> create(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef,
                                                    const OpenClKernelLevelZeroRef & kernelRef, Status & status)
     {
-        OpenClKernelLevelZero * ptr = nullptr;
-        status |= catchSyclExceptions([&]() mutable { ptr = new OpenClKernelLevelZero(executionTarget, programRef, kernelRef); });
-        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SharedPtr<OpenClKernelLevelZero>());
-
+        auto * ptr = new OpenClKernelLevelZero(executionTarget, programRef, kernelRef);
         if (!ptr) status |= ErrorMemoryAllocationFailed;
         return SharedPtr<OpenClKernelLevelZero>(ptr);
     }
 
-    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const DAAL_C11_OVERRIDE { return _syclKernel; }
+    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const DAAL_C11_OVERRIDE
+    {
+        using namespace cl::sycl;
+        kernel_bundle<bundle_state::executable> _kernelBundle =
+            make_kernel_bundle<backend::ext_oneapi_level_zero, bundle_state::executable>({ getProgramRef().getModuleLevelZeroPtr()->get() }, ctx);
+        return make_kernel<backend::level_zero>({ _kernelBundle, _zeKernelRef.getKernelLevelZeroPtr()->get() }, ctx);
+    }
 
 private:
     OpenClKernelLevelZero(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelLevelZeroRef & kernelRef)
-        : OpenClKernel(executionTarget, programRef),
-          _clKernelRef(kernelRef),
-          _syclKernel(getProgramRef().getProgramLevelZero().get_kernel(_clKernelRef.getName().c_str()))
+        : OpenClKernel(executionTarget, programRef), _zeKernelRef(kernelRef)
     {}
 
-    OpenClKernelLevelZeroRef _clKernelRef;
-    cl::sycl::kernel _syclKernel;
+    OpenClKernelLevelZeroRef _zeKernelRef;
 };
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
