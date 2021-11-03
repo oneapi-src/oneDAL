@@ -9,6 +9,7 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
+        "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
         "@onedal//cpp/oneapi/dal/backend/primitives:stat",
         "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
@@ -45,6 +46,9 @@ dal_test_suite(
 dal_test_suite(
     name = "interface_tests",
     framework = "catch2",
+    hdrs = glob([
+        "test/*.hpp",
+    ]),
     srcs = glob([
         "test/*.cpp",
     ]),
