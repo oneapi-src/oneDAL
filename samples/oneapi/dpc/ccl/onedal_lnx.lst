@@ -18,6 +18,7 @@
 ##     Intel(R) oneAPI Data Analytics Library samples list
 ##******************************************************************************
 
-MPI  =  cov_distr_ccl       \
+MPI  =  cor_distr_ccl       \
+        cov_distr_ccl       \
         kmeans_distr_ccl    \
-        dbscan_distr_ccl    \
+        dbscan_distr_ccl    

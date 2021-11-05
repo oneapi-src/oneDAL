@@ -37,7 +37,8 @@ void run(sycl::queue& queue) {
   const auto data = dal::read<dal::table>(
       queue, dal::csv::data_source{data_file_name});
 
-  const auto cov_desc = dal::covariance::descriptor{};
+      const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
+        dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
 
   auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(queue);
   auto rank_id = comm.get_rank();
@@ -48,7 +49,8 @@ void run(sycl::queue& queue) {
 
   const auto result = dal::preview::compute(comm, cov_desc, input_vec[rank_id]);
   if (comm.get_rank() == 0) {
-    std::cout << "Covariance:\n" << result.get_cov_matrix() << std::endl;
+    std::cout << "Mean:\n" << result.get_means() << std::endl;
+    std::cout << "Correlation:\n" << result.get_cor_matrix() << std::endl;
   }
 }
 
