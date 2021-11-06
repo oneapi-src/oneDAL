@@ -11,7 +11,7 @@ imagesize==1.2.0
 importlib-metadata==4.8.1
 importlib-resources==5.4.0
 Jinja2==3.0.2
-lxml==4.6.3
+lxml==4.6.4
 MarkupSafe==2.0.1
 packaging==21.2
 pydata-sphinx-theme==0.7.1
@@ -22,7 +22,7 @@ PyYAML==6.0
 requests==2.26.0
 six==1.16.0
 snowballstemmer==2.1.0
-soupsieve==2.2.1
+soupsieve==2.3
 Sphinx==3.5.4
 sphinx-book-theme==0.1.6
 sphinx-prompt==1.5.0
