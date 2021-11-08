@@ -112,9 +112,9 @@ auto compute_covariance(sycl::queue& q,
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
 
-    auto copy_event = copy(q, cov, xtx, { deps });
+    auto copy_event = copy(q, cov, xtx).wait_and_throw();
 
-    auto cov_event = pr::covariance_with_distributed(q, row_count, sums, cov, { copy_event });
+    auto cov_event = pr::covariance_with_distributed(q, row_count, sums, cov, { deps });
 
     return std::make_tuple(cov, cov_event);
 }
@@ -135,10 +135,10 @@ auto compute_correlation(sycl::queue& q,
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
 
-    auto copy_event = copy(q, corr, xtx, { deps });
+    auto copy_event = copy(q, corr, xtx).wait_and_throw();
 
     auto corr_event =
-        pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { copy_event });
+        pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { deps });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
