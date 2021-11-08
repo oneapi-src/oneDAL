@@ -189,10 +189,6 @@ void sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
         filling_mask.set_bit(sorted_pattern_vertex[sorted_vertex_iterator]);
         sorted_vertex_iterator++;
     }
-    else {
-        throw oneapi::dal::internal_error(
-            dal::detail::error_messages::incorrect_index_is_returned());
-    }
 
     for (; sorted_vertex_iterator < vertex_count; sorted_vertex_iterator++) {
         vertex_candidates |= pattern.p_edges_bit[sorted_pattern_vertex[sorted_vertex_iterator - 1]];
@@ -205,10 +201,6 @@ void sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
         if (index >= 0) {
             sorted_pattern_vertex[sorted_vertex_iterator] = static_cast<std::int64_t>(index);
             filling_mask.set_bit(sorted_pattern_vertex[sorted_vertex_iterator]);
-        }
-        else {
-            throw oneapi::dal::internal_error(
-                dal::detail::error_messages::incorrect_index_is_returned());
         }
     }
 }
