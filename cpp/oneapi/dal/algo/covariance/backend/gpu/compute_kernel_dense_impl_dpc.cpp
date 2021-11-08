@@ -137,8 +137,7 @@ auto compute_correlation(sycl::queue& q,
 
     auto copy_event = copy(q, corr, xtx).wait_and_throw();
 
-    auto corr_event =
-        pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { deps });
+    auto corr_event = pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { deps });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
