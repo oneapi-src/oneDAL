@@ -20,5 +20,5 @@
 
 MPI  =  cor_distr_ccl       \
         cov_distr_ccl       \
-        kmeans_distr_ccl    \
-        dbscan_distr_ccl    
+        dbscan_distr_ccl    \
+        kmeans_distr_ccl    
