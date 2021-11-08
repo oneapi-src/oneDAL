@@ -112,7 +112,7 @@ auto compute_covariance(sycl::queue& q,
     auto cov =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
 
-    auto copy_event = copy(q, cov, xtx).wait_and_throw();
+    copy(q, cov, xtx, { deps }).wait_and_throw();
 
     auto cov_event = pr::covariance_with_distributed(q, row_count, sums, cov, { deps });
 
@@ -135,7 +135,7 @@ auto compute_correlation(sycl::queue& q,
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
 
-    auto copy_event = copy(q, corr, xtx).wait_and_throw();
+    copy(q, corr, xtx, { deps }).wait_and_throw();
 
     auto corr_event = pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { deps });
 
