@@ -32,44 +32,44 @@
 namespace dal = oneapi::dal;
 
 void run(sycl::queue& queue) {
-  const auto data_file_name = get_data_path("data/covcormoments_dense.csv");
+    const auto data_file_name = get_data_path("data/covcormoments_dense.csv");
 
-  const auto data = dal::read<dal::table>(
+    const auto data = dal::read<dal::table>(
       queue, dal::csv::data_source{data_file_name});
 
-      const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
+    const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
 
-  auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(queue);
-  auto rank_id = comm.get_rank();
-  auto rank_count = comm.get_rank_count();
+    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(queue);
+    auto rank_id = comm.get_rank();
+    auto rank_count = comm.get_rank_count();
 
-  auto input_vec =
+    auto input_vec =
       split_table_by_rows<float>(queue, data, rank_count);
 
-  const auto result = dal::preview::compute(comm, cov_desc, input_vec[rank_id]);
-  if (comm.get_rank() == 0) {
-    std::cout << "Mean:\n" << result.get_means() << std::endl;
-    std::cout << "Correlation:\n" << result.get_cor_matrix() << std::endl;
+    const auto result = dal::preview::compute(comm, cov_desc, input_vec[rank_id]);
+    if (comm.get_rank() == 0) {
+        std::cout << "Mean:\n" << result.get_means() << std::endl;
+        std::cout << "Correlation:\n" << result.get_cor_matrix() << std::endl;
   }
 }
 
 int main(int argc, char const *argv[]) {
-  ccl::init();
-  int status = MPI_Init(nullptr, nullptr);
-  if (status != MPI_SUCCESS) {
-    throw std::runtime_error{"Problem occurred during MPI init"};
-  }
+    ccl::init();
+    int status = MPI_Init(nullptr, nullptr);
+    if (status != MPI_SUCCESS) {
+        throw std::runtime_error{"Problem occurred during MPI init"};
+    }
 
-  auto device = sycl::gpu_selector{}.select_device();
-  std::cout << "Running on " << device.get_info<sycl::info::device::name>()
+    auto device = sycl::gpu_selector{}.select_device();
+    std::cout << "Running on " << device.get_info<sycl::info::device::name>()
             << std::endl;
-  sycl::queue q{device};
-  run(q);
+    sycl::queue q{device};
+    run(q);
 
-  status = MPI_Finalize();
-  if (status != MPI_SUCCESS) {
-    throw std::runtime_error{"Problem occurred during MPI finalize"};
-  }
-  return 0;
+    status = MPI_Finalize();
+    if (status != MPI_SUCCESS) {
+        throw std::runtime_error{"Problem occurred during MPI finalize"};
+    }
+    return 0;
 }
