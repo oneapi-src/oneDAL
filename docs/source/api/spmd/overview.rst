@@ -53,6 +53,6 @@ MPI backend:
 
 .. include:: ../../includes/spmd/mpi-comm-usage-example.rst
 
-CCL backend:
+.. rubric:: CCL backend
 
 .. include:: ../../includes/spmd/ccl-comm-usage-example.rst
