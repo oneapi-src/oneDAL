@@ -14,11 +14,11 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-===============
-Data Management
-===============
+===============================================
+Distributed Model: Single Process Multiple Data
+===============================================
 
-Refer to :ref:`Developer Guide: Data Management <dg_data_management>`.
+Refer to :ref:`Developer Guide: SPMD distributed model <dg_spmd>`.
 
 .. toctree::
 
