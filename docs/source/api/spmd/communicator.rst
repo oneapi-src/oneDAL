@@ -43,7 +43,7 @@ The ``communicator`` type and all of its subtypes are :term:`reference-counted <
 1. The instance stores a pointer to communicator implementation that holds all
    property values and data.
 
-2. The reference count indicating how many communicator objects refer to the same implementation.
+2. The reference count indicates how many communicator objects refer to the same implementation.
 
 3. The communicator increments the reference count
    for it to be equal to the number of communicator objects sharing the same implementation.
