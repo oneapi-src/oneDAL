@@ -17,7 +17,7 @@
 The DBSCAN algorithm solves :capterm:`clustering` problem in a following way:
 given a set of observations, it groups together ones that are closely packed
 (having at least :math:`min_observations` number of neighbors inside distance :math:`epsilon`)
-and marking other ones as outliers.
+and marking the other ones as outliers.
 
 .. |c_math| replace:: :ref:`Compute <dbscan_c_math>`
 .. |c_bf| replace:: :ref:`Brute Force <dbscan_c_brute_force>`
