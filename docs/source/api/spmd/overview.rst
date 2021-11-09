@@ -30,7 +30,7 @@ Programming interface
 ---------------------
 
 All types and functions in this section are declared in the
-``oneapi::dal::spmd::preview`` namespace and be available via inclusion of the
+``oneapi::dal::spmd::preview`` namespace and are available via inclusion of the
 header file from specified backend.
 
 SPMD distributed model is consist of the the following components:
