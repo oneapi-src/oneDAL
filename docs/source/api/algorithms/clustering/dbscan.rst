@@ -52,18 +52,18 @@ Task tags
 .. onedal_tags_namespace:: oneapi::dal::dbscan::task
 
 
-.. _dbscan_t_api:
+.. _dbscan_c_api:
 
 Computation :cpp:expr:`compute(...)`
 ------------------------------------
 
-.. _dbscan_t_api_input:
+.. _dbscan_c_api_input:
 
 Input
 ~~~~~
 .. onedal_class:: oneapi::dal::dbscan::compute_input
 
-.. _dbscan_t_api_result:
+.. _dbscan_c_api_result:
 
 Result
 ~~~~~~

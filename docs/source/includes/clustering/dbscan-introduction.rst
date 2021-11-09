@@ -14,13 +14,12 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-The DBSCAN algorithm solves :capterm:`clustering` problem in a following way:
-given a set of observations, it groups together the ones that are closely packed
-(having at least ``min_observations`` neighbors within the :math:`\varepsilon` distance)
-and marking the other ones as outliers.
+Density-based spatial clustering of applications with noise (DBSCAN) is a data clustering algorithm proposed in [Ester96]_.
+It is a density-based clustering non-parametric algorithm: given a set of observations in some space,
+it groups together observations that are closely packed together (observations with many nearby neighbors),
+marking as outliers observations that lie alone in low-density regions (whose nearest neighbors are too far away).
 
 .. |c_math| replace:: :ref:`Compute <dbscan_c_math>`
-.. |c_bf| replace:: :ref:`Brute Force <dbscan_c_brute_force>`
 .. |c_input| replace:: :ref:`compute_input <dbscan_c_api_input>`
 .. |c_result| replace:: :ref:`compute_result <dbscan_c_api_result>`
 .. |c_op| replace:: :ref:`compute(...) <dbscan_c_api>`
