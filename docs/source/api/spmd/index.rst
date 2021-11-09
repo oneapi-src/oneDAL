@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=======
-C++ API
-=======
+===============
+Data Management
+===============
+
+Refer to :ref:`Developer Guide: Data Management <dg_data_management>`.
 
 .. toctree::
-   :maxdepth: 2
 
-   data-management/index.rst
-   algorithms/index.rst
-   spmd/index.rst
-
+   overview.rst
+   communicator.rst

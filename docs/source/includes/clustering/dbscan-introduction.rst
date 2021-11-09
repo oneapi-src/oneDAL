@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,14 +14,11 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=======
-C++ API
-=======
+The DBSCAN algorithm solves :capterm:`clustering` problem by the following way:
+given a set of observations, it groups together ones that are closely packed
+(having at least :math:`min_observations` number of neighbors inside distance :math:`epsilon`)
+and marking other ones as outliers.
 
-.. toctree::
-   :maxdepth: 2
-
-   data-management/index.rst
-   algorithms/index.rst
-   spmd/index.rst
-
+.. |t_input| replace:: :ref:`compute_input <dbscan_t_api_input>`
+.. |t_result| replace:: :ref:`compute_result <dbscan_t_api_result>`
+.. |t_op| replace:: :ref:`compute(...) <dbscan_t_api>`

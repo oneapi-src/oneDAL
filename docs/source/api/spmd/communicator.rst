@@ -1,0 +1,91 @@
+.. ******************************************************************************
+.. * Copyright 2021 Intel Corporation
+.. *
+.. * Licensed under the Apache License, Version 2.0 (the "License");
+.. * you may not use this file except in compliance with the License.
+.. * You may obtain a copy of the License at
+.. *
+.. *     http://www.apache.org/licenses/LICENSE-2.0
+.. *
+.. * Unless required by applicable law or agreed to in writing, software
+.. * distributed under the License is distributed on an "AS IS" BASIS,
+.. * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+.. * See the License for the specific language governing permissions and
+.. * limitations under the License.
+.. *******************************************************************************/
+
+.. highlight:: cpp
+
+.. _api_communicator:
+
+=============
+Communicators
+=============
+
+Refer to :ref:`Developer Guide: Communicators <dm_communicators>`.
+
+.. _communicator_programming_interface:
+
+---------------------
+Programming interface
+---------------------
+
+All types and functions in this section are declared in the
+``oneapi::dal::spmd::preview`` namespace and be available via inclusion of the
+header file from specified backend.
+
+Communicator
+------------
+
+A base implementation of the :txtref:`communicator` concept.
+The ``communicator`` type and all of its subtypes are :term:`reference-counted <Reference-counted object>`:
+
+1. The instance stores a pointer to communicator implementation that holds all
+   property values and data
+
+2. The reference count indicating how many communicator objects refer to the same implementation.
+
+3. The communicator increments the reference count
+   for it to be equal to the number of communicator objects sharing the same implementation.
+
+4. The communicator decrements the reference count when the
+   communicator goes out of the scope. If the reference count is zero, the communicator
+   frees its implementation.
+
+
+.. onedal_class:: oneapi::dal::spmd::preview::communicator
+
+.. _api_communicator_device_memory_access:
+
+Device memory access
+--------------------
+
+An implementation of the :capterm:`device memory access` concept.
+
+::
+
+   namespace device_memory_access {
+   namespace v1 {
+
+   struct usm {};
+   struct none {};
+   } // namespace v1
+
+   using v1::usm;
+   using v1::none;
+
+.. .. tag:: device_memory_access
+
+device_memory_access::none
+   Assumes only non-USM pointers are used for collective operation.
+
+device_memory_access::usm
+   Both USM and non-USM can be used. Pointer type is controlled by 
+   presense of ``sycl::queue`` object as a first parameter for collective
+   operations. Presence of ``sycl::queue`` object is obligatory for USM
+   pointer usage.
+
+
+.. toctree::
+
+   communicator/api.rst

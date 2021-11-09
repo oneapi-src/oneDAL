@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,14 +14,22 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=======
-C++ API
-=======
+.. tabs::
 
-.. toctree::
-   :maxdepth: 2
+  .. group-tab:: oneAPI DPC++
 
-   data-management/index.rst
-   algorithms/index.rst
-   spmd/index.rst
+    Batch Processing:
 
+    - :ref:`dpc_dbscan_brute_force_batch.cpp`
+
+  .. group-tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_dbscan_brute_force_batch.cpp`
+
+  .. group-tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`dbscan_batch.py`
