@@ -15,7 +15,7 @@
 .. *******************************************************************************/
 
 The DBSCAN algorithm solves :capterm:`clustering` problem in a following way:
-given a set of observations, it groups together ones that are closely packed
+given a set of observations, it groups together the ones that are closely packed
 (having at least :math:`min_observations` number of neighbors inside distance :math:`epsilon`)
 and marking the other ones as outliers.
 
