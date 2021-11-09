@@ -33,7 +33,7 @@ All types and functions in this section are declared in the
 ``oneapi::dal::spmd::preview`` namespace and are available via inclusion of the
 header file from specified backend.
 
-SPMD distributed model is consist of the the following components:
+SPMD distributed model consists of the the following components:
 
 1. Additional ``train``, ``infer`` and ``compute`` methods that accept ``communicator`` object
    as the first parameter. Those methods are expected to be called on all ranks to start
