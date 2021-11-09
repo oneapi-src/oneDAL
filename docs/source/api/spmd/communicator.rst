@@ -77,7 +77,7 @@ An implementation of the :capterm:`device memory access` concept.
 .. .. tag:: device_memory_access
 
 device_memory_access::none
-   Assumes only non-USM pointers are used for collective operation.
+   Assumes only non-USM pointers are used for a collective operation.
 
 device_memory_access::usm
    Both USM and non-USM can be used. Pointer type is controlled by 
