@@ -35,7 +35,7 @@ header file from specified backend.
 
 SPMD distributed model consists of the the following components:
 
-1. Additional ``train``, ``infer`` and ``compute`` methods that accept ``communicator`` object
+1. Additional ``train``, ``infer``, and ``compute`` methods that accept ``communicator`` object
    as the first parameter. Those methods are expected to be called on all ranks to start
    distributed simulations.
 
