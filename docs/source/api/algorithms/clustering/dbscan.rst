@@ -55,7 +55,7 @@ Task tags
 .. _dbscan_t_api:
 
 Computation :cpp:expr:`compute(...)`
---------------------------------
+------------------------------------
 
 .. _dbscan_t_api_input:
 
@@ -63,7 +63,7 @@ Input
 ~~~~~
 .. onedal_class:: oneapi::dal::dbscan::compute_input
 
-.. _kmeans_t_api_result:
+.. _dbscan_t_api_result:
 
 Result
 ~~~~~~
@@ -76,15 +76,14 @@ Operation
               dbscan::compute_result compute(const Descriptor& desc, \
                                          const dbscan::compute_input& input)
 
-   :param desc: DBSCAN algorithm descriptor :expr:`kmeans::descriptor`
+   :param desc: DBSCAN algorithm descriptor :expr:`dbscan::descriptor`
    :param input: Input data for the compute operation
 
    Preconditions
       | :expr:`input.data.has_data == true`
       | :expr:`!input.weights.has_data || input.weights.row_count == input.data.row_count && input.weights.column_count == 1`
-   Postconditions
-
-.. _kmeans_i_api:
+   
+   .. _dbscan_i_api:
 
 -------------
 Usage example

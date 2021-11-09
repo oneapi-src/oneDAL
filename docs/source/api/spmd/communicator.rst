@@ -53,7 +53,7 @@ The ``communicator`` type and all of its subtypes are :term:`reference-counted <
    frees its implementation.
 
 
-.. onedal_class:: oneapi::dal::spmd::preview::communicator
+.. onedal_class:: oneapi::dal::preview::spmd::communicator
 
 .. _api_communicator_device_memory_access:
 
