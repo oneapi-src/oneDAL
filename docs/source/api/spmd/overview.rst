@@ -48,7 +48,7 @@ SPMD distributed model consists of the the following components:
 Usage example
 -------------
 
-The following listings provide a brief introduction how to create a particular communicator.
+The following listings provide a brief introduction on how to create a particular communicator.
 MPI backend:
 
 .. include:: ../../includes/spmd/mpi-comm-usage-example.rst
