@@ -39,7 +39,7 @@ SPMD distributed model consists of the the following components:
    as the first parameter. Those methods are expected to be called on all ranks to start
    distributed simulations.
 
-2. Class ``communicator`` which contains methods to perform collective operations among all ranks.
+2. The ``communicator`` class that contains methods to perform collective operations among all ranks.
 
 3. Free functions to create a communicator using a specified backed. Available backends are ``ccl``
    and ``mpi``.
