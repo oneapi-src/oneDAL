@@ -82,8 +82,8 @@ device_memory_access::none
 device_memory_access::usm
    Both USM and non-USM can be used. Pointer type is controlled by 
    the use of ``sycl::queue`` object as a first parameter for collective
-   operations. Presence of ``sycl::queue`` object is obligatory for USM
-   pointer usage.
+   operations. The use of ``sycl::queue`` object is obligatory for USM
+   pointers.
 
 
 
