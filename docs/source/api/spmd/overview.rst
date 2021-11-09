@@ -49,7 +49,8 @@ Usage example
 -------------
 
 The following listings provide a brief introduction on how to create a particular communicator.
-MPI backend:
+
+.. rubric:: MPI backend
 
 .. include:: ../../includes/spmd/mpi-comm-usage-example.rst
 
