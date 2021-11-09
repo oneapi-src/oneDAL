@@ -86,6 +86,4 @@ device_memory_access::usm
    pointer usage.
 
 
-.. toctree::
 
-   communicator/api.rst

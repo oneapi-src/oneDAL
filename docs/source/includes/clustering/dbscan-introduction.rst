@@ -19,6 +19,15 @@ given a set of observations, it groups together ones that are closely packed
 (having at least :math:`min_observations` number of neighbors inside distance :math:`epsilon`)
 and marking other ones as outliers.
 
-.. |t_input| replace:: :ref:`compute_input <dbscan_t_api_input>`
-.. |t_result| replace:: :ref:`compute_result <dbscan_t_api_result>`
-.. |t_op| replace:: :ref:`compute(...) <dbscan_t_api>`
+.. |c_math| replace:: :ref:`Compute <dbscan_c_math>`
+.. |c_bf| replace:: :ref:`Brute Force <dbscan_c_brute_force>`
+.. |c_input| replace:: :ref:`compute_input <dbscan_c_api_input>`
+.. |c_result| replace:: :ref:`compute_result <dbscan_c_api_result>`
+.. |c_op| replace:: :ref:`compute(...) <dbscan_c_api>`
+
+=============== =========================== ======== =========== ============
+ **Operation**  **Computational methods**     **Programming Interface**
+--------------- --------------------------- ---------------------------------
+   |c_math|             |c_bf|               |c_op|   |c_input|   |c_result|
+=============== =========================== ======== =========== ============
+
