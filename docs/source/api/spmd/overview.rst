@@ -41,7 +41,7 @@ SPMD distributed model consists of the the following components:
 
 2. The ``communicator`` class that contains methods to perform collective operations among all ranks.
 
-3. Free functions to create a communicator using a specified backed. Available backends are ``ccl``
+3. Free functions to create a communicator using a specified backend. Available backends are ``ccl``
    and ``mpi``.
 
 -------------
