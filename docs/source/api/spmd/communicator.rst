@@ -41,7 +41,7 @@ A base implementation of the :txtref:`communicator` concept.
 The ``communicator`` type and all of its subtypes are :term:`reference-counted <Reference-counted object>`:
 
 1. The instance stores a pointer to communicator implementation that holds all
-   property values and data
+   property values and data.
 
 2. The reference count indicating how many communicator objects refer to the same implementation.
 
