@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ Operation
    Preconditions
       | :expr:`input.data.has_data == true`
       | :expr:`!input.weights.has_data || input.weights.row_count == input.data.row_count && input.weights.column_count == 1`
-   
+
 -------------
 Usage example
 -------------
