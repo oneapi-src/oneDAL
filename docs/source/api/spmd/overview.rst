@@ -23,8 +23,6 @@
 Distributed SPMD model overview
 ===============================
 
-Refer to :ref:`Developer Guide: SPMD <spmd_overview>`.
-
 ---------------------
 Programming interface
 ---------------------

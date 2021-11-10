@@ -87,5 +87,49 @@ device_memory_access::usm
    operations. The use of ``sycl::queue`` object is obligatory for USM
    pointers.
 
+Request
+-------
 
+Request is an object to control asynchronous communication.
 
+::
+
+   class request : public base {
+      friend dal::detail::pimpl_accessor;
+
+   public:
+      request() : impl_(nullptr) {}
+
+      void wait() {
+         if (impl_) {
+               impl_->wait();
+         }
+      }
+
+      bool test() {
+         if (impl_) {
+               return impl_->test();
+         }
+         return true;
+      }
+
+   private:
+      explicit request(request_iface* impl) : impl_(impl) {}
+      dal::detail::pimpl<request_iface> impl_;
+   };
+
+.. .. tag:: request
+
+Reducion operations
+-------------------
+
+The following reduction operations are supported:
+- Max
+- Min
+- Sum
+
+::
+
+   enum class reduce_op { max, min, sum };
+
+.. .. tag:: reduce_op

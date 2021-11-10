@@ -52,7 +52,7 @@ Communicator
 ------------
 
 All collective operation between processes running simultaneously are enable
-by a :capterm:`communicator`. It is a wrapper over specific backend (transport layer).
+by a communicator. It is a wrapper over specific backend (transport layer).
 
 The communicator is used to perform collective operations on data and to obtain process
 rank and total count of processes.
