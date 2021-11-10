@@ -26,6 +26,7 @@ namespace oneapi::dal::kmeans::backend::test {
 namespace de = dal::detail;
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
+namespace spmd = dal::preview::spmd;
 namespace te = dal::test::engine;
 
 // TODO: Move to common
@@ -278,7 +279,7 @@ public:
             { cluster_count, column_count },
             sycl::usm::alloc::device);
 
-        bk::communicator fake_comm;
+        bk::communicator<spmd::device_memory_access::usm> fake_comm;
         fill_empty_clusters(this->get_queue(), fake_comm, data, candidates, centroids)
             .wait_and_throw();
 
@@ -290,8 +291,9 @@ public:
         const std::vector<pr::ndarray<float_t, 2>>& data_per_rank,
         const std::vector<centroid_candidates<float_t>>& candidates_per_rank,
         const pr::ndarray<float_t, 2>& expected_centroids) {
-        te::thread_communicator thread_comm{ thread_count };
-        bk::communicator backend_comm{ thread_comm };
+        te::thread_communicator<spmd::device_memory_access::usm> thread_comm{ this->get_queue(),
+                                                                              thread_count };
+        bk::communicator<spmd::device_memory_access::usm> backend_comm{ thread_comm };
 
         const auto centroids_per_rank = thread_comm.map([&](std::int64_t rank) {
             auto [centroids, centroids_event] = pr::ndarray<float_t, 2>::zeros( //

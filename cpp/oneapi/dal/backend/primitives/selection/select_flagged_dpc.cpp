@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/selection/select_flagged.hpp"
 
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
+#include <sycl/ext/oneapi/experimental/builtins.hpp>
 
 namespace oneapi::dal::backend::primitives {
 
@@ -219,6 +219,7 @@ sycl::event select_flagged_base<Data, Flag>::select_flagged_base_impl(
     ndview<Data, 1>& out,
     std::int64_t& selected_elem_count,
     const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(selection.select_flagged, queue_);
     ONEDAL_ASSERT(out.has_mutable_data());
     ONEDAL_ASSERT(in.get_count() == out.get_count());
 

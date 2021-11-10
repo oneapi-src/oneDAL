@@ -137,10 +137,9 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r)
+services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute_impl(const NumericTable * a, const NumericTable * b, NumericTable * r,
+                                                                                 bool intercept_flag)
 {
-    linear_model::Model * model = const_cast<linear_model::Model *>(m);
-
     /* Get numeric tables with input data */
     NumericTable * dataTable = const_cast<NumericTable *>(a);
 
@@ -168,7 +167,7 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
     }
 
     /* Get linear regression coefficients */
-    NumericTable * betaTable  = model->getBeta().get();
+    NumericTable * betaTable  = const_cast<NumericTable *>(b);
     const size_t numResponses = betaTable->getNumberOfRows();
     const size_t numBetas     = betaTable->getNumberOfColumns();
 
@@ -195,16 +194,23 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
         if (dataTable->getDataLayout() & NumericTableIface::soa)
         {
             DAAL_CHECK_STATUS_THR(computeBlockOfResponsesSOA(startRow, numRowsInBlock, dataTable, numBetas, beta, numResponses, responseBlock,
-                                                             model->getInterceptFlag(), isHomogeneous, tlsData));
+                                                             intercept_flag, isHomogeneous, tlsData));
         }
         else
         {
             DAAL_CHECK_STATUS_THR(
-                computeBlockOfResponses(startRow, numRowsInBlock, dataTable, numBetas, beta, numResponses, responseBlock, model->getInterceptFlag()));
+                computeBlockOfResponses(startRow, numRowsInBlock, dataTable, numBetas, beta, numResponses, responseBlock, intercept_flag));
         }
     }); /* daal::threader_for */
     return safeStat.detach();
-} /* void PredictKernel<algorithmFPType, defaultDense, cpu>::compute */
+} /* void PredictKernel<algorithmFPType, defaultDense, cpu>::compute_impl */
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r)
+{
+    linear_model::Model * model = const_cast<linear_model::Model *>(m);
+    return compute_impl(a, model->getBeta().get(), r, model->getInterceptFlag());
+}
 
 } /* namespace internal */
 } /* namespace prediction */

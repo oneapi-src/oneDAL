@@ -57,7 +57,7 @@ sycl::event covariance(sycl::queue& queue,
                        ndview<Float, 1>& tmp,
                        const event_vector& deps = {});
 
-/// Computes correlation matrix and variances
+/// Compute correlation matrix
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
@@ -95,6 +95,38 @@ sycl::event correlation_with_covariance(sycl::queue& queue,
                                         ndview<Float, 2>& corr,
                                         ndview<Float, 1>& tmp,
                                         const event_vector& deps = {});
+
+/// Computes covariance matrix with distributed
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  row_count  The number of rows
+/// @param[in]  sums  The [p] sums computed along each column of the data
+/// @param[out] cov  The [p x p] covariance matrix
+template <typename Float>
+sycl::event covariance_with_distributed(sycl::queue& q,
+                                        std::int64_t row_count,
+                                        const ndview<Float, 1>& sums,
+                                        ndview<Float, 2>& cov,
+                                        const event_vector& deps = {});
+
+/// Computes correlation matrix with distributed
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  row_count  The number of rows
+/// @param[in]  sums  The [p] sums computed along each column of the data
+/// @param[out] corr  The [p x p] correlation matrix
+/// @param[out] tmp   The [p] temporary buffer
+template <typename Float>
+sycl::event correlation_with_distributed(sycl::queue& q,
+                                         std::int64_t row_count,
+                                         const ndview<Float, 1>& sums,
+                                         ndview<Float, 2>& corr,
+                                         ndview<Float, 1>& tmp,
+                                         const event_vector& deps = {});
 
 #endif
 

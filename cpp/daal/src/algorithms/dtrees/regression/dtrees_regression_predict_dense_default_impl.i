@@ -110,7 +110,7 @@ services::Status PredictRegressionTaskBase<algorithmFPType, cpu>::run(services::
             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
             algorithmFPType * res = resBD.get() + iStartRow;
-            if (nRowsToProcess < 2 * nThreads || cpu == __avx512_mic__)
+            if (nRowsToProcess < 2 * nThreads)
             {
                 for (size_t iRow = 0; iRow < nRowsToProcess; ++iRow)
                     res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols);

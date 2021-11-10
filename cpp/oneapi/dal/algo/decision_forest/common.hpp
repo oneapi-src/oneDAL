@@ -230,6 +230,8 @@ public:
         return get_voting_mode_impl();
     }
 
+    std::int64_t get_seed() const;
+
 protected:
     void set_observations_per_tree_fraction_impl(double value);
     void set_impurity_threshold_impl(double value);
@@ -254,6 +256,8 @@ protected:
     std::int64_t get_class_count_impl() const;
     infer_mode get_infer_mode_impl() const;
     voting_mode get_voting_mode_impl() const;
+
+    void set_seed_impl(std::int64_t value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -556,6 +560,16 @@ public:
     auto& set_voting_mode(voting_mode value) {
         base_t::set_voting_mode_impl(value);
         return *this;
+    }
+
+    /// Seed for the random numbers generator used by the algorithm
+    /// @invariant :expr:`tree_count > 0`
+    std::int64_t get_seed() const {
+        return base_t::get_seed();
+    }
+
+    auto& set_seed(std::int64_t value) {
+        return base_t::set_seed(value);
     }
 };
 

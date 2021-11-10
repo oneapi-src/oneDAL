@@ -42,7 +42,7 @@
 void __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
 
-static void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
+void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
 {
 #if defined(_MSC_VER)
     __cpuidex((int *)abcd, eax, ecx);
@@ -133,44 +133,6 @@ static int check_avx512_features()
     return 1;
 }
 
-static int check_avx512_mic_features()
-{
-    /*
-    CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 &&
-    CPUID.(EAX=01H, ECX=0H):ECX.AVX    [bit 28]==1
-    */
-    uint32_t avx_osxsave_mask = ((1 << 27) | (1 << 28));
-
-    /*
-    CPUID.(EAX=07H, ECX=0H):EBX.AVX512F [bit 16]==1  &&
-    CPUID.(EAX=07H, ECX=0H):EBX.AVX512PF[bit 26]==1  &&
-    CPUID.(EAX=07H, ECX=0H):EBX.AVX512ER[bit 27]==1  &&
-    CPUID.(EAX=07H, ECX=0H):EBX.AVX512CD[bit 28]==1
-    */
-    uint32_t avx512_mic_mask = (1 << 16) | (1 << 26) | (1 << 27) | (1 << 28);
-
-    /*
-    E0H - KMASK state, upper 256-bit of ZMM0-ZMM15 and ZMM16-ZMM31 state are enabled by OS
-    06H - XMM state and YMM state are enabled by OS
-    */
-    uint32_t kmask_ymm_mask = 0xE6;
-
-    if (!check_cpuid(1, 0, 2, avx_osxsave_mask))
-    {
-        return 0;
-    }
-    if (!check_xgetbv_xcr0_ymm(kmask_ymm_mask))
-    {
-        return 0;
-    }
-    if (!check_cpuid(7, 0, 1, avx512_mic_mask))
-    {
-        return 0;
-    }
-
-    return 1;
-}
-
 static int check_avx2_features()
 {
     /* CPUID.(EAX=01H, ECX=0H):ECX.FMA[bit 12]==1     &&
@@ -183,7 +145,6 @@ static int check_avx2_features()
         CPUID.(EAX=07H, ECX=0H):EBX.BMI1[bit 3]==1  &&
         CPUID.(EAX=07H, ECX=0H):EBX.BMI2[bit 8]==1  */
     uint32_t avx2_bmi12_mask = (1 << 5) | (1 << 3) | (1 << 8);
-
     /* CPUID.(EAX=80000001H):ECX.LZCNT[bit 5]==1 */
     uint32_t lzcnt_mask = (1 << 5);
 
@@ -258,22 +219,12 @@ DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
 
 DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
-    if ((enable & daal::services::Environment::avx512_mic_e1) == daal::services::Environment::avx512_mic_e1)
-    {
-        fpk_serv_enable_instructions(MKL_ENABLE_AVX512_MIC_E1);
-    }
-
 #if defined(__APPLE__)
     __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
     if (check_avx512_features() && daal_check_is_intel_cpu())
     {
         return daal::avx512;
-    }
-
-    if (check_avx512_mic_features() && daal_check_is_intel_cpu())
-    {
-        return daal::avx512_mic;
     }
 
     if (check_avx2_features())

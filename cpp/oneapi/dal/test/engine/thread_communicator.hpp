@@ -23,8 +23,11 @@
 #include <condition_variable>
 
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
+
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::test::engine {
 
@@ -178,10 +181,10 @@ private:
     std::int64_t recv_count_;
     byte_t* recv_buf_;
 };
-
-class thread_communicator_gatherv {
+/*
+class thread_communicator_allgatherv {
 public:
-    explicit thread_communicator_gatherv(thread_communicator_context& ctx)
+    explicit thread_communicator_allgatherv(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               recv_counts_(nullptr),
@@ -193,8 +196,7 @@ public:
                     byte_t* recv_buf,
                     const std::int64_t* recv_counts,
                     const std::int64_t* displs,
-                    const data_type& dtype,
-                    std::int64_t root);
+                    const data_type& dtype);
 
 private:
     thread_communicator_context& ctx_;
@@ -202,6 +204,32 @@ private:
     const std::int64_t* recv_counts_;
     const std::int64_t* displs_;
     byte_t* recv_buf_;
+};
+*/
+
+class thread_communicator_allgatherv {
+public:
+    struct buffer_info {
+        const byte_t* buf = nullptr;
+        std::int64_t count = 0;
+    };
+
+    explicit thread_communicator_allgatherv(thread_communicator_context& ctx)
+            : ctx_(ctx),
+              barrier_(ctx),
+              send_buffers_(ctx_.get_thread_count()) {}
+
+    void operator()(const byte_t* send_buf,
+                    std::int64_t send_count,
+                    byte_t* recv_buf,
+                    const std::int64_t* recv_counts,
+                    const std::int64_t* displs,
+                    const data_type& dtype);
+
+private:
+    thread_communicator_context& ctx_;
+    thread_communicator_barrier barrier_;
+    std::vector<buffer_info> send_buffers_;
 };
 
 class thread_communicator_allreduce {
@@ -220,7 +248,7 @@ public:
                     byte_t* recv_buf,
                     std::int64_t count,
                     const data_type& dtype,
-                    const dal::detail::spmd_reduce_op& op);
+                    const spmd::reduce_op& op);
 
 private:
     thread_communicator_context& ctx_;
@@ -231,18 +259,27 @@ private:
                        byte_t* dst,
                        std::int64_t count,
                        const data_type& dtype,
-                       const dal::detail::spmd_reduce_op& op);
+                       const spmd::reduce_op& op);
 
-    static void fill_with_zeros(byte_t* dst, std::int64_t count, const data_type& dtype);
+    static void fill_by_op_id(byte_t* dst,
+                              std::int64_t count,
+                              const data_type& dtype,
+                              const spmd::reduce_op& op_id);
 
     template <typename T>
     static void reduce_impl(const byte_t* src,
                             byte_t* dst,
                             std::int64_t count,
-                            const dal::detail::spmd_reduce_op& op);
+                            const spmd::reduce_op& op);
 
     template <typename T>
     static void fill_with_zeros_impl(byte_t* dst, std::int64_t count);
+
+    template <typename T>
+    static void fill_with_min_impl(byte_t* dst, std::int64_t count);
+
+    template <typename T>
+    static void fill_with_max_impl(byte_t* dst, std::int64_t count);
 
     static bool data_blocks_has_intersection(const byte_t* x, const byte_t* y, std::int64_t count) {
         const std::uintptr_t x_address = std::uintptr_t(x);
@@ -277,18 +314,18 @@ private:
     std::vector<buffer_info> send_buffers_;
 };
 
-class thread_communicator_impl : public dal::detail::spmd_communicator_via_host_impl {
+template <typename MemoryAccessKind>
+class thread_communicator_impl
+        : public dal::detail::via_host_interface_selector<MemoryAccessKind>::type {
 public:
-    using base_t = dal::detail::spmd_communicator_iface;
-    using request_t = dal::detail::spmd_request_iface;
+    using base_t = typename dal::detail::via_host_interface_selector<MemoryAccessKind>::type;
+    using request_t = spmd::request_iface;
 
     // Explicitly declare all virtual functions with overloads to workaround Clang warning
     // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
-    using spmd_communicator_iface::bcast;
-    using spmd_communicator_iface::gather;
-    using spmd_communicator_iface::gatherv;
-    using spmd_communicator_iface::allgather;
-    using spmd_communicator_iface::allreduce;
+    using base_t::bcast;
+    using base_t::allgatherv;
+    using base_t::allreduce;
 
     class collective_operation_guard {
     public:
@@ -303,15 +340,29 @@ public:
     private:
         thread_communicator_context& ctx_;
     };
-
+#ifndef ONEDAL_DATA_PARALLEL
     explicit thread_communicator_impl(std::int64_t thread_count)
             : ctx_(thread_count),
               barrier_(ctx_),
               bcast_(ctx_),
               gather_(ctx_),
-              gatherv_(ctx_),
+              allgatherv_(ctx_),
               allreduce_(ctx_),
               allgather_(ctx_) {}
+#endif
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T = MemoryAccessKind,
+              typename = spmd::enable_if_device_memory_accessible_t<T>>
+    explicit thread_communicator_impl(sycl::queue& queue, std::int64_t thread_count)
+            : base_t(queue),
+              ctx_(thread_count),
+              barrier_(ctx_),
+              bcast_(ctx_),
+              gather_(ctx_),
+              allgatherv_(ctx_),
+              allreduce_(ctx_),
+              allgather_(ctx_) {}
+#endif
 
     thread_communicator_context& get_context() {
         return ctx_;
@@ -336,63 +387,65 @@ public:
                      const data_type& dtype,
                      std::int64_t root) override;
 
-    request_t* gather(const byte_t* send_buf,
-                      std::int64_t send_count,
-                      byte_t* recv_buf,
-                      std::int64_t recv_count,
-                      const data_type& dtype,
-                      std::int64_t root) override;
-
-    request_t* gatherv(const byte_t* send_buf,
-                       std::int64_t send_count,
-                       byte_t* recv_buf,
-                       const std::int64_t* recv_counts,
-                       const std::int64_t* displs,
-                       const data_type& dtype,
-                       std::int64_t root) override;
+    request_t* allgatherv(const byte_t* send_buf,
+                          std::int64_t send_count,
+                          byte_t* recv_buf,
+                          const std::int64_t* recv_counts,
+                          const std::int64_t* displs,
+                          const data_type& dtype) override;
 
     request_t* allreduce(const byte_t* send_buf,
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const dal::detail::spmd_reduce_op& op) override;
+                         const spmd::reduce_op& op) override;
 
-    request_t* allgather(const byte_t* send_buf,
+    /*    request_t* allgather(const byte_t* send_buf,
                          std::int64_t send_count,
                          byte_t* recv_buf,
                          std::int64_t recv_count,
                          const data_type& dtype) override;
+*/
 
 private:
     thread_communicator_context ctx_;
     thread_communicator_barrier barrier_;
     thread_communicator_bcast bcast_;
     thread_communicator_gather gather_;
-    thread_communicator_gatherv gatherv_;
+    thread_communicator_allgatherv allgatherv_;
     thread_communicator_allreduce allreduce_;
     thread_communicator_allgather allgather_;
 };
 
-class thread_communicator : public dal::detail::spmd_communicator {
+template <typename MemoryAccessKind>
+class thread_communicator : public spmd::communicator<MemoryAccessKind> {
 public:
+    using impl_t = thread_communicator_impl<MemoryAccessKind>;
+#ifndef ONEDAL_DATA_PARALLEL
     explicit thread_communicator(std::int64_t thread_count)
-            : dal::detail::spmd_communicator(new thread_communicator_impl{ thread_count }) {}
-
+            : spmd::communicator<MemoryAccessKind>(new impl_t{ thread_count }) {}
+#endif
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T = MemoryAccessKind,
+              typename = spmd::enable_if_device_memory_accessible_t<T>>
+    explicit thread_communicator(sycl::queue& queue, std::int64_t thread_count)
+            : spmd::communicator<MemoryAccessKind>(new impl_t{ queue, thread_count }) {}
+#endif
     template <typename Body>
     void execute(const Body& body) {
-        get_impl<thread_communicator_impl>().get_context().execute(body);
+        this->template get_impl<impl_t>().get_context().execute(body);
     }
 
     template <typename Body>
     void exclusive(const Body& body) {
-        get_impl<thread_communicator_impl>().get_context().exclusive(body);
+        this->template get_impl<impl_t>().get_context().exclusive(body);
     }
 
     template <typename Body>
     auto map(const Body& body) {
         using map_t = decltype(body(std::declval<std::int64_t>()));
 
-        std::vector<map_t> results(get_rank_count());
+        std::vector<map_t> results(this->get_rank_count());
         execute([&](std::int64_t rank) {
             results[rank] = body(rank);
         });

@@ -156,7 +156,6 @@ The most used Bazel commands are `build`, `test` and `run`.
     - `avx`
     - `avx2`
     - `avx512`
-    - `avx512_mic`
 
    Example:
    ```sh

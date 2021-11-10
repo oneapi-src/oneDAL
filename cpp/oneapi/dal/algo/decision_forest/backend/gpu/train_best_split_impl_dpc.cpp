@@ -17,6 +17,7 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -554,6 +555,8 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
     bool update_imp_dec_required,
     Index node_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_best_split_by_histogram, queue);
+
     using split_smp_t = split_smp<Float, Index, Task>;
 
     Index hist_prop_count = 0;
@@ -837,6 +840,8 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
     bool update_imp_dec_required,
     Index node_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_best_split_single_pass, queue);
+
     using split_smp_t = split_smp<Float, Index, Task>;
 
     Index hist_prop_count = 0;

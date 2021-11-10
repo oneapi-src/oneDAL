@@ -31,7 +31,6 @@ _CPU_SUFFIX_TO_ISA_MAP = {
     "_snb": "avx",
     "_hsw": "avx2",
     "_skx": "avx512",
-    "_knl": "avx512_mic",
 }
 _CPU_SUFFIX_TO_ISA_BACK_MAP = {
     "sse2":       "_nrh",
@@ -40,7 +39,6 @@ _CPU_SUFFIX_TO_ISA_BACK_MAP = {
     "avx":        "_snb",
     "avx2":       "_hsw",
     "avx512":     "_skx",
-    "avx512_mic": "_knl",
 }
 _CPU_SUFFIXES = _CPU_SUFFIX_TO_ISA_MAP.keys()
 _CPU_ISA_IDS = _CPU_SUFFIX_TO_ISA_MAP.values()
@@ -162,11 +160,9 @@ def _configure_cpu_features(ctx, toolchain, cpus):
     return cpu_feature_configs
 
 def _compile(name, ctx, toolchain, feature_config, compilation_contexts=[],
-             cpus=[], fpts=[], cpu_defines={}, fpt_defines={}, disable_mic=False,
+             cpus=[], fpts=[], cpu_defines={}, fpt_defines={},
              srcs=[], local_defines=[], includes=[], system_includes=[],
              quote_includes=[], **kwargs):
-    if disable_mic:
-        cpus = utils.filter_out(cpus, ["avx512_mic"])
 
     sources_by_category = _categorize_sources(srcs)
     dep_compilation_context = onedal_cc_common.merge_compilation_contexts(compilation_contexts)

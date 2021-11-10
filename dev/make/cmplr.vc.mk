@@ -35,5 +35,4 @@ mc_OPT.vc   =
 mc3_OPT.vc  =
 avx_OPT.vc  = -arch:AVX
 avx2_OPT.vc = -arch:AVX2
-knl_OPT.vc  = -arch:AVX2
 skx_OPT.vc  = -arch:AVX2

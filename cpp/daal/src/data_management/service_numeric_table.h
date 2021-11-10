@@ -32,6 +32,7 @@
 #include "src/services/service_defines.h"
 #include "src/externals/service_memory.h"
 #include "src/services/service_arrays.h"
+#include "data_management/features/defines.h"
 
 using namespace daal::data_management;
 using namespace daal::data_management::internal;
@@ -505,6 +506,188 @@ private:
     services::Status _status;
     bool _toReleaseFlag;
 };
+
+template <typename algorithmFPType, typename algorithmFPAccessType, CpuType cpu, ReadWriteMode mode, typename NumericTableType>
+class GetView
+{
+public:
+    GetView(algorithmFPAccessType * dataStart, size_t ld, size_t numRows, size_t numCols)
+        : _dataStart(dataStart), _ld(ld), _numRows(numRows), _numCols(numCols)
+    {}
+    algorithmFPAccessType * get() { return _dataStart; }
+    size_t getLD() { return _ld; }
+    size_t getNumRows() { return _numRows; }
+    size_t getNumCols() { return _numCols; }
+
+private:
+    algorithmFPAccessType * _dataStart;
+    size_t _ld;
+    size_t _numRows;
+    size_t _numCols;
+};
+
+template <typename algorithmFPType, CpuType cpu, typename NumericTableType = NumericTable>
+using DataView = GetView<algorithmFPType, const algorithmFPType, cpu, readOnly, NumericTableType>;
+
+template <typename algorithmFPType, typename algorithmFPAccessType, CpuType cpu, ReadWriteMode mode, typename NumericTableType>
+class GetDataBlocker
+{
+public:
+    GetDataBlocker(NumericTableType * data, size_t nRowBlocks, size_t nRowsInBlock, size_t nColBlocks, size_t nColsInBlock)
+        : _data(data), _nRowBlocks(nRowBlocks), _nRowsInBlock(nRowsInBlock), _nColBlocks(nColBlocks), _nColsInBlock(nColsInBlock)
+    {
+        initialize();
+    }
+
+    ~GetDataBlocker() { release(); }
+
+    void release()
+    {
+        for (size_t index = 0; index < _blocks.size(); ++index)
+        {
+            _data->releaseBlockOfRows(_blocks[index]);
+        }
+        _data = nullptr;
+        daal::services::internal::service_free<algorithmFPAccessType *, cpu>(_dataStarts);
+        _nRowBlocks   = 0;
+        _nColBlocks   = 0;
+        _nRowsInBlock = 0;
+        _nColsInBlock = 0;
+        _ld           = 0;
+        _status.clear();
+    }
+
+    GetView<algorithmFPType, algorithmFPAccessType, cpu, mode, NumericTableType> getView(size_t rowBlockIndex, size_t colBlockIndex)
+    {
+        size_t nRowsInBlock = rowBlockIndex + 1 == _nRowBlocks ? _data->getNumberOfRows() - rowBlockIndex * _nRowsInBlock : _nRowsInBlock;
+        size_t startRow     = rowBlockIndex * _nRowsInBlock;
+        size_t nColsInBlock = colBlockIndex + 1 == _nColBlocks ? _data->getNumberOfColumns() - colBlockIndex * _nColsInBlock : _nColsInBlock;
+        size_t startColumn  = colBlockIndex * _nColsInBlock;
+        if (_isRows)
+        {
+            if (_nColBlocks == 1 && _dataStarts[rowBlockIndex] == nullptr)
+            {
+                _status |= _data->getBlockOfRows(startRow, nRowsInBlock, mode, _blocks[rowBlockIndex]);
+                _dataStarts[rowBlockIndex] = _blocks[rowBlockIndex].getBlockPtr();
+            }
+            return GetView<algorithmFPType, algorithmFPAccessType, cpu, mode, NumericTableType>(_dataStarts[rowBlockIndex] + startColumn, _ld,
+                                                                                                nRowsInBlock, nColsInBlock);
+        }
+        else
+        {
+            return GetView<algorithmFPType, algorithmFPAccessType, cpu, mode, NumericTableType>(_dataStarts[colBlockIndex] + startRow, _ld,
+                                                                                                nRowsInBlock, nColsInBlock);
+        }
+    }
+
+    const services::Status & status() { return _status; }
+
+    bool isRows() { return _isRows; }
+
+    size_t getNumRowsInBlock() { return _nRowsInBlock; }
+
+    size_t getNumColsInBlock() { return _nColsInBlock; }
+
+private:
+    bool checkIsContinuousSOA(algorithmFPAccessType ** dataStarts)
+    {
+        if (_data->getDataLayout() & NumericTableIface::soa)
+        {
+            const size_t ncols                                      = _data->getNumberOfColumns();
+            const NumericTableFeature & f0                          = (*_data->getDictionary())[0];
+            daal::data_management::features::IndexNumType indexType = f0.indexType;
+            if (daal::data_management::features::internal::getIndexNumType<algorithmFPType>() != indexType)
+            {
+                return false;
+            }
+            SOANumericTable * soa_table       = static_cast<SOANumericTable *>(_data);
+            algorithmFPAccessType * dataStart = static_cast<algorithmFPAccessType *>(soa_table->getArray(0));
+            dataStarts[0]                     = dataStart;
+            size_t lastBlockIndex = 1, localIndex = 1;
+            algorithmFPAccessType * lastPointer = dataStart;
+            size_t diffBetweenFeatures          = 0;
+
+            for (size_t index = 1; index < ncols; ++index)
+            {
+                const NumericTableFeature & f1 = (*_data->getDictionary())[index];
+                if (f1.indexType != indexType) return false;
+                algorithmFPAccessType * currentPointer = static_cast<algorithmFPAccessType *>(soa_table->getArray(index));
+                if (currentPointer <= lastPointer)
+                {
+                    return false;
+                }
+                if (index == 1)
+                {
+                    diffBetweenFeatures = currentPointer - lastPointer;
+                }
+                else if (currentPointer - lastPointer != diffBetweenFeatures)
+                {
+                    return false;
+                }
+                if (localIndex == _nColsInBlock)
+                {
+                    dataStarts[lastBlockIndex++] = currentPointer;
+                    localIndex                   = 0;
+                }
+                lastPointer = currentPointer;
+                ++localIndex;
+            }
+            _isRows     = false;
+            _dataStarts = dataStarts;
+            _ld         = diffBetweenFeatures;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void getBlocksOfRows(algorithmFPAccessType ** dataStarts)
+    {
+        size_t rowsCount = _data->getNumberOfRows();
+        _blocks.reset(_nRowBlocks);
+        if (_nColBlocks > 1)
+        {
+            daal::static_threader_for(_nRowBlocks, [&](size_t blockIndex, size_t tid) {
+                size_t index     = blockIndex * _nRowsInBlock;
+                size_t rowsToAdd = index + _nRowsInBlock <= rowsCount ? _nRowsInBlock : rowsCount - index;
+                _data->getBlockOfRows(index, rowsToAdd, mode, _blocks[blockIndex]);
+                dataStarts[blockIndex] = _blocks[blockIndex].getBlockPtr();
+            });
+        }
+        _isRows     = true;
+        _dataStarts = dataStarts;
+        _ld         = _data->getNumberOfColumns();
+    }
+
+    void initialize()
+    {
+        size_t startsSize = daal::services::internal::max<cpu, size_t>(_nRowBlocks, _nColBlocks);
+        algorithmFPAccessType ** dataStarts =
+            static_cast<algorithmFPAccessType **>(daal::services::internal::service_malloc<algorithmFPAccessType *, cpu>(
+                startsSize)); // TODO allocate more memory to eliminate cache false sharings in threading version
+        if (!checkIsContinuousSOA(dataStarts))
+        {
+            daal::services::internal::service_memset<algorithmFPAccessType *, cpu>(dataStarts, nullptr, startsSize);
+            getBlocksOfRows(dataStarts);
+        }
+    }
+
+    NumericTableType * _data;
+    algorithmFPAccessType ** _dataStarts;
+    services::internal::TArray<BlockDescriptor<algorithmFPType>, cpu> _blocks;
+    bool _isRows;
+    size_t _nRowBlocks;
+    size_t _nRowsInBlock;
+    size_t _nColBlocks;
+    size_t _nColsInBlock;
+    size_t _ld;
+    services::Status _status;
+};
+
+template <typename algorithmFPType, CpuType cpu, typename NumericTableType = NumericTable>
+using DataBlocker = GetDataBlocker<algorithmFPType, const algorithmFPType, cpu, readOnly, NumericTableType>;
 
 using daal::services::internal::TArray;
 using daal::services::internal::TArrayCalloc;
