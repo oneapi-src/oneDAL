@@ -22,7 +22,7 @@
 Communicators
 =============
 
-Refer to :ref:`Developer Guide: Communicators <dm_communicators>`.
+Refer to :ref:`Developer Guide: Communicators <spmd_communicators>`.
 
 .. _communicator_programming_interface:
 

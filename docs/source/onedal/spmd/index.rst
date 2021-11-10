@@ -46,7 +46,7 @@ at sync points are hidden from the user.
 Key concepts
 ============
 
-.. _communicator:
+.. spmd_communicators:
 
 Communicator
 ------------
@@ -62,7 +62,7 @@ rank and total count of processes.
 Communicator backend
 --------------------
 
-Communicator backend is a underlying implementation of :capterm:`communicator`
+Communicator backend is a underlying implementation of SPMD communicator object.
 using specific library/interface:
 - OneMPI
 - OneCCL

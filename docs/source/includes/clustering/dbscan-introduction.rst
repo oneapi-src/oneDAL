@@ -28,6 +28,6 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 =============== =========================== ======== =========== ============
  **Operation**  **Computational methods**     **Programming Interface**
 --------------- --------------------------- ---------------------------------
-   |c_math|             |c_bf|               |c_op|   |c_input|   |c_result|
+   |c_math|             |c_default|          |c_op|   |c_input|   |c_result|
 =============== =========================== ======== =========== ============
 
