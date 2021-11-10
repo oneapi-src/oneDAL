@@ -22,8 +22,6 @@
 Communicators
 =============
 
-Refer to :ref:`Developer Guide: Communicators <spmd_communicator>`.
-
 .. _communicator_programming_interface:
 
 ---------------------
@@ -52,31 +50,12 @@ The ``communicator`` type and all of its subtypes are :term:`reference-counted <
    communicator goes out of the scope. If the reference count is zero, the communicator
    frees its implementation.
 
-
-.. onedal_class:: oneapi::dal::preview::spmd::communicator
-
-.. _api_communicator_device_memory_access:
-
 Memory access type dispatching
 ------------------------------
 
 Tags to select memory access type:
 - USM memory access when both USM and non-USM pointers can be used.
 - Host (non-USM) memory access when only non-USM pointers can be used.
-
-::
-
-   namespace device_memory_access {
-   namespace v1 {
-
-   struct usm {};
-   struct none {};
-   } // namespace v1
-
-   using v1::usm;
-   using v1::none;
-
-.. .. tag:: device_memory_access
 
 device_memory_access::none
    Assumes only non-USM pointers are used for a collective operation.
@@ -92,34 +71,6 @@ Request
 
 Request is an object to control asynchronous communication.
 
-::
-
-   class request : public base {
-      friend dal::detail::pimpl_accessor;
-
-   public:
-      request() : impl_(nullptr) {}
-
-      void wait() {
-         if (impl_) {
-               impl_->wait();
-         }
-      }
-
-      bool test() {
-         if (impl_) {
-               return impl_->test();
-         }
-         return true;
-      }
-
-   private:
-      explicit request(request_iface* impl) : impl_(impl) {}
-      dal::detail::pimpl<request_iface> impl_;
-   };
-
-.. .. tag:: request
-
 Reducion operations
 -------------------
 
@@ -127,9 +78,3 @@ The following reduction operations are supported:
 - Max
 - Min
 - Sum
-
-::
-
-   enum class reduce_op { max, min, sum };
-
-.. .. tag:: reduce_op
