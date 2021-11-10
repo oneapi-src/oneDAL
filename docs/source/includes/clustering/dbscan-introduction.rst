@@ -20,6 +20,7 @@ it groups together observations that are closely packed together (observations w
 marking as outliers observations that lie alone in low-density regions (whose nearest neighbors are too far away).
 
 .. |c_math| replace:: :ref:`Compute <dbscan_c_math>`
+.. |c_default| replace:: :ref:`Default method`
 .. |c_input| replace:: :ref:`compute_input <dbscan_c_api_input>`
 .. |c_result| replace:: :ref:`compute_result <dbscan_c_api_result>`
 .. |c_op| replace:: :ref:`compute(...) <dbscan_c_api>`

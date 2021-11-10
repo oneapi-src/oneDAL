@@ -89,9 +89,9 @@ Backend specific restrictions
 -----------------------------
 
 #. OneCCL:
-- Allgetherv doesn't support arbitrary displacements. The result is expected to 
-  be closely packed without gaps.
+Allgetherv doesn't support arbitrary displacements. The result is expected to 
+be closely packed without gaps.
 
 #. OneMPI:
-- Collective operations don't support asynchronous executions. All the ones block the
-  process till completion.
+Collective operations don't support asynchronous executions. All the ones block the
+process till completion.

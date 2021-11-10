@@ -83,7 +83,7 @@ Operation
       | :expr:`input.data.has_data == true`
       | :expr:`!input.weights.has_data || input.weights.row_count == input.data.row_count && input.weights.column_count == 1`
    
-   .. _dbscan_i_api:
+   .. _dbscan_c_api:
 
 -------------
 Usage example

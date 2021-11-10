@@ -19,14 +19,14 @@
 
 ::
 
-#ifndef ONEDAL_DATA_PARALLEL
-#define ONEDAL_DATA_PARALLEL
-#endif
+   #ifndef ONEDAL_DATA_PARALLEL
+   #define ONEDAL_DATA_PARALLEL
+   #endif
 
-#include "oneapi/dal/algo/kmeans.hpp"
-#include "oneapi/dal/spmd/mpi/communicator.hpp"
+   #include "oneapi/dal/algo/kmeans.hpp"
+   #include "oneapi/dal/spmd/mpi/communicator.hpp"
 
-kmeans::model<> run_training(const table& data,
+   kmeans::model<> run_training(const table& data,
                               const table& initial_centroids) {
       const auto kmeans_desc = kmeans::descriptor<float>{}
          .set_cluster_count(10)

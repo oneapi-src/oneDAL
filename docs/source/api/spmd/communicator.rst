@@ -57,10 +57,12 @@ The ``communicator`` type and all of its subtypes are :term:`reference-counted <
 
 .. _api_communicator_device_memory_access:
 
-Device memory access
---------------------
+Memory access type dispatching
+------------------------------
 
-An implementation of the :capterm:`device memory access` concept.
+Tags to select memory access type:
+- USM memory access when both USM and non-USM pointers can be used.
+- Host (non-USM) memory access when only non-USM pointers can be used.
 
 ::
 

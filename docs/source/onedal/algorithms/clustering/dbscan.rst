@@ -17,6 +17,10 @@
 .. highlight:: cpp
 .. default-domain:: cpp
 
+.. re-use for math equations:
+.. |x| replace:: :math:`x`
+.. |y| replace:: :math:`y`
+
 .. _alg_dbscan:
 
 ======
