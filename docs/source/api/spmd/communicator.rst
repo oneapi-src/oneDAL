@@ -22,7 +22,7 @@
 Communicators
 =============
 
-Refer to :ref:`Developer Guide: Communicators <spmd_communicators>`.
+Refer to :ref:`Developer Guide: Communicators <spmd_communicator>`.
 
 .. _communicator_programming_interface:
 
@@ -37,7 +37,7 @@ header file from specified backend.
 Communicator
 ------------
 
-A base implementation of the :txtref:`communicator` concept.
+A base implementation of the communicator concept.
 The ``communicator`` type and all of its subtypes are :term:`reference-counted <Reference-counted object>`:
 
 1. The instance stores a pointer to communicator implementation that holds all

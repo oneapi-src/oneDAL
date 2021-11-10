@@ -41,28 +41,8 @@ Given the set :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}
 of :math:`n` :math:`p`-dimensional feature vectors (further referred as observations),
 a positive floating-point number ``epsilon`` and a positive integer ``minObservations``,
 the problem is to get clustering assignments for each input observation, based on the definitions below [Ester96]_:
-
-.. glossary::
-
-   core observation
-      An observation |x| is called core observation if at least ``minObservations``
-      input observations (including |x|) are within distance ``epsilon`` from observation |x|;
-
-   directly reachable
-      An observation |y| is directly reachable from |x| if |y| is within distance ``epsilon`` from :term:`core observation` |x|.
-      Observations are only said to be directly reachable from :term:`core observations <core observation>`.
-
-   reachable
-      An observation |y| is reachable from an observation |x| if there is a path :math:`x_1, \ldots, x_m`
-      with :math:`x_1 = x` and :math:`x_m = y`, where each :math:`x_{i+1}` is :term:`directly reachable` from :math:`x_i`.
-      This implies that all observations on the path must be :term:`core observations <core observation>`, with the possible exception of |y|.
-
-   noise observation
-      Noise observations are observations that are :term:`not reachable <reachable>` from any other observation.
-
-   cluster
-      Two observations |x| and |y| are considered to be in the same cluster if there is a :term:`core observation` :math:`z`,
-      and |x| and |y| are both :term:`reachable` from :math:`z`.
+two observations |x| and |y| are considered to be in the same cluster if there is a :term:`core observation` :math:`z`,
+and |x| and |y| are both :term:`reachable` from :math:`z`.
 
 Each cluster gets a unique identifier, an integer number from :math:`0` to :math:`\text{total number of clusters } – 1`.
 Each observation is assigned an identifier of the :term:`cluster` it belongs to,

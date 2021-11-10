@@ -46,7 +46,7 @@ at sync points are hidden from the user.
 Key concepts
 ============
 
-.. spmd_communicators:
+.. _spmd_communicator:
 
 Communicator
 ------------
