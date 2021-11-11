@@ -19,9 +19,11 @@
 
 .. _api_spmd:
 
-===============================
-Distributed SPMD model overview
-===============================
+======================
+Distributed SPMD model
+======================
+
+Refer to :ref:`Developer Guide: SPMD <dg_spmd>`.
 
 ---------------------
 Programming interface
@@ -31,15 +33,15 @@ All types and functions in this section are declared in the
 ``oneapi::dal::spmd::preview`` namespace and are available via inclusion of the
 header file from specified backend.
 
-SPMD distributed model consists of the the following components:
+:term:`SPMD` distributed model consists of the the following components:
 
 1. Additional ``train``, ``infer``, and ``compute`` methods that accept ``communicator`` object
    as the first parameter. Those methods are expected to be called on all ranks to start
    distributed simulations.
 
-2. The ``communicator`` class that contains methods to perform collective operations among all ranks.
+2. The :term:`communicator` class that contains methods to perform collective operations among all ranks.
 
-3. Free functions to create a communicator using a specified backend. Available backends are ``ccl``
+3. Free functions to create a :term:`communicator` using a specified :term:`communicator backend`. Available backends are ``ccl``
    and ``mpi``.
 
 -------------

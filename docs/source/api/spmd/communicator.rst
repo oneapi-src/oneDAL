@@ -35,8 +35,8 @@ header file from specified backend.
 Communicator
 ------------
 
-A base implementation of the communicator concept.
-The ``communicator`` type and all of its subtypes are :term:`reference-counted <Reference-counted object>`:
+A base implementation of the :term:`communicator` concept.
+The :term:`communicator` type and all of its subtypes are :term:`reference-counted <Reference-counted object>`:
 
 1. The instance stores a pointer to communicator implementation that holds all
    property values and data.

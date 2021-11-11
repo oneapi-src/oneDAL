@@ -20,52 +20,23 @@
 Single Program Multiple Data
 ============================
 
-This section includes concepts and objects that support distributed simulation using SPMD model.
+This section includes concepts and description of objects that support 
+distributed computations using :capterm:`SPMD` model.
 
-#. Overview
+#. Distributed computation using SPMD model
 
-In computing, SPMD (Single Program, Multiple Data) is a technique employed to achieve parallelism.
-In SPMD, multiple autonomous processors simultaneously execute the same program at independent points.
-
-
-#. Algorithm computation
-
-In typical usage scenarios, a user provides a communicator object as a first parameter of a free function
-to indicate that the algorithm can process data simultaneously. All internal inter-process communications
-at sync points are hidden from the user.
+In typical usage scenarios, a user provides a :capterm:`communicator` object as a first parameter of 
+a free function to indicate that the algorithm can process data simultaneously. All internal inter-process 
+communications at sync points required by the algorithm are hidden from the user.
 
 
-.. _typical_spmd_flow:
+.. _example_spmd_flow:
 
 .. figure:: _static/spmd_flow.png
   :width: 800
   :alt: Typical SPMD flow
 
-  Typical of SPMD Flow in oneDAL
-
-Key concepts
-============
-
-.. _spmd_communicator:
-
-Communicator
-------------
-
-All collective operation between processes running simultaneously are enable
-by a communicator. It is a wrapper over specific backend (transport layer).
-
-The communicator is used to perform collective operations on data and to obtain process
-rank and total count of processes.
-
-.. _communicator_backend:
-
-Communicator backend
---------------------
-
-Communicator backend is a underlying implementation of SPMD communicator object.
-using specific library/interface:
-- OneMPI
-- OneCCL
+  Example of SPMD Flow in oneDAL
 
 .. _communicator_operations:
 
