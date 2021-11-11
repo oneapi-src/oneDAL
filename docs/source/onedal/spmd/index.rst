@@ -75,7 +75,7 @@ Supported Collective Operations
 The following collective operations are supported:
 
 - Bcast
-  Broadcasts data from specified process. 
+  Broadcasts data from specified process.
 
 - Allreduce
   Reduces data among all processes.
