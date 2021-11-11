@@ -32,7 +32,7 @@ In SPMD, multiple autonomous processors simultaneously execute the same program 
 
 In typical usage scenarios, a user provides a communicator object as a first parameter of a free function
 to indicate that the algorithm can process data simultaneously. All internal inter-process communications
-at sync points are hidden from the user. 
+at sync points are hidden from the user.
 
 
 .. _typical_spmd_flow:
