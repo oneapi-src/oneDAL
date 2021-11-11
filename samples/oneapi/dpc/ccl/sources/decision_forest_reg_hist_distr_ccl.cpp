@@ -73,7 +73,7 @@ void run(sycl::queue &queue) {
     const auto result_train = dal::preview::train(
         comm, df_desc, x_train_vec[rank_id], y_train_vec[rank_id]);
 
-    if (rank_id == 0) {
+    if (comm.get_rank() == 0) {
         std::cout << "Variable importance results:\n"
                   << result_train.get_var_importance() << std::endl;
 
