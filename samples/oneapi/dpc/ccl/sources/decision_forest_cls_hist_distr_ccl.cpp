@@ -24,7 +24,7 @@
 
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/io/csv.hpp"
-#include "oneapi/dal/spmd/mpi/communicator.hpp"
+#include "oneapi/dal/spmd/ccl/communicator.hpp"
 
 #include "utils.hpp"
 
@@ -51,7 +51,7 @@ void run(sycl::queue &queue) {
         queue, dal::csv::data_source{test_response_file_name});
   
     auto comm =
-        dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(
+        dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(
             queue);
     auto rank_id = comm.get_rank();
     auto rank_count = comm.get_rank_count();
@@ -100,6 +100,7 @@ void run(sycl::queue &queue) {
 }
 
 int main(int argc, char const *argv[]) {
+    ccl::init();
     int status = MPI_Init(nullptr, nullptr);
     if (status != MPI_SUCCESS) {
         throw std::runtime_error{"Problem occurred during MPI init"};
