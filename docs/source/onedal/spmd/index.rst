@@ -20,7 +20,7 @@
 Single Program Multiple Data
 ============================
 
-This section includes concepts and objects that support distributed simulation using SPMD model. 
+This section includes concepts and objects that support distributed simulation using SPMD model.
 
 #. Overview
 
