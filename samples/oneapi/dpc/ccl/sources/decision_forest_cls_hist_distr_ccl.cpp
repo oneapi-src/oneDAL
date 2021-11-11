@@ -40,7 +40,7 @@ void run(sycl::queue &queue) {
         get_data_path("df_classification_test_data.csv");
     const auto test_response_file_name =
         get_data_path("df_classification_test_label.csv");
-  
+
     const auto x_train =
         dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
     const auto y_train = dal::read<dal::table>(
@@ -49,18 +49,18 @@ void run(sycl::queue &queue) {
         dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
     const auto y_test = dal::read<dal::table>(
         queue, dal::csv::data_source{test_response_file_name});
-  
+
     auto comm =
         dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(
             queue);
     auto rank_id = comm.get_rank();
     auto rank_count = comm.get_rank_count();
-  
+
     auto x_train_vec = split_table_by_rows<float>(queue, x_train, rank_count);
     auto y_train_vec = split_table_by_rows<float>(queue, y_train, rank_count);
     auto x_test_vec = split_table_by_rows<float>(queue, x_test, rank_count);
     auto y_test_vec = split_table_by_rows<float>(queue, y_test, rank_count);
-  
+
     const auto df_desc =
         df::descriptor<float, df::method::hist, df::task::classification>{}
             .set_class_count(5)
@@ -75,26 +75,26 @@ void run(sycl::queue &queue) {
             .set_infer_mode(df::infer_mode::class_responses |
                             df::infer_mode::class_probabilities)
             .set_voting_mode(df::voting_mode::weighted);
-  
+
     const auto result_train = dal::preview::train(
         comm, df_desc, x_train_vec[rank_id], y_train_vec[rank_id]);
-  
+
     if (comm.get_rank() == 0) {
         std::cout << "Variable importance results:\n"
                   << result_train.get_var_importance() << std::endl;
-  
+
         std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
     }
-  
+
     const auto result_infer = dal::preview::infer(
         comm, df_desc, result_train.get_model(), x_test_vec[rank_id]);
-  
+
     if (comm.get_rank() == 0) {
         std::cout << "Prediction results:\n"
                   << result_infer.get_responses() << std::endl;
         std::cout << "Probabilities results:\n"
                   << result_infer.get_probabilities() << std::endl;
-  
+
         std::cout << "Ground truth:\n" << y_test_vec[rank_id] << std::endl;
     }
 }
