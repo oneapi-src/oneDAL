@@ -24,7 +24,7 @@
 
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/io/csv.hpp"
-#include "oneapi/dal/spmd/mpi/communicator.hpp"
+#include "oneapi/dal/spmd/ccl/communicator.hpp"
 
 #include "utils.hpp"
 
@@ -33,12 +33,13 @@ namespace df = dal::decision_forest;
 
 void run(sycl::queue &queue) {
     const auto train_data_file_name =
-        get_data_path("df_regression_train_data.csv");
+        get_data_path("df_classification_train_data.csv");
     const auto train_response_file_name =
-        get_data_path("df_regression_train_label.csv");
-    const auto test_data_file_name = get_data_path("df_regression_test_data.csv");
+        get_data_path("df_classification_train_label.csv");
+    const auto test_data_file_name =
+        get_data_path("df_classification_test_data.csv");
     const auto test_response_file_name =
-        get_data_path("df_regression_test_label.csv");
+        get_data_path("df_classification_test_label.csv");
 
     const auto x_train =
         dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
@@ -50,7 +51,7 @@ void run(sycl::queue &queue) {
         queue, dal::csv::data_source{test_response_file_name});
 
     auto comm =
-        dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(
+        dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(
             queue);
     auto rank_id = comm.get_rank();
     auto rank_count = comm.get_rank_count();
@@ -61,14 +62,19 @@ void run(sycl::queue &queue) {
     auto y_test_vec = split_table_by_rows<float>(queue, y_test, rank_count);
 
     const auto df_desc =
-        df::descriptor<float, df::method::hist, df::task::regression>{}
-            .set_tree_count(100)
-            .set_features_per_node(0)
-            .set_min_observations_in_leaf_node(1)
-            .set_error_metric_mode(
-                df::error_metric_mode::out_of_bag_error |
-                df::error_metric_mode::out_of_bag_error_per_observation)
-            .set_variable_importance_mode(df::variable_importance_mode::mdi);
+        df::descriptor<float, df::method::hist, df::task::classification>{}
+            .set_class_count(5)
+            .set_tree_count(10)
+            .set_features_per_node(x_train.get_column_count())
+            .set_min_observations_in_leaf_node(8)
+            .set_min_observations_in_split_node(16)
+            .set_min_weight_fraction_in_leaf_node(0.0)
+            .set_min_impurity_decrease_in_split_node(0.0)
+            .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
+            .set_variable_importance_mode(df::variable_importance_mode::mdi)
+            .set_infer_mode(df::infer_mode::class_responses |
+                            df::infer_mode::class_probabilities)
+            .set_voting_mode(df::voting_mode::weighted);
 
     const auto result_train = dal::preview::train(
         comm, df_desc, x_train_vec[rank_id], y_train_vec[rank_id]);
@@ -78,8 +84,6 @@ void run(sycl::queue &queue) {
                   << result_train.get_var_importance() << std::endl;
 
         std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
-        std::cout << "OOB error per observation:\n"
-                  << result_train.get_oob_err_per_observation() << std::endl;
     }
 
     const auto result_infer = dal::preview::infer(
@@ -88,12 +92,15 @@ void run(sycl::queue &queue) {
     if (comm.get_rank() == 0) {
         std::cout << "Prediction results:\n"
                   << result_infer.get_responses() << std::endl;
+        std::cout << "Probabilities results:\n"
+                  << result_infer.get_probabilities() << std::endl;
 
         std::cout << "Ground truth:\n" << y_test_vec[rank_id] << std::endl;
     }
 }
 
 int main(int argc, char const *argv[]) {
+    ccl::init();
     int status = MPI_Init(nullptr, nullptr);
     if (status != MPI_SUCCESS) {
         throw std::runtime_error{"Problem occurred during MPI init"};
