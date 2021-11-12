@@ -426,12 +426,6 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                                              total_sum_degrees);
     oneapi::dal::preview::detail::deallocate(edge_allocator, unfiltered_offsets, rows_vec_count);
     graph_impl.set_topology(cols_array, rows_array, degrees_array);
-    // graph_impl.set_topology(vertex_count,
-    //                         get_edges_count<Graph>{}(filtered_total_sum_degrees),
-    //                         edge_offsets_data,
-    //                         vertex_neighbors,
-    //                         filtered_total_sum_degrees,
-    //                         degrees_data);
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
         using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;
