@@ -374,7 +374,17 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                                              rows_vec_atomic,
                                              rows_vec_count);
 
+    using edge_set_t = typename graph_traits<Graph>::edge_set;
+    using vertex_set_t = typename graph_traits<Graph>::vertex_set;
+
     vertex_t *degrees_data = oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
+
+    vertex_set_t degrees_array(
+        degrees_data,
+        vertex_count,
+        oneapi::dal::preview::detail::destroy_delete<vertex_t, decltype(vertex_allocator)>(
+            vertex_count,
+            vertex_allocator));
 
     filter_neighbors_and_fill_new_degrees(unfiltered_neighs,
                                           unfiltered_offsets,
@@ -384,11 +394,25 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     edge_t *edge_offsets_data =
         oneapi::dal::preview::detail::allocate(edge_allocator, (vertex_count + 1));
 
+    edge_set_t rows_array(
+        edge_offsets_data,
+        vertex_count + 1,
+        oneapi::dal::preview::detail::destroy_delete<edge_t, decltype(edge_allocator)>(
+            vertex_count + 1,
+            edge_allocator));
+
     edge_t filtered_total_sum_degrees =
         compute_prefix_sum(degrees_data, vertex_count, edge_offsets_data);
 
     vertex_t *vertex_neighbors =
         oneapi::dal::preview::detail::allocate(vertex_allocator, filtered_total_sum_degrees);
+
+    vertex_set_t cols_array(
+        vertex_neighbors,
+        filtered_total_sum_degrees,
+        oneapi::dal::preview::detail::destroy_delete<vertex_t, decltype(vertex_allocator)>(
+            filtered_total_sum_degrees,
+            vertex_allocator));
 
     fill_filtered_neighs(unfiltered_offsets,
                          unfiltered_neighs,
@@ -401,16 +425,17 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                                              unfiltered_neighs,
                                              total_sum_degrees);
     oneapi::dal::preview::detail::deallocate(edge_allocator, unfiltered_offsets, rows_vec_count);
-    graph_impl.set_topology(vertex_count,
-                            get_edges_count<Graph>{}(filtered_total_sum_degrees),
-                            edge_offsets_data,
-                            vertex_neighbors,
-                            filtered_total_sum_degrees,
-                            degrees_data);
+    graph_impl.set_topology(cols_array, rows_array, degrees_array);
+    // graph_impl.set_topology(vertex_count,
+    //                         get_edges_count<Graph>{}(filtered_total_sum_degrees),
+    //                         edge_offsets_data,
+    //                         vertex_neighbors,
+    //                         filtered_total_sum_degrees,
+    //                         degrees_data);
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
         using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;
-        using vertex_edge_set = typename graph_traits<Graph>::impl_type::vertex_edge_set;
+        using vertex_edge_set_t = typename graph_traits<Graph>::impl_type::vertex_edge_set;
         using vertex_edge_allocator_type =
             typename graph_traits<Graph>::impl_type::vertex_edge_allocator_type;
 
@@ -422,8 +447,16 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
             rows_vertex[u] = static_cast<vertex_edge_t>(edge_offsets_data[u]);
         });
 
-        graph_impl.get_topology()._rows_vertex =
-            vertex_edge_set::wrap(rows_vertex, vertex_count + 1);
+        vertex_edge_set_t rows_vertex_array(
+            rows_vertex,
+            vertex_count + 1,
+            oneapi::dal::preview::detail::destroy_delete<vertex_edge_t,
+                                                         decltype(vertex_edge_allocator)>(
+                vertex_count + 1,
+                vertex_edge_allocator));
+
+        graph_impl.get_topology()._rows_vertex = rows_vertex_array;
+        // vertex_edge_set::wrap(rows_vertex, vertex_count + 1);
     }
 
     return;
