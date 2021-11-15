@@ -52,7 +52,7 @@ The following collective operations are supported:
   Reduces data among all processes.
 
 - Allgatherv
-  Gather data from all processes and share the result among all processes.
+  Gathers data from all processes and share the result among all processes.
 
 .. _backend_restrictions:
 
