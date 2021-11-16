@@ -100,6 +100,10 @@ public:
         _edge_values = edge_values<EdgeValue>::wrap(values, values_count);
     }
 
+    inline void set_edge_values(edge_values<EdgeValue>& edge_values_array) {
+        _edge_values = edge_values_array;
+    }
+
     inline topology<IndexType>& get_topology() {
         return _topology;
     }

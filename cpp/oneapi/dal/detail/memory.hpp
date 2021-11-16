@@ -123,4 +123,15 @@ private:
     t_byte_allocator alloc_;
 };
 
+template <typename Array, typename Allocator>
+Array create_allocated_array(std::int64_t count, Allocator allocator) {
+    using data_t = typename Array::data_t;
+    data_t* array_values = oneapi::dal::preview::detail::allocate(allocator, count);
+
+    Array array(array_values,
+                count,
+                oneapi::dal::preview::detail::destroy_delete<data_t, Allocator>(count, allocator));
+    return array;
+}
+
 } // namespace oneapi::dal::preview::detail
