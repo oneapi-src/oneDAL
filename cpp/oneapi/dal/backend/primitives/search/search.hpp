@@ -119,7 +119,7 @@ public:
                 get_distances(tmp_objs).get_row_slice(0, query_blocking.get_block_length(qb_id));
             *last_event = callback(qb_id, out_indices, out_distances, { search_event });
         }
-        *last_event.wait_and_throw();
+        last_event->wait_and_throw();
         return *last_event;
     }
 
