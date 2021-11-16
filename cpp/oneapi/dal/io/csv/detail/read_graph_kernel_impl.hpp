@@ -378,7 +378,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     using vertex_set_t = typename graph_traits<Graph>::vertex_set;
     using namespace oneapi::dal::preview::detail;
 
-    vertex_set_t degrees_array =
+    auto degrees_array =
         create_allocated_array<vertex_set_t, decltype(vertex_allocator)>(vertex_count,
                                                                          vertex_allocator);
     vertex_t *degrees_data = degrees_array.get_mutable_data();
@@ -419,7 +419,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
         using vertex_edge_allocator_type =
             typename graph_traits<Graph>::impl_type::vertex_edge_allocator_type;
 
-        vertex_edge_allocator_type vertex_edge_allocator = graph_impl._vertex_edge_allocator;
+        auto &vertex_edge_allocator = graph_impl._vertex_edge_allocator;
         auto rows_vertex_array =
             create_allocated_array<vertex_edge_set_t, vertex_edge_allocator_type>(
                 vertex_count + 1,
@@ -518,46 +518,32 @@ void convert_to_csr_impl(
 
     using edge_set_t = typename graph_traits<Graph>::edge_set;
     using vertex_set_t = typename graph_traits<Graph>::vertex_set;
+    using namespace oneapi::dal::preview::detail;
 
-    vertex_t *degrees_data = oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
-
-    vertex_set_t degrees_array(
-        degrees_data,
-        vertex_count,
-        oneapi::dal::preview::detail::destroy_delete<vertex_t, decltype(vertex_allocator)>(
-            vertex_count,
-            vertex_allocator));
+    auto degrees_array =
+        create_allocated_array<vertex_set_t, decltype(vertex_allocator)>(vertex_count,
+                                                                         vertex_allocator);
+    vertex_t *degrees_data = degrees_array.get_mutable_data();
 
     filter_neighbors_and_fill_new_degrees(unfiltered_neighs_and_vals,
                                           unfiltered_offsets,
                                           degrees_data,
                                           vertex_count);
 
-    edge_t *edge_offsets_data =
-        oneapi::dal::preview::detail::allocate(edge_allocator, (vertex_count + 1));
-
-    edge_set_t rows_array(
-        edge_offsets_data,
-        vertex_count + 1,
-        oneapi::dal::preview::detail::destroy_delete<edge_t, decltype(edge_allocator)>(
-            vertex_count + 1,
-            edge_allocator));
+    auto rows_array = create_allocated_array<edge_set_t, decltype(edge_allocator)>(vertex_count + 1,
+                                                                                   edge_allocator);
+    edge_t *edge_offsets_data = rows_array.get_mutable_data();
 
     edge_t filtered_total_sum_degrees =
         compute_prefix_sum(degrees_data, vertex_count, edge_offsets_data);
 
-    vertex_t *vertex_neighbors =
-        oneapi::dal::preview::detail::allocate(vertex_allocator, filtered_total_sum_degrees);
-
-    vertex_set_t cols_array(
-        vertex_neighbors,
-        filtered_total_sum_degrees,
-        oneapi::dal::preview::detail::destroy_delete<vertex_t, decltype(vertex_allocator)>(
-            filtered_total_sum_degrees,
-            vertex_allocator));
+    auto cols_array =
+        create_allocated_array<vertex_set_t, decltype(vertex_allocator)>(filtered_total_sum_degrees,
+                                                                         vertex_allocator);
+    vertex_t *vertex_neighbors = cols_array.get_mutable_data();
 
     using namespace oneapi::dal::preview::detail;
-    edge_values<edge_value_type> edge_values_array =
+    auto edge_values_array =
         create_allocated_array<edge_values<edge_value_type>, decltype(edge_value_allocator)>(
             filtered_total_sum_degrees,
             edge_value_allocator);
@@ -580,25 +566,19 @@ void convert_to_csr_impl(
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
         using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;
-        using vertex_edge_set = typename graph_traits<Graph>::impl_type::vertex_edge_set;
-        using vertex_edge_allocator_type =
+        using vertex_edge_set_t = typename graph_traits<Graph>::impl_type::vertex_edge_set;
+        using vertex_edge_allocator_t =
             typename graph_traits<Graph>::impl_type::vertex_edge_allocator_type;
 
-        vertex_edge_allocator_type vertex_edge_allocator = graph_impl._vertex_edge_allocator;
-        vertex_edge_t *rows_vertex =
-            oneapi::dal::preview::detail::allocate(vertex_edge_allocator, vertex_count + 1);
+        auto &vertex_edge_allocator = graph_impl._vertex_edge_allocator;
+        auto rows_vertex_array = create_allocated_array<vertex_edge_set_t, vertex_edge_allocator_t>(
+            vertex_count + 1,
+            vertex_edge_allocator);
+        vertex_edge_t *rows_vertex = rows_vertex_array.get_mutable_data();
 
         dal::detail::threader_for_int64(vertex_count + 1, [&](std::int64_t u) {
             rows_vertex[u] = static_cast<vertex_edge_t>(edge_offsets_data[u]);
         });
-
-        vertex_edge_set_t rows_vertex_array(
-            rows_vertex,
-            vertex_count + 1,
-            oneapi::dal::preview::detail::destroy_delete<vertex_edge_t,
-                                                         decltype(vertex_edge_allocator)>(
-                vertex_count + 1,
-                vertex_edge_allocator));
 
         graph_impl.get_topology()._rows_vertex = rows_vertex_array;
     }
