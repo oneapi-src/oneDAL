@@ -393,6 +393,7 @@ sycl::event search_engine_base<Float, Distance, Impl>::do_search(const ndview<Fl
         auto part_indcs = temp_objs->get_part_indices_block(0);
         last_event = copy(get_queue(), part_indcs, temp_objs->get_out_indices(), { inds_event });
     }
+    last_event.wait_and_throw();
     return last_event;
 }
 
@@ -501,6 +502,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
         last_event =
             copy(this->get_queue(), part_indcs, temp_objs->get_out_indices(), { inds_event });
     }
+    last_event.wait_and_throw();
     return last_event;
 }
 

@@ -97,6 +97,8 @@ std::tuple<const std::int32_t, sycl::event> working_set_selector<Float>::select_
                                                   buff_indices_ptr + offset,
                                                   select_count,
                                                   { select_ws_edge_event });
+    } else {
+        select_ws_edge_event.wait_and_throw();
     }
 
     return { select_count, select_ws_edge_event };
@@ -118,7 +120,8 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
     std::int32_t left_to_select = ws_count_ - selected_count;
     std::int32_t already_selected = selected_count;
 
-    auto event = sort_f_indices(q_, f, deps);
+    sort_f_indices(q_, f, deps);
+    sycl::event event;
 
     const std::int32_t need_select_up = left_to_select / 2;
     std::tie(selected_count, event) = select_ws_edge(alpha,
@@ -186,7 +189,7 @@ sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::i
 }
 
 template <typename Float>
-sycl::event working_set_selector<Float>::sort_f_indices(sycl::queue& q,
+void working_set_selector<Float>::sort_f_indices(sycl::queue& q,
                                                         const pr::ndview<Float, 1>& f,
                                                         const dal::backend::event_vector& deps) {
     ONEDAL_PROFILER_TASK(select_ws.sort_f_indices, q);
@@ -198,10 +201,7 @@ sycl::event working_set_selector<Float>::sort_f_indices(sycl::queue& q,
     auto copy_event = dal::backend::copy(q, tmp_sort_ptr, f_ptr, row_count_, deps);
     auto arange_event = sorted_f_indices_.arange(q);
     auto radix_sort = pr::radix_sort_indices_inplace<Float, std::int32_t>{ q };
-    auto radix_sort_event =
-        radix_sort(tmp_sort_values_, sorted_f_indices_, { copy_event, arange_event });
-
-    return radix_sort_event;
+    radix_sort(tmp_sort_values_, sorted_f_indices_, { copy_event, arange_event }).wait_and_throw();
 }
 
 template class working_set_selector<float>;

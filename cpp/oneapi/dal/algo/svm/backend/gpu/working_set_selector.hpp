@@ -59,7 +59,7 @@ private:
         violating_edge edge,
         const dal::backend::event_vector& deps = {});
 
-    sycl::event sort_f_indices(sycl::queue& q,
+    void sort_f_indices(sycl::queue& q,
                                const pr::ndview<Float, 1>& f,
                                const dal::backend::event_vector& deps = {});
 
