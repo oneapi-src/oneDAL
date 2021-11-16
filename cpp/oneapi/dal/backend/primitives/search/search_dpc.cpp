@@ -17,6 +17,7 @@
 #include "oneapi/dal/detail/common.hpp"
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/blas/gemm.hpp"
 #include "oneapi/dal/backend/primitives/search/search.hpp"
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
 #include "oneapi/dal/backend/primitives/selection/select_indexed.hpp"
@@ -467,19 +468,25 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
             auto tnorms = temp_objs->get_train_norms_block(tb_id);
             auto tevent = temp_objs->get_train_norms_event(tb_id);
             ONEDAL_ASSERT(train.get_dimension(0) == train_block_size);
-            auto dists = temp_objs->get_distances()
-                             .get_col_slice(0, train_block_size)
-                             .get_row_slice(0, query_block_size);
-            auto dist_event =
-                this->distance(query, train, dists, qnorms, tnorms, { last_event, qevent, tevent });
+            auto ip = temp_objs->get_distances()
+                          .get_col_slice(0, train_block_size)
+                          .get_row_slice(0, query_block_size);
+            auto ip_event =
+                gemm(this->get_queue(), query, train.t(), ip, Float(-2), Float(0), { last_event });
 
             const auto rel_idx = tb_id - start_tb;
             auto part_inds =
                 temp_objs->get_part_indices_block(rel_idx + 1).get_row_slice(0, query_block_size);
             auto part_dsts =
                 temp_objs->get_part_distances_block(rel_idx + 1).get_row_slice(0, query_block_size);
-            auto selt_event =
-                select(this->get_queue(), dists, k_neighbors, part_dsts, part_inds, { dist_event });
+            auto selt_event = select.select_sq_l2(this->get_queue(),
+                                                  qnorms,
+                                                  tnorms,
+                                                  ip,
+                                                  k_neighbors,
+                                                  part_dsts,
+                                                  part_inds,
+                                                  { ip_event, qevent, tevent });
 
             const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
             last_event = this->treat_indices(part_inds, st_idx, { selt_event });
