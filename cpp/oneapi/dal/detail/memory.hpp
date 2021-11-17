@@ -139,7 +139,7 @@ struct RebindedAllocator {
     explicit RebindedAllocator(Allocator allocator) : allocator_(allocator) {}
 
     template <typename Array>
-    Array allocate_array(std::int64_t count, typename Array::data_t** mutable_ptr) {
+    std::tuple<Array, typename Array::data_t*> allocate_array(std::int64_t count) {
         using data_t = typename Array::data_t;
         using data_allocator_t =
             typename std::allocator_traits<Allocator>::template rebind_alloc<data_t>;
@@ -152,8 +152,8 @@ struct RebindedAllocator {
             count,
             oneapi::dal::preview::detail::destroy_delete<data_t, data_allocator_t>(count,
                                                                                    data_allocator));
-        *mutable_ptr = array.get_mutable_data();
-        return array;
+
+        return { array, array.get_mutable_data() };
     }
 
 private:
