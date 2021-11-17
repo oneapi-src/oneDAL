@@ -78,6 +78,7 @@ Reducion operations
 -------------------
 
 The following reduction operations are supported:
+
 - Max
 - Min
 - Sum
