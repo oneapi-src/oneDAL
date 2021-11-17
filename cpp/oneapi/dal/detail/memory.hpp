@@ -124,8 +124,8 @@ private:
 };
 
 template <typename Allocator>
-struct RebindedAllocator {
-    explicit RebindedAllocator(Allocator allocator) : allocator_(allocator) {}
+struct rebinded_allocator {
+    explicit rebinded_allocator(Allocator allocator) : allocator_(allocator) {}
 
     template <typename Array>
     std::tuple<Array, typename Array::data_t*> allocate_array(std::int64_t count) {

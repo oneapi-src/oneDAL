@@ -330,7 +330,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     auto &graph_impl = oneapi::dal::detail::get_impl(g);
     auto &allocator = graph_impl._allocator;
 
-    oneapi::dal::preview::detail::RebindedAllocator ra(allocator);
+    oneapi::dal::preview::detail::rebinded_allocator ra(allocator);
 
     using namespace oneapi::dal::preview::detail;
 
@@ -401,7 +401,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
         using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;
         using vertex_edge_set_t = typename graph_traits<Graph>::impl_type::vertex_edge_set;
 
-        oneapi::dal::preview::detail::RebindedAllocator ra_vertex_edge(
+        oneapi::dal::preview::detail::rebinded_allocator ra_vertex_edge(
             graph_impl._vertex_edge_allocator);
 
         auto edge_offsets_tup =
@@ -443,7 +443,7 @@ void convert_to_csr_impl(
     auto &graph_impl = oneapi::dal::detail::get_impl(g);
     auto &allocator = graph_impl._allocator;
 
-    oneapi::dal::preview::detail::RebindedAllocator ra(allocator);
+    oneapi::dal::preview::detail::rebinded_allocator ra(allocator);
 
     using namespace oneapi::dal::preview::detail;
 
@@ -521,7 +521,7 @@ void convert_to_csr_impl(
         using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;
         using vertex_edge_set_t = typename graph_traits<Graph>::impl_type::vertex_edge_set;
 
-        oneapi::dal::preview::detail::RebindedAllocator ra_vertex_edge(
+        oneapi::dal::preview::detail::rebinded_allocator ra_vertex_edge(
             graph_impl._vertex_edge_allocator);
 
         auto edge_offsets_tup =
