@@ -453,5 +453,7 @@ Distributed computational mode terms
         operations
 
     Communicator backend
-        A particular library providing collective operations. Examples: oneCCL; oneMPI.
+        A particular library providing collective operations.
+        
+        **Examples:** oneCCL, oneMPI
 
