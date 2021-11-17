@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/backend/primitives/heap.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_heap.hpp"
+#include "oneapi/dal/backend/primitives/selection/kselect_data_provider.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -145,7 +146,7 @@ private:
     dk_ids_t dk_ids_;
 };
 
-template <typename Float, bool dst_out, bool ids_out, int proposed_sg_size>
+template <typename DataProvider, typename Float, bool dst_out, bool ids_out, int proposed_sg_size>
 class kernel_select_heap {
     using dst_t = Float;
     using idx_t = std::int32_t;
@@ -166,55 +167,43 @@ public:
     kernel_select_heap() = default;
 
     template <bool ids_only = (ids_out && !dst_out), typename = std::enable_if_t<ids_only>>
-    kernel_select_heap(const dst_t* const src_ptr,
+    kernel_select_heap(const DataProvider& dp,
                        idx_t* const ids_ptr,
                        std::int32_t k,
-                       std::int32_t width,
                        std::int32_t height,
-                       std::int32_t src_str,
                        std::int32_t ids_str,
                        acc_t heaps)
             : dk_(ids_str, ids_ptr),
-              src_str_(src_str),
-              src_ptr_(src_ptr),
+              dp_(dp),
               k_(k),
-              width_(width),
               height_(height),
               heaps_(std::move(heaps)) {}
 
     template <bool dst_only = (dst_out && !ids_out), typename = std::enable_if_t<dst_only>>
-    kernel_select_heap(const dst_t* const src_ptr,
+    kernel_select_heap(const DataProvider& dp,
                        dst_t* const dst_ptr,
                        std::int32_t k,
-                       std::int32_t width,
                        std::int32_t height,
-                       std::int32_t src_str,
                        std::int32_t dst_str,
                        acc_t heaps)
             : dk_(dst_str, dst_ptr),
-              src_str_(src_str),
-              src_ptr_(src_ptr),
+              dp_(dp),
               k_(k),
-              width_(width),
               height_(height),
               heaps_(std::move(heaps)) {}
 
     template <bool both = (ids_out && dst_out), typename = std::enable_if_t<both>>
-    kernel_select_heap(const dst_t* const src_ptr,
+    kernel_select_heap(const DataProvider& dp,
                        idx_t* const ids_ptr,
                        dst_t* const dst_ptr,
                        std::int32_t k,
-                       std::int32_t width,
                        std::int32_t height,
-                       std::int32_t src_str,
                        std::int32_t ids_str,
                        std::int32_t dst_str,
                        acc_t heaps)
             : dk_(ids_str, dst_str, ids_ptr, dst_ptr),
-              src_str_(src_str),
-              src_ptr_(src_ptr),
+              dp_(dp),
               k_(k),
-              width_(width),
               height_(height),
               heaps_(std::move(heaps)) {}
 
@@ -253,8 +242,7 @@ public:
         std::int32_t k_written = 0;
         dst_t worst_val = dst_default;
         const auto step = sg_width * pbuff_size;
-        const auto* const row = src_ptr_ + rid * src_str_;
-        for (std::int32_t i = 0; i < width_; i += step) {
+        for (std::int32_t i = 0; i < dp_.get_width(); i += step) {
             const std::int32_t block_start_col = cid + i;
 
             pbuff_count = 0, prev_count = 0;
@@ -264,8 +252,8 @@ public:
             k_written = sycl::reduce_over_group(sg, k_written, max_func);
             for (std::int32_t j = 0; j < pbuff_size; ++j) {
                 const idx_t idx = block_start_col + sg_width * j;
-                const bool handle = idx < width_;
-                const dst_t val = handle ? *(row + idx) : dst_default;
+                const bool handle = idx < dp_.get_width();
+                const dst_t val = handle ? dp_.at(rid, idx) : dst_default;
                 pbuff_count += bool(val < worst_val || k_written < k_);
                 pbuff_ids[prev_count] = idx;
                 pbuff_dst[prev_count] = val;
@@ -322,24 +310,23 @@ public:
 private:
     dimension_keeper_t dk_;
 
-    std::int32_t src_str_;
-    const dst_t* src_ptr_;
+    const DataProvider dp_;
 
     std::int32_t k_;
-    std::int32_t width_;
     std::int32_t height_;
 
     acc_t heaps_;
 };
 
-template <typename Float, bool dst_out, bool ids_out, int sg_size>
-sycl::event select(sycl::queue& queue,
-                   const ndview<Float, 2>& data,
-                   std::int64_t k,
-                   ndview<Float, 2>& selection,
-                   ndview<std::int32_t, 2>& indices,
-                   const event_vector& deps) {
-    using kernel_t = kernel_select_heap<Float, dst_out, ids_out, sg_size>;
+template <typename DataProvider, typename Float, bool dst_out, bool ids_out, int sg_size>
+sycl::event select_impl(sycl::queue& queue,
+                        const DataProvider& dp,
+                        std::int64_t k,
+                        std::int64_t height,
+                        ndview<Float, 2>& selection,
+                        ndview<std::int32_t, 2>& indices,
+                        const event_vector& deps) {
+    using kernel_t = kernel_select_heap<DataProvider, Float, dst_out, ids_out, sg_size>;
     using sel_t = selection_pair<Float, std::int32_t>;
     using acc_t =
         sycl::accessor<sel_t, 1, sycl::access::mode::read_write, sycl::access::target::local>;
@@ -348,9 +335,6 @@ sycl::event select(sycl::queue& queue,
     if (pref_sbg == sg_size) {
         ONEDAL_ASSERT(get_heap_min_k<Float>(queue) < k);
         ONEDAL_ASSERT(k < get_heap_max_k<Float>(queue));
-        const auto width = data.get_dimension(1);
-        const auto height = data.get_dimension(0);
-        ONEDAL_ASSERT(data.has_data());
         ONEDAL_ASSERT(!ids_out || indices.has_mutable_data());
         ONEDAL_ASSERT(!dst_out || selection.has_mutable_data());
         ONEDAL_ASSERT(!ids_out || indices.get_dimension(1) == k);
@@ -365,32 +349,27 @@ sycl::event select(sycl::queue& queue,
         const auto wg_size = std::min<std::int64_t>(mem_bound, wkg_bound);
         const auto block_count = height / wg_size + bool(height % wg_size);
         const auto ndrange =
-            make_multiple_nd_range_1d({ block_count * wg_size * pref_sbg }, { wg_size * pref_sbg });
+            make_multiple_nd_range_1d(block_count * wg_size * pref_sbg, wg_size * pref_sbg);
         return queue.submit([&](sycl::handler& h) {
             h.depends_on(deps);
             acc_t heaps(make_range_1d(wg_size * k), h);
             if constexpr (dst_out && !ids_out) {
-                h.parallel_for(
-                    ndrange,
-                    kernel_t(
-                        data.get_data(),
-                        selection.get_mutable_data(),
-                        dal::detail::integral_cast<std::int32_t>(k),
-                        dal::detail::integral_cast<std::int32_t>(width),
-                        dal::detail::integral_cast<std::int32_t>(height),
-                        dal::detail::integral_cast<std::int32_t>(data.get_leading_stride()),
-                        dal::detail::integral_cast<std::int32_t>(selection.get_leading_stride()),
-                        heaps));
+                h.parallel_for(ndrange,
+                               kernel_t(dp,
+                                        selection.get_mutable_data(),
+                                        dal::detail::integral_cast<std::int32_t>(k),
+                                        dal::detail::integral_cast<std::int32_t>(height),
+                                        dal::detail::integral_cast<std::int32_t>(
+                                            selection.get_leading_stride()),
+                                        heaps));
             }
             if constexpr (ids_out && !dst_out) {
                 h.parallel_for(
                     ndrange,
-                    kernel_t(data.get_data(),
+                    kernel_t(dp,
                              indices.get_mutable_data(),
                              dal::detail::integral_cast<std::int32_t>(k),
-                             dal::detail::integral_cast<std::int32_t>(width),
                              dal::detail::integral_cast<std::int32_t>(height),
-                             dal::detail::integral_cast<std::int32_t>(data.get_leading_stride()),
                              dal::detail::integral_cast<std::int32_t>(indices.get_leading_stride()),
                              heaps));
             }
@@ -398,13 +377,11 @@ sycl::event select(sycl::queue& queue,
                 h.parallel_for(
                     ndrange,
                     kernel_t(
-                        data.get_data(),
+                        dp,
                         indices.get_mutable_data(),
                         selection.get_mutable_data(),
                         dal::detail::integral_cast<std::int32_t>(k),
-                        dal::detail::integral_cast<std::int32_t>(width),
                         dal::detail::integral_cast<std::int32_t>(height),
-                        dal::detail::integral_cast<std::int32_t>(data.get_leading_stride()),
                         dal::detail::integral_cast<std::int32_t>(indices.get_leading_stride()),
                         dal::detail::integral_cast<std::int32_t>(selection.get_leading_stride()),
                         heaps));
@@ -414,15 +391,56 @@ sycl::event select(sycl::queue& queue,
     }
 
     if constexpr (sg_size > 0) {
-        return select<Float, dst_out, ids_out, sg_size / 2>(queue,
-                                                            data,
-                                                            k,
-                                                            selection,
-                                                            indices,
-                                                            deps);
+        return select_impl<DataProvider, Float, dst_out, ids_out, sg_size / 2>(queue,
+                                                                               dp,
+                                                                               k,
+                                                                               height,
+                                                                               selection,
+                                                                               indices,
+                                                                               deps);
     }
 
     return sycl::event();
+}
+
+template <typename Float, bool dst_out, bool ids_out, int sg_size>
+sycl::event select(sycl::queue& queue,
+                   const ndview<Float, 2>& data,
+                   std::int64_t k,
+                   ndview<Float, 2>& selection,
+                   ndview<std::int32_t, 2>& indices,
+                   const event_vector& deps) {
+    using dp_t = data_provider_t<Float, false>;
+    const auto dp = dp_t::make(data);
+    const auto ht = data.get_dimension(0);
+    return select_impl<dp_t, Float, dst_out, ids_out, sg_size>(queue,
+                                                               dp,
+                                                               k,
+                                                               ht,
+                                                               selection,
+                                                               indices,
+                                                               deps);
+}
+
+template <typename Float, bool dst_out, bool ids_out, int sg_size>
+sycl::event sq_l2_select(sycl::queue& queue,
+                         const ndview<Float, 1>& n1,
+                         const ndview<Float, 1>& n2,
+                         const ndview<Float, 2>& ip,
+                         std::int64_t k,
+                         ndview<Float, 2>& selection,
+                         ndview<std::int32_t, 2>& indices,
+                         const event_vector& deps) {
+    using dp_t = data_provider_t<Float, true>;
+    const auto ht = ip.get_dimension(0);
+    const auto dp = dp_t::make(n1, n2, ip);
+    return select_impl<dp_t, Float, dst_out, ids_out, sg_size>(queue,
+                                                               dp,
+                                                               k,
+                                                               ht,
+                                                               selection,
+                                                               indices,
+                                                               deps);
 }
 
 template <typename Float>
@@ -456,6 +474,42 @@ sycl::event kselect_by_rows_heap<Float>::operator()(sycl::queue& queue,
                                                     const event_vector& deps) {
     ndarray<std::int32_t, 2> dummy;
     return select<Float, true, false>(queue, data, k, selection, dummy, deps);
+}
+
+template <typename Float>
+sycl::event kselect_by_rows_heap<Float>::select_sq_l2(sycl::queue& queue,
+                                                      const ndview<Float, 1>& n1,
+                                                      const ndview<Float, 1>& n2,
+                                                      const ndview<Float, 2>& ip,
+                                                      std::int64_t k,
+                                                      ndview<Float, 2>& selection,
+                                                      ndview<std::int32_t, 2>& indices,
+                                                      const event_vector& deps) {
+    return sq_l2_select<Float, true, true>(queue, n1, n2, ip, k, selection, indices, deps);
+}
+
+template <typename Float>
+sycl::event kselect_by_rows_heap<Float>::select_sq_l2(sycl::queue& queue,
+                                                      const ndview<Float, 1>& n1,
+                                                      const ndview<Float, 1>& n2,
+                                                      const ndview<Float, 2>& ip,
+                                                      std::int64_t k,
+                                                      ndview<Float, 2>& selection,
+                                                      const event_vector& deps) {
+    ndarray<std::int32_t, 2> dummy;
+    return sq_l2_select<Float, true, false>(queue, n1, n2, ip, k, selection, dummy, deps);
+}
+
+template <typename Float>
+sycl::event kselect_by_rows_heap<Float>::select_sq_l2(sycl::queue& queue,
+                                                      const ndview<Float, 1>& n1,
+                                                      const ndview<Float, 1>& n2,
+                                                      const ndview<Float, 2>& ip,
+                                                      std::int64_t k,
+                                                      ndview<std::int32_t, 2>& indices,
+                                                      const event_vector& deps) {
+    ndarray<Float, 2> dummy;
+    return sq_l2_select<Float, false, true>(queue, n1, n2, ip, k, dummy, indices, deps);
 }
 
 #define INSTANTIATE_FLOAT(F)                                     \
