@@ -53,9 +53,12 @@ The :term:`communicator` type and all of its subtypes are :term:`reference-count
 Memory access type dispatching
 ------------------------------
 
-Tags to select memory access type:
-- USM memory access when both USM and non-USM pointers can be used.
-- Host (non-USM) memory access when only non-USM pointers can be used.
+There are two types of memory access:
+
+- USM memory access (both USM and non-USM pointers can be used)
+- Host, or non-USM, memory access (only non-USM pointers can be used)
+
+Use one of the following tags to select a memory access type:
 
 device_memory_access::none
    Assumes only non-USM pointers are used for a collective operation.
