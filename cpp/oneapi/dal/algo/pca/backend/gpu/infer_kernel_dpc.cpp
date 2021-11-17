@@ -52,7 +52,7 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
                                                sycl::usm::alloc::device);
 
     {
-        ONEDAL_PROFILER_TASK(gemm, q);
+        ONEDAL_PROFILER_TASK(gemm, queue);
         auto gemm_event =
             pr::gemm(queue, data_nd, eigenvectors_nd.t(), res_nd, Float(1.0), Float(0.0));
     }

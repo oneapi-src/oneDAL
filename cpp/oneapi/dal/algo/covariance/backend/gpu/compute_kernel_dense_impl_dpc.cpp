@@ -816,7 +816,7 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     auto xtx =
         pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, sycl::usm::alloc::device);
     {
-        ONEDAL_PROFILER_TASK(gemm, q);
+        ONEDAL_PROFILER_TASK(gemm, q_);
         auto gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0));
         gemm_event.wait_and_throw();
     }
