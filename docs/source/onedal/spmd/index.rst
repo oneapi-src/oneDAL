@@ -64,5 +64,5 @@ Allgetherv doesn't support arbitrary displacements. The result is expected to
 be closely packed without gaps.
 
 #. OneMPI:
-Collective operations don't support asynchronous executions. All the ones block the
+Collective operations in oneMPI do not support asynchronous executions. They block the
 process till completion.
