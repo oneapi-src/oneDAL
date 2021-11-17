@@ -103,7 +103,7 @@ template <typename Alloc>
 struct alloc_connector : public byte_alloc_iface {
     using allocator_traits_t =
         typename std::allocator_traits<Alloc>::template rebind_traits<byte_t>;
-    using t_byte_allocator = typename std::allocator_traits<Alloc>::template rebind_alloc<byte_t>;
+    using byte_allocator_t = typename std::allocator_traits<Alloc>::template rebind_alloc<byte_t>;
     alloc_connector(Alloc alloc) : alloc_(alloc) {}
     byte_t* allocate(std::int64_t count) override {
         auto ptr = allocator_traits_t::allocate(alloc_, count);
@@ -120,7 +120,7 @@ struct alloc_connector : public byte_alloc_iface {
     };
 
 private:
-    t_byte_allocator alloc_;
+    byte_allocator_t alloc_;
 };
 
 template <typename Array, typename Allocator>
@@ -133,5 +133,31 @@ Array create_allocated_array(std::int64_t count, Allocator allocator) {
                 oneapi::dal::preview::detail::destroy_delete<data_t, Allocator>(count, allocator));
     return array;
 }
+
+template <typename Allocator>
+struct RebindedAllocator {
+    explicit RebindedAllocator(Allocator allocator) : allocator_(allocator) {}
+
+    template <typename Array>
+    Array allocate_array(std::int64_t count, typename Array::data_t** mutable_ptr) {
+        using data_t = typename Array::data_t;
+        using data_allocator_t =
+            typename std::allocator_traits<Allocator>::template rebind_alloc<data_t>;
+
+        data_allocator_t data_allocator(allocator_);
+        data_t* array_values = oneapi::dal::preview::detail::allocate(data_allocator, count);
+
+        Array array(
+            array_values,
+            count,
+            oneapi::dal::preview::detail::destroy_delete<data_t, data_allocator_t>(count,
+                                                                                   data_allocator));
+        *mutable_ptr = array.get_mutable_data();
+        return array;
+    }
+
+private:
+    Allocator allocator_;
+};
 
 } // namespace oneapi::dal::preview::detail

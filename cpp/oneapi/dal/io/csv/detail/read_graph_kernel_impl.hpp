@@ -334,13 +334,19 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     }
 
     auto &graph_impl = oneapi::dal::detail::get_impl(g);
+    auto &allocator = graph_impl._allocator;
+
+    oneapi::dal::preview::detail::RebindedAllocator ra(allocator);
     auto &vertex_allocator = graph_impl._vertex_allocator;
     auto &edge_allocator = graph_impl._edge_allocator;
     atomic_vertex_allocator_type atomic_vertex_allocator(vertex_allocator);
     atomic_edge_allocator_type atomic_edge_allocator(edge_allocator);
 
-    atomic_vertex_t *degrees_cv =
-        oneapi::dal::preview::detail::allocate(atomic_vertex_allocator, vertex_count);
+    using namespace oneapi::dal::preview::detail;
+
+    atomic_vertex_t *degrees_cv;
+    auto degrees_cv_array =
+        ra.template allocate_array<dal::array<atomic_vertex_t>>(vertex_count, &degrees_cv);
 
     degrees_cv = new (degrees_cv) atomic_vertex_t[vertex_count]();
 
@@ -351,32 +357,37 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
         throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
     }
 
-    atomic_edge_t *rows_vec_atomic =
-        oneapi::dal::preview::detail::allocate(atomic_edge_allocator, rows_vec_count);
+    auto rows_vec_atomic_array =
+        create_allocated_array<dal::array<atomic_edge_t>, atomic_edge_allocator_type>(
+            rows_vec_count,
+            atomic_edge_allocator);
+    atomic_edge_t *rows_vec_atomic = rows_vec_atomic_array.get_mutable_data();
 
     rows_vec_atomic = new (rows_vec_atomic) atomic_edge_t[rows_vec_count]();
 
     edge_t total_sum_degrees =
         compute_prefix_sum_atomic<edge_t>(degrees_cv, vertex_count, rows_vec_atomic);
 
-    oneapi::dal::preview::detail::deallocate(atomic_vertex_allocator, degrees_cv, vertex_count);
+    degrees_cv_array.reset();
 
-    vertex_t *unfiltered_neighs =
-        oneapi::dal::preview::detail::allocate(vertex_allocator, total_sum_degrees);
-    edge_t *unfiltered_offsets =
-        oneapi::dal::preview::detail::allocate(edge_allocator, rows_vec_count);
+    auto unfiltered_neighs_array =
+        create_allocated_array<dal::array<vertex_t>, decltype(vertex_allocator)>(total_sum_degrees,
+                                                                                 vertex_allocator);
+    vertex_t *unfiltered_neighs = unfiltered_neighs_array.get_mutable_data();
+
+    auto unfiltered_offsets_array =
+        create_allocated_array<dal::array<edge_t>, decltype(edge_allocator)>(rows_vec_count,
+                                                                             edge_allocator);
+    edge_t *unfiltered_offsets = unfiltered_offsets_array.get_mutable_data();
 
     fill_from_atomics(unfiltered_offsets, rows_vec_atomic, rows_vec_count);
 
     fill_unfiltered_neighs<Graph>{}(edges, rows_vec_atomic, unfiltered_neighs);
 
-    oneapi::dal::preview::detail::deallocate(atomic_edge_allocator,
-                                             rows_vec_atomic,
-                                             rows_vec_count);
+    rows_vec_atomic_array.reset();
 
     using edge_set_t = typename graph_traits<Graph>::edge_set;
     using vertex_set_t = typename graph_traits<Graph>::vertex_set;
-    using namespace oneapi::dal::preview::detail;
 
     auto degrees_array =
         create_allocated_array<vertex_set_t, decltype(vertex_allocator)>(vertex_count,
@@ -407,23 +418,20 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                          vertex_neighbors,
                          vertex_count);
 
-    oneapi::dal::preview::detail::deallocate(vertex_allocator,
-                                             unfiltered_neighs,
-                                             total_sum_degrees);
-    oneapi::dal::preview::detail::deallocate(edge_allocator, unfiltered_offsets, rows_vec_count);
+    unfiltered_neighs_array.reset();
+    unfiltered_offsets_array.reset();
     graph_impl.set_topology(cols_array, rows_array, degrees_array);
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
         using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;
         using vertex_edge_set_t = typename graph_traits<Graph>::impl_type::vertex_edge_set;
-        using vertex_edge_allocator_type =
+        using vertex_edge_allocator_t =
             typename graph_traits<Graph>::impl_type::vertex_edge_allocator_type;
 
         auto &vertex_edge_allocator = graph_impl._vertex_edge_allocator;
-        auto rows_vertex_array =
-            create_allocated_array<vertex_edge_set_t, vertex_edge_allocator_type>(
-                vertex_count + 1,
-                vertex_edge_allocator);
+        auto rows_vertex_array = create_allocated_array<vertex_edge_set_t, vertex_edge_allocator_t>(
+            vertex_count + 1,
+            vertex_edge_allocator);
         vertex_edge_t *rows_vertex = rows_vertex_array.get_mutable_data();
 
         dal::detail::threader_for_int64(vertex_count + 1, [&](std::int64_t u) {
@@ -477,8 +485,9 @@ void convert_to_csr_impl(
     atomic_edge_allocator_type atomic_edge_allocator(edge_allocator);
     vertex_weight_pair_allocator_type vertex_weight_pair_allocator(edge_value_allocator);
 
-    atomic_vertex_t *degrees_cv =
-        oneapi::dal::preview::detail::allocate(atomic_vertex_allocator, vertex_count);
+    using namespace oneapi::dal::preview::detail;
+
+    atomic_vertex_t *degrees_cv = allocate(atomic_vertex_allocator, vertex_count);
 
     degrees_cv = new (degrees_cv) atomic_vertex_t[vertex_count]();
 
@@ -489,36 +498,31 @@ void convert_to_csr_impl(
         throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
     }
 
-    atomic_edge_t *rows_vec_atomic =
-        oneapi::dal::preview::detail::allocate(atomic_edge_allocator, rows_vec_count);
+    atomic_edge_t *rows_vec_atomic = allocate(atomic_edge_allocator, rows_vec_count);
 
     rows_vec_atomic = new (rows_vec_atomic) atomic_edge_t[rows_vec_count]();
 
     edge_t total_sum_degrees =
         compute_prefix_sum_atomic<edge_t>(degrees_cv, vertex_count, rows_vec_atomic);
 
-    oneapi::dal::preview::detail::deallocate(atomic_vertex_allocator, degrees_cv, vertex_count);
+    deallocate(atomic_vertex_allocator, degrees_cv, vertex_count);
 
     vertex_weight_pair *unfiltered_neighs_and_vals =
-        oneapi::dal::preview::detail::allocate(vertex_weight_pair_allocator, total_sum_degrees);
+        allocate(vertex_weight_pair_allocator, total_sum_degrees);
 
     unfiltered_neighs_and_vals =
         new (unfiltered_neighs_and_vals) vertex_weight_pair[total_sum_degrees]();
 
-    edge_t *unfiltered_offsets =
-        oneapi::dal::preview::detail::allocate(edge_allocator, rows_vec_count);
+    edge_t *unfiltered_offsets = allocate(edge_allocator, rows_vec_count);
 
     fill_from_atomics(unfiltered_offsets, rows_vec_atomic, rows_vec_count);
 
     fill_unfiltered_neighs<Graph>{}(edges, rows_vec_atomic, unfiltered_neighs_and_vals);
 
-    oneapi::dal::preview::detail::deallocate(atomic_edge_allocator,
-                                             rows_vec_atomic,
-                                             rows_vec_count);
+    deallocate(atomic_edge_allocator, rows_vec_atomic, rows_vec_count);
 
     using edge_set_t = typename graph_traits<Graph>::edge_set;
     using vertex_set_t = typename graph_traits<Graph>::vertex_set;
-    using namespace oneapi::dal::preview::detail;
 
     auto degrees_array =
         create_allocated_array<vertex_set_t, decltype(vertex_allocator)>(vertex_count,
@@ -557,10 +561,8 @@ void convert_to_csr_impl(
                          vals,
                          vertex_count);
 
-    oneapi::dal::preview::detail::deallocate(vertex_weight_pair_allocator,
-                                             unfiltered_neighs_and_vals,
-                                             total_sum_degrees);
-    oneapi::dal::preview::detail::deallocate(edge_allocator, unfiltered_offsets, rows_vec_count);
+    deallocate(vertex_weight_pair_allocator, unfiltered_neighs_and_vals, total_sum_degrees);
+    deallocate(edge_allocator, unfiltered_offsets, rows_vec_count);
     graph_impl.set_topology(cols_array, rows_array, degrees_array);
     graph_impl.set_edge_values(edge_values_array);
 
