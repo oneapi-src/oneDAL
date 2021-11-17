@@ -27,7 +27,7 @@ distributed computations using :capterm:`SPMD` model.
 
 In typical usage scenarios, a user provides a :capterm:`communicator` object as a first parameter of 
 a free function to indicate that the algorithm can process data simultaneously. All internal inter-process 
-communications at sync points required by the algorithm are hidden from the user.
+communications at sync points are hidden from the user.
 
 
 .. _example_spmd_flow:
