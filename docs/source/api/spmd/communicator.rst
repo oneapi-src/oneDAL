@@ -38,7 +38,7 @@ Communicator
 A base implementation of the :term:`communicator` concept.
 The :term:`communicator` type and all of its subtypes are :term:`reference-counted <Reference-counted object>`:
 
-1. The instance stores a pointer to communicator implementation that holds all
+1. The instance stores a pointer to the communicator implementation that holds all
    property values and data.
 
 2. The reference count indicates how many communicator objects refer to the same implementation.
