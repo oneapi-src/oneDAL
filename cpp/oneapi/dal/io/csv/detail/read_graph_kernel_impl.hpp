@@ -330,9 +330,9 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     auto &graph_impl = oneapi::dal::detail::get_impl(g);
     auto &allocator = graph_impl._allocator;
 
-    oneapi::dal::preview::detail::rebinded_allocator ra(allocator);
-
     using namespace oneapi::dal::preview::detail;
+
+    rebinded_allocator ra(allocator);
 
     auto [degrees_cv_array, degrees_cv] =
         ra.template allocate_array<dal::array<atomic_vertex_t>>(vertex_count);
@@ -395,7 +395,10 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
 
     unfiltered_neighs_array.reset();
     unfiltered_offsets_array.reset();
-    graph_impl.set_topology(cols_array, rows_array, degrees_array);
+    graph_impl.set_topology(cols_array,
+                            rows_array,
+                            degrees_array,
+                            get_edges_count<Graph>{}(filtered_total_sum_degrees));
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
         using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;
@@ -443,9 +446,9 @@ void convert_to_csr_impl(
     auto &graph_impl = oneapi::dal::detail::get_impl(g);
     auto &allocator = graph_impl._allocator;
 
-    oneapi::dal::preview::detail::rebinded_allocator ra(allocator);
-
     using namespace oneapi::dal::preview::detail;
+
+    rebinded_allocator ra(allocator);
 
     auto [degrees_cv_array, degrees_cv] =
         ra.template allocate_array<dal::array<atomic_vertex_t>>(vertex_count);
@@ -514,7 +517,10 @@ void convert_to_csr_impl(
 
     unfiltered_neighs_and_vals_array.reset();
     unfiltered_offsets_array.reset();
-    graph_impl.set_topology(cols_array, rows_array, degrees_array);
+    graph_impl.set_topology(cols_array,
+                            rows_array,
+                            degrees_array,
+                            get_edges_count<Graph>{}(filtered_total_sum_degrees));
     graph_impl.set_edge_values(edge_values_array);
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {

@@ -139,6 +139,7 @@ public:
     MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count);
     MSG(negative_vertex_id);
     MSG(unimplemented_sorting_procedure);
+    MSG(edge_values_are_empty);
 
     /* I/O */
     MSG(file_not_found);

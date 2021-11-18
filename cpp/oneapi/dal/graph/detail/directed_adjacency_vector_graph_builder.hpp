@@ -43,15 +43,11 @@ public:
                                             const EdgeValue* vals)
             : g() {
         auto& graph_impl = oneapi::dal::detail::get_impl(g);
-
-        using vertex_t = typename graph_traits<graph_type>::vertex_type;
         using vertex_set_t = typename graph_traits<graph_type>::vertex_set;
-        auto& vertex_allocator = graph_impl._vertex_allocator;
 
-        auto degrees_array =
-            create_allocated_array<vertex_set_t, decltype(vertex_allocator)>(vertex_count,
-                                                                             vertex_allocator);
-        vertex_t* degrees = degrees_array.get_mutable_data();
+        rebinded_allocator ra(graph_impl._vertex_allocator);
+        auto [degrees_array, degrees] = ra.template allocate_array<vertex_set_t>(vertex_count);
+
         for (std::int64_t u = 0; u < vertex_count; u++) {
             degrees[u] = rows[u + 1] - rows[u];
         }
