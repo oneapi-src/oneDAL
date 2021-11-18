@@ -446,7 +446,7 @@ Distributed computational mode terms
 
     SPMD 
         Single Program, Multiple Data (SPMD) is a technique employed to achieve parallelism.
-        In SPMD, multiple autonomous processors simultaneously execute the same program at independent points.
+        In SPMD model, multiple autonomous processors simultaneously execute the same program at independent points.
 
     Communicator
         A |short_name| concept for an object that is used to perform inter-process collective
