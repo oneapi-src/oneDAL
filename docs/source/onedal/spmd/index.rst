@@ -64,7 +64,7 @@ Backend specific restrictions
 -----------------------------
 
 - oneCCL:
-  Allgetherv doesn't support arbitrary displacements. The result is expected to
+  Allgetherv does not support arbitrary displacements. The result is expected to
   be closely packed without gaps.
 
 - oneMPI:
