@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,17 +14,40 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-DPC++ examples not working
-**************************
 
-DPC++ examples for |short_name| might not work in Visual Studio 2017 by default. You will see the following message:
+.. toctree::
+   :caption: About
+   :maxdepth: 1
 
-.. code-block:: text
+   data-analytics-pipeline.rst
+   system-requirements.rst
+   legal.rst
 
-    The Windows SDK version 10.0 was not found. Install the required version of Windows SDK or change the SDK version
-    in the project property pages or by right-clicking the solution and selecting "Retarget solution".
- 
-How to Fix
-----------
+.. toctree::
+   :caption: Get Started
+   :maxdepth: 2
 
-Choose the installed SDK version and select :guilabel:`Retarget solution`.
+   installation.rst
+   quick-start.rst
+   examples.rst
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Developer Guide
+
+   oneapi-interfaces.rst
+   daal-interfaces.rst
+   bibliography.rst
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Developer Reference
+
+   api/index.rst
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Contributing Guide
+
+   contribution/coding_guide.rst

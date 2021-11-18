@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,17 +14,20 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-oneAPI examples failing with segfault
-*************************************
+.. _onedal_get_started:
 
-oneAPI examples located in the ``examples/oneapi`` directory are failing with a segmentation fault (segfault).
-This happens because the directory that contains data is skipped during installation.
+Quick Start
+=======================
 
-How to Fix
-----------
+.. toctree::
+   :maxdepth: 4
 
-The workaround is to copy the missing directory from the source repository:
+.. include:: ./get-started/prerequisites.rst
 
-#. Copy the `missing data directory <https://github.com/oneapi-src/oneDAL/tree/rls/onedal-beta09-rls/examples/oneapi/data>`_ from |short_name| repository.
+.. include:: ./get-started/end-to-end-example.rst
 
-#. Place the ``data`` directory within the ``examples/oneapi`` directory on your machine.
+.. include:: ./get-started/build-and-run-examples.rst
+
+.. seealso::
+   
+   - :ref:`oneapi_dal_examples`

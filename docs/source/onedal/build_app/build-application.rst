@@ -17,21 +17,81 @@
 Build applications with oneDAL
 ==============================
 
-See Get Started Guides for `Windows\*
-<https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-daal-for-windows/top.html>`_
-and `Linux\* <https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-daal-for-linux/top.html>`_
-for instruction on how to build applications for C++.
 This section contains instructions for building applications with |short_name| for SYCL\*.
 
-- :ref:`app_on_win`
 - :ref:`app_on_lin`
+- :ref:`app_on_win`
+
+.. _app_on_lin:
+
+Applications on Linux* OS
+-------------------------
+
+#. Install |short_name|.
+
+#. Set environment variables by calling ``<install dir>/setvars.sh``.
+
+#. Build your application with clang++:
+
+   - Add ``fsycl`` option to the command:
+
+     .. code-block:: text
+
+       -fsycl
+
+   - Add ``ONEAPI_DAAL_USE_MKL_GPU_GEMM`` definition:
+
+     .. code-block:: text
+
+        -DONEAPI_DAAL_USE_MKL_GPU_GEMM
+
+   - Add |short_name| ``includes`` folder:
+
+     .. code-block:: text
+
+        -I<install dir>/daal/latest/include
+
+   - Add |short_name| libraries. Choose the appropriate |short_name| libraries based on |short_name| threading mode and linking method:
+
+     .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
+
+     .. list-table:: |short_name| libraries for Linux
+          :widths: 15 25 25
+          :header-rows: 1
+          :align: left
+          :class: longtable
+
+          * -
+            - Single-threaded (non-threaded)
+            - Multi-threaded (internally threaded)
+          * - Static linking
+            -
+              | libonedal_core.a,
+              | libonedal_sequential.a
+            -
+              | libonedal_core.a,
+              | libonedal_thread.a
+          * - Dynamic linking
+            -
+              | libonedal_core.so,
+              | libonedal_sequential.so
+            -
+              | libonedal_core.so,
+              | libonedal_thread.so
+
+   - Add an additional |short_name| library:
+
+     .. code-block:: text
+
+        -foffload-static-lib=<install dir>/daal/latest/libintel64/libonedal_sycl.a
 
 .. _app_on_win:
+
 
 Applications on Windows* OS
 ---------------------------
 
-#. Download and install |base_tk|.
+#. Install |short_name|.
 
 #. In Microsoft Visual Studio* Integrated Development Environment (IDE),
    open or create a C++ project for your |short_name| application to build.
@@ -40,7 +100,7 @@ Applications on Windows* OS
 
    - Set |dpcpp| platform toolset:
 
-     .. figure:: ./images/MSVSPlatformToolset.jpg
+     .. figure:: /onedal/build_app/images/MSVSPlatformToolset.jpg
        :width: 600
        :align: center
        :alt: In General configuration properties, choose Platform Toolset property
@@ -48,14 +108,14 @@ Applications on Windows* OS
    - Add |short_name| ``includes`` folder to :guilabel:`Additional Include Directories`.
    - Add folders with |short_name| and oneTBB libraries to :guilabel:`Library Directories`:
 
-     .. figure:: ./images/LibraryDirectories.jpg
+     .. figure:: /onedal/build_app/images/LibraryDirectories.jpg
        :width: 600
        :align: center
        :alt: In VC++ Directories, choose Library Directories property
 
    - Add |short_name| and OpenCL libraries to :guilabel:`Additional Dependencies`:
 
-     .. figure:: ./images/AdditionalDependencies.jpg
+     .. figure:: /onedal/build_app/images/AdditionalDependencies.jpg
        :width: 600
        :align: center
        :alt: In Linker configuration properties, choose Input.
@@ -127,69 +187,6 @@ Applications on Windows* OS
           | onedal_cored.1.dll,
           | onedal_dpcd.1.dll,
           | onedal_threadd.1.dll
-
-.. _app_on_lin:
-
-Applications on Linux* OS
--------------------------
-
-#. Download and install |base_tk|.
-
-#. Set environment variables by calling ``<install dir>/setvars.sh``.
-
-#. Build your application with clang++:
-
-   - Add ``fsycl`` option to the command:
-
-     .. code-block:: text
-
-       -fsycl
-
-   - Add ``ONEAPI_DAAL_USE_MKL_GPU_GEMM`` definition:
-
-     .. code-block:: text
-
-        -DONEAPI_DAAL_USE_MKL_GPU_GEMM
-
-   - Add |short_name| ``includes`` folder:
-
-     .. code-block:: text
-
-        -I<install dir>/daal/latest/include
-
-   - Add |short_name| libraries. Choose the appropriate |short_name| libraries based on |short_name| threading mode and linking method:
-
-     .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
-
-     .. list-table:: |short_name| libraries for Linux
-          :widths: 15 25 25
-          :header-rows: 1
-          :align: left
-          :class: longtable
-
-          * -
-            - Single-threaded (non-threaded)
-            - Multi-threaded (internally threaded)
-          * - Static linking
-            -
-              | libonedal_core.a,
-              | libonedal_sequential.a
-            -
-              | libonedal_core.a,
-              | libonedal_thread.a
-          * - Dynamic linking
-            -
-              | libonedal_core.so,
-              | libonedal_sequential.so
-            -
-              | libonedal_core.so,
-              | libonedal_thread.so
-
-   - Add an additional |short_name| library:
-
-     .. code-block:: text
-
-        -foffload-static-lib=<install dir>/daal/latest/libintel64/libonedal_sycl.a
 
 Examples
 ********

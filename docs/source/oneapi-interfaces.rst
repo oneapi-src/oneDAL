@@ -14,16 +14,10 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. |daal-docs| replace:: oneAPI Data Analytics Library
-.. _daal-docs: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html
-
 .. _oneapi_dal_guide:
 
 oneAPI Interfaces
 =================
-
-Refer to |daal-docs|_ official page for general information.
-
 
 .. toctree::
    :maxdepth: 2
@@ -32,5 +26,4 @@ Refer to |daal-docs|_ official page for general information.
    onedal/programming-model/computational-modes.rst
    onedal/data-management/index.rst
    onedal/algorithms/index.rst
-   examples.rst
    onedal/appendix/index.rst

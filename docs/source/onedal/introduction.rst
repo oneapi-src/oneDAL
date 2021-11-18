@@ -20,7 +20,6 @@ Introduction
 .. toctree::
    :maxdepth: 1
 
-   get-started.rst
    build_app/build-application.rst
    glossary.rst
    notations.rst
