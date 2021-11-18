@@ -49,14 +49,14 @@ Supported Collective Operations
 
 The following collective operations are supported:
 
-- Bcast
+- ``bcast``
   Broadcasts data from specified process.
 
-- Allreduce
+- ``allreduce``
   Reduces data among all processes.
 
-- Allgatherv
-  Gathers data from all processes and share the result among all processes.
+- ``allgatherv``
+  Gathers data from all processes and shares the result among all processes.
 
 .. _backend_restrictions:
 
