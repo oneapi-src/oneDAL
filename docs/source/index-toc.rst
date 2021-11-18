@@ -18,6 +18,7 @@
 .. toctree::
    :caption: About
    :maxdepth: 1
+   :hidden:
 
    data-analytics-pipeline.rst
    system-requirements.rst

@@ -25,7 +25,7 @@ oneAPI Data Analytics Library (oneDAL) is a powerful machine learning library th
 
 oneAPI Data Analytics Library is an extension of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
 
-oneDAL is part of [oneAPI](https://oneapi.io).
+oneDAL is part of [oneAPI](https://oneapi.io). The current branch implements version 1.1 of oneAPI Specification.
 
 ## Table of Contents <!-- omit in toc -->
 - [Python API](#python-api)
