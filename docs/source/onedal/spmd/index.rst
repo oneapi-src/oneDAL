@@ -23,11 +23,15 @@ Single Program Multiple Data
 This section includes concepts and description of objects that support 
 distributed computations using :capterm:`SPMD` model.
 
-#. Distributed computation using SPMD model
+Distributed computation using SPMD model
+----------------------------------------
 
 In a typical usage scenario, a user provides a :capterm:`communicator` object as a first parameter of 
 a free function to indicate that the algorithm can process data simultaneously. All internal inter-process 
 communications at sync points are hidden from the user.
+
+General expectation is that input dataset is distributed among processes. Results are distributed in
+accordance with input.
 
 
 .. _example_spmd_flow:
@@ -59,10 +63,10 @@ The following collective operations are supported:
 Backend specific restrictions
 -----------------------------
 
-#. OneCCL:
-Allgetherv doesn't support arbitrary displacements. The result is expected to
-be closely packed without gaps.
+- oneCCL:
+  Allgetherv doesn't support arbitrary displacements. The result is expected to
+  be closely packed without gaps.
 
-#. OneMPI:
-Collective operations in oneMPI do not support asynchronous executions. They block the
-process till completion.
+- oneMPI:
+  Collective operations in oneMPI do not support asynchronous executions. They block the
+  process till completion.

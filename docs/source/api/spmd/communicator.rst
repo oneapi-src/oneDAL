@@ -50,8 +50,8 @@ The :term:`communicator` type and all of its subtypes are :term:`reference-count
    communicator goes out of the scope. If the reference count is zero, the communicator
    frees its implementation.
 
-Memory access type dispatching
-------------------------------
+USM and non-USM memory usage
+----------------------------
 
 There are two types of memory access:
 
