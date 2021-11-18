@@ -60,7 +60,7 @@ The following collective operations are supported:
 
 .. _backend_restrictions:
 
-Backend specific restrictions
+Backend-specific restrictions
 -----------------------------
 
 - oneCCL:
