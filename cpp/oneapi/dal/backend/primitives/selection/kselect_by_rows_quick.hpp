@@ -36,6 +36,9 @@ template <typename Float>
 class kselect_by_rows_quick : public kselect_by_rows_base<Float> {
     static constexpr Float max_float = oneapi::dal::detail::limits<Float>::max();
 
+    using sq_l2_dp_t = data_provider_t<Float, true>;
+    using naive_dp_t = data_provider_t<Float, false>;
+
 public:
     kselect_by_rows_quick() = delete;
     kselect_by_rows_quick(sycl::queue& queue, const ndshape<2>& shape)
@@ -52,7 +55,9 @@ public:
                            ndview<Float, 2>& selection,
                            ndview<std::int32_t, 2>& indices,
                            const event_vector& deps) override {
-        return select<true, true>(queue, data, k, selection, indices, deps);
+        const auto ht = data.get_dimension(0);
+        const auto dp = naive_dp_t::make(data);
+        return select<true, true>(queue, dp, k, ht, selection, indices, deps);
     }
     sycl::event operator()(sycl::queue& queue,
                            const ndview<Float, 2>& data,
@@ -60,7 +65,9 @@ public:
                            ndview<Float, 2>& selection,
                            const event_vector& deps) override {
         ndarray<std::int32_t, 2> dummy;
-        return select<true, false>(queue, data, k, selection, dummy, deps);
+        const auto ht = data.get_dimension(0);
+        const auto dp = naive_dp_t::make(data);
+        return select<true, false>(queue, dp, k, ht, selection, dummy, deps);
     }
     sycl::event operator()(sycl::queue& queue,
                            const ndview<Float, 2>& data,
@@ -68,35 +75,78 @@ public:
                            ndview<std::int32_t, 2>& indices,
                            const event_vector& deps) override {
         ndarray<Float, 2> dummy;
-        return select<false, true>(queue, data, k, dummy, indices, deps);
+        const auto ht = data.get_dimension(0);
+        const auto dp = naive_dp_t::make(data);
+        return select<false, true>(queue, dp, k, ht, dummy, indices, deps);
+    }
+
+    sycl::event select_sq_l2(sycl::queue& queue,
+                             const ndview<Float, 1>& n1,
+                             const ndview<Float, 1>& n2,
+                             const ndview<Float, 2>& ip,
+                             std::int64_t k,
+                             ndview<Float, 2>& selection,
+                             ndview<std::int32_t, 2>& indices,
+                             const event_vector& deps) override {
+        const auto ht = ip.get_dimension(0);
+        const auto dp = sq_l2_dp_t::make(n1, n2, ip);
+        return select<true, true>(queue, dp, k, ht, selection, indices, deps);
+    }
+
+    sycl::event select_sq_l2(sycl::queue& queue,
+                             const ndview<Float, 1>& n1,
+                             const ndview<Float, 1>& n2,
+                             const ndview<Float, 2>& ip,
+                             std::int64_t k,
+                             ndview<Float, 2>& selection,
+                             const event_vector& deps) override {
+        ndarray<std::int32_t, 2> dummy;
+        const auto ht = ip.get_dimension(0);
+        const auto dp = sq_l2_dp_t::make(n1, n2, ip);
+        return select<true, false>(queue, dp, k, ht, selection, dummy, deps);
+    }
+
+    sycl::event select_sq_l2(sycl::queue& queue,
+                             const ndview<Float, 1>& n1,
+                             const ndview<Float, 1>& n2,
+                             const ndview<Float, 2>& ip,
+                             std::int64_t k,
+                             ndview<std::int32_t, 2>& indices,
+                             const event_vector& deps) override {
+        ndarray<Float, 2> dummy;
+        const auto ht = ip.get_dimension(0);
+        const auto dp = sq_l2_dp_t::make(n1, n2, ip);
+        return select<false, true>(queue, dp, k, ht, dummy, indices, deps);
     }
 
 private:
-    template <bool selection_out, bool indices_out>
+    template <bool selection_out, bool indices_out, typename DataProvider>
     sycl::event select(sycl::queue& queue,
-                       const ndview<Float, 2>& data,
+                       const DataProvider& dp,
                        std::int64_t k,
+                       std::int64_t height,
                        ndview<Float, 2>& selection,
                        ndview<std::int32_t, 2>& indices,
                        const event_vector& deps) {
-        ONEDAL_ASSERT(!indices_out || indices.get_shape()[0] == data.get_shape()[0]);
-        ONEDAL_ASSERT(!indices_out || indices.get_shape()[1] == k);
-        ONEDAL_ASSERT(!selection_out || selection.get_shape()[0] == data.get_shape()[0]);
-        ONEDAL_ASSERT(!selection_out || selection.get_shape()[1] == k);
-
-        ONEDAL_ASSERT(data.get_shape() == data_.get_shape());
         last_call_.wait_and_throw();
-        const std::int64_t col_count = data.get_dimension(1);
-        const std::int64_t row_count = data.get_dimension(0);
-        const std::int64_t inp_stride = data.get_leading_stride();
-        const auto width = std::max(inp_stride, col_count);
+        const std::int64_t row_count = height;
+        const std::int64_t col_count = dp.get_width();
         [[maybe_unused]] const std::int64_t out_ids_stride = indices.get_leading_stride();
         [[maybe_unused]] const std::int64_t out_dst_stride = selection.get_leading_stride();
 
-        auto data_ptr = data.get_data();
-        auto data_tmp_ptr = data_.get_mutable_data();
+        ONEDAL_ASSERT(!indices_out || indices.get_shape()[0] == row_count);
+        ONEDAL_ASSERT(!indices_out || indices.get_shape()[1] == k);
+        ONEDAL_ASSERT(!selection_out || selection.get_shape()[0] == row_count);
+        ONEDAL_ASSERT(!selection_out || selection.get_shape()[1] == k);
+
+        auto* data_tmp_ptr = data_.get_mutable_data();
+        const auto data_tmp_str = data_.get_leading_stride();
         auto cpy_event = queue.submit([&](sycl::handler& cgh) {
-            cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(Float) * row_count * width);
+            cgh.depends_on(deps);
+            const auto range = make_range_2d(row_count, col_count);
+            cgh.parallel_for(range, [=](sycl::id<2> idx) {
+                *(data_tmp_ptr + idx[0] * data_tmp_str + idx[1]) = dp.at(idx[0], idx[1]);
+            });
         });
 
         auto indices_tmp_ptr = indices_.get_mutable_data();
@@ -126,7 +176,7 @@ private:
                                      rnd_period,
                                      col_count,
                                      k,
-                                     inp_stride,
+                                     data_tmp_str,
                                      out_ids_stride,
                                      out_dst_stride);
                              });
