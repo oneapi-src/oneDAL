@@ -25,4 +25,4 @@ Ensembles
 
 .. rubric:: Examples: Subgraph Isomorphism
 
-.. include:: ../../../includes/graph/si-examples.rst
+.. include:: ../../../includes/graph/subgraph-isomorphism-examples.rst
