@@ -20,7 +20,7 @@
 Single Program Multiple Data
 ============================
 
-This section includes concepts and description of objects that support 
+This section includes concepts and descriptions of objects that support 
 distributed computations using :capterm:`SPMD` model.
 
 Distributed computation using SPMD model
