@@ -155,7 +155,7 @@ public:
     using method_t = Method;
     using task_t = Task;
 
-    /// Creates a new instance of the class with the given :literals:`epsilon`, `min_observations`
+    /// Creates a new instance of the class with the given :literal:`epsilon`, :literal:`min_observations`
     explicit descriptor(double epsilon, std::int64_t min_observations) {
         set_min_observations(min_observations);
         set_epsilon(epsilon);
