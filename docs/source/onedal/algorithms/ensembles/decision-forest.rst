@@ -343,3 +343,10 @@ Programming Interface
 ---------------------
 
 Refer to :ref:`API Reference: Decision Forest Classification and Regression <api_df>`.
+
+----------------
+Distributed mode
+----------------
+
+The algorithm supports distributed execution in SMPD mode (only on GPU).
+
