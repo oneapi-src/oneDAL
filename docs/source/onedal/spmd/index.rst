@@ -31,7 +31,7 @@ a free function to indicate that the algorithm can process data simultaneously. 
 communications at sync points are hidden from the user.
 
 General expectation is that input dataset is distributed among processes. Results are distributed in
-accordance with input.
+accordance with the input.
 
 
 .. _example_spmd_flow:
