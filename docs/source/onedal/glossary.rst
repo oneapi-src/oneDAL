@@ -449,7 +449,7 @@ Distributed computational mode terms
         In SPMD, multiple autonomous processors simultaneously execute the same program at independent points.
 
     Communicator
-        A |short_name| concept for an object that provides capability to perform inter-process collective
+        A |short_name| concept for an object that is used to perform inter-process collective
         operations
 
     Communicator backend
