@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_base.hpp"
+#include "oneapi/dal/backend/primitives/selection/kselect_data_provider.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -40,9 +41,22 @@ sycl::event select(sycl::queue& queue,
                    ndview<std::int32_t, 2>& indices,
                    const event_vector& deps);
 
+template <typename Float, bool dst_out, bool ids_out, int sg_size = 64>
+sycl::event sq_l2_select(sycl::queue& queue,
+                         const ndview<Float, 1>& n1,
+                         const ndview<Float, 1>& n2,
+                         const ndview<Float, 2>& ip,
+                         std::int64_t k,
+                         ndview<Float, 2>& selection,
+                         ndview<std::int32_t, 2>& indices,
+                         const event_vector& deps);
+
 // Performs k-selection for medium k-values
 template <typename Float>
 class kselect_by_rows_heap : public kselect_by_rows_base<Float> {
+    using sq_l2_dp_t = data_provider_t<Float, true>;
+    using naive_dp_t = data_provider_t<Float, false>;
+
 public:
     kselect_by_rows_heap();
     sycl::event operator()(sycl::queue& queue,
@@ -63,6 +77,31 @@ public:
                            std::int64_t k,
                            ndview<std::int32_t, 2>& indices,
                            const event_vector& deps) override;
+
+    sycl::event select_sq_l2(sycl::queue& queue,
+                             const ndview<Float, 1>& n1,
+                             const ndview<Float, 1>& n2,
+                             const ndview<Float, 2>& ip,
+                             std::int64_t k,
+                             ndview<Float, 2>& selection,
+                             ndview<std::int32_t, 2>& indices,
+                             const event_vector& deps) override;
+
+    sycl::event select_sq_l2(sycl::queue& queue,
+                             const ndview<Float, 1>& n1,
+                             const ndview<Float, 1>& n2,
+                             const ndview<Float, 2>& ip,
+                             std::int64_t k,
+                             ndview<Float, 2>& selection,
+                             const event_vector& deps) override;
+
+    sycl::event select_sq_l2(sycl::queue& queue,
+                             const ndview<Float, 1>& n1,
+                             const ndview<Float, 1>& n2,
+                             const ndview<Float, 2>& ip,
+                             std::int64_t k,
+                             ndview<std::int32_t, 2>& indices,
+                             const event_vector& deps) override;
 };
 #endif
 
