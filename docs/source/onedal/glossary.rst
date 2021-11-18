@@ -437,3 +437,23 @@ Common oneAPI terms
         SYCL(TM) [SYCLSpec]_ --- high-level programming model for OpenCL(TM)
         that enables code for heterogeneous processors to be written in a
         "single-source" style using completely standard C++.
+
+Distributed computational mode terms
+====================================
+
+.. glossary::
+    :sorted:
+
+    SPMD 
+        Single Program, Multiple Data (SPMD) is a technique employed to achieve parallelism.
+        In SPMD model, multiple autonomous processors simultaneously execute the same program at independent points.
+
+    Communicator
+        A |short_name| concept for an object that is used to perform inter-process collective
+        operations
+
+    Communicator backend
+        A particular library providing collective operations.
+        
+        **Examples:** oneCCL, oneMPI
+
