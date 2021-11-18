@@ -20,7 +20,7 @@
 Single Program Multiple Data
 ============================
 
-This section includes concepts and description of objects that support 
+This section includes concepts and descriptions of objects that support 
 distributed computations using :capterm:`SPMD` model.
 
 Distributed computation using SPMD model
@@ -49,18 +49,18 @@ Supported Collective Operations
 
 The following collective operations are supported:
 
-- Bcast
+- ``bcast``
   Broadcasts data from specified process.
 
-- Allreduce
+- ``allreduce``
   Reduces data among all processes.
 
-- Allgatherv
-  Gathers data from all processes and share the result among all processes.
+- ``allgatherv``
+  Gathers data from all processes and shares the result among all processes.
 
 .. _backend_restrictions:
 
-Backend specific restrictions
+Backend-specific restrictions
 -----------------------------
 
 - oneCCL:
