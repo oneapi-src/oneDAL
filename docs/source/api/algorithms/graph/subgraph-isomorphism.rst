@@ -18,9 +18,9 @@
 
 .. _api_subgraph_isomorphism:
 
-==================
-Chebyshev distance
-==================
+====================
+Subgraph Isomorphism
+====================
 
 .. include::  ../../../includes/graph/subgraph-isomorphism-introduction.rst
 

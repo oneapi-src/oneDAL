@@ -20,4 +20,4 @@
 
       Batch Processing:
 
-      - :ref:`subgraph_isomorphism_batch.cpp`
+      - :ref:`cpp_subgraph_isomorphism_batch.cpp`

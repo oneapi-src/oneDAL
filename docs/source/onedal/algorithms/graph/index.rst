@@ -21,7 +21,7 @@ Ensembles
 .. toctree::
    :titlesonly:
 
-   graph.rst
+   subgraph-isomorphism.rst
 
 .. rubric:: Examples: Subgraph Isomorphism
 

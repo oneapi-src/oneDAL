@@ -14,13 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-==================
-Pairwise Distances
-==================
+=====
+Graph
+=====
 
 This chapter describes programming interfaces of the pairwise distances implemented in |short_name|:
 
 .. toctree::
    :titlesonly:
 
-   subgraph-isomorphism-distance.rst
+   subgraph-isomorphism.rst
