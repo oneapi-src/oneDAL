@@ -340,4 +340,5 @@ nitpick_ignore = [
     ('cpp:identifier', 'edge_user_value_type<Graph>'),
     ('cpp:identifier', 'directed_adjacency_vector_graph'),
     ('cpp:identifier', 'undirected_adjacency_vector_graph'),
+    ('cpp:identifier', 'Allocator'),
 ]
