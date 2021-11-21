@@ -22,6 +22,7 @@
 
 #include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/graph/directed_adjacency_vector_graph.hpp"
+#include "oneapi/dal/detail/memory.hpp"
 
 namespace oneapi::dal::preview::detail {
 
@@ -42,16 +43,17 @@ public:
                                             const EdgeValue* vals)
             : g() {
         auto& graph_impl = oneapi::dal::detail::get_impl(g);
+        using vertex_set_t = typename graph_traits<graph_type>::vertex_set;
 
-        using vertex_t = typename graph_traits<graph_type>::vertex_type;
-        auto& vertex_allocator = graph_impl._vertex_allocator;
+        rebinded_allocator ra(graph_impl._vertex_allocator);
+        auto [degrees_array, degrees] = ra.template allocate_array<vertex_set_t>(vertex_count);
 
-        vertex_t* degrees = oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
         for (std::int64_t u = 0; u < vertex_count; u++) {
             degrees[u] = rows[u + 1] - rows[u];
         }
 
         graph_impl.set_topology(vertex_count, edge_count, rows, cols, edge_count, degrees);
+        graph_impl.get_topology()._degrees = degrees_array;
         graph_impl.set_edge_values(vals, edge_count);
     }
 

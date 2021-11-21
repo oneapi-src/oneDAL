@@ -85,44 +85,7 @@ public:
 
     undirected_adjacency_vector_graph_impl() = default;
 
-    ~undirected_adjacency_vector_graph_impl() {
-        auto& cols = _topology._cols;
-        auto& degrees = _topology._degrees;
-        auto& rows = _topology._rows;
-        auto& rows_vertex = _topology._rows_vertex;
-
-        if (cols.has_mutable_data()) {
-            oneapi::dal::preview::detail::deallocate(_vertex_allocator,
-                                                     cols.get_mutable_data(),
-                                                     cols.get_count());
-        }
-        if (degrees.has_mutable_data()) {
-            oneapi::dal::preview::detail::deallocate(_vertex_allocator,
-                                                     degrees.get_mutable_data(),
-                                                     degrees.get_count());
-        }
-        if (rows.has_mutable_data()) {
-            oneapi::dal::preview::detail::deallocate(_edge_allocator,
-                                                     rows.get_mutable_data(),
-                                                     rows.get_count());
-        }
-        if (rows_vertex.has_mutable_data()) {
-            oneapi::dal::preview::detail::deallocate(_vertex_edge_allocator,
-                                                     rows_vertex.get_mutable_data(),
-                                                     rows_vertex.get_count());
-        }
-
-        if (_vertex_values.has_mutable_data()) {
-            oneapi::dal::preview::detail::deallocate(_vertex_user_value_allocator,
-                                                     _vertex_values.get_mutable_data(),
-                                                     _vertex_values.get_count());
-        }
-        if (_edge_values.has_mutable_data()) {
-            oneapi::dal::preview::detail::deallocate(_edge_user_value_allocator,
-                                                     _edge_values.get_mutable_data(),
-                                                     _edge_values.get_count());
-        }
-    }
+    ~undirected_adjacency_vector_graph_impl() = default;
 
     template <typename... Args>
     inline void set_topology(Args&&... args) {
@@ -135,6 +98,10 @@ public:
 
     inline void set_edge_values(const EdgeValue* values, int64_t values_count) {
         _edge_values = edge_values<EdgeValue>::wrap(values, values_count);
+    }
+
+    inline void set_edge_values(edge_values<EdgeValue>& edge_values_array) {
+        _edge_values = edge_values_array;
     }
 
     inline topology<IndexType>& get_topology() {
