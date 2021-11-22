@@ -29,19 +29,19 @@ CORE.SERV.COMPILER.icc = generic
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
 COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -qopenmp-simd \
-                    -Werror -Wreturn-type
-COMPILER.lnx.icc += $(if $(COVFILE), $(if $(IA_is_ia32), $(-Q)m32, $(-Q)m64))
+                    -Werror -Wreturn-type -mcmodel=large
+COMPILER.lnx.icc += $(if $(COVFILE), $(if $(IA_is_ia32), $(-Q)m32, $(-Q)m64)) -mcmodel=large
 COMPILER.win.icc = icl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Qopenmp-simd
 COMPILER.mac.icc = icc -stdlib=libc++ -mmacosx-version-min=10.14 \
-				   -Werror -Wreturn-type
+				   -Werror -Wreturn-type -mcmodel=large
 
 # icc 16 does not support -qopenmp-simd option on macOS*
 ifeq ($(if $(OS_is_mac),$(shell icc --version | grep "icc (ICC) 16"),),)
     COMPILER.mac.icc += -qopenmp-simd
 endif
 
-link.dynamic.lnx.icc = icc -no-cilk
-link.dynamic.mac.icc = icc
+link.dynamic.lnx.icc = icc -no-cilk -mcmodel=large
+link.dynamic.mac.icc = icc -mcmodel=large
 
 pedantic.opts.lnx.icc = -pedantic \
                         -Wall \

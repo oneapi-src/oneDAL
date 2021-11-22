@@ -28,9 +28,9 @@ CORE.SERV.COMPILER.gnu = generic
 -DEBC.gnu = -g
 
 COMPILER.lnx.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
-                    -Werror -Wreturn-type
+                    -Werror -Wreturn-type -mcmodel=large
 
-link.dynamic.lnx.gnu = ${CXX} $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.lnx.gnu = ${CXX} $(if $(IA_is_ia32),-m32,-m64) -mcmodel=large
 
 pedantic.opts.lnx.gnu = -pedantic \
                         -Wall \

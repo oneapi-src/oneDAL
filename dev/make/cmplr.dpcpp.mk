@@ -29,12 +29,12 @@ CORE.SERV.COMPILER.dpcpp = generic
 -DEBC.dpcpp = -g
 
 COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv \
-                     -Werror -Wreturn-type -fsycl-device-code-split=per_kernel
+                     -Werror -Wreturn-type -fsycl-device-code-split=per_kernel -mcmodel=large
 COMPILER.win.dpcpp = dpcpp $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX \
-                     -Wno-deprecated-declarations -fsycl-device-code-split=per_kernel
+                     -Wno-deprecated-declarations -fsycl-device-code-split=per_kernel -mcmodel=large
 
-link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
-link.dynamic.win.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
+link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel -mcmodel=large
+link.dynamic.win.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel -mcmodel=large
 
 pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wall \
