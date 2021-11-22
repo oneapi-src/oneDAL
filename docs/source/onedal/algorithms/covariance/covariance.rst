@@ -62,3 +62,9 @@ Programming Interface
 ---------------------
 
 Refer to :ref:`API Reference: Covariance <api_covariance>`.
+
+----------------
+Distributed mode
+----------------
+
+The algorithm supports distributed execution in SMPD mode (only on GPU).
