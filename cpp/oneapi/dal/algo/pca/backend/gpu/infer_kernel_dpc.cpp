@@ -50,11 +50,10 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     auto res_nd = pr::ndarray<Float, 2>::empty(queue,
                                                { row_count, component_count },
                                                sycl::usm::alloc::device);
-
+    sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(gemm, queue);
-        auto gemm_event =
-            pr::gemm(queue, data_nd, eigenvectors_nd.t(), res_nd, Float(1.0), Float(0.0));
+        gemm_event = pr::gemm(queue, data_nd, eigenvectors_nd.t(), res_nd, Float(1.0), Float(0.0));
     }
     const auto res_array = res_nd.flatten(queue, { gemm_event });
     auto res_table = homogen_table::wrap(res_array, row_count, component_count);
