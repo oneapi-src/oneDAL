@@ -38,7 +38,7 @@ xcopy /S /Y /Q __release_mac\daal\latest\include inteldal.static.osx-x64.%VER%\l
 
 xcopy /S /Y /Q __release_mac\daal\latest\lib\*.a inteldal.static.osx-x64.%VER%\lib\native\osx-x64\
 
-xcopy /S /Y /Q __release_mac\daal\latest\lib\libonedal*.dylib  inteldal.redist.osx-x64.%VER%\runtimes\osx-x64\native\
+xcopy /S /Y /Q __release_mac\daal\latest\lib\libonedal*.dylib  inteldal.redist.osx-x64.%VER%\runtimes\osx-x64\native\ && del /Q __release_mac\daal\latest\lib\libonedal*1.dylib
 
 xcopy /Y /Q LICENSE inteldal.devel.osx-x64.%VER%\
 xcopy /Y /Q LICENSE inteldal.redist.osx-x64.%VER%\

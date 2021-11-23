@@ -46,7 +46,8 @@ xcopy /S /Y /Q __release_win\daal\latest\include inteldal.static.win-x64.%VER%\l
 xcopy /S /Y /Q __release_win\daal\latest\lib\intel64\*_dll* inteldal.devel.win-x64.%VER%\lib\native\win-x64\
 xcopy /S /Y /Q __release_win\daal\latest\lib\intel64 inteldal.static.win-x64.%VER%\lib\native\win-x64\ && del /Q inteldal.static.win-x64.%VER%\lib\native\win-x64\*_dll*
 
-xcopy /S /Y /Q __release_win\daal\latest\redist\intel64\onedal*.1.dll inteldal.redist.win-x64.%VER%\runtimes\win-x64\native\
+xcopy /S /Y /Q __release_win\daal\latest\redist\intel64\onedal*.1.dll inteldal.redist.win-x64.%VER%\runtimes\win-x64\native\ && del /Q inteldal.redist.win-x64.%VER%\runtimes\win-x64\native\onedal*d.1.dll
+xcopy /S /Y /Q __release_win\daal\latest\redist\intel64\onedal_thread.1.dll inteldal.redist.win-x64.%VER%\runtimes\win-x64\native\
 
 xcopy /Y /Q LICENSE inteldal.devel.win-x64.%VER%\
 xcopy /Y /Q LICENSE inteldal.redist.win-x64.%VER%\
