@@ -18,9 +18,9 @@
 
 .. _alg_subgraph_isomorphism:
 
-==================
-Chebyshev distance
-==================
+====================
+Subgraph isomorphism
+====================
 
 .. include::  ../../../includes/graph/subgraph-isomorphism-introduction.rst
 
@@ -56,4 +56,10 @@ manually.
 Programming Interface
 ---------------------
 
-Refer to :ref:`API Reference: Chebyshev distance <api_subgraph_isomorphism>`.
+Refer to :ref:`API Reference: Subgraph Isomorphism <api_subgraph_isomorphism>`.
+
+--------
+Examples
+--------
+
+.. include:: ../../../includes/graph/subgraph-isomorphism-examples.rst

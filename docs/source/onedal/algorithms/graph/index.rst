@@ -14,15 +14,11 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=========
-Ensembles
-=========
+=====
+Graph
+=====
 
 .. toctree::
    :titlesonly:
 
    subgraph-isomorphism.rst
-
-.. rubric:: Examples: Subgraph Isomorphism
-
-.. include:: ../../../includes/graph/subgraph-isomorphism-examples.rst
