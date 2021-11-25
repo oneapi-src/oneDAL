@@ -25,10 +25,11 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism {
 
-/// Class for the description of the input parameters of the Subgraph Isomorphism
-/// algorithm
+/// Class for the description of the input parameters of the Subgraph Isomorphism algorithm
 ///
-/// @tparam Graph  Type of the input graph
+/// @tparam Graph  Type of the input graph.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve.
+///                Can be :expr:`task::compute`.
 template <typename Graph, typename Task = task::compute>
 class graph_matching_input : public base {
     static_assert(detail::is_valid_task<Task>);
@@ -40,19 +41,21 @@ public:
     /// Constructs the algorithm input initialized with the target and pattern graphs.
     ///
     /// @param [in] target_graph  The input target (big) graph
-    /// @param [in] pattern_graph  The input patern (small) graph
-    graph_matching_input(const Graph& target_graph, const Graph& patter_graph);
+    /// @param [in] pattern_graph  The input pattern (small) graph
+    graph_matching_input(const Graph& target_graph, const Graph& pattern_graph);
 
     /// Returns the constant reference to the input target graph
     const Graph& get_target_graph() const;
 
-    /// Sets the constant reference to the input target graph
+    /// Sets the target (big) graph to the input
+    /// @param [in] target_graph  The input target (big) graph
     const auto& set_target_graph(const Graph& target_graph);
 
     /// Returns the constant reference to the input pattern graph
     const Graph& get_pattern_graph() const;
 
-    /// Sets the constant reference to the input pattern graph
+    /// Sets the pattern (small) graph to the input
+    /// @param [in] pattern_graph  The input pattern (small) graph
     const auto& set_pattern_graph(const Graph& pattern_graph);
 
 private:
@@ -69,8 +72,8 @@ public:
     /// Constructs the empty result
     graph_matching_result();
 
-    /// Returns the table of size [match_count x pattern_vertex_count] with matchings of pattern graph
-    /// in target graph. Each row of the table
+    /// Returns the table of size [match_count x pattern_vertex_count] with matchings
+    /// of pattern graph in target graph. Each row of the table
     /// contain ids of vertices in target graph sorted by pattern vertex ids.
     /// I.e. j-th element of i-th row contain id of target graph vertex which
     /// was matched with j-th vertex of pattern graph in i-th match.
@@ -83,14 +86,13 @@ public:
         return get_match_count_impl();
     }
 
-    /// Sets the table with matchings of pattern graph
-    /// in target graph.
+    /// Sets the table with matchings of pattern graph in target graph.
     auto& set_vertex_match(const table& value) {
         set_vertex_match_impl(value);
         return *this;
     }
 
-    /// Sets the number pattern matches in the target graph.
+    /// Sets the maximum number of pattern matches in the target graph.
     auto& set_match_count(int64_t value) {
         set_match_count_impl(value);
         return *this;
