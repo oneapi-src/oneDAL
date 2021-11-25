@@ -123,39 +123,33 @@ public:
         alloc_ = allocator;
     }
 
-    /// Returns kind of subgraph to be isomorphic to pattern graph.
+    /// Kind of subgraph to be isomorphic to pattern graph. Can be :expr:`kind::induced`
+    /// or :expr:`kind::non_induced`.
     kind get_kind() const {
         return base_t::get_kind();
     }
 
-    /// Sets the type of searched subgraph in Subgraph Isomorphism computation
-    /// @param [in] value  Kind of subgraph search for. Can be :expr:`kind::induced`
-    ///                    or :expr:`kind::non_induced`.
     auto& set_kind(kind value) {
         base_t::set_kind(value);
         return *this;
     }
 
-    /// Returns the flag if semantic search is requred in Subgraph Isomorphism computation
+    /// The flag if semantic search is requred in Subgraph Isomorphism computation. If true,
+    /// vertex labels are considered.
     bool get_semantic_match() const {
         return base_t::get_semantic_match();
     }
 
-    /// Sets the flag if semantic search is requred in Subgraph Isomorphism computation. If true,
-    /// vertex labels are considered.
-    /// @param [in] semantic_match The flag if semantic search is requred.
     auto& set_semantic_match(bool semantic_match) {
         base_t::set_semantic_match(semantic_match);
         return *this;
     }
 
-    /// Returns the maximum number of matchings to search in Subgraph Isomorphism computation
+    /// The maximum number of matchings to search in Subgraph Isomorphism computation.
     std::int64_t get_max_match_count() const {
         return base_t::get_max_match_count();
     }
 
-    /// Sets the maximum number of matchings to search in Subgraph Isomorphism computation
-    /// @param [in] max_match_count  The maximum number of matchings to search.
     auto& set_max_match_count(std::int64_t max_match_count) {
         base_t::set_max_match_count(max_match_count);
         return *this;

@@ -34,7 +34,8 @@ Refer to :ref:`Developer Guide: Subgraph Isomorphism <alg_subgraph_isomorphism>`
 Programming Interface
 ---------------------
 All types and functions in this section are declared in the
-``oneapi::dal::preview::subgraph_isomorphism`` namespace.
+``oneapi::dal::preview::subgraph_isomorphism`` namespace and
+available via inclusion of the ``oneapi/dal/algo/subgraph_isomorphism.hpp`` header file.
 
 Descriptor
 ----------
@@ -47,3 +48,7 @@ Method tags
 Task tags
 ~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::preview::subgraph_isomorphism::task
+
+Enum classes
+~~~~~~~~~~~~
+.. onedal_enumclass:: oneapi::dal::preview::subgraph_isomorphism::kind

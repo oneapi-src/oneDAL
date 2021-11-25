@@ -28,7 +28,7 @@ Subgraph isomorphism
 Mathematical formulation
 ------------------------
 
-.. _subgraph_isomorphism_c_math:
+.. _subgraph_isomorphism_compute:
 
 Subgraphs definition
 --------------------
@@ -59,8 +59,8 @@ and adjacensy and non-adjacensy preserving relationship for induced case. :math:
     :align: center
     :alt:
 
-One of mappings for subgraph :math:`H` in graph :math:`G` in induced case is: [3, 0, 1, 4, 2, 5]. 
-Which means that:
+The only mapping for subgraph :math:`H` in graph :math:`G` from picture above in induced case is: 
+[3, 0, 1, 4, 2, 5]. Which means that:
 
 * pattern vertex with id 0 is mapped on vertex in target graph with id 3; 
 * pattern vertex with id 1 is mapped on vertex in target graph with id 0;
@@ -70,9 +70,9 @@ Which means that:
 * pattern vertex with id 5 is mapped on vertex in target graph with id 5.
 
 
-Mapping for subgraph :math:`H` in graph :math:`G` in non-induced case is: [3, 0, 1, 4, 2, 5] and [3, 6, 1, 4, 2, 5].
+Mappings for subgraph :math:`H` in graph :math:`G` in non-induced case are: [3, 0, 1, 4, 2, 5] and [3, 6, 1, 4, 2, 5].
 
-.. _subgraph_isomorphism_c_dense:
+.. _subgraph_isomorphism_fast:
 
 Computation method: *dense*
 ---------------------------

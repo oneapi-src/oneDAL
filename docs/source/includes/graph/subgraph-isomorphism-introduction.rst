@@ -14,13 +14,15 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Subgraph Isomorphism ...
+Subgraph Isomorphism algorithm receives target graph :math:`G` and pattern graph :math:`H` as input
+and searchs for subgraphs in target graph which are isomorphic to pattern graph. The algorithm returns
+the mappings of pattern graph vertices onto target graph vertices.
 
-.. |c_math| replace::   :ref:`dense <subgraph_isomorphism_c_math>`
-.. |c_dense| replace::  :ref:`dense <subgraph_isomorphism_c_dense>`
+.. |si_compute| replace::   :ref:`compute <subgraph_isomorphism_compute>`
+.. |si_fast|    replace::   :ref:`fast <subgraph_isomorphism_fast>`
 
-=============  ===============  =========
+=============  ==========================
 **Operation**  **Computational  methods**
 -------------  --------------------------
-|c_math|       |c_dense|
-=============  ===============  =========
+|si_compute|   |si_fast|
+=============  ==========================
