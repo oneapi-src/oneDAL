@@ -35,27 +35,11 @@ Subgraphs definition
 
 A graph :math:`H = (V'; E')` is called a subgraph of graph :math:`G = (V; E)` if 
 :math:`V' \subseteq V; E' \subseteq E` and :math:`V'` contains all the endpoints of all the 
-edges in :math:`E'`.
-
-Each subset :math:`E' \subseteq E` defines a unique subgraph :math:`H' = (V'; E')` of graph 
-:math:`G = (V; E)`, where :math:`V'` consists of only those vertices which are the endpoints of the
-edges in :math:`E'`. The subgraph :math:`G'` is called the induced subgraph of :math:`G` on the
-edge set :math:`E'`.
-
-Each subset :math:`V' \subseteq V` defines a unique subgraph :math:`H = (V'; E')` of graph 
-:math:`G = (V; E)`, where :math:`E'` consists of those edges whose endpoints are in :math:`V'`. 
-The subgraph :math:`G'` is called the induced subgraph of :math:`G` on the vertex set :math:`V'`.
+edges in :math:`E'` [Gross2014]_.
 
 Further we denote the :capterm:`induced subgraph on the vertex set<Induced subgraph on the vertex set>` 
 as **induced** subgraph, the :capterm:`induced subgraph on the edge set<Induced subgraph on the edge set>`
 as **non-induced** subgraph.
-
-.. figure:: images/subgraph-isomorphism-target-pattern.png
-    :width: 600
-    :align: center
-    :alt:
-
-
 
 Computing
 ---------
@@ -66,26 +50,33 @@ graph :math:`G`.
 
 Mapping is bijection or one-to-one correspondence between vertices of :math:`H` and subgraph of 
 graph :math:`G` with correspond vertex adjacensy relationship preserving for non-induced subgraph 
-and adjacensy and non-adjacensy preserving relationship for induced case.
+and adjacensy and non-adjacensy preserving relationship for induced case. :math:`G` is called
+**target** graph, :math:`H` is called **pattern** graph.
 
-Given a set :math:`U` of :math:`n` feature vectors :math:`u_1 = (u_{11}, \ldots, u_{1k}),
-\ldots, u_n = (u_{n1}, \ldots, u_{nk})` of dimension :math:`k` and a set :math:`V` of :math:`m`
-feature vectors :math:`v_1 = (v_{11}, \ldots, v_{1k}), \ldots, v_m = (v_{m1}, \ldots, v_{mk})`
-of dimension :math:`k`, the problem is to compute the Chebyshev distance
-:math:`||u_i, v_j||_{\infty}` for any pair of input vectors:
 
-.. math::
-    ||u_i, v_j||_{\infty} = \max_l {|u_{il} - v_{jl}|},
+.. figure:: images/subgraph-isomorphism-target-pattern.png
+    :width: 600
+    :align: center
+    :alt:
 
-where :math:`\quad 1 \leq i \leq n, \quad 1 \leq j \leq m, \quad 1 \leq l \leq k`.
+One of mappings for subgraph :math:`H` in graph :math:`G` in induced case is: [3, 0, 1, 4, 2, 5]. 
+Which means that:
+* vertex with id 0 is mapped on vertex in target graph with id 3; 
+* vertex with id 1 is mapped on vertex in target graph with id 0;
+* vertex with id 2 is mapped on vertex in target graph with id 1;
+* vertex with id 3 is mapped on vertex in target graph with id 4.
+* vertex with id 4 is mapped on vertex in target graph with id 2.
+* vertex with id 5 is mapped on vertex in target graph with id 5.
+
+
+Mapping for subgraph :math:`H` in graph :math:`G` in non-induced case is: [3, 0, 1, 4, 2, 5] and [3, 6, 1, 4, 2, 5].
 
 .. _subgraph_isomorphism_c_dense:
 
 Computation method: *dense*
 ---------------------------
-The method defines Chebyshev distance metric, which is used in other algorithms
-for the distance computation. There are no separate computation mode to compute distance
-manually.
+
+The method defines VF3-light algorithms with Global State Stack parallelization method and supports induced and non-induced case.
 
 For more details, see [Carletti2021]_.
 
