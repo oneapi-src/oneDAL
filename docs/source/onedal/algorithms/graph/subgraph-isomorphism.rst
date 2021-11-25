@@ -46,8 +46,15 @@ Each subset :math:`V' \subseteq V` defines a unique subgraph :math:`H = (V'; E')
 :math:`G = (V; E)`, where :math:`E'` consists of those edges whose endpoints are in :math:`V'`. 
 The subgraph :math:`G'` is called the induced subgraph of :math:`G` on the vertex set :math:`V'`.
 
-Further we denote the **induced** subgraph on the vertex set as induced subgraph, the induced 
-subgraph on the edge set as **non-induced** subgraph.
+Further we denote the :capterm:`induced subgraph on the vertex set<Induced subgraph on the vertex set>` 
+as **induced** subgraph, the :capterm:`induced subgraph on the edge set<Induced subgraph on the edge set>`
+as **non-induced** subgraph.
+
+.. figure:: images/subgraph-isomorphism-target-pattern.png
+    :width: 600
+    :align: center
+    :alt:
+
 
 
 Computing
@@ -79,6 +86,8 @@ Computation method: *dense*
 The method defines Chebyshev distance metric, which is used in other algorithms
 for the distance computation. There are no separate computation mode to compute distance
 manually.
+
+For more details, see [Carletti2021]_.
 
 ---------------------
 Programming Interface

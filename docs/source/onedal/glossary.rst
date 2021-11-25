@@ -244,6 +244,23 @@ Graph analytics terms
         be empty, and the elements of :math:`E` are two-element subsets of :math:`V`.
         :math:`V` is called a set of vertices, :math:`E` is called a set of edges [Gross2014]_. 
 
+    Subgraph
+        A graph :math:`H = (V'; E')` is called a subgraph of graph :math:`G = (V; E)` if 
+        :math:`V' \subseteq V; E' \subseteq E` and :math:`V'` contains all the endpoints of all the 
+        edges in :math:`E'` [Gross2014]_.
+
+    Induced subgraph on the edge set
+        Each subset :math:`E' \subseteq E` defines a unique :capterm:`subgraph <Subgraph>` :math:`H' = (V'; E')` of graph 
+        :math:`G = (V; E)`, where :math:`V'` consists of only those vertices which are the endpoints of the
+        edges in :math:`E'`. The subgraph :math:`G'` is called the induced subgraph of :math:`G` on the
+        edge set :math:`E'` [Gross2014]_.
+
+    Induced subgraph on the vertex set
+        Each subset :math:`V' \subseteq V` defines a unique :capterm:`subgraph <Subgraph>`
+        :math:`H = (V'; E')` of graph :math:`G = (V; E)`, where :math:`E'` consists of those edges 
+        whose endpoints are in :math:`V'`. The subgraph :math:`G'` is called the induced subgraph of :math:`G` on the vertex 
+        set :math:`V'` [Gross2014]_.
+
     Self-loop
         An edge that joins a vertex to itself.
 
