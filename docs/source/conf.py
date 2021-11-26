@@ -353,7 +353,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'directed_adjacency_vector_graph'),
     ('cpp:identifier', 'undirected_adjacency_vector_graph'),
     ('cpp:identifier', 'Allocator'),
-    ('cpp:identifier', 'oneapi::dal::preview::subgraph_isomorphism::kind'),
-    ('cpp:identifier', 'oneapi::dal::preview::subgraph_isomorphism::kind::induced'),
-    ('cpp:identifier', 'oneapi::dal::preview::subgraph_isomorphism::kind::non_induced'),
+    ('cpp:identifier', 'Graph'),
+    ('cpp:identifier', 'subgraph_isomorphism'),
+    ('cpp:identifier', 'kind::induced'),
+    ('cpp:identifier', 'kind::non_induced'),
+    ('cpp:identifier', 'preview')
 ]

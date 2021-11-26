@@ -55,7 +55,7 @@ Enum classes
 
 .. _subgraph_isomorphism_t_api:
 
-Computing :cpp:expr:`graph_matching(...)`
+Computing :cpp:expr:`preview::graph_matching(...)`
 --------------------------------------------------
 
 .. _subgraph_isomorphism_t_api_input:
