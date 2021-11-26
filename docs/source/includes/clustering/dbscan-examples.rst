@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,27 +14,22 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-==========
-Clustering
-==========
+.. tabs::
 
-This chapter describes clustering algorithms implemented in |short_name|:
+  .. group-tab:: oneAPI DPC++
 
-.. toctree::
-   :titlesonly:
+    Batch Processing:
 
-   dbscan.rst
-   kmeans.rst
-   kmeans-init.rst
+    - :ref:`dpc_dbscan_brute_force_batch.cpp`
 
-.. rubric:: Examples: DBSCAN
+  .. group-tab:: oneAPI C++
 
-.. include:: ../../../includes/clustering/dbscan-examples.rst
+    Batch Processing:
 
-.. rubric:: Examples: K-Means
+    - :ref:`cpp_dbscan_brute_force_batch.cpp`
 
-.. include:: ../../../includes/clustering/kmeans-examples.rst
+  .. group-tab:: Python* with DPC++ support
 
-.. rubric:: Examples: K-Means Initialization
+    Batch Processing:
 
-.. include:: ../../../includes/clustering/kmeans-init-examples.rst
+    - :daal4py_sycl_example:`dbscan_batch.py`

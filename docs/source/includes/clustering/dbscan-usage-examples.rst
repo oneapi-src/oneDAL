@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,27 +14,19 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-==========
-Clustering
-==========
+Compute
+-------
 
-This chapter describes clustering algorithms implemented in |short_name|:
+::
 
-.. toctree::
-   :titlesonly:
+   void run_compute(const table& data,
+                              const table& weights) {
+      double epsilon = 1.0;
+      std::int64_t max_observations = 5;
+      const auto dbscan_desc = kmeans::descriptor<float>{epsilon, max_observations}
+         .set_result_options(dal::dbscan::result_options::responses);
 
-   dbscan.rst
-   kmeans.rst
-   kmeans-init.rst
+      const auto result = compute(dbscan_desc, data, weights);
 
-.. rubric:: Examples: DBSCAN
-
-.. include:: ../../../includes/clustering/dbscan-examples.rst
-
-.. rubric:: Examples: K-Means
-
-.. include:: ../../../includes/clustering/kmeans-examples.rst
-
-.. rubric:: Examples: K-Means Initialization
-
-.. include:: ../../../includes/clustering/kmeans-init-examples.rst
+      print_table("responses", result.get_responses());
+   }

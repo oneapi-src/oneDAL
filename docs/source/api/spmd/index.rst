@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,27 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-==========
-Clustering
-==========
+===============================================
+Distributed Model: Single Process Multiple Data
+===============================================
 
-This chapter describes clustering algorithms implemented in |short_name|:
+Refer to :ref:`Developer Guide: SPMD distributed model <dg_spmd>`.
 
 .. toctree::
-   :titlesonly:
 
-   dbscan.rst
-   kmeans.rst
-   kmeans-init.rst
-
-.. rubric:: Examples: DBSCAN
-
-.. include:: ../../../includes/clustering/dbscan-examples.rst
-
-.. rubric:: Examples: K-Means
-
-.. include:: ../../../includes/clustering/kmeans-examples.rst
-
-.. rubric:: Examples: K-Means Initialization
-
-.. include:: ../../../includes/clustering/kmeans-init-examples.rst
+   overview.rst
+   communicator.rst

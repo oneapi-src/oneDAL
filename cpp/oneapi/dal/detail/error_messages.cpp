@@ -121,6 +121,7 @@ MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
     "Vertex index is out of range, expect index in [0, vertex_count)")
 MSG(negative_vertex_id, "Negative vertex ID")
 MSG(unimplemented_sorting_procedure, "Unimplemented sorting procedure")
+MSG(edge_values_are_empty, "Edge values are empty")
 
 /* IO */
 MSG(file_not_found, "File not found")

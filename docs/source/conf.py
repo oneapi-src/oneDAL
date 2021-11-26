@@ -281,6 +281,18 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::basic_statistics::method'),
     ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1'),
     ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1::dense'),
+    # dbscan
+    ('cpp:identifier', 'dbscan'),
+    ('cpp:identifier', 'dbscan::descriptor'),
+    ('cpp:identifier', 'dbscan::compute_result'),
+    ('cpp:identifier', 'dbscan::compute_input'),
+    ('cpp:identifier', 'oneapi::dal::dbscan'),
+    ('cpp:identifier', 'oneapi::dal::dbscan::task'),
+    ('cpp:identifier', 'oneapi::dal::dbscan::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::dbscan::task::v1::compute'),
+    ('cpp:identifier', 'oneapi::dal::dbscan::method'),
+    ('cpp:identifier', 'oneapi::dal::dbscan::method::v1'),
+    ('cpp:identifier', 'oneapi::dal::dbscan::method::v1::brute_force'),
     # common for algorithms
     ('cpp:identifier', 'result'),
     # common for result options
