@@ -18,11 +18,14 @@ Subgraph Isomorphism algorithm receives target graph :math:`G` and pattern graph
 and searchs for subgraphs in target graph which are isomorphic to pattern graph. The algorithm returns
 the mappings of pattern graph vertices onto target graph vertices.
 
-.. |si_compute| replace::   :ref:`compute <subgraph_isomorphism_compute>`
-.. |si_fast|    replace::   :ref:`fast <subgraph_isomorphism_fast>`
+.. |si_compute|     replace::   :ref:`Computing              <subgraph_isomorphism_compute>`
+.. |si_fast|        replace::   :ref:`fast                   <subgraph_isomorphism_fast>`
+.. |si_api|         replace::   :ref:`graph_matching(...)    <subgraph_isomorphism_t_api>`
+.. |si_api_input|   replace::   :ref:`graph_matching_input   <subgraph_isomorphism_t_api_input>`
+.. |si_api_result|  replace::   :ref:`graph_matching_result  <subgraph_isomorphism_t_api_result>`
 
-=============  ==========================
-**Operation**  **Computational  methods**
--------------  --------------------------
-|si_compute|   |si_fast|
-=============  ==========================
+================ =========================== ============ ================= =================
+ **Operation**     **Computational methods**           **Programming Interface**
+---------------- --------------------------- ------------------------------------------------
+  |si_compute|             |si_fast|            |si_api|    |si_api_input|    |si_api_result|
+================ =========================== ============ ================= =================

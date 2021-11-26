@@ -52,3 +52,39 @@ Task tags
 Enum classes
 ~~~~~~~~~~~~
 .. onedal_enumclass:: oneapi::dal::preview::subgraph_isomorphism::kind
+
+.. _subgraph_isomorphism_t_api:
+
+Computing :cpp:expr:`graph_matching(...)`
+--------------------------------------------------
+
+.. _subgraph_isomorphism_t_api_input:
+
+Input
+~~~~~
+.. onedal_class:: oneapi::dal::preview::subgraph_isomorphism::graph_matching_input
+
+.. _subgraph_isomorphism_t_api_result:
+
+Result
+~~~~~~
+.. onedal_class:: oneapi::dal::preview::subgraph_isomorphism::graph_matching_result
+
+Operation
+~~~~~~~~~
+
+.. function:: template <typename Graph, typename Descriptor> \
+              subgraph_isomorphism::graph_matching_result preview::graph_matching( \
+                                         const Descriptor& desc, \
+                                         const Graph& target, \
+                                         const Graph& pattern)
+
+   :param desc: Subgraph Isomorphism algorithm descriptor :expr:`subgraph_isomorphism::descriptor`
+   :param target:  Target (big) graph
+   :param pattern: Pattern (small) graph
+
+--------
+Examples
+--------
+
+.. include:: ../../../includes/graph/subgraph-isomorphism-examples.rst
