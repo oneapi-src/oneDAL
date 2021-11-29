@@ -39,8 +39,8 @@ using by_default = fast;
 
 /// The kinds of subgraphs to search for in a target graph.
 enum class kind {
-    /// Search for induced subgraph isomorphic to pattern graph. All exist and non-exist edges
-    /// in subgraph are considered.
+    /// Search for an induced subgraph isomorphic to the pattern graph. All existing and non-existing edges
+    /// in a subgraph are considered.
     induced,
     /// Search for non-induced subgraph isomorphic to pattern graph. Only exist edges
     /// in subgraph are considered.
