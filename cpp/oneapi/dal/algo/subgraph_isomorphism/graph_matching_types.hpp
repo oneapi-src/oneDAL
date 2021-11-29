@@ -73,7 +73,7 @@ public:
     graph_matching_result();
 
     /// Returns the table of size [match_count x pattern_vertex_count] with matchings
-    /// of pattern graph in target graph. Each row of the table
+    /// of the pattern graph in the target graph. Each row of the table
     /// contain ids of vertices in target graph sorted by pattern vertex ids.
     /// I.e. j-th element of i-th row contain id of target graph vertex which
     /// was matched with j-th vertex of pattern graph in i-th match.
