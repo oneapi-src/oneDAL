@@ -37,7 +37,7 @@ struct fast {};
 using by_default = fast;
 } // namespace method
 
-/// Available kinds of subgraph to find in target graph.
+/// The kinds of subgraphs to search for in a target graph.
 enum class kind {
     /// Search for induced subgraph isomorphic to pattern graph. All exist and non-exist edges
     /// in subgraph are considered.
