@@ -86,7 +86,7 @@ public:
         return get_match_count_impl();
     }
 
-    /// Sets the table with matchings of pattern graph in target graph.
+    /// Sets the table with matchings of the pattern graph in the target graph.
     auto& set_vertex_match(const table& value) {
         set_vertex_match_impl(value);
         return *this;
