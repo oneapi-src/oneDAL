@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel_distr.hpp"
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernels_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -66,6 +67,7 @@ struct compute_kernel_gpu<Float, Method, task::init> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
+        const auto comm = ctx.get_communicator();
         return compute<Float, Method>(ctx, desc, input);
     }
 };
