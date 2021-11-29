@@ -42,8 +42,8 @@ enum class kind {
     /// Search for an induced subgraph isomorphic to the pattern graph. All existing and non-existing edges
     /// in a subgraph are considered.
     induced,
-    /// Search for non-induced subgraph isomorphic to pattern graph. Only exist edges
-    /// in subgraph are considered.
+    /// Search for a non-induced subgraph isomorphic to the pattern graph. Only existing edges
+    /// in a subgraph are considered.
     non_induced
 };
 
