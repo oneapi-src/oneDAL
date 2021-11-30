@@ -54,7 +54,7 @@ Mapping is a bijection or one-to-one correspondence between vertices of :math:`H
 graph :math:`G`. Every existing edge corresponds two vertices adjacency relationship, non-existing edge 
 corresponds two vertices non-adjacency relationship. Induced kind of subgraph isomorphims preserves
 adjacency and non-adjacency relationship between vertices, when non-induced kind preserveds only 
-adjecency relationship.
+adjacency relationship.
 
 .. rubric:: Example
 
