@@ -18,7 +18,7 @@
 Graph
 =====
 
-This chapter describes programming interfaces of the pairwise distances implemented in |short_name|:
+This chapter describes programming interfaces of the graph algorithms implemented in |short_name|:
 
 .. toctree::
    :titlesonly:

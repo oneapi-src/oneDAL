@@ -251,14 +251,14 @@ Graph analytics terms
 
     Induced subgraph on the edge set
         Each subset :math:`E' \subseteq E` defines a unique :capterm:`subgraph <Subgraph>` :math:`H' = (V'; E')` of graph 
-        :math:`G = (V; E)`, where :math:`V'` consists of only those vertices which are the endpoints of the
-        edges in :math:`E'`. The subgraph :math:`G'` is called the induced subgraph of :math:`G` on the
+        :math:`G = (V; E)`, where :math:`V'` consists of only those vertices that are the endpoints of the
+        edges in :math:`E'`. The subgraph :math:`H` is called an induced subgraph of :math:`G` on the
         edge set :math:`E'` [Gross2014]_.
 
     Induced subgraph on the vertex set
         Each subset :math:`V' \subseteq V` defines a unique :capterm:`subgraph <Subgraph>`
         :math:`H = (V'; E')` of graph :math:`G = (V; E)`, where :math:`E'` consists of those edges 
-        whose endpoints are in :math:`V'`. The subgraph :math:`G'` is called the induced subgraph of :math:`G` on the vertex 
+        whose endpoints are in :math:`V'`. The subgraph :math:`H` is called an induced subgraph of :math:`G` on the vertex 
         set :math:`V'` [Gross2014]_.
 
     Self-loop

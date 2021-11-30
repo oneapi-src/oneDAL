@@ -18,7 +18,13 @@
 Graph
 =====
 
+This chapter describes graph algorithms implemented in |short_name|:
+
 .. toctree::
    :titlesonly:
 
    subgraph-isomorphism.rst
+
+.. rubric:: Examples: Subgraph Isomorphism
+
+.. include:: ../../../includes/graph/subgraph-isomorphism-examples.rst

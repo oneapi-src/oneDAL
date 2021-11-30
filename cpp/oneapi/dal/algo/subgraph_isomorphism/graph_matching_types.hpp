@@ -27,7 +27,7 @@ namespace oneapi::dal::preview::subgraph_isomorphism {
 
 /// Class for the description of the input parameters of the Subgraph Isomorphism algorithm
 ///
-/// @tparam Graph  Type of the input graph.
+/// @tparam Graph  The type of the input graph.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve.
 ///                Can be :expr:`task::compute`.
 template <typename Graph, typename Task = task::compute>
@@ -40,22 +40,22 @@ public:
                   "Only undirected_adjacency_vector_graph is supported.");
     /// Constructs the algorithm input initialized with the target and pattern graphs.
     ///
-    /// @param [in] target_graph  The input target (big) graph
-    /// @param [in] pattern_graph  The input pattern (small) graph
+    /// @param [in] target_graph  The input target (bigger) graph
+    /// @param [in] pattern_graph  The input pattern (smaller) graph
     graph_matching_input(const Graph& target_graph, const Graph& pattern_graph);
 
     /// Returns the constant reference to the input target graph
     const Graph& get_target_graph() const;
 
-    /// Sets the target (big) graph to the input
-    /// @param [in] target_graph  The input target (big) graph
+    /// Sets the target (bigger) graph to the input
+    /// @param [in] target_graph  The input target (bigger) graph
     const auto& set_target_graph(const Graph& target_graph);
 
     /// Returns the constant reference to the input pattern graph
     const Graph& get_pattern_graph() const;
 
-    /// Sets the pattern (small) graph to the input
-    /// @param [in] pattern_graph  The input pattern (small) graph
+    /// Sets the pattern (smaller) graph to the input
+    /// @param [in] pattern_graph  The input pattern (smaller) graph
     const auto& set_pattern_graph(const Graph& pattern_graph);
 
 private:

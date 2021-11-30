@@ -44,15 +44,19 @@ as **non-induced** subgraph.
 Computing
 ---------
 
-Given two graphs :math:`G` and :math:`H`, the problem is to define whether graph :math:`G` contains
-a subgraph which is isomorphic to graph :math:`H` and find exact mapping of subgraph :math:`H` in
+Given two graphs :math:`G` and :math:`H`, the problem is to determine whether graph :math:`G` contains
+a subgraph isomorphic to graph :math:`H` and find the exact mapping of subgraph :math:`H` in
 graph :math:`G`.
 
-Mapping is bijection or one-to-one correspondence between vertices of :math:`H` and subgraph of 
-graph :math:`G` with correspond vertex adjacensy relationship preserving for non-induced subgraph 
-and adjacensy and non-adjacensy preserving relationship for induced case. :math:`G` is called
-**target** graph, :math:`H` is called **pattern** graph.
+:math:`G` is called **target** graph, :math:`H` is called **pattern** graph.
 
+Mapping is a bijection or one-to-one correspondence between vertices of :math:`H` and subgraph of 
+graph :math:`G`. Every existing edge corresponds two vertices adjacency relationship, non-existing edge 
+corresponds two vertices non-adjacency relationship. Induced kind of subgraph isomorphims preserves
+adjacency and non-adjacency relationship between vertices, when non-induced kind preserveds only 
+adjecency relationship.
+
+.. rubric:: Example
 
 .. figure:: images/subgraph-isomorphism-target-pattern.png
     :width: 600
@@ -77,7 +81,8 @@ Mappings for subgraph :math:`H` in graph :math:`G` in non-induced case are: [3, 
 Computation method: *dense*
 ---------------------------
 
-The method defines VF3-light algorithms with Global State Stack parallelization method and supports induced and non-induced case.
+The method defines VF3-light algorithms with Global State Stack parallelization method
+and supports induced and non-induced cases.
 
 For more details, see [Carletti2021]_.
 

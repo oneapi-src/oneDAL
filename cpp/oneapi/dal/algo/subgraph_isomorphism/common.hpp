@@ -123,7 +123,7 @@ public:
         alloc_ = allocator;
     }
 
-    /// Kind of subgraph to be isomorphic to pattern graph. Can be :expr:`kind::induced`
+    /// The kind of subgraph to be isomorphic to the pattern graph. Can be :expr:`kind::induced`
     /// or :expr:`kind::non_induced`.
     kind get_kind() const {
         return base_t::get_kind();
@@ -134,8 +134,8 @@ public:
         return *this;
     }
 
-    /// The flag if semantic search is requred in Subgraph Isomorphism computation. If true,
-    /// vertex labels are considered.
+    /// The flag that specifies if semantic search is required in Subgraph Isomorphism computation.
+    /// If true, vertex labels are considered.
     bool get_semantic_match() const {
         return base_t::get_semantic_match();
     }
@@ -155,7 +155,7 @@ public:
         return *this;
     }
 
-    /// Returns a copy of allocator used in algorthim for internal memory management.
+    /// Returns a copy of the allocator used in the algorithm for internal memory management.
     Allocator get_allocator() const {
         return alloc_;
     }
