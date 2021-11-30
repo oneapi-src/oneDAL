@@ -63,18 +63,19 @@ adjecency relationship.
     :align: center
     :alt:
 
-The only mapping for subgraph :math:`H` in graph :math:`G` from picture above in induced case is: 
-[3, 0, 1, 4, 2, 5]. Which means that:
+For the example above, the mappings for subgraph :math:`H` in graph :math:`G` are:
 
-* pattern vertex with id 0 is mapped on vertex in target graph with id 3; 
-* pattern vertex with id 1 is mapped on vertex in target graph with id 0;
-* pattern vertex with id 2 is mapped on vertex in target graph with id 1;
-* pattern vertex with id 3 is mapped on vertex in target graph with id 4.
-* pattern vertex with id 4 is mapped on vertex in target graph with id 2.
-* pattern vertex with id 5 is mapped on vertex in target graph with id 5.
+- Induced: [3, 0, 1, 4, 2, 5]
+- Non-induced: [3, 0, 1, 4, 2, 5] and [3, 6, 1, 4, 2, 5]
 
+The notation [3, 0, 1, 4, 2, 5] means that:
 
-Mappings for subgraph :math:`H` in graph :math:`G` in non-induced case are: [3, 0, 1, 4, 2, 5] and [3, 6, 1, 4, 2, 5].
+* pattern vertex with id 0 is mapped on vertex in target graph with id 3
+* pattern vertex with id 1 is mapped on vertex in target graph with id 0
+* pattern vertex with id 2 is mapped on vertex in target graph with id 1
+* pattern vertex with id 3 is mapped on vertex in target graph with id 4
+* pattern vertex with id 4 is mapped on vertex in target graph with id 2
+* pattern vertex with id 5 is mapped on vertex in target graph with id 5
 
 .. _subgraph_isomorphism_fast:
 

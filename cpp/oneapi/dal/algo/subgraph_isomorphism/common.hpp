@@ -37,13 +37,13 @@ struct fast {};
 using by_default = fast;
 } // namespace method
 
-/// Available kinds of subgraph to find in target graph.
+/// The kinds of subgraphs to search for in a target graph.
 enum class kind {
-    /// Search for induced subgraph isomorphic to pattern graph. All exist and non-exist edges
-    /// in subgraph are considered.
+    /// Search for an induced subgraph isomorphic to the pattern graph. All existing and non-existing edges
+    /// in a subgraph are considered.
     induced,
-    /// Search for non-induced subgraph isomorphic to pattern graph. Only exist edges
-    /// in subgraph are considered.
+    /// Search for a non-induced subgraph isomorphic to the pattern graph. Only existing edges
+    /// in a subgraph are considered.
     non_induced
 };
 
@@ -97,7 +97,7 @@ protected:
 /// @tparam Float      The floating-point type that the algorithm uses for
 ///                    intermediate computations. Can be :expr:`float` or
 ///                    :expr:`double`. This parameter is not used for Subgraph Isomorphism algortihm.
-/// @tparam Method     Tag-type that specifies an the implementation of the algorithm. Can
+/// @tparam Method     Tag-type that specifies the implementation of the algorithm. Can
 ///                    be :expr:`method::fast`.
 /// @tparam Task       Tag-type that specifies the type of the problem to solve. Can
 ///                    be :expr:`task::compute`.
