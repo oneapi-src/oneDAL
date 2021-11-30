@@ -204,14 +204,16 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         return result_t{};
     }
 
-    auto arr_biases = array<Float>::full(q, 1, static_cast<Float>(bias));
+    auto [biases_nd, full_event] =
+        pr::ndarray<Float, 1>::full(q, { 1 }, static_cast<Float>(bias), sycl::usm::alloc::device);
+    full_event.wait_and_throw();
     auto model =
         model_t()
             .set_support_vectors(homogen_table::wrap(support_vectors.flatten(q),
                                                      support_vectors.get_dimension(0),
                                                      support_vectors.get_dimension(1)))
             .set_coeffs(homogen_table::wrap(sv_coeffs.flatten(q), sv_coeffs.get_dimension(0), 1))
-            .set_biases(homogen_table::wrap(arr_biases, 1, 1))
+            .set_biases(homogen_table::wrap(biases_nd.flatten(q), 1, 1))
             .set_first_class_response(old_unique_responses.first)
             .set_second_class_response(old_unique_responses.second);
 
