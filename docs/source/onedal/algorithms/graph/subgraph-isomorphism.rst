@@ -79,7 +79,7 @@ The notation [3, 0, 1, 4, 2, 5] means that:
 
 .. _subgraph_isomorphism_fast:
 
-Computation method: *dense*
+Computation method: *fast*
 ---------------------------
 
 The method defines VF3-light algorithms with Global State Stack parallelization method
