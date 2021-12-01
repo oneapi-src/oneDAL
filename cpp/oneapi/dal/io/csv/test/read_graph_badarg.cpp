@@ -93,22 +93,6 @@ public:
         std::remove(filename.c_str());
     }
 
-    // template <typename GraphType, typename Graph>
-    // void check_graph_correctness(const Graph& graph) {
-    //     GraphType graph_data;
-
-    //     REQUIRE(dal::preview::get_vertex_count(graph) == graph_data.vertex_count);
-    //     REQUIRE(dal::preview::get_edge_count(graph) == graph_data.edge_count);
-
-    //     auto& graph_impl = oneapi::dal::detail::get_impl(graph);
-    //     const auto result_degrees = graph_impl.get_topology()._degrees;
-    //     std::int32_t correct_degrees_count = 0;
-    //     for (int i = 0; i < graph_data.vertex_count; ++i) {
-    //         if (result_degrees[i] == graph_data.degrees[i])
-    //             correct_degrees_count++;
-    //     }
-    //     REQUIRE(correct_degrees_count == graph_data.vertex_count);
-    // }
     template <typename GraphType, typename Graph>
     void check_graph_correctness(const Graph& graph) {
         GraphType graph_data;
