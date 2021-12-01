@@ -50,7 +50,7 @@ graph :math:`G`.
 
 :math:`G` is called **target** graph, :math:`H` is called **pattern** graph.
 
-Mapping is a bijection or one-to-one correspondence between vertices of :math:`H` and subgraph of 
+Mapping is a bijection or one-to-one correspondence between vertices of :math:`H` and a subgraph of 
 graph :math:`G`. Two vertices are adjacent if there is an existing edge between them, and non-adjacent otherwise.
 Induced subgraph isomorphism preserves both adjacency and non-adjacency relationships between vertices,
 while non-induced subgraph isomorphism preserves only adjacency relationship.
