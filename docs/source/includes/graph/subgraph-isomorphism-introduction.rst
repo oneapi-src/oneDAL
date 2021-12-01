@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Subgraph Isomorphism algorithm receives target graph :math:`G` and pattern graph :math:`H` as input
+Subgraph Isomorphism algorithm receives a target graph :math:`G` and a pattern graph :math:`H` as input
 and searches the target graph for subgraphs that are isomorphic to the pattern graph. The algorithm returns
 the mappings of the pattern graph vertices onto the target graph vertices.
 
