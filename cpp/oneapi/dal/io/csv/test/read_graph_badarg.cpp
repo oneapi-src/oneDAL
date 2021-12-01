@@ -29,27 +29,6 @@ class graph_base_data {
 public:
     graph_base_data() = default;
 
-    void write_test_data() {
-        std::ofstream outf(filename);
-        if (outf.is_open()) {
-            std::string delimiter = ",";
-            size_t pos = 0;
-            while ((pos = file_content.find(delimiter)) != std::string::npos) {
-                outf << file_content.substr(0, pos) << std::endl;
-                file_content.erase(0, pos + delimiter.length());
-            }
-            outf << file_content << std::endl;
-        }
-        else {
-            throw invalid_argument(dal::detail::error_messages::file_not_found());
-        }
-        outf.close();
-    }
-
-    void delete_test_data() {
-        std::remove(filename.c_str());
-    }
-
     std::string filename;
     std::int64_t vertex_count;
     std::int64_t edge_count;
