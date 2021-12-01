@@ -127,7 +127,7 @@ READ_GRAPH_BADARG_TEST("Non-exist input file") {
 }
 
 //FAILES - incorrect result graph
-// READ_GRAPH_BADARG_TEST("The first few lines of input file consist of odd number of words, unweighted") { //нечетное
+// READ_GRAPH_BADARG_TEST("The first few lines of input file consist of odd number of words, unweighted") {
 //     using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
 //     std::string filename = "odd_word_num_unweighted.csv";
 //     std::string file_content = "#dataset name,unweighted,0 1,0 2,0 3,1 2,1 3,2 3";
@@ -139,7 +139,7 @@ READ_GRAPH_BADARG_TEST("Non-exist input file") {
 
 //Correct result graph
 READ_GRAPH_BADARG_TEST(
-    "The first few lines of input file consist of odd number of words, weighted") { //нечетное
+    "The first few lines of input file consist of odd number of words, weighted") {
     using graph_t = dal::preview::undirected_adjacency_vector_graph<std::int32_t, std::int32_t>;
     std::string filename = "odd_word_num_weighted.csv";
     std::string file_content = "#dataset name,weighted,0 1 1,0 2 2,0 3 3,1 2 4,1 3 5,2 3 6";
@@ -152,7 +152,7 @@ READ_GRAPH_BADARG_TEST(
 
 //Correct result graph
 READ_GRAPH_BADARG_TEST(
-    "The first few lines of input file consist of even number of words, unweighted") { //четное
+    "The first few lines of input file consist of even number of words, unweighted") {
     using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
     std::string filename = "even_word_num_unweighted.csv";
     std::string file_content = "#dataset name, vertex_count=4 edge_count=6,0 1,0 2,0 3,1 2,1 3,2 3";
@@ -163,7 +163,7 @@ READ_GRAPH_BADARG_TEST(
 }
 
 //FAILES - incorrect result graph
-// READ_GRAPH_BADARG_TEST("The first few lines of input file consist of even number of words, weighted") { //четное
+// READ_GRAPH_BADARG_TEST("The first few lines of input file consist of even number of words, weighted") {
 //     using graph_t = dal::preview::undirected_adjacency_vector_graph<std::int32_t, std::int32_t>;
 //     std::string filename = "even_word_num_weighted.csv";
 //     std::string file_content = "#dataset name, vertex_count=4 edge_count=6,0 1 1,0 2 2,0 3 3,1 2 4,1 3 5,2 3 6";
