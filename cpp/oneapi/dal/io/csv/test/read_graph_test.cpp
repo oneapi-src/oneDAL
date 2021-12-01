@@ -26,15 +26,16 @@ namespace oneapi::dal::preview::csv::test {
 using namespace oneapi::dal::preview::csv::detail;
 
 class graph_base_data {
-public:
+protected:
     graph_base_data() = default;
 
+public:
     std::string filename;
-    std::int64_t vertex_count;
-    std::int64_t edge_count;
-
     std::vector<std::int32_t> file_content;
     std::vector<std::int32_t> file_content_weighted;
+
+    std::int64_t vertex_count;
+    std::int64_t edge_count;
     std::vector<std::int32_t> degrees;
     std::vector<std::int32_t> cols;
     std::vector<std::int32_t> rows;
