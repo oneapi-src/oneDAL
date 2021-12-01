@@ -15,8 +15,6 @@
 *******************************************************************************/
 
 #include <iostream>
-#include <map>
-#include <set>
 
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism.hpp"
