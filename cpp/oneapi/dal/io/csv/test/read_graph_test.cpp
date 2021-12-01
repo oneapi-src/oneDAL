@@ -44,7 +44,7 @@ public:
 class K10_graph_data : public graph_base_data {
 public:
     K10_graph_data() {
-        filename = "K10_graph.csv";
+        filename = "K10_graph";
         file_content = { 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 1, 2, 1, 3, 1,
                          4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 2, 3, 2, 4, 2, 5, 2, 6, 2, 7, 2, 8,
                          2, 9, 3, 4, 3, 5, 3, 6, 3, 7, 3, 8, 3, 9, 4, 5, 4, 6, 4, 7, 4, 8, 4,
@@ -71,9 +71,9 @@ public:
 class first_isolated_graph_data : public graph_base_data {
 public:
     first_isolated_graph_data() {
-        filename = "first_isolated_graph.csv";
+        filename = "first_isolated_graph";
         file_content = { 2, 4, 3, 5, 2, 6, 2, 7 }; //vertices 0, 1 are isolated
-        file_content_weighted = { 2, 4, 1, 3, 5, 2, 2, 6, 3, 2, 7, 4 }; //vertices 0, 1 are isolated
+        file_content_weighted = { 2, 4, 1, 3, 5, 2, 2, 6, 3, 2, 7, 4 };
         vertex_count = 8;
         edge_count = 4;
         degrees = { 0, 0, 3, 1, 1, 1, 1, 1 };
@@ -85,7 +85,7 @@ public:
 class middle_isolated_graph_data : public graph_base_data {
 public:
     middle_isolated_graph_data() {
-        filename = "middle_isolated_graph.csv";
+        filename = "middle_isolated_graph";
         file_content = { 0, 5, 2, 4, 2, 7 }; //vertices 1, 3, 6 are isolated
         file_content_weighted = { 0, 5, 1, 2, 4, 2, 2, 7, 3 };
         vertex_count = 8;
@@ -100,7 +100,7 @@ public:
 class multiple_edges_graph_data : public graph_base_data {
 public:
     multiple_edges_graph_data() {
-        filename = "multiple_edges_graph.csv";
+        filename = "multiple_edges_graph";
         file_content = { 0, 5, 4, 5, 1, 5, 5, 3, 2, 5, 3, 5, 4, 5, 5, 1, 0, 5 };
         file_content_weighted = { 0, 5, 1, 4, 5, 2, 1, 5, 3, 5, 3, 4, 2, 5,
                                   5, 3, 5, 6, 4, 5, 7, 5, 1, 8, 0, 5, 9 };
@@ -115,7 +115,7 @@ public:
 class self_loops_graph_data : public graph_base_data {
 public:
     self_loops_graph_data() {
-        filename = "self_loops_graph.csv";
+        filename = "self_loops_graph";
         file_content = { 0, 5, 0, 0, 1, 5, 1, 1, 2, 5, 2, 2, 3, 5, 3, 3, 4, 5, 5, 5 };
         file_content_weighted = { 0, 5, 1, 0, 0, 2, 1, 5, 3, 1, 1, 4, 2, 5, 5,
                                   2, 2, 6, 3, 5, 7, 3, 3, 8, 4, 5, 9, 5, 5, 10 };
@@ -130,7 +130,7 @@ public:
 class single_edge_graph_data : public graph_base_data {
 public:
     single_edge_graph_data() {
-        filename = "single_edge_graph.csv";
+        filename = "single_edge_graph";
         file_content = { 0, 9 };
         file_content_weighted = { 0, 9, 1 };
         vertex_count = 10;
@@ -144,8 +144,10 @@ public:
 class symmetrized_edges_graph_data : public graph_base_data {
 public:
     symmetrized_edges_graph_data() {
-        filename = "symmetrized_edges_graph.csv";
+        filename = "symmetrized_edges_graph";
         file_content = { 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3, 1, 0, 2, 0, 3, 0, 2, 1, 3, 1, 3, 2 };
+        file_content_weighted = { 0, 1, 1, 0, 2, 2, 0, 3, 3, 1, 2, 4, 1, 3, 5, 2, 3, 6,
+                                  1, 0, 1, 2, 0, 2, 3, 0, 3, 2, 1, 4, 3, 1, 5, 3, 2, 6 };
         vertex_count = 4;
         edge_count = 6;
         degrees = { 3, 3, 3, 3 };
@@ -163,8 +165,8 @@ public:
     using weighted_graph_t =
         dal::preview::undirected_adjacency_vector_graph<std::int32_t, std::int32_t>;
 
-    void write_test_data(graph_base_data& graph_data, bool is_weighted) {
-        std::ofstream outf(graph_data.filename);
+    void write_test_data(graph_base_data& graph_data, bool is_weighted, std::string filename) {
+        std::ofstream outf(filename);
         std::int32_t step = 2;
         if (is_weighted) {
             if (outf.is_open()) {
@@ -229,9 +231,9 @@ public:
     }
 
     template <typename EdgeList>
-    void check_read_edge_list(graph_base_data& graph_data, bool is_weighted) {
+    void check_read_edge_list(graph_base_data& graph_data, bool is_weighted, std::string filename) {
         EdgeList elist;
-        read_edge_list(graph_data.filename, elist);
+        read_edge_list(filename, elist);
         std::int64_t correct_edge_count = 0;
         std::int32_t step = 0;
         if (is_weighted) {
@@ -289,76 +291,120 @@ public:
     }
 
     template <typename Graph>
-    void check_read_impl(graph_base_data& graph_data, bool is_weighted) {
+    void check_read_impl(graph_base_data& graph_data, bool is_weighted, std::string filename) {
         if (is_weighted) {
-            const auto graph = dal::read<Graph>(dal::csv::data_source{ graph_data.filename },
+            const auto graph = dal::read<Graph>(dal::csv::data_source{ filename },
                                                 dal::preview::read_mode::weighted_edge_list);
             check_graph_correctness(graph_data, graph);
         }
         else {
-            const auto graph = dal::read<Graph>(dal::csv::data_source{ graph_data.filename });
+            const auto graph = dal::read<Graph>(dal::csv::data_source{ filename });
             check_graph_correctness(graph_data, graph);
         }
     }
 
-    template <typename GraphType>
-    void general_check(bool is_weighted) {
-        GraphType graph_data;
-        write_test_data(graph_data, is_weighted);
+    //template <typename GraphType>
+    void general_check(graph_base_data& graph_data, bool is_weighted, std::string filename) {
+        //GraphType graph_data;
+        write_test_data(graph_data, is_weighted, filename);
         if (is_weighted) {
-            check_read_edge_list<weighted_edge_list_t>(graph_data, is_weighted);
+            check_read_edge_list<weighted_edge_list_t>(graph_data, is_weighted, filename);
             check_convert_to_csr_impl(graph_data, is_weighted);
-            check_read_impl<weighted_graph_t>(graph_data, is_weighted);
+            check_read_impl<weighted_graph_t>(graph_data, is_weighted, filename);
         }
         else {
-            check_read_edge_list<edge_list_t>(graph_data, is_weighted);
+            check_read_edge_list<edge_list_t>(graph_data, is_weighted, filename);
             check_convert_to_csr_impl(graph_data, is_weighted);
-            check_read_impl<unweighted_graph_t>(graph_data, is_weighted);
+            check_read_impl<unweighted_graph_t>(graph_data, is_weighted, filename);
         }
-        delete_test_data(graph_data.filename);
+        delete_test_data(filename);
     }
 };
 
 #define READ_GRAPH_TEST(name) TEST_M(read_graph_test, name, "[read_graph]")
 
 READ_GRAPH_TEST("K10 edge list, unweighted") {
-    this->general_check<K10_graph_data>(false /*is_weighted =*/);
+    K10_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, false /*is_weighted =*/, full_filename);
 }
 
 READ_GRAPH_TEST("K10 edge list, weighted") {
-    this->general_check<K10_graph_data>(true /*is_weighted =*/);
+    K10_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, true /*is_weighted =*/, full_filename);
 }
 
 READ_GRAPH_TEST("The first few vertices of the graph are isolated, unweighted") {
-    this->general_check<first_isolated_graph_data>(false);
+    first_isolated_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, false, full_filename);
 }
 
 READ_GRAPH_TEST("The first few vertices of the graph are isolated, weighted") {
-    this->general_check<first_isolated_graph_data>(true);
+    first_isolated_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, true, full_filename);
 }
 
 READ_GRAPH_TEST("Vertices in the middle are isolated, unweighted") {
-    this->general_check<middle_isolated_graph_data>(false);
+    middle_isolated_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, false, full_filename);
 }
 
 READ_GRAPH_TEST("Vertices in the middle are isolated, weighted") {
-    this->general_check<middle_isolated_graph_data>(true);
+    middle_isolated_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, true, full_filename);
 }
 
 READ_GRAPH_TEST("Edge list with multiple edges, unweighted") {
-    this->general_check<multiple_edges_graph_data>(false);
+    multiple_edges_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, false, full_filename);
 }
 
 READ_GRAPH_TEST("Edge list with multiple edges, weighted") {
-    this->general_check<multiple_edges_graph_data>(true);
+    multiple_edges_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, true, full_filename);
 }
 
 READ_GRAPH_TEST("Edge list with self-loops, unweighted") {
-    this->general_check<self_loops_graph_data>(false);
+    self_loops_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, false, full_filename);
 }
 
 READ_GRAPH_TEST("Edge list with self-loops, weighted") {
-    this->general_check<self_loops_graph_data>(true);
+    self_loops_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, true, full_filename);
+}
+
+READ_GRAPH_TEST("Single edge graph, unweighted") {
+    single_edge_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, false, full_filename);
+}
+
+READ_GRAPH_TEST("Single edge graph, weighted") {
+    single_edge_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, true, full_filename);
+}
+
+READ_GRAPH_TEST("Symmetrized edge graph, unweighted") {
+    symmetrized_edges_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, false, full_filename);
+}
+
+READ_GRAPH_TEST("Symmetrized edge graph, weighted") {
+    symmetrized_edges_graph_data graph_data;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->general_check(graph_data, true, full_filename);
 }
 
 } //namespace oneapi::dal::preview::csv::test
