@@ -14,27 +14,17 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _dg_algorithms:
+=====
+Graph
+=====
 
-Algorithms
-==========
-
-The Algorithms component consists of classes that implement algorithms
-for data analysis (data mining) and data modeling (training and prediction).
-These algorithms include matrix decompositions, clustering, classification,
-and regression algorithms, as well as association rules discovery.
-
+This chapter describes graph algorithms implemented in |short_name|:
 
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
-   clustering/index.rst
-   covariance/index.rst
-   decomposition/index.rst
-   ensembles/index.rst
-   graph/index.rst
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   pairwise-distances/index.rst
-   statistics/index.rst
-   svm/index.rst
+   subgraph-isomorphism.rst
+
+.. rubric:: Examples: Subgraph Isomorphism
+
+.. include:: ../../../includes/graph/subgraph-isomorphism-examples.rst
