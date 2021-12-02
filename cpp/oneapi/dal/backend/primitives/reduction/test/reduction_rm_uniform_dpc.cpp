@@ -34,9 +34,9 @@ namespace pr = oneapi::dal::backend::primitives;
 
 constexpr auto rm_order = ndorder::c;
 
-using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
-                                   std::tuple<float, sum<float>, square<float>>,
-                                   std::tuple<float, sum<float>, abs<float>>,
+using reduction_types = std::tuple<//std::tuple<float, sum<float>, identity<float>>,
+                                   //std::tuple<float, sum<float>, square<float>>,
+                                   //std::tuple<float, sum<float>, abs<float>>,
                                    std::tuple<double, sum<double>, identity<double>>,
                                    std::tuple<double, sum<double>, square<double>>,
                                    std::tuple<double, sum<double>, abs<double>>>;
@@ -53,6 +53,8 @@ public:
         width_ = GENERATE(7, 707, 5);
         stride_ = GENERATE(707, 812, 1024);
         height_ = GENERATE(171, 999, 1001);
+        std::cout << arg_ << ' ' << width_ << ' ' << stride_ << ' ' << height_ << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
         CAPTURE(arg_, width_, stride_, height_);
     }
 
@@ -295,6 +297,28 @@ public:
         check_output_cw(out_array);
     }
 
+        void test_raw_cw_reduce_atomic() {
+        using reduction_t = reduction_rm_cw_atomic<float_t, binary_t, unary_t>;
+        auto [inp_array, inp_event] = input();
+        auto [out_array, out_event] = output(width_);
+
+        const float_t* inp_ptr = inp_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        reduction_t reducer(this->get_queue());
+        reducer(inp_ptr,
+                out_ptr,
+                width_,
+                height_,
+                stride_,
+                binary_t{},
+                unary_t{},
+                { inp_event, out_event })
+            .wait_and_throw();
+
+        check_output_cw(out_array);
+    }
+
     void test_raw_cw_reduce_wrapper() {
         using reduction_t = reduction_rm_cw<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
@@ -324,7 +348,7 @@ private:
     std::int64_t height_;
 };
 
-TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
+/*TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "Uniformly filled Row-Major Row-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
@@ -334,7 +358,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
     this->test_raw_rw_reduce_wrapper();
-}
+}*/
 
 TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "Uniformly filled Row-Major Col-Wise reduction",
@@ -343,9 +367,10 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     SKIP_IF(this->not_float64_friendly());
     this->generate();
     SKIP_IF(this->should_be_skipped());
-    this->test_raw_cw_reduce_naive();
-    this->test_raw_cw_reduce_naive_local();
-    this->test_raw_cw_reduce_wrapper();
+    //this->test_raw_cw_reduce_naive();
+    //this->test_raw_cw_reduce_naive_local();
+    this->test_raw_cw_reduce_atomic();
+    //this->test_raw_cw_reduce_wrapper();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

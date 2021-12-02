@@ -99,13 +99,51 @@ private:
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
+class reduction_rm_cw_atomic {
+public:
+    constexpr static inline int max_folding = 32;
+    constexpr static inline int block_size = 32;
+    constexpr static inline int ret_base = 64;
+
+    reduction_rm_cw_atomic(sycl::queue& q);
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t stride,
+                           std::int64_t height,
+                           Float* bins,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {}) const;
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t stride,
+                           std::int64_t height,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {}) const;
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t height,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {}) const;
+
+private:
+    sycl::queue& q_;
+};
+
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw {
 public:
     using naive_t = reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>;
+    using atomic_t = reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>;
     using naive_local_t = reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>;
 
     reduction_rm_cw(sycl::queue& q);
-    enum reduction_method { naive, naive_local };
+    enum reduction_method { naive, atomic, naive_local };
     reduction_method propose_method(std::int64_t width, std::int64_t height) const;
     sycl::event operator()(reduction_method method,
                            const Float* input,

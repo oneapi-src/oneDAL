@@ -797,4 +797,27 @@ private:
     shared_t data_;
 };
 
+#ifdef _GLIBCXX_OSTREAM
+
+// Debuging function.
+// Available only if (i)ostream header is included
+template<typename T, ndorder ord>
+inline std::ostream& operator<<(std::ostream& s, const ndview<T, 2, ord>& v) {
+    constexpr char o = (ord == ndorder::c) ? 'C' : 'F';
+    const auto h = v.get_dimension(0);
+    const auto w = v.get_dimension(1);
+    const auto d = v.get_leading_stride();
+    s << o << "-like ndview with shape height,width="
+        << h << ',' << w << " (stride=" << d << ")\n";
+    for(std::int64_t r = 0; r < h; ++r) {
+        for(std::int64_t c = 0; c < w; ++c) {
+            s << "\t " << v.at(r, c);
+        }
+        s << "\t: r" << r << '\n';
+    }
+    return (s << std::endl);
+}
+
+#endif
+
 } // namespace oneapi::dal::backend::primitives

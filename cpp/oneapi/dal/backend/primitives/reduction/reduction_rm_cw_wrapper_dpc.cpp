@@ -26,6 +26,14 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 auto reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
                                                                std::int64_t height) const
     -> reduction_method {
+    if constexpr (is_sum_op_v<BinaryOp>) {
+        const auto fwidth = device_max_wg_size(q_);
+        const auto twidth = fwidth * atomic_t::max_folding;
+        const bool suitable_width = (twidth > width) && (width >= fwidth);
+        if (suitable_width && (height > width)) {
+            return reduction_method::atomic;
+        }
+    }
     if (height >= device_max_wg_size(q_) && height > width) {
         return reduction_method::naive_local;
     }
@@ -45,6 +53,10 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
     // TODO: think about `switch` operator
     if (method == reduction_method::naive) {
         const naive_t kernel{ q_ };
+        return kernel(input, output, width, height, stride, binary, unary, deps);
+    }
+    if (method == reduction_method::atomic) {
+        const atomic_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
     if (method == reduction_method::naive_local) {
