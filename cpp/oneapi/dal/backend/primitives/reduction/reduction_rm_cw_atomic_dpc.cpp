@@ -63,6 +63,7 @@ public:
                 accs[j] = binary_(accs[j], bval);
             }
         }
+        //Trick for r == power_of_two
         //equals       = output_ + (vid % r);
         auto* dst_base = output_ + (vid & (r - 1));
         for(std::int32_t j = 0; j < folding; ++j) {
@@ -129,8 +130,6 @@ sycl::event reduction_impl(sycl::queue& queue,
     const auto cfolding = width / wg + bool(width % wg);
 
     if(cfolding == folding) {
-
-        //std::cout << folding << ' ' << n_blocks << ' ' << bl << ' '  << block_size << std::endl;
         return queue.submit([&](sycl::handler& h) {
             h.depends_on(deps);
             const auto range = make_multiple_nd_range_2d({ wg, n_blocks }, { wg, 1l });
@@ -138,8 +137,8 @@ sycl::event reduction_impl(sycl::queue& queue,
                                      kernel_t(data,
                                               bins,
                                               dal::detail::integral_cast<std::int32_t>(width),
+                                              dal::detail::integral_cast<std::int64_t>(height),
                                               dal::detail::integral_cast<std::int32_t>(stride),
-                                              dal::detail::integral_cast<std::int32_t>(height),
                                               binary,
                                               unary));
         });
@@ -221,8 +220,7 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
     auto reduction_event =
         this->operator()(input, output, width, height, stride, bins_ptr, binary, unary, new_deps);
     reduction_event.wait_and_throw();
-    //const auto hbins = bins.to_host(this->q_);
-    //std::cout << "bins\n" << hbins << std::endl;
+    const auto hbins = bins.to_host(this->q_);
     return reduction_event;
 }
 

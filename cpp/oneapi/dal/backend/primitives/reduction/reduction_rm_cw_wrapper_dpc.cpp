@@ -26,7 +26,7 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 auto reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
                                                                std::int64_t height) const
     -> reduction_method {
-    if constexpr (is_sum_op_v<BinaryOp>) {
+    {
         const auto fwidth = device_max_wg_size(q_);
         const auto twidth = fwidth * atomic_t::max_folding;
         const bool suitable_width = (twidth > width) && (width >= fwidth);

@@ -53,8 +53,6 @@ public:
         width_ = GENERATE(7, 707, 5);
         stride_ = GENERATE(707, 812, 1024);
         height_ = GENERATE(171, 999, 1001);
-        std::cout << arg_ << ' ' << width_ << ' ' << stride_ << ' ' << height_ << std::endl;
-        std::cout << __PRETTY_FUNCTION__ << std::endl;
         CAPTURE(arg_, width_, stride_, height_);
     }
 
@@ -348,7 +346,7 @@ private:
     std::int64_t height_;
 };
 
-/*TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
+TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "Uniformly filled Row-Major Row-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
@@ -358,7 +356,7 @@ private:
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
     this->test_raw_rw_reduce_wrapper();
-}*/
+}
 
 TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "Uniformly filled Row-Major Col-Wise reduction",
@@ -367,10 +365,10 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     SKIP_IF(this->not_float64_friendly());
     this->generate();
     SKIP_IF(this->should_be_skipped());
-    //this->test_raw_cw_reduce_naive();
-    //this->test_raw_cw_reduce_naive_local();
+    this->test_raw_cw_reduce_naive();
+    this->test_raw_cw_reduce_naive_local();
     this->test_raw_cw_reduce_atomic();
-    //this->test_raw_cw_reduce_wrapper();
+    this->test_raw_cw_reduce_wrapper();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

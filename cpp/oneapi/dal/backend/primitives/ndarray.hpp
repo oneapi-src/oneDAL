@@ -809,12 +809,19 @@ inline std::ostream& operator<<(std::ostream& s, const ndview<T, 2, ord>& v) {
     const auto d = v.get_leading_stride();
     s << o << "-like ndview with shape height,width="
         << h << ',' << w << " (stride=" << d << ")\n";
+#ifdef _GLIBCXX_IOMANIP
+    const auto init_flags = s.flags();
+    s << std::scientific << std::setprecision(4);
+#endif
     for(std::int64_t r = 0; r < h; ++r) {
         for(std::int64_t c = 0; c < w; ++c) {
             s << "\t " << v.at(r, c);
         }
         s << "\t: r" << r << '\n';
     }
+#ifdef _GLIBCXX_IOMANIP
+    s.setf(init_flags);
+#endif
     return (s << std::endl);
 }
 
