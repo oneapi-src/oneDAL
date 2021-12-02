@@ -49,6 +49,20 @@ public:
     topology() = default;
     ~topology() = default;
 
+    inline void set_topology(vertex_set& cols,
+                             edge_set& rows,
+                             vertex_set& degrees,
+                             edge_size_type edge_count) {
+        _vertex_count = degrees.get_count();
+        _edge_count = edge_count;
+        _cols = cols;
+        _rows = rows;
+        _degrees = degrees;
+        _cols_ptr = _cols.get_mutable_data();
+        _rows_ptr = _rows.get_mutable_data();
+        _degrees_ptr = _degrees.get_mutable_data();
+    }
+
     inline void set_topology(vertex_size_type vertex_count,
                              edge_size_type edge_count,
                              edge_type* offsets,

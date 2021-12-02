@@ -815,10 +815,12 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     last_event.wait_and_throw();
     auto xtx =
         pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, sycl::usm::alloc::device);
-
-    auto gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1), Float(0));
-    gemm_event.wait_and_throw();
-
+    sycl::event gemm_event;
+    {
+        ONEDAL_PROFILER_TASK(gemm, q_);
+        gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0));
+        gemm_event.wait_and_throw();
+    }
     comm_.allreduce(xtx.flatten(q_, { last_event }), spmd::reduce_op::sum).wait();
 
     comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();

@@ -23,8 +23,13 @@ This chapter describes clustering algorithms implemented in |short_name|:
 .. toctree::
    :titlesonly:
 
+   dbscan.rst
    kmeans.rst
    kmeans-init.rst
+
+.. rubric:: Examples: DBSCAN
+
+.. include:: ../../../includes/clustering/dbscan-examples.rst
 
 .. rubric:: Examples: K-Means
 

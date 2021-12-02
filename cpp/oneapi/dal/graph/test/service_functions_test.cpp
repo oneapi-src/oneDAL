@@ -130,20 +130,20 @@ public:
         GraphType graph_data;
         Graph g;
         auto &graph_impl = oneapi::dal::detail::get_impl(g);
-        auto &vertex_allocator = graph_impl._vertex_allocator;
-        auto &edge_allocator = graph_impl._edge_allocator;
+        oneapi::dal::preview::detail::rebinded_allocator va(graph_impl._vertex_allocator);
+        oneapi::dal::preview::detail::rebinded_allocator ea(graph_impl._edge_allocator);
 
         const std::int64_t vertex_count = graph_data.get_vertex_count();
         const std::int64_t edge_count = graph_data.get_edge_count();
         const std::int64_t cols_count = graph_data.get_cols_count();
         const std::int64_t rows_count = graph_data.get_rows_count();
 
-        std::int32_t *degrees =
-            oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
-        std::int32_t *cols = oneapi::dal::preview::detail::allocate(vertex_allocator, cols_count);
-        std::int64_t *rows = oneapi::dal::preview::detail::allocate(edge_allocator, rows_count);
-        std::int32_t *rows_vertex =
-            oneapi::dal::preview::detail::allocate(vertex_allocator, rows_count);
+        auto [degrees_array, degrees] =
+            va.template allocate_array<dal::array<std::int32_t>>(vertex_count);
+        auto [cols_array, cols] = va.template allocate_array<dal::array<std::int32_t>>(cols_count);
+        auto [rows_vertex_array, rows_vertex] =
+            va.template allocate_array<dal::array<std::int32_t>>(rows_count);
+        auto [rows_array, rows] = ea.template allocate_array<dal::array<std::int64_t>>(rows_count);
 
         for (int i = 0; i < vertex_count; i++) {
             degrees[i] = graph_data.degrees[i];
@@ -152,13 +152,13 @@ public:
         for (int i = 0; i < cols_count; i++) {
             cols[i] = graph_data.cols[i];
         }
+
         for (int i = 0; i < rows_count; i++) {
             rows[i] = graph_data.rows[i];
             rows_vertex[i] = graph_data.rows[i];
         }
-        graph_impl.set_topology(vertex_count, edge_count, rows, cols, cols_count, degrees);
-        graph_impl.get_topology()._rows_vertex =
-            oneapi::dal::preview::detail::container<std::int32_t>::wrap(rows_vertex, rows_count);
+        graph_impl.set_topology(cols_array, rows_array, degrees_array, edge_count);
+        graph_impl.get_topology()._rows_vertex = rows_vertex_array;
         return g;
     }
 
@@ -378,7 +378,7 @@ public:
         DirectedGraphType graph_data;
         const auto g =
             create_graph<dal::preview::directed_adjacency_vector_graph<>, DirectedGraphType>();
-        REQUIRE_NOTHROW(dal::preview::get_edge_value(g, 0, 1));
+        REQUIRE_THROWS_AS(dal::preview::get_edge_value(g, 0, 1), range_error);
     }
 };
 

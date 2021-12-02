@@ -32,5 +32,6 @@ Refer to |daal-docs|_ official page for general information.
    onedal/programming-model/computational-modes.rst
    onedal/data-management/index.rst
    onedal/algorithms/index.rst
+   onedal/spmd/index.rst
    examples.rst
    onedal/appendix/index.rst

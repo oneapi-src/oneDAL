@@ -244,6 +244,23 @@ Graph analytics terms
         be empty, and the elements of :math:`E` are two-element subsets of :math:`V`.
         :math:`V` is called a set of vertices, :math:`E` is called a set of edges [Gross2014]_. 
 
+    Subgraph
+        A graph :math:`H = (V'; E')` is called a subgraph of graph :math:`G = (V; E)` if 
+        :math:`V' \subseteq V; E' \subseteq E` and :math:`V'` contains all the endpoints of all the 
+        edges in :math:`E'` [Gross2014]_.
+
+    Induced subgraph on the edge set
+        Each subset :math:`E' \subseteq E` defines a unique :capterm:`subgraph <Subgraph>` :math:`H' = (V'; E')` of graph 
+        :math:`G = (V; E)`, where :math:`V'` consists of only those vertices that are the endpoints of the
+        edges in :math:`E'`. The subgraph :math:`H` is called an induced subgraph of :math:`G` on the
+        edge set :math:`E'` [Gross2014]_.
+
+    Induced subgraph on the vertex set
+        Each subset :math:`V' \subseteq V` defines a unique :capterm:`subgraph <Subgraph>`
+        :math:`H = (V'; E')` of graph :math:`G = (V; E)`, where :math:`E'` consists of those edges 
+        whose endpoints are in :math:`V'`. The subgraph :math:`H` is called an induced subgraph of :math:`G` on the vertex 
+        set :math:`V'` [Gross2014]_.
+
     Self-loop
         An edge that joins a vertex to itself.
 
@@ -437,3 +454,23 @@ Common oneAPI terms
         SYCL(TM) [SYCLSpec]_ --- high-level programming model for OpenCL(TM)
         that enables code for heterogeneous processors to be written in a
         "single-source" style using completely standard C++.
+
+Distributed computational mode terms
+====================================
+
+.. glossary::
+    :sorted:
+
+    SPMD 
+        Single Program, Multiple Data (SPMD) is a technique employed to achieve parallelism.
+        In SPMD model, multiple autonomous processors simultaneously execute the same program at independent points.
+
+    Communicator
+        A |short_name| concept for an object that is used to perform inter-process collective
+        operations
+
+    Communicator backend
+        A particular library providing collective operations.
+        
+        **Examples:** oneCCL, oneMPI
+
