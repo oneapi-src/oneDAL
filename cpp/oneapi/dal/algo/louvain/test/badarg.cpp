@@ -31,14 +31,11 @@ namespace dal = oneapi::dal;
 class graph_base_data {
 protected:
     graph_base_data() = default;
-    graph_base_data(std::int64_t vertex_count,
-                    std::int64_t edge_count,
-                    std::int64_t components_count)
+    graph_base_data(std::int64_t vertex_count, std::int64_t edge_count)
             : vertex_count(vertex_count),
               edge_count(edge_count),
               cols_count(edge_count * 2),
               rows_count(vertex_count + 1),
-              community_count(community_count),
               degrees(vertex_count),
               cols(edge_count * 2),
               rows(vertex_count + 1) {}
@@ -48,7 +45,6 @@ public:
     std::int64_t edge_count;
     std::int64_t cols_count;
     std::int64_t rows_count;
-    std::int64_t community_count;
 
     std::vector<std::int32_t> degrees;
     std::vector<std::int32_t> cols;
@@ -58,7 +54,7 @@ public:
 class complete_graph_data : public graph_base_data {
 public:
     complete_graph_data(std::int64_t vertex_count)
-            : graph_base_data(vertex_count, vertex_count * (vertex_count - 1) / 2, 1) {
+            : graph_base_data(vertex_count, vertex_count * (vertex_count - 1) / 2) {
         assert(vertex_count >= 1);
         std::fill(degrees.begin(), degrees.end(), vertex_count - 1);
         for (int64_t vertex_index = 0, cols_index = 0; vertex_index < vertex_count;
@@ -75,37 +71,9 @@ public:
     }
 };
 
-class two_vertices_graph_data : public graph_base_data {
-public:
-    two_vertices_graph_data() {
-        vertex_count = 2;
-        edge_count = 1;
-        cols_count = edge_count * 2;
-        rows_count = vertex_count + 1;
-        degrees = { 1, 1 };
-        cols = { 1, 0 };
-        rows = { 0, 1, 2 };
-    }
-};
-
-class acyclic_graph_8_data : public graph_base_data {
-public:
-    acyclic_graph_8_data() {
-        vertex_count = 8;
-        edge_count = 7;
-        cols_count = edge_count * 2;
-        rows_count = vertex_count + 1;
-        degrees = { 3, 1, 3, 3, 1, 1, 1, 1 };
-        cols = { 1, 2, 4, 0, 0, 3, 6, 2, 5, 7, 0, 3, 2, 3 };
-        rows = { 0, 3, 4, 7, 10, 11, 12, 13, 14 };
-    }
-};
-
 class louvain_badarg_test {
 public:
-    using vertex_type = int32_t;
-    using weight_type = double;
-    using graph_t = dal::preview::undirected_adjacency_vector_graph<vertex_type, weight_type>;
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<std::int32_t, double>;
 
     graph_t create_graph(const graph_base_data& graph_data) {
         graph_t graph;
@@ -144,7 +112,7 @@ public:
         }
 
         for (int i = 0; i < edge_count; i++) {
-            edge_weights[i] = 1.0;
+            edge_weights[i] = 1;
         }
 
         graph_impl.set_topology(vertex_count, edge_count, rows, cols, cols_count, degrees);
@@ -191,18 +159,18 @@ public:
 #define LOUVAIN_BADARG_TEST(name) TEST_M(louvain_badarg_test, name, "[louvain][badarg]")
 
 LOUVAIN_BADARG_TEST("Negative accuracy_threshold") {
-    double accuracy_threshold = -2.0;
+    double accuracy_threshold = -2.5;
     REQUIRE_THROWS_AS(this->check_accuracy_threshold(complete_graph_data(5), accuracy_threshold),
                       invalid_argument);
 }
 
 LOUVAIN_BADARG_TEST("Negative resolution") {
-    double resolution = -1.0;
+    double resolution = -1.5;
     REQUIRE_THROWS_AS(this->check_resolution(complete_graph_data(5), resolution), invalid_argument);
 }
 
 LOUVAIN_BADARG_TEST("Negative max_iteration_count") {
-    double max_iteration_count = -15.0;
+    std::int64_t max_iteration_count = -15;
     REQUIRE_THROWS_AS(this->check_max_iteration_count(complete_graph_data(5), max_iteration_count),
                       invalid_argument);
 }
@@ -210,47 +178,36 @@ LOUVAIN_BADARG_TEST("Negative max_iteration_count") {
 LOUVAIN_BADARG_TEST("Initial partition size less than vertex_count") {
     const std::int64_t data[] = { 0 };
     const auto initial_labels = dal::homogen_table::wrap(data, 1, 1);
-    REQUIRE_THROWS_AS(this->check_initial_partition(two_vertices_graph_data(), initial_labels),
+    REQUIRE_THROWS_AS(this->check_initial_partition(complete_graph_data(5), initial_labels),
                       invalid_argument);
 }
 
 LOUVAIN_BADARG_TEST("Initial partition size greater than vertex_count") {
-    const std::int64_t data[] = { 0, 1, 1 };
-    const auto initial_labels = dal::homogen_table::wrap(data, 3, 1);
-    REQUIRE_THROWS_AS(this->check_initial_partition(two_vertices_graph_data(), initial_labels),
+    const std::int64_t data[] = { 0, 0, 0, 1, 1, 1 };
+    const auto initial_labels = dal::homogen_table::wrap(data, 6, 1);
+    REQUIRE_THROWS_AS(this->check_initial_partition(complete_graph_data(5), initial_labels),
                       invalid_argument);
 }
 
 LOUVAIN_BADARG_TEST("Invalid layout of initial partition") {
     const std::int64_t data[] = { 0, 0, 0, 0, 1, 2, 3, 4 };
     const auto initial_labels = dal::homogen_table::wrap(data, 4, 2);
-    REQUIRE_THROWS_AS(this->check_initial_partition(acyclic_graph_8_data(), initial_labels),
+    REQUIRE_THROWS_AS(this->check_initial_partition(complete_graph_data(8), initial_labels),
                       invalid_argument);
 }
 
 LOUVAIN_BADARG_TEST("Negative values in initial  partition") {
-    const std::int64_t data[] = { 0, -1 };
-    const auto initial_labels = dal::homogen_table::wrap(data, 2, 1);
-    REQUIRE_THROWS_AS(this->check_initial_partition(two_vertices_graph_data(), initial_labels),
+    const std::int64_t data[] = { 0, -1, -2, -3, -4 };
+    const auto initial_labels = dal::homogen_table::wrap(data, 5, 1);
+    REQUIRE_THROWS_AS(this->check_initial_partition(complete_graph_data(5), initial_labels),
                       invalid_argument);
 }
 
-LOUVAIN_BADARG_TEST("Community labels greater than vertex count") {
-    const std::int64_t data[] = { 0, 2 };
-    const auto initial_labels = dal::homogen_table::wrap(data, 2, 1);
-    REQUIRE_THROWS_AS(this->check_initial_partition(two_vertices_graph_data(), initial_labels),
+LOUVAIN_BADARG_TEST("Community labels >= vertex count") {
+    const std::int64_t data[] = { 0, 5, 5, 5, 6 };
+    const auto initial_labels = dal::homogen_table::wrap(data, 5, 1);
+    REQUIRE_THROWS_AS(this->check_initial_partition(complete_graph_data(5), initial_labels),
                       invalid_argument);
-}
-
-LOUVAIN_BADARG_TEST("Empty communities in initial partition") {
-    const std::int64_t data[] = { 0, 0, 0, 0, 1, 2, 3, 7 };
-    const auto initial_labels = dal::homogen_table::wrap(data, 8, 1);
-    REQUIRE_NOTHROW(this->check_initial_partition(acyclic_graph_8_data(), initial_labels));
-}
-
-LOUVAIN_BADARG_TEST("Initial partition is empty table") {
-    dal::homogen_table::table initial_labels;
-    REQUIRE_NOTHROW(this->check_initial_partition(acyclic_graph_8_data(), initial_labels));
 }
 
 } //namespace oneapi::dal::algo::louvain::test
