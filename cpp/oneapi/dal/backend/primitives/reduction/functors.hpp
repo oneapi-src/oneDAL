@@ -99,61 +99,46 @@ struct min {
     }
 };
 
-template<typename Float, typename BinaryOp>
+template <typename Float, typename BinaryOp>
 constexpr bool is_typed_sum_op_v = std::is_same_v<sum<Float>, BinaryOp>;
 
-template<typename Float, typename BinaryOp>
+template <typename Float, typename BinaryOp>
 constexpr bool is_typed_min_op_v = std::is_same_v<min<Float>, BinaryOp>;
 
-template<typename Float, typename BinaryOp>
+template <typename Float, typename BinaryOp>
 constexpr bool is_typed_max_op_v = std::is_same_v<max<Float>, BinaryOp>;
 
-template<typename BinaryOp>
+template <typename BinaryOp>
 using bin_op_t = std::remove_const_t<decltype(BinaryOp::init_value)>;
 
-template<typename BinaryOp>
+template <typename BinaryOp>
 constexpr bool is_sum_op_v = is_typed_sum_op_v<bin_op_t<BinaryOp>, BinaryOp>;
 
-template<typename BinaryOp>
+template <typename BinaryOp>
 constexpr bool is_min_op_v = is_typed_min_op_v<bin_op_t<BinaryOp>, BinaryOp>;
 
-template<typename BinaryOp>
+template <typename BinaryOp>
 constexpr bool is_max_op_v = is_typed_max_op_v<bin_op_t<BinaryOp>, BinaryOp>;
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-/*template<typename BinaryOp, typename T = bin_op_t<BinaryOp>>
+template <typename BinaryOp, typename T = bin_op_t<BinaryOp>>
 inline T atomic_binary_op(T* ptr, T val) {
-    using namespace cl::sycl;
-    using address = access::address_space;
-    constexpr auto gbspace = address::global_space;
-    auto mptr = cl::sycl::multi_ptr<T, gbspace>{ ptr };
-    if constexpr (is_sum_op_v<BinaryOp>) {
-        return atomic_fetch_add<T, gbspace>({ mptr }, val);
-    } else if constexpr (is_min_op_v<BinaryOp>) {
-        return atomic_fetch_min<T, gbspace>({ mptr }, val);
-    } else if constexpr (is_max_op_v<BinaryOp>) {
-        return atomic_fetch_max<T, gbspace>({ mptr }, val);
-    } else {
-        return atomic_exchange<T, gbspace>({mptr}, val);
-    }
-}*/
-
-template<typename BinaryOp, typename T = bin_op_t<BinaryOp>>
-inline T atomic_binary_op(T* ptr, T val) {
-    sycl::ext::oneapi::atomic_ref<
-                    T,
-                    cl::sycl::ext::oneapi::memory_order::relaxed,
-                    cl::sycl::ext::oneapi::memory_scope::device,
-                    cl::sycl::access::address_space::ext_intel_global_device_space>
-                    atomic_ref(*ptr);
+    sycl::ext::oneapi::atomic_ref<T,
+                                  cl::sycl::ext::oneapi::memory_order::relaxed,
+                                  cl::sycl::ext::oneapi::memory_scope::device,
+                                  cl::sycl::access::address_space::ext_intel_global_device_space>
+        atomic_ref(*ptr);
     if constexpr (is_sum_op_v<BinaryOp>) {
         return atomic_ref.fetch_add(val);
-    } else if constexpr (is_min_op_v<BinaryOp>) {
+    }
+    else if constexpr (is_min_op_v<BinaryOp>) {
         return atomic_ref.fetch_min(val);
-    } else if constexpr (is_max_op_v<BinaryOp>) {
+    }
+    else if constexpr (is_max_op_v<BinaryOp>) {
         return atomic_ref.fetch_max(val);
-    } else {
+    }
+    else {
         return val;
     }
 }

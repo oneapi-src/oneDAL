@@ -34,9 +34,9 @@ namespace pr = oneapi::dal::backend::primitives;
 
 constexpr auto rm_order = ndorder::c;
 
-using reduction_types = std::tuple<//std::tuple<float, sum<float>, identity<float>>,
-                                   //std::tuple<float, sum<float>, square<float>>,
-                                   //std::tuple<float, sum<float>, abs<float>>,
+using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
+                                   std::tuple<float, sum<float>, square<float>>,
+                                   std::tuple<float, sum<float>, abs<float>>,
                                    std::tuple<double, sum<double>, identity<double>>,
                                    std::tuple<double, sum<double>, square<double>>,
                                    std::tuple<double, sum<double>, abs<double>>>;
@@ -295,7 +295,7 @@ public:
         check_output_cw(out_array);
     }
 
-        void test_raw_cw_reduce_atomic() {
+    void test_raw_cw_reduce_atomic() {
         using reduction_t = reduction_rm_cw_atomic<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output(width_);
