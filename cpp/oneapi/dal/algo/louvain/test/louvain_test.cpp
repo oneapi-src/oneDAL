@@ -13,10 +13,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
 #include <vector>
 
 #include "oneapi/dal/algo/louvain/vertex_partitioning.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
 

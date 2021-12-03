@@ -14,15 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <array>
+#include <vector>
 
 #include "oneapi/dal/algo/louvain/vertex_partitioning.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
-#include "oneapi/dal/test/engine/common.hpp"
-
-//#include "oneapi/dal/table/row_accessor.hpp"
-
 #include "oneapi/dal/io/csv.hpp"
+
+#include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::algo::louvain::test {
 
