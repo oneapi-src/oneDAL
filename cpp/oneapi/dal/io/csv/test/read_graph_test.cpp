@@ -303,9 +303,7 @@ public:
         }
     }
 
-    //template <typename GraphType>
     void general_check(graph_base_data& graph_data, bool is_weighted, std::string filename) {
-        //GraphType graph_data;
         write_test_data(graph_data, is_weighted, filename);
         if (is_weighted) {
             check_read_edge_list<weighted_edge_list_t>(graph_data, is_weighted, filename);
