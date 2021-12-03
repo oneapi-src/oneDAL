@@ -13,14 +13,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
-#include <array>
+#include <vector>
 
 #include "oneapi/dal/algo/louvain/vertex_partitioning.hpp"
-//#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
+
 #include "oneapi/dal/test/engine/common.hpp"
-//#include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::algo::louvain::test {
 
@@ -89,6 +87,7 @@ public:
         degrees = { 9, 9, 9, 9, 9, 9, 9, 9, 9, 10, 10, 9, 9, 9, 9, 9, 9, 9, 9, 9 };
     }
 };
+
 class two_complete_graphs_data : public graph_base_data {
 public:
     two_complete_graphs_data() : graph_base_data(10, 20) {
@@ -295,6 +294,7 @@ public:
             if (result_labels[u] == expected_labels[u])
                 correct_labels_count++;
         }
+        UNSCOPED_INFO("Labels are incorrect");
         REQUIRE(correct_labels_count == graph_data.vertex_count);
     }
 
@@ -322,193 +322,153 @@ public:
     }
 
     template <typename EdgeValueType>
-    void check_resolution_impact(const graph_base_data& graph_data,
+    void check_resolution_values(const graph_base_data& graph_data,
                                  std::vector<EdgeValueType>& weights,
-                                 std::vector<std::int32_t>& expected_labels,
-                                 std::int64_t expected_community_count,
-                                 double resolution) {
+                                 double resolution,
+                                 bool is_modularity_valid) {
         const auto graph = create_graph<EdgeValueType>(graph_data, weights);
         const auto louvain_desc = dal::preview::louvain::descriptor<>()
                                       .set_resolution(resolution)
                                       .set_accuracy_threshold(0.0001)
                                       .set_max_iteration_count(0);
         const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
-        //check_result_correctness(graph_data, result, expected_labels, expected_community_count);
+        if (is_modularity_valid) {
+            UNSCOPED_INFO("Modularity is NaN");
+            REQUIRE(!std::isnan(result.get_modularity()));
+            UNSCOPED_INFO("Modularity value is not in [-1/2; 1]");
+            REQUIRE(Approx(result.get_modularity()) <= 1.0);
+            UNSCOPED_INFO("Modularity value is not in [-1/2; 1]");
+            REQUIRE(Approx(result.get_modularity()) >= -0.5);
+        }
+        const auto result_table = result.get_labels();
+        REQUIRE(result_table.get_row_count() == graph_data.vertex_count);
+        REQUIRE(result_table.has_data());
+        REQUIRE(result_table.get_column_count() == 1);
     }
 };
 
 #define LOUVAIN_TEST(name) TEST_M(louvain_test, name, "[louvain]")
 
-LOUVAIN_TEST("Null input graph with int32 weights") {
-    dal::preview::undirected_adjacency_vector_graph<std::int32_t, std::int32_t> graph;
+LOUVAIN_TEST("Null input graph") {
     const auto louvain_desc = dal::preview::louvain::descriptor<>();
+    dal::preview::undirected_adjacency_vector_graph<std::int32_t, std::int32_t> graph;
     const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
     REQUIRE(Approx(result.get_modularity()) == 0.0);
     REQUIRE(result.get_community_count() == 0);
     REQUIRE(!result.get_labels().has_data());
 }
 
-LOUVAIN_TEST("Null input graph with double weights") {
-    dal::preview::undirected_adjacency_vector_graph<std::int32_t, double> graph;
+LOUVAIN_TEST("Null input graph with empty initial partition table") {
+    dal::homogen_table::table initial_labels;
     const auto louvain_desc = dal::preview::louvain::descriptor<>();
-    const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
-    REQUIRE(Approx(result.get_modularity()) == 0.0);
-    REQUIRE(result.get_community_count() == 0);
-    REQUIRE(!result.get_labels().has_data());
-}
-LOUVAIN_TEST("Null graph with empty initial partition table, int32 weights") {
     dal::preview::undirected_adjacency_vector_graph<std::int32_t, std::int32_t> graph;
-    dal::homogen_table::table initial_labels;
-    const auto louvain_desc = dal::preview::louvain::descriptor<>();
     const auto result = dal::preview::vertex_partitioning(louvain_desc, graph, initial_labels);
     REQUIRE(Approx(result.get_modularity()) == 0.0);
     REQUIRE(result.get_community_count() == 0);
     REQUIRE(!result.get_labels().has_data());
 }
 
-LOUVAIN_TEST("Null graph with empty initial partition table, double weights") {
-    dal::preview::undirected_adjacency_vector_graph<std::int32_t, double> graph;
-    dal::homogen_table::table initial_labels;
-    const auto louvain_desc = dal::preview::louvain::descriptor<>();
-    const auto result = dal::preview::vertex_partitioning(louvain_desc, graph, initial_labels);
-    REQUIRE(Approx(result.get_modularity()) == 0.0);
-    REQUIRE(result.get_community_count() == 0);
-    REQUIRE(!result.get_labels().has_data());
-}
-
-LOUVAIN_TEST("Two fully connected inside clusters and no outro edges, all int32_t weights = 1") {
+LOUVAIN_TEST(
+    "Two fully connected inside clusters and no outro edges, edge weights are nonzero and equal to each other") {
     two_complete_graphs_data graph_data;
-    std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
-    std::fill(int_weights.begin(), int_weights.end(), 1);
     std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 };
     std::int64_t expected_community_count = 2;
-    this->check_louvain<std::int32_t>(graph_data,
-                                      int_weights,
-                                      expected_labels,
-                                      expected_community_count);
+    SECTION("Int32 weights") {
+        std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
+        std::fill(int_weights.begin(), int_weights.end(), 1);
+        this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
+    }
+    SECTION("Double weights") {
+        std::vector<double> double_weights(2 * graph_data.edge_count);
+        std::fill(double_weights.begin(), double_weights.end(), 1.5);
+        this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
+    }
 }
 
-LOUVAIN_TEST("Two fully connected inside clusters and no outro edges, all double weights = 1.5") {
-    two_complete_graphs_data graph_data;
-    std::vector<double> double_weights(2 * graph_data.edge_count);
-    std::fill(double_weights.begin(), double_weights.end(), 1.5);
-    std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 };
-    std::int64_t expected_community_count = 2;
-    this->check_louvain<double>(graph_data,
-                                double_weights,
-                                expected_labels,
-                                expected_community_count);
-}
-
-// LOUVAIN_TEST("Two fully connected inside clusters and no outro edges, all int32_t weights = 0") {
+//Fails - community_count and community_labels are correct, but modularity is NaN
+// LOUVAIN_TEST("Two fully connected inside clusters and no outro edges, zero weights") {
 //     two_complete_graphs_data graph_data;
-//     std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
-//     std::fill(int_weights.begin(), int_weights.end(), 0);
 //     std::vector<std::int32_t> expected_labels = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 //     std::int64_t expected_community_count = 10;
-//     this->check_louvain<std::int32_t>(graph_data, int_weights, expected_labels, expected_community_count);
+//     SECTION("All int32 weights = 0"){
+//         std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
+//         std::fill(int_weights.begin(), int_weights.end(), 0);
+//         this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
+//     }
+//     SECTION("All double weights = 0.0"){
+//         std::vector<double> double_weights(2 * graph_data.edge_count);
+//         std::fill(double_weights.begin(), double_weights.end(), -5);
+//         this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
+//     }
 // }
 
-// LOUVAIN_TEST("Two fully connected inside clusters and no outro edges, all double weights = 0.0") {
-//     two_complete_graphs_data graph_data;
-//     std::vector<double> double_weights(2 * graph_data.edge_count);
-//     std::fill(double_weights.begin(), double_weights.end(), 0.0);
-//     std::vector<std::int32_t> expected_labels = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-//     std::int64_t expected_community_count = 10;
-//     this->check_louvain<double>(graph_data, double_weights, expected_labels, expected_community_count);
-// }
-
-LOUVAIN_TEST("Barbell graph, all int32_t  weights = 10") {
+LOUVAIN_TEST("Barbell graph, edge weights are nonzero and equal to each other") {
     barbell_graph_data graph_data;
-    std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
-    std::fill(int_weights.begin(), int_weights.end(), 10);
     std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                   1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
     std::int64_t expected_community_count = 2;
-    this->check_louvain<std::int32_t>(graph_data,
-                                      int_weights,
-                                      expected_labels,
-                                      expected_community_count);
+    SECTION("Int32 weights") {
+        std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
+        std::fill(int_weights.begin(), int_weights.end(), 10);
+        this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
+    }
+    SECTION("Double weights") {
+        std::vector<double> double_weights(2 * graph_data.edge_count);
+        std::fill(double_weights.begin(), double_weights.end(), 0.5);
+        this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
+    }
 }
 
-LOUVAIN_TEST("Barbell graph, all double weights = 5.0") {
-    barbell_graph_data graph_data;
-    std::vector<double> double_weights(2 * graph_data.edge_count);
-    std::fill(double_weights.begin(), double_weights.end(), 5.0);
-    std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                                  1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-    std::int64_t expected_community_count = 2;
-    this->check_louvain<double>(graph_data,
-                                double_weights,
-                                expected_labels,
-                                expected_community_count);
-}
-
-LOUVAIN_TEST("Combined graph, int32 weights") {
+LOUVAIN_TEST("Combined graph") {
     combined_graph_data graph_data;
-    std::vector<std::int32_t> int_weights = { 100, 12,  14, 3,  17, 12, 10, 150, 60,  70,  14,  17,
-                                              10,  120, 60, 50, 3,  70, 50, 1,   100, 150, 120, 1 };
-    std::vector<std::int32_t> expected_labels = { 0, 1, 1, 1, 2, 0, 3, 1, 1, 0, 3, 4, 3, 5, 0 };
     std::int64_t expected_community_count = 6;
-    this->check_louvain<std::int32_t>(graph_data,
-                                      int_weights,
-                                      expected_labels,
-                                      expected_community_count);
+    std::vector<std::int32_t> expected_labels = { 0, 1, 1, 1, 2, 0, 3, 1, 1, 0, 3, 4, 3, 5, 0 };
+    SECTION("Int32 weights") {
+        std::vector<std::int32_t> int_weights = { 100, 12, 14, 3,  17,  12,  10,  150,
+                                                  60,  70, 14, 17, 10,  120, 60,  50,
+                                                  3,   70, 50, 1,  100, 150, 120, 1 };
+        this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
+    }
+    SECTION("Double weights") {
+        std::vector<double> double_weights = { 100.5, 12.3, 14.7, 3.0,  17.8,  12.4,  10.2,  150.1,
+                                               60.5,  70.8, 14.9, 17.8, 10.9,  120.1, 60.2,  50.1,
+                                               3.1,   70.4, 50.3, 1.0,  100.2, 150.1, 120.2, 1.0 };
+        this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
+    }
 }
 
-LOUVAIN_TEST("Combined graph, double weights") {
-    combined_graph_data graph_data;
-    std::vector<double> double_weights = { 100.5, 12.3, 14.7, 3.0,  17.8,  12.4,  10.2,  150.1,
-                                           60.5,  70.8, 14.9, 17.8, 10.9,  120.1, 60.2,  50.1,
-                                           3.1,   70.4, 50.3, 1.0,  100.2, 150.1, 120.2, 1.0 };
-    std::vector<std::int32_t> expected_labels = { 0, 1, 1, 1, 2, 0, 3, 1, 1, 0, 3, 4, 3, 5, 0 };
-    std::int64_t expected_community_count = 6;
-    this->check_louvain<double>(graph_data,
-                                double_weights,
-                                expected_labels,
-                                expected_community_count);
-}
-
-LOUVAIN_TEST("K_20, all int32_t weights = 5") {
+LOUVAIN_TEST("K_20 graph, edge weights are nonzero and equal to each other") {
     complete_graph_data graph_data(20);
-    std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
-    std::fill(int_weights.begin(), int_weights.end(), 5);
     std::vector<std::int32_t> expected_labels(graph_data.vertex_count);
     std::fill(expected_labels.begin(), expected_labels.end(), 0);
     std::int64_t expected_community_count = 1;
-    this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
-    //modularity = 0;
+    SECTION("Int32_t weights") {
+        std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
+        std::fill(int_weights.begin(), int_weights.end(), 5);
+        this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
+    }
+    SECTION("Double weights") {
+        std::vector<double> double_weights(2 * graph_data.edge_count);
+        std::fill(double_weights.begin(), double_weights.end(), 0.5);
+        this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
+    }
 }
 
-LOUVAIN_TEST("K_20, all double weights = 5.0") {
-    complete_graph_data graph_data(20);
-    std::vector<double> double_weights(2 * graph_data.edge_count);
-    std::fill(double_weights.begin(), double_weights.end(), 5.0);
-    std::vector<std::int32_t> expected_labels(graph_data.vertex_count);
-    std::fill(expected_labels.begin(), expected_labels.end(), 0);
-    std::int64_t expected_community_count = 1;
-    this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
-    //modularity = 0;
-}
-
-LOUVAIN_TEST("SBM(0.7, 0.02), int32 weights") {
+LOUVAIN_TEST("SBM(0.7, 0.02), edge weights are nonzero and equal to each other") {
     sbm_graph_data graph_data;
-    std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
-    std::fill(int_weights.begin(), int_weights.end(), 10);
     std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,
                                                   2, 2, 3, 3, 3, 3, 4, 4, 4, 4 };
     std::int64_t expected_community_count = 5;
-    this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
-}
-
-LOUVAIN_TEST("SBM(0.7, 0.02), double weights") {
-    sbm_graph_data graph_data;
-    std::vector<double> double_weights(2 * graph_data.edge_count);
-    std::fill(double_weights.begin(), double_weights.end(), 10.0);
-    std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,
-                                                  2, 2, 3, 3, 3, 3, 4, 4, 4, 4 };
-    std::int64_t expected_community_count = 5;
-    this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
+    SECTION("Int32 weights") {
+        std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
+        std::fill(int_weights.begin(), int_weights.end(), 10);
+        this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
+    }
+    SECTION("Double weights") {
+        std::vector<double> double_weights(2 * graph_data.edge_count);
+        std::fill(double_weights.begin(), double_weights.end(), 10.0);
+        this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
+    }
 }
 
 LOUVAIN_TEST("Random generated graph with 20 vertices and 35 edges, int32 weights") {
@@ -523,11 +483,7 @@ LOUVAIN_TEST("Random generated graph with 20 vertices and 35 edges, int32 weight
     std::vector<std::int32_t> expected_labels = { 0, 1, 2, 1, 1, 0, 2, 2, 3, 0,
                                                   1, 0, 3, 3, 4, 4, 0, 0, 4, 2 };
     std::int64_t expected_community_count = 5;
-    this->check_louvain<std::int32_t>(graph_data,
-                                      int_weights,
-                                      expected_labels,
-                                      expected_community_count);
-    // Modularity: 0.454942
+    this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
 }
 
 LOUVAIN_TEST("Random generated graph with 20 vertices and 35 edges, double weights") {
@@ -545,28 +501,26 @@ LOUVAIN_TEST("Random generated graph with 20 vertices and 35 edges, double weigh
     std::vector<std::int32_t> expected_labels = { 0, 1, 0, 2, 2, 3, 1, 3, 0, 2,
                                                   1, 0, 1, 0, 1, 1, 2, 3, 1, 0 };
     std::int64_t expected_community_count = 4;
-    this->check_louvain<double>(graph_data,
-                                double_weights,
-                                expected_labels,
-                                expected_community_count);
-    //Modularity: 0.426516
+    this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
 }
 
-LOUVAIN_TEST("Zachary's karate club graph, all double weights = 1.0") {
+LOUVAIN_TEST("Zachary's karate club graph, edge weights are nonzero and equal to each other") {
     karate_club_graph_data graph_data;
-    std::vector<double> double_weights(2 * graph_data.edge_count);
-    std::fill(double_weights.begin(), double_weights.end(), 1.0);
-
+    std::int64_t expected_community_count = 4;
     std::vector<std::int32_t> expected_labels = {
         0, 0, 0, 0, 1, 1, 1, 0, 2, 0, 1, 0, 0, 0, 2, 2, 1,
         0, 2, 0, 2, 0, 2, 2, 3, 3, 2, 2, 3, 2, 2, 3, 2, 2
     };
-    std::int64_t expected_community_count = 4;
-    this->check_louvain<double>(graph_data,
-                                double_weights,
-                                expected_labels,
-                                expected_community_count);
-    //Modularity: 0.415598
+    SECTION("Int32 weights") {
+        std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
+        std::fill(int_weights.begin(), int_weights.end(), 10);
+        this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
+    }
+    SECTION("Double weights") {
+        std::vector<double> double_weights(2 * graph_data.edge_count);
+        std::fill(double_weights.begin(), double_weights.end(), 0.5);
+        this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
+    }
 }
 
 LOUVAIN_TEST("SBM(0.7, 0.02) with different initial partitions") {
@@ -576,22 +530,20 @@ LOUVAIN_TEST("SBM(0.7, 0.02) with different initial partitions") {
     std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,
                                                   2, 2, 3, 3, 3, 3, 4, 4, 4, 4 };
     std::int64_t expected_community_count = 5;
-
-    const std::int64_t data1[] = { 0,  17, 4, 8,  1,  13, 9,  7,  7,  9,
-                                   10, 11, 1, 18, 12, 16, 13, 12, 14, 1 };
-    const auto initial_labels1 = dal::homogen_table::wrap(data1, 20, 1);
+    const std::int64_t data_first[] = { 0,  17, 4, 8,  1,  13, 9,  7,  7,  9,
+                                        10, 11, 1, 18, 12, 16, 13, 12, 14, 1 };
+    const std::int64_t data_second[] = { 4, 19, 10, 6,  0,  8,  12, 16, 3, 9,
+                                         2, 7,  1,  18, 19, 11, 5,  19, 8, 15 };
+    const auto initial_labels_first = dal::homogen_table::wrap(data_first, 20, 1);
+    const auto initial_labels_second = dal::homogen_table::wrap(data_second, 20, 1);
     this->check_louvain(graph_data,
                         int_weights,
-                        initial_labels1,
+                        initial_labels_first,
                         expected_labels,
                         expected_community_count);
-
-    const std::int64_t data2[] = { 4, 19, 10, 6,  0,  8,  12, 16, 3, 9,
-                                   2, 7,  1,  18, 19, 11, 5,  19, 8, 15 };
-    const auto initial_labels2 = dal::homogen_table::wrap(data2, 20, 1);
     this->check_louvain(graph_data,
                         int_weights,
-                        initial_labels2,
+                        initial_labels_second,
                         expected_labels,
                         expected_community_count);
 }
@@ -609,25 +561,25 @@ LOUVAIN_TEST("Random generated graph with different initial partitions") {
                                                   1, 0, 3, 3, 4, 4, 0, 0, 4, 2 };
     std::int64_t expected_community_count = 5;
 
-    const std::int64_t data1[] = { 0,  17, 4, 8,  1,  13, 9,  7,  7,  9,
-                                   10, 11, 1, 18, 12, 16, 13, 12, 14, 1 };
-    const auto initial_labels1 = dal::homogen_table::wrap(data1, 20, 1);
+    const std::int64_t data_first[] = { 0,  17, 4, 8,  1,  13, 9,  7,  7,  9,
+                                        10, 11, 1, 18, 12, 16, 13, 12, 14, 1 };
+    const std::int64_t data_second[] = { 4, 19, 10, 6,  0,  8,  12, 16, 3, 9,
+                                         2, 7,  1,  18, 19, 11, 5,  19, 8, 15 };
+    const auto initial_labels_first = dal::homogen_table::wrap(data_first, 20, 1);
+    const auto initial_labels_second = dal::homogen_table::wrap(data_second, 20, 1);
     this->check_louvain(graph_data,
                         int_weights,
-                        initial_labels1,
+                        initial_labels_first,
                         expected_labels,
                         expected_community_count);
-
-    const std::int64_t data2[] = { 4, 19, 10, 6,  0,  8,  12, 16, 3, 9,
-                                   2, 7,  1,  18, 19, 11, 5,  19, 8, 15 };
-    const auto initial_labels2 = dal::homogen_table::wrap(data2, 20, 1);
     this->check_louvain(graph_data,
                         int_weights,
-                        initial_labels2,
+                        initial_labels_second,
                         expected_labels,
                         expected_community_count);
 }
 
+//Fails - modularity is Nan, community_count and labels are incorrect
 // LOUVAIN_TEST("K_20, all  weights = int32_max") {
 //     complete_graph_data graph_data(20);
 //     std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
@@ -636,9 +588,9 @@ LOUVAIN_TEST("Random generated graph with different initial partitions") {
 //     std::fill(expected_labels.begin(), expected_labels.end(), 0);
 //     std::int64_t expected_community_count = 1;
 //     this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
-//     //modularity = 0;
 // }
 
+//Fails - modularity is Nan, community_count and labels are incorrect
 // LOUVAIN_TEST("K_20, all weights = double_max") {
 //     complete_graph_data graph_data(20);
 //     std::vector<double> double_weights(2 * graph_data.edge_count);
@@ -647,7 +599,6 @@ LOUVAIN_TEST("Random generated graph with different initial partitions") {
 //     std::fill(expected_labels.begin(), expected_labels.end(), 0);
 //     std::int64_t expected_community_count = 1;
 //     this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
-//     //modularity = 0;
 // }
 
 LOUVAIN_TEST("Counting allocator test null graph") {
@@ -665,104 +616,65 @@ LOUVAIN_TEST("Counting allocator test null graph") {
     REQUIRE(allocated_bytes_count == 0);
 }
 
-// LOUVAIN_TEST("Counting allocator test SBM(0.7, 0.02)") {
-//     sbm_graph_data graph_data;
-//     std::vector<std::int32_t > int_weights(2*graph_data.edge_count);
-//     std::fill(int_weights.begin(), int_weights.end(), 10);
-//     std::vector<std::int32_t> expected_labels = {0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4};
-//     std::int64_t expected_community_count = 5;
-
-//     const auto graph = create_graph<std::int32_t>(graph_data, int_weights);
-//     allocated_bytes_count = 0;
-//         {
-//         CountingAllocator<char> alloc;
-
-//         const auto louvain_desc = dal::preview::louvain::descriptor<float,oneapi::dal::preview::louvain::method::by_default,
-//         oneapi::dal::preview::louvain::task::by_default,CountingAllocator<char>>(alloc);
-//         const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
-//         //check_result_correctness(graph_data, result, expected_labels, expected_community_count);
-//         }
-//     REQUIRE(allocated_bytes_count == 0);
-// }
-
-// LOUVAIN_TEST("Counting allocator test K_20") {
-//     complete_graph_data graph_data(20);
-//         std::vector<std::int32_t > int_weights(2*graph_data.edge_count);
-//         std::fill(int_weights.begin(), int_weights.end(), 10);
-//         std::vector<std::int32_t> expected_labels(graph_data.vertex_count);
-//         std::fill(expected_labels.begin(), expected_labels.end(), 0);
-//         std::int64_t expected_community_count = 1;
-
-//         const auto graph = create_graph<std::int32_t>(graph_data, int_weights);
-//         allocated_bytes_count = 0;
-//             {
-//             CountingAllocator<char> alloc;
-//             const auto louvain_desc = dal::preview::louvain::descriptor<float,oneapi::dal::preview::louvain::method::by_default,
-//             oneapi::dal::preview::louvain::task::by_default,CountingAllocator<char>>(alloc);
-//             const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
-//             //check_result_correctness(graph_data, result, expected_labels, expected_community_count);
-//             }
-//         REQUIRE(allocated_bytes_count == 0);
-//         //allocated_bytes_count = 76
-//     }
-
-LOUVAIN_TEST("Resolution impact test, SBM(0.7, 0.02)") {
+LOUVAIN_TEST("Counting allocator test SBM(0.7, 0.02)") {
     sbm_graph_data graph_data;
-    std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
-    std::fill(int_weights.begin(), int_weights.end(), 10);
+    std::vector<double> double_weights(2 * graph_data.edge_count);
+    std::fill(double_weights.begin(), double_weights.end(), 0.5);
+
     std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,
                                                   2, 2, 3, 3, 3, 3, 4, 4, 4, 4 };
     std::int64_t expected_community_count = 5;
-    REQUIRE_NOTHROW(this->check_resolution_impact(graph_data,
-                                                  int_weights,
-                                                  expected_labels,
-                                                  expected_community_count,
-                                                  1));
 
-    //community count = 3
-    REQUIRE_NOTHROW(this->check_resolution_impact(graph_data,
-                                                  int_weights,
-                                                  expected_labels,
-                                                  expected_community_count,
-                                                  0));
+    const auto graph = create_graph<double>(graph_data, double_weights);
+    allocated_bytes_count = 0;
+    CountingAllocator<char> alloc;
 
-    //community count = 9
-    REQUIRE_NOTHROW(this->check_resolution_impact(graph_data,
-                                                  int_weights,
-                                                  expected_labels,
-                                                  expected_community_count,
-                                                  5));
-
-    //FAIL Modularity: -598.958
-    //this -> check_resolution_impact(graph_data, int_weights, expected_labels, expected_community_count, 10000);
+    const auto louvain_desc =
+        dal::preview::louvain::descriptor<float,
+                                          oneapi::dal::preview::louvain::method::by_default,
+                                          oneapi::dal::preview::louvain::task::by_default,
+                                          CountingAllocator<char>>(alloc);
+    const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
+    REQUIRE(allocated_bytes_count == 0);
 }
 
-LOUVAIN_TEST("Resolution impact test, K_20") {
+LOUVAIN_TEST("Counting allocator test K_20") {
     complete_graph_data graph_data(20);
     std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
     std::fill(int_weights.begin(), int_weights.end(), 10);
     std::vector<std::int32_t> expected_labels(graph_data.vertex_count);
     std::fill(expected_labels.begin(), expected_labels.end(), 0);
     std::int64_t expected_community_count = 1;
-    REQUIRE_NOTHROW(this->check_resolution_impact(graph_data,
-                                                  int_weights,
-                                                  expected_labels,
-                                                  expected_community_count,
-                                                  1));
-    REQUIRE_NOTHROW(this->check_resolution_impact(graph_data,
-                                                  int_weights,
-                                                  expected_labels,
-                                                  expected_community_count,
-                                                  0));
 
-    //community_count = 20
-    REQUIRE_NOTHROW(this->check_resolution_impact(graph_data,
-                                                  int_weights,
-                                                  expected_labels,
-                                                  expected_community_count,
-                                                  5));
-    //FAIL Modularity: -500
-    //this -> check_resolution_impact(graph_data, int_weights, expected_labels, expected_community_count, 10000);
+    const auto graph = create_graph<std::int32_t>(graph_data, int_weights);
+    allocated_bytes_count = 0;
+    CountingAllocator<char> alloc;
+    const auto louvain_desc =
+        dal::preview::louvain::descriptor<float,
+                                          oneapi::dal::preview::louvain::method::by_default,
+                                          oneapi::dal::preview::louvain::task::by_default,
+                                          CountingAllocator<char>>(alloc);
+    const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
+    REQUIRE(allocated_bytes_count == 0);
+}
+
+LOUVAIN_TEST("Different resolution values, SBM(0.7, 0.02)") {
+    sbm_graph_data graph_data;
+    std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
+    std::fill(int_weights.begin(), int_weights.end(), 10);
+    this->check_resolution_values(graph_data, int_weights, 0, true /*is_modularity_valid=*/);
+    this->check_resolution_values(graph_data, int_weights, 9.3, true);
+    this->check_resolution_values(graph_data, int_weights, 9.4, false);
+}
+
+LOUVAIN_TEST("Different resolution values, K_20") {
+    complete_graph_data graph_data(20);
+    std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
+    std::fill(int_weights.begin(), int_weights.end(), 10);
+    this->check_resolution_values(graph_data, int_weights, 0, true /*is_modularity_valid=*/);
+    this->check_resolution_values(graph_data, int_weights, 1, true);
+    this->check_resolution_values(graph_data, int_weights, 10, true);
+    this->check_resolution_values(graph_data, int_weights, 10.1, false);
 }
 
 } //namespace oneapi::dal::algo::louvain::test
