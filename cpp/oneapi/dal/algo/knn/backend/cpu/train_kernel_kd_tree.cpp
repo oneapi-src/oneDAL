@@ -55,7 +55,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
 
-    const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
+    const auto daal_data = interop::copy_to_daal_table<Float>(data);
     const std::int64_t dummy_seed = 777;
     const auto data_use_in_model = daal_knn::doUse;
     daal_knn::Parameter daal_parameter(
@@ -76,7 +76,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto daal_responses = daal::data_management::NumericTablePtr();
     if (desc.get_result_options().test(result_options::responses)) {
-        daal_responses = interop::copy_to_daal_homogen_table<Float>(responses);
+        daal_responses = interop::copy_to_daal_table<Float>(responses);
         knn_model->impl()->setLabels<Float>(daal_responses, copy_data_responses);
     }
 

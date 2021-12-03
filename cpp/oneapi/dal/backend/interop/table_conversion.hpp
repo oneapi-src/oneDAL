@@ -81,6 +81,54 @@ inline daal::data_management::NumericTablePtr copy_to_daal_homogen_table(const t
 }
 
 template <typename Data>
+inline daal::data_management::NumericTablePtr copy_to_daal_soa_table(const table& table) {
+    using daal::services::Status;
+
+    // TODO: Preserve information about features
+    const bool allow_copy = true;
+    const std::size_t column_count = table.get_column_count();
+    const std::size_t row_count = table.get_row_count();
+
+    daal::data_management::SOANumericTablePtr daal_table =
+        daal::data_management::SOANumericTable::create(column_count,row_count);
+    for (std::size_t i = 0; i < column_count; i++) {
+        auto data = column_accessor<const Data>{ table }.pull(i);
+        if (!data.get_count()) {
+            return daal::services::SharedPtr<daal::data_management::HomogenNumericTable<Data>>();
+        }
+
+        if (allow_copy) {
+            data.need_mutable_data();
+        }
+
+        ONEDAL_ASSERT(data.has_mutable_data());
+
+        const auto daal_data =
+            daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_object_owner{ data });
+        Status stat = daal_table->setArray<Data>(daal_data, i);
+        if (!stat.ok()) {
+            status_to_exception(stat);
+        }
+    }
+    return daal_table;
+}
+
+template <typename Data>
+inline daal::data_management::NumericTablePtr copy_to_daal_table(const table& table) {
+    if (table.get_data_layout() == data_layout::row_major) {
+        if (auto daal_table = copy_to_daal_homogen_table<Data>(table)) {
+            return daal_table;
+        }
+    }
+    else if (table.get_data_layout() == data_layout::column_major) {
+        if (auto daal_table = copy_to_daal_soa_table<Data>(table)) {
+            return daal_table;
+        }
+    }
+    return copy_to_daal_homogen_table<Data>(table);
+}
+
+template <typename Data>
 inline table convert_from_daal_homogen_table(const daal::data_management::NumericTablePtr& nt) {
     if (nt->getNumberOfRows() == 0) {
         return table{};

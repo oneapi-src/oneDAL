@@ -96,7 +96,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
             interop::convert_to_daal_homogen_table(arr_distances, row_count, neighbor_count);
     }
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_data = interop::copy_to_daal_table<Float>(data);
 
     const auto model_ptr = dynamic_cast_to_knn_model<Task, kd_tree_model_impl<Task>>(m);
 
