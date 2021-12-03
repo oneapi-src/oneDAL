@@ -76,7 +76,7 @@ public:
     auto input() {
         check_if_initialized();
         return ndarray<float_t, 2, rm_order>::zeros(this->get_queue(),
-                                                    { stride_, height_ },
+                                                    { height_, stride_ },
                                                     sycl::usm::alloc::device);
     }
 
