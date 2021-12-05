@@ -481,7 +481,6 @@ LOUVAIN_TEST("Random generated graph with 20 vertices and 35 edges, int32 weight
         31,  239, 683, 898, 806, 949, 52,  871, 104, 764, 239, 52,  625, 147, 198, 917, 454, 565,
         661, 683, 198, 122, 943, 319, 898, 291, 31,  625, 917, 799, 959, 917, 806, 104
     };
-
     std::vector<std::int32_t> expected_labels = { 0, 1, 2, 1, 1, 0, 2, 2, 3, 0,
                                                   1, 0, 3, 3, 4, 4, 0, 0, 4, 2 };
     std::int64_t expected_community_count = 5;
@@ -499,7 +498,6 @@ LOUVAIN_TEST("Random generated graph with 20 vertices and 35 edges, double weigh
         313.37, 799.64, 479.49, 604.71, 955.43, 329.42, 313.37, 393.1,  640.29, 505.99,
         226.37, 527.54, 688,    614.4,  799.64, 94.38,  182.1,  126.71, 775.34, 724.05
     };
-
     std::vector<std::int32_t> expected_labels = { 0, 1, 0, 2, 2, 3, 1, 3, 0, 2,
                                                   1, 0, 1, 0, 1, 1, 2, 3, 1, 0 };
     std::int64_t expected_community_count = 4;
@@ -558,11 +556,9 @@ LOUVAIN_TEST("Random generated graph with different initial partitions") {
         31,  239, 683, 898, 806, 949, 52,  871, 104, 764, 239, 52,  625, 147, 198, 917, 454, 565,
         661, 683, 198, 122, 943, 319, 898, 291, 31,  625, 917, 799, 959, 917, 806, 104
     };
-
     std::vector<std::int32_t> expected_labels = { 0, 1, 2, 1, 1, 0, 2, 2, 3, 0,
                                                   1, 0, 3, 3, 4, 4, 0, 0, 4, 2 };
     std::int64_t expected_community_count = 5;
-
     const std::int64_t data_first[] = { 0,  17, 4, 8,  1,  13, 9,  7,  7,  9,
                                         10, 11, 1, 18, 12, 16, 13, 12, 14, 1 };
     const std::int64_t data_second[] = { 4, 19, 10, 6,  0,  8,  12, 16, 3, 9,
@@ -606,15 +602,13 @@ LOUVAIN_TEST("Random generated graph with different initial partitions") {
 LOUVAIN_TEST("Counting allocator test null graph") {
     dal::preview::undirected_adjacency_vector_graph<std::int32_t, std::int32_t> graph;
     allocated_bytes_count = 0;
-    {
-        CountingAllocator<char> alloc;
-        const auto louvain_desc =
-            dal::preview::louvain::descriptor<float,
-                                              oneapi::dal::preview::louvain::method::by_default,
-                                              oneapi::dal::preview::louvain::task::by_default,
-                                              CountingAllocator<char>>(alloc);
-        const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
-    }
+    CountingAllocator<char> alloc;
+    const auto louvain_desc =
+        dal::preview::louvain::descriptor<float,
+                                          oneapi::dal::preview::louvain::method::by_default,
+                                          oneapi::dal::preview::louvain::task::by_default,
+                                          CountingAllocator<char>>(alloc);
+    const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
     REQUIRE(allocated_bytes_count == 0);
 }
 
@@ -622,15 +616,11 @@ LOUVAIN_TEST("Counting allocator test SBM(0.7, 0.02)") {
     sbm_graph_data graph_data;
     std::vector<double> double_weights(2 * graph_data.edge_count);
     std::fill(double_weights.begin(), double_weights.end(), 0.5);
-
     std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,
                                                   2, 2, 3, 3, 3, 3, 4, 4, 4, 4 };
-    std::int64_t expected_community_count = 5;
-
     const auto graph = create_graph<double>(graph_data, double_weights);
     allocated_bytes_count = 0;
     CountingAllocator<char> alloc;
-
     const auto louvain_desc =
         dal::preview::louvain::descriptor<float,
                                           oneapi::dal::preview::louvain::method::by_default,
@@ -646,8 +636,6 @@ LOUVAIN_TEST("Counting allocator test K_20") {
     std::fill(int_weights.begin(), int_weights.end(), 10);
     std::vector<std::int32_t> expected_labels(graph_data.vertex_count);
     std::fill(expected_labels.begin(), expected_labels.end(), 0);
-    std::int64_t expected_community_count = 1;
-
     const auto graph = create_graph<std::int32_t>(graph_data, int_weights);
     allocated_bytes_count = 0;
     CountingAllocator<char> alloc;
