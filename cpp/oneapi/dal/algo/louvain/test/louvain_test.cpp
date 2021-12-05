@@ -49,6 +49,8 @@ public:
     std::vector<std::int64_t> rows;
 };
 
+//Stochastic block model graph containing 5 communities with 4 vertices in each. 
+//Probability of an edge appearing between different communities = 0.02, within a community - 0.7.
 class sbm_graph_data : public graph_base_data {
 public:
     sbm_graph_data() : graph_base_data(20, 24) {
@@ -60,6 +62,8 @@ public:
     }
 };
 
+//Weights of the edges within the community are several times greater than that between the communities. 
+//Graph also contains isolated vertices.
 class combined_graph_data : public graph_base_data {
 public:
     combined_graph_data() : graph_base_data(15, 12) {
@@ -69,6 +73,7 @@ public:
     }
 };
 
+//Two complete graphs connected by one edge.
 class barbell_graph_data : public graph_base_data {
 public:
     barbell_graph_data() : graph_base_data(20, 91) {
