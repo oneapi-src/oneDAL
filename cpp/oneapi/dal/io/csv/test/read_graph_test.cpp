@@ -156,6 +156,53 @@ public:
     }
 };
 
+std::int64_t allocated_bytes_count = 0;
+bool was_custom_alloc_used = false;
+
+template <class T>
+struct CountingAllocator {
+    typedef T value_type;
+    typedef T* pointer;
+
+    CountingAllocator() {}
+
+    template <class U>
+    CountingAllocator(const CountingAllocator<U>& other) {}
+
+    template <class U>
+    auto operator=(const CountingAllocator<U>& other) {
+        return *this;
+    }
+
+    template <class U>
+    bool operator!=(const CountingAllocator<U>& other) {
+        return true;
+    }
+
+    bool operator!=(const CountingAllocator<T>& other) {
+        return false;
+    }
+
+    T* allocate(const size_t n) {
+        allocated_bytes_count += n * sizeof(T);
+        if (!was_custom_alloc_used)
+            was_custom_alloc_used = true;
+        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+            throw std::bad_array_new_length();
+        }
+        void* const pv = malloc(n * sizeof(T));
+        if (!pv) {
+            throw std::bad_alloc();
+        }
+        return static_cast<T*>(pv);
+    }
+
+    void deallocate(T* const p, size_t n) noexcept {
+        allocated_bytes_count -= n * sizeof(T);
+        free(p);
+    }
+};
+
 class read_graph_test {
 public:
     using edge_list_t = typename preview::edge_list<std::int32_t>;
@@ -320,6 +367,34 @@ public:
 };
 
 #define READ_GRAPH_TEST(name) TEST_M(read_graph_test, name, "[read_graph]")
+
+READ_GRAPH_TEST("Counting allocator test") {
+    K10_graph_data graph_data;
+    CountingAllocator<char> alloc;
+    allocated_bytes_count = 0;
+    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+    this->write_test_data(graph_data, false, full_filename);
+    {
+        auto graph =
+            read<unweighted_graph_t>(dal::csv::data_source{ full_filename },
+                                     dal::preview::csv::read_args<unweighted_graph_t>{ alloc });
+    }
+
+    // {
+    // dal::preview::csv::read_args<unweighted_graph_t> r_args{ alloc, preview::read_mode::edge_list };
+    // auto graph1 = read<unweighted_graph_t>(dal::csv::data_source{ full_filename }, std::move(r_args));
+    // }
+
+    // {
+    // dal::preview::csv::read_args<unweighted_graph_t> r_args(alloc);
+    // auto graph2 = read<unweighted_graph_t>(dal::csv::data_source{ full_filename }, std::move(r_args));
+    // }
+
+    this->delete_test_data(full_filename);
+
+    REQUIRE(was_custom_alloc_used);
+    REQUIRE(allocated_bytes_count == 0);
+}
 
 READ_GRAPH_TEST("K10 edge list, unweighted") {
     K10_graph_data graph_data;
