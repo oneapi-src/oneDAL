@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
 #include <fstream>
 #include <vector>
 
@@ -265,7 +266,6 @@ READ_GRAPH_BADARG_TEST(
 //     delete_test_data(filename);
 // }
 
-//No exception - indices converts to int
 READ_GRAPH_BADARG_TEST("Vertex indices is not integer, unweighted") {
     std::string file_content = "0 1.1,0.2 2.2,0 3.3,1.4 2.4,1 3.5,2.6 3.6";
     std::string filename = "not_int_ids.csv";

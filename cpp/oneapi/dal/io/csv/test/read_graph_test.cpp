@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
 #include <fstream>
 #include <vector>
 
@@ -368,34 +369,6 @@ public:
 
 #define READ_GRAPH_TEST(name) TEST_M(read_graph_test, name, "[read_graph]")
 
-READ_GRAPH_TEST("Counting allocator test") {
-    K10_graph_data graph_data;
-    CountingAllocator<char> alloc;
-    allocated_bytes_count = 0;
-    std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
-    this->write_test_data(graph_data, false, full_filename);
-    {
-        auto graph =
-            read<unweighted_graph_t>(dal::csv::data_source{ full_filename },
-                                     dal::preview::csv::read_args<unweighted_graph_t>{ alloc });
-    }
-
-    // {
-    // dal::preview::csv::read_args<unweighted_graph_t> r_args{ alloc, preview::read_mode::edge_list };
-    // auto graph1 = read<unweighted_graph_t>(dal::csv::data_source{ full_filename }, std::move(r_args));
-    // }
-
-    // {
-    // dal::preview::csv::read_args<unweighted_graph_t> r_args(alloc);
-    // auto graph2 = read<unweighted_graph_t>(dal::csv::data_source{ full_filename }, std::move(r_args));
-    // }
-
-    this->delete_test_data(full_filename);
-
-    REQUIRE(was_custom_alloc_used);
-    REQUIRE(allocated_bytes_count == 0);
-}
-
 READ_GRAPH_TEST("K10 edge list, unweighted") {
     K10_graph_data graph_data;
     std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
@@ -405,7 +378,7 @@ READ_GRAPH_TEST("K10 edge list, unweighted") {
 READ_GRAPH_TEST("K10 edge list, weighted") {
     K10_graph_data graph_data;
     std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
-    this->general_check(graph_data, true /*is_weighted =*/, full_filename);
+    this->general_check(graph_data, true, full_filename);
 }
 
 READ_GRAPH_TEST("The first few vertices of the graph are isolated, unweighted") {
@@ -468,16 +441,30 @@ READ_GRAPH_TEST("Single edge graph, weighted") {
     this->general_check(graph_data, true, full_filename);
 }
 
-READ_GRAPH_TEST("Symmetrized edge graph, unweighted") {
+READ_GRAPH_TEST("Symmetrized edge list, unweighted") {
     symmetrized_edges_graph_data graph_data;
     std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
     this->general_check(graph_data, false, full_filename);
 }
 
-READ_GRAPH_TEST("Symmetrized edge graph, weighted") {
+READ_GRAPH_TEST("Symmetrized edge list, weighted") {
     symmetrized_edges_graph_data graph_data;
     std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
     this->general_check(graph_data, true, full_filename);
 }
+
+// READ_GRAPH_TEST("Check usage of custom allocator") {
+//     K10_graph_data graph_data;
+//     CountingAllocator<char> alloc;
+//     allocated_bytes_count = 0;
+//     std::string full_filename = graph_data.filename + std::to_string(std::rand()) + ".csv";
+//     this->write_test_data(graph_data, false, full_filename);
+//     auto graph =
+//             read<unweighted_graph_t>(dal::csv::data_source{ full_filename },
+//                                      dal::preview::csv::read_args<unweighted_graph_t>{ alloc });
+//     this->delete_test_data(full_filename);
+//     REQUIRE(was_custom_alloc_used);
+//     REQUIRE(allocated_bytes_count == 0);
+// }
 
 } //namespace oneapi::dal::preview::csv::test
