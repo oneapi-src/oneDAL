@@ -18,10 +18,10 @@
 #include <vector>
 
 #include "oneapi/dal/io/csv.hpp"
-#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-
 #include "oneapi/dal/graph/service_functions.hpp"
+
+#include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::preview::csv::test {
 using namespace oneapi::dal::preview::csv::detail;
