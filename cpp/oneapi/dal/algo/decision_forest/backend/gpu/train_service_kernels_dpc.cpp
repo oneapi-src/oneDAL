@@ -17,6 +17,7 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -38,7 +39,7 @@ inline T atomic_global_add(T* ptr, T operand) {
     sycl::ext::oneapi::atomic_ref<T,
                                   cl::sycl::ext::oneapi::memory_order::relaxed,
                                   cl::sycl::ext::oneapi::memory_scope::device,
-                                  cl::sycl::access::address_space::global_device_space>
+                                  cl::sycl::access::address_space::ext_intel_global_device_space>
         atomic_var(*ptr);
     return atomic_var.fetch_add(operand);
 }
@@ -89,6 +90,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_g
     Index group_count,
     Index group_prop_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(split_node_list_on_groups_by_size, queue_);
+
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(node_groups.get_count() == group_count * group_prop_count);
     ONEDAL_ASSERT(node_indices.get_count() == node_count);
@@ -191,6 +194,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count
     Index node_count,
     Index& split_node_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(get_split_node_count, queue_);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
 
     const Index node_prop_count =
@@ -354,6 +358,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
     Index node_count,
     Index tree_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(do_level_partition, queue_);
+
     ONEDAL_ASSERT(data.get_count() == data_row_count * data_column_count);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(tree_order.get_count() == data_selected_row_count * tree_count);
@@ -836,6 +842,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_oob_row_list(
     Index block_row_count,
     Index node_count,
     const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(get_oob_row_list, queue_);
+
     const Index absent_mark = -1;
     const Index krn_local_size = preferable_sbg_size_;
     const Index sbg_sum_count =

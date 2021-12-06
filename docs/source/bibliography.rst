@@ -93,6 +93,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
    KDD '16 Proceedings of the 22nd ACM SIGKDD International
    Conference on Knowledge Discovery and Data Mining.
 
+.. [Carletti2021]
+   Carletti, Vincenzo, et al. *Parallel Subgraph Isomorphism on Multi-core Architectures: 
+   A Comparison of Four Strategies Based on Tree Search.* Joint IAPR International Workshops 
+   on Statistical Techniques in Pattern Recognition (SPR) and Structural and 
+   Syntactic Pattern Recognition (SSPR). Springer, Cham, 2021.
+
 .. [Defazio2014]
    Defazio, Aaron, Francis Bach, and Simon Lacoste-Julien.
    SAGA: A fast incremental gradient method with support for non-strongly convex composite objectives.

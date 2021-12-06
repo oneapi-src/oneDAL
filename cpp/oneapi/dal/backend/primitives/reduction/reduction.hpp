@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/reduction/functors.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -52,6 +53,7 @@ inline sycl::event reduce_by_rows(sycl::queue& q,
                                   const BinaryOp& binary = BinaryOp{},
                                   const UnaryOp& unary = UnaryOp{},
                                   const event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(reduction.reduce_by_rows, q);
     static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
                   "BinaryOp must be a special binary operation defined "
                   "at the primitives level");
@@ -89,6 +91,7 @@ inline sycl::event reduce_by_columns(sycl::queue& q,
                                      const BinaryOp& binary = BinaryOp{},
                                      const UnaryOp& unary = UnaryOp{},
                                      const event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(reduction.reduce_by_columns, q);
     static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
                   "BinaryOp must be a special binary operation defined "
                   "at the primitives level");

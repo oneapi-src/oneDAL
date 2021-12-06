@@ -34,7 +34,7 @@ namespace prediction
 {
 namespace internal
 {
-template class PredictKernelOneAPI<DAAL_FPTYPE, defaultDense>;
+template class DAAL_EXPORT PredictKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 } // namespace internal
 } // namespace prediction
 } // namespace linear_model

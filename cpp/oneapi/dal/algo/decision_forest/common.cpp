@@ -66,6 +66,8 @@ public:
 
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
     voting_mode voting_mode_value = voting_mode::weighted;
+
+    std::int64_t seed = 777;
 };
 
 template <typename Task>
@@ -164,6 +166,11 @@ std::int64_t descriptor_base<Task>::get_class_count_impl() const {
 template <typename Task>
 voting_mode descriptor_base<Task>::get_voting_mode_impl() const {
     return impl_->voting_mode_value;
+}
+
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_seed() const {
+    return impl_->seed;
 }
 
 template <typename Task>
@@ -274,6 +281,11 @@ void descriptor_base<Task>::set_class_count_impl(std::int64_t value) {
 template <typename Task>
 void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
     impl_->voting_mode_value = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_seed_impl(std::int64_t value) {
+    impl_->seed = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;

@@ -53,14 +53,13 @@ class train_kernel_hist_impl {
     using rng_engine_t = pr::engine;
     using rng_engine_list_t = std::vector<rng_engine_t>;
     using msg = dal::detail::error_messages;
-    using comm_t = bk::communicator;
+    using comm_t = bk::communicator<spmd::device_memory_access::usm>;
 
 public:
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
 
     train_kernel_hist_impl(const bk::context_gpu& ctx)
-            : ctx_gpu_(ctx),
-              queue_(ctx.get_queue()),
+            : queue_(ctx.get_queue()),
               comm_(ctx.get_communicator()),
               train_service_kernels_(queue_) {}
     ~train_kernel_hist_impl() = default;
@@ -317,7 +316,6 @@ private:
                                  const bk::event_vector& deps = {});
 
 private:
-    const bk::context_gpu& ctx_gpu_;
     sycl::queue queue_;
     comm_t comm_;
 

@@ -19,6 +19,7 @@
 #include "oneapi/dal/algo/polynomial_kernel/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -83,6 +84,16 @@ struct compute_kernel_cpu<Float, method::dense, task::compute> {
                         const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void operator()(const context_cpu& ctx,
+                    const descriptor_t& desc,
+                    const table& x,
+                    const table& y,
+                    homogen_table& res) {
+        throw unimplemented(dal::detail::error_messages::method_not_implemented());
+    }
+#endif
 };
 
 template struct compute_kernel_cpu<float, method::dense, task::compute>;

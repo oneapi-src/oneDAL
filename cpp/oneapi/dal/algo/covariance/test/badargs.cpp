@@ -26,32 +26,24 @@ namespace oneapi::dal::covariance::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class covariance_badarg_test : public te::algo_fixture {
 public:
-    static constexpr std::int64_t row_count = 4;
-    static constexpr std::int64_t component_count = 5;
-    static constexpr std::int64_t element_count = row_count * component_count;
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
 
     auto get_descriptor() const {
-        return covariance::descriptor<float, Method, covariance::task::compute>{};
+        return covariance::
+            descriptor<float, covariance::method::dense, covariance::task::compute>{};
     }
-
-    table get_input_data(std::int64_t override_row_count = row_count,
-                         std::int64_t override_component_count = component_count) const {
-        ONEDAL_ASSERT(override_row_count * override_component_count <= element_count);
-        return homogen_table::wrap(data_.data(), override_row_count, override_component_count);
-    }
-
-private:
-    static constexpr std::array<float, element_count> data_ = { 1.0,  1.0,  2.0,  2.0,  1.0,
-                                                                2.0,  2.0,  1.0,  -1.0, -1.0,
-                                                                -1.0, -2.0, -2.0, -1.0, -2.0,
-                                                                -2.0, -1.0, -2.0, 1.0,  2.0 };
 };
 
+using cov_types = COMBINE_TYPES((float, double),
+                                (covariance::method::dense),
+                                (covariance::task::compute));
+
 #define COVARIANCE_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(covariance_badarg_test, name, "[covariance][badarg]", covariance::method::dense)
+    TEMPLATE_TEST_M(covariance_badarg_test, name, "[covariance][badarg]", cov_types)
 
 COVARIANCE_BADARG_TEST("throws if input data is empty") {
     const auto covariance_desc = this->get_descriptor();

@@ -16,6 +16,10 @@
 
 #pragma once
 
+#ifdef ONEDAL_DATA_PARALLEL
+#include <CL/sycl.hpp>
+#endif
+
 #include <memory>
 #include <limits>
 #include <type_traits>
@@ -390,5 +394,9 @@ static constexpr void deallocate(Alloc& alloc, typename Alloc::pointer ptr, std:
         allocator_traits_t::deallocate(alloc, ptr, count);
     }
 }
+
+#ifdef ONEDAL_DATA_PARALLEL
+void check_if_pointer_matches_queue(const sycl::queue& q, const void* ptr);
+#endif
 
 } // namespace oneapi::dal::preview::detail

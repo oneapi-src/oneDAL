@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/backend/memory.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -114,3 +115,17 @@ template struct ONEDAL_EXPORT integer_overflow_ops<std::size_t>;
 } // namespace v2
 
 } // namespace oneapi::dal::detail
+
+namespace oneapi::dal::preview::detail {
+
+#ifdef ONEDAL_DATA_PARALLEL
+void check_if_pointer_matches_queue(const sycl::queue& q, const void* ptr) {
+    if (ptr) {
+        if (!dal::backend::is_known_usm(q, ptr)) {
+            throw invalid_argument{ dal::detail::error_messages::unknown_usm_pointer_type() };
+        }
+    }
+}
+#endif
+
+} // namespace oneapi::dal::preview::detail

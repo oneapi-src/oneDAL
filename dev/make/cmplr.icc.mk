@@ -58,6 +58,5 @@ mc_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSE4.2,xSSE3)
 mc3_OPT.icc  = $(-Q)xSSE4.2
 avx_OPT.icc  = $(-Q)xAVX
 avx2_OPT.icc = $(-Q)xCORE-AVX2
-knl_OPT.icc  = $(if $(OS_is_mac),$(-Q)xCORE-AVX2,$(-Q)xMIC-AVX512)
 skx_OPT.icc  = $(-Q)xCORE-AVX512 $(-Qopt)zmm-usage=high
 #TODO add march opts in GCC style

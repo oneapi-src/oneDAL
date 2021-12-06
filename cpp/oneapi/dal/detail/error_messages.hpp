@@ -88,6 +88,8 @@ public:
     MSG(capacity_leq_zero);
     MSG(empty_set_of_result_options);
     MSG(this_result_is_not_enabled_via_result_options);
+    MSG(spmd_error_holder_message);
+    MSG(spmd_coworker_failure);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
@@ -137,6 +139,7 @@ public:
     MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count);
     MSG(negative_vertex_id);
     MSG(unimplemented_sorting_procedure);
+    MSG(edge_values_are_empty);
 
     /* I/O */
     MSG(file_not_found);
@@ -280,6 +283,16 @@ public:
     /* DBSCAN */
     MSG(weight_dimension_doesnt_match_data_dimension);
     MSG(weights_column_count_ne_1);
+
+    /*SPMD*/
+    MSG(unsupported_communicator_backend);
+    MSG(invalid_data_type);
+    MSG(invalid_op);
+    MSG(invalid_buffer);
+    MSG(invalid_count);
+    MSG(invalid_mpi_comm);
+    MSG(invalid_root);
+    MSG(unknown_mpi_error);
 };
 
 #undef MSG

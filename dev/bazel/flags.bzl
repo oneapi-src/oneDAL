@@ -62,7 +62,6 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
     sse42 = []
     avx = []
     avx2 = []
-    avx512_mic = []
     avx512 = []
     if compiler_id == "gcc":
         sse2 = ["-march={}".format("pentium4" if arch_id == "ia32" else "nocona")]
@@ -70,7 +69,6 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         sse42 = ["-march=corei7"]
         avx = ["-march=sandybridge"]
         avx2 = ["-march=haswell"]
-        avx512_mic = ["-march=haswell"]
         avx512 = ["-march=haswell"]
     elif compiler_id == "icc":
         sse2 = ["-xSSE2"]
@@ -78,7 +76,6 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         sse42 = ["-xSSE4.2"]
         avx = ["-xAVX"]
         avx2 = ["-xCORE-AVX2"]
-        avx512_mic = ["-xMIC-AVX512"]
         avx512 = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
     elif compiler_id == "dpcpp":
         sse2 = ["-march=nocona"]
@@ -86,7 +83,6 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         sse42 = ["-march=nehalem"]
         avx = ["-march=sandybridge"]
         avx2 = ["-march=haswell"]
-        avx512_mic = ["-march=knl"]
         avx512 = ["-march=skx"]
     return {
         "sse2": sse2,
@@ -94,7 +90,6 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         "sse42": sse42,
         "avx": avx,
         "avx2": avx2,
-        "avx512_mic": avx512_mic,
         "avx512": avx512,
     }
 

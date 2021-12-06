@@ -185,48 +185,97 @@ private:
 };
 
 template <typename F, typename M>
-kernel_function<linear_kernel_t<F, M>>::kernel_function(const linear_kernel_t<F, M> &kernel)
+kernel_function<linear_kernel_t<F, M>>::kernel_function(const linear_kernel_t<F, M>& kernel)
         : kernel_(kernel),
           impl_(new daal_interop_linear_kernel_impl<F, M>{ kernel.get_scale(),
                                                            kernel.get_shift() }) {}
 
 template <typename F, typename M>
-kernel_function_impl *kernel_function<linear_kernel_t<F, M>>::get_impl() const {
+kernel_function_impl* kernel_function<linear_kernel_t<F, M>>::get_impl() const {
     return impl_.get();
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-kernel_function<polynomial_kernel_t<F, M>>::kernel_function(const polynomial_kernel_t<F, M> &kernel)
+void kernel_function<linear_kernel_t<F, M>>::compute_kernel_function(
+    const dal::detail::data_parallel_policy& policy,
+    const table& x,
+    const table& y,
+    homogen_table& res) {
+    dal::linear_kernel::detail::compute_ops<linear_kernel::descriptor<F, M>> kernel_compute_ops;
+    kernel_compute_ops(policy, kernel_, x, y, res);
+}
+#endif
+
+template <typename F, typename M>
+kernel_function<polynomial_kernel_t<F, M>>::kernel_function(const polynomial_kernel_t<F, M>& kernel)
         : kernel_(kernel),
           impl_(new daal_interop_polynomial_kernel_impl<F, M>{ kernel.get_scale(),
                                                                kernel.get_shift(),
                                                                kernel.get_degree() }) {}
 
 template <typename F, typename M>
-kernel_function_impl *kernel_function<polynomial_kernel_t<F, M>>::get_impl() const {
+kernel_function_impl* kernel_function<polynomial_kernel_t<F, M>>::get_impl() const {
     return impl_.get();
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-kernel_function<rbf_kernel_t<F, M>>::kernel_function(const rbf_kernel_t<F, M> &kernel)
+void kernel_function<polynomial_kernel_t<F, M>>::compute_kernel_function(
+    const dal::detail::data_parallel_policy& policy,
+    const table& x,
+    const table& y,
+    homogen_table& res) {
+    dal::polynomial_kernel::detail::compute_ops<polynomial_kernel::descriptor<F, M>>
+        kernel_compute_ops;
+    kernel_compute_ops(policy, kernel_, x, y, res);
+}
+#endif
+
+template <typename F, typename M>
+kernel_function<rbf_kernel_t<F, M>>::kernel_function(const rbf_kernel_t<F, M>& kernel)
         : kernel_(kernel),
           impl_(new daal_interop_rbf_kernel_impl<F, M>{ kernel.get_sigma() }) {}
 
 template <typename F, typename M>
-kernel_function_impl *kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
+kernel_function_impl* kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
     return impl_.get();
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename F, typename M>
-kernel_function<sigmoid_kernel_t<F, M>>::kernel_function(const sigmoid_kernel_t<F, M> &kernel)
+void kernel_function<rbf_kernel_t<F, M>>::compute_kernel_function(
+    const dal::detail::data_parallel_policy& policy,
+    const table& x,
+    const table& y,
+    homogen_table& res) {
+    dal::rbf_kernel::detail::compute_ops<rbf_kernel::descriptor<F, M>> kernel_compute_ops;
+    kernel_compute_ops(policy, kernel_, x, y, res);
+}
+#endif
+
+template <typename F, typename M>
+kernel_function<sigmoid_kernel_t<F, M>>::kernel_function(const sigmoid_kernel_t<F, M>& kernel)
         : kernel_(kernel),
           impl_(new daal_interop_sigmoid_kernel_impl<F, M>{ kernel.get_scale(),
                                                             kernel.get_shift() }) {}
 
 template <typename F, typename M>
-kernel_function_impl *kernel_function<sigmoid_kernel_t<F, M>>::get_impl() const {
+kernel_function_impl* kernel_function<sigmoid_kernel_t<F, M>>::get_impl() const {
     return impl_.get();
 }
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename F, typename M>
+void kernel_function<sigmoid_kernel_t<F, M>>::compute_kernel_function(
+    const dal::detail::data_parallel_policy& policy,
+    const table& x,
+    const table& y,
+    homogen_table& res) {
+    dal::sigmoid_kernel::detail::compute_ops<sigmoid_kernel::descriptor<F, M>> kernel_compute_ops;
+    kernel_compute_ops(policy, kernel_, x, y, res);
+}
+#endif
 
 #define INSTANTIATE_LINEAR(F, M) \
     template class ONEDAL_EXPORT kernel_function<linear_kernel_t<F, M>>;

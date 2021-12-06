@@ -16,8 +16,9 @@
 
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
-#include <CL/sycl/ONEAPI/experimental/builtins.hpp>
+#include <sycl/ext/oneapi/experimental/builtins.hpp>
 
 namespace oneapi::dal::backend::primitives {
 
@@ -267,6 +268,7 @@ template <typename Float, typename Index>
 sycl::event radix_sort_indices_inplace<Float, Index>::operator()(ndview<Float, 1>& val_in,
                                                                  ndview<Index, 1>& ind_in,
                                                                  const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace, queue_);
     ONEDAL_ASSERT(val_in.has_mutable_data());
     ONEDAL_ASSERT(ind_in.has_mutable_data());
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
@@ -374,6 +376,7 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                                             ndview<Integer, 2>& val_out,
                                             std::int64_t sorted_elem_count,
                                             const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort, queue_);
     // radixBuf should be big enough to accumulate radix_range elements
     ONEDAL_ASSERT(val_in.get_dimension(1) > 0);
     ONEDAL_ASSERT(sorted_elem_count > 0);
@@ -525,6 +528,7 @@ template <typename Integer>
 sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                                             ndview<Integer, 2>& val_out,
                                             const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort, queue_);
     return this->operator()(val_in, val_out, val_in.get_dimension(1), deps);
 }
 

@@ -17,6 +17,7 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/backend/primitives/stat/cov.hpp"
 
@@ -24,6 +25,7 @@ namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 namespace la = te::linalg;
+namespace pr = dal::backend::primitives;
 
 TEST("100K x 4K", "[cor][perf]") {
     DECLARE_TEST_POLICY(policy);
@@ -52,7 +54,8 @@ TEST("100K x 4K", "[cor][perf]") {
 
     // We need to wait until all previously submitted kernels are executed
     q.wait_and_throw();
-
+    auto gemm_event = pr::gemm(q, data.t(), data, corr, float_t(1), float_t(0));
+    gemm_event.wait_and_throw();
     BENCHMARK("correlation") {
         correlation(q, data, sums, means, corr, vars, tmp, { sums_event }).wait_and_throw();
     };

@@ -26,31 +26,29 @@
 
 #include "services/internal/daal_kernel_defines.h"
 
-#define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...)                                                                                \
-    switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId()))                                 \
-    {                                                                                                                           \
-        DAAL_KERNEL_SSSE3_ONLY_CODE(case daal::CpuType::ssse3 : func(daal::CpuType::ssse3, __VA_ARGS__); break;)                \
-        DAAL_KERNEL_SSE42_ONLY_CODE(case daal::CpuType::sse42 : func(daal::CpuType::sse42, __VA_ARGS__); break;)                \
-        DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx : func(daal::CpuType::avx, __VA_ARGS__); break;)                      \
-        DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2 : func(daal::CpuType::avx2, __VA_ARGS__); break;)                   \
-        DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512 : func(daal::CpuType::avx512, __VA_ARGS__); break;)             \
-        DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic : func(daal::CpuType::avx512_mic, __VA_ARGS__); break;) \
-        DAAL_EXPAND(default : func(daal::CpuType::sse2, __VA_ARGS__); break;)                                                   \
+#define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...)                                                                    \
+    switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId()))                     \
+    {                                                                                                               \
+        DAAL_KERNEL_SSSE3_ONLY_CODE(case daal::CpuType::ssse3 : func(daal::CpuType::ssse3, __VA_ARGS__); break;)    \
+        DAAL_KERNEL_SSE42_ONLY_CODE(case daal::CpuType::sse42 : func(daal::CpuType::sse42, __VA_ARGS__); break;)    \
+        DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx : func(daal::CpuType::avx, __VA_ARGS__); break;)          \
+        DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2 : func(daal::CpuType::avx2, __VA_ARGS__); break;)       \
+        DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512 : func(daal::CpuType::avx512, __VA_ARGS__); break;) \
+        DAAL_EXPAND(default : func(daal::CpuType::sse2, __VA_ARGS__); break;)                                       \
     }
 
-#define DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(func, ...)                                                                                \
-    services::Status st;                                                                                                             \
-    int cpuid = daal::sse2;                                                                                                          \
-    DAAL_SAFE_CPU_CALL((cpuid = daal::services::Environment::getInstance()->getCpuId()), (cpuid = daal::sse2))                       \
-    switch (static_cast<daal::CpuType>(cpuid))                                                                                       \
-    {                                                                                                                                \
-        DAAL_KERNEL_SSSE3_ONLY_CODE(case daal::CpuType::ssse3 : st = func(daal::CpuType::ssse3, __VA_ARGS__); break;)                \
-        DAAL_KERNEL_SSE42_ONLY_CODE(case daal::CpuType::sse42 : st = func(daal::CpuType::sse42, __VA_ARGS__); break;)                \
-        DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx : st = func(daal::CpuType::avx, __VA_ARGS__); break;)                      \
-        DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2 : st = func(daal::CpuType::avx2, __VA_ARGS__); break;)                   \
-        DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512 : st = func(daal::CpuType::avx512, __VA_ARGS__); break;)             \
-        DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic : st = func(daal::CpuType::avx512_mic, __VA_ARGS__); break;) \
-        DAAL_EXPAND(default : st = func(daal::CpuType::sse2, __VA_ARGS__); break;)                                                   \
-    }                                                                                                                                \
+#define DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(func, ...)                                                                    \
+    services::Status st;                                                                                                 \
+    int cpuid = daal::sse2;                                                                                              \
+    DAAL_SAFE_CPU_CALL((cpuid = daal::services::Environment::getInstance()->getCpuId()), (cpuid = daal::sse2))           \
+    switch (static_cast<daal::CpuType>(cpuid))                                                                           \
+    {                                                                                                                    \
+        DAAL_KERNEL_SSSE3_ONLY_CODE(case daal::CpuType::ssse3 : st = func(daal::CpuType::ssse3, __VA_ARGS__); break;)    \
+        DAAL_KERNEL_SSE42_ONLY_CODE(case daal::CpuType::sse42 : st = func(daal::CpuType::sse42, __VA_ARGS__); break;)    \
+        DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx : st = func(daal::CpuType::avx, __VA_ARGS__); break;)          \
+        DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2 : st = func(daal::CpuType::avx2, __VA_ARGS__); break;)       \
+        DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512 : st = func(daal::CpuType::avx512, __VA_ARGS__); break;) \
+        DAAL_EXPAND(default : st = func(daal::CpuType::sse2, __VA_ARGS__); break;)                                       \
+    }                                                                                                                    \
     services::throwIfPossible(st);
 #endif

@@ -348,10 +348,10 @@ private:
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename T1, ndorder ord1, typename T2, ndorder ord2>
-sycl::event copy(sycl::queue& q,
-                 ndview<T1, 2, ord1>& dst,
-                 const ndview<T2, 2, ord2>& src,
-                 const event_vector& deps = {}) {
+inline sycl::event copy(sycl::queue& q,
+                        ndview<T1, 2, ord1>& dst,
+                        const ndview<T2, 2, ord2>& src,
+                        const event_vector& deps = {}) {
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     const ndshape<2> dst_shape = dst.get_shape();
@@ -385,10 +385,10 @@ sycl::event copy(sycl::queue& q,
 }
 
 template <typename T>
-sycl::event fill(sycl::queue& q,
-                 ndview<T, 1>& dst,
-                 const T& value = T{},
-                 const event_vector& deps = {}) {
+inline sycl::event fill(sycl::queue& q,
+                        ndview<T, 1>& dst,
+                        const T& value = T{},
+                        const event_vector& deps = {}) {
     ONEDAL_ASSERT(dst.has_mutable_data());
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -397,10 +397,10 @@ sycl::event fill(sycl::queue& q,
 }
 
 template <typename T, ndorder ord1>
-sycl::event fill(sycl::queue& q,
-                 ndview<T, 2, ord1>& dst,
-                 const T& value = T{},
-                 const event_vector& deps = {}) {
+inline sycl::event fill(sycl::queue& q,
+                        ndview<T, 2, ord1>& dst,
+                        const T& value = T{},
+                        const event_vector& deps = {}) {
     ONEDAL_ASSERT(dst.has_mutable_data());
     sycl::event res_event;
     if constexpr (ord1 == ndorder::c) {
@@ -621,9 +621,32 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event fill(sycl::queue& q, T value, const event_vector& deps = {}) {
+        auto data_ptr = this->get_mutable_data();
+        ONEDAL_ASSERT(is_known_usm(q, data_ptr));
         return q.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            cgh.fill(this->get_mutable_data(), value, this->get_count());
+            cgh.fill(data_ptr, value, this->get_count());
+        });
+    }
+#endif
+
+    void arange() {
+        T* data_ptr = this->get_mutable_data();
+        for (std::int64_t i = 0; i < this->get_count(); i++) {
+            data_ptr[i] = i;
+        }
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    sycl::event arange(sycl::queue& q, const event_vector& deps = {}) {
+        auto data_ptr = this->get_mutable_data();
+        ONEDAL_ASSERT(is_known_usm(q, data_ptr));
+        return q.submit([&](sycl::handler& cgh) {
+            const auto range = dal::backend::make_range_1d(this->get_count());
+            cgh.depends_on(deps);
+            cgh.parallel_for(range, [=](sycl::id<1> idx) {
+                data_ptr[idx] = idx;
+            });
         });
     }
 #endif
@@ -773,5 +796,34 @@ private:
 
     shared_t data_;
 };
+
+#ifdef _GLIBCXX_OSTREAM
+
+// Debuging function.
+// Available only if (i)ostream header is included
+template <typename T, ndorder ord>
+inline std::ostream& operator<<(std::ostream& s, const ndview<T, 2, ord>& v) {
+    constexpr char o = (ord == ndorder::c) ? 'C' : 'F';
+    const auto h = v.get_dimension(0);
+    const auto w = v.get_dimension(1);
+    const auto d = v.get_leading_stride();
+    s << o << "-like ndview with shape height,width=" << h << ',' << w << " (stride=" << d << ")\n";
+#ifdef _GLIBCXX_IOMANIP
+    const auto init_flags = s.flags();
+    s << std::scientific << std::setprecision(4);
+#endif
+    for (std::int64_t r = 0; r < h; ++r) {
+        for (std::int64_t c = 0; c < w; ++c) {
+            s << "\t " << v.at(r, c);
+        }
+        s << "\t: r" << r << '\n';
+    }
+#ifdef _GLIBCXX_IOMANIP
+    s.setf(init_flags);
+#endif
+    return (s << std::endl);
+}
+
+#endif
 
 } // namespace oneapi::dal::backend::primitives

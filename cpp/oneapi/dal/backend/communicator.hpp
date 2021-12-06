@@ -17,12 +17,17 @@
 #pragma once
 
 #include "oneapi/dal/backend/common.hpp"
-#include "oneapi/dal/detail/communicator.hpp"
+#include "oneapi/dal/spmd/communicator.hpp"
+
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::backend {
 
+namespace de = dal::detail;
+
 /// Implementation of SPMD communicator for one-rank system
-class fake_spmd_communicator : public dal::detail::spmd_communicator {
+template <typename MemoryAccessKind>
+class fake_spmd_communicator : public spmd::communicator<MemoryAccessKind> {
 public:
     fake_spmd_communicator();
 };
@@ -33,30 +38,32 @@ public:
 class communicator_event {
 public:
     communicator_event() = default;
-    communicator_event(const dal::detail::spmd_request& req) : public_req_(req) {}
-    communicator_event(dal::detail::spmd_request&& req) : public_req_(std::move(req)) {}
+    communicator_event(const spmd::request& req) : public_req_(req) {}
+    communicator_event(spmd::request&& req) : public_req_(std::move(req)) {}
 
     void wait() {
         public_req_.wait();
     }
 
 private:
-    dal::detail::spmd_request public_req_;
+    spmd::request public_req_;
 };
 
 /// Wrapper over public SPMD communicator.
 /// The additional layer of abstraction is added to have more flexibility in changing the
 /// communicator interface which algorithms depend on. For example, this can be used to add
 /// collective operation overloading for internal classes such as `ndarray`.
+template <typename MemoryAccessKind>
 class communicator {
 public:
     /// Creates communicator based on public SPMD interface
-    communicator(const dal::detail::spmd_communicator& comm)
+    communicator(const spmd::communicator<MemoryAccessKind>& comm)
             : public_comm_(comm),
               is_distributed_(true) {}
 
     /// Creates communicator for one-rank system
-    communicator(const fake_spmd_communicator& comm = fake_spmd_communicator{})
+    communicator(const fake_spmd_communicator<MemoryAccessKind>& comm =
+                     fake_spmd_communicator<MemoryAccessKind>{})
             : public_comm_(comm),
               is_distributed_(false) {}
 
@@ -81,16 +88,6 @@ public:
         return public_comm_.is_root_rank(std::forward<Args>(args)...);
     }
 
-    template <typename... Args>
-    auto if_root_rank(Args&&... args) const {
-        return public_comm_.if_root_rank(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto if_root_rank_else(Args&&... args) const {
-        return public_comm_.if_root_rank_else(std::forward<Args>(args)...);
-    }
-
     void barrier() const {
         public_comm_.barrier();
     }
@@ -101,13 +98,8 @@ public:
     }
 
     template <typename... Args>
-    communicator_event gather(Args&&... args) const {
-        return public_comm_.gather(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    communicator_event gatherv(Args&&... args) const {
-        return public_comm_.gatherv(std::forward<Args>(args)...);
+    communicator_event allgatherv(Args&&... args) const {
+        return public_comm_.allgatherv(std::forward<Args>(args)...);
     }
 
     template <typename... Args>
@@ -120,8 +112,16 @@ public:
         return public_comm_.allreduce(std::forward<Args>(args)...);
     }
 
+    void set_active_exception(const std::exception_ptr& ex_ptr) const {
+        public_comm_.set_active_exception(ex_ptr);
+    }
+
+    void wait_for_exception_handling() const {
+        public_comm_.wait_for_exception_handling();
+    }
+
 private:
-    dal::detail::spmd_communicator public_comm_;
+    spmd::communicator<MemoryAccessKind> public_comm_;
     bool is_distributed_;
 };
 
