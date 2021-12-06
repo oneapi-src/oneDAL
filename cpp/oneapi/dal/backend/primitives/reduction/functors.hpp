@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cmath>
+#include <type_traits>
 
 namespace oneapi::dal::backend::primitives {
 
@@ -97,5 +98,51 @@ struct min {
         return native(a, b);
     }
 };
+
+template <typename Float, typename BinaryOp>
+constexpr bool is_typed_sum_op_v = std::is_same_v<sum<Float>, BinaryOp>;
+
+template <typename Float, typename BinaryOp>
+constexpr bool is_typed_min_op_v = std::is_same_v<min<Float>, BinaryOp>;
+
+template <typename Float, typename BinaryOp>
+constexpr bool is_typed_max_op_v = std::is_same_v<max<Float>, BinaryOp>;
+
+template <typename BinaryOp>
+using bin_op_t = std::remove_const_t<decltype(BinaryOp::init_value)>;
+
+template <typename BinaryOp>
+constexpr bool is_sum_op_v = is_typed_sum_op_v<bin_op_t<BinaryOp>, BinaryOp>;
+
+template <typename BinaryOp>
+constexpr bool is_min_op_v = is_typed_min_op_v<bin_op_t<BinaryOp>, BinaryOp>;
+
+template <typename BinaryOp>
+constexpr bool is_max_op_v = is_typed_max_op_v<bin_op_t<BinaryOp>, BinaryOp>;
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+template <typename BinaryOp, typename T = bin_op_t<BinaryOp>>
+inline T atomic_binary_op(T* ptr, T val) {
+    sycl::ext::oneapi::atomic_ref<T,
+                                  cl::sycl::ext::oneapi::memory_order::relaxed,
+                                  cl::sycl::ext::oneapi::memory_scope::device,
+                                  cl::sycl::access::address_space::ext_intel_global_device_space>
+        atomic_ref(*ptr);
+    if constexpr (is_sum_op_v<BinaryOp>) {
+        return atomic_ref.fetch_add(val);
+    }
+    else if constexpr (is_min_op_v<BinaryOp>) {
+        return atomic_ref.fetch_min(val);
+    }
+    else if constexpr (is_max_op_v<BinaryOp>) {
+        return atomic_ref.fetch_max(val);
+    }
+    else {
+        return val;
+    }
+}
+
+#endif
 
 } // namespace oneapi::dal::backend::primitives
