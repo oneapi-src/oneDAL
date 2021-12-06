@@ -18,7 +18,6 @@
 
 #include "oneapi/dal/algo/louvain/vertex_partitioning.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
-#include "oneapi/dal/io/csv.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
 
@@ -49,7 +48,7 @@ public:
     std::vector<std::int64_t> rows;
 };
 
-//Stochastic block model graph containing 5 communities with 4 vertices in each. 
+//Stochastic block model graph containing 5 communities with 4 vertices in each.
 //Probability of an edge appearing between different communities = 0.02, within a community - 0.7.
 class sbm_graph_data : public graph_base_data {
 public:
@@ -62,7 +61,7 @@ public:
     }
 };
 
-//Weights of the edges within the community are several times greater than that between the communities. 
+//Weights of the edges within the community are several times greater than that between the communities.
 //Graph also contains isolated vertices.
 class combined_graph_data : public graph_base_data {
 public:
@@ -375,8 +374,7 @@ LOUVAIN_TEST("Null input graph with empty initial partition table") {
     REQUIRE(!result.get_labels().has_data());
 }
 
-LOUVAIN_TEST(
-    "Two fully connected inside clusters and no outro edges, edge weights are nonzero and equal to each other") {
+LOUVAIN_TEST("K5 graph + K5 graph, edge weights are nonzero and equal") {
     two_complete_graphs_data graph_data;
     std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 };
     std::int64_t expected_community_count = 2;
@@ -393,23 +391,23 @@ LOUVAIN_TEST(
 }
 
 //Fails - community_count and community_labels are correct, but modularity is NaN
-// LOUVAIN_TEST("Two fully connected inside clusters and no outro edges, zero weights") {
+// LOUVAIN_TEST("K5 graph + K5 graph, zero weights") {
 //     two_complete_graphs_data graph_data;
 //     std::vector<std::int32_t> expected_labels = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 //     std::int64_t expected_community_count = 10;
-//     SECTION("All int32 weights = 0"){
+//     SECTION("Int32 weights"){
 //         std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
 //         std::fill(int_weights.begin(), int_weights.end(), 0);
 //         this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
 //     }
-//     SECTION("All double weights = 0.0"){
+//     SECTION("Double weights"){
 //         std::vector<double> double_weights(2 * graph_data.edge_count);
 //         std::fill(double_weights.begin(), double_weights.end(), -5);
 //         this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
 //     }
 // }
 
-LOUVAIN_TEST("Barbell graph, edge weights are nonzero and equal to each other") {
+LOUVAIN_TEST("Barbell graph, edge weights are nonzero and equal") {
     barbell_graph_data graph_data;
     std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                   1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
@@ -444,7 +442,7 @@ LOUVAIN_TEST("Combined graph") {
     }
 }
 
-LOUVAIN_TEST("K_20 graph, edge weights are nonzero and equal to each other") {
+LOUVAIN_TEST("K_20 graph, edge weights are nonzero and equal") {
     complete_graph_data graph_data(20);
     std::vector<std::int32_t> expected_labels(graph_data.vertex_count);
     std::fill(expected_labels.begin(), expected_labels.end(), 0);
@@ -461,7 +459,7 @@ LOUVAIN_TEST("K_20 graph, edge weights are nonzero and equal to each other") {
     }
 }
 
-LOUVAIN_TEST("SBM(0.7, 0.02), edge weights are nonzero and equal to each other") {
+LOUVAIN_TEST("SBM graph, edge weights are nonzero and equal") {
     sbm_graph_data graph_data;
     std::vector<std::int32_t> expected_labels = { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,
                                                   2, 2, 3, 3, 3, 3, 4, 4, 4, 4 };
@@ -509,7 +507,7 @@ LOUVAIN_TEST("Random generated graph with 20 vertices and 35 edges, double weigh
     this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
 }
 
-LOUVAIN_TEST("Zachary's karate club graph, edge weights are nonzero and equal to each other") {
+LOUVAIN_TEST("Zachary's karate club graph, edge weights are nonzero and equal") {
     karate_club_graph_data graph_data;
     std::int64_t expected_community_count = 4;
     std::vector<std::int32_t> expected_labels = {
@@ -528,7 +526,7 @@ LOUVAIN_TEST("Zachary's karate club graph, edge weights are nonzero and equal to
     }
 }
 
-LOUVAIN_TEST("SBM(0.7, 0.02) with different initial partitions") {
+LOUVAIN_TEST("SBM graph with different initial partitions") {
     sbm_graph_data graph_data;
     std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
     std::fill(int_weights.begin(), int_weights.end(), 10);
@@ -583,7 +581,7 @@ LOUVAIN_TEST("Random generated graph with different initial partitions") {
 }
 
 //Fails - modularity is Nan, community_count and labels are incorrect
-// LOUVAIN_TEST("K_20, all  weights = int32_max") {
+// LOUVAIN_TEST("K_20, all weights = int32_max") {
 //     complete_graph_data graph_data(20);
 //     std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
 //     std::fill(int_weights.begin(), int_weights.end(), std::numeric_limits<std::int32_t>::max());
@@ -604,7 +602,7 @@ LOUVAIN_TEST("Random generated graph with different initial partitions") {
 //     this->check_louvain(graph_data, double_weights, expected_labels, expected_community_count);
 // }
 
-LOUVAIN_TEST("Counting allocator test null graph") {
+LOUVAIN_TEST("Counting allocator test, null graph") {
     dal::preview::undirected_adjacency_vector_graph<std::int32_t, std::int32_t> graph;
     allocated_bytes_count = 0;
     CountingAllocator<char> alloc;
@@ -617,7 +615,7 @@ LOUVAIN_TEST("Counting allocator test null graph") {
     REQUIRE(allocated_bytes_count == 0);
 }
 
-LOUVAIN_TEST("Counting allocator test SBM(0.7, 0.02)") {
+LOUVAIN_TEST("Counting allocator test, SBM graph") {
     sbm_graph_data graph_data;
     std::vector<double> double_weights(2 * graph_data.edge_count);
     std::fill(double_weights.begin(), double_weights.end(), 0.5);
@@ -635,7 +633,7 @@ LOUVAIN_TEST("Counting allocator test SBM(0.7, 0.02)") {
     REQUIRE(allocated_bytes_count == 0);
 }
 
-LOUVAIN_TEST("Counting allocator test K_20") {
+LOUVAIN_TEST("Counting allocator test, K20 graph") {
     complete_graph_data graph_data(20);
     std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
     std::fill(int_weights.begin(), int_weights.end(), 10);
@@ -653,7 +651,7 @@ LOUVAIN_TEST("Counting allocator test K_20") {
     REQUIRE(allocated_bytes_count == 0);
 }
 
-LOUVAIN_TEST("Different resolution values, SBM(0.7, 0.02)") {
+LOUVAIN_TEST("Different resolution values, SBM graph") {
     sbm_graph_data graph_data;
     std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
     std::fill(int_weights.begin(), int_weights.end(), 10);
@@ -662,7 +660,7 @@ LOUVAIN_TEST("Different resolution values, SBM(0.7, 0.02)") {
     this->check_resolution_values(graph_data, int_weights, 9.4, false);
 }
 
-LOUVAIN_TEST("Different resolution values, K_20") {
+LOUVAIN_TEST("Different resolution values, K20 graph") {
     complete_graph_data graph_data(20);
     std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
     std::fill(int_weights.begin(), int_weights.end(), 10);

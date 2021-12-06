@@ -18,7 +18,6 @@
 
 #include "oneapi/dal/algo/louvain/vertex_partitioning.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
-#include "oneapi/dal/io/csv.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
 
