@@ -784,7 +784,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
     const bool mdaRequired(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
     const bool oobRequired =
-        (par.resultsToCompute & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation)
+        (par.resultsToCompute
+             & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation
+                | decision_forest::training::computeOutOfBagErrorAccuracy | decision_forest::training::computeOutOfBagErrorDecisionFunction)
          || mdaRequired);
 
     decision_forest::regression::internal::ModelImpl & mdImpl =
