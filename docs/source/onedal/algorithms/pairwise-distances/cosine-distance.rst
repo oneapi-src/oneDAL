@@ -18,9 +18,9 @@
 
 .. _alg_cosine_distance:
 
-==================
+===============
 Cosine distance
-==================
+===============
 
 .. include::  ../../../includes/pairwise-distances/cosine-distance-introduction.rst
 

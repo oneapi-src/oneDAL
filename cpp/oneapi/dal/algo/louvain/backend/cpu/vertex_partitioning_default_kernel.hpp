@@ -437,8 +437,13 @@ struct louvain_kernel {
             deallocate(value_allocator, current_vals, edge_count * 2);
             deallocate(value_allocator, current_self_loops, edge_count * 2);
 
-            for (int64_t iteration = 0; iteration < communities.size(); iteration++) {
-                deallocate(vertex_allocator, communities[iteration], labels_size[iteration]);
+            if (communities.size() > 0) {
+                deallocate(vertex_allocator, communities[0], vertex_count);
+                for (int64_t iteration = 1; iteration < communities.size(); iteration++) {
+                    deallocate(vertex_allocator,
+                               communities[iteration],
+                               labels_size[iteration - 1]);
+                }
             }
 
             return vertex_partitioning_result<task::vertex_partitioning>()

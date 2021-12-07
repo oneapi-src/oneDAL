@@ -295,6 +295,28 @@ public:
         check_output_cw(out_array);
     }
 
+    void test_raw_cw_reduce_atomic() {
+        using reduction_t = reduction_rm_cw_atomic<float_t, binary_t, unary_t>;
+        auto [inp_array, inp_event] = input();
+        auto [out_array, out_event] = output(width_);
+
+        const float_t* inp_ptr = inp_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        reduction_t reducer(this->get_queue());
+        reducer(inp_ptr,
+                out_ptr,
+                width_,
+                height_,
+                stride_,
+                binary_t{},
+                unary_t{},
+                { inp_event, out_event })
+            .wait_and_throw();
+
+        check_output_cw(out_array);
+    }
+
     void test_raw_cw_reduce_wrapper() {
         using reduction_t = reduction_rm_cw<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
@@ -345,6 +367,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_naive();
     this->test_raw_cw_reduce_naive_local();
+    this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 }
 

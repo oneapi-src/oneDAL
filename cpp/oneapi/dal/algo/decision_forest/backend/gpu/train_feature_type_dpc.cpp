@@ -244,7 +244,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     comm_.allreduce(com_bin_count).wait();
 
     pr::ndarray<Float, 1> com_bin_brd;
-    com_bin_brd = pr::ndarray<Float, 1>::empty(queue_, { com_bin_count });
+    com_bin_brd = pr::ndarray<Float, 1>::empty(queue_, { com_bin_count }, sycl::usm::alloc::device);
 
     const std::int64_t* com_bin_count_ptr = com_bin_count_arr.get_data();
     std::int64_t* com_bin_offset_ptr = com_bin_offset_arr.get_mutable_data();
