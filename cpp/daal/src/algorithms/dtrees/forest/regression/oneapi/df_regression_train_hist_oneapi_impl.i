@@ -783,11 +783,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     }
 
     const bool mdaRequired(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
-    const bool oobRequired =
-        (par.resultsToCompute
-             & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation
-                | decision_forest::training::computeOutOfBagErrorAccuracy | decision_forest::training::computeOutOfBagErrorDecisionFunction)
-         || mdaRequired);
+    const bool oobRequired = (par.resultsToCompute
+                                  & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation
+                                     | decision_forest::training::computeOutOfBagErrorR2 | decision_forest::training::computeOutOfBagErrorPrediction)
+                              || mdaRequired);
 
     decision_forest::regression::internal::ModelImpl & mdImpl =
         *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m);
