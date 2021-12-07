@@ -15,12 +15,12 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 #include "oneapi/dal/backend/primitives/regression/distance.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 

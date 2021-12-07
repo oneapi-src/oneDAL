@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 #include "oneapi/dal/backend/primitives/voting/uniform.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -37,6 +38,7 @@ large_k_uniform_voting<ClassType>::large_k_uniform_voting(sycl::queue& q,
 template <typename ClassType>
 sycl::event large_k_uniform_voting<ClassType>::select_winner(ndview<ClassType, 1>& results,
                                                              const event_vector& deps) const {
+    ONEDAL_PROFILER_TASK(select_winner, this->get_queue());
     const auto inp_str = out_.get_leading_stride();
     const auto inp_wdt = out_.get_dimension(1);
     const auto* const inp_ptr = out_.get_data();

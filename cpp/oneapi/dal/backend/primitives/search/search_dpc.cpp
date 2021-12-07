@@ -23,6 +23,7 @@
 #include "oneapi/dal/backend/primitives/selection/select_indexed.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
 #include "oneapi/dal/backend/primitives/distance/squared_l2_distance_misc.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -348,6 +349,7 @@ sycl::event search_engine_base<Float, Distance, Impl>::do_search(const ndview<Fl
                                                                  temp_ptr_t temp_objs,
                                                                  selc_t& select,
                                                                  const event_vector& deps) const {
+    ONEDAL_PROFILER_TASK(do_search, get_queue());                                                                 
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));

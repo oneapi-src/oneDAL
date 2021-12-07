@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -25,6 +26,7 @@ sycl::event select_indexed(sycl::queue& q,
                            const ndview<Type, 2>& src,
                            ndview<Type, 2>& dst,
                            const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(select_indexed, q);
     ONEDAL_ASSERT(ids.has_data());
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
@@ -53,6 +55,7 @@ sycl::event select_indexed_naive(sycl::queue& q,
                                  const ndview<Type, 1>& src,
                                  ndview<Type, 2>& dst,
                                  const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(select_indexed_naive, q);
     const ndshape<2> shape = ids.get_shape();
     const auto range = make_range_2d(shape[0], shape[1]);
     const auto* const ids_ptr = ids.get_data();
@@ -75,6 +78,7 @@ sycl::event select_indexed_local(sycl::queue& q,
                                  const ndview<Type, 1>& src,
                                  ndview<Type, 2>& dst,
                                  const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(select_indexed_local, q);
     constexpr Type first_bit = Type(1) << (8 * sizeof(Type) - 1);
     const auto* const ids_ptr = ids.get_data();
     const auto* const src_ptr = src.get_data();
@@ -131,6 +135,7 @@ sycl::event select_indexed(sycl::queue& q,
                            const ndview<Type, 1>& src,
                            ndview<Type, 2>& dst,
                            const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(select_indexed2, q);
     ONEDAL_ASSERT(ids.has_data());
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());

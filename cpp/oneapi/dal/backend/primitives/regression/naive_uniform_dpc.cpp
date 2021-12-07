@@ -21,6 +21,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 
 #include "oneapi/dal/backend/primitives/regression/uniform.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -32,6 +33,7 @@ sycl::event normalize(sycl::queue& queue,
                       std::int64_t n_responses,
                       ndview<ResponseType, 1>& results,
                       const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(normalize, queue);
     ONEDAL_ASSERT(results.has_mutable_data());
     const ResponseType factor = 1.0 / double(n_responses);
     const auto range = make_range_1d(results.get_dimension(0));
