@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -29,6 +30,7 @@ sycl::event distance_regression_kernel(sycl::queue& queue,
                                        const ndview<DistType, 2>& distances,
                                        ndview<RespType, 1>& result,
                                        const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(distance_regression_kernel, queue);
     constexpr auto eps = dal::detail::limits<DistType>::epsilon();
     ONEDAL_ASSERT(distances.has_data());
     ONEDAL_ASSERT(responses.has_data());
