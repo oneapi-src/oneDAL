@@ -42,8 +42,8 @@ namespace detail {
                                             std::int64_t scount,
                                             std::int64_t rseed = 777);
 
-    array<Float> select_rows_by_indices(const ctx_t& ctx,
-                                        const array<std::int64_t)
+    //array<Float> select_rows_by_indices(const ctx_t& ctx,
+    //                                    const array<std::int64_t)
 
 } // namespace detail
 

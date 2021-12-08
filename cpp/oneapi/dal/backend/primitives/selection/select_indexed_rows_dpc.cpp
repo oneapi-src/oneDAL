@@ -45,30 +45,27 @@ sycl::event select_indexed_rows(sycl::queue& q,
 }
 
 #define INSTANTIATE_FULL(TYPE, INDEX, INPORD, OUTORD)                         \
-    template sycl::event select_indexed_rows<TYPE, INDEX, INPORD, OUTORD>(    \
-                                             sycl::queue&,                    \
+    template sycl::event select_indexed_rows(sycl::queue&,                    \
                                              const ndview<INDEX, 1>&,         \
-                                             const ndview<TYPE, 2, INPORD>&,  \
-                                             ndview<TYPE, 2, OUTORD>&,        \
+                                             const ndview<TYPE, 2, ndorder::INPORD>&,  \
+                                             ndview<TYPE, 2, ndorder::OUTORD>&,        \
                                              const event_vector&);
 
-INSTANTIATE_FULL(std::int32_t, std::int32_t, ndorder::c, ndorder::c);
+#define INSTANTIATE_I(TYPE, INDEX, INPORD)  \
+    INSTANTIATE_FULL(TYPE, INDEX, INPORD, c)\
+    INSTANTIATE_FULL(TYPE, INDEX, INPORD, f)
 
-#define INSTANTATE_INPORD(TYPE, INDEX, OUTORD)        \
-    INSTANTIATE_FULL(TYPE, INDEX, ndorder::c, OUTORD);\
-    INSTANTIATE_FULL(TYPE, INDEX, ndorder::f, OUTORD);
+#define INSTANTIATE_II(TYPE, INDEX)\
+    INSTANTIATE_I(TYPE, INDEX, c)  \
+    INSTANTIATE_I(TYPE, INDEX, f)
 
-#define INSTANTATE_OUTORD(TYPE, INDEX)          \
-    INSTANTIATE_INPORD(TYPE, INDEX, ndorder::c);\
-    INSTANTIATE_INPORD(TYPE, INDEX, ndorder::f);
+#define INSTANTIATE_III(TYPE)         \
+    INSTANTIATE_II(TYPE, std::int32_t)\
+    INSTANTIATE_II(TYPE, std::int64_t)
 
-#define INSTANTIATE_TYPE(INDEX)              \
-    INSTANTIATE_OUTORD(float, INDEX);        \
-    INSTANTIATE_OUTORD(double, INDEX);       \
-    INSTANTIATE_OUTORD(std::int32_t, INDEX); \
-    INSTANTIATE_OUTORD(std::int64_t, INDEX);
-
-//INSTANTIATE_TYPE(std::int32_t);
-//INSTANTIATE_TYPE(std::int64_t);
+INSTANTIATE_III(std::int32_t)
+INSTANTIATE_III(std::int64_t)
+INSTANTIATE_III(double)
+INSTANTIATE_III(float)
 
 } // namespace oneapi::dal::backend::primitives

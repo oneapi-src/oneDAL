@@ -115,9 +115,9 @@ public:
 
     void check_full() {
         check<ndorder::c, ndorder::c>();
-        //check<ndorder::c, ndorder::f>();
-        //check<ndorder::f, ndorder::c>();
-        //check<ndorder::f, ndorder::f>();
+        check<ndorder::c, ndorder::f>();
+        check<ndorder::f, ndorder::c>();
+        check<ndorder::f, ndorder::f>();
     }
 
 private:

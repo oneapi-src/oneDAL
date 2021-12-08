@@ -29,9 +29,10 @@ using dal::backend::context_gpu;
 
 namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
+namespace ki = oneapi::dal::kmeans_init;
 
 using result_t = compute_result<task::init>;
-using descriptor_t = detail::descriptor_base<task::init>;
+using descriptor_t = ki::detail::descriptor_base<task::init>;
 using input_t = compute_input<task::init>;
 
 template <typename Float, typename Method>
