@@ -540,7 +540,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         nOOB             = static_cast<size_t>(nOOBRowsHost.get()[treeIndex + 1] - nOOBRowsHost.get()[treeIndex]);
     }
 
-    if ((par.resultsToCompute & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation)
+    if ((par.resultsToCompute
+             & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation
+                | decision_forest::training::computeOutOfBagErrorR2 | decision_forest::training::computeOutOfBagErrorPrediction)
          || mdaRequired)
         && nOOB)
     {
