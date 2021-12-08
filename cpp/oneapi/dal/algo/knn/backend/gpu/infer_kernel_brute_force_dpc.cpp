@@ -32,6 +32,7 @@
 #include "oneapi/dal/backend/primitives/utils.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
 
@@ -75,6 +76,7 @@ sycl::event copy_with_sqrt(sycl::queue& q,
                            const pr::ndview<T2, 2>& src,
                            pr::ndview<T1, 2>& dst,
                            const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(copy_with_sqrt, q);
     static_assert(de::is_floating_point<T1>());
     static_assert(de::is_floating_point<T2>());
     ONEDAL_ASSERT(src.has_data());

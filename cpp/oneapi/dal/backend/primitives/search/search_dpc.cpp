@@ -450,6 +450,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
     temp_ptr_t temp_objs,
     selc_t& select,
     const event_vector& deps) const {
+    ONEDAL_PROFILER_TASK(do_search_2, this->get_queue()); 
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == base_t::selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
@@ -457,7 +458,11 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
     sycl::event last_event = this->reset(temp_objs, deps);
     const auto query_block_size = query.get_dimension(0);
     auto qnorms = temp_objs->get_query_norms().get_slice(0, query_block_size);
-    auto qevent = compute_squared_l2_norms(this->get_queue(), query, qnorms, deps);
+    sycl::event qevent;
+    {
+        ONEDAL_PROFILER_TASK(compute_l2_norms, this->get_queue()); 
+        qevent = compute_squared_l2_norms(this->get_queue(), query, qnorms, deps);
+    }
     //Iterations over larger blocks
     for (std::int64_t sb_id = 0; sb_id < this->get_selection_blocking().get_block_count();
          ++sb_id) {
@@ -473,9 +478,12 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
             auto ip = temp_objs->get_distances()
                           .get_col_slice(0, train_block_size)
                           .get_row_slice(0, query_block_size);
-            auto ip_event =
+            sycl::event ip_event;
+            {
+                ONEDAL_PROFILER_TASK(gemm, this->get_queue()); 
+                ip_event = 
                 gemm(this->get_queue(), query, train.t(), ip, Float(-2), Float(0), { last_event });
-
+            }
             const auto rel_idx = tb_id - start_tb;
             auto part_inds =
                 temp_objs->get_part_indices_block(rel_idx + 1).get_row_slice(0, query_block_size);

@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/backend/memory.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/backend/primitives/ndshape.hpp"
 
 namespace oneapi::dal::backend::primitives {
@@ -352,6 +353,7 @@ inline sycl::event copy(sycl::queue& q,
                         ndview<T1, 2, ord1>& dst,
                         const ndview<T2, 2, ord2>& src,
                         const event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(copy_ndarray, q);
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     const ndshape<2> dst_shape = dst.get_shape();
