@@ -349,7 +349,7 @@ sycl::event search_engine_base<Float, Distance, Impl>::do_search(const ndview<Fl
                                                                  temp_ptr_t temp_objs,
                                                                  selc_t& select,
                                                                  const event_vector& deps) const {
-    ONEDAL_PROFILER_TASK(do_search, this->get_queue());
+    ONEDAL_PROFILER_TASK(do_search_general_metric, this->get_queue());
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
@@ -450,7 +450,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
     temp_ptr_t temp_objs,
     selc_t& select,
     const event_vector& deps) const {
-    ONEDAL_PROFILER_TASK(do_search_2, this->get_queue());
+    ONEDAL_PROFILER_TASK(do_search_l2_metric, this->get_queue());
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == base_t::selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
