@@ -349,7 +349,7 @@ sycl::event search_engine_base<Float, Distance, Impl>::do_search(const ndview<Fl
                                                                  temp_ptr_t temp_objs,
                                                                  selc_t& select,
                                                                  const event_vector& deps) const {
-    ONEDAL_PROFILER_TASK(do_search, get_queue());                                                                 
+    ONEDAL_PROFILER_TASK(do_search, this->get_queue());
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
@@ -450,7 +450,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
     temp_ptr_t temp_objs,
     selc_t& select,
     const event_vector& deps) const {
-    ONEDAL_PROFILER_TASK(do_search_2, this->get_queue()); 
+    ONEDAL_PROFILER_TASK(do_search_2, this->get_queue());
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == base_t::selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
@@ -460,7 +460,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
     auto qnorms = temp_objs->get_query_norms().get_slice(0, query_block_size);
     sycl::event qevent;
     {
-        ONEDAL_PROFILER_TASK(compute_l2_norms, this->get_queue()); 
+        ONEDAL_PROFILER_TASK(compute_l2_norms, this->get_queue());
         qevent = compute_squared_l2_norms(this->get_queue(), query, qnorms, deps);
     }
     //Iterations over larger blocks
@@ -480,9 +480,14 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
                           .get_row_slice(0, query_block_size);
             sycl::event ip_event;
             {
-                ONEDAL_PROFILER_TASK(gemm, this->get_queue()); 
-                ip_event = 
-                gemm(this->get_queue(), query, train.t(), ip, Float(-2), Float(0), { last_event });
+                ONEDAL_PROFILER_TASK(gemm, this->get_queue());
+                ip_event = gemm(this->get_queue(),
+                                query,
+                                train.t(),
+                                ip,
+                                Float(-2),
+                                Float(0),
+                                { last_event });
             }
             const auto rel_idx = tb_id - start_tb;
             auto part_inds =
