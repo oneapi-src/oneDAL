@@ -454,13 +454,16 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == base_t::selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
+    {
+    ONEDAL_PROFILER_TASK(init_train_norm, this->get_queue());
     temp_objs->init_train_norms(this->get_queue(), this->train_data_, deps);
+    }
     sycl::event last_event = this->reset(temp_objs, deps);
     const auto query_block_size = query.get_dimension(0);
     auto qnorms = temp_objs->get_query_norms().get_slice(0, query_block_size);
     sycl::event qevent;
     {
-        ONEDAL_PROFILER_TASK(compute_l2_norms, this->get_queue());
+        ONEDAL_PROFILER_TASK(query_compute_l2_norms, this->get_queue());
         qevent = compute_squared_l2_norms(this->get_queue(), query, qnorms, deps);
     }
     //Iterations over larger blocks
@@ -494,7 +497,9 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
                 temp_objs->get_part_indices_block(rel_idx + 1).get_row_slice(0, query_block_size);
             auto part_dsts =
                 temp_objs->get_part_distances_block(rel_idx + 1).get_row_slice(0, query_block_size);
-            auto selt_event = select.select_sq_l2(this->get_queue(),
+            sycl::event selt_event;
+             {   ONEDAL_PROFILER_TASK(inner_selection, this->get_queue());
+                 selt_event = select.select_sq_l2(this->get_queue(),
                                                   qnorms,
                                                   tnorms,
                                                   ip,
@@ -502,23 +507,35 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
                                                   part_dsts,
                                                   part_inds,
                                                   { ip_event, qevent, tevent });
+             }
 
             const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
-            last_event = this->treat_indices(part_inds, st_idx, { selt_event });
+            sycl::event last_event;
+            {
+                ONEDAL_PROFILER_TASK(treat_indices, this->get_queue());
+                last_event = this->treat_indices(part_inds, st_idx, { selt_event });
+            }
         }
         dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
         const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
         auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
-        auto selt_event = select(this->get_queue(),
+        sycl::event selt_event;
+        {
+            ONEDAL_PROFILER_TASK(selt_event, this->get_queue());
+            selt_event = select(this->get_queue(),
                                  dists,
                                  k_neighbors,
                                  temp_objs->get_out_distances(),
                                  temp_objs->get_out_indices(),
                                  { last_event });
-        auto inds_event = this->select_indexed(temp_objs->get_part_indices(),
+        }
+        sycl::event inds_event;
+        {
+            ONEDAL_PROFILER_TASK(inds_event, this->get_queue());
+            inds_event = this->select_indexed(temp_objs->get_part_indices(),
                                                temp_objs->get_out_indices(),
                                                { selt_event });
-
+        }
         auto part_indcs = temp_objs->get_part_indices_block(0);
         last_event =
             copy(this->get_queue(), part_indcs, temp_objs->get_out_indices(), { inds_event });
