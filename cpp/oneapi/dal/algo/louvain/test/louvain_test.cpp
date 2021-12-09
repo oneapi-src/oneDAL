@@ -61,7 +61,7 @@ public:
     }
 };
 
-//Weights of the edges within the community are several times greater than that between the communities.
+//Edge weights within the community are several times greater than edge weights between the communities.
 //Graph also contains isolated vertices.
 class combined_graph_data : public graph_base_data {
 public:
@@ -390,7 +390,7 @@ LOUVAIN_TEST("K5 graph + K5 graph, edge weights are nonzero and equal") {
     }
 }
 
-//Fails - community_count and community_labels are correct, but modularity is NaN
+//Fails - community_count and labels are correct, but modularity is NaN
 // LOUVAIN_TEST("K5 graph + K5 graph, zero weights") {
 //     two_complete_graphs_data graph_data;
 //     std::vector<std::int32_t> expected_labels = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -580,7 +580,7 @@ LOUVAIN_TEST("Random generated graph with different initial partitions") {
                         expected_community_count);
 }
 
-//Fails - modularity is Nan, community_count and labels are incorrect
+//Fails - modularity is NaN, community_count and labels are incorrect
 // LOUVAIN_TEST("K_20, all weights = int32_max") {
 //     complete_graph_data graph_data(20);
 //     std::vector<std::int32_t> int_weights(2 * graph_data.edge_count);
@@ -591,7 +591,7 @@ LOUVAIN_TEST("Random generated graph with different initial partitions") {
 //     this->check_louvain(graph_data, int_weights, expected_labels, expected_community_count);
 // }
 
-//Fails - modularity is Nan, community_count and labels are incorrect
+//Fails - modularity is NaN, community_count and labels are incorrect
 // LOUVAIN_TEST("K_20, all weights = double_max") {
 //     complete_graph_data graph_data(20);
 //     std::vector<double> double_weights(2 * graph_data.edge_count);
