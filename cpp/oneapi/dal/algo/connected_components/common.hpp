@@ -31,7 +31,7 @@ using by_default = vertex_partitioning;
 } // namespace task
 
 namespace method {
-/// Tag-type that denotes Afforest computational method.    
+/// Tag-type that denotes Afforest computational method.
 struct afforest {};
 
 /// Alias tag-type for Afforest computational method.
