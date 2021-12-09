@@ -118,7 +118,7 @@ public:
 
 READ_GRAPH_BADARG_TEST("Empty input file") {
     std::string file_content = " ";
-    std::string filename = "empty_graph.csv";
+    std::string filename = "empty_file.csv";
     write_test_data(filename, file_content);
     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
                       invalid_argument);
@@ -204,7 +204,7 @@ READ_GRAPH_BADARG_TEST(
 // READ_GRAPH_BADARG_TEST(
 //     "File contains non-numeric characters on different lines, unweighted graph") {
 //     std::string file_content = "0 1,0 ?,graph 3,1 2,1 3,2 3";
-//     std::string filename = "non_num_unweighted.csv";
+//     std::string filename = "non_numeric_unweighted.csv";
 //     write_test_data(filename, file_content);
 //     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{filename}), invalid_argument);
 //     delete_test_data(filename);
@@ -213,7 +213,7 @@ READ_GRAPH_BADARG_TEST(
 //Fails - no exception
 // READ_GRAPH_BADARG_TEST("File contains non-numeric characters on different lines, weighted graph") {
 //     std::string file_content = "0 1 1,0 2 2,0 3 abc,# 2 4,1 3$ 5,2 3 6";
-//     std::string filename = "non_num_weighted.csv";
+//     std::string filename = "non_numeric_weighted.csv";
 //     write_test_data(filename, file_content);
 //     REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
 //                                           dal::preview::read_mode::weighted_edge_list), invalid_argument);
@@ -223,7 +223,7 @@ READ_GRAPH_BADARG_TEST(
 //Fails - no exception
 // READ_GRAPH_BADARG_TEST("File contains non-numeric characters on the same line, unweighted graph") {
 //     std::string file_content = "0 1,0 2,graph ?,1 2,1 3,2 3";
-//     std::string filename = "non_num_edge_unweighted.csv";
+//     std::string filename = "non_numeric_edge_unweighted.csv";
 //     write_test_data(filename, file_content);
 //     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{filename}), invalid_argument);
 //     delete_test_data(filename);
@@ -232,7 +232,7 @@ READ_GRAPH_BADARG_TEST(
 //Fails - no exception
 // READ_GRAPH_BADARG_TEST("File contains non-numeric characters on the same line, weighted graph") {
 //     std::string file_content = "0 1 1,0 2 2,0 3 3,# @ a,1 3 5,2 3 6";
-//     std::string filename = "non_num_edge_weighted.csv";
+//     std::string filename = "non_numeric_edge_weighted.csv";
 //     write_test_data(filename, file_content);
 //     REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
 //                                           dal::preview::read_mode::weighted_edge_list), invalid_argument);
@@ -241,7 +241,7 @@ READ_GRAPH_BADARG_TEST(
 
 //Fails - no exception
 // READ_GRAPH_BADARG_TEST("Last edge is incomplete, unweighted graph") {
-//     std::string file_content = "0 1,0 2,1 3,3 4,5 ";
+//     std::string file_content = "0 1,0 2,1 3,3 4,5";
 //     std::string filename = "incomplete_edge_unweighted.csv";
 //     write_test_data(filename, file_content);
 //     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{filename}), invalid_argument);
@@ -250,7 +250,7 @@ READ_GRAPH_BADARG_TEST(
 
 //Fails - no exception
 // READ_GRAPH_BADARG_TEST("Last edge is incomplete, weighted graph") {
-//     std::string file_content = "0 1 3,0 2 1,1 3 4,3 4 6,5 ";
+//     std::string file_content = "0 1 3,0 2 1,1 3 4,3 4 6,5";
 //     std::string filename = "incomplete_edge_weighted.csv";
 //     write_test_data(filename, file_content);
 //     REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{filename}, dal::preview::read_mode::weighted_edge_list), invalid_argument);
@@ -268,7 +268,7 @@ READ_GRAPH_BADARG_TEST(
 
 READ_GRAPH_BADARG_TEST("Vertex indices is not integer, unweighted") {
     std::string file_content = "0 1.1,0.2 2.2,0 3.3,1.4 2.4,1 3.5,2.6 3.6";
-    std::string filename = "not_int_ids.csv";
+    std::string filename = "not_int_ids_unweighted.csv";
     write_test_data(filename, file_content);
     REQUIRE_NOTHROW(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }));
     const auto graph = dal::read<unweighted_graph_t>(dal::csv::data_source{ filename });
@@ -278,7 +278,7 @@ READ_GRAPH_BADARG_TEST("Vertex indices is not integer, unweighted") {
 
 READ_GRAPH_BADARG_TEST("Vertex indices is not integer, weighted") {
     std::string file_content = "0 1.1 1,0.2 2.2 2,0 3.3 3,1.4 2.4 4,1 3.5 5,2.6 3.6 6";
-    std::string filename = "not_int_ids.csv";
+    std::string filename = "not_int_ids_weighted.csv";
     write_test_data(filename, file_content);
     REQUIRE_NOTHROW(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
                                                 dal::preview::read_mode::weighted_edge_list));
