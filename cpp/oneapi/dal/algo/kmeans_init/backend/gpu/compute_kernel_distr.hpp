@@ -28,12 +28,11 @@ struct compute_kernel_distr {
                                     const compute_input<Task>& input) const;
 };
 
-namespace detail {
+namespace misc {
     using ctx_t = dal::backend::context_gpu;
     using ids_arr_t = array<std::int64_t>;
 
-    ids_arr_t generate_random_indices(const ctx_t& ctx,
-                                      std::int64_t count,
+    ids_arr_t generate_random_indices(std::int64_t count,
                                       std::int64_t scount,
                                       std::int64_t seed = 777);
 
@@ -42,9 +41,8 @@ namespace detail {
                                             std::int64_t scount,
                                             std::int64_t rseed = 777);
 
-    //array<Float> select_rows_by_indices(const ctx_t& ctx,
-    //                                    const array<std::int64_t)
+    ids_arr_t get_rank_ids(const ctx_t& ctx);
 
-} // namespace detail
+} // namespace misc
 
 } // namespace oneapi::dal::kmeans_init::backend

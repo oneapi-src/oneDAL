@@ -70,24 +70,8 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
     static sycl::event compute_initial_centroids(sycl::queue& queue,
                                                  const pr::ndview<Float, 2>& data,
                                                  pr::ndview<Float, 2>& centroids) {
-        ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
-        ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
-        const auto row_count = data.get_dimension(0);
-        const auto cluster_count = centroids.get_dimension(0);
-        dal::detail::check_mul_overflow<std::int64_t>(
-            cluster_count, sizeof(std::int64_t));
-
-        auto indices = pr::ndarray<std::int64_t, 1>::empty(queue, cluster_count);
-        partial_fisher_yates_shuffle(indices, row_count);
-        auto indices_on_device = indices.to_device(queue);
-
-        auto gather_event = select_indexed_rows(queue,
-                                                indices_on_device,
-                                                data,
-                                                centroids);
-
-        gather_event.wait_and_throw();
-        return gather_event;
+        ONEDAL_ASSERT(false);
+        return sycl::event{};
     }
 };
 
