@@ -27,11 +27,7 @@ namespace oneapi::dal::preview::detail {
 
 // service to construct required csr for an algorithm
 template <typename Graph>
-struct csr_topology_builder {
-    const dal::preview::detail::topology<vertex_type<Graph>> &operator()(const Graph &graph) {
-        return topology<vertex_type<Graph>>{};
-    }
-};
+struct csr_topology_builder;
 
 template <typename VertexValue,
           typename EdgeValue,

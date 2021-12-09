@@ -24,6 +24,7 @@
 
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
+#include <CL/sycl/backend/opencl.hpp>
 
 #include "services/daal_string.h"
 #include "services/internal/hash_table.h"
@@ -72,8 +73,9 @@ public:
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
                 // OpenCl branch
-                auto programPtr =
-                    OpenClProgramRef::create(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), name, program, options, status);
+                auto programPtr = OpenClProgramRef::create(_deviceQueue.get_context().template get_native<cl::sycl::backend::opencl>(),
+                                                           _deviceQueue.get_device().template get_native<cl::sycl::backend::opencl>(), name, program,
+                                                           options, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
                 programHashTable.add(key, programPtr, status);
@@ -164,7 +166,7 @@ public:
             else
             {
                 // Level zero branch
-                auto kernelRef = OpenClKernelLevelZeroRef(kernelNameStr, status);
+                auto kernelRef = OpenClKernelLevelZeroRef(*_currentProgramRef, kernelNameStr, status);
                 DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
 
                 kernel = OpenClKernelLevelZero::create(_executionTarget, *_currentProgramRef, kernelRef, status);

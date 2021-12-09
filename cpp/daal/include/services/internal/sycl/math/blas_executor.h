@@ -112,9 +112,9 @@ private:
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
-            DAAL_ASSERT_UNIVERSAL_BUFFER(a_buffer, T, getAExpectedSize() + offsetA);
-            DAAL_ASSERT_UNIVERSAL_BUFFER(b_buffer, T, getBExpectedSize() + offsetB);
-            DAAL_ASSERT_UNIVERSAL_BUFFER(c_buffer, T, getCExpectedSize() + offsetC);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(a_buffer, T, getAExpectedSize());
+            DAAL_ASSERT_UNIVERSAL_BUFFER(b_buffer, T, getBExpectedSize());
+            DAAL_ASSERT_UNIVERSAL_BUFFER(c_buffer, T, getCExpectedSize());
 
             auto a_buffer_t = a_buffer.template get<T>();
             auto b_buffer_t = b_buffer.template get<T>();
@@ -191,7 +191,7 @@ private:
 
         size_t getAExpectedSize() const { return (trans == math::Transpose::NoTrans) ? lda * k : lda * n; }
 
-        size_t getCExpectedSize() const { return ldc * n; }
+        size_t getCExpectedSize() const { return (trans == math::Transpose::NoTrans) ? ldc * n : ldc * k; }
 
         template <typename T>
         void operator()(Typelist<T>, Status & status)

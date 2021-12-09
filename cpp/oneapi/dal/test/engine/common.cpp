@@ -104,12 +104,12 @@ bool device_test_policy::has_native_float64() const {
 #ifdef ONEDAL_DATA_PARALLEL
 class test_queue_provider_setup : public global_setup_action {
 public:
-    virtual void init(const global_config& config) override {
+    void init(const global_config& config) override {
         const auto queue = get_queue(config.device_selector);
         test_queue_provider::get_instance().init(queue);
     }
 
-    virtual void tear_down() override {
+    void tear_down() override {
         test_queue_provider::get_instance().reset();
     }
 
@@ -118,7 +118,7 @@ private:
         try {
             return sycl::queue{ sycl::gpu_selector{} };
         }
-        catch (const sycl::runtime_error& ex) {
+        catch (const std::exception& ex) {
             return sycl::queue{ sycl::cpu_selector{} };
         }
     }
@@ -146,7 +146,7 @@ private:
 #else
 class test_queue_provider_setup : public global_setup_action {
 public:
-    virtual void init(const global_config& config) override {
+    void init(const global_config& config) override {
         if (config.device_selector != "" && config.device_selector != "cpu") {
             throw std::invalid_argument{
                 "Test is build in HOST mode, so only CPU device is available"
@@ -154,7 +154,7 @@ public:
         }
     }
 
-    virtual void tear_down() override {}
+    void tear_down() override {}
 };
 #endif
 

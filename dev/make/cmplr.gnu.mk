@@ -42,5 +42,4 @@ mc_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)
 mc3_OPT.gnu  = $(-Q)march=corei7
 avx_OPT.gnu  = $(-Q)march=sandybridge
 avx2_OPT.gnu = $(-Q)march=haswell
-knl_OPT.gnu  = $(-Q)march=haswell
 skx_OPT.gnu  = $(-Q)march=haswell

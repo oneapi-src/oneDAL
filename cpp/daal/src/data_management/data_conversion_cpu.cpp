@@ -100,20 +100,6 @@ void vectorCopy<double, avx512>(const size_t nrows, const size_t ncols, void * d
 {
     vectorCopyInternal<double>(nrows, ncols, dst, ptrMin, arrOffsets);
 }
-
-/* Convert float to float from columnar to row major format using AVX512 architecture */
-template <>
-void vectorCopy<float, avx512_mic>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
-{
-    vectorCopyInternal<float>(nrows, ncols, dst, ptrMin, arrOffsets);
-}
-
-/* Convert double to double from columnar to row major format using AVX512 architecture */
-template <>
-void vectorCopy<double, avx512_mic>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
-{
-    vectorCopyInternal<double>(nrows, ncols, dst, ptrMin, arrOffsets);
-}
 #endif
 
 template <typename T1, typename T2, CpuType cpu>

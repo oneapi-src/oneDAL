@@ -53,5 +53,4 @@ mc_OPT.clang   = $(-Q)march=core2
 mc3_OPT.clang  = $(-Q)march=nehalem
 avx_OPT.clang  = $(-Q)march=sandybridge
 avx2_OPT.clang = $(-Q)march=haswell
-knl_OPT.clang  = $(-Q)march=knl
 skx_OPT.clang  = $(-Q)march=skx

@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/rbf_kernel/compute_types.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::rbf_kernel::detail {
 namespace v1 {
@@ -27,6 +28,14 @@ struct compute_ops_dispatcher {
     compute_result<Task> operator()(const Context&,
                                     const descriptor_base<Task>&,
                                     const compute_input<Task>&) const;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void operator()(const Context&,
+                    const descriptor_base<Task>&,
+                    const table& x,
+                    const table& y,
+                    homogen_table& res);
+#endif
 };
 
 template <typename Descriptor>
@@ -68,6 +77,17 @@ struct compute_ops {
         check_postconditions(desc, input, result);
         return result;
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename Context>
+    void operator()(const Context& ctx,
+                    const Descriptor& desc,
+                    const table& x,
+                    const table& y,
+                    homogen_table& res) {
+        compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, x, y, res);
+    }
+#endif
 };
 
 } // namespace v1

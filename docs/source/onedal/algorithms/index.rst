@@ -32,6 +32,7 @@ and regression algorithms, as well as association rules discovery.
    covariance/index.rst
    decomposition/index.rst
    ensembles/index.rst
+   graph/index.rst
    kernel-functions/index.rst
    nearest-neighbors/index.rst
    pairwise-distances/index.rst

@@ -84,9 +84,9 @@ public:
         SafeStatus safeStat;
         HostAppHelper host(pHostApp, 1000);
 
-        TlsMem<algorithmFPType, cpu> bufferTls(nRowsInBlock);
+        StaticTlsMem<algorithmFPType, cpu> bufferTls(nRowsInBlock);
 
-        daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
+        daal::static_threader_for(nDataBlocks, [&](size_t iBlock, size_t tid) {
             services::Status s;
             if (host.isCancelled(s, 1))
             {
@@ -95,7 +95,7 @@ public:
             }
             const size_t iStartRow      = iBlock * nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? nRowsTotal - iBlock * nRowsInBlock : nRowsInBlock;
-            algorithmFPType * buff      = bufferTls.local();
+            algorithmFPType * buff      = bufferTls.local(tid);
             DAAL_CHECK_MALLOC_THR(buff);
 
             DAAL_CHECK_STATUS_THR(applyBetaImpl(_data, betaBD.get(), buff, nRowsToProcess, nCols, iStartRow, true));

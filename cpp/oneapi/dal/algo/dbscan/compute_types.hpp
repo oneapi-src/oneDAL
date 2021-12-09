@@ -116,7 +116,7 @@ public:
     }
 
     /// An $m \\times 1$ table with the indices of core observations in
-    /// the input data. $m is a number of core observations
+    /// the input data. $m$ is a number of core observations
     const table& get_core_observation_indices() const;
 
     auto& set_core_observation_indices(const table& value) {
@@ -125,7 +125,7 @@ public:
     }
 
     /// An $m \\times p$ table with the core observations in
-    /// the input data. $m is a number of core observations
+    /// the input data. $m$ is a number of core observations
     const table& get_core_observations() const;
 
     auto& set_core_observations(const table& value) {

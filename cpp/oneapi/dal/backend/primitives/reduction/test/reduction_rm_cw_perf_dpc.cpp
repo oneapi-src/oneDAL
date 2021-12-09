@@ -43,15 +43,15 @@ public:
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate() {
-        width_ = GENERATE(16, 128, 1024);
-        stride_ = GENERATE(16, 128, 1024);
-        height_ = GENERATE(16, 128, 1024, 16384, 32768);
+        width_ = GENERATE(128, 512, 1024);
+        stride_ = GENERATE(128, 512, 1024);
+        height_ = GENERATE(1024, 16384, 65536);
         CAPTURE(width_, stride_, height_);
     }
 
     void generate_special() {
         width_ = GENERATE(28, 960, 2000, 3072);
-        height_ = GENERATE(1024, 4096);
+        height_ = GENERATE(4096, 16384);
         stride_ = height_;
         CAPTURE(width_, stride_, height_);
     }
@@ -76,7 +76,7 @@ public:
     auto input() {
         check_if_initialized();
         return ndarray<float_t, 2, rm_order>::zeros(this->get_queue(),
-                                                    { stride_, height_ },
+                                                    { height_, stride_ },
                                                     sycl::usm::alloc::device);
     }
 
@@ -176,6 +176,12 @@ public:
         test_raw_reduce<reduction_t>(name);
     }
 
+    void test_raw_cw_reduce_atomic() {
+        using reduction_t = reduction_rm_cw_atomic<float_t, binary_t, unary_t>;
+        const auto name = fmt::format("Atomic CW Reduction: {}", desc());
+        test_raw_reduce<reduction_t>(name);
+    }
+
     void test_raw_cw_reduce_wrapper() {
         using reduction_t = reduction_rm_cw<float_t, binary_t, unary_t>;
         const auto name = fmt::format("Wrapper CW Reduction: {}", desc());
@@ -197,6 +203,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_naive();
     this->test_raw_cw_reduce_naive_local();
+    this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 }
 
@@ -210,6 +217,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_naive();
     this->test_raw_cw_reduce_naive_local();
+    this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 }
 

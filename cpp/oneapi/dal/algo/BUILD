@@ -17,6 +17,7 @@ ALGOS = [
     "kmeans_init",
     "knn",
     "linear_kernel",
+    "linear_regression",
     "louvain",
     "minkowski_distance",
     "pca",

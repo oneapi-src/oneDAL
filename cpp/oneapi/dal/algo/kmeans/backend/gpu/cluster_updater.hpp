@@ -24,13 +24,17 @@ namespace oneapi::dal::kmeans::backend {
 
 namespace pr = dal::backend::primitives;
 namespace bk = dal::backend;
+namespace spmd = oneapi::dal::preview::spmd;
 
 template <typename Float>
 class cluster_updater {
 public:
     using kernels_fp_t = kernels_fp<Float>;
 
-    cluster_updater(const sycl::queue& q, const bk::communicator& comm) : queue_(q), comm_(comm) {}
+    cluster_updater(const sycl::queue& q,
+                    const bk::communicator<spmd::device_memory_access::usm>& comm)
+            : queue_(q),
+              comm_(comm) {}
 
     auto& set_cluster_count(std::int64_t cluster_count) {
         ONEDAL_ASSERT(cluster_count > 0);
@@ -109,6 +113,7 @@ public:
 
         auto count_event =
             count_clusters(queue_, responses, cluster_count_, counters_, { assign_event });
+
         auto count_reduce_event = comm_.allreduce(counters_.flatten(queue_, { count_event }));
 
         auto objective_function_event = kernels_fp_t::compute_objective_function( //
@@ -129,6 +134,7 @@ public:
 
         objective_function_event.wait_and_throw();
         Float objective_function_value = objective_function.to_host(queue_).get_data()[0];
+
         auto objective_reduce_event = comm_.allreduce(objective_function_value);
 
         // Counters are needed in the `merge_reduce_centroids` function,
@@ -174,7 +180,7 @@ public:
 
 private:
     sycl::queue queue_;
-    bk::communicator comm_;
+    bk::communicator<spmd::device_memory_access::usm> comm_;
 
     std::int64_t row_count_ = 0;
     std::int64_t column_count_ = 0;

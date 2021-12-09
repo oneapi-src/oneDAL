@@ -59,8 +59,8 @@ public final class CpuType{
     public static final CpuType sse42         = new CpuType(_sse42        );  /*!< Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) */
     public static final CpuType avx           = new CpuType(_avx          );  /*!< Intel(R) Advanced Vector Extensions (Intel(R) AVX) */
     public static final CpuType avx2          = new CpuType(_avx2         );  /*!< Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2) */
-    public static final CpuType avx512_mic    = new CpuType(_avx512_mic   );  /*!< Intel(R) Xeon Phi(TM) processors/coprocessors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
+    public static final CpuType avx512_mic    = new CpuType(_avx2   );  /*!< Intel(R) Xeon Phi(TM) processors/coprocessors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
     public static final CpuType avx512        = new CpuType(_avx512       );  /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
-    public static final CpuType avx512_mic_e1 = new CpuType(_avx512_mic_e1);  /*!< Intel(R) Xeon Phi(TM) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups. Should be used as parameter for setCpuId function only. Can`t be received as return value of setCpuId, setCpuId and enableInstructionsSet functions. */
+    public static final CpuType avx512_mic_e1 = new CpuType(_avx2);  /*!< Intel(R) Xeon Phi(TM) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups. Should be used as parameter for setCpuId function only. Can`t be received as return value of setCpuId, setCpuId and enableInstructionsSet functions. */
 }
 /** @} */

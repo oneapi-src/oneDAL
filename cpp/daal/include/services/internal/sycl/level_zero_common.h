@@ -31,4 +31,8 @@ typedef ze_result_t (*zeModuleCreateFT)(ze_context_handle_t, ze_device_handle_t,
 
 typedef ze_result_t (*zeModuleDestroyFT)(ze_module_handle_t hModule);
 
+typedef ze_result_t (*zeKernelCreateFT)(ze_module_handle_t hModule, const ze_kernel_desc_t * desc, ze_kernel_handle_t * phKernel);
+
+typedef ze_result_t (*zeKernelDestroyFT)(ze_kernel_handle_t hKernel);
+
 #endif

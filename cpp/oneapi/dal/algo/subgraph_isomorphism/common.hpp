@@ -22,16 +22,30 @@
 namespace oneapi::dal::preview::subgraph_isomorphism {
 
 namespace task {
+/// Tag-type that parameterizes entities that are used for Subgraph Isomorphism algorithm.
 struct compute {};
+
+/// Alias tag-type for dense computational method.
 using by_default = compute;
 } // namespace task
 
 namespace method {
+/// Tag-type that denotes fast computational method.
 struct fast {};
+
+/// Alias tag-type for fast computational method.
 using by_default = fast;
 } // namespace method
 
-enum class kind { induced, non_induced };
+/// The kinds of subgraphs to search for in a target graph.
+enum class kind {
+    /// Search for an induced subgraph isomorphic to the pattern graph. All existing and non-existing edges
+    /// in a subgraph are considered.
+    induced,
+    /// Search for a non-induced subgraph isomorphic to the pattern graph. Only existing edges
+    /// in a subgraph are considered.
+    non_induced
+};
 
 namespace detail {
 struct descriptor_tag {};
@@ -80,8 +94,15 @@ protected:
 
 /// Class for the Subgraph Isomorphism algorithm descriptor
 ///
-/// @tparam Float The data type of the result
-/// @tparam Method The algorithm method
+/// @tparam Float      The floating-point type that the algorithm uses for
+///                    intermediate computations. Can be :expr:`float` or
+///                    :expr:`double`. This parameter is not used for Subgraph Isomorphism algortihm.
+/// @tparam Method     Tag-type that specifies the implementation of the algorithm. Can
+///                    be :expr:`method::fast`.
+/// @tparam Task       Tag-type that specifies the type of the problem to solve. Can
+///                    be :expr:`task::compute`.
+/// @tparam Allocator  Custom allocator for all memory management inside the algorithm.
+///
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -102,45 +123,39 @@ public:
         alloc_ = allocator;
     }
 
-    /// Returns kind of subgraph isomorphism
+    /// The kind of subgraph to be isomorphic to the pattern graph. Can be :expr:`kind::induced`
+    /// or :expr:`kind::non_induced`.
     kind get_kind() const {
         return base_t::get_kind();
     }
 
-    /// Sets the type of searched subgraph in Subgraph Isomorphism computation
-    ///
-    /// @param [in] value  The begin of the row of the graph block
     auto& set_kind(kind value) {
         base_t::set_kind(value);
         return *this;
     }
 
-    /// Returns the flag if semantic search is requred in Subgraph Isomorphism computation
+    /// The flag that specifies if semantic search is required in Subgraph Isomorphism computation.
+    /// If true, vertex labels are considered.
     bool get_semantic_match() const {
         return base_t::get_semantic_match();
     }
 
-    /// Returns the flag if semantic search is requred in Subgraph Isomorphism computation
-    ///
-    /// @param [in] semantic_match The flag if semantic search is requred
     auto& set_semantic_match(bool semantic_match) {
         base_t::set_semantic_match(semantic_match);
         return *this;
     }
 
-    /// Sets the maximum number of matchings to search in Subgraph Isomorphism computation
+    /// The maximum number of matchings to search in Subgraph Isomorphism computation.
     std::int64_t get_max_match_count() const {
         return base_t::get_max_match_count();
     }
 
-    /// Sets the maximum number of matchings to search in Subgraph Isomorphism computation
-    ///
-    /// @param [in] max_match_count  The maximum number of matchings
     auto& set_max_match_count(std::int64_t max_match_count) {
         base_t::set_max_match_count(max_match_count);
         return *this;
     }
 
+    /// Returns a copy of the allocator used in the algorithm for internal memory management.
     Allocator get_allocator() const {
         return alloc_;
     }

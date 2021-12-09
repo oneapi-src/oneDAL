@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 

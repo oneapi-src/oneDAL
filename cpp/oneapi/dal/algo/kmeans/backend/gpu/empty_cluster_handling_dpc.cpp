@@ -16,6 +16,9 @@
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/empty_cluster_handling.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
+
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -26,6 +29,7 @@ static auto fill_candidate_indices_and_distances(sycl::queue& queue,
                                                  pr::ndview<std::int32_t, 1>& candidate_indices,
                                                  pr::ndview<Float, 1>& candidate_distances,
                                                  const bk::event_vector& deps = {}) -> sycl::event {
+    ONEDAL_PROFILER_TASK(fill_candidates, queue);
     ONEDAL_ASSERT(candidate_count > 0);
     ONEDAL_ASSERT(closest_distances.get_dimension(0) >= candidate_count);
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
@@ -74,6 +78,7 @@ static auto fill_empty_cluster_indices(sycl::queue& queue,
                                        const pr::ndarray<std::int32_t, 1>& counters,
                                        pr::ndarray<std::int32_t, 1>& empty_cluster_indices,
                                        const bk::event_vector& deps = {}) -> sycl::event {
+    ONEDAL_PROFILER_TASK(fill_indices, queue);
     const std::int64_t cluster_count = counters.get_dimension(0);
 
     ONEDAL_ASSERT(cluster_count > 0);
@@ -113,6 +118,7 @@ static auto copy_candidates_from_data(sycl::queue& queue,
                                       const centroid_candidates<Float>& candidates,
                                       pr::ndview<Float, 2>& centroids,
                                       const bk::event_vector& deps) -> sycl::event {
+    ONEDAL_PROFILER_TASK(copy_candidates, queue);
     ONEDAL_ASSERT(data.get_dimension(0) >= candidates.get_candidate_count());
     ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
     ONEDAL_ASSERT(centroids.get_dimension(0) >= candidates.get_candidate_count());
@@ -148,6 +154,7 @@ static auto gather_candidates(sycl::queue& queue,
                               const centroid_candidates<Float>& candidates,
                               pr::ndview<Float, 2>& gathered_candidates,
                               const bk::event_vector& deps) -> sycl::event {
+    ONEDAL_PROFILER_TASK(gather_candidates, queue);
     ONEDAL_ASSERT(gathered_candidates.get_dimension(0) == candidates.get_candidate_count());
     ONEDAL_ASSERT(gathered_candidates.get_dimension(1) == data.get_dimension(1));
 
@@ -179,6 +186,7 @@ static auto scatter_candidates(sycl::queue& queue,
                                const pr::ndview<Float, 2>& candidates,
                                pr::ndview<Float, 2>& centroids,
                                const bk::event_vector& deps) -> sycl::event {
+    ONEDAL_PROFILER_TASK(scatter_candidates, queue);
     ONEDAL_ASSERT(empty_cluster_indices.get_dimension(0) == candidates.get_dimension(0));
     ONEDAL_ASSERT(candidates.get_dimension(1) == centroids.get_dimension(1));
 
@@ -206,11 +214,12 @@ static auto scatter_candidates(sycl::queue& queue,
 
 template <typename Float>
 static auto reduce_candidates(sycl::queue& queue,
-                              const bk::communicator& comm,
+                              const bk::communicator<spmd::device_memory_access::usm>& comm,
                               std::int64_t candidate_count,
                               pr::ndarray<Float, 1>& distances,
                               pr::ndarray<Float, 2>& candidates,
                               const bk::event_vector& deps = {}) -> sycl::event {
+    ONEDAL_PROFILER_TASK(reduce_candidates, queue);
     const std::int64_t column_count = candidates.get_dimension(1);
 
     ONEDAL_ASSERT(candidate_count > 0);
@@ -226,6 +235,7 @@ static auto reduce_candidates(sycl::queue& queue,
     auto host_all_candidates = pr::ndarray<Float, 3>::empty({ comm.get_rank_count(), //
                                                               candidate_count,
                                                               column_count });
+
     auto candidates_reduce_event = comm.allgather(host_candidates.flatten(), //
                                                   host_all_candidates.flatten());
 
@@ -302,11 +312,12 @@ static auto reduce_candidates(sycl::queue& queue,
 
 template <typename Float>
 static auto gather_scatter_candidates(sycl::queue& queue,
-                                      bk::communicator& comm,
+                                      bk::communicator<spmd::device_memory_access::usm>& comm,
                                       const pr::ndview<Float, 2>& data,
                                       const centroid_candidates<Float>& candidates,
                                       pr::ndview<Float, 2>& centroids,
                                       const bk::event_vector& deps) -> sycl::event {
+    ONEDAL_PROFILER_TASK(gather_scatter_candidates, queue);
     const std::int64_t column_count = data.get_dimension(1);
     const std::int64_t candidate_count = candidates.get_candidate_count();
 
@@ -344,6 +355,7 @@ auto find_candidates(sycl::queue& queue,
                      const pr::ndarray<std::int32_t, 1>& counters,
                      const bk::event_vector& deps)
     -> std::tuple<centroid_candidates<Float>, sycl::event> {
+    ONEDAL_PROFILER_TASK(find_candidates, queue);
     ONEDAL_ASSERT(closest_distances.get_dimension(0) >= candidate_count);
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
     ONEDAL_ASSERT(counters.get_dimension(0) >= candidate_count);
@@ -378,7 +390,7 @@ auto find_candidates(sycl::queue& queue,
 
 template <typename Float>
 auto fill_empty_clusters(sycl::queue& queue,
-                         bk::communicator& comm,
+                         bk::communicator<spmd::device_memory_access::usm>& comm,
                          const pr::ndview<Float, 2>& data,
                          const centroid_candidates<Float>& candidates,
                          pr::ndview<Float, 2>& centroids,
@@ -391,20 +403,20 @@ auto fill_empty_clusters(sycl::queue& queue,
     }
 }
 
-#define INSTANTIATE(Float)                                                          \
-    template auto find_candidates(sycl::queue& queue,                               \
-                                  std::int64_t candidate_count,                     \
-                                  const pr::ndarray<Float, 2>& closest_distances,   \
-                                  const pr::ndarray<std::int32_t, 1>& counters,     \
-                                  const bk::event_vector& deps)                     \
-        ->std::tuple<centroid_candidates<Float>, sycl::event>;                      \
-                                                                                    \
-    template auto fill_empty_clusters(sycl::queue& queue,                           \
-                                      bk::communicator& comm,                       \
-                                      const pr::ndview<Float, 2>& data,             \
-                                      const centroid_candidates<Float>& candidates, \
-                                      pr::ndview<Float, 2>& centroids,              \
-                                      const bk::event_vector& deps)                 \
+#define INSTANTIATE(Float)                                                                     \
+    template auto find_candidates(sycl::queue& queue,                                          \
+                                  std::int64_t candidate_count,                                \
+                                  const pr::ndarray<Float, 2>& closest_distances,              \
+                                  const pr::ndarray<std::int32_t, 1>& counters,                \
+                                  const bk::event_vector& deps)                                \
+        ->std::tuple<centroid_candidates<Float>, sycl::event>;                                 \
+                                                                                               \
+    template auto fill_empty_clusters(sycl::queue& queue,                                      \
+                                      bk::communicator<spmd::device_memory_access::usm>& comm, \
+                                      const pr::ndview<Float, 2>& data,                        \
+                                      const centroid_candidates<Float>& candidates,            \
+                                      pr::ndview<Float, 2>& centroids,                         \
+                                      const bk::event_vector& deps)                            \
         ->sycl::event;
 
 INSTANTIATE(float)
