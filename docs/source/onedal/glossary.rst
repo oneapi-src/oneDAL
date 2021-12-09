@@ -277,6 +277,10 @@ Graph analytics terms
         The index :math:`i` of a vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
         of :capterm:`graph` :math:`G`. Can be an integer value. 
 
+    Walk
+        An alternating sequence of vertices and edges such that for each edge, 
+        one endpoint precedes and the other succeeds that edge in the sequence [Gross2014]_.
+
     Weight
         A numerical value assigned to vertex, edge or graph.
 

@@ -23,12 +23,18 @@
 namespace oneapi::dal::preview::connected_components {
 
 namespace task {
+/// Tag-type that parameterizes entities that are used for Connected Components algorithm.
 struct vertex_partitioning {};
+
+/// Alias tag-type for the vertex partitioning task.
 using by_default = vertex_partitioning;
 } // namespace task
 
 namespace method {
+/// Tag-type that denotes Afforest computational method.    
 struct afforest {};
+
+/// Alias tag-type for Afforest computational method.
 using by_default = afforest;
 } // namespace method
 
@@ -68,10 +74,14 @@ protected:
 
 /// Class for the Connected Components algorithm descriptor
 ///
-/// @tparam Float The data type of the result
-/// @tparam Method The algorithm method
-/// @tparam Task   The task to solve by the algorithm
-/// @tparam Allocator   Custom allocator for all memory management inside the algorithm
+/// @tparam Float       The floating-point type that the algorithm uses for
+///                     intermediate computations. Can be :expr:`float` or
+///                     :expr:`double`. This parameter is not used for Connected Components algortihm.
+/// @tparam Method      Tag-type that specifies the implementation of the algorithm. Can
+///                     be :expr:`method::afforest`.
+/// @tparam Task        Tag-type that specifies the type of the problem to solve. Can
+///                     be :expr:`task::vertex_partitioning`.
+/// @tparam Allocator   Custom allocator for all memory management inside the algorithm.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -92,6 +102,7 @@ public:
         alloc_ = allocator;
     }
 
+    /// Returns a copy of the allocator used in the algorithm for internal memory management.
     Allocator get_allocator() const {
         return alloc_;
     }
