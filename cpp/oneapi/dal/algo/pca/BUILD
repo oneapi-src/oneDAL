@@ -27,9 +27,6 @@ dal_test_suite(
     srcs = glob([
         "backend/cpu/test/*.cpp",
     ]),
-    hdrs = glob([
-        "test/*.hpp",
-    ]),
     compile_as = ["c++"],
     dal_deps = [
         ":pca",
@@ -42,9 +39,6 @@ dal_test_suite(
     srcs = glob([
         "backend/gpu/test/*.cpp",
     ]),
-    hdrs = glob([
-        "test/*.hpp",
-    ]),
     compile_as = ["dpc++"],
     dal_deps = [
         ":pca",
@@ -56,9 +50,6 @@ dal_test_suite(
     name = "backend_tests",
     srcs = glob([
         "backend/test/*.cpp",
-    ]),
-    hdrs = glob([
-        "test/*.hpp",
     ]),
     dal_deps = [
         ":pca",

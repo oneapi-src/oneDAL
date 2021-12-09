@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/train_kernel_cov_impl.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -49,23 +50,27 @@ auto compute_sums(sycl::queue& q,
 
 template <typename Float>
 auto compute_correlation(sycl::queue& q,
-                         const pr::ndview<Float, 2>& data,
-                         const pr::ndview<Float, 1>& sums,
+                         std::int64_t row_count,
+                         const pr::ndview<Float, 2>& xtx,
+                         const pr::ndarray<Float, 1>& sums,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_correlation, q);
-    ONEDAL_ASSERT(data.get_dimension(1) == sums.get_dimension(0));
+    ONEDAL_ASSERT(sums.has_data());
 
-    const std::int64_t column_count = data.get_dimension(1);
+    const std::int64_t column_count = xtx.get_dimension(1);
+
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+
     auto corr =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
-    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
-    auto corr_event = pr::correlation(q, data, sums, means, corr, vars, tmp, { gemm_event });
+
+    auto copy_event = copy(q, corr, xtx, { deps });
+
+    auto corr_event =
+        pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { copy_event });
 
     auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
-    return std::make_tuple(corr, means, vars, smart_event);
+    return std::make_tuple(corr, smart_event);
 }
 
 template <typename Float>
@@ -88,36 +93,7 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 
 template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    auto& q = ctx.get_queue();
-    const auto data = input.get_data();
-
-    const std::int64_t row_count = data.get_row_count();
-    const std::int64_t column_count = data.get_column_count();
-    const std::int64_t component_count = get_component_count(desc, data);
-    dal::detail::check_mul_overflow(row_count, column_count);
-    dal::detail::check_mul_overflow(column_count, column_count);
-    dal::detail::check_mul_overflow(component_count, column_count);
-
-    const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
-
-    auto [sums, sums_event] = compute_sums(q, data_nd);
-    auto [corr, means, vars, corr_event] = compute_correlation(q, data_nd, sums, { sums_event });
-
-    auto [eigvecs, eigvals] =
-        compute_eigenvectors_on_host(q, std::move(corr), component_count, { corr_event });
-
-    if (desc.get_deterministic()) {
-        sign_flip(eigvecs);
-    }
-
-    const auto model = model_t{}.set_eigenvectors(
-        homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
-
-    return result_t{}
-        .set_model(model)
-        .set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count))
-        .set_means(homogen_table::wrap(means.flatten(q), 1, column_count))
-        .set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
+    return train_kernel_cov_impl<Float>(ctx)(desc, input);
 }
 
 template <typename Float>

@@ -1,0 +1,669 @@
+/*******************************************************************************
+* Copyright 2021 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+#include "oneapi/dal/algo/pca/backend/gpu/train_kernel_cov_impl.hpp"
+#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/backend/memory.hpp"
+#include "oneapi/dal/backend/primitives/lapack.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/stat.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/algo/pca/backend/common.hpp"
+#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/backend/primitives/lapack.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/stat.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+namespace oneapi::dal::pca::backend {
+
+#define ASSERT_IF(enable_condition, condition)                   \
+    do {                                                         \
+        if constexpr (check_mask_flag(enable_condition, List)) { \
+            ONEDAL_ASSERT(condition);                            \
+        }                                                        \
+    } while (0)
+
+#define DECLSET_IF(type, var, cond, value)       \
+    type var = nullptr;                          \
+    if constexpr (check_mask_flag(cond, List)) { \
+        var = value;                             \
+    }
+
+#define SET_IF(var, cond, value)                 \
+    if constexpr (check_mask_flag(cond, List)) { \
+        var = value;                             \
+    }
+
+namespace de = dal::detail;
+namespace bk = dal::backend;
+namespace pr = dal::backend::primitives;
+
+using alloc = sycl::usm::alloc;
+
+template <typename Data>
+using local_accessor_rw_t =
+    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+
+using comm_t = bk::communicator<spmd::device_memory_access::usm>;
+using dal::backend::context_gpu;
+using method_t = method::cov;
+using model_t = model<task::dim_reduction>;
+using task_t = task::dim_reduction;
+using input_t = train_input<task_t>;
+using result_t = train_result<task_t>;
+using descriptor_t = detail::descriptor_base<task_t>;
+
+template <typename Float>
+std::int64_t train_kernel_cov_impl<Float>::get_row_block_count(std::int64_t row_count) {
+    ONEDAL_ASSERT(row_count > 0);
+    // TODO optimize the approach for row_block_count calculating
+
+    std::int64_t row_block_count = 128;
+    if (row_count < 5000)
+        row_block_count = 1;
+    else if (row_count < 10000)
+        row_block_count = 8;
+    else if (row_count < 20000)
+        row_block_count = 16;
+    else if (row_count < 50000)
+        row_block_count = 32;
+    else if (row_count < 100000)
+        row_block_count = 64;
+
+    return row_block_count;
+}
+
+template <typename Float>
+std::int64_t train_kernel_cov_impl<Float>::get_column_block_count(std::int64_t column_count) {
+    ONEDAL_ASSERT(column_count > 0);
+
+    std::int64_t max_work_group_size = dal::backend::device_max_wg_size(q_);
+    return (column_count + max_work_group_size - 1) / max_work_group_size;
+}
+
+template <typename Float>
+auto compute_correlation(sycl::queue& q,
+                         std::int64_t row_count,
+                         const pr::ndview<Float, 2>& xtx,
+                         const pr::ndarray<Float, 1>& sums,
+                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_correlation, q);
+    ONEDAL_ASSERT(sums.has_data());
+
+    const std::int64_t column_count = xtx.get_dimension(1);
+
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+
+    auto corr =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+
+    auto copy_event = copy(q, corr, xtx, { deps });
+
+    auto corr_event =
+        pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { copy_event });
+
+    auto smart_event = dal::backend::smart_event{ corr_event }.attach(tmp);
+    return std::make_tuple(corr, smart_event);
+}
+
+/* single pass kernel for device execution */
+template <typename Float, bool DefferedFin>
+inline void single_pass_block_processor(const Float* data_ptr,
+                                        Float* rsum_ptr,
+                                        std::int64_t row_count,
+                                        std::int64_t column_count,
+                                        std::int64_t col_block_idx,
+                                        std::int64_t column_block_count,
+                                        std::int64_t tid,
+                                        std::int64_t tnum) {
+    const std::int64_t col_offset = col_block_idx * tnum;
+    const std::int64_t x = tid + col_offset;
+
+    if (x < column_count) {
+        std::int64_t row_block_size = row_count;
+
+        Float sum = Float(0);
+
+        for (std::int64_t row = 0; row < row_block_size; ++row) {
+            const std::int64_t y = row * column_count;
+            const Float el = data_ptr[y + x];
+
+            sum += el;
+        }
+
+        rsum_ptr[x] = sum;
+    }
+}
+
+/* block processing kernel for device execution */
+template <typename Float>
+inline void block_processor(const Float* data_ptr,
+                            std::int64_t* brc_ptr,
+                            Float* bsum_ptr,
+                            std::int64_t row_count,
+                            std::int64_t row_block_idx,
+                            std::int64_t row_block_count,
+                            std::int64_t column_count,
+                            std::int64_t column_block_idx,
+                            std::int64_t column_block_count,
+                            std::int64_t tid,
+                            std::int64_t tnum) {
+    const std::int64_t col_offset = column_block_idx * tnum;
+    const std::int64_t x = tid + col_offset;
+
+    if (x < column_count) {
+        std::int64_t row_block_size = (row_count + row_block_count - 1) / row_block_count;
+        const std::int64_t row_offset = row_block_size * row_block_idx;
+
+        if (row_block_size + row_offset > row_count) {
+            row_block_size = row_count - row_offset;
+        }
+
+        Float sum = Float(0);
+
+        for (std::int64_t row = 0; row < row_block_size; ++row) {
+            const std::int64_t y = (row + row_offset) * column_count;
+            const Float el = data_ptr[y + x];
+            sum += el;
+        }
+
+        bsum_ptr[x * row_block_count + row_block_idx] = sum;
+    }
+}
+
+/* block processing kernel for device execution */
+template <typename Float, bool DefferedFin>
+inline void merge_blocks_kernel(sycl::nd_item<1> item,
+                                const std::int64_t* brc_ptr,
+                                const Float* bsum_ptr,
+                                std::int64_t* lrc_ptr,
+                                Float* lsum_ptr,
+                                Float* rsum_ptr,
+                                std::int64_t id,
+                                std::int64_t group_id,
+                                std::int64_t local_size,
+                                std::int64_t block_count) {
+    Float mrgsum = Float(0);
+
+    lrc_ptr[id] = 0;
+
+    for (std::int64_t i = id; i < block_count; i += local_size) {
+        std::int64_t offset = group_id * block_count + i;
+
+        Float sum = Float(0);
+        sum = bsum_ptr[offset];
+
+        std::int64_t rcnt = 1;
+        rcnt = brc_ptr[offset];
+
+        mrgsum += sum;
+
+        lrc_ptr[id] += rcnt;
+
+        lsum_ptr[id] = mrgsum;
+    }
+
+    for (std::int64_t stride = sycl::min(local_size, block_count) / 2; stride > 0; stride /= 2) {
+        item.barrier(sycl::access::fence_space::local_space);
+
+        if (stride > id) {
+            std::int64_t offset = id + stride;
+
+            Float sum = Float(0);
+            sum = lsum_ptr[offset];
+
+            std::int64_t rcnt = 1;
+            rcnt = lrc_ptr[offset];
+
+            mrgsum += sum;
+
+            // item 0 collects all results in private vars
+            // but all others need to store it
+            if (0 < id) {
+                lsum_ptr[id] = mrgsum;
+
+                lrc_ptr[id] += rcnt;
+            }
+        }
+    }
+
+    if (0 == id) {
+        rsum_ptr[group_id] = mrgsum;
+    }
+}
+
+template <typename Float>
+std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge_blocks(
+    local_buffer_list<Float>&& ndbuf,
+    std::int64_t column_count,
+    std::int64_t block_count,
+    const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(merge_blocks, q_);
+
+    ONEDAL_ASSERT(column_count > 0);
+    ONEDAL_ASSERT(block_count > 0);
+
+    const bool distr_mode = comm_.get_rank_count() > 1;
+    auto ndres = local_result<Float>::empty(q_, column_count);
+
+    // ndres asserts
+    // if (distr_mode) {
+    //     ASSERT_IF(cov_list::mean | cov_list::cor | cov_list::cov,
+    //               ndres.get_sum().get_count() == column_count);
+    // }
+    // else {
+    //     ASSERT_IF(cov_list::mean, ndres.get_sum().get_count() == column_count);
+    // }
+
+    // ASSERT_IF(cov_list::mean, ndres.get_mean().get_count() == column_count);
+    // ASSERT_IF(cov_list::cov | cov_list::cor, ndres.get_varc().get_count() == column_count);
+
+    // // ndbuf asserts
+    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+    //           ndbuf.get_rc_list().get_count() == block_count * column_count);
+    // ASSERT_IF(cov_list::mean, ndbuf.get_sum().get_count() == block_count * column_count);
+
+    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+    //           ndbuf.get_sum2cent().get_count() == block_count * column_count);
+
+    const std::int64_t* brc_ptr = ndbuf.get_rc_list().get_data();
+    const Float* bsum_ptr = ndbuf.get_sum().get_data();
+
+    Float* rsum_ptr = ndres.get_sum().get_mutable_data();
+
+    std::int64_t local_size = bk::device_max_sg_size(q_);
+    auto global_size = de::check_mul_overflow(column_count, local_size);
+
+    constexpr bool deffered_fin_true = true;
+    constexpr bool deffered_fin_false = false;
+
+    const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(global_size, local_size);
+
+    std::int64_t local_buffer_size = local_size;
+    auto last_event = q_.submit([&](cl::sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        local_accessor_rw_t<std::int64_t> lrc_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lsum_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lsum2cent_buf(local_buffer_size, cgh);
+        local_accessor_rw_t<Float> lmean_buf(local_buffer_size, cgh);
+
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
+            const std::int64_t local_size = item.get_local_range()[0];
+            const std::int64_t id = item.get_local_id()[0];
+            const std::int64_t group_id = item.get_group().get_id(0);
+
+            std::int64_t* lrc_ptr = lrc_buf.get_pointer().get();
+            Float* lsum_ptr = lsum_buf.get_pointer().get();
+
+            if (distr_mode) {
+                merge_blocks_kernel<Float, deffered_fin_true>(item,
+                                                              brc_ptr,
+                                                              bsum_ptr,
+                                                              lrc_ptr,
+                                                              lsum_ptr,
+                                                              rsum_ptr,
+                                                              id,
+                                                              group_id,
+                                                              local_size,
+                                                              block_count);
+            }
+            else {
+                merge_blocks_kernel<Float, deffered_fin_false>(item,
+                                                               brc_ptr,
+                                                               bsum_ptr,
+                                                               lrc_ptr,
+                                                               lsum_ptr,
+                                                               rsum_ptr,
+                                                               id,
+                                                               group_id,
+                                                               local_size,
+                                                               block_count);
+            }
+        });
+    });
+
+    last_event.wait_and_throw();
+    return std::make_tuple(std::move(ndres), std::move(last_event));
+}
+
+/* merge distributed blocks kernel */
+template <typename Float>
+std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge_distr_blocks(
+    const pr::ndarray<std::int64_t, 1>& com_row_count,
+    const pr::ndarray<Float, 1>& com_sum,
+    local_result<Float>&& ndres,
+    std::int64_t block_count,
+    std::int64_t column_count,
+    std::int64_t block_stride, // distance between first elemments of blocks',
+    // it can be > column_count for example in case if alignment is ussed
+    const bk::event_vector& deps) {
+    ONEDAL_ASSERT(block_count > 0);
+    ONEDAL_ASSERT(column_count > 0);
+    ONEDAL_ASSERT(block_stride > 0);
+
+    // ndres asserts
+    // ASSERT_IF(cov_list::mean | cov_list::cov, ndres.get_sum().get_count() == column_count);
+    // ASSERT_IF(cov_list::cov | cov_list::cor | cov_list::mean,
+    //           ndres.get_sum2cent().get_count() == column_count);
+    // ASSERT_IF(cov_list::mean, ndres.get_mean().get_count() == column_count);
+    // ASSERT_IF(cov_list::cov | cov_list::cor, ndres.get_varc().get_count() == column_count);
+
+    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+    //           com_row_count.get_count() == comm_.get_rank_count());
+    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+    //           com_sum.get_count() == comm_.get_rank_count() * column_count);
+    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+    //           com_sum2cent.get_count() == comm_.get_rank_count() * column_count);
+
+    Float* rsum_ptr = ndres.get_sum().get_mutable_data();
+
+    const Float* bsum_ptr = com_sum.get_data();
+
+    sycl::range<1> range{ de::integral_cast<size_t>(column_count) };
+
+    auto last_event = q_.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::id<1> id) {
+            Float mrgsum = Float(0);
+
+            for (std::int64_t i = 0; i < block_count; ++i) {
+                std::int64_t offset = id + i * block_stride;
+
+                Float sum = Float(0);
+                sum = bsum_ptr[offset];
+
+                mrgsum += sum;
+            }
+            rsum_ptr[id] = mrgsum;
+        });
+    });
+
+    // there is an issue in opencl backend with keeping memory dependencies in events.
+    last_event.wait_and_throw();
+
+    return std::make_tuple(std::forward<local_result_t>(ndres), last_event);
+}
+
+template <typename Float>
+std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::compute_single_pass(
+    const pr::ndarray<Float, 2> data) {
+    ONEDAL_PROFILER_TASK(process_single_block, q_);
+
+    ONEDAL_ASSERT(data.has_data());
+
+    constexpr bool deffered_fin_true = true;
+    constexpr bool deffered_fin_false = false;
+
+    std::int64_t row_count = data.get_dimension(0);
+    std::int64_t column_count = data.get_dimension(1);
+
+    const bool distr_mode = comm_.get_rank_count() > 1;
+
+    auto ndres = local_result<Float>::empty(q_, column_count);
+
+    // ASSERT_IF(cov_list::mean | cov_list::cor, ndres.get_sum().get_count() == column_count);
+
+    // ASSERT_IF(cov_list::mean | cov_list::cor, ndres.get_sum2cent().get_count() == column_count);
+
+    // ASSERT_IF(cov_list::mean | cov_list::cor | cov_list::cov,
+    //           ndres.get_mean().get_count() == column_count);
+
+    // ASSERT_IF(cov_list::cov | cov_list::cor, ndres.get_varc().get_count() == column_count);
+
+    const auto column_block_count = get_column_block_count(column_count);
+
+    auto data_ptr = data.get_data();
+
+    Float* rsum_ptr = ndres.get_sum().get_mutable_data();
+
+    std::int64_t max_work_group_size = bk::device_max_wg_size(q_);
+    auto local_size = (max_work_group_size < column_count) ? max_work_group_size : column_count;
+    auto global_size = de::check_mul_overflow(column_block_count, local_size);
+
+    const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(global_size, local_size);
+
+    auto last_event = q_.submit([&](sycl::handler& cgh) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
+            const std::int64_t tid = item.get_local_id()[0];
+            const std::int64_t tnum = item.get_local_range()[0];
+            const std::int64_t gid = item.get_group().get_id(0);
+
+            const std::int64_t row_block_idx = gid / column_block_count;
+            const std::int64_t col_block_idx = gid - row_block_idx * column_block_count;
+
+            if (distr_mode) {
+                single_pass_block_processor<Float, deffered_fin_true>(data_ptr,
+                                                                      rsum_ptr,
+                                                                      row_count,
+                                                                      column_count,
+                                                                      col_block_idx,
+                                                                      column_block_count,
+                                                                      tid,
+                                                                      tnum);
+            }
+            else {
+                single_pass_block_processor<Float, deffered_fin_false>(data_ptr,
+                                                                       rsum_ptr,
+                                                                       row_count,
+                                                                       column_count,
+                                                                       col_block_idx,
+                                                                       column_block_count,
+                                                                       tid,
+                                                                       tnum);
+            }
+        });
+    });
+
+    return std::make_tuple(std::move(ndres), last_event);
+}
+
+template <typename Float>
+std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::compute_by_blocks(
+    const pr::ndarray<Float, 2> data,
+    std::int64_t row_block_count) {
+    ONEDAL_ASSERT(data.has_data());
+
+    std::int64_t row_count = data.get_dimension(0);
+    std::int64_t column_count = data.get_dimension(1);
+
+    const auto column_block_count = get_column_block_count(column_count);
+    const auto aux_buf_size = de::check_mul_overflow(row_block_count, column_count);
+
+    auto ndbuf = local_buffer_list<Float>::empty(q_, aux_buf_size);
+
+    // // ndbuf asserts
+    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
+    //           ndbuf.get_rc_list().get_count() == aux_buf_size);
+
+    // ASSERT_IF(cov_list::mean | cov_list::cor | cov_list::cov,
+    //           ndbuf.get_sum().get_count() == aux_buf_size);
+    // ASSERT_IF(cov_list::cor | cov_list::cov, ndbuf.get_sum2cent().get_count() == aux_buf_size);
+
+    auto data_ptr = data.get_data();
+    Float* asum_ptr = ndbuf.get_sum().get_mutable_data();
+
+    std::int64_t* ablock_rc_ptr = ndbuf.get_rc_list().get_mutable_data();
+    std::int64_t max_work_group_size =
+        q_.get_device().get_info<sycl::info::device::max_work_group_size>();
+    auto local_size = (max_work_group_size < column_count) ? max_work_group_size : column_count;
+    auto global_size = de::check_mul_overflow(row_block_count * column_block_count, local_size);
+
+    const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(global_size, local_size);
+
+    sycl::event last_event;
+    {
+        ONEDAL_PROFILER_TASK(process_blocks, q_);
+        last_event = q_.submit([&](sycl::handler& cgh) {
+            cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
+                const std::int64_t tid = item.get_local_id()[0];
+                const std::int64_t tnum = item.get_local_range()[0];
+                const std::int64_t gid = item.get_group().get_id(0);
+
+                const std::int64_t row_block_idx = gid / column_block_count;
+                const std::int64_t col_block_idx = gid - row_block_idx * column_block_count;
+
+                block_processor<Float>(data_ptr,
+                                       ablock_rc_ptr,
+                                       asum_ptr,
+                                       row_count,
+                                       row_block_idx,
+                                       row_block_count,
+                                       column_count,
+                                       col_block_idx,
+                                       column_block_count,
+                                       tid,
+                                       tnum);
+            });
+        });
+    }
+
+    auto [ndres, merge_event] =
+        merge_blocks(std::move(ndbuf), column_count, row_block_count, { last_event });
+
+    return std::make_tuple(std::move(ndres), merge_event);
+}
+
+template <typename Float>
+std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::finalize(
+    local_result_t&& ndres,
+    std::int64_t row_count,
+    std::int64_t column_count,
+    const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(finalize, q_);
+
+    const bool distr_mode = comm_.get_rank_count() > 1;
+    // ndres asserts
+
+    sycl::event last_event;
+
+    if (distr_mode) {
+        pr::ndarray<std::int64_t, 1> com_row_count;
+        pr::ndarray<Float, 1> com_sum;
+
+        auto com_row_count_host = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
+        comm_.allgather(row_count, com_row_count_host.flatten()).wait();
+        com_row_count = com_row_count_host.to_device(q_);
+
+        de::check_mul_overflow(comm_.get_rank_count(), column_count);
+        // sum is required for computing derived statistics, therefore it is suitable to get it by blocks instead of reducing
+        com_sum = pr::ndarray<Float, 1>::empty(q_,
+                                               { comm_.get_rank_count() * column_count },
+                                               alloc::device);
+        comm_.allgather(ndres.get_sum().flatten(q_, deps), com_sum.flatten(q_)).wait();
+
+        auto [merge_res, merge_event] = merge_distr_blocks(com_row_count,
+                                                           com_sum,
+                                                           std::forward<local_result_t>(ndres),
+                                                           comm_.get_rank_count(),
+                                                           column_count,
+                                                           column_count);
+        ndres = merge_res;
+        last_event = merge_event;
+    }
+
+    return std::make_tuple(std::forward<local_result_t>(ndres), std::move(last_event));
+}
+
+template <typename Float>
+auto compute_eigenvectors_on_host(sycl::queue& q,
+                                  pr::ndarray<Float, 2>&& corr,
+                                  std::int64_t component_count,
+                                  const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1));
+    const std::int64_t column_count = corr.get_dimension(0);
+
+    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
+    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
+
+    auto host_corr = corr.to_host(q, deps);
+    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
+
+    return std::make_tuple(eigvecs, eigvals);
+}
+
+template <typename Float>
+result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
+    const auto data = input.get_data();
+    std::int64_t row_count = data.get_row_count();
+    auto rows_count_global = row_count;
+    std::int64_t column_count = data.get_column_count();
+    const std::int64_t component_count = get_component_count(desc, data);
+    auto result = train_result<task_t>{};
+
+    const auto data_nd = pr::table2ndarray<Float>(q_, data, sycl::usm::alloc::device);
+
+    const auto row_block_count = get_row_block_count(row_count);
+    auto [ndres, last_event] = (row_block_count > 1) ? compute_by_blocks(data_nd, row_block_count)
+                                                     : compute_single_pass(data_nd);
+    last_event.wait_and_throw();
+    auto xtx =
+        pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, sycl::usm::alloc::device);
+    sycl::event gemm_event;
+    {
+        ONEDAL_PROFILER_TASK(gemm, q_);
+        gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0));
+        gemm_event.wait_and_throw();
+    }
+    comm_.allreduce(xtx.flatten(q_, { last_event }), spmd::reduce_op::sum).wait();
+
+    comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+    std::tie(ndres, last_event) =
+        finalize(std::move(ndres), row_count, column_count, { last_event });
+
+    auto [corr, corr_event] =
+        compute_correlation(q_, rows_count_global, xtx, ndres.get_sum(), { last_event });
+
+    auto [eigvecs, eigvals] =
+        compute_eigenvectors_on_host(q_, std::move(corr), component_count, { corr_event });
+
+    if (desc.get_deterministic()) {
+        sign_flip(eigvecs);
+    }
+
+    const auto model = model_t{}.set_eigenvectors(
+        homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+
+    return result_t{}
+        .set_model(model)
+        .set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count))
+        .set_means(homogen_table::wrap(ndres.get_sum().flatten(q_), 1, column_count))
+        .set_variances(homogen_table::wrap(ndres.get_sum().flatten(q_), 1, column_count));
+
+    return result;
+}
+
+#define INSTANTIATE(F) template class train_kernel_cov_impl<F>;
+
+INSTANTIATE(float);
+INSTANTIATE(double);
+
+} // namespace oneapi::dal::pca::backend
+
+#endif // ONEDAL_DATA_PARALLEL
