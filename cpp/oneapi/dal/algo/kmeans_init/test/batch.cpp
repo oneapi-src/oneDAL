@@ -27,6 +27,10 @@ namespace oneapi::dal::kmeans_init::test {
 
 namespace te = dal::test::engine;
 
+template <typename TestType>
+class kmeans_init_batch_test :
+    public kmeans_init_test<TestType, kmeans_init_batch_test<TestType>> {};
+
 using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double),
                                               (kmeans_init::method::dense,
                                                kmeans_init::method::random_dense,
@@ -38,7 +42,6 @@ TEMPLATE_LIST_TEST_M(kmeans_init_batch_test,
                      "[kmeans_init][batch]",
                      kmeans_init_types) {
     SKIP_IF(this->not_available_on_device());
-    SKIP_IF(!this->is_dense());
     SKIP_IF(this->not_float64_friendly());
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;

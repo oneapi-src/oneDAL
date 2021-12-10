@@ -25,29 +25,23 @@ namespace oneapi::dal::kmeans_init::test {
 
 namespace te = dal::test::engine;
 
-template <typename TestType>
-class kmeans_init_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
+template <typename TestType, typename Derived>
+class kmeans_init_test : public te::crtp_algo_fixture<TestType, Derived> {
 public:
-    using Float = std::tuple_element_t<0, TestType>;
-    using Method = std::tuple_element_t<1, TestType>;
+    using base_t = te::crtp_algo_fixture<TestType, Derived>;
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
 
     auto get_descriptor(std::int64_t cluster_count) const {
-        return kmeans_init::descriptor<Float, Method>{ cluster_count };
+        return kmeans_init::descriptor<float_t, method_t>{ cluster_count };
     }
 
     bool not_available_on_device() {
         constexpr bool is_plus_plus_dense =
-            std::is_same_v<Method, kmeans_init::method::plus_plus_dense>;
+            std::is_same_v<method_t, kmeans_init::method::plus_plus_dense>;
         constexpr bool is_parallel_plus_dense =
-            std::is_same_v<Method, kmeans_init::method::parallel_plus_dense>;
+            std::is_same_v<method_t, kmeans_init::method::parallel_plus_dense>;
         return this->get_policy().is_gpu() && (is_plus_plus_dense || is_parallel_plus_dense);
-    }
-
-    constexpr bool is_dense() const {
-        return std::is_same_v<Method, method::dense> ||
-               std::is_same_v<Method, method::random_dense> ||
-               std::is_same_v<Method, method::plus_plus_dense> ||
-               std::is_same_v<Method, method::parallel_plus_dense>;
     }
 
     void dense_checks(std::int64_t cluster_count, const table& data) {
@@ -65,8 +59,8 @@ public:
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
 
-        ONEDAL_ASSERT(centroids.get_row_count() == cluster_count);
-        ONEDAL_ASSERT(centroids.get_column_count() == column_count);
+        REQUIRE(centroids.get_row_count() == cluster_count);
+        REQUIRE(centroids.get_column_count() == column_count);
 
         const auto data_array = row_accessor<const float>(data).pull();
         const auto centroid_array = row_accessor<const float>(centroids).pull();
