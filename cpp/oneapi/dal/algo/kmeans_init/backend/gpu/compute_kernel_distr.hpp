@@ -29,19 +29,17 @@ struct compute_kernel_distr {
 };
 
 namespace misc {
-    using ctx_t = dal::backend::context_gpu;
-    using ids_arr_t = array<std::int64_t>;
+using ctx_t = dal::backend::context_gpu;
+using ids_arr_t = array<std::int64_t>;
 
-    ids_arr_t generate_random_indices(std::int64_t count,
-                                      std::int64_t scount,
-                                      std::int64_t seed = 777);
+ids_arr_t generate_random_indices(std::int64_t count, std::int64_t scount, std::int64_t seed = 777);
 
-    ids_arr_t generate_random_indices_distr(const ctx_t& ctx,
-                                            std::int64_t count,
-                                            std::int64_t scount,
-                                            std::int64_t rseed = 777);
+ids_arr_t generate_random_indices_distr(const ctx_t& ctx,
+                                        std::int64_t count,
+                                        std::int64_t scount,
+                                        std::int64_t rseed = 777);
 
-    ids_arr_t get_rank_ids(const ctx_t& ctx);
+ids_arr_t get_rank_ids(const ctx_t& ctx);
 
 } // namespace misc
 

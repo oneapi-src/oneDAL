@@ -44,23 +44,23 @@ sycl::event select_indexed_rows(sycl::queue& q,
     });
 }
 
-#define INSTANTIATE_FULL(TYPE, INDEX, INPORD, OUTORD)                         \
-    template sycl::event select_indexed_rows(sycl::queue&,                    \
-                                             const ndview<INDEX, 1>&,         \
-                                             const ndview<TYPE, 2, ndorder::INPORD>&,  \
-                                             ndview<TYPE, 2, ndorder::OUTORD>&,        \
+#define INSTANTIATE_FULL(TYPE, INDEX, INPORD, OUTORD)                                 \
+    template sycl::event select_indexed_rows(sycl::queue&,                            \
+                                             const ndview<INDEX, 1>&,                 \
+                                             const ndview<TYPE, 2, ndorder::INPORD>&, \
+                                             ndview<TYPE, 2, ndorder::OUTORD>&,       \
                                              const event_vector&);
 
-#define INSTANTIATE_I(TYPE, INDEX, INPORD)  \
-    INSTANTIATE_FULL(TYPE, INDEX, INPORD, c)\
+#define INSTANTIATE_I(TYPE, INDEX, INPORD)   \
+    INSTANTIATE_FULL(TYPE, INDEX, INPORD, c) \
     INSTANTIATE_FULL(TYPE, INDEX, INPORD, f)
 
-#define INSTANTIATE_II(TYPE, INDEX)\
-    INSTANTIATE_I(TYPE, INDEX, c)  \
+#define INSTANTIATE_II(TYPE, INDEX) \
+    INSTANTIATE_I(TYPE, INDEX, c)   \
     INSTANTIATE_I(TYPE, INDEX, f)
 
-#define INSTANTIATE_III(TYPE)         \
-    INSTANTIATE_II(TYPE, std::int32_t)\
+#define INSTANTIATE_III(TYPE)          \
+    INSTANTIATE_II(TYPE, std::int32_t) \
     INSTANTIATE_II(TYPE, std::int64_t)
 
 INSTANTIATE_III(std::int32_t)

@@ -31,9 +31,9 @@ namespace pr = dal::backend::primitives;
 
 template <typename Float, typename Method, typename Task>
 compute_result<Task> compute_kernel_distr<Float, Method, Task>::operator()(
-                                    const dal::backend::context_gpu& ctx,
-                                    const detail::descriptor_base<Task>& params,
-                                    const compute_input<Task>& input) const {
+    const dal::backend::context_gpu& ctx,
+    const detail::descriptor_base<Task>& params,
+    const compute_input<Task>& input) const {
     auto& queue = ctx.get_queue();
 
     const auto& data_table = input.get_data();
@@ -45,24 +45,16 @@ compute_result<Task> compute_kernel_distr<Float, Method, Task>::operator()(
     ONEDAL_ASSERT(0 < cluster_count);
     ONEDAL_ASSERT(cluster_count < sample_count);
 
-    auto data = pr::table2ndarray<Float>(queue,
-                                         data_table,
-                                         sycl::usm::alloc::device);
+    auto data = pr::table2ndarray<Float>(queue, data_table, sycl::usm::alloc::device);
 
-    const auto rsize = dal::detail::check_mul_overflow<std::int64_t>(
-                                            cluster_count, feature_count);
-    auto resa = array<Float>::empty(queue,
-                                    rsize,
-                                    sycl::usm::alloc::device);
-    auto ress = pr::ndview<Float, 2>::wrap(resa.get_mutable_data(),
-                                           { cluster_count, feature_count });
+    const auto rsize = dal::detail::check_mul_overflow<std::int64_t>(cluster_count, feature_count);
+    auto resa = array<Float>::empty(queue, rsize, sycl::usm::alloc::device);
+    auto ress =
+        pr::ndview<Float, 2>::wrap(resa.get_mutable_data(), { cluster_count, feature_count });
 
-    const auto indices = misc::generate_random_indices_distr(ctx,
-                                                             cluster_count,
-                                                             sample_count);
-    const auto ndids = pr::ndarray<std::int64_t, 1>::wrap(indices.get_data(),
-                                                         { cluster_count })
-                                                         .to_device(queue);
+    const auto indices = misc::generate_random_indices_distr(ctx, cluster_count, sample_count);
+    const auto ndids =
+        pr::ndarray<std::int64_t, 1>::wrap(indices.get_data(), { cluster_count }).to_device(queue);
 
     select_indexed_rows(queue, ndids, data, ress).wait_and_throw();
 
@@ -89,12 +81,9 @@ ids_arr_t get_rank_ids(const ctx_t& ctx) {
     return result;
 }
 
-ids_arr_t generate_random_indices(std::int64_t count,
-                                  std::int64_t scount,
-                                  std::int64_t seed) {
+ids_arr_t generate_random_indices(std::int64_t count, std::int64_t scount, std::int64_t seed) {
     ids_arr_t result = ids_arr_t::empty(count);
-    auto ndres = pr::ndview<std::int64_t, 1>::wrap(
-                result.get_mutable_data(), { count } );
+    auto ndres = pr::ndview<std::int64_t, 1>::wrap(result.get_mutable_data(), { count });
     ONEDAL_ASSERT(count < scount);
     partial_fisher_yates_shuffle(ndres, scount, seed);
     return result;
@@ -109,12 +98,9 @@ ids_arr_t generate_random_indices_distr(const ctx_t& ctx,
 
     ids_arr_t rrand = ids_arr_t::empty(rcount);
 
-    if(comm.is_root_rank()) {
+    if (comm.is_root_rank()) {
         const auto maxval = rcount + 1;
-        rrand = generate_random_indices(rcount,
-                                        maxval,
-                                        rseed);
-
+        rrand = generate_random_indices(rcount, maxval, rseed);
     }
 
     comm.bcast(rrand).wait();
@@ -128,13 +114,10 @@ ids_arr_t generate_random_indices_distr(const ctx_t& ctx,
     const auto* last = first + rcount;
     const auto curr = std::find(first, last, crank);
     ONEDAL_ASSERT(curr != last);
-    const auto pos =
-        dal::detail::integral_cast<std::int64_t>(curr - first);
+    const auto pos = dal::detail::integral_cast<std::int64_t>(curr - first);
 
     const auto seed = rrand[pos];
-    return generate_random_indices(count,
-                                   scount,
-                                   seed);
+    return generate_random_indices(count, scount, seed);
 }
 
 } // namespace misc

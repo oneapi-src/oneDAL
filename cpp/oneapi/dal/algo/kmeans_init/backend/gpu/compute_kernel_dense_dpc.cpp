@@ -60,16 +60,12 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 }
 
 template <typename Float, typename Method>
-static result_t compute(const context_gpu& ctx,
-                        const descriptor_t& desc,
-                        const input_t& input) {
+static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     using distr_t = compute_kernel_distr<Float, Method, task_t>;
-    if(std::is_same_v<Method, method::random_dense>) {
+    if (std::is_same_v<Method, method::random_dense>) {
         return distr_t{}(ctx, desc, input);
     }
-    return call_daal_kernel<Float, Method>(ctx,
-                                           desc,
-                                           input.get_data());
+    return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
 }
 
 template <typename Float, typename Method>

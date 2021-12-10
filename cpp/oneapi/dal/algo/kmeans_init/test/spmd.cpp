@@ -21,8 +21,7 @@
 namespace oneapi::dal::kmeans_init::test {
 
 template <typename TestType>
-class kmeans_init_spmd_test :
-    public kmeans_init_test<TestType, kmeans_init_spmd_test<TestType>> {
+class kmeans_init_spmd_test : public kmeans_init_test<TestType, kmeans_init_spmd_test<TestType>> {
 public:
     using base_t = kmeans_init_test<TestType, kmeans_init_spmd_test<TestType>>;
     using float_t = typename base_t::float_t;
@@ -40,13 +39,11 @@ public:
     }
 
     template <typename... Args>
-    std::vector<input_t> split_compute_input_override(std::int64_t split_count,
-                                                          Args&&... args) {
+    std::vector<input_t> split_compute_input_override(std::int64_t split_count, Args&&... args) {
         const input_t input{ std::forward<Args>(args)... };
 
         const auto split_data =
-            te::split_table_by_rows<float_t>(
-                this->get_policy(), input.get_data(), split_count);
+            te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
 
         std::vector<input_t> split_input;
         split_input.reserve(split_count);
@@ -63,8 +60,10 @@ public:
         const std::int64_t column_count = b.get_column_count();
         const std::int64_t count = row_count * column_count;
 
-        if(row_count != b.get_row_count()) return true;
-        if(column_count != b.get_column_count()) return true;
+        if (row_count != b.get_row_count())
+            return true;
+        if (column_count != b.get_column_count())
+            return true;
 
         const auto aarray = row_accessor<const float>(a).pull();
         const auto barray = row_accessor<const float>(b).pull();
@@ -72,19 +71,21 @@ public:
         REQUIRE(aarray.get_count() == count);
         REQUIRE(barray.get_count() == count);
 
-        for(std::int64_t i = 0; i < count; ++i) {
-            if(aarray[i] != barray[i]) return true;
+        for (std::int64_t i = 0; i < count; ++i) {
+            if (aarray[i] != barray[i])
+                return true;
         }
 
         return false;
     }
 
     bool are_different(const std::vector<result_t>& results) {
-        for(std::size_t i = 0; i < results.size(); ++i) {
-            for(std::size_t j = i + 1; j < results.size(); ++j) {
+        for (std::size_t i = 0; i < results.size(); ++i) {
+            for (std::size_t j = i + 1; j < results.size(); ++j) {
                 const auto& a = results[i].get_centroids();
                 const auto& b = results[j].get_centroids();
-                if(!are_different(a, b)) return false;
+                if (!are_different(a, b))
+                    return false;
             }
         }
         return true;
@@ -99,8 +100,7 @@ private:
     std::int64_t rank_count_ = -1;
 };
 
-using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double),
-                                              (kmeans_init::method::random_dense));
+using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double), (kmeans_init::method::random_dense));
 
 TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
                      "kmeans init dense test",
@@ -114,20 +114,10 @@ TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
     constexpr std::int64_t cluster_count = 3;
     this->set_rank_count(GENERATE(2, 3));
 
-    const float data[] = { 1.0,   1.0,  2.0,
-                           2.0,   1.0,  2.0,
-                           2.0,   1.0, -1.0,
-                           -1.0, -1.0, -2.0,
-                           -2.0, -1.0, -2.0,
-                           -2.0,  7.0, -7.0,
-                            8.0, -8.0,  9.0,
-                           -9.0,  1.0,  2.0,
-                            3.0, -2.0,  3.0,
-                            0.1,  0.2,  0.3,
-                            0.3,  0.4,  0.5,
-                            7.0, -1.1,  4.2};
-    const auto data_table = homogen_table::wrap(
-                    data, row_count, column_count);
+    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0, 2.0,  2.0, 1.0,  -1.0, -1.0, -1.0, -2.0,
+                           -2.0, -1.0, -2.0, -2.0, 7.0, -7.0, 8.0, -8.0, 9.0,  -9.0, 1.0,  2.0,
+                           3.0,  -2.0, 3.0,  0.1,  0.2, 0.3,  0.3, 0.4,  0.5,  7.0,  -1.1, 4.2 };
+    const auto data_table = homogen_table::wrap(data, row_count, column_count);
 
     this->dense_checks(cluster_count, data_table);
 }

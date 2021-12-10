@@ -42,13 +42,13 @@ public:
         k_ = GENERATE(1, 5, 133, 513, 1031);
     }
 
-    template<ndorder ord>
+    template <ndorder ord>
     auto source() {
         auto& q = this->get_queue();
-        auto res = ndarray<float_t, 2, ord>::empty(q, {m_, n_});
+        auto res = ndarray<float_t, 2, ord>::empty(q, { m_, n_ });
         float_t counter = 0;
-        for(std::int64_t r = 0; r < m_; ++r) {
-            for(std::int64_t c = 0; c < n_; ++c) {
+        for (std::int64_t r = 0; r < m_; ++r) {
+            for (std::int64_t c = 0; c < n_; ++c) {
                 res.at(r, c) = counter;
                 counter += float_t(1);
             }
@@ -56,23 +56,23 @@ public:
         return res;
     }
 
-    template<ndorder ord>
+    template <ndorder ord>
     auto destination() {
         auto& q = this->get_queue();
-        return ndarray<float_t, 2, ord>::empty(q, {k_, n_});
+        return ndarray<float_t, 2, ord>::empty(q, { k_, n_ });
     }
 
     auto indices() {
         srand(m_ + n_ + k_);
         auto& q = this->get_queue();
         auto res = ndarray<std::int32_t, 1>::empty(q, k_);
-        for(std::int64_t i = 0; i < k_; ++i) {
+        for (std::int64_t i = 0; i < k_; ++i) {
             res.at(i) = float_t(rand() % m_);
         }
         return res;
     }
 
-    template<ndorder iord, ndorder oord>
+    template <ndorder iord, ndorder oord>
     auto run() {
         auto& q = this->get_queue();
 
@@ -85,15 +85,15 @@ public:
         return dst;
     }
 
-    template<ndorder iord, ndorder oord>
+    template <ndorder iord, ndorder oord>
     auto gtr() {
         const auto src = source<iord>();
         auto dst = destination<oord>();
         const auto ids = indices();
 
-        for(std::int64_t r = 0; r < k_; ++r) {
+        for (std::int64_t r = 0; r < k_; ++r) {
             const auto idx = ids.at(r);
-            for(std::int64_t c = 0; c < n_; ++c) {
+            for (std::int64_t c = 0; c < n_; ++c) {
                 dst.at(r, c) = src.at(idx, c);
             }
         }
@@ -101,12 +101,12 @@ public:
         return dst;
     }
 
-    template<ndorder iord, ndorder oord>
+    template <ndorder iord, ndorder oord>
     void check() {
         const auto rs = run<iord, oord>();
         const auto gt = gtr<iord, oord>();
-        for(std::int64_t r = 0; r < k_; ++r) {
-            for(std::int64_t c = 0; c < n_; ++c) {
+        for (std::int64_t r = 0; r < k_; ++r) {
+            for (std::int64_t c = 0; c < n_; ++c) {
                 CAPTURE(r, c, m_, n_, k_);
                 REQUIRE(rs.at(r, c) == gt.at(r, c));
             }

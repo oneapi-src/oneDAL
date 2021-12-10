@@ -28,8 +28,8 @@ namespace oneapi::dal::kmeans_init::test {
 namespace te = dal::test::engine;
 
 template <typename TestType>
-class kmeans_init_batch_test :
-    public kmeans_init_test<TestType, kmeans_init_batch_test<TestType>> {};
+class kmeans_init_batch_test : public kmeans_init_test<TestType, kmeans_init_batch_test<TestType>> {
+};
 
 using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double),
                                               (kmeans_init::method::dense,
