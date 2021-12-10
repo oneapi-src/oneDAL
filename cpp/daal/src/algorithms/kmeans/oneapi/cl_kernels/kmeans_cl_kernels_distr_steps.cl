@@ -46,7 +46,7 @@ DECLARE_SOURCE(
         const int oldN                      = partialCentroidsCounters[global_id];
         const int newN                      = cCounters[global_id];
         const algorithmFPType oldContrib    = oldN > 0 ? oldN * partialCentroids[global_id * P + local_id] : algorithmFPType(0);
-        const algorithmFPType newContrib    = newN > 0 ? newN * centroids[global_id * P + local_id] : 0.0;
+        const algorithmFPType newContrib    = newN > 0 ? newN * centroids[global_id * P + local_id] : algorithmFPType(0);
         centroids[global_id * P + local_id] = (oldN + newN > 0) ? (oldContrib + newContrib) / (oldN + newN) : 0.0;
         if (local_id == 0) cCounters[global_id] = oldN + newN;
     }
