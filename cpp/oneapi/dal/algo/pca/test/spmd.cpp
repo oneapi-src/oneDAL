@@ -67,10 +67,12 @@
 //                              const te::table_id& data_table_id) {
 //         CAPTURE(static_cast<std::uint64_t>(compute_mode));
 //         const table data = data_fr.get_table(this->get_policy(), data_table_id);
+//         const bool deterministic = true;
+//         const auto pca_desc = this->get_descriptor(component_count, deterministic);
 
-//         const auto pca_desc = base_t::get_descriptor(compute_mode);
-
-//         const auto compute_result = this->compute(cov_desc, data);
+//         const auto pca_result = te::train(this->get_policy(), pca_desc, gold_data);
+//         const auto eigenvalues = pca_result.get_eigenvalues();
+//         const auto eigenvectors = pca_result.get_eigenvectors();
 
 //         base_t::check_compute_result(data, compute_result);
 //     }
@@ -93,15 +95,6 @@
 //                            te::dataframe_builder{ 2500, 20 }.fill_normal(-30, 30, 7777));
 //     this->set_rank_count(GENERATE(2, 4));
 
-//     cov::result_option_id mode_mean = result_options::means;
-//     cov::result_option_id mode_cov = result_options::cov_matrix;
-//     cov::result_option_id mode_cor = result_options::cor_matrix;
-//     cov::result_option_id mode_cov_mean = result_options::cov_matrix | result_options::means;
-//     cov::result_option_id mode_cov_cor = result_options::cov_matrix | result_options::cor_matrix;
-//     cov::result_option_id mode_cor_mean = result_options::cor_matrix | result_options::means;
-//     cov::result_option_id res_all =
-//         result_options::cov_matrix | result_options::cor_matrix | result_options::means;
-
 //     const cov::result_option_id compute_mode = GENERATE_COPY(mode_mean,
 //                                                              mode_cor,
 //                                                              mode_cov,
@@ -112,7 +105,7 @@
 
 //     const auto data_table_id = this->get_homogen_table_id();
 
-//     this->spmd_general_checks(data, compute_mode, data_table_id);
+//     this->spmd_general_checks(data, component_count, data_table_id);
 // }
 
 // } // namespace oneapi::dal::pca::test

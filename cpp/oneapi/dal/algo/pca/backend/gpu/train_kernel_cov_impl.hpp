@@ -39,6 +39,8 @@ public:
     static own_t empty(sycl::queue& q, std::int64_t count) {
         own_t res;
         res.rsum_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rmean_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rvarc_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         return res;
     }
 
@@ -46,9 +48,24 @@ public:
         return rsum_;
     }
 
+    auto& get_sum2cent() const {
+        return rsum2cent_;
+    }
+
+    auto& get_mean() const {
+        return rmean_;
+    }
+
+    auto& get_varc() const {
+        return rvarc_;
+    }
+
 private:
     local_result() = default;
     pr::ndarray<Float, 1> rsum_;
+    pr::ndarray<Float, 1> rmean_;
+    pr::ndarray<Float, 1> rsum2cent_;
+    pr::ndarray<Float, 1> rvarc_;
 };
 
 template <typename Float>
@@ -61,6 +78,11 @@ public:
         own_t res;
         res.rrow_count_ = pr::ndarray<std::int64_t, 1>::empty(q, { count }, alloc::device);
         res.rsum_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rsum2cent_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rmean_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+
+        res.rvarc_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+
         return res;
     }
     auto& get_rc_list() const {
@@ -69,12 +91,24 @@ public:
     auto& get_sum() const {
         return rsum_;
     }
+    auto& get_sum2cent() const {
+        return rsum2cent_;
+    }
+    auto& get_mean() const {
+        return rmean_;
+    }
+    auto& get_varc() const {
+        return rvarc_;
+    }
 
 private:
     local_buffer_list() = default;
 
     pr::ndarray<std::int64_t, 1> rrow_count_;
     pr::ndarray<Float, 1> rsum_;
+    pr::ndarray<Float, 1> rmean_;
+    pr::ndarray<Float, 1> rsum2cent_;
+    pr::ndarray<Float, 1> rvarc_;
 };
 
 template <typename Float>
@@ -110,6 +144,7 @@ private:
     std::tuple<local_result_t, sycl::event> merge_distr_blocks(
         const pr::ndarray<std::int64_t, 1>& com_row_count,
         const pr::ndarray<Float, 1>& com_sum,
+        const pr::ndarray<Float, 1>& com_sum2cent,
         local_result_t&& ndres,
         std::int64_t block_count,
         std::int64_t column_count,
