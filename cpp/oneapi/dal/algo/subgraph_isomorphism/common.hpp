@@ -25,7 +25,7 @@ namespace task {
 /// Tag-type that parameterizes entities that are used for Subgraph Isomorphism algorithm.
 struct compute {};
 
-/// Alias tag-type for dense computational method.
+/// Alias tag-type for the compute task.
 using by_default = compute;
 } // namespace task
 

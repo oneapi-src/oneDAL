@@ -48,25 +48,21 @@ determine their quantity and label vertices so that vertices from the same compo
 .. rubric:: Example
 
 .. figure:: images/connected-components.png
-    :width: 300
+    :width: 600
     :align: center
     :alt:
  
-Сomponents are sorted in ascending order by lowest vertex id in each component 
-and numbered from :math:`0` to :math:`k-1`, where :math:`k` is the number of components.
+Сomponents are numbered from :math:`0` to :math:`k-1`, where :math:`k` is the number of components.
 For the example above, the labels for vertices are 
  
 [0, 1, 1, 1, 2, 0, 1, 3, 4, 4, 4, 4, 4]
 
 This notation means that:
-
-* vertex with id 0 belongs to connected component with id 0
-* vertices with ids 1, 2, 3 belongs to connected component with id 1
+* vertices with ids 0, 5 belong to connected component with id 0
+* vertices with ids 1, 2, 3, 6 belong to connected component with id 1
 * vertex with id 4 belongs to connected component with id 2
-* vertex with id 5 belongs to connected component with id 0
-* vertex with id 6 belongs to connected component with id 1
 * vertex with id 7 belongs to connected component with id 3
-* vertices with ids 8, 9, 10, 11, 12 belongs to connected component with id 4
+* vertices with ids 8, 9, 10, 11, 12 belong to connected component with id 4
 
 .. _connected_components_afforest:
 
