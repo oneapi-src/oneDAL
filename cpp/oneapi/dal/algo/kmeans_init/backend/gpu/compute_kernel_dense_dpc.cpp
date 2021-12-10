@@ -73,7 +73,6 @@ struct compute_kernel_gpu<Float, Method, task::init> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        const auto comm = ctx.get_communicator();
         return compute<Float, Method>(ctx, desc, input);
     }
 };
