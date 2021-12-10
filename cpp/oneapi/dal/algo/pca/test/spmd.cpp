@@ -65,7 +65,6 @@
 
 //     void spmd_general_checks(const te::dataframe& data_fr,
 //                              const te::table_id& data_table_id) {
-//         CAPTURE(static_cast<std::uint64_t>(compute_mode));
 //         const table data = data_fr.get_table(this->get_policy(), data_table_id);
 //         const bool deterministic = true;
 //         const auto pca_desc = this->get_descriptor(component_count, deterministic);
@@ -80,8 +79,6 @@
 // private:
 //     std::int64_t rank_count_;
 // };
-
-// using pca_types = COMBINE_TYPES((float, double), (pca::method::dense));
 
 // TEMPLATE_LIST_TEST_M(pca_spmd_test, "pca common flow", "[pca][integration][spmd]", pca_types) {
 //     SKIP_IF(this->get_policy().is_cpu());

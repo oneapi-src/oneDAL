@@ -20,6 +20,10 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::pca::test {
 
@@ -32,6 +36,9 @@ class pca_test : public te::crtp_algo_fixture<TestType, Derived> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
+    using input_t = pca::train_input<>;
+    using result_t = pca::train_result<>;
+    using descriptor_t = pca::descriptor<Float, Method>;
 
     bool not_available_on_device() {
         constexpr bool is_svd = std::is_same_v<Method, pca::method::svd>;
@@ -228,6 +235,6 @@ private:
     }
 };
 
-using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method::svd));
+using pca_types = COMBINE_TYPES((float, double), (pca::method::cov));
 
 } // namespace oneapi::dal::pca::test
