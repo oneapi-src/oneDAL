@@ -235,6 +235,6 @@ private:
     }
 };
 
-using pca_types = COMBINE_TYPES((float, double), (pca::method::cov));
+//using pca_types = COMBINE_TYPES((float, double), (pca::method::cov));
 
 } // namespace oneapi::dal::pca::test

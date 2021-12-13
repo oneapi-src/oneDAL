@@ -21,6 +21,7 @@ namespace oneapi::dal::pca::test {
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace pca = oneapi::dal::pca;
+using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, method::svd));
 
 template <typename TestType>
 class pca_batch_test : public pca_test<TestType, pca_batch_test<TestType>> {};
