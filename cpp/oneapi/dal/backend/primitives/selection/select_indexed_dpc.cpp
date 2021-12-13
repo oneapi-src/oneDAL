@@ -135,7 +135,7 @@ sycl::event select_indexed(sycl::queue& q,
                            const ndview<Type, 1>& src,
                            ndview<Type, 2>& dst,
                            const event_vector& deps) {
-    ONEDAL_PROFILER_TASK(select_indexed2, q);
+    ONEDAL_PROFILER_TASK(select_indexed_wrapper, q);
     ONEDAL_ASSERT(ids.has_data());
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());

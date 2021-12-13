@@ -522,7 +522,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>>::do_search(
         auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
         sycl::event selt_event;
         {
-            ONEDAL_PROFILER_TASK(selt_event, this->get_queue());
+            ONEDAL_PROFILER_TASK(outer_selection, this->get_queue());
             selt_event = select(this->get_queue(),
                                 dists,
                                 k_neighbors,
