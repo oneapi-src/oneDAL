@@ -378,11 +378,15 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge
     const std::int64_t* brc_ptr = ndbuf.get_rc_list().get_data();
     const Float* bsum_ptr = ndbuf.get_sum().get_data();
     const Float* bsum2cent_ptr = ndbuf.get_sum2cent().get_data();
-
+    std::cout << "step1" << std::endl;
     Float* rsum_ptr = ndres.get_sum().get_mutable_data();
+    std::cout << "step2" << std::endl;
     Float* rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
+    std::cout << "step3" << std::endl;
     Float* rmean_ptr = ndres.get_mean().get_mutable_data();
+    std::cout << "step4" << std::endl;
     Float* rvarc_ptr = ndres.get_varc().get_mutable_data();
+    std::cout << "step5" << std::endl;
     std::int64_t local_size = bk::device_max_sg_size(q_);
     auto global_size = de::check_mul_overflow(column_count, local_size);
 
@@ -481,10 +485,13 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge
     //           com_sum.get_count() == comm_.get_rank_count() * column_count);
     // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
     //           com_sum2cent.get_count() == comm_.get_rank_count() * column_count);
-
+    std::cout << "step6" << std::endl;
     Float* rsum_ptr = ndres.get_sum().get_mutable_data();
+    std::cout << "step7" << std::endl;
     //Float * rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
+    std::cout << "step8" << std::endl;
     Float* rmean_ptr = ndres.get_mean().get_mutable_data();
+    std::cout << "ste91" << std::endl;
     Float* rvarc_ptr = ndres.get_varc().get_mutable_data();
     const std::int64_t* brc_ptr = com_row_count.get_data();
     const Float* bsum_ptr = com_sum.get_data();

@@ -19,6 +19,8 @@
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"

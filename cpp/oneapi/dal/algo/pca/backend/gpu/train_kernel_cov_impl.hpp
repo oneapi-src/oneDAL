@@ -40,6 +40,7 @@ public:
         own_t res;
         res.rsum_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         res.rmean_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
+        res.rsum2cent_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         res.rvarc_ = pr::ndarray<Float, 1>::empty(q, { count }, alloc::device);
         return res;
     }
