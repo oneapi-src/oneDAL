@@ -207,5 +207,68 @@ TEST_M(ccl_comm_test, "allgatherv") {
     }
 }
 
+TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
+    auto comm = get_new_comm();
+    const std::int64_t granularity = 10;
+    const std::int64_t rank_count = comm.get_rank_count();
+    const std::int64_t rank = comm.get_rank();
+
+    std::vector<std::int64_t> recv_counts(rank_count);
+    std::vector<std::int64_t> displs(rank_count);
+    std::int64_t total_size = 0;
+    for (std::int64_t i = 0; i < rank_count; i++) {
+        recv_counts[i] = (i + 1) * granularity;
+        displs[i] = total_size;
+        total_size += recv_counts[i];
+    }
+
+    const std::int64_t rank_size = recv_counts[rank];
+    std::vector<float> send_buffer;
+    if (rank_size != (rank_count - 2) * granularity){
+        send_buffer.reserve(rank_size);
+        for (std::int64_t i = 0; i < rank_size; i++) {
+            send_buffer[i] = float(rank);
+        } 
+    }
+
+    std::vector<float> recv_buffer(total_size);
+    std::vector<float> final_buffer(total_size);
+    std::int64_t offset = 0;
+    for (std::int64_t i = 0; i < rank_count; i++) {
+        for (std::int64_t j = 0; j < recv_counts[i]; j++) {
+            final_buffer[offset] = float(i);
+            offset++;
+        }
+    }
+
+    SECTION("host") {
+        test_allgatherv(send_buffer.data(),
+                        rank_size,
+                        recv_buffer.data(),
+                        recv_counts.data(),
+                        displs.data());
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    SECTION("device") {
+        test_allgatherv_on_device(send_buffer.data(),
+                                  rank_size,
+                                  recv_buffer.data(),
+                                  recv_counts.data(),
+                                  displs.data());
+    }
+#endif
+
+    for (std::int64_t i = 0; i < total_size; i++) {
+        if (i < displs[rank_count - 3] or i > displs[rank_count - 2] ){
+            REQUIRE(recv_buffer[i] == final_buffer[i]);
+        }
+        else{
+             REQUIRE(recv_buffer[i] == 0);
+        }
+        
+    }
+}
+
 } // namespace oneapi::dal::test
 #endif
