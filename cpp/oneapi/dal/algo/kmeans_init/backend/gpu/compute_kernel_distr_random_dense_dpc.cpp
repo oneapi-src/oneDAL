@@ -69,18 +69,6 @@ template struct compute_kernel_distr<double, method::random_dense, task::init>;
 
 namespace misc {
 
-ids_arr_t get_rank_ids(const ctx_t& ctx) {
-    auto& comm = ctx.get_communicator();
-
-    const auto rcount = comm.get_rank_count();
-    ids_arr_t result = ids_arr_t::empty(rcount);
-
-    std::int64_t crank = comm.get_rank();
-    comm.allgather(crank, result).wait();
-
-    return result;
-}
-
 ids_arr_t generate_random_indices(std::int64_t count, std::int64_t scount, std::int64_t seed) {
     ids_arr_t result = ids_arr_t::empty(count);
     auto ndres = pr::ndview<std::int64_t, 1>::wrap(result.get_mutable_data(), { count });
@@ -94,29 +82,19 @@ ids_arr_t generate_random_indices_distr(const ctx_t& ctx,
                                         std::int64_t scount,
                                         std::int64_t rseed) {
     auto& comm = ctx.get_communicator();
-    const auto rcount = comm.get_rank_count();
+    const auto rank_count = comm.get_rank_count();
 
-    ids_arr_t rrand = ids_arr_t::empty(rcount);
+    ids_arr_t root_rand = ids_arr_t::empty(rank_count);
 
     if (comm.is_root_rank()) {
-        const auto maxval = rcount + 1;
-        rrand = generate_random_indices(rcount, maxval, rseed);
+        const auto maxval = rank_count + 1;
+        root_rand = generate_random_indices(rank_count, maxval, rseed);
     }
 
-    comm.bcast(rrand).wait();
+    comm.bcast(root_rand).wait();
+    ONEDAL_ASSERT(root_rand.get_count() == rank_count);
 
-    const auto ranks = get_rank_ids(ctx);
-    ONEDAL_ASSERT(ranks.get_count() == rcount);
-    ONEDAL_ASSERT(rrand.get_count() == rcount);
-
-    const auto crank = comm.get_rank();
-    const auto* first = ranks.get_data();
-    const auto* last = first + rcount;
-    const auto curr = std::find(first, last, crank);
-    ONEDAL_ASSERT(curr != last);
-    const auto pos = dal::detail::integral_cast<std::int64_t>(curr - first);
-
-    const auto seed = rrand[pos];
+    const auto seed = root_rand[comm.get_rank()];
     return generate_random_indices(count, scount, seed);
 }
 

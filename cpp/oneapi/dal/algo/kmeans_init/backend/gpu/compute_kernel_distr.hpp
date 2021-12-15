@@ -39,8 +39,6 @@ ids_arr_t generate_random_indices_distr(const ctx_t& ctx,
                                         std::int64_t scount,
                                         std::int64_t rseed = 777);
 
-ids_arr_t get_rank_ids(const ctx_t& ctx);
-
 } // namespace misc
 
 } // namespace oneapi::dal::kmeans_init::backend
