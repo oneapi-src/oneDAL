@@ -30,9 +30,12 @@ namespace oneapi::dal::kmeans_init::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
+using task_t = task::init;
+using ctx_t = dal::backend::context_gpu;
+
 template <typename Float, typename Method>
 struct kmeans_init_kernel {
-    static sycl::event compute_initial_centroids(sycl::queue& queue,
+    static sycl::event compute_initial_centroids(const ctx_t& ctx,
                                                  const pr::ndview<Float, 2>& data,
                                                  pr::ndview<Float, 2>& centroids) {
         using msg = dal::detail::error_messages;
@@ -51,9 +54,10 @@ struct kmeans_init_kernel {
 
 template <typename Float>
 struct kmeans_init_kernel<Float, kmeans_init::method::dense> {
-    static sycl::event compute_initial_centroids(sycl::queue& queue,
+    static sycl::event compute_initial_centroids(const ctx_t& ctx,
                                                  const pr::ndview<Float, 2>& data,
                                                  pr::ndview<Float, 2>& centroids) {
+        auto& queue = ctx.get_queue();
         ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
         ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
         const std::int64_t cluster_count = centroids.get_dimension(0);
@@ -62,16 +66,6 @@ struct kmeans_init_kernel<Float, kmeans_init::method::dense> {
         const auto data_ptr = data.get_data();
         auto centroids_ptr = centroids.get_mutable_data();
         return bk::copy(queue, centroids_ptr, data_ptr, cluster_count * column_count);
-    }
-};
-
-template <typename Float>
-struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
-    static sycl::event compute_initial_centroids(sycl::queue& queue,
-                                                 const pr::ndview<Float, 2>& data,
-                                                 pr::ndview<Float, 2>& centroids) {
-        ONEDAL_ASSERT(false);
-        return sycl::event{};
     }
 };
 

@@ -32,9 +32,9 @@ namespace pr = dal::backend::primitives;
 namespace ki = oneapi::dal::kmeans_init;
 
 using task_t = task::init;
-using result_t = compute_result<task::init>;
-using descriptor_t = ki::detail::descriptor_base<task::init>;
-using input_t = compute_input<task::init>;
+using input_t = compute_input<task_t>;
+using result_t = compute_result<task_t>;
+using descriptor_t = ki::detail::descriptor_base<task_t>;
 
 template <typename Float, typename Method>
 static result_t call_daal_kernel(const context_gpu& ctx,
@@ -53,7 +53,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                                                       { cluster_count, column_count },
                                                       sycl::usm::alloc::device);
 
-    kmeans_init_kernel<Float, Method>::compute_initial_centroids(queue, arr_data, arr_centroids)
+    kmeans_init_kernel<Float, Method>::compute_initial_centroids(ctx, arr_data, arr_centroids)
         .wait_and_throw();
     return result_t().set_centroids(
         dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
@@ -61,11 +61,14 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
 template <typename Float, typename Method>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+    constexpr bool is_random_dense = std::is_same_v<Method, method::random_dense>;
     using distr_t = compute_kernel_distr<Float, Method, task_t>;
-    if (std::is_same_v<Method, method::random_dense>) {
+    if constexpr (is_random_dense) {
         return distr_t{}(ctx, desc, input);
     }
-    return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
+    else {
+        return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
+    }
 }
 
 template <typename Float, typename Method>
