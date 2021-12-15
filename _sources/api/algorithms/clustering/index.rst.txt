@@ -23,5 +23,6 @@ This chapter describes programming interfaces of the clustering algorithms imple
 .. toctree::
    :titlesonly:
 
+   dbscan.rst
    kmeans.rst
    kmeans-init.rst

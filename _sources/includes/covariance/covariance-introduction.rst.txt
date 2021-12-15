@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Covariance algorithm computes the following set of quantitative dataset characteristics:
+Covariance algorithm computes the following set of quantitative dataset characteristics: 
 
 - means
 - covariance
