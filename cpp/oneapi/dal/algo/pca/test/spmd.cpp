@@ -68,8 +68,8 @@ public:
         const std::int64_t component_count = 0;
         const bool deterministic = true;
         const auto pca_desc = this->get_descriptor(component_count, deterministic);
-        ;
-        const auto pca_result = te::train(this->get_policy(), pca_desc, data);
+        const auto gold_data = this->get_gold_data();
+        const auto pca_result = te::train(this->get_policy(), pca_desc, gold_data);
         const auto eigenvalues = pca_result.get_eigenvalues();
         const auto eigenvectors = pca_result.get_eigenvectors();
 
