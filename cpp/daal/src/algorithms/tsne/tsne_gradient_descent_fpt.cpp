@@ -1,4 +1,4 @@
-/** file tsne_gradient_descent_impl.i */
+/** file tsne_gradient_descent_fpt.cpp */
 /*******************************************************************************
 * Copyright 2021 Intel Corporation
 *
