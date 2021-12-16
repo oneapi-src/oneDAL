@@ -23,7 +23,6 @@ namespace oneapi::dal::pca::test {
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace pca = oneapi::dal::pca;
-using pca_types = COMBINE_TYPES((float, double), (pca::method::cov));
 
 template <typename TestType>
 class pca_spmd_test : public pca_test<TestType, pca_spmd_test<TestType>> {
@@ -38,16 +37,16 @@ public:
     }
 
     template <typename... Args>
-    result_t compute_override(Args&&... args) {
-        return this->compute_via_spmd_threads_and_merge(rank_count_, std::forward<Args>(args)...);
+    result_t train_override(Args&&... args) {
+        return this->train_via_spmd_threads_and_merge(rank_count_, std::forward<Args>(args)...);
     }
 
-    result_t merge_compute_result_override(const std::vector<result_t>& results) {
+    result_t merge_train_result_override(const std::vector<result_t>& results) {
         return results[0];
     }
 
     template <typename... Args>
-    std::vector<input_t> split_compute_input_override(std::int64_t split_count, Args&&... args) {
+    std::vector<input_t> split_train_input_override(std::int64_t split_count, Args&&... args) {
         const input_t input{ std::forward<Args>(args)... };
 
         const auto split_data =
@@ -66,12 +65,11 @@ public:
 
     void spmd_general_checks(const te::dataframe& data_fr, const te::table_id& data_table_id) {
         const table data = data_fr.get_table(this->get_policy(), data_table_id);
+        const std::int64_t component_count = 0;
         const bool deterministic = true;
-        auto component_count = data.get_column_count();
         const auto pca_desc = this->get_descriptor(component_count, deterministic);
-        const auto gold_data = this->get_gold_data();
-
-        const auto pca_result = te::train(this->get_policy(), pca_desc, gold_data);
+        ;
+        const auto pca_result = te::train(this->get_policy(), pca_desc, data);
         const auto eigenvalues = pca_result.get_eigenvalues();
         const auto eigenvectors = pca_result.get_eigenvectors();
 
@@ -89,6 +87,8 @@ public:
 private:
     std::int64_t rank_count_;
 };
+
+using pca_types = COMBINE_TYPES((float, double), (pca::method::cov));
 
 TEMPLATE_LIST_TEST_M(pca_spmd_test, "pca common flow", "[pca][integration][spmd]", pca_types) {
     SKIP_IF(this->get_policy().is_cpu());
