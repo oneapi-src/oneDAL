@@ -24,7 +24,7 @@ namespace v1 {
 
 template <typename Policy, typename Float, typename Method, typename Task>
 struct train_ops_dispatcher<Policy, Float, Method, Task> {
-    train_result<Task> operator()(const Policy& ctx,
+    train_result<Task> operator()(const Policy& policy,
                                   const descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
