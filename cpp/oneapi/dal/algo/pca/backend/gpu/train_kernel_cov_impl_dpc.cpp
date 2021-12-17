@@ -27,38 +27,12 @@
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/backend/primitives/lapack.hpp"
-#include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/backend/primitives/reduction.hpp"
-#include "oneapi/dal/backend/primitives/stat.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
 namespace oneapi::dal::pca::backend {
-
-#define ASSERT_IF(enable_condition, condition)                   \
-    do {                                                         \
-        if constexpr (check_mask_flag(enable_condition, List)) { \
-            ONEDAL_ASSERT(condition);                            \
-        }                                                        \
-    } while (0)
-
-#define DECLSET_IF(type, var, cond, value)       \
-    type var = nullptr;                          \
-    if constexpr (check_mask_flag(cond, List)) { \
-        var = value;                             \
-    }
-
-#define SET_IF(var, cond, value)                 \
-    if constexpr (check_mask_flag(cond, List)) { \
-        var = value;                             \
-    }
 
 namespace de = dal::detail;
 namespace bk = dal::backend;
@@ -132,7 +106,6 @@ auto compute_correlation(sycl::queue& q,
     return std::make_tuple(corr, smart_event);
 }
 
-/* single pass kernel for device execution */
 /* single pass kernel for device execution */
 template <typename Float, bool DefferedFin>
 inline void single_pass_block_processor(const Float* data_ptr,
@@ -355,38 +328,13 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge
     const bool distr_mode = comm_.get_rank_count() > 1;
     auto ndres = local_result<Float>::empty(q_, column_count);
 
-    // ndres asserts
-    // if (distr_mode) {
-    //     ASSERT_IF(cov_list::mean | cov_list::cor | cov_list::cov,
-    //               ndres.get_sum().get_count() == column_count);
-    // }
-    // else {
-    //     ASSERT_IF(cov_list::mean, ndres.get_sum().get_count() == column_count);
-    // }
-
-    // ASSERT_IF(cov_list::mean, ndres.get_mean().get_count() == column_count);
-    // ASSERT_IF(cov_list::cov | cov_list::cor, ndres.get_varc().get_count() == column_count);
-
-    // // ndbuf asserts
-    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
-    //           ndbuf.get_rc_list().get_count() == block_count * column_count);
-    // ASSERT_IF(cov_list::mean, ndbuf.get_sum().get_count() == block_count * column_count);
-
-    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
-    //           ndbuf.get_sum2cent().get_count() == block_count * column_count);
-
     const std::int64_t* brc_ptr = ndbuf.get_rc_list().get_data();
     const Float* bsum_ptr = ndbuf.get_sum().get_data();
     const Float* bsum2cent_ptr = ndbuf.get_sum2cent().get_data();
-    std::cout << "step1" << std::endl;
     Float* rsum_ptr = ndres.get_sum().get_mutable_data();
-    std::cout << "step2" << std::endl;
     Float* rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
-    std::cout << "step3" << std::endl;
     Float* rmean_ptr = ndres.get_mean().get_mutable_data();
-    std::cout << "step4" << std::endl;
     Float* rvarc_ptr = ndres.get_varc().get_mutable_data();
-    std::cout << "step5" << std::endl;
     std::int64_t local_size = bk::device_max_sg_size(q_);
     auto global_size = de::check_mul_overflow(column_count, local_size);
 
@@ -472,26 +420,8 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge
     ONEDAL_ASSERT(column_count > 0);
     ONEDAL_ASSERT(block_stride > 0);
 
-    // ndres asserts
-    // ASSERT_IF(cov_list::mean | cov_list::cov, ndres.get_sum().get_count() == column_count);
-    // ASSERT_IF(cov_list::cov | cov_list::cor | cov_list::mean,
-    //           ndres.get_sum2cent().get_count() == column_count);
-    // ASSERT_IF(cov_list::mean, ndres.get_mean().get_count() == column_count);
-    // ASSERT_IF(cov_list::cov | cov_list::cor, ndres.get_varc().get_count() == column_count);
-
-    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
-    //           com_row_count.get_count() == comm_.get_rank_count());
-    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
-    //           com_sum.get_count() == comm_.get_rank_count() * column_count);
-    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
-    //           com_sum2cent.get_count() == comm_.get_rank_count() * column_count);
-    std::cout << "step6" << std::endl;
     Float* rsum_ptr = ndres.get_sum().get_mutable_data();
-    std::cout << "step7" << std::endl;
-    //Float * rsum2cent_ptr = ndres.get_sum2cent().get_mutable_data();
-    std::cout << "step8" << std::endl;
     Float* rmean_ptr = ndres.get_mean().get_mutable_data();
-    std::cout << "ste91" << std::endl;
     Float* rvarc_ptr = ndres.get_varc().get_mutable_data();
     const std::int64_t* brc_ptr = com_row_count.get_data();
     const Float* bsum_ptr = com_sum.get_data();
@@ -559,16 +489,6 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::compu
     const bool distr_mode = comm_.get_rank_count() > 1;
 
     auto ndres = local_result<Float>::empty(q_, column_count);
-
-    // ASSERT_IF(cov_list::mean | cov_list::cor, ndres.get_sum().get_count() == column_count);
-
-    // ASSERT_IF(cov_list::mean | cov_list::cor, ndres.get_sum2cent().get_count() == column_count);
-
-    // ASSERT_IF(cov_list::mean | cov_list::cor | cov_list::cov,
-    //           ndres.get_mean().get_count() == column_count);
-
-    // ASSERT_IF(cov_list::cov | cov_list::cor, ndres.get_varc().get_count() == column_count);
-
     const auto column_block_count = get_column_block_count(column_count);
 
     auto data_ptr = data.get_data();
@@ -637,14 +557,6 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::compu
     const auto aux_buf_size = de::check_mul_overflow(row_block_count, column_count);
 
     auto ndbuf = local_buffer_list<Float>::empty(q_, aux_buf_size);
-
-    // // ndbuf asserts
-    // ASSERT_IF(cov_list::mean | cov_list::cov | cov_list::cor,
-    //           ndbuf.get_rc_list().get_count() == aux_buf_size);
-
-    // ASSERT_IF(cov_list::mean | cov_list::cor | cov_list::cov,
-    //           ndbuf.get_sum().get_count() == aux_buf_size);
-    // ASSERT_IF(cov_list::cor | cov_list::cov, ndbuf.get_sum2cent().get_count() == aux_buf_size);
 
     auto data_ptr = data.get_data();
     Float* asum_ptr = ndbuf.get_sum().get_mutable_data();
