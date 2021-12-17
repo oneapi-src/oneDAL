@@ -29,8 +29,8 @@ struct train_ops_dispatcher<Policy, Float, Method, Task> {
                                   const train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::train_kernel_cpu<Float, Method, Task>),
-            KERNEL_SINGLE_NODE_GPU(backend::train_kernel_gpu<Float, Method, Task>)>;
-        return kernel_dispatcher_t{}(ctx, params, input);
+            KERNEL_UNIVERSAL_SPMD_GPU(backend::train_kernel_gpu<Float, Method, Task>)>;
+        return kernel_dispatcher_t{}(policy, params, input);
     }
 };
 
