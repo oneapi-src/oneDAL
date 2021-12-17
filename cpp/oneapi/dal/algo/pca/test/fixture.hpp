@@ -88,7 +88,9 @@ public:
         };
         return homogen_table::wrap(data, 1, component_count);
     }
-
+    te::table_id get_homogen_table_id() const {
+        return te::table_id::homogen<Float>();
+    }
     void general_checks(const te::dataframe& data,
                         std::int64_t component_count,
                         const te::table_id& data_table_id) {
@@ -97,12 +99,13 @@ public:
 
         INFO("create descriptor")
         const auto pca_desc = get_descriptor(component_count);
-
+        std::cout<<"descriptor"<<std::cout<<endl;
         INFO("run training");
         const auto train_result = this->train(pca_desc, x);
         const auto model = train_result.get_model();
+        std::cout<<"model and train"<<std::cout<<endl;
         check_train_result(pca_desc, data, train_result);
-
+        std::cout<<"fail train checks"<<std::cout<<endl;
         INFO("run inference");
         const auto infer_result = this->infer(pca_desc, model, x);
         check_infer_result(pca_desc, data, infer_result);

@@ -68,8 +68,7 @@ public:
         const std::int64_t component_count = 0;
         const bool deterministic = true;
         const auto pca_desc = this->get_descriptor(component_count, deterministic);
-        const auto gold_data = this->get_gold_data();
-        const auto pca_result = te::train(this->get_policy(), pca_desc, gold_data);
+        const auto pca_result = te::train(this->get_policy(), pca_desc, data);
         const auto eigenvalues = pca_result.get_eigenvalues();
         const auto eigenvectors = pca_result.get_eigenvectors();
 
@@ -90,25 +89,25 @@ private:
 
 using pca_types = COMBINE_TYPES((float, double), (pca::method::cov));
 
-// TEMPLATE_LIST_TEST_M(pca_spmd_test, "pca common flow train", "[pca][integration][spmd]", pca_types) {
-//     SKIP_IF(this->not_available_on_device());
-//     SKIP_IF(this->not_float64_friendly());
+TEMPLATE_LIST_TEST_M(pca_spmd_test, "pca common flow train", "[pca][integration][spmd]", pca_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
-//     const te::dataframe data =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
-//                            te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
+                           te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
 
-//     // Homogen floating point type is the same as algorithm's floating point type
-//     const auto data_table_id = this->get_homogen_table_id();
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto data_table_id = this->get_homogen_table_id();
 
-//     const std::int64_t component_count = GENERATE_COPY(0,
-//                                                        1,
-//                                                        data.get_column_count(),
-//                                                        data.get_column_count() - 1,
-//                                                        data.get_column_count() / 2);
+    // const std::int64_t component_count = GENERATE_COPY(0,
+    //                                                    1,
+    //                                                    data.get_column_count(),
+    //                                                    data.get_column_count() - 1,
+    //                                                    data.get_column_count() / 2);
 
-//     this->general_checks(data, component_count, data_table_id);
-// }
+    this->general_checks(data, 0, data_table_id);
+}
 
 TEMPLATE_LIST_TEST_M(pca_spmd_test, "pca common flow", "[pca][integration][spmd]", pca_types) {
     SKIP_IF(this->get_policy().is_cpu());
