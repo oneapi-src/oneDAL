@@ -96,7 +96,6 @@ services::Status boundingBoxKernelImpl(DataType * posx, DataType * posy, const I
     DAAL_CHECK_MALLOC(posx);
     DAAL_CHECK_MALLOC(posy);
 
-    //std::cout << "**********************boundingBoxKernelImpl***************************" <<std::endl;
     DataType box[4] = { posx[0], posx[0], posy[0], posy[0] };
 
     daal::static_tls<DataType *> tlsBox([=]() {
@@ -110,10 +109,6 @@ services::Status boundingBoxKernelImpl(DataType * posx, DataType * posy, const I
     const IdxType nThreads    = tlsBox.nthreads();
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
-
-    //std::cout << "nThreads = " << nThreads <<std::endl;
-    //std::cout << "sizeOfBlock = " << nThreads <<std::endl;
-    //std::cout << "nBlocks = " << nThreads <<std::endl;
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
@@ -139,7 +134,6 @@ services::Status boundingBoxKernelImpl(DataType * posx, DataType * posy, const I
     });
 
 
-    //std::cout << "box1 = " << box[0] << ",   " << box[1] << ",   " << box[2] << ",   " << box[3]   <<std::endl;
     //scale the maximum to get all points strictly in the bounding box
     if (box[1] >= 0.)
         box[1] = services::internal::max<cpu, DataType>(box[1] * (1. + 1e-3), box[1] + 1e-3);
@@ -150,13 +144,10 @@ services::Status boundingBoxKernelImpl(DataType * posx, DataType * posy, const I
     else
         box[3] = services::internal::max<cpu, DataType>(box[3] * (1. - 1e-3), box[3] + 1e-3);
 
-    //std::cout << "box2 = " << box[0] << ",   " << box[1] << ",   " << box[2] << ",   " << box[3]   <<std::endl;
     //save results
     radius       = services::internal::max<cpu, DataType>(box[1] - box[0], box[3] - box[2]) * 0.5;// + 1e-6; // + 1e-6 Its my
     posx[nNodes] = (box[0] + box[1]) * 0.5;
     posy[nNodes] = (box[2] + box[3]) * 0.5;
-
-    //std::cout << "radius = " << radius <<std::endl;
 
     return services::Status();
 }
@@ -203,13 +194,6 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
     const IdxType iThread  = 0;
     const IdxType inc      = nThreads;
     IdxType i              = iThread;
-
-    // for (int l = 0; l < nNodes+1;l++)
-    // {
-    //     std::cout << "pos[" << l << "] = " << posx[l] <<",    " << posy[l] << std::endl;
-    // }
-
-    // std::cout << "radius = " << radius << std::endl;
 
     // iterate over all bodies assigned to thread
     while (i < N)
@@ -270,7 +254,6 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
                 if (posx[i] - posx[ch] <= 1e-6 && posy[i] - posy[ch] <= 1e-6 &&
                     posx[i] - posx[ch] >= -1e-6 && posy[i] - posy[ch] >= -1e-6)
                 {
-                    //std::cout << "Identical points" << std::endl;
                     duplicates[ch]++;
                     i += inc;
                     skip = 1;
@@ -278,7 +261,6 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
                 }
                 if (child[locked] == ch)
                 {
-                    //child[locked] = -2;
                     patch         = -1;
 
                     while (ch >= 0)
@@ -308,7 +290,6 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
                         }
 
                         // Insert migrated child node
-                        //if (verbose) std::cout << "14 = " << (int)(x < posx[ch]) << std::endl;
                         j = (x < posx[ch]) ? 1 : 0;
                         if (y < posy[ch])
                         {
@@ -339,7 +320,6 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
                 }
             }
         }
-        //if (verbose) getchar();
         if (skip == 2)
         {
             child[locked] = patch;
@@ -377,7 +357,6 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
 
     const auto restart = k;
-    //std::cout  << "************** summarization kernel*******************"<<std::endl;
     // iterate over all cells assigned to thread
     while (k <= nNodes)
     {
@@ -415,7 +394,6 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                         }
                     }
                     else m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
-                    //const DataType m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
                     // add child's contribution
                     cm += m;
                     px += posx[ch] * m;
@@ -433,25 +411,6 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 
         k += inc; // move on to next cell
     }
-
-    // for (int l = 0; l < nNodes+1;l++)
-    // {
-    //     std::cout << "mass,count[" << l << "] = " << mass[l] <<",     " << count[l] << std::endl;
-    // }
-
-    // std::cout << std::endl;
-    // for (int l = 0; l < nNodes+1;l++)
-    // {
-    //     std::cout << "posx,posy, [" << l << "] = " << posx[l] <<",     " << posy[l] << ",      ";
-    //     if (l < N) std::cout << duplicates[l] << std::endl;
-    //     else std::cout << std::endl;
-    // }
-    // std::cout << std::endl;
-    // for (int l = 0; l < nNodes*4+4;l++)
-    // {
-    //     std::cout << "child[" << l << "] = " << child[l] << std::endl;
-    // }
-
     return services::Status();
 }
 
@@ -931,31 +890,22 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     //start iterations
     for (IdxType i = 0; i < explorationIter; ++i)
     {
-        // std::cout << "iter of start loop: " << i << std::endl;
-
-        // std::cout << "start boundingBoxKernelImpl" << std::endl;
         status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "start qtree build" << std::endl;
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child, posx, posy, nNodes, N, maxDepth, bottom, radius, duplicates);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "end qtree build" << std::endl;
 
-        //std::cout << "start summarizationKernelImpl" << std::endl;
         status = summarizationKernelImpl<IdxType, DataType, cpu>(count, child, mass, posx, posy, nNodes, N, bottom, duplicates);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "start sortKernelImpl" << std::endl;
         status = sortKernelImpl<IdxType, cpu>(sort, count, start, child, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "start repulsionKernelImpl" << std::endl;
         status =
             repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort, child, mass, posx, posy, repx, repy, zNorm, nNodes, N, radius, maxDepth);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "start attractiveKernelImpl" << std::endl;
         if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
         {
             status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx, posy, attrx, attry, zNorm, divergence, nNodes, N, nnz,
@@ -968,12 +918,9 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "start integrationKernelImpl" << std::endl;
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx, posy, attrx, attry, repx, repy, gainx, gainy,
                                                                oldForcex, oldForcey, gradNorm, zNorm, nNodes, N);
         DAAL_CHECK_STATUS_VAR(status);
-
-        //std::cout << i << ": divergence = " << divergence << std::endl;
 
         if ((i + 1) % nIterCheck == 0)
         {
@@ -995,47 +942,24 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     momentum     = 0.8;
     exaggeration = 1.;
 
-    //std::cout << "MAIN LOOP" << std::endl;
     for (IdxType i = explorationIter; i < maxIter; ++i)
     {
-        // std::cout << "iter of MAIN loop: " << i << std::endl;
-
-        // std::cout << "start boundingBoxKernelImpl" << std::endl;
         status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "start qtree build" << std::endl;
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child, posx, posy, nNodes, N, maxDepth, bottom, radius, duplicates);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "start summarizationKernelImpl" << std::endl;
         status = summarizationKernelImpl<IdxType, DataType, cpu>(count, child, mass, posx, posy, nNodes, N, bottom, duplicates);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "start sortKernelImpl" << std::endl;
         status = sortKernelImpl<IdxType, cpu>(sort, count, start, child, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "start repulsionKernelImpl" << std::endl;
         status =
             repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort, child, mass, posx, posy, repx, repy, zNorm, nNodes, N, radius, maxDepth);
         DAAL_CHECK_STATUS_VAR(status);
 
-        // if (i == 608)
-        // {
-        //     for (int l = 0; l < nNodes*4+4; l++)
-        //     {
-        //         std::cout << "MAIN child[" << l << "] = " << child[l] << std::endl;
-        //     }
-        //     std::cout << std::endl;
-        //     for (int l = 0; l < nNodes+1; l++)
-        //     {
-        //         std::cout << "MAIN pos[" << l << "], mass, repx, repy = " << posx[l] <<",    " << posy[l] << ",    "<< mass[l] << ",    "<< repx[l]<<",    "<<repy[l] << std::endl;
-        //     }
-        // }
-        // std::cout << "MAIN maxDepth, zNorm = [" << maxDepth <<"] ["<<zNorm <<"]" << std::endl;
-
-        // std::cout << "start attractiveKernelImpl" << std::endl;
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
             status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx, posy, attrx, attry, zNorm, divergence, nNodes, N, nnz,
@@ -1048,32 +972,9 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-        // if (i == 608)
-        // {
-        //     for (int l = 0; l < nNodes+1; l++)
-        //     {
-        //         std::cout << "MAIN pos[" << l << "] = " << posx[l] <<",    " << posy[l] << std::endl;
-        //     }
-        //     for (int l = 0; l < N; l++)
-        //     {
-        //         std::cout << "MAIN attr[" << l << "] = " << attrx[l] <<",    " << attry[l] << std::endl;
-        //     }
-        // }
-        // std::cout << "MAIN zNorm, nElements, exaggeration = [" << zNorm <<"] ["<<nElements<<"] ["<<exaggeration<<"]"<< std::endl;
-        // std::cout << i << ": divergence = " << divergence << std::endl;
-
-        // std::cout << "start integrationKernelImpl" << std::endl;
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx, posy, attrx, attry, repx, repy, gainx, gainy,
                                                                oldForcex, oldForcey, gradNorm, zNorm, nNodes, N);
         DAAL_CHECK_STATUS_VAR(status);
-
-        // if (i == 608)
-        // {
-        //     for (int l = 0; l < nNodes+1;l++)
-        //     {
-        //         std::cout << "MAIN pos[" << l << "] = " << posx[l] <<",    " << posy[l] << std::endl;
-        //     }
-        // }
 
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
