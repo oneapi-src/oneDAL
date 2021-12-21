@@ -170,7 +170,6 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
         algorithmFPType newCentersGoalFunc = (algorithmFPType)0.0;
         algorithmFPType l2Norm             = (algorithmFPType)0.0;
-
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(kmeansMergeReduceCentroids);
 
