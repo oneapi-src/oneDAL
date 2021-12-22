@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/test/engine/ccl_global.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
+#include <iostream>
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -224,6 +225,7 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
 
     const std::int64_t rank_size = recv_counts[rank];
     std::vector<float> send_buffer;
+    std::cout<<"Start creating send_buffer\n";
     if (rank_size != (rank_count - 2) * granularity){
         send_buffer.reserve(rank_size);
         for (std::int64_t i = 0; i < rank_size; i++) {
@@ -234,12 +236,14 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     std::vector<float> recv_buffer(total_size);
     std::vector<float> final_buffer(total_size);
     std::int64_t offset = 0;
+    std::cout<<"Start creating final_buffer\n";
     for (std::int64_t i = 0; i < rank_count; i++) {
         for (std::int64_t j = 0; j < recv_counts[i]; j++) {
             final_buffer[offset] = float(i);
             offset++;
         }
     }
+    std::cout<<"end of creating final_buffer\n";
 
     SECTION("host") {
         test_allgatherv(send_buffer.data(),
@@ -260,6 +264,7 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
 #endif
 
     for (std::int64_t i = 0; i < total_size; i++) {
+        std::cout<<"REQUIRE send_buffer and final_buffer\n";
         if (i < displs[rank_count - 3] or i > displs[rank_count - 2] ){
             REQUIRE(recv_buffer[i] == final_buffer[i]);
         }
