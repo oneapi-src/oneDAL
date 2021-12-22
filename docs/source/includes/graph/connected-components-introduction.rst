@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Connected components algorithm receives an undirected graph :math:`G` as input and searches connected components in :math:`G`.
+Connected components algorithm receives an undirected graph :math:`G` as an input and searches for connected components in :math:`G`.
 The algorithm returns labels for the graph vertices such that vertices inside the same component have the same labels.
 
 .. |cc_compute|     replace::   :ref:`Computing                   <connected_components_compute>`
