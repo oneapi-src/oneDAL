@@ -78,7 +78,7 @@ std::int64_t train_kernel_cov_impl<Float>::get_column_block_count(std::int64_t c
     ONEDAL_ASSERT(column_count > 0);
 
     std::int64_t max_work_group_size = dal::backend::device_max_wg_size(q_);
-    return (column_count + max_work_group_size - 1) / max_work_group_size;
+    return column_count / max_work_group_size + bool(column_count % max_work_group_size);
 }
 
 template <typename Float>
@@ -122,34 +122,35 @@ inline void single_pass_block_processor(const Float* data_ptr,
     const std::int64_t col_offset = col_block_idx * tnum;
     const std::int64_t x = tid + col_offset;
 
-    if (x < column_count) {
-        std::int64_t row_block_size = row_count;
+    if (x >= column_count)
+        return;
 
-        Float sum = Float(0);
-        Float mean = Float(0);
-        Float sum2cent = Float(0);
+    std::int64_t row_block_size = row_count;
 
-        for (std::int64_t row = 0; row < row_block_size; ++row) {
-            const std::int64_t y = row * column_count;
-            const Float el = data_ptr[y + x];
-            Float inv_n = Float(1) / (row + 1);
-            Float delta = el - mean;
+    Float sum = Float(0);
+    Float mean = Float(0);
+    Float sum2cent = Float(0);
 
-            sum += el;
-            mean += delta * inv_n;
-            sum2cent += delta * (el - mean);
-        }
+    for (std::int64_t row = 0; row < row_block_size; ++row) {
+        const std::int64_t y = row * column_count;
+        const Float el = data_ptr[y + x];
+        const Float inv_n = Float(1) / (row + 1);
+        Float delta = el - mean;
 
-        rsum_ptr[x] = sum;
-
-        rmean_ptr[x] = mean;
-
-        rsum2cent_ptr[x] = sum2cent;
-        Float variance = sum2cent / (row_block_size - Float(1));
-
-        rvarc_ptr[x] = variance;
+        sum += el;
+        mean += delta * inv_n;
+        sum2cent += delta * (el - mean);
     }
-}
+
+    rsum_ptr[x] = sum;
+
+    rmean_ptr[x] = mean;
+
+    rsum2cent_ptr[x] = sum2cent;
+    Float variance = sum2cent / (row_block_size - Float(1));
+
+    rvarc_ptr[x] = variance;
+} // namespace oneapi::dal::pca::backend
 
 /* block processing kernel for device execution */
 template <typename Float>
@@ -168,33 +169,34 @@ inline void block_processor(const Float* data_ptr,
     const std::int64_t col_offset = column_block_idx * tnum;
     const std::int64_t x = tid + col_offset;
 
-    if (x < column_count) {
-        std::int64_t row_block_size = (row_count + row_block_count - 1) / row_block_count;
-        const std::int64_t row_offset = row_block_size * row_block_idx;
+    if (x >= column_count)
+        return;
 
-        if (row_block_size + row_offset > row_count) {
-            row_block_size = row_count - row_offset;
-        }
+    std::int64_t row_block_size = (row_count + row_block_count - 1) / row_block_count;
+    const std::int64_t row_offset = row_block_size * row_block_idx;
 
-        Float sum = Float(0);
-        Float mean = Float(0);
-        Float sum2cent = Float(0);
-
-        for (std::int64_t row = 0; row < row_block_size; ++row) {
-            const std::int64_t y = (row + row_offset) * column_count;
-            const Float el = data_ptr[y + x];
-            Float inv_n = Float(1) / (row + 1);
-            Float delta = el - mean;
-
-            sum += el;
-            mean += delta * inv_n;
-            sum2cent += delta * (el - mean);
-        }
-
-        bsum_ptr[x * row_block_count + row_block_idx] = sum;
-
-        bsum2cent_ptr[x * row_block_count + row_block_idx] = sum2cent;
+    if (row_block_size + row_offset > row_count) {
+        row_block_size = row_count - row_offset;
     }
+
+    Float sum = Float(0);
+    Float mean = Float(0);
+    Float sum2cent = Float(0);
+
+    for (std::int64_t row = 0; row < row_block_size; ++row) {
+        const std::int64_t y = (row + row_offset) * column_count;
+        const Float el = data_ptr[y + x];
+        Float inv_n = Float(1) / (row + 1);
+        Float delta = el - mean;
+
+        sum += el;
+        mean += delta * inv_n;
+        sum2cent += delta * (el - mean);
+    }
+
+    bsum_ptr[x * row_block_count + row_block_idx] = sum;
+
+    bsum2cent_ptr[x * row_block_count + row_block_idx] = sum2cent;
 }
 
 /* block processing kernel for device execution */
@@ -233,18 +235,18 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         Float sum2cent = Float(0);
         sum2cent = bsum2cent_ptr[offset];
 
-        Float mean = sum / static_cast<Float>(rcnt);
+        Float mean = sum / Float(rcnt);
 
-        const Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
-        const Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
+        const Float sum_n1n2 = mrgvectors + Float(rcnt);
+        const Float mul_n1n2 = mrgvectors * Float(rcnt);
         const Float delta_scale = mul_n1n2 / sum_n1n2;
         const Float mean_scale = Float(1) / sum_n1n2;
         const Float delta = mean - mrgmean;
 
         mrgsum += sum;
-        mrgmean = (mrgmean * mrgvectors + mean * static_cast<Float>(rcnt)) * mean_scale;
+        mrgmean = (mrgmean * mrgvectors + mean * Float(rcnt)) * mean_scale;
         mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
-        mrgmean = (mrgmean * mrgvectors + mean * static_cast<Float>(rcnt)) * mean_scale;
+        mrgmean = (mrgmean * mrgvectors + mean * Float(rcnt)) * mean_scale;
         mrgvectors = sum_n1n2;
 
         lrc_ptr[id] += rcnt;
@@ -274,15 +276,15 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
             Float mean = Float(0);
             mean = lmean_ptr[offset];
 
-            const Float sum_n1n2 = mrgvectors + static_cast<Float>(rcnt);
-            const Float mul_n1n2 = mrgvectors * static_cast<Float>(rcnt);
+            const Float sum_n1n2 = mrgvectors + Float(rcnt);
+            const Float mul_n1n2 = mrgvectors * Float(rcnt);
             const Float delta_scale = mul_n1n2 / sum_n1n2;
             const Float mean_scale = Float(1) / sum_n1n2;
             const Float delta = mean - mrgmean;
 
             mrgsum += sum;
             mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
-            mrgmean = (mrgmean * mrgvectors + mean * static_cast<Float>(rcnt)) * mean_scale;
+            mrgmean = (mrgmean * mrgvectors + mean * Float(rcnt)) * mean_scale;
             mrgvectors = sum_n1n2;
 
             // item 0 collects all results in private vars
@@ -442,7 +444,7 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge
                 Float sum = Float(0);
                 sum = bsum_ptr[offset];
 
-                Float rcnt = static_cast<Float>(brc_ptr[i]);
+                Float rcnt = Float(brc_ptr[i]);
                 Float sum2cent = Float(0);
                 sum2cent = bsum2cent_ptr[offset];
                 Float mean = sum / rcnt;
