@@ -17,30 +17,19 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/blas/misc.hpp"
+
+#include <mkl_dal_sycl.hpp>
 
 namespace oneapi::dal::backend::primitives {
 
-#ifdef ONEDAL_DATA_PARALLEL
+namespace mkl = oneapi::fpk;
 
-template <typename Float, ndorder ao, ndorder bo, ndorder co>
-sycl::event gemm(sycl::queue& queue,
-                 const ndview<Float, 2, ao>& a,
-                 const ndview<Float, 2, bo>& b,
-                 ndview<Float, 2, co>& c,
-                 Float alpha = Float(1),
-                 Float beta = Float(0),
-                 const event_vector& deps = {});
-
-template <typename Float, ndorder ao, ndorder bo, ndorder co>
-inline sycl::event gemm(sycl::queue& queue,
-                        const ndview<Float, 2, ao>& a,
-                        const ndview<Float, 2, bo>& b,
-                        ndview<Float, 2, co>& c,
-                        const event_vector& deps = {}) {
-    return gemm<Float>(queue, a, b, c, Float(1), Float(0), deps);
+inline constexpr mkl::transpose f_order_as_transposed(ndorder order) {
+    return (order == ndorder::f) ? mkl::transpose::trans : mkl::transpose::nontrans;
 }
 
-#endif
+inline constexpr mkl::transpose c_order_as_transposed(ndorder order) {
+    return (order == ndorder::c) ? mkl::transpose::trans : mkl::transpose::nontrans;
+}
 
 } // namespace oneapi::dal::backend::primitives
