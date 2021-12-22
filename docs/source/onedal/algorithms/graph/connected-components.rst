@@ -52,7 +52,7 @@ determine their quantity and label vertices so that vertices from the same compo
     :align: center
     :alt:
  
-Сomponents are numbered from :math:`0` to :math:`k-1`, where :math:`k` is the number of components.
+Сomponents are labeled from :math:`0` to :math:`k-1`, where :math:`k` is the number of components.
 For the example above, the labels for vertices are 
  
 [0, 1, 1, 1, 2, 0, 1, 3, 4, 4, 4, 4, 4]
