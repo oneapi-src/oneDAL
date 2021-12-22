@@ -33,7 +33,7 @@ Mathematical formulation
 Components definition
 ---------------------
 
-A graph is connected if there exists a :capterm:`walk<Walk>` between every pair of its vertices [Gross2014]_.
+A graph is connected if there is a :capterm:`walk<Walk>` between every pair of its vertices [Gross2014]_.
 
 A component of a graph :math:`G` is a connected :capterm:`subgraph<Subgraph>` :math:`H` such that no subgraph
 of :math:`G` that properly contains :math:`H` is connected. In other words, a component is a maximal
