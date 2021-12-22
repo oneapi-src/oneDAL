@@ -43,7 +43,7 @@ Computing
 ---------
 
 Given an :capterm:`undirected graph<Undirected graph>` :math:`G`, the problem is to find connected components in :math:`G`, 
-determine their quantity and label vertices so that vertices from the same component have the same labels.
+determine their quantity, and label vertices so that vertices from the same component have the same label.
 
 .. rubric:: Example
 
