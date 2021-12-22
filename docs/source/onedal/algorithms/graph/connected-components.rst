@@ -58,11 +58,11 @@ For the example above, the labels for vertices are
 [0, 1, 1, 1, 2, 0, 1, 3, 4, 4, 4, 4, 4]
 
 This notation means that:
-* vertices with ids 0, 5 belong to connected component with id 0
-* vertices with ids 1, 2, 3, 6 belong to connected component with id 1
-* vertex with id 4 belongs to connected component with id 2
-* vertex with id 7 belongs to connected component with id 3
-* vertices with ids 8, 9, 10, 11, 12 belong to connected component with id 4
+* vertices with ids 0 and 5 belong to the connected component with id 0
+* vertices with ids 1, 2, 3, and 6 belong to the connected component with id 1
+* vertex with id 4 belongs to the connected component with id 2
+* vertex with id 7 belongs to the connected component with id 3
+* vertices with ids 8, 9, 10, 11, and 12 belong to the connected component with id 4
 
 .. _connected_components_afforest:
 
