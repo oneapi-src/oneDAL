@@ -53,10 +53,10 @@ struct TaskKMeansLloyd
 
     TaskKMeansLloyd(int _dim, int _clNum, int _nSamples, algorithmFPType * _centroids, const size_t max_block_size)
     {
-        dim              = _dim;
-        clNum            = _clNum;
-        nSamples         = _nSamples;
-        cCenters         = _centroids;
+        dim      = _dim;
+        clNum    = _clNum;
+        nSamples = _nSamples;
+        cCenters = _centroids;
 
         /* Allocate memory for all arrays inside TLS */
         tls_task = new daal::static_tls<TlsTask<algorithmFPType, cpu> *>([=]() -> TlsTask<algorithmFPType, cpu> * {
@@ -93,9 +93,11 @@ struct TaskKMeansLloyd
         }
     }
 
-    static SharedPtr<TaskKMeansLloyd<algorithmFPType, cpu> > create(int dim, int clNum, int nSamples, algorithmFPType * centroids, const size_t max_block_size)
+    static SharedPtr<TaskKMeansLloyd<algorithmFPType, cpu> > create(int dim, int clNum, int nSamples, algorithmFPType * centroids,
+                                                                    const size_t max_block_size)
     {
-        SharedPtr<TaskKMeansLloyd<algorithmFPType, cpu> > result(new TaskKMeansLloyd<algorithmFPType, cpu>(dim, clNum, nSamples, centroids, max_block_size));
+        SharedPtr<TaskKMeansLloyd<algorithmFPType, cpu> > result(
+            new TaskKMeansLloyd<algorithmFPType, cpu>(dim, clNum, nSamples, centroids, max_block_size));
         if (result.get() && (!result->tls_task || !result->clSq))
         {
             result.reset();
@@ -395,11 +397,9 @@ template <typename algorithmFPType, CpuType cpu>
 template <typename centroidsFPType>
 int TaskKMeansLloyd<algorithmFPType, cpu>::kmeansUpdatePoints(int jidx)
 {
-    int idx = (int)jidx;
-
     int ji = 0;
 
-    tls_task->reduce([&](TlsTask<algorithmFPType, cpu> * tt) -> void { ji += tt->cS2[tt->cIndices[idx]]; });
+    tls_task->reduce([&](TlsTask<algorithmFPType, cpu> * tt) -> void { ji += tt->cS2[tt->cIndices[jidx]]; });
 
     return ji;
 }

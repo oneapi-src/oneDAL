@@ -175,7 +175,8 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
             for (size_t i = 0; i < nClusters; i++)
             {
-                if (clusterS0[i] == 0) {
+                if (clusterS0[i] == 0)
+                {
                     DAAL_CHECK(cPos < cNum, services::ErrorKMeansNumberOfClustersIsTooLarge);
                     newCentersGoalFunc += cValues[cPos];
                     ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices[cPos], 1);
