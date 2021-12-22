@@ -53,9 +53,7 @@ determine their quantity, and label vertices so that vertices from the same comp
     :alt:
  
 Сomponents are labeled from :math:`0` to :math:`k-1`, where :math:`k` is the number of components.
-For the example above, the labels for vertices are 
- 
-[0, 1, 1, 1, 2, 0, 1, 3, 4, 4, 4, 4, 4]
+For the example above, the labels for vertices are [0, 1, 1, 1, 2, 0, 1, 3, 4, 4, 4, 4, 4].
 
 This notation means that:
 * vertices with ids 0 and 5 belong to the connected component with id 0
