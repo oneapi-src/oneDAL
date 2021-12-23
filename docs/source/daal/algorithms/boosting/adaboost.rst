@@ -138,7 +138,7 @@ Examples
     Batch Processing:
 
     - :cpp_example:`adaboost_dense_batch.cpp <boosting/adaboost_dense_batch.cpp>`
-
+  
   .. tab:: Python*
 
     - :daal4py_example:`adaboost_batch.py`
