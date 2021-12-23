@@ -57,7 +57,7 @@ inline sycl::event syrk(sycl::queue& queue,
                         const ndview<Float, 2, ao>& a,
                         ndview<Float, 2, co>& c,
                         const event_vector& deps = {}) {
-    return syrk<Float>(queue, a, c, Float(1), Float(0), deps);
+    return syrk<ul>(queue, a, c, Float(1), Float(0), deps);
 }
 
 template <typename Float, ndorder ao, ndorder co>
@@ -66,7 +66,7 @@ inline sycl::event syrk(sycl::queue& queue,
                         const ndview<Float, 2, ao>& a,
                         ndview<Float, 2, co>& c,
                         const event_vector& deps = {}) {
-    return syrk<Float>(queue, uplo, a, c, Float(1), Float(0), deps);
+    return syrk(queue, uplo, a, c, Float(1), Float(0), deps);
 }
 
 #endif
