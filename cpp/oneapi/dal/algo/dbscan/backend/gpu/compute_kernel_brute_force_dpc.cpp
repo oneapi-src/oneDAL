@@ -120,8 +120,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                                                        recv_counts[rank],
                                                        sycl::usm::alloc::device);
                 arr_event.wait_and_throw();
-                send_array =
-                    array<std::int32_t>::wrap(queue, arr_copy.get_data(), recv_counts[rank]);
+                send_array = arr_copy.flatten(queue);
             }
             auto recv_array = arr_queue.slice(queue_begin, total_count).flatten(queue);
             comm.allgatherv(send_array, recv_array, recv_counts.get_data(), displs.get_data())
