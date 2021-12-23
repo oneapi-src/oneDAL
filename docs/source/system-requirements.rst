@@ -37,6 +37,7 @@ Hardware Requirements
       - Intel® Core™ Processor Family
       - Intel® Xeon® Processor Family
       - Intel® Xeon® Scalable Performance Processor Family
+      - Generic X86 processor
 
 Software Requirements
 *********************
@@ -44,14 +45,14 @@ Software Requirements
 - GCC* 7.x or higher or Intel® C++ Compiler 19.1 and later
 - Intel® oneAPI DPC++ Compiler latest release (for oneAPI DPC++ interfaces)
 - Intel® oneAPI Threading Building Blocks latest release (for the multi-threaded version of oneDAL)
-- OpenCL(TM) 1.2 or later
 - C/C++ Compiler with C++11 support (or C++14 support on Windows*)
 - Microsoft Visual Studio* (2019 and 2022 versions) needed only if using Visual Studio IDE for development
 
 Operating Systems:
 
 - 64-bit Linux*: Ubuntu* 18.04 or higher
-- 64-bit Windows* 10
+- 64-bit Windows* 10 or higher
+- Windows Server 2019 or higher
 - macOS* 10.14 or higher
 
 To build examples with DPC++ API extensions, you also need:
