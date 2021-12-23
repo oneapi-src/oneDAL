@@ -48,10 +48,12 @@ Software Requirements
 - C/C++ Compiler with C++11 support (or C++14 support on Windows*)
 - Microsoft Visual Studio* (2019 and 2022 versions) needed only if using Visual Studio IDE for development
 
-Operating Systems:
+.. rubric:: Operating Systems
 
-- 64-bit Linux*: Ubuntu* 18.04 or higher
-- 64-bit Windows* 10 or higher
+|short_name| only supports 64-bit operating systems:
+
+- Linux*: Ubuntu* 18.04 or higher
+- Windows* 10 or higher
 - Windows Server 2019 or higher
 - macOS* 10.14 or higher
 
