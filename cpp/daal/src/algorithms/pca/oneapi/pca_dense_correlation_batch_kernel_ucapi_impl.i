@@ -32,6 +32,7 @@
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/sycl/reducer.h"
+#include <iostream>
 #include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
 
 using namespace daal::services;
@@ -95,6 +96,7 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
 
     if (isCorrelation)
     {
+        std::cout<<"is Correlation"<<std::endl;
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation);
 
         if (resultsToCompute & mean)
@@ -128,6 +130,7 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
     }
     else
     {
+        std::cout<<"is Data"<<std::endl;
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
         DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
         {
