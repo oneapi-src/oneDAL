@@ -32,4 +32,10 @@ inline constexpr mkl::transpose c_order_as_transposed(ndorder order) {
     return (order == ndorder::c) ? mkl::transpose::trans : mkl::transpose::nontrans;
 }
 
+inline constexpr mkl::uplo flip_uplo(mkl::uplo order) {
+    constexpr auto upper = mkl::uplo::upper;
+    constexpr auto lower = mkl::uplo::lower;
+    return (order == upper) ? lower : upper;
+}
+
 } // namespace oneapi::dal::backend::primitives
