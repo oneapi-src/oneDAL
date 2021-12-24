@@ -138,15 +138,7 @@ Examples
     Batch Processing:
 
     - :cpp_example:`adaboost_dense_batch.cpp <boosting/adaboost_dense_batch.cpp>`
-
-  .. tab:: Java*
-
-    .. note:: There is no support for Java on GPU.
-
-    Batch Processing:
-
-    - :java_example:`AdaBoostDenseBatch.java <boosting/adaboost/AdaBoostDenseBatch.java>`
-
+  
   .. tab:: Python*
 
     - :daal4py_example:`adaboost_batch.py`
