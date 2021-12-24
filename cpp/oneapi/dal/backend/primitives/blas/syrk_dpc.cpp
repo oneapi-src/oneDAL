@@ -21,10 +21,42 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <mkl::uplo ul, typename Float, ndorder ao, ndorder co>
+template<typename Float>
+static sycl::event syrk_wrapper(sycl::queue& queue,
+                                mkl::uplo uplo,
+                                mkl::transpose trans,
+                                std::int64_t n,
+                                std::int64_t k,
+                                Float alpha,
+                                const Float* a,
+                                std::int64_t lda,
+                                Float beta,
+                                Float* c,
+                                std::int64_t ldc,
+                                const event_vector& deps) {
+    [[maybe_unused]] const bool is_trans
+        = (trans == mkl::transpose::trans);
+    ONEDAL_ASSERT(ldc >= n);
+    ONEDAL_ASSERT(is_trans || lda >= n);
+    ONEDAL_ASSERT(!is_trans || lda >= k);
+    return mkl::blas::syrk(queue,
+                           uplo,
+                           trans,
+                           n,
+                           k,
+                           alpha,
+                           a,
+                           lda,
+                           beta,
+                           c,
+                           ldc,
+                           deps);
+}
+
+template <mkl::uplo uplo, typename Float, ndorder ao>
 sycl::event syrk(sycl::queue& queue,
                  const ndview<Float, 2, ao>& a,
-                 ndview<Float, 2, co>& c,
+                 ndview<Float, 2>& c,
                  Float alpha,
                  Float beta,
                  const event_vector& deps) {
@@ -33,62 +65,44 @@ sycl::event syrk(sycl::queue& queue,
     ONEDAL_ASSERT(c.has_mutable_data());
 
     const auto nd = c.get_dimension(0);
-    const auto kd = a.get_dimension(1);
+    const auto kd = a.get_dimension(0);
     const auto* const a_ptr = a.get_data();
     auto* const c_ptr = c.get_mutable_data();
     const auto a_str = a.get_leading_stride();
     const auto c_str = c.get_leading_stride();
-    constexpr bool is_c_trans = (co == ndorder::c);
-    if constexpr (is_c_trans) {
-        constexpr auto tr = f_order_as_transposed(ao);
-        return mkl::blas::syrk(queue,
-                               ul,
-                               tr,
-                               nd,
-                               kd,
-                               alpha,
-                               a_ptr,
-                               a_str,
-                               beta,
-                               c_ptr,
-                               c_str,
-                               deps);
-    } else {
-        constexpr auto tr = c_order_as_transposed(ao);
-        return mkl::blas::syrk(queue,
-                               ul,
-                               tr,
-                               nd,
-                               kd,
-                               alpha,
-                               a_ptr,
-                               a_str,
-                               beta,
-                               c_ptr,
-                               c_str,
-                               deps);
-    }
+    constexpr auto tr = f_order_as_transposed(ao);
+    constexpr auto ul = flip_uplo(uplo);
+    return syrk_wrapper(queue,
+                        ul,
+                        tr,
+                        nd,
+                        kd,
+                        alpha,
+                        a_ptr,
+                        a_str,
+                        beta,
+                        c_ptr,
+                        c_str,
+                        deps);
 }
 
-#define INSTANTIATE(ul, F, ao, co)                                                \
-    template ONEDAL_EXPORT sycl::event syrk<ul, F, ao, co>(sycl::queue & queue,       \
-                                                           const ndview<F, 2, ao>& a, \
-                                                           ndview<F, 2, co>& c,       \
-                                                           F alpha,                   \
-                                                           F beta,                    \
-                                                           const event_vector& deps);
+#define INSTANTIATE(ul, F, ao)                                                    \
+    template ONEDAL_EXPORT sycl::event syrk<ul, F, ao>(sycl::queue & queue,       \
+                                                       const ndview<F, 2, ao>& a, \
+                                                       ndview<F, 2>& c,           \
+                                                       F alpha,                   \
+                                                       F beta,                    \
+                                                       const event_vector& deps);
 
-#define INSTANTIATE_FLOAT(ul, ao, co) \
-    INSTANTIATE(ul, float, ao, co)    \
-    INSTANTIATE(ul, double, ao, co)
+#define INSTANTIATE_FLOAT(ul, ao) \
+    INSTANTIATE(ul, float, ao)    \
+    INSTANTIATE(ul, double, ao)
 
-#define INSTANTIATE_UPLO(ao, co)                   \
-    INSTANTIATE_FLOAT(mkl::uplo::upper, ao, co)    \
-    INSTANTIATE_FLOAT(mkl::uplo::lower, ao, co)
+#define INSTANTIATE_UPLO(ao)                   \
+    INSTANTIATE_FLOAT(mkl::uplo::upper, ao)    \
+    INSTANTIATE_FLOAT(mkl::uplo::lower, ao)
 
-INSTANTIATE_UPLO(ndorder::c, ndorder::c)
-INSTANTIATE_UPLO(ndorder::c, ndorder::f)
-INSTANTIATE_UPLO(ndorder::f, ndorder::c)
-INSTANTIATE_UPLO(ndorder::f, ndorder::f)
+INSTANTIATE_UPLO(ndorder::c)
+INSTANTIATE_UPLO(ndorder::f)
 
 } // namespace oneapi::dal::backend::primitives
