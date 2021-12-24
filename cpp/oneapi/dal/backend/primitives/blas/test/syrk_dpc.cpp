@@ -17,6 +17,7 @@
 #include <type_traits>
 
 #include "oneapi/dal/backend/primitives/blas/syrk.hpp"
+#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
@@ -43,14 +44,14 @@ using lower = uplo_tag<mkl::uplo::lower>;
 template <typename Param>
 class syrk_test : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
+    static constexpr auto co = ndorder::c;
     using float_t = std::tuple_element_t<0, Param>;
     static constexpr auto ao = std::tuple_element_t<1, Param>::value;
-    static constexpr auto co = std::tuple_element_t<2, Param>::value;
-    static constexpr auto ul = std::tuple_element_t<3, Param>::value;
+    static constexpr auto ul = std::tuple_element_t<2, Param>::value;
 
     void generate_small_dimensions() {
         n_ = GENERATE(4, 5, 6);
-        k_ = GENERATE(5, 6, 7);
+        k_ = GENERATE(3, 7, 9);
         CAPTURE(n_, k_);
     }
 
@@ -65,37 +66,74 @@ public:
         return ndarray<float_t, 2, ao>::ones(this->get_queue(), { n_, k_ });
     }
 
-    auto At() {
+    auto B() {
         check_if_initialized();
-        return ndarray<float_t, 2, ao>::ones(this->get_queue(), { n_, k_ });
+        return ndarray<float_t, 2, ao>::ones(this->get_queue(), { k_, n_ });
     }
 
     auto C() {
         check_if_initialized();
-        return ndarray<float_t, 2, co>::empty(this->get_queue(), { n_, n_ });
+        return ndarray<float_t, 2, co>::zeros(this->get_queue(), { n_, n_ });
     }
 
-    void test_syrk() {
-        auto c = C();
+    void test_asyrk() {
+        auto [c, c_e] = C();
         auto [a, a_e] = A();
-        auto [at, at_e] = At();
 
         auto& q = this->get_queue();
 
-        SECTION("A x A") {
-            syrk<ul>(q, a, c, { a_e }).wait_and_throw();
-            check_ones_matrix(c);
-        }
-
         SECTION("At x At") {
-            syrk<ul>(q, at.t(), c, { at_e }).wait_and_throw();
+            const auto b = a.t();
+            REQUIRE(b.get_shape() == ndshape<2>{ k_, n_ });
+            syrk<ul>(q, b, c, { a_e, c_e }).wait_and_throw();
             check_ones_matrix(c);
         }
     }
 
-    void check_ones_matrix(const ndview<float_t, 2, co>& mat) {
+    void test_bsyrk() {
+        auto [c, c_e] = C();
+        auto [b, b_e] = B();
+
+        auto& q = this->get_queue();
+
+        SECTION("B x B") {
+            REQUIRE(b.get_shape() == ndshape<2>{ k_, n_ });
+            syrk<ul>(q, b, c, { b_e, c_e }).wait_and_throw();
+            check_ones_matrix(c);
+        }
+    }
+
+    void check_ones_matrix(const ndview<float_t, 2, co>& mat,
+                                        float_t tol = 1e-7) {
         check_if_initialized();
         REQUIRE(mat.get_shape() == ndshape<2>{ n_, n_ });
+
+        constexpr bool is_upper = (ul == mkl::uplo::upper);
+        constexpr bool is_lower = (ul == mkl::uplo::lower);
+
+        for(std::int64_t r = 0; r < n_; ++r) {
+            for(std::int64_t c = r; is_upper && c < n_; ++c) {
+                const auto gtr = float_t(k_);
+                const auto val = mat.at(r, c);
+                const auto err = std::abs(val - gtr) / gtr;
+                if (err > tol) {
+                    CAPTURE(r, c, val, gtr, err);
+                    CAPTURE(tol, ao, co, ul);
+                    FAIL();
+                }
+            }
+            for(std::int64_t c = 0; is_lower && c <= r; ++c) {
+                const auto gtr = float_t(k_);
+                const auto val = mat.at(r, c);
+                const auto err = std::abs(val - gtr) / gtr;
+                if (err > tol) {
+                    CAPTURE(r, c, val, gtr, err);
+                    CAPTURE(tol, ao, co, ul);
+                    FAIL();
+                }
+            }
+        }
+
         SUCCEED();
     }
 
@@ -116,23 +154,42 @@ private:
 
 using syrk_types = COMBINE_TYPES((float, double),
                                  (c_order, f_order),
-                                 (c_order, f_order),
                                  (upper, lower));
 
-TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix syrk on small sizes", "[syrk][small]", syrk_types) {
+TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix AxA syrk"
+        "on small sizes", "[syrk][small]", syrk_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
     this->generate_small_dimensions();
-    this->test_syrk();
+    this->test_asyrk();
 }
 
-TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix syrk on medium sizes", "[syrk][medium]", syrk_types) {
+TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix BxB syrk"
+        "on small sizes", "[syrk][small]", syrk_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+
+    this->generate_small_dimensions();
+    this->test_bsyrk();
+}
+
+TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix AxA"
+        "syrk on medium sizes", "[syrk][medium]", syrk_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
     this->generate_medium_dimensions();
-    this->test_syrk();
+    this->test_asyrk();
+}
+
+TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix BxB"
+        "syrk on medium sizes", "[syrk][medium]", syrk_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+
+    this->generate_medium_dimensions();
+    this->test_bsyrk();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

@@ -25,48 +25,20 @@ namespace oneapi::dal::backend::primitives {
 
 namespace mkl = oneapi::fpk;
 
-template <mkl::uplo ul, typename Float, ndorder ao, ndorder co>
+template <mkl::uplo ul, typename Float, ndorder ao>
 sycl::event syrk(sycl::queue& queue,
                  const ndview<Float, 2, ao>& a,
-                 ndview<Float, 2, co>& c,
+                 ndview<Float, 2>& c,
                  Float alpha = Float(1),
                  Float beta = Float(0),
                  const event_vector& deps = {});
 
-template <typename Float, ndorder ao, ndorder co>
-inline sycl::event syrk(sycl::queue& queue,
-                        mkl::uplo uplo,
-                        const ndview<Float, 2, ao>& a,
-                        ndview<Float, 2, co>& c,
-                        Float alpha = Float(1),
-                        Float beta = Float(0),
-                        const event_vector& deps = {}) {
-    sycl::event res_event;
-    if (uplo == mkl::uplo::upper) {
-        constexpr auto upper = mkl::uplo::upper;
-        res_event = syrk<upper>(queue, a, c, alpha, beta, deps);
-    } else {
-        constexpr auto lower = mkl::uplo::lower;
-        res_event = syrk<lower>(queue, a, c, alpha, beta, deps);
-    }
-    return res_event;
-}
-
-template <mkl::uplo ul, typename Float, ndorder ao, ndorder co>
+template <mkl::uplo ul, typename Float, ndorder ao>
 inline sycl::event syrk(sycl::queue& queue,
                         const ndview<Float, 2, ao>& a,
-                        ndview<Float, 2, co>& c,
+                        ndview<Float, 2>& c,
                         const event_vector& deps = {}) {
     return syrk<ul>(queue, a, c, Float(1), Float(0), deps);
-}
-
-template <typename Float, ndorder ao, ndorder co>
-inline sycl::event syrk(sycl::queue& queue,
-                        mkl::uplo uplo,
-                        const ndview<Float, 2, ao>& a,
-                        ndview<Float, 2, co>& c,
-                        const event_vector& deps = {}) {
-    return syrk(queue, uplo, a, c, Float(1), Float(0), deps);
 }
 
 #endif
