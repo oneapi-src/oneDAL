@@ -53,6 +53,10 @@ struct train_ops {
         if (input.get_data().get_row_count() != input.get_responses().get_row_count()) {
             throw invalid_argument(msg::input_data_rc_neq_input_responses_rc());
         }
+        if (input.get_weights().has_data() &&
+            input.get_data().get_row_count() != input.get_weights().get_row_count()) {
+            throw invalid_argument(msg::input_data_rc_neq_input_weights_rc());
+        }
         if (!params.get_bootstrap() &&
             (params.get_variable_importance_mode() == variable_importance_mode::mda_raw ||
              params.get_variable_importance_mode() == variable_importance_mode::mda_scaled)) {
