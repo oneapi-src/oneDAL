@@ -103,16 +103,15 @@ public:
         }
     }
 
-    void check_ones_matrix(const ndview<float_t, 2, co>& mat,
-                                        float_t tol = 1e-7) {
+    void check_ones_matrix(const ndview<float_t, 2, co>& mat, float_t tol = 1e-7) {
         check_if_initialized();
         REQUIRE(mat.get_shape() == ndshape<2>{ n_, n_ });
 
         constexpr bool is_upper = (ul == mkl::uplo::upper);
         constexpr bool is_lower = (ul == mkl::uplo::lower);
 
-        for(std::int64_t r = 0; r < n_; ++r) {
-            for(std::int64_t c = r; is_upper && c < n_; ++c) {
+        for (std::int64_t r = 0; r < n_; ++r) {
+            for (std::int64_t c = r; is_upper && c < n_; ++c) {
                 const auto gtr = float_t(k_);
                 const auto val = mat.at(r, c);
                 const auto err = std::abs(val - gtr) / gtr;
@@ -122,7 +121,7 @@ public:
                     FAIL();
                 }
             }
-            for(std::int64_t c = 0; is_lower && c <= r; ++c) {
+            for (std::int64_t c = 0; is_lower && c <= r; ++c) {
                 const auto gtr = float_t(k_);
                 const auto val = mat.at(r, c);
                 const auto err = std::abs(val - gtr) / gtr;
@@ -138,7 +137,7 @@ public:
     }
 
     bool is_initialized() const {
-        return  n_ > 0 && k_ > 0;
+        return n_ > 0 && k_ > 0;
     }
 
     void check_if_initialized() {
@@ -152,12 +151,13 @@ private:
     std::int64_t k_ = 0;
 };
 
-using syrk_types = COMBINE_TYPES((float, double),
-                                 (c_order, f_order),
-                                 (upper, lower));
+using syrk_types = COMBINE_TYPES((float, double), (c_order, f_order), (upper, lower));
 
-TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix AxA syrk"
-        "on small sizes", "[syrk][small]", syrk_types) {
+TEMPLATE_LIST_TEST_M(syrk_test,
+                     "ones matrix AxA syrk"
+                     "on small sizes",
+                     "[syrk][small]",
+                     syrk_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
@@ -165,8 +165,11 @@ TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix AxA syrk"
     this->test_asyrk();
 }
 
-TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix BxB syrk"
-        "on small sizes", "[syrk][small]", syrk_types) {
+TEMPLATE_LIST_TEST_M(syrk_test,
+                     "ones matrix BxB syrk"
+                     "on small sizes",
+                     "[syrk][small]",
+                     syrk_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
@@ -174,8 +177,11 @@ TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix BxB syrk"
     this->test_bsyrk();
 }
 
-TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix AxA"
-        "syrk on medium sizes", "[syrk][medium]", syrk_types) {
+TEMPLATE_LIST_TEST_M(syrk_test,
+                     "ones matrix AxA"
+                     "syrk on medium sizes",
+                     "[syrk][medium]",
+                     syrk_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
@@ -183,8 +189,11 @@ TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix AxA"
     this->test_asyrk();
 }
 
-TEMPLATE_LIST_TEST_M(syrk_test, "ones matrix BxB"
-        "syrk on medium sizes", "[syrk][medium]", syrk_types) {
+TEMPLATE_LIST_TEST_M(syrk_test,
+                     "ones matrix BxB"
+                     "syrk on medium sizes",
+                     "[syrk][medium]",
+                     syrk_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 

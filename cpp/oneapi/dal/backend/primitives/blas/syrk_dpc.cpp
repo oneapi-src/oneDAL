@@ -21,7 +21,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename Float>
+template <typename Float>
 static sycl::event syrk_wrapper(sycl::queue& queue,
                                 mkl::uplo uplo,
                                 mkl::transpose trans,
@@ -34,23 +34,11 @@ static sycl::event syrk_wrapper(sycl::queue& queue,
                                 Float* c,
                                 std::int64_t ldc,
                                 const event_vector& deps) {
-    [[maybe_unused]] const bool is_trans
-        = (trans == mkl::transpose::trans);
+    [[maybe_unused]] const bool is_trans = (trans == mkl::transpose::trans);
     ONEDAL_ASSERT(ldc >= n);
     ONEDAL_ASSERT(is_trans || lda >= n);
     ONEDAL_ASSERT(!is_trans || lda >= k);
-    return mkl::blas::syrk(queue,
-                           uplo,
-                           trans,
-                           n,
-                           k,
-                           alpha,
-                           a,
-                           lda,
-                           beta,
-                           c,
-                           ldc,
-                           deps);
+    return mkl::blas::syrk(queue, uplo, trans, n, k, alpha, a, lda, beta, c, ldc, deps);
 }
 
 template <mkl::uplo uplo, typename Float, ndorder ao>
@@ -72,18 +60,7 @@ sycl::event syrk(sycl::queue& queue,
     const auto c_str = c.get_leading_stride();
     constexpr auto tr = f_order_as_transposed(ao);
     constexpr auto ul = flip_uplo(uplo);
-    return syrk_wrapper(queue,
-                        ul,
-                        tr,
-                        nd,
-                        kd,
-                        alpha,
-                        a_ptr,
-                        a_str,
-                        beta,
-                        c_ptr,
-                        c_str,
-                        deps);
+    return syrk_wrapper(queue, ul, tr, nd, kd, alpha, a_ptr, a_str, beta, c_ptr, c_str, deps);
 }
 
 #define INSTANTIATE(ul, F, ao)                                                    \
@@ -98,8 +75,8 @@ sycl::event syrk(sycl::queue& queue,
     INSTANTIATE(ul, float, ao)    \
     INSTANTIATE(ul, double, ao)
 
-#define INSTANTIATE_UPLO(ao)                   \
-    INSTANTIATE_FLOAT(mkl::uplo::upper, ao)    \
+#define INSTANTIATE_UPLO(ao)                \
+    INSTANTIATE_FLOAT(mkl::uplo::upper, ao) \
     INSTANTIATE_FLOAT(mkl::uplo::lower, ao)
 
 INSTANTIATE_UPLO(ndorder::c)
