@@ -24,4 +24,5 @@ MPI  =  basic_statistics_distr_ccl            \
         dbscan_distr_ccl                      \
         decision_forest_cls_hist_distr_ccl    \
         decision_forest_reg_hist_distr_ccl    \
-        kmeans_distr_ccl    
+        kmeans_distr_ccl                      \
+        pca_distr_ccl  
