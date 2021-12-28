@@ -107,7 +107,7 @@ auto compute_correlation(sycl::queue& q,
 }
 
 /* single pass kernel for device execution */
-template <typename Float, bool DefferedFin>
+template <typename Float>
 inline void single_pass_block_processor(const Float* data_ptr,
                                         Float* rsum_ptr,
                                         Float* rsum2cent_ptr,
@@ -150,7 +150,7 @@ inline void single_pass_block_processor(const Float* data_ptr,
     Float variance = sum2cent / (row_block_size - Float(1));
 
     rvarc_ptr[x] = variance;
-} // namespace oneapi::dal::pca::backend
+}
 
 /* block processing kernel for device execution */
 template <typename Float>
@@ -200,7 +200,7 @@ inline void block_processor(const Float* data_ptr,
 }
 
 /* block processing kernel for device execution */
-template <typename Float, bool DefferedFin>
+template <typename Float>
 inline void merge_blocks_kernel(sycl::nd_item<1> item,
                                 const std::int64_t* brc_ptr,
                                 const Float* bsum_ptr,
@@ -306,13 +306,11 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
 
         rsum2cent_ptr[group_id] = mrgsum2cent;
 
-        if constexpr (!DefferedFin) {
-            Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
+        Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
 
-            rmean_ptr[group_id] = mrgmean;
+        rmean_ptr[group_id] = mrgmean;
 
-            rvarc_ptr[group_id] = mrgvariance;
-        }
+        rvarc_ptr[group_id] = mrgvariance;
     }
 }
 
@@ -327,7 +325,7 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge
     ONEDAL_ASSERT(column_count > 0);
     ONEDAL_ASSERT(block_count > 0);
 
-    const bool distr_mode = comm_.get_rank_count() > 1;
+    //const bool distr_mode = comm_.get_rank_count() > 1;
     auto ndres = local_result<Float>::empty(q_, column_count);
 
     const std::int64_t* brc_ptr = ndbuf.get_rc_list().get_data();
@@ -339,9 +337,6 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge
     Float* rvarc_ptr = ndres.get_varc().get_mutable_data();
     std::int64_t local_size = bk::device_max_sg_size(q_);
     auto global_size = de::check_mul_overflow(column_count, local_size);
-
-    constexpr bool deffered_fin_true = true;
-    constexpr bool deffered_fin_false = false;
 
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(global_size, local_size);
 
@@ -363,42 +358,22 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::merge
             Float* lsum2cent_ptr = lsum2cent_buf.get_pointer().get();
             Float* lmean_ptr = lmean_buf.get_pointer().get();
 
-            if (distr_mode) {
-                merge_blocks_kernel<Float, deffered_fin_true>(item,
-                                                              brc_ptr,
-                                                              bsum_ptr,
-                                                              bsum2cent_ptr,
-                                                              lrc_ptr,
-                                                              lsum_ptr,
-                                                              lmean_ptr,
-                                                              lsum2cent_ptr,
-                                                              rsum_ptr,
-                                                              rsum2cent_ptr,
-                                                              rmean_ptr,
-                                                              rvarc_ptr,
-                                                              id,
-                                                              group_id,
-                                                              local_size,
-                                                              block_count);
-            }
-            else {
-                merge_blocks_kernel<Float, deffered_fin_false>(item,
-                                                               brc_ptr,
-                                                               bsum_ptr,
-                                                               bsum2cent_ptr,
-                                                               lrc_ptr,
-                                                               lsum_ptr,
-                                                               lmean_ptr,
-                                                               lsum2cent_ptr,
-                                                               rsum_ptr,
-                                                               rsum2cent_ptr,
-                                                               rmean_ptr,
-                                                               rvarc_ptr,
-                                                               id,
-                                                               group_id,
-                                                               local_size,
-                                                               block_count);
-            }
+            merge_blocks_kernel<Float>(item,
+                                       brc_ptr,
+                                       bsum_ptr,
+                                       bsum2cent_ptr,
+                                       lrc_ptr,
+                                       lsum_ptr,
+                                       lmean_ptr,
+                                       lsum2cent_ptr,
+                                       rsum_ptr,
+                                       rsum2cent_ptr,
+                                       rmean_ptr,
+                                       rvarc_ptr,
+                                       id,
+                                       group_id,
+                                       local_size,
+                                       block_count);
         });
     });
 
@@ -482,13 +457,8 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::compu
 
     ONEDAL_ASSERT(data.has_data());
 
-    constexpr bool deffered_fin_true = true;
-    constexpr bool deffered_fin_false = false;
-
     std::int64_t row_count = data.get_dimension(0);
     std::int64_t column_count = data.get_dimension(1);
-
-    const bool distr_mode = comm_.get_rank_count() > 1;
 
     auto ndres = local_result<Float>::empty(q_, column_count);
     const auto column_block_count = get_column_block_count(column_count);
@@ -514,32 +484,17 @@ std::tuple<local_result<Float>, sycl::event> train_kernel_cov_impl<Float>::compu
             const std::int64_t row_block_idx = gid / column_block_count;
             const std::int64_t col_block_idx = gid - row_block_idx * column_block_count;
 
-            if (distr_mode) {
-                single_pass_block_processor<Float, deffered_fin_true>(data_ptr,
-                                                                      rsum_ptr,
-                                                                      rsum2cent_ptr,
-                                                                      rmean_ptr,
-                                                                      rvarc_ptr,
-                                                                      row_count,
-                                                                      column_count,
-                                                                      col_block_idx,
-                                                                      column_block_count,
-                                                                      tid,
-                                                                      tnum);
-            }
-            else {
-                single_pass_block_processor<Float, deffered_fin_false>(data_ptr,
-                                                                       rsum_ptr,
-                                                                       rsum2cent_ptr,
-                                                                       rmean_ptr,
-                                                                       rvarc_ptr,
-                                                                       row_count,
-                                                                       column_count,
-                                                                       col_block_idx,
-                                                                       column_block_count,
-                                                                       tid,
-                                                                       tnum);
-            }
+            single_pass_block_processor<Float>(data_ptr,
+                                               rsum_ptr,
+                                               rsum2cent_ptr,
+                                               rmean_ptr,
+                                               rvarc_ptr,
+                                               row_count,
+                                               column_count,
+                                               col_block_idx,
+                                               column_block_count,
+                                               tid,
+                                               tnum);
         });
     });
 
