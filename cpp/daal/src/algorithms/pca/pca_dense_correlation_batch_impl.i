@@ -29,7 +29,6 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
-#include <iostream>
 #include "src/externals/service_profiler.h"
 
 namespace daal
@@ -69,7 +68,6 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     services::Status status;
     if (isCorrelation)
     {
-        std::cout<<"is Correlation"<<std::endl;
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation);
         if (resultsToCompute & mean)
         {
@@ -88,7 +86,6 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     }
     else
     {
-        std::cout<<"is Data"<<std::endl;
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
 
         DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
