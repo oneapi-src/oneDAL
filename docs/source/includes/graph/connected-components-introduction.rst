@@ -15,7 +15,8 @@
 .. *******************************************************************************/
 
 Connected components algorithm receives an undirected graph :math:`G` as an input and searches for connected components in :math:`G`.
-The algorithm returns labels for the graph vertices such that vertices inside the same component have the same labels.
+For each vertex in :math:`G`, the algorithm returns the label of the component this vertex belongs to. 
+The result of the algorithm is a set of labels for all vertices in :math:`G`.
 
 .. |cc_compute|     replace::   :ref:`Computing                   <connected_components_compute>`
 .. |cc_afforest|    replace::   :ref:`afforest                    <connected_components_afforest>`

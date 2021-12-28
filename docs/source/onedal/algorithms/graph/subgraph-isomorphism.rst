@@ -19,7 +19,7 @@
 .. _alg_subgraph_isomorphism:
 
 ====================
-Subgraph isomorphism
+Subgraph Isomorphism
 ====================
 
 .. include::  ../../../includes/graph/subgraph-isomorphism-introduction.rst

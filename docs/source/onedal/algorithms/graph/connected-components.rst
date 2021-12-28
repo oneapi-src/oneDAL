@@ -19,7 +19,7 @@
 .. _alg_connected_components:
 
 ====================
-Connected components
+Connected Components
 ====================
 
 .. include::  ../../../includes/graph/connected-components-introduction.rst
@@ -30,19 +30,10 @@ Mathematical formulation
 
 .. _connected_components_compute:
 
-Components definition
----------------------
-
-A graph is connected if there is a :capterm:`walk<Walk>` between every pair of its vertices [Gross2014]_.
-
-A component of a graph :math:`G` is a connected :capterm:`subgraph<Subgraph>` :math:`H` such that no subgraph
-of :math:`G` that properly contains :math:`H` is connected. In other words, a component is the maximal
-connected subgraph [Gross2014]_. 
-
 Computing
 ---------
 
-Given an :capterm:`undirected graph<Undirected graph>` :math:`G`, the problem is to find connected components in :math:`G`, 
+Given an :capterm:`undirected graph<Undirected graph>` :math:`G`, the problem is to find :capterm:`connected components<Component>` in :math:`G`, 
 determine their quantity, and label vertices so that vertices from the same component have the same label.
 
 .. rubric:: Example
@@ -56,17 +47,24 @@ determine their quantity, and label vertices so that vertices from the same comp
 For the example above, the labels for vertices are [0, 1, 1, 1, 2, 0, 1, 3, 4, 4, 4, 4, 4].
 
 This notation means that:
-* vertices with ids 0 and 5 belong to the connected component with id 0
-* vertices with ids 1, 2, 3, and 6 belong to the connected component with id 1
-* vertex with id 4 belongs to the connected component with id 2
-* vertex with id 7 belongs to the connected component with id 3
-* vertices with ids 8, 9, 10, 11, and 12 belong to the connected component with id 4
+
+* vertices with ids 0 and 5 belong to the connected component with id 0 
+* vertices with ids 1, 2, 3, and 6 belong to the connected component with id 1 
+* vertex with id 4 belongs to the connected component with id 2 
+* vertex with id 7 belongs to the connected component with id 3 
+* vertices with ids 8, 9, 10, 11, and 12 belong to the connected component with id 4 
 
 .. _connected_components_afforest:
 
 Computation method: *afforest*
 ------------------------------
-The method defines Afforest algorithm and solves the problem of сonnected components identification in undirected graph.
+The method defines Afforest algorithm and solves the problem of сonnected components identification in an undirected graph.
+
+This algorithm expands the Shiloach-Vishkin connected components algorithm and uses component approximation to decrease redundant edge processing. The method consists of the following steps:
+
+#. Process a fixed number of edges for each vertex (Vertex Neighbor Sampling optimization).
+#. Identify the largest intermediate component using probabilistic method.
+#. Process the rest of the neighborhoods only for the vertices that do not belong to the largest component (Large Component Skipping optimization).
 
 For more details, see [Sutton2018]_.
 
@@ -81,3 +79,4 @@ Examples
 --------
 
 .. include:: ../../../includes/graph/connected-components-examples.rst
+Afforest is based on two optimizations - Vertex Neighbor Sampling and Large Component Skipping.
