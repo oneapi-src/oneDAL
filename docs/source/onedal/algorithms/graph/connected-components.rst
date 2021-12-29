@@ -79,4 +79,3 @@ Examples
 --------
 
 .. include:: ../../../includes/graph/connected-components-examples.rst
-Afforest is based on two optimizations - Vertex Neighbor Sampling and Large Component Skipping.
