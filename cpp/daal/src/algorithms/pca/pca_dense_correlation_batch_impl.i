@@ -29,7 +29,8 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
-
+#include <iostream>
+#include "daal.h"
 #include "src/externals/service_profiler.h"
 
 namespace daal
@@ -69,6 +70,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     services::Status status;
     if (isCorrelation)
     {
+        std::cout << "iscorrelation2" << std::endl;
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation);
         if (resultsToCompute & mean)
         {
@@ -87,6 +89,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     }
     else
     {
+        std::cout << "is data2" << std::endl;
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
 
         DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
@@ -97,21 +100,27 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
 
         auto pCovarianceTable          = covarianceAlg->getResult()->get(covariance::covariance);
         NumericTable & covarianceTable = *pCovarianceTable;
+        size_t nRows                   = pCovarianceTable->getNumberOfRows();
+        size_t nCols                   = pCovarianceTable->getNumberOfColumns();
+        std::cout << "Covariance in PCA" << std::endl;
+        for (size_t i = 0; i < nRows; i++)
+        {
+            for (size_t j = 0; j < nCols; j++)
+            {
+                std::cout << covarianceTable.getValue<float>(i, j) << " ";
+            }
+            std::cout << std::endl;
+        }
         if (resultsToCompute & mean)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyMeans);
-            DAAL_CHECK_STATUS(status, this->copyTable(*covarianceAlg->getResult()->get(covariance::mean), means));
+            DAAL_CHECK_STATUS(status, this->fillTable(means, (algorithmFPType)0));
         }
 
         if (resultsToCompute & variance)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
-            DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
-        }
-
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
-            DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));
+            DAAL_CHECK_STATUS(status, this->fillTable(variances, (algorithmFPType)1));
         }
 
         {
