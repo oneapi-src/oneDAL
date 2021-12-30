@@ -94,7 +94,7 @@ protected:
 
 /// Class for the Subgraph Isomorphism algorithm descriptor
 ///
-/// @tparam Float      This parameter is not used for Subgraph Isomorphism algortihm.
+/// @tparam Float      This parameter is not used for Subgraph Isomorphism algorithm.
 /// @tparam Method     Tag-type that specifies the implementation of the algorithm. Can
 ///                    be :expr:`method::fast`.
 /// @tparam Task       Tag-type that specifies the type of the problem to solve. Can
