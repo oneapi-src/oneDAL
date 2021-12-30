@@ -65,7 +65,7 @@ while non-induced subgraph isomorphism preserves only adjacency relationship.
 For the example above, the mappings for subgraph :math:`H` in graph :math:`G` are:
 
 - Induced: [3, 0, 1, 4, 2, 5]
-- Non-induced: [3, 0, 1, 4, 2, 5] and [3, 6, 1, 4, 2, 5]
+- Non-induced: [3, 0, 1, 4, 2, 5], [3, 6, 1, 4, 2, 5], [6, 0, 1, 2, 4, 5], and [4, 0, 1, 5, 6, 2]
 
 The notation [3, 0, 1, 4, 2, 5] means that:
 
