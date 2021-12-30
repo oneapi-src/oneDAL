@@ -74,7 +74,7 @@ protected:
 
 /// Class for the Connected Components algorithm descriptor
 ///
-/// @tparam Float       This parameter is not used for Connected Components algortihm.
+/// @tparam Float       This parameter is not used for Connected Components algorithm.
 /// @tparam Method      Tag-type that specifies the implementation of the algorithm. Can
 ///                     be :expr:`method::afforest`.
 /// @tparam Task        Tag-type that specifies the type of the problem to solve. Can
