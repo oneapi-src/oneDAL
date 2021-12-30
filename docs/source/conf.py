@@ -357,5 +357,6 @@ nitpick_ignore = [
     ('cpp:identifier', 'subgraph_isomorphism'),
     ('cpp:identifier', 'kind::induced'),
     ('cpp:identifier', 'kind::non_induced'),
-    ('cpp:identifier', 'preview')
+    ('cpp:identifier', 'preview'),
+    ('cpp:identifier', 'connected_components')
 ]
