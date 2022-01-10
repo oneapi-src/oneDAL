@@ -151,7 +151,6 @@ private:
 
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
 };
-
 } // namespace v1
 
 using v1::train_input;
