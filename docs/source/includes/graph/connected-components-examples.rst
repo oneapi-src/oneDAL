@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,14 +14,10 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=====
-Graph
-=====
+.. tabs::
 
-This chapter describes programming interfaces of the graph algorithms implemented in |short_name|:
+   .. group-tab:: oneAPI C++
 
-.. toctree::
-   :titlesonly:
+      Batch Processing:
 
-   subgraph-isomorphism.rst
-   connected-components.rst
+      - :ref:`cpp_connected_components_batch.cpp`

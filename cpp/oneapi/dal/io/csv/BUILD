@@ -14,5 +14,12 @@ dal_module(
 
 dal_test_suite(
     name = "tests",
-    tests = [],
+    framework = "catch2",
+    compile_as = [ "c++" ],
+    srcs = glob([
+        "test/*.cpp",
+    ]),
+    dal_deps = [
+        ":csv",
+    ],
 )

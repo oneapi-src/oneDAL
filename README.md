@@ -253,7 +253,7 @@ This repository contains branches corresponding to both oneAPI and classical ver
 
 |Product|Latest release|Branch|
 |-------|--------------|------|
-|oneDAL       |2021.4|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021.4-rls](https://github.com/oneapi-src/oneDAL/tree/rls/2021.4-rls)|
+|oneDAL       |2021.5|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021.5-rls](https://github.com/oneapi-src/oneDAL/tree/rls/2021.5-rls)|
 |Intel&reg; DAAL|2020 Update 3|[rls/daal-2020-u3-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-u3-rls)|
 
 
