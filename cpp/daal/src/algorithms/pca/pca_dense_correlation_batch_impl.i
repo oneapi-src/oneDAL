@@ -53,7 +53,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(bool
     if (isCorrelation) return this->computeCorrelationEigenvalues(dataTable, eigenvectors, eigenvalues);
     DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
     services::Status status;
-    covarianceAlg->parameter.outputMatrixType = covariance::correlationMatrix;
+    covarianceAlg->parameter.outputMatrixType = covariance::covarianceMatrix;
 
     DAAL_CHECK_STATUS(status, covarianceAlg->computeNoThrow());
     return this->computeCorrelationEigenvalues(*covarianceAlg->getResult()->get(covariance::covariance), eigenvectors, eigenvalues);
@@ -70,7 +70,6 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     services::Status status;
     if (isCorrelation)
     {
-        std::cout << "iscorrelation2" << std::endl;
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation);
         if (resultsToCompute & mean)
         {
@@ -89,7 +88,6 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     }
     else
     {
-        std::cout << "is data2" << std::endl;
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
 
         DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
@@ -102,15 +100,6 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
         NumericTable & covarianceTable = *pCovarianceTable;
         size_t nRows                   = pCovarianceTable->getNumberOfRows();
         size_t nCols                   = pCovarianceTable->getNumberOfColumns();
-        std::cout << "Covariance in PCA" << std::endl;
-        for (size_t i = 0; i < nRows; i++)
-        {
-            for (size_t j = 0; j < nCols; j++)
-            {
-                std::cout << covarianceTable.getValue<float>(i, j) << " ";
-            }
-            std::cout << std::endl;
-        }
         if (resultsToCompute & mean)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyMeans);
