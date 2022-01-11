@@ -114,13 +114,13 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
         if (resultsToCompute & mean)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyMeans);
-            DAAL_CHECK_STATUS(status, this->fillTable(means, (algorithmFPType)0));
+            DAAL_CHECK_STATUS(status, this->copyTable(*covarianceAlg->getResult()->get(covariance::mean), means));
         }
 
         if (resultsToCompute & variance)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
-            DAAL_CHECK_STATUS(status, this->fillTable(variances, (algorithmFPType)1));
+            DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
 
         {
