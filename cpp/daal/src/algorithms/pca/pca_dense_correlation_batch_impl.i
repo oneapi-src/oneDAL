@@ -29,8 +29,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
-#include <iostream>
-#include "daal.h"
+
 #include "src/externals/service_profiler.h"
 
 namespace daal
@@ -98,8 +97,6 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
 
         auto pCovarianceTable          = covarianceAlg->getResult()->get(covariance::covariance);
         NumericTable & covarianceTable = *pCovarianceTable;
-        size_t nRows                   = pCovarianceTable->getNumberOfRows();
-        size_t nCols                   = pCovarianceTable->getNumberOfColumns();
         if (resultsToCompute & mean)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyMeans);
