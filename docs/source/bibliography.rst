@@ -283,6 +283,10 @@ For more information about algorithms implemented in |short_name|, refer to the 
    integrates OpenCL™ devices with modern C++, Version 1.2.1 Available from
    `sycl-1.2.1.pdf <https://www.khronos.org/registry/SYCL/specs/sycl-1.2.1.pdf>`_
 
+.. [Sutton2018]
+   Michael Sutton, Tal Ben-Nun, Amnon Barak. *Optimizing Parallel Graph Connectivity Computation via Subgraph Sampling*.
+   Symposium on Parallel and Distributed Processing, IPDPS 2018.
+
 .. [Tan2005]
    Pang-Ning Tan, Michael Steinbach, Vipin Kumar, Introduction to
    Data Mining, (First Edition) Addison-Wesley Longman Publishing

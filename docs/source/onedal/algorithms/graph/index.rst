@@ -24,7 +24,12 @@ This chapter describes graph algorithms implemented in |short_name|:
    :titlesonly:
 
    subgraph-isomorphism.rst
+   connected-components.rst
 
 .. rubric:: Examples: Subgraph Isomorphism
 
 .. include:: ../../../includes/graph/subgraph-isomorphism-examples.rst
+
+.. rubric:: Examples: Connected Components
+
+.. include:: ../../../includes/graph/connected-components-examples.rst
