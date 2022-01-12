@@ -49,6 +49,7 @@ public:
         }
         return std::pow(acc, Float(1) / get_p());
     }
+
     const Float& get_p() const {
         return p_;
     }
