@@ -90,13 +90,11 @@ public:
 
     bool get_deterministic() const;
     bool get_isCorrelation() const;
-    bool get_isNormalized() const;
     std::int64_t get_component_count() const;
 
 protected:
     void set_deterministic_impl(bool value);
     void set_isCorrelation_impl(bool value);
-    void set_isNormalized_impl(bool value);
     void set_component_count_impl(std::int64_t value);
 
 private:
@@ -178,16 +176,6 @@ public:
 
     auto& set_isCorrelation_impl(bool value) {
         base_t::set_isCorrelation_impl(value);
-        return *this;
-    }
-    /// Normalized?
-    /// @remark default = true
-    bool get_isNormalized() const {
-        return base_t::get_isNormalized();
-    }
-
-    auto& set_isNormalized_impl(bool value) {
-        base_t::set_isNormalized_impl(value);
         return *this;
     }
 };

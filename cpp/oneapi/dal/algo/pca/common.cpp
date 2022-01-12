@@ -28,7 +28,6 @@ public:
     std::int64_t component_count = -1;
     bool deterministic = false;
     bool isCorrelation = false;
-    bool isNormalized = false;
 };
 
 template <typename Task>
@@ -64,11 +63,6 @@ bool descriptor_base<Task>::get_isCorrelation() const {
 }
 
 template <typename Task>
-bool descriptor_base<Task>::get_isNormalized() const {
-    return impl_->isNormalized;
-}
-
-template <typename Task>
 void descriptor_base<Task>::set_component_count_impl(std::int64_t value) {
     if (value < 0) {
         throw domain_error(dal::detail::error_messages::component_count_lt_zero());
@@ -84,11 +78,6 @@ void descriptor_base<Task>::set_deterministic_impl(bool value) {
 template <typename Task>
 void descriptor_base<Task>::set_isCorrelation_impl(bool value) {
     impl_->isCorrelation = value;
-}
-
-template <typename Task>
-void descriptor_base<Task>::set_isNormalized_impl(bool value) {
-    impl_->isNormalized = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;

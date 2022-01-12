@@ -62,13 +62,13 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
 
-    constexpr bool is_correlation = false;
+    //constexpr bool is_correlation = false;
     constexpr std::uint64_t results_to_compute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
         ctx,
-        is_correlation,
+        desc.get_isCorrelation(),
         desc.get_deterministic(),
         *daal_data,
         &covariance_alg,
