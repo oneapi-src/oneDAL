@@ -51,6 +51,7 @@ def _generate_mpiexec_wrapper(ctx, mpiexec, executable, fi_dir):
         "   cd ${script_path}${runfiles_suffix}\n" +
         "fi\n" +
         "export FI_PROVIDER_PATH=\"{}\"\n".format(fi_dir) +
+        "export CCL_ROOT=/opt/intel/oneapi/ccl/latest/env/vars.sh" + 
         "{} -n {} {} \"$@\"\n".format(mpiexec.path,
                                       ctx.attr.mpi_ranks,
                                       executable.short_path)
