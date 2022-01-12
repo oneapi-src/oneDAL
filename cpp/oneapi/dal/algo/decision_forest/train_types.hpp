@@ -83,6 +83,7 @@ public:
     auto &set_weights(const table &value) {
         set_weights_impl(value);
         return *this;
+     }
 
 private:
     void set_data_impl(const table& value);
