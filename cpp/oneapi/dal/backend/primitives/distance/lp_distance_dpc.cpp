@@ -113,8 +113,6 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2, order1>& 
                                                 const event_vector& deps) const {
     check_inputs(inp1, inp2, out);
     // Getting raw USM pointers
-    //const auto* inp1_ptr = inp1.get_data();
-    //const auto* inp2_ptr = inp2.get_data();
     auto* out_ptr = out.get_mutable_data();
     // Getting info about dimensions
     const auto dkeeper1 = make_dkeeper(inp1);

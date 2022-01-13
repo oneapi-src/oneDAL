@@ -291,11 +291,37 @@ private:
     bool compute_sqrt_ = false;
 };
 
-template <typename Float, typename Task>
-static infer_result<Task> call_kernel(const context_gpu& ctx,
-                                      const descriptor_t<Task>& desc,
-                                      const table& infer,
-                                      const model<Task>& m) {
+inline bool is_col_major(const table& t) {
+    const auto t_layout = t.get_data_layout();
+    return t_layout == decltype(t_layout)::column_major;
+}
+
+template<typename Float, bool is_cm>
+struct ndarray_t_map;
+
+template<typename Float>
+struct ndarray_t_map<Float, true> {
+    using type = pr::ndarray<Float, 2, pr::ndorder::f>;
+};
+
+template<typename Float>
+struct ndarray_t_map<Float, false> {
+    using type = pr::ndarray<Float, 2, pr::ndorder::c>;
+};
+
+template<typename Float, bool is_cm>
+using ndarray_t = typename ndarray_t_map<Float, is_cm>::type;
+
+template<typename Type, pr::ndorder order>
+constexpr pr::ndorder get_ndorder(const pr::ndarray<Type, 2, order>&) {
+    return order;
+}
+
+template <typename Float, typename Task, bool cm_train, bool cm_query>
+static infer_result<Task> kernel(const context_gpu& ctx,
+                                 const descriptor_t<Task>& desc,
+                                 const table& infer,
+                                 const model<Task>& m) {
     using res_t = response_t<Task>;
 
     auto distance_impl = detail::get_distance_impl(desc);
@@ -341,8 +367,14 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
         arr_indices = array<idx_t>::empty(queue, length, sycl::usm::alloc::device);
     }
 
-    auto train_data = pr::table2ndarray<Float>(queue, train, sycl::usm::alloc::device);
-    auto query_data = pr::table2ndarray<Float>(queue, infer, sycl::usm::alloc::device);
+    using train_t = ndarray_t<Float, cm_train>;
+    auto train_var = pr::table2ndarray_variant<Float>(queue, train, sycl::usm::alloc::device);
+    train_t train_data = std::get<train_t>(train_var);
+
+    using query_t = ndarray_t<Float, cm_query>;
+    auto query_var = pr::table2ndarray_variant<Float>(queue, infer, sycl::usm::alloc::device);
+    query_t query_data = std::get<query_t>(query_var);
+
     auto resps_data = desc.get_result_options().test(result_options::responses)
                           ? pr::table2ndarray_1d<res_t>(queue, resps, sycl::usm::alloc::device)
                           : pr::ndarray<res_t, 1>{};
@@ -391,7 +423,8 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
 
     if (is_euclidean_distance) {
         using dst_t = pr::squared_l2_distance<Float>;
-        using search_t = pr::search_engine<Float, dst_t>;
+        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
+        using search_t = pr::search_engine<Float, dst_t, order>;
 
         callback.set_euclidean_distance(true);
 
@@ -402,7 +435,8 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     else {
         using met_t = pr::lp_metric<Float>;
         using dst_t = pr::lp_distance<Float>;
-        using search_t = pr::search_engine<Float, dst_t>;
+        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
+        using search_t = pr::search_engine<Float, dst_t, order>;
 
         const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
         const search_t search{ queue, train_data, train_block, dist };
@@ -428,6 +462,25 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     }
 
     return result;
+}
+
+template <typename Float, typename Task>
+static infer_result<Task> call_kernel(const context_gpu& ctx,
+                                      const descriptor_t<Task>& desc,
+                                      const table& infer,
+                                      const model<Task>& m) {
+    const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
+    const auto train = trained_model->get_data();
+    const bool cm_train = is_col_major(train);
+    const bool cm_query = is_col_major(infer);
+    if(cm_train) {
+        if(cm_query) return kernel<Float, Task, true, true>(ctx, desc, infer, m);
+        else return kernel<Float, Task, true, false>(ctx, desc, infer, m);
+    }
+    else {
+        if(cm_query) return kernel<Float, Task, false, true>(ctx, desc, infer, m);
+        else return kernel<Float, Task, false, false>(ctx, desc, infer, m);
+    }
 }
 
 template <typename Float, typename Task>
