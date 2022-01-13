@@ -296,23 +296,23 @@ inline bool is_col_major(const table& t) {
     return t_layout == decltype(t_layout)::column_major;
 }
 
-template<typename Float, bool is_cm>
+template <typename Float, bool is_cm>
 struct ndarray_t_map;
 
-template<typename Float>
+template <typename Float>
 struct ndarray_t_map<Float, true> {
     using type = pr::ndarray<Float, 2, pr::ndorder::f>;
 };
 
-template<typename Float>
+template <typename Float>
 struct ndarray_t_map<Float, false> {
     using type = pr::ndarray<Float, 2, pr::ndorder::c>;
 };
 
-template<typename Float, bool is_cm>
+template <typename Float, bool is_cm>
 using ndarray_t = typename ndarray_t_map<Float, is_cm>::type;
 
-template<typename Type, pr::ndorder order>
+template <typename Type, pr::ndorder order>
 constexpr pr::ndorder get_ndorder(const pr::ndarray<Type, 2, order>&) {
     return order;
 }
@@ -473,13 +473,17 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     const auto train = trained_model->get_data();
     const bool cm_train = is_col_major(train);
     const bool cm_query = is_col_major(infer);
-    if(cm_train) {
-        if(cm_query) return kernel<Float, Task, true, true>(ctx, desc, infer, m);
-        else return kernel<Float, Task, true, false>(ctx, desc, infer, m);
+    if (cm_train) {
+        if (cm_query)
+            return kernel<Float, Task, true, true>(ctx, desc, infer, m);
+        else
+            return kernel<Float, Task, true, false>(ctx, desc, infer, m);
     }
     else {
-        if(cm_query) return kernel<Float, Task, false, true>(ctx, desc, infer, m);
-        else return kernel<Float, Task, false, false>(ctx, desc, infer, m);
+        if (cm_query)
+            return kernel<Float, Task, false, true>(ctx, desc, infer, m);
+        else
+            return kernel<Float, Task, false, false>(ctx, desc, infer, m);
     }
 }
 
