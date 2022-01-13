@@ -35,13 +35,13 @@ void check_inputs(const ndview<Float, 2, order1>& inp1,
                                         const ndview<F, 2, B>&, \
                                         const ndview<F, 2>&);
 
-#define INSTANTIATE_F(A, B)     \
-INSTANTIATE(float, A, B)        \
-INSTANTIATE(double, A, B)
+#define INSTANTIATE_F(A, B)  \
+    INSTANTIATE(float, A, B) \
+    INSTANTIATE(double, A, B)
 
-#define INSTANTIATE_A(B)        \
-INSTANTIATE_F(ndorder::c, B)    \
-INSTANTIATE_F(ndorder::f, B)
+#define INSTANTIATE_A(B)         \
+    INSTANTIATE_F(ndorder::c, B) \
+    INSTANTIATE_F(ndorder::f, B)
 
 INSTANTIATE_A(ndorder::c)
 INSTANTIATE_A(ndorder::f)

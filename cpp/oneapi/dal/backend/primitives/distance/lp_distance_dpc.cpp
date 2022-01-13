@@ -18,23 +18,22 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename Float, ndorder ord, typename Idx>
+template <typename Float, ndorder ord, typename Idx>
 struct dkeeper {};
 
-template<typename Float, typename Idx>
+template <typename Float, typename Idx>
 struct dkeeper<Float, ndorder::c, Idx> {
-
     struct row_iterator {
-        const Float& operator* () const {
+        const Float& operator*() const {
             return *(row + col);
         }
 
-        row_iterator& operator++ () {
+        row_iterator& operator++() {
             ++col;
             return *this;
         }
 
-        bool operator!= (const row_iterator& rhs) const {
+        bool operator!=(const row_iterator& rhs) const {
             const auto& lhs = *this;
             return lhs.col != rhs.col;
         }
@@ -59,20 +58,19 @@ struct dkeeper<Float, ndorder::c, Idx> {
     const Idx str;
 };
 
-template<typename Float, typename Idx>
+template <typename Float, typename Idx>
 struct dkeeper<Float, ndorder::f, Idx> {
-
     struct row_iterator {
-        const Float& operator* () const {
+        const Float& operator*() const {
             return *(row + col * str);
         }
 
-        row_iterator& operator++ () {
+        row_iterator& operator++() {
             ++col;
             return *this;
         }
 
-        bool operator!= (const row_iterator& rhs) const {
+        bool operator!=(const row_iterator& rhs) const {
             const auto& lhs = *this;
             return lhs.col != rhs.col;
         }
@@ -97,13 +95,12 @@ struct dkeeper<Float, ndorder::f, Idx> {
     const Idx str;
 };
 
-template<typename Float, ndorder order, typename Idx = std::int64_t>
+template <typename Float, ndorder order, typename Idx = std::int64_t>
 auto make_dkeeper(const ndview<Float, 2, order>& data) {
     return dkeeper<Float, order, Idx>{ data.get_data(),
                                        data.get_dimension(1),
                                        data.get_leading_stride() };
 }
-
 
 template <typename Float, typename Metric>
 template <ndorder order1, ndorder order2>
@@ -137,20 +134,20 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2, order1>& 
     });
 }
 
-#define INSTANTIATE(F, A, B)                                              \
-template sycl::event distance<F, lp_metric<F>>::operator()(const ndview<F, 2, A>&,    \
-                                               const ndview<F, 2, B>&,    \
-                                               ndview<F, 2>&,             \
-                                               const event_vector&) const;
+#define INSTANTIATE(F, A, B)                                                           \
+    template sycl::event distance<F, lp_metric<F>>::operator()(const ndview<F, 2, A>&, \
+                                                               const ndview<F, 2, B>&, \
+                                                               ndview<F, 2>&,          \
+                                                               const event_vector&) const;
 
-#define INSTANTIATE_B(F, A)  \
-INSTANTIATE(F, A, ndorder::c)\
-INSTANTIATE(F, A, ndorder::f)
+#define INSTANTIATE_B(F, A)       \
+    INSTANTIATE(F, A, ndorder::c) \
+    INSTANTIATE(F, A, ndorder::f)
 
-#define INSTANTIATE_F(F)                    \
-INSTANTIATE_B(F, ndorder::c)                \
-INSTANTIATE_B(F, ndorder::f)                \
-template class distance<F, lp_metric<F>>;
+#define INSTANTIATE_F(F)         \
+    INSTANTIATE_B(F, ndorder::c) \
+    INSTANTIATE_B(F, ndorder::f) \
+    template class distance<F, lp_metric<F>>;
 
 INSTANTIATE_F(float);
 INSTANTIATE_F(double);

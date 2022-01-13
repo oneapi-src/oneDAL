@@ -65,21 +65,24 @@ inline ndarray<Type, 2, ndorder::f> homogen_table2ndarray_cm(sycl::queue& q,
     const auto context = q.get_context();
     const auto ptr_alloc = sycl::get_pointer_type(ptr, context);
     bool is_suitable_ptr = false;
-    if(ptr_alloc == alloc) {
-        if(ptr_alloc == sycl::usm::alloc::device) {
+    if (ptr_alloc == alloc) {
+        if (ptr_alloc == sycl::usm::alloc::device) {
             const auto device = q.get_device();
             const auto ptr_device = sycl::get_pointer_device(ptr, context);
-            if(ptr_device == device) is_suitable_ptr = true;
-        } else {
+            if (ptr_device == device)
+                is_suitable_ptr = true;
+        }
+        else {
             is_suitable_ptr = true;
         }
     }
 
-    if(is_suitable_ptr) {
+    if (is_suitable_ptr) {
         return init_arr;
-    } else {
+    }
+    else {
         const auto count = init_arr.get_count();
-        const auto resl_arr = arr_t::empty(q, {row_count, column_count}, alloc);
+        const auto resl_arr = arr_t::empty(q, { row_count, column_count }, alloc);
         ONEDAL_ASSERT(count == resl_arr.get_count());
         q.copy<Type>(ptr, resl_arr.get_mutable_data(), count).wait_and_throw();
         return resl_arr;
@@ -96,7 +99,7 @@ inline ndarray<Type, 2, ndorder::f> table2ndarray_cm(sycl::queue& q,
     const auto t_layout = table.get_data_layout();
     const auto f_layout = decltype(t_layout)::column_major;
     const bool is_column_major = t_layout == f_layout;
-    if(is_homogen && is_column_major) {
+    if (is_homogen && is_column_major) {
         return homogen_table2ndarray_cm<Type>(q, table, alloc);
     }
 
@@ -105,12 +108,10 @@ inline ndarray<Type, 2, ndorder::f> table2ndarray_cm(sycl::queue& q,
     const auto row_count = table.get_row_count();
     const auto column_count = table.get_column_count();
     const auto rm = table2ndarray_rm<Type>(q, table, alloc);
-    auto cm = arr_t::empty(q, {row_count, column_count}, alloc);
+    auto cm = arr_t::empty(q, { row_count, column_count }, alloc);
     copy(q, cm, rm).wait_and_throw();
     return cm;
 }
-
-
 
 template <typename Type, ndorder order = ndorder::c>
 inline ndarray<Type, 2, order> table2ndarray(sycl::queue& q,
@@ -118,27 +119,26 @@ inline ndarray<Type, 2, order> table2ndarray(sycl::queue& q,
                                              sycl::usm::alloc alloc = sycl::usm::alloc::shared) {
     [[maybe_unused]] const auto layout = table.get_data_layout();
     if constexpr (order == ndorder::c) {
-        ONEDAL_ASSERT(layout ==  decltype(layout)::row_major);
+        ONEDAL_ASSERT(layout == decltype(layout)::row_major);
         return table2ndarray_rm<Type>(q, table, alloc);
-    } else {
-        ONEDAL_ASSERT(layout ==  decltype(layout)::column_major);
+    }
+    else {
+        ONEDAL_ASSERT(layout == decltype(layout)::column_major);
         return table2ndarray_cm<Type>(q, table, alloc);
     }
 }
 
 template <typename Type>
-inline auto table2ndarray_variant(sycl::queue& q,
-                                  const table& table,
-                                  sycl::usm::alloc alloc) {
+inline auto table2ndarray_variant(sycl::queue& q, const table& table, sycl::usm::alloc alloc) {
     ONEDAL_ASSERT(table.has_data());
     const auto data_layout = table.get_data_layout();
     using var1_t = ndarray<Type, 2, ndorder::c>;
     using var2_t = ndarray<Type, 2, ndorder::f>;
     std::variant<var1_t, var2_t> result;
-    if(data_layout == decltype(data_layout)::row_major) {
+    if (data_layout == decltype(data_layout)::row_major) {
         result = table2ndarray_rm<Type>(q, table, alloc);
     }
-    if(data_layout == decltype(data_layout)::column_major) {
+    if (data_layout == decltype(data_layout)::column_major) {
         result = table2ndarray_cm<Type>(q, table, alloc);
     }
     return result;

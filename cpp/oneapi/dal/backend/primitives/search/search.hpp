@@ -73,8 +73,7 @@ protected:
     constexpr static inline std::int64_t selection_sub_blocks = 31;
 
 public:
-    search_engine_base(sycl::queue& queue,
-                       const ndview<Float, 2, torder>& train_data);
+    search_engine_base(sycl::queue& queue, const ndview<Float, 2, torder>& train_data);
 
     search_engine_base(sycl::queue& queue,
                        const ndview<Float, 2, torder>& train_data,
@@ -124,7 +123,7 @@ public:
     }
 
 protected:
-    template<ndorder qorder>
+    template <ndorder qorder>
     sycl::event do_search(const ndview<Float, 2, qorder>& query,
                           std::int64_t k_neighbors,
                           temp_ptr_t temp_objs,
@@ -142,7 +141,7 @@ protected:
     static ndview<Float, 2> get_distances(temp_ptr_t tmp_objs);
     static ndview<std::int32_t, 2> get_indices(temp_ptr_t tmp_objs);
     sycl::event reset(temp_ptr_t temp_obj, const event_vector& deps) const;
-    template<ndorder qorder>
+    template <ndorder qorder>
     sycl::event distance(const ndview<Float, 2, qorder>& query,
                          const ndview<Float, 2, torder>& train,
                          ndview<Float, 2>& distances,
@@ -162,7 +161,10 @@ protected:
 };
 
 template <typename Float, typename Distance, ndorder torder = ndorder::c>
-class search_engine : public search_engine_base<Float, Distance, search_engine<Float, Distance, torder>, torder> {
+class search_engine : public search_engine_base<Float,
+                                                Distance,
+                                                search_engine<Float, Distance, torder>,
+                                                torder> {
     using base_t = search_engine_base<Float, Distance, search_engine, torder>;
 
 public:
@@ -220,13 +222,13 @@ public:
     }
 
 protected:
-    template<ndorder qorder>
+    template <ndorder qorder>
     sycl::event do_search(const ndview<Float, 2, qorder>& query,
                           std::int64_t k_neighbors,
                           temp_ptr_t temp_objs,
                           selc_t& select,
                           const event_vector& deps) const;
-    template<ndorder qorder>
+    template <ndorder qorder>
     sycl::event distance(const ndview<Float, 2, qorder>& query,
                          const ndview<Float, 2, torder>& train,
                          ndview<Float, 2>& distances,

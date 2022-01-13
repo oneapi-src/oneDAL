@@ -33,7 +33,7 @@ public:
                       "Metric must be a special operation defined in metrics header");
     }
 
-    template<ndorder order1, ndorder order2>
+    template <ndorder order1, ndorder order2>
     sycl::event operator()(const ndview<Float, 2, order1>& inp1,
                            const ndview<Float, 2, order2>& inp2,
                            ndview<Float, 2>& out,
@@ -49,13 +49,13 @@ class distance<Float, squared_l2_metric<Float>> {
 public:
     distance(sycl::queue& q) : q_{ q } {};
 
-    template<ndorder order1, ndorder order2>
+    template <ndorder order1, ndorder order2>
     sycl::event operator()(const ndview<Float, 2, order1>& inp1,
                            const ndview<Float, 2, order2>& inp2,
                            ndview<Float, 2>& out,
                            const event_vector& deps = {}) const;
 
-    template<ndorder order1, ndorder order2>
+    template <ndorder order1, ndorder order2>
     sycl::event operator()(const ndview<Float, 2, order1>& inp1,
                            const ndview<Float, 2, order2>& inp2,
                            ndview<Float, 2>& out,
@@ -66,9 +66,8 @@ public:
 protected:
     using norms_res_t = std::tuple<ndarray<Float, 1>, sycl::event>;
 
-    template<ndorder order>
-    norms_res_t get_norms(const ndview<Float, 2, order>& inp,
-                          const event_vector& deps = {}) const;
+    template <ndorder order>
+    norms_res_t get_norms(const ndview<Float, 2, order>& inp, const event_vector& deps = {}) const;
 
 private:
     sycl::queue& q_;

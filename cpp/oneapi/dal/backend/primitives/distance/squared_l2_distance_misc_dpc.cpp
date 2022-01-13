@@ -30,10 +30,11 @@ sycl::event compute_squared_l2_norms(sycl::queue& q,
 }
 
 template <typename Float, ndorder order>
-std::tuple<ndarray<Float, 1>, sycl::event> compute_squared_l2_norms(sycl::queue& q,
-                                                                    const ndview<Float, 2, order>& inp,
-                                                                    const event_vector& deps,
-                                                                    const sycl::usm::alloc& alloc) {
+std::tuple<ndarray<Float, 1>, sycl::event> compute_squared_l2_norms(
+    sycl::queue& q,
+    const ndview<Float, 2, order>& inp,
+    const event_vector& deps,
+    const sycl::usm::alloc& alloc) {
     const auto n_samples = inp.get_dimension(0);
     auto res_array = ndarray<Float, 1>::empty(q, { n_samples }, alloc);
     return { res_array, compute_squared_l2_norms(q, inp, res_array, deps) };
@@ -87,24 +88,23 @@ sycl::event compute_inner_product(sycl::queue& q,
     INSTANTIATE(F, ndorder::c, B)                                                   \
     INSTANTIATE(F, ndorder::f, B)                                                   \
     template sycl::event compute_squared_l2_norms<F, B>(sycl::queue&,               \
-                                                     const ndview<F, 2, B>&,        \
-                                                     ndview<F, 1>&,                 \
-                                                     const event_vector&);          \
+                                                        const ndview<F, 2, B>&,     \
+                                                        ndview<F, 1>&,              \
+                                                        const event_vector&);       \
     template std::tuple<ndarray<F, 1>, sycl::event> compute_squared_l2_norms<F, B>( \
         sycl::queue&,                                                               \
         const ndview<F, 2, B>&,                                                     \
         const event_vector&,                                                        \
         const sycl::usm::alloc&);
 
-#define INSTANTIATE_F(F)                                                        \
-    INSTANTIATE_A(F, ndorder::c)                                                \
-    INSTANTIATE_A(F, ndorder::f)                                                \
-    template sycl::event scatter_2d<F>(sycl::queue & q,                         \
-                                       const ndview<F, 1>&,                     \
-                                       const ndview<F, 1>&,                     \
-                                       ndview<F, 2>&,                           \
-                                       const event_vector&);                    \
-
+#define INSTANTIATE_F(F)                                    \
+    INSTANTIATE_A(F, ndorder::c)                            \
+    INSTANTIATE_A(F, ndorder::f)                            \
+    template sycl::event scatter_2d<F>(sycl::queue & q,     \
+                                       const ndview<F, 1>&, \
+                                       const ndview<F, 1>&, \
+                                       ndview<F, 2>&,       \
+                                       const event_vector&);
 
 INSTANTIATE_F(float);
 INSTANTIATE_F(double);

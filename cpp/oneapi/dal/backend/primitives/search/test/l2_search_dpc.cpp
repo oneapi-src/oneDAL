@@ -37,34 +37,33 @@ namespace te = dal::test::engine;
 namespace de = dal::detail;
 namespace la = te::linalg;
 
-class c_order{};
-class f_order{};
+class c_order {};
+class f_order {};
 
-template<typename order>
-struct order_map{};
+template <typename order>
+struct order_map {};
 
-template<>
+template <>
 struct order_map<c_order> {
     constexpr static auto value = ndorder::c;
 };
 
-template<>
+template <>
 struct order_map<f_order> {
     constexpr static auto value = ndorder::f;
 };
 
-template<typename order>
+template <typename order>
 constexpr auto order_v = order_map<order>::value;
 
-template<typename T, ndorder order>
+template <typename T, ndorder order>
 auto table_to_ndarray(sycl::queue& q, const table& t) {
     const auto rc = t.get_row_count();
     const auto cc = t.get_column_count();
     auto res = ndarray<T, 2, order>::empty(q, { rc, cc });
-    for(std::int64_t r = 0; r < rc; ++r) {
-        const auto row = row_accessor<const T>(t)
-                                .pull(q, { r, r + 1 });
-        for(std::int64_t c = 0; c < cc; ++c) {
+    for (std::int64_t r = 0; r < rc; ++r) {
+        const auto row = row_accessor<const T>(t).pull(q, { r, r + 1 });
+        for (std::int64_t c = 0; c < cc; ++c) {
             res.at(r, c) = row[c];
         }
     }
