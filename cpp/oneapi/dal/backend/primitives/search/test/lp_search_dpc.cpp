@@ -20,8 +20,6 @@
 #include <numeric>
 #include <vector>
 
-#include "oneapi/dal/backend/primitives/debug.hpp"
-
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/search.hpp"
 
