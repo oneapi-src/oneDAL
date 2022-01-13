@@ -82,7 +82,8 @@ class search_test : public te::float_algo_fixture<std::tuple_element_t<0, TestTy
 
     static constexpr auto torder = order_v<torder_t>;
     static constexpr auto qorder = order_v<qorder_t>;
-    using search_t = search_engine<float_t, squared_l2_distance<float_t>, torder>;
+    using distance_t = squared_l2_distance<float_t>;
+    using search_t = search_engine<float_t, distance_t, torder>;
 
 public:
     void generate() {
