@@ -46,7 +46,7 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`data`,
-    /// :literal:`responses` and :literal:`weights`property values
+    /// :literal:`responses` and :literal:`weights` property values
     train_input(const table& data, const table& responses, const table& weights = table{});
 
     /// The training set $X$
