@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <utility>
+
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
 
 namespace oneapi::dal::backend::primitives {
@@ -24,33 +26,43 @@ struct dkeeper {};
 template <typename Float, typename Idx>
 struct dkeeper<Float, ndorder::c, Idx> {
     struct row_iterator {
+        explicit row_iterator(Idx col, const Float* row)
+            : col_(std::move(col)),
+              row_(std::move(row)) {}
+
         const Float& operator*() const {
-            return *(row + col);
+            return *(row_ + col_);
         }
 
         row_iterator& operator++() {
-            ++col;
+            ++col_;
             return *this;
         }
 
         bool operator!=(const row_iterator& rhs) const {
             const auto& lhs = *this;
-            return lhs.col != rhs.col;
+            return lhs.col_ != rhs.col_;
         }
 
-        Idx col = 0;
-        const Idx str;
-        const Float* const row;
+private:
+        Idx col_ = 0;
+        const Float* const row_;
     };
+
+    auto get_row_bound_iterators(Idx idx) const {
+        return std::make_pair(
+            get_first_in_row_iterator(idx),
+            get_last_in_row_iterator(idx));
+    }
 
     auto get_first_in_row_iterator(Idx idx) const {
         const Float* const row = ptr + idx * str;
-        return row_iterator{ Idx(0), str, row };
+        return row_iterator{ Idx(0), row };
     }
 
     auto get_last_in_row_iterator(Idx idx) const {
         const Float* const row = ptr + idx * str;
-        return row_iterator{ width, str, row };
+        return row_iterator{ width, row };
     }
 
     const Float* const ptr;
@@ -61,24 +73,37 @@ struct dkeeper<Float, ndorder::c, Idx> {
 template <typename Float, typename Idx>
 struct dkeeper<Float, ndorder::f, Idx> {
     struct row_iterator {
+        explicit row_iterator(Idx col, Idx str,
+                              const Float* row)
+            : col_(std::move(col)),
+              str_(std::move(str)),
+              row_(std::move(row)) {}
+
         const Float& operator*() const {
-            return *(row + col * str);
+            return *(row_ + col_ * str_);
         }
 
         row_iterator& operator++() {
-            ++col;
+            ++col_;
             return *this;
         }
 
         bool operator!=(const row_iterator& rhs) const {
             const auto& lhs = *this;
-            return lhs.col != rhs.col;
+            return lhs.col_ != rhs.col_;
         }
 
-        Idx col = 0;
-        const Idx str;
-        const Float* const row;
+private:
+        Idx col_ = 0;
+        const Idx str_;
+        const Float* const row_;
     };
+
+    auto get_row_bound_iterators(Idx idx) const {
+        return std::make_pair(
+            get_first_in_row_iterator(idx),
+            get_last_in_row_iterator(idx));
+    }
 
     auto get_first_in_row_iterator(Idx idx) const {
         const Float* const row = ptr + idx;
@@ -125,11 +150,10 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2, order1>& 
     return q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         h.parallel_for(out_range, [=](sycl::id<2> idx) {
-            auto inp1_first = dkeeper1.get_first_in_row_iterator(idx[0]);
-            auto inp2_first = dkeeper2.get_first_in_row_iterator(idx[1]);
+            auto [f1, l1] = dkeeper1.get_row_bound_iterators(idx[0]);
+            auto [f2, l2] = dkeeper2.get_row_bound_iterators(idx[1]);
             auto& out_place = *(out_ptr + out_stride * idx[0] + idx[1]);
-            auto inp1_last = dkeeper1.get_last_in_row_iterator(idx[0]);
-            out_place = metric(inp1_first, inp1_last, inp2_first);
+            out_place = metric(f1, l1, f2);
         });
     });
 }
