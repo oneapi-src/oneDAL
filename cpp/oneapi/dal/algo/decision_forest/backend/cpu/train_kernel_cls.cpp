@@ -173,7 +173,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
 template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float, CpuKernel>(ctx, desc, input.get_data(), input.get_responses(), input.get_weights());
+    return call_daal_kernel<Float, CpuKernel>(ctx,
+                                              desc,
+                                              input.get_data(),
+                                              input.get_responses(),
+                                              input.get_weights());
 }
 
 template <typename Float, typename Task>

@@ -47,7 +47,7 @@ public:
 
     /// Creates a new instance of the class with the given :literal:`data`,
     /// :literal:`responses` and :literal:`weights`property values
-    train_input(const table& data, const table& responses, const table &weights = table{});
+    train_input(const table& data, const table& responses, const table& weights = table{});
 
     /// The training set $X$
     /// @remark default = table{}
@@ -78,17 +78,17 @@ public:
 
     /// The vector of weights $w$ for the training set $X$
     /// @remark default = table{}
-    const table &get_weights() const;
+    const table& get_weights() const;
 
-    auto &set_weights(const table &value) {
+    auto& set_weights(const table& value) {
         set_weights_impl(value);
         return *this;
-     }
+    }
 
 private:
     void set_data_impl(const table& value);
     void set_responses_impl(const table& value);
-    void set_weights_impl(const table &value);
+    void set_weights_impl(const table& value);
 
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
