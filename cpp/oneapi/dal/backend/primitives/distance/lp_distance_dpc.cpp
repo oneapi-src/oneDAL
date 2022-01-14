@@ -27,8 +27,8 @@ template <typename Float, typename Idx>
 struct dkeeper<Float, ndorder::c, Idx> {
     struct row_iterator {
         explicit row_iterator(Idx col, const Float* row)
-            : col_(std::move(col)),
-              row_(std::move(row)) {}
+                : col_(std::move(col)),
+                  row_(std::move(row)) {}
 
         const Float& operator*() const {
             return *(row_ + col_);
@@ -44,15 +44,13 @@ struct dkeeper<Float, ndorder::c, Idx> {
             return lhs.col_ != rhs.col_;
         }
 
-private:
+    private:
         Idx col_ = 0;
         const Float* const row_;
     };
 
     auto get_row_bound_iterators(Idx idx) const {
-        return std::make_pair(
-            get_first_in_row_iterator(idx),
-            get_last_in_row_iterator(idx));
+        return std::make_pair(get_first_in_row_iterator(idx), get_last_in_row_iterator(idx));
     }
 
     auto get_first_in_row_iterator(Idx idx) const {
@@ -73,11 +71,10 @@ private:
 template <typename Float, typename Idx>
 struct dkeeper<Float, ndorder::f, Idx> {
     struct row_iterator {
-        explicit row_iterator(Idx col, Idx str,
-                              const Float* row)
-            : col_(std::move(col)),
-              str_(std::move(str)),
-              row_(std::move(row)) {}
+        explicit row_iterator(Idx col, Idx str, const Float* row)
+                : col_(std::move(col)),
+                  str_(std::move(str)),
+                  row_(std::move(row)) {}
 
         const Float& operator*() const {
             return *(row_ + col_ * str_);
@@ -93,16 +90,14 @@ struct dkeeper<Float, ndorder::f, Idx> {
             return lhs.col_ != rhs.col_;
         }
 
-private:
+    private:
         Idx col_ = 0;
         const Idx str_;
         const Float* const row_;
     };
 
     auto get_row_bound_iterators(Idx idx) const {
-        return std::make_pair(
-            get_first_in_row_iterator(idx),
-            get_last_in_row_iterator(idx));
+        return std::make_pair(get_first_in_row_iterator(idx), get_last_in_row_iterator(idx));
     }
 
     auto get_first_in_row_iterator(Idx idx) const {
