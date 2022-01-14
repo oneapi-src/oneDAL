@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,22 +23,22 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Float, ndorder ao, ndorder bo, ndorder co>
-sycl::event gemm(sycl::queue& queue,
+namespace mkl = oneapi::fpk;
+
+template <mkl::uplo ul, typename Float, ndorder ao>
+sycl::event syrk(sycl::queue& queue,
                  const ndview<Float, 2, ao>& a,
-                 const ndview<Float, 2, bo>& b,
-                 ndview<Float, 2, co>& c,
+                 ndview<Float, 2>& c,
                  Float alpha = Float(1),
                  Float beta = Float(0),
                  const event_vector& deps = {});
 
-template <typename Float, ndorder ao, ndorder bo, ndorder co>
-inline sycl::event gemm(sycl::queue& queue,
+template <mkl::uplo ul, typename Float, ndorder ao>
+inline sycl::event syrk(sycl::queue& queue,
                         const ndview<Float, 2, ao>& a,
-                        const ndview<Float, 2, bo>& b,
-                        ndview<Float, 2, co>& c,
+                        ndview<Float, 2>& c,
                         const event_vector& deps = {}) {
-    return gemm<Float>(queue, a, b, c, Float(1), Float(0), deps);
+    return syrk<ul>(queue, a, c, Float(1), Float(0), deps);
 }
 
 #endif
