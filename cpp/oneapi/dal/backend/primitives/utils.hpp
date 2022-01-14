@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <variant>
+
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 #include "oneapi/dal/table/common.hpp"
