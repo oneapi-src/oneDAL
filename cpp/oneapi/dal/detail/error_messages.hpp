@@ -144,6 +144,7 @@ public:
     /* I/O */
     MSG(file_not_found);
     MSG(unsupported_read_mode);
+    MSG(non_numeric_character_in_edge_list);
 
     /* Serialization */
     MSG(object_is_not_serializable);

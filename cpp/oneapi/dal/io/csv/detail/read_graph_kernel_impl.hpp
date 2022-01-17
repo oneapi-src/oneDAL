@@ -45,9 +45,23 @@ inline void read_edge_list(const std::string &name, edge_list<std::int32_t> &eli
     while (file >> source_vertex >> destination_vertex) {
         auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),
                                    daal_string_to_int(&destination_vertex[0], 0));
+
+        if (edge.first == 0 && source_vertex[0] != '0') {
+            throw invalid_argument(
+                dal::detail::error_messages::non_numeric_character_in_edge_list());
+        }
+
+        if (edge.second == 0 && destination_vertex[0] != '0') {
+            throw invalid_argument(
+                dal::detail::error_messages::non_numeric_character_in_edge_list());
+        }
+
+        if (edge.first < 0 | edge.second < 0) {
+            throw invalid_argument(dal::detail::error_messages::negative_vertex_id());
+        }
+
         elist.push_back(edge);
     }
-
     file.close();
 }
 
@@ -65,6 +79,21 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
             std::tuple<Vertex, Vertex, Weight>(daal_string_to<Vertex>(&source_vertex[0], 0),
                                                daal_string_to<Vertex>(&destination_vertex[0], 0),
                                                daal_string_to<Weight>(&edge_value[0], 0));
+
+        if (std::get<0>(edge) == 0 && source_vertex[0] != '0') {
+            throw invalid_argument(
+                dal::detail::error_messages::non_numeric_character_in_edge_list());
+        }
+
+        if (std::get<1>(edge) == 0 && destination_vertex[0] != '0') {
+            throw invalid_argument(
+                dal::detail::error_messages::non_numeric_character_in_edge_list());
+        }
+
+        if (std::get<0>(edge) < 0 | std::get<1>(edge)) {
+            throw invalid_argument(dal::detail::error_messages::negative_vertex_id());
+        }
+
         elist.push_back(edge);
     }
     file.close();
