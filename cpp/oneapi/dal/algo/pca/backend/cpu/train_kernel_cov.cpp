@@ -16,6 +16,7 @@
 
 #include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
 
+#include "oneapi/dal/algo/covariance.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -31,7 +32,9 @@ using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
+namespace dal = oneapi::dal;
 namespace daal_pca = daal::algorithms::pca;
+namespace cov = oneapi::dal::covariance;
 namespace daal_cov = daal::algorithms::covariance;
 namespace interop = dal::backend::interop;
 
@@ -51,24 +54,34 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    //const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
-
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
-    covariance_alg.input.set(daal_cov::data, daal_data);
+    if (desc.get_isCovariance() == false) {
+        auto policy = dal::detail::host_policy{};
+        auto cov_desc = dal::covariance::descriptor<Float>{};
 
-    //constexpr bool is_correlation = false;
+        dal::covariance::detail::compute_ops<
+            covariance::descriptor<Float, covariance::method::dense>>
+            compute_cov;
+        const auto result = compute_cov(policy, cov_desc, data);
+        const auto daal_data = interop::convert_to_daal_table<Float>(result.get_cov_matrix());
+    }
+    constexpr bool is_correlation = true;
+
+    covariance_alg.input.set(daal_cov::data, daal_data);
     constexpr std::uint64_t results_to_compute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
         ctx,
-        desc.get_isCorrelation(),
+        is_correlation,
         desc.get_deterministic(),
         *daal_data,
         &covariance_alg,

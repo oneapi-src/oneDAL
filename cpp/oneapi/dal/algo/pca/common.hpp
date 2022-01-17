@@ -89,12 +89,12 @@ public:
     descriptor_base();
 
     bool get_deterministic() const;
-    bool get_isCorrelation() const;
+    bool get_isCovariance() const;
     std::int64_t get_component_count() const;
 
 protected:
     void set_deterministic_impl(bool value);
-    void set_isCorrelation_impl(bool value);
+    void set_isCovariance_impl(bool value);
     void set_component_count_impl(std::int64_t value);
 
 private:
@@ -170,12 +170,12 @@ public:
     }
     /// Input data.
     /// @remark default = true
-    bool get_isCorrelation() const {
-        return base_t::get_isCorrelation();
+    bool get_isCovariance() const {
+        return base_t::get_isCovariance();
     }
 
-    auto& set_isCorrelation_impl(bool value) {
-        base_t::set_isCorrelation_impl(value);
+    auto& set_isCovariance(bool value) {
+        base_t::set_isCovariance_impl(value);
         return *this;
     }
 };

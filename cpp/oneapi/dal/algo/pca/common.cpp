@@ -27,7 +27,7 @@ class descriptor_impl : public base {
 public:
     std::int64_t component_count = -1;
     bool deterministic = false;
-    bool isCorrelation = false;
+    bool isCovariance = false;
 };
 
 template <typename Task>
@@ -58,8 +58,8 @@ bool descriptor_base<Task>::get_deterministic() const {
 }
 
 template <typename Task>
-bool descriptor_base<Task>::get_isCorrelation() const {
-    return impl_->isCorrelation;
+bool descriptor_base<Task>::get_isCovariance() const {
+    return impl_->isCovariance;
 }
 
 template <typename Task>
@@ -76,8 +76,8 @@ void descriptor_base<Task>::set_deterministic_impl(bool value) {
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_isCorrelation_impl(bool value) {
-    impl_->isCorrelation = value;
+void descriptor_base<Task>::set_isCovariance_impl(bool value) {
+    impl_->isCovariance = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;

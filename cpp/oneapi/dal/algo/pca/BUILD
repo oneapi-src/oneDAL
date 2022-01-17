@@ -1,10 +1,9 @@
+package(default_visibility = ["//visibility:public"])
 load(
     "@onedal//dev/bazel:dal.bzl",
     "dal_module",
     "dal_test_suite",
 )
-
-package(default_visibility = ["//visibility:public"])
 
 dal_module(
     name = "pca",
@@ -12,6 +11,7 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
+        "@onedal//cpp/oneapi/dal/algo:covariance",
         "@onedal//cpp/oneapi/dal/backend/primitives:stat",
         "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],
