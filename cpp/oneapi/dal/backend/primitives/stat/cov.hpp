@@ -27,7 +27,7 @@ namespace oneapi::dal::backend::primitives {
 /// @tparam Float Floating-point type used to perform computations
 ///
 /// @param[in]  queue The queue
-/// @param[in]  data  The [n x p] input dataset
+/// @param[in]  row_count  The number of rows
 /// @param[in]  sums  The [p] sums computed along each column of the data
 /// @param[out] means The [p] means for each feature
 template <typename Float>
