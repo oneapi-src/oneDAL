@@ -37,11 +37,52 @@ namespace te = dal::test::engine;
 namespace de = dal::detail;
 namespace la = te::linalg;
 
-template <typename Float>
-class search_test : public te::float_algo_fixture<Float> {
+class c_order {};
+class f_order {};
+
+template <typename order>
+struct order_map {};
+
+template <>
+struct order_map<c_order> {
+    constexpr static auto value = ndorder::c;
+};
+
+template <>
+struct order_map<f_order> {
+    constexpr static auto value = ndorder::f;
+};
+
+template <typename order>
+constexpr auto order_v = order_map<order>::value;
+
+template <typename T, ndorder order>
+auto table_to_ndarray(sycl::queue& q, const table& t) {
+    const auto rc = t.get_row_count();
+    const auto cc = t.get_column_count();
+    auto res = ndarray<T, 2, order>::empty(q, { rc, cc });
+    for (std::int64_t r = 0; r < rc; ++r) {
+        const auto row = row_accessor<const T>(t).pull(q, { r, r + 1 });
+        for (std::int64_t c = 0; c < cc; ++c) {
+            res.at(r, c) = row[c];
+        }
+    }
+    return res;
+}
+
+template <typename TestType>
+class search_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using torder_t = std::tuple_element_t<1, TestType>;
+    using qorder_t = std::tuple_element_t<2, TestType>;
+
     using idx_t = ndview<std::int32_t, 2>;
-    using dst_t = ndview<Float, 2>;
-    using search_t = search_engine<Float, squared_l2_distance<Float>>;
+    using dst_t = ndview<float_t, 2>;
+
+    static constexpr auto torder = order_v<torder_t>;
+    static constexpr auto qorder = order_v<qorder_t>;
+    using distance_t = squared_l2_distance<float_t>;
+    using search_t = search_engine<float_t, distance_t, torder>;
 
 public:
     void generate() {
@@ -72,13 +113,13 @@ public:
     }
 
     auto get_train_view() {
-        const auto acc = row_accessor<const Float>(train_).pull(this->get_queue(), { 0, m_ });
-        return ndview<Float, 2>::wrap(acc.get_data(), { m_, d_ });
+        auto& queue = this->get_queue();
+        return table_to_ndarray<float_t, torder>(queue, this->train_);
     }
 
     auto get_query_view() {
-        const auto acc = row_accessor<const Float>(query_).pull(this->get_queue(), { 0, n_ });
-        return ndview<Float, 2>::wrap(acc.get_data(), { n_, d_ });
+        auto& queue = this->get_queue();
+        return table_to_ndarray<float_t, qorder>(queue, this->query_);
     }
 
     auto get_temp_indices() {
@@ -86,14 +127,14 @@ public:
     }
 
     auto get_temp_distances() {
-        return ndarray<Float, 2>::empty(this->get_queue(), { n_, k_ });
+        return ndarray<float_t, 2>::empty(this->get_queue(), { n_, k_ });
     }
 
     void exact_nearest_indices_check(const table& train_data,
                                      const table& infer_data,
                                      const idx_t& result_ids,
                                      const dst_t& result_dst,
-                                     const Float threshold) {
+                                     const float_t threshold) {
         const auto gtruth = naive_knn_search(train_data, infer_data);
 
         INFO("check if data shape is expected");
@@ -105,7 +146,7 @@ public:
         const auto ind_ndarr = idx_t::wrap(ind_arr.get_data(), { n_, m_ });
 
         auto dst_table = distances(train_data, infer_data);
-        auto dst_arr = row_accessor<const Float>(dst_table).pull({ 0, n_ });
+        auto dst_arr = row_accessor<const float_t>(dst_table).pull({ 0, n_ });
         const auto dst_ndarr = dst_t::wrap(dst_arr.get_data(), { n_, m_ });
 
         for (std::int64_t j = 0; j < n_; ++j) {
@@ -122,8 +163,9 @@ public:
         }
     }
 
-    void test_correctness(const Float threshold = 1e-5) {
+    void test_correctness(const float_t threshold = 1e-5) {
         check_if_initialized();
+        auto& queue = this->get_queue();
         if (m_ > k_) {
             const auto train = get_train_view();
             const auto query = get_query_view();
@@ -134,8 +176,8 @@ public:
             constexpr std::int64_t qblock = 32;
             constexpr std::int64_t tblock = 64;
 
-            const search_t engine(this->get_queue(), train, tblock);
-            copy_callback<Float, true, true> callbk(this->get_queue(), qblock, indices, distances);
+            const search_t engine(queue, train, tblock);
+            copy_callback<float_t, true, true> callbk(queue, qblock, indices, distances);
 
             engine(query, callbk, qblock, k_).wait_and_throw();
 
@@ -155,13 +197,13 @@ public:
         const auto n = infer_data.get_row_count();
         const auto d = infer_data.get_column_count();
 
-        auto distances_arr = array<Float>::zeros(m * n);
+        auto distances_arr = array<float_t>::zeros(m * n);
         auto* distances_ptr = distances_arr.get_mutable_data();
 
         for (std::int64_t j = 0; j < n; ++j) {
-            const auto queue_row = row_accessor<const Float>(infer_data).pull({ j, j + 1 });
+            const auto queue_row = row_accessor<const float_t>(infer_data).pull({ j, j + 1 });
             for (std::int64_t i = 0; i < m; ++i) {
-                const auto train_row = row_accessor<const Float>(train_data).pull({ i, i + 1 });
+                const auto train_row = row_accessor<const float_t>(train_data).pull({ i, i + 1 });
                 for (std::int64_t s = 0; s < d; ++s) {
                     const auto diff = queue_row[s] - train_row[s];
                     distances_ptr[j * m + i] += diff * diff;
@@ -178,7 +220,7 @@ public:
         auto indices = array<std::int32_t>::zeros(m * n);
         auto indices_ptr = indices.get_mutable_data();
         for (std::int64_t j = 0; j < n; ++j) {
-            const auto dist_row = row_accessor<const Float>(distances).pull({ j, j + 1 });
+            const auto dist_row = row_accessor<const float_t>(distances).pull({ j, j + 1 });
             auto idcs_row = &indices_ptr[j * m];
             std::iota(idcs_row, idcs_row + m, std::int32_t(0));
             const auto compare = [&](std::int32_t x, std::int32_t y) -> bool {
@@ -205,7 +247,7 @@ private:
     std::int64_t m_, n_, k_, d_;
 };
 
-using search_types = std::tuple<float /*, double*/>;
+using search_types = COMBINE_TYPES((float, double), (c_order, f_order), (c_order, f_order));
 
 TEMPLATE_LIST_TEST_M(search_test,
                      "Randomly filled L2-distance search",
