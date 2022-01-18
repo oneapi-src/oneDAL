@@ -31,25 +31,13 @@ Applications on Linux* OS
 
 #. Set environment variables by calling ``<install dir>/setvars.sh``.
 
-#. Build your application with clang++:
-
-   - Add ``fsycl`` option to the command:
-
-     .. code-block:: text
-
-       -fsycl
-
-   - Add ``ONEAPI_DAAL_USE_MKL_GPU_GEMM`` definition:
-
-     .. code-block:: text
-
-        -DONEAPI_DAAL_USE_MKL_GPU_GEMM
+#. Build your application with dpcpp:
 
    - Add |short_name| ``includes`` folder:
 
      .. code-block:: text
 
-        -I<install dir>/daal/latest/include
+        -I<install dir>/dal/latest/include
 
    - Add |short_name| libraries. Choose the appropriate |short_name| libraries based on |short_name| threading mode and linking method:
 
@@ -67,23 +55,27 @@ Applications on Linux* OS
           * - Static linking
             -
               | libonedal_core.a,
+              | libonedal_dpc.a,
               | libonedal_sequential.a
             -
               | libonedal_core.a,
+              | libonedal_dpc.a,
               | libonedal_thread.a
           * - Dynamic linking
             -
               | libonedal_core.so,
+              | libonedal_dpc.so,
               | libonedal_sequential.so
             -
               | libonedal_core.so,
+              | libonedal_dpc.so,
               | libonedal_thread.so
 
    - Add an additional |short_name| library:
 
      .. code-block:: text
 
-        -foffload-static-lib=<install dir>/daal/latest/libintel64/libonedal_sycl.a
+        <install dir>/dal/latest/libintel64/libonedal_sycl.a
 
 .. _app_on_win:
 
@@ -195,12 +187,12 @@ Dynamic linking, Multi-threaded |short_name|:
 
 .. code-block:: text
 
-     clang++ -fsycl -DONEAPI_DAAL_USE_MKL_GPU_GEMM my_first_daal_program.cpp -Wl,
-     --start-group -L<install dir>/daal/latest/lib/intel64 -lonedal_core -lonedal_thread.so -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc -foffload-static-lib=<install dir>/daal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+     dpcpp my_first_dal_program.cpp -Wl,
+     --start-group -L<install dir>/dal/latest/lib/intel64 -lonedal_core -lonedal_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
 
 Static linking, Single-threaded |short_name|:
 
 .. code-block:: text
 
-     clang++ -fsycl -DONEAPI_DAAL_USE_MKL_GPU_GEMM my_first_daal_program.cpp -Wl,
-     --start-group <install dir>/daal/latest/lib/intel64/libonedal_core.a <install dir>/daal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL -foffload-static-lib=<install dir>/daal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+     dpcpp my_first_dal_program.cpp -Wl,
+     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a <install dir>/dal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
