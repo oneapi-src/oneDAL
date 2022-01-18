@@ -32,7 +32,7 @@ namespace oneapi::dal::backend::primitives {
 /// @param[out] means The [p] means for each feature
 template <typename Float>
 sycl::event means(sycl::queue& queue,
-                  const ndview<Float, 2>& data,
+                  std::int64_t row_count,
                   const ndview<Float, 1>& sums,
                   ndview<Float, 1>& means,
                   const event_vector& deps = {});

@@ -23,24 +23,24 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-inline sycl::event compute_means(sycl::queue& q,
-                                 const ndview<Float, 2>& data,
-                                 const ndview<Float, 1>& sums,
-                                 ndview<Float, 1>& means,
-                                 const event_vector& deps) {
-    ONEDAL_ASSERT(data.has_data());
+inline sycl::event means(sycl::queue& q,
+                         std::int64_t row_count,
+                         const ndview<Float, 1>& sums,
+                         ndview<Float, 1>& means,
+                         const event_vector& deps) {
+    //ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
-                  "Element count of sums must match feature count");
-    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
-                  "Element count of means must match feature count");
+    //ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
+    //"Element count of sums must match feature count");
+    //ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
+    //"Element count of means must match feature count");
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
+    //ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
 
-    const auto column_count = data.get_dimension(1);
-    const auto row_count = data.get_dimension(0);
+    const auto column_count = sums.get_dimension(0);
+    //const auto row_count = data.get_dimension(0);
 
     const Float inv_n = Float(1.0 / double(row_count));
 
@@ -242,8 +242,8 @@ sycl::event means(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-
-    auto finalize_event = compute_means(q, data, sums, means, deps);
+    const auto row_count = data.get_dimension(0);
+    auto finalize_event = compute_means(q, row_count, sums, means, deps);
 
     return finalize_event;
 }
@@ -489,7 +489,7 @@ sycl::event correlation_with_distributed(sycl::queue& q,
 
 #define INSTANTIATE_MEANS(F)                                         \
     template ONEDAL_EXPORT sycl::event means<F>(sycl::queue&,        \
-                                                const ndview<F, 2>&, \
+                                                std::int64_t,        \
                                                 const ndview<F, 1>&, \
                                                 ndview<F, 1>&,       \
                                                 const event_vector&);
