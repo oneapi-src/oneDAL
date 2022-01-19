@@ -16,13 +16,20 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array,
-                                  std::int64_t top,
-                                  std::int64_t seed);
-void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::int64_t top);
+#ifdef ONEDAL_DATA_PARALLEL
+
+template <typename Type, typename Index, ndorder inp_order, ndorder out_order>
+sycl::event select_indexed_rows(sycl::queue& q,
+                                const ndview<Index, 1>& ids,
+                                const ndview<Type, 2, inp_order>& src,
+                                ndview<Type, 2, out_order>& dst,
+                                const event_vector& deps = {});
+
+#endif
 
 } // namespace oneapi::dal::backend::primitives
