@@ -90,7 +90,7 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
                 dal::detail::error_messages::non_numeric_character_in_edge_list());
         }
 
-        if (std::get<0>(edge) < 0 || std::get<1>(edge)) {
+        if (std::get<0>(edge) < 0 || std::get<1>(edge)) < 0) {
             throw invalid_argument(dal::detail::error_messages::negative_vertex_id());
         }
 
