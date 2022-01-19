@@ -1031,7 +1031,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     momentum     = 0.8;
     exaggeration = 1.;
 
-    
+
 
     for (IdxType i = explorationIter; i < maxIter; ++i)
     {
