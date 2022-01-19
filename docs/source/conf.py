@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'oneDAL'
-copyright = '2014 - 2021, Intel Corporation' # pylint: disable=redefined-builtin
+copyright = '2014 - 2022, Intel Corporation' # pylint: disable=redefined-builtin
 
 # The full version, including alpha/beta/rc tags
 # release = '2021'
