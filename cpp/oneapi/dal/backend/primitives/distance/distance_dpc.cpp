@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float>
-void check_inputs(const ndview<Float, 2>& inp1,
-                  const ndview<Float, 2>& inp2,
+template <typename Float, ndorder order1, ndorder order2>
+void check_inputs(const ndview<Float, 2, order1>& inp1,
+                  const ndview<Float, 2, order2>& inp2,
                   const ndview<Float, 2>& out) {
     ONEDAL_ASSERT(inp1.has_data());
     ONEDAL_ASSERT(inp2.has_data());
@@ -30,11 +30,20 @@ void check_inputs(const ndview<Float, 2>& inp1,
     ONEDAL_ASSERT(inp1.get_dimension(1) == inp2.get_dimension(1));
 }
 
-#define INSTANTIATE(F) \
-    template void check_inputs<F>(const ndview<F, 2>&, const ndview<F, 2>&, const ndview<F, 2>&);
-INSTANTIATE(float);
-INSTANTIATE(double);
+#define INSTANTIATE(F, A, B)                                    \
+    template void check_inputs<F, A, B>(const ndview<F, 2, A>&, \
+                                        const ndview<F, 2, B>&, \
+                                        const ndview<F, 2>&);
 
-#undef INSTANTIATE
+#define INSTANTIATE_F(A, B)  \
+    INSTANTIATE(float, A, B) \
+    INSTANTIATE(double, A, B)
+
+#define INSTANTIATE_A(B)         \
+    INSTANTIATE_F(ndorder::c, B) \
+    INSTANTIATE_F(ndorder::f, B)
+
+INSTANTIATE_A(ndorder::c)
+INSTANTIATE_A(ndorder::f)
 
 } // namespace oneapi::dal::backend::primitives

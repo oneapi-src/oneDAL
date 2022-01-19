@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ struct mpi {};
 } // namespace backend
 
 template <>
-communicator<device_memory_access::none> make_communicator<backend::mpi>() {
+inline communicator<device_memory_access::none> make_communicator<backend::mpi>() {
     return dal::detail::mpi_communicator<device_memory_access::none>{};
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <>
-communicator<device_memory_access::usm> make_communicator<backend::mpi>(sycl::queue& queue) {
+inline communicator<device_memory_access::usm> make_communicator<backend::mpi>(sycl::queue& queue) {
     return dal::detail::mpi_communicator<device_memory_access::usm>{ queue };
 }
 #endif

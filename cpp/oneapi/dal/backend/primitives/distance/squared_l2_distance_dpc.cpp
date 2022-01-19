@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,16 +23,18 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-auto distance<Float, squared_l2_metric<Float>>::get_norms(const ndview<Float, 2>& inp,
+template <ndorder order>
+auto distance<Float, squared_l2_metric<Float>>::get_norms(const ndview<Float, 2, order>& inp,
                                                           const event_vector& deps) const
     -> norms_res_t {
     return compute_squared_l2_norms(q_, inp, deps);
 }
 
 template <typename Float>
+template <ndorder order1, ndorder order2>
 sycl::event distance<Float, squared_l2_metric<Float>>::operator()(
-    const ndview<Float, 2>& inp1,
-    const ndview<Float, 2>& inp2,
+    const ndview<Float, 2, order1>& inp1,
+    const ndview<Float, 2, order2>& inp2,
     ndview<Float, 2>& out,
     const ndview<Float, 1>& inp1_norms,
     const ndview<Float, 1>& inp2_norms,
@@ -42,10 +44,12 @@ sycl::event distance<Float, squared_l2_metric<Float>>::operator()(
 }
 
 template <typename Float>
-sycl::event distance<Float, squared_l2_metric<Float>>::operator()(const ndview<Float, 2>& inp1,
-                                                                  const ndview<Float, 2>& inp2,
-                                                                  ndview<Float, 2>& out,
-                                                                  const event_vector& deps) const {
+template <ndorder order1, ndorder order2>
+sycl::event distance<Float, squared_l2_metric<Float>>::operator()(
+    const ndview<Float, 2, order1>& inp1,
+    const ndview<Float, 2, order2>& inp2,
+    ndview<Float, 2>& out,
+    const event_vector& deps) const {
     auto [norms1_array, norms1_event] = get_norms(inp1, deps);
     auto [norms2_array, norms2_event] = get_norms(inp2, deps);
     return this->operator()(inp1,
@@ -56,10 +60,32 @@ sycl::event distance<Float, squared_l2_metric<Float>>::operator()(const ndview<F
                             { norms1_event, norms2_event });
 }
 
-#define INSTANTIATE(F) template class distance<F, squared_l2_metric<F>>;
+#define INSTANTIATE(F, A, B)                                                                       \
+    template sycl::event distance<F, squared_l2_metric<F>>::operator()(const ndview<F, 2, A>&,     \
+                                                                       const ndview<F, 2, B>&,     \
+                                                                       ndview<F, 2>&,              \
+                                                                       const ndview<F, 1>&,        \
+                                                                       const ndview<F, 1>&,        \
+                                                                       const event_vector&) const; \
+    template sycl::event distance<F, squared_l2_metric<F>>::operator()(const ndview<F, 2, A>&,     \
+                                                                       const ndview<F, 2, B>&,     \
+                                                                       ndview<F, 2>&,              \
+                                                                       const event_vector&) const;
 
-INSTANTIATE(float);
-INSTANTIATE(double);
+#define INSTANTIATE_B(F, A)                                                                       \
+    INSTANTIATE(F, A, ndorder::c)                                                                 \
+    INSTANTIATE(F, A, ndorder::f)                                                                 \
+    template std::tuple<ndarray<F, 1>, sycl::event> distance<F, squared_l2_metric<F>>::get_norms( \
+        const ndview<F, 2, A>& inp,                                                               \
+        const event_vector& deps) const;
+
+#define INSTANTIATE_F(F)         \
+    INSTANTIATE_B(F, ndorder::c) \
+    INSTANTIATE_B(F, ndorder::f) \
+    template class distance<F, squared_l2_metric<F>>;
+
+INSTANTIATE_F(float);
+INSTANTIATE_F(double);
 
 #undef INSTANTIATE
 

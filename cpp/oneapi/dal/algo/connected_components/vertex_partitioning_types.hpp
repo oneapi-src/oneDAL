@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -62,13 +62,12 @@ public:
     /// Constructs the empty result
     vertex_partitioning_result();
 
-    /// Returns the table with computed component ids for each vertex
-    // represented as std::int64_t
+    /// The table of size [vertex_count x 1] with computed component ids for each vertex
     const table& get_labels() const {
         return get_labels_impl();
     }
 
-    /// Returns the number of connected components
+    /// The number of connected components
     // represented as std::int64_t
     int64_t get_component_count() const {
         return get_component_count_impl();
