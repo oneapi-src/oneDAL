@@ -264,14 +264,6 @@ DF_BADARG_TEST("throws if train input responses is empty") {
     REQUIRE_THROWS_AS(this->train(this->get_default_descriptor(), x, y_empty), domain_error);
 }
 
-DF_BADARG_TEST("throws if train input weights is empty") {
-    SKIP_IF(this->not_available_on_device());
-
-    dal::homogen_table z_empty;
-    const auto [x, y] = this->get_train_data();
-    REQUIRE_THROWS_AS(this->train(this->get_default_descriptor(), x, y, z_empty), domain_error);
-}
-
 DF_BADARG_TEST("throws if infer input data is empty") {
     SKIP_IF(this->not_available_on_device());
 
