@@ -39,15 +39,39 @@ inline void read_edge_list(const std::string &name, edge_list<std::int32_t> &eli
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
+    elist.reserve(1024); 
+    std::string line;
+    char * source_endptr;
+    char * dest_endptr;
+    const char *edgeline;
+    std::int32_t source_vertex;
+    std::int32_t destination_vertex;
+    while (getline(file, line)) {      
+        if (line.empty()){
+            break;
+        }
+        edgeline = line.c_str();
+        source_vertex = daal_string_to_int(&edgeline[0], &source_endptr);
+        destination_vertex = daal_string_to_int(source_endptr, &dest_endptr);
+        
+        if (source_endptr ==  dest_endptr) {
+            throw invalid_argument("Incorrect number of values per line");
+        }
 
-    elist.reserve(1024);
-    char source_vertex[32], destination_vertex[32];
-    while (file >> source_vertex >> destination_vertex) {
-        auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),
-                                   daal_string_to_int(&destination_vertex[0], 0));
-        elist.push_back(edge);
+        if (destination_vertex == 0 && source_endptr[1] != '0'){
+            throw invalid_argument(dal::detail::error_messages::non_numeric_character_in_edge_list());
+        }
+        
+        if (dest_endptr[0] != '\0'){
+            throw invalid_argument(dal::detail::error_messages::non_numeric_character_in_edge_list());
+        }      
+
+        if (source_vertex < 0 || destination_vertex < 0) {
+            throw invalid_argument(dal::detail::error_messages::negative_vertex_id());
+        }
+        auto edge = std::make_pair(source_vertex, destination_vertex);
+        elist.push_back(edge);       
     }
-
     file.close();
 }
 
@@ -59,12 +83,43 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
     }
 
     elist.reserve(1024);
-    char source_vertex[32], destination_vertex[32], edge_value[64];
-    while (file >> source_vertex >> destination_vertex >> edge_value) {
+
+    std::string line;
+    char * source_endptr;
+    char * dest_endptr;
+    char * value_endptr;
+
+    const char *edgeline;
+    Vertex source_vertex;
+    Vertex destination_vertex;
+    Weight edge_value;
+    while (getline(file, line)) {      
+        if (line.empty()){
+            break;
+        }
+        edgeline = line.c_str();
+        source_vertex = daal_string_to<Vertex>(&edgeline[0], &source_endptr);
+        destination_vertex = daal_string_to<Vertex>(source_endptr, &dest_endptr);
+        edge_value = daal_string_to<Weight>(dest_endptr, &value_endptr);
+
+        if (source_endptr ==  dest_endptr || dest_endptr == value_endptr) {
+            throw invalid_argument("Incorrect number of values per line");
+        }
+
+        if (edge_value == 0 && dest_endptr[1] != '0'){           
+            throw invalid_argument(dal::detail::error_messages::non_numeric_character_in_edge_list());
+        }
+        
+        if (value_endptr[0] != '\0'){            
+            throw invalid_argument(dal::detail::error_messages::non_numeric_character_in_edge_list());
+        }      
+
+        if (source_vertex < 0 || destination_vertex < 0) {
+            throw invalid_argument(dal::detail::error_messages::negative_vertex_id());
+        }
         auto edge =
-            std::tuple<Vertex, Vertex, Weight>(daal_string_to<Vertex>(&source_vertex[0], 0),
-                                               daal_string_to<Vertex>(&destination_vertex[0], 0),
-                                               daal_string_to<Weight>(&edge_value[0], 0));
+            std::tuple<Vertex, Vertex, Weight>(source_vertex, destination_vertex, edge_value);
+
         elist.push_back(edge);
     }
     file.close();
