@@ -127,6 +127,7 @@ MSG(non_numeric_character_in_edge_list, "Non-numeric character in edge list")
 /* IO */
 MSG(file_not_found, "File not found")
 MSG(unsupported_read_mode, "Unsupported read mode")
+MSG(non_numeric_character_in_edge_list, "Non-numeric character in edge list")
 
 /* Serialization */
 MSG(object_is_not_serializable, "Object is not serializable")
