@@ -81,88 +81,41 @@ template <typename algorithmFPType, daal::algorithms::svd::Method method, CpuTyp
 Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
                                                                  const Parameter * svdPar)
 {
-    NumericTable * ntA     = const_cast<NumericTable *>(a[0]);
-    NumericTable * ntSigma = const_cast<NumericTable *>(r[0]);
+    NumericTable * const ntA     = const_cast<NumericTable *>(a[0]);
+    NumericTable * const ntSigma = const_cast<NumericTable *>(r[0]);
 
     const size_t n           = ntA->getNumberOfColumns();
     const size_t m           = ntA->getNumberOfRows();
     const size_t nComponents = ntSigma->getNumberOfColumns();
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
-    TArray<algorithmFPType, cpu> ATPtr(n * m);
-    algorithmFPType * AT = ATPtr.get();
-    TArray<algorithmFPType, cpu> QTPtr(n * m);
-    algorithmFPType * QT = QTPtr.get();
-    TArray<algorithmFPType, cpu> VTPtr(n * n);
-    algorithmFPType * VT = VTPtr.get();
-    DAAL_CHECK(AT && QT && VT, ErrorMemoryAllocationFailed);
+    ReadRows<algorithmFPType, cpu, NumericTable> Ablock(ntA, 0, m);
+    DAAL_CHECK_BLOCK_STATUS(Ablock);
+    const algorithmFPType * const A = Ablock.get();
 
-    {
-        ReadRows<algorithmFPType, cpu, NumericTable> aBlock(ntA, 0, m);
-        DAAL_CHECK_BLOCK_STATUS(aBlock);
-        const algorithmFPType * A = aBlock.get();
-
-        for (size_t i = 0; i < n; i++)
-        {
-            for (size_t j = 0; j < m; j++)
-            {
-                AT[i * m + j] = A[i + j * n];
-            }
-        }
-    }
-
-    {
-        TArray<algorithmFPType, cpu> sigmaPtr(n);
-        DAAL_CHECK_MALLOC(sigmaPtr.get());
-        algorithmFPType * Sigma = sigmaPtr.get();
-        const algorithmFPType zero(0.0);
-        service_memset<algorithmFPType, cpu>(Sigma, zero, n);
-
-        compute_svd_on_one_node<algorithmFPType, cpu>(m, n, AT, m, Sigma, QT, m, VT, n);
-
-        WriteOnlyRows<algorithmFPType, cpu, NumericTable> sigmaBlock(ntSigma, 0, 1);
-        DAAL_CHECK_BLOCK_STATUS(sigmaBlock);
-        algorithmFPType * tSigma = sigmaBlock.get();
-
-        for (size_t i = 0; i < nComponents; i++)
-        {
-            tSigma[i] = Sigma[i];
-        }
-    }
+    WriteOnlyRows<algorithmFPType, cpu, NumericTable> Ublock;
+    WriteOnlyRows<algorithmFPType, cpu, NumericTable> VTblock;
+    algorithmFPType * U  = nullptr; /* Left singular vectors */
+    algorithmFPType * VT = nullptr; /* Right singular vectors */
 
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
     {
-        WriteOnlyRows<algorithmFPType, cpu, NumericTable> qBlock(r[1], 0, m);
-        DAAL_CHECK_BLOCK_STATUS(qBlock);
-        algorithmFPType * Q = qBlock.get();
-
-        for (size_t i = 0; i < n; i++)
-        {
-            for (size_t j = 0; j < m; j++)
-            {
-                Q[i + j * n] = QT[i * m + j];
-            }
-        }
+        Ublock.set(r[1], 0, m);
+        DAAL_CHECK_BLOCK_STATUS(Ublock);
+        U = Ublock.get();
     }
 
     if (svdPar->rightSingularMatrix == requiredInPackedForm)
     {
-        WriteOnlyRows<algorithmFPType, cpu, NumericTable> vBlock(r[2], 0, nComponents);
-        DAAL_CHECK_BLOCK_STATUS(vBlock);
-        algorithmFPType * V = vBlock.get();
-
-        for (size_t i = 0; i < n; i++)
-        {
-            for (size_t j = 0; j < nComponents; j++)
-            {
-                V[i + j * n] = VT[i * n + j];
-            }
-        }
+        VTblock.set(r[2], 0, nComponents);
+        DAAL_CHECK_BLOCK_STATUS(VTblock);
+        VT = VTblock.get();
     }
+
+    WriteOnlyRows<algorithmFPType, cpu, NumericTable> sigmaBlock(ntSigma, 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(sigmaBlock);
+    algorithmFPType * const Sigma = sigmaBlock.get();
+
+    compute_svd_on_one_node<algorithmFPType, cpu>(n, m, A, n, Sigma, VT, n, U, m);
 
     return Status();
 }
