@@ -49,6 +49,7 @@ auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
                   const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_sums, q);
+    ONEDAL_ASSERT(data.has_data());
 
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
@@ -63,7 +64,7 @@ auto compute_means(sycl::queue& q,
                    std::int64_t row_count,
                    const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_means, q);
-
+    ONEDAL_ASSERT(sums.has_data());
     const std::int64_t column_count = sums.get_dimension(0);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
     auto means_event = pr::means(q, row_count, sums, means, deps);
@@ -78,7 +79,7 @@ auto compute_covariance(sycl::queue& q,
                         const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(sums.has_data());
-
+    ONEDAL_ASSERT(xtx.has_data());
     const std::int64_t column_count = xtx.get_dimension(1);
 
     auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
@@ -116,6 +117,7 @@ auto compute_correlation(sycl::queue& q,
 template <typename Float>
 result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
                                                       const input_t& input) {
+    ONEDAL_ASSERT(data.has_data());
     const auto data = input.get_data();
     std::int64_t row_count = data.get_row_count();
     auto rows_count_global = row_count;

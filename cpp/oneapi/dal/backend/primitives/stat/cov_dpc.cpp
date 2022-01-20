@@ -32,7 +32,7 @@ inline sycl::event means(sycl::queue& q,
     ONEDAL_ASSERT(means.has_mutable_data());
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-
+    ONEDAL_ASSERT(sums.get_dimension(0) == means.get_dimension(0));
     const auto column_count = sums.get_dimension(0);
 
     const Float inv_n = Float(1.0 / double(row_count));
