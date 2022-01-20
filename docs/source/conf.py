@@ -61,7 +61,13 @@ substitutions = [
 
 # sys.path.insert(0, path_relative_to_repo_root('source/elements/oneDAL'))
 
-extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs', 'dalapi', 'sphinx.ext.githubpages']
+extensions = ['sphinx-prompt',
+              'sphinx_substitution_extensions',
+              'sphinx.ext.extlinks',
+              'sphinx_tabs.tabs',
+              'dalapi',
+              'sphinx.ext.githubpages',
+              'notfound.extension']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -108,6 +114,10 @@ html_theme_options = {
 onedal_enable_listing = False
 onedal_relative_doxyfile_dir = '../doxygen/oneapi'
 onedal_relative_sources_dir = '../../cpp/oneapi/dal'
+
+# not found 404 page
+
+notfound_urls_prefix = '/oneDAL/'
 
 # ignore these missing references during a doc build
 nitpick_ignore = [
