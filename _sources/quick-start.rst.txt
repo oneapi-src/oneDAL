@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2019-2022 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,17 +14,20 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-DPC++ examples not working
-**************************
+.. _onedal_get_started:
 
-DPC++ examples for |short_name| might not work in Visual Studio 2017 by default. You will see the following message:
+Quick Start
+=======================
 
-.. code-block:: text
+.. toctree::
+   :maxdepth: 4
 
-    The Windows SDK version 10.0 was not found. Install the required version of Windows SDK or change the SDK version
-    in the project property pages or by right-clicking the solution and selecting "Retarget solution".
- 
-How to Fix
-----------
+.. include:: ./get-started/prerequisites.rst
 
-Choose the installed SDK version and select :guilabel:`Retarget solution`.
+.. include:: ./get-started/end-to-end-example.rst
+
+.. include:: ./get-started/build-and-run-examples.rst
+
+.. seealso::
+   
+   - :ref:`oneapi_dal_examples`

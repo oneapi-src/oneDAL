@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2021 Intel Corporation
+.. * Copyright 2019-2022 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -282,6 +282,10 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Khronos®OpenCL™ Working Group --- SYCL™ subgroup, SYCL™ Specification SYCL™
    integrates OpenCL™ devices with modern C++, Version 1.2.1 Available from
    `sycl-1.2.1.pdf <https://www.khronos.org/registry/SYCL/specs/sycl-1.2.1.pdf>`_
+
+.. [Sutton2018]
+   Michael Sutton, Tal Ben-Nun, Amnon Barak. *Optimizing Parallel Graph Connectivity Computation via Subgraph Sampling*.
+   Symposium on Parallel and Distributed Processing, IPDPS 2018.
 
 .. [Tan2005]
    Pang-Ning Tan, Michael Steinbach, Vipin Kumar, Introduction to

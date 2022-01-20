@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2020-2022 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,17 +14,10 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-oneAPI examples failing with segfault
-*************************************
+.. tabs::
 
-oneAPI examples located in the ``examples/oneapi`` directory are failing with a segmentation fault (segfault).
-This happens because the directory that contains data is skipped during installation.
+   .. group-tab:: oneAPI C++
 
-How to Fix
-----------
+      Batch Processing:
 
-The workaround is to copy the missing directory from the source repository:
-
-#. Copy the `missing data directory <https://github.com/oneapi-src/oneDAL/tree/rls/onedal-beta09-rls/examples/oneapi/data>`_ from |short_name| repository.
-
-#. Place the ``data`` directory within the ``examples/oneapi`` directory on your machine.
+      - :ref:`cpp_connected_components_batch.cpp`
