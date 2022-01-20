@@ -42,7 +42,7 @@ micromkl_dpc_repo(
     name = "micromkl_dpc",
     root_env_var = "MKLGPUFPKROOT",
     url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_2021-11-11.tgz",
-    sha256 = "f19b7390dad523f3306ec47bb69350af32e4813dea19b2e7a68fa88861f655a3",
+    sha256 = "9ab148c1d75cbd317f3d9c695b0e0cc699d907d2407723612990a4fe1171d940",
 )
 
 load("@onedal//dev/bazel/deps:tbb.bzl", "tbb_repo")
