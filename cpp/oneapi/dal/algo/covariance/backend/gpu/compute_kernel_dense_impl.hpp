@@ -48,4 +48,5 @@ private:
 };
 
 } // namespace oneapi::dal::covariance::backend
+
 #endif // ONEDAL_DATA_PARALLEL

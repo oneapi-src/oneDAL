@@ -21,13 +21,9 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/backend/memory.hpp"
-#include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -65,6 +61,7 @@ auto compute_means(sycl::queue& q,
                    const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_means, q);
     ONEDAL_ASSERT(sums.has_data());
+
     const std::int64_t column_count = sums.get_dimension(0);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
     auto means_event = pr::means(q, row_count, sums, means, deps);
@@ -80,6 +77,7 @@ auto compute_covariance(sycl::queue& q,
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(xtx.has_data());
+
     const std::int64_t column_count = xtx.get_dimension(1);
 
     auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
@@ -118,6 +116,7 @@ template <typename Float>
 result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
                                                       const input_t& input) {
     ONEDAL_ASSERT(data.has_data());
+
     const auto data = input.get_data();
     std::int64_t row_count = data.get_row_count();
     auto rows_count_global = row_count;
