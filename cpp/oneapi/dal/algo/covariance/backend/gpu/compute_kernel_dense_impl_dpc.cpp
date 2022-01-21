@@ -61,6 +61,7 @@ auto compute_means(sycl::queue& q,
                    const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_means, q);
     ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(sums.get_dimension(0) > 0);
 
     const std::int64_t column_count = sums.get_dimension(0);
     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
