@@ -29,12 +29,7 @@ template <typename Task>
 class train_result_impl;
 } // namespace v1
 
-namespace v2 {
-template <typename Task>
-class train_input_impl;
-} // namespace v2
-
-using v2::train_input_impl;
+using v1::train_input_impl;
 using v1::train_result_impl;
 
 } // namespace detail

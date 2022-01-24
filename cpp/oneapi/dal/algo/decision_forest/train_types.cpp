@@ -22,17 +22,6 @@ namespace oneapi::dal::decision_forest {
 template <typename Task>
 class detail::v1::train_input_impl : public base {
 public:
-    train_input_impl(const table& data, const table& responses)
-            : data(data),
-              responses(responses) {}
-
-    table data;
-    table responses;
-};
-
-template <typename Task>
-class detail::v2::train_input_impl : public base {
-public:
     train_input_impl(const table& data, const table& responses, const table& weights)
             : data(data),
               responses(responses),
@@ -53,14 +42,14 @@ public:
     table variable_importance;
 };
 
-using detail::v2::train_input_impl;
+using detail::v1::train_input_impl;
 using detail::v1::train_result_impl;
 
 namespace v1 {
 
 template <typename Task>
 train_input<Task>::train_input(const table& data, const table& responses)
-        : impl_(new detail::v1::train_input_impl<Task>(data, responses)) {}
+        : impl_(new train_input_impl<Task>(data, responses, table {})) {}
 
 template <typename Task>
 const table& train_input<Task>::get_data() const {
