@@ -871,7 +871,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const IdxType nnz                  = sizeIter[1];
     const IdxType nIterWithoutProgress = sizeIter[2];
     const IdxType maxIter              = sizeIter[3];
-    const IdxType nNodes               = N * 2 + N;
+    const IdxType nNodes               = N <= 50 ? 4*N : 3*N;
     const IdxType nIterCheck           = 50;
     const IdxType explorationIter      = 250;
 
