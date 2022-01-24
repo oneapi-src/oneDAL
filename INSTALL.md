@@ -75,10 +75,12 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
     - **Windows\***:
 
             .\dev\download_micromkl.bat
+            set INCLUDE=%cd%\__deps\mklgpufpk\include;%INCLUDE%
 
     - **Linux\***:
 
             ./dev/download_micromkl.sh
+            export CPATH=${PWD}/__deps/mklgpufpk/lnx/include:$CPATH   
 
 6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
 

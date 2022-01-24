@@ -74,7 +74,6 @@ $(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
 $(pwd)/dev/download_tbb.sh
 
 echo "Set Micromkl CPATH"
-
 if [ "${OS}" == "lnx" ]; then
     export CPATH=$(pwd)/__deps/mklgpufpk/lnx/include:$CPATH
 fi
