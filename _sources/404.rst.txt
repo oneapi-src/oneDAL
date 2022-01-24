@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2022 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,18 +14,15 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Potential performance degradations
-**********************************
+:orphan:
+:nosearch:
 
-You might experience performance degradations if you use Lever Zero Runtime for GPU computations.
+Page not found
+==============
 
-.. include:: includes/note-refer-to-dpcpp-level-zero.rst
+Unfortunately, we could not find the page you were looking for. Try:
 
-How to Fix
-----------
-
-Switch back to OpenCL runtime by setting the ``SYCL_BE`` variable to ``PI_OPENCL``:
-
-.. code-block:: bash
-
-    export SYCL_BE=PI_OPENCL
+- using :ref:`search <search>` to browse documentation
+- checking the table of contents on the left
+- filing an `issue <https://github.com/oneapi-src/oneDAL/issues>`_ or
+  starting a `discussion <https://github.com/oneapi-src/oneDAL/discussions>`_ on GitHub

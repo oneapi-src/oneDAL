@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2021 Intel Corporation
+.. * Copyright 2019-2022 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,26 +14,19 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. |idz| replace:: |short_name| home page
-.. _idz: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html
 
-.. |github_rls| replace:: |short_name| GitHub\*
+.. |github_rls| replace:: Download a binary file with the specific version of |short_name|
 .. _github_rls: https://github.com/oneapi-src/oneDAL/releases
 
-.. |install_sources| replace:: install |short_name| from sources
+.. |install_sources| replace:: Install |short_name| from sources
 .. _install_sources: https://github.com/oneapi-src/oneDAL/blob/master/INSTALL.md
 
 Installation
 ============
 
-You can obtain the latest version of |short_name|:
+- |github_rls|_
+- |install_sources|_
 
-- from |idz|_ as a part of |base_tk|.
-- from |github_rls|_ as a binary file.
+.. seealso::
 
-You can also |install_sources|_.
-
-See Also
-********
-
-- :ref:`onedal_get_started`
+   - :ref:`onedal_get_started`

@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2021 Intel Corporation
+.. * Copyright 2019-2022 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -19,16 +19,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. |daal-docs| replace:: oneAPI Data Analytics Library
-.. _daal-docs: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html
-
-.. |github| replace:: |short_name| GitHub\* page
-.. _github: https://github.com/oneapi-src/oneDAL
-
 .. |spec| replace:: |short_name| specification
 .. _spec: https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html
 
-|full_name|
+|full_name| (|short_name|)
 ------------------------------------------------------
 
 |full_name| (|short_name|) is a library
@@ -38,7 +32,7 @@ algorithmic building blocks for all stages of data analytics
 decision making) in batch, online, and distributed processing modes of
 computation. The library provides two different sets of C++ interfaces: :ref:`oneAPI and DAAL <oneapi_vs_daal>`.
 
-For general information, refer to |daal-docs|_ official page.
+For general information, refer to |onedal-landing|_.
 
 .. _oneapi_vs_daal:
 
@@ -50,38 +44,4 @@ oneAPI vs. DAAL Interfaces
 
 - :ref:`daal_guide` are CPU-only interfaces that provide implementations for a wide range of algorithms.
 
-.. toctree::
-   :hidden:
-   :caption: Introduction
-
-   installation.rst
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Developer Guide
-
-   data-analytics-pipeline.rst
-   oneapi-interfaces.rst
-   daal-interfaces.rst
-   bibliography.rst
-
-.. toctree::
-   :maxdepth: 3
-   :caption: API Reference
-
-   api/index.rst
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Notes
-
-   notes/known_issues.rst
-   legal.rst
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Contributing Guide
-
-   contribution/coding_guide.rst
+.. include:: index-toc.rst
