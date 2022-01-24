@@ -72,6 +72,13 @@ fi
 echo "Call mkl and tbb scripts"
 $(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
 $(pwd)/dev/download_tbb.sh
+
+echo "Set Micromkl CPATH"
+
+if [ "${OS}" == "lnx" ]; then
+    export CPATH=$(pwd)/__deps/mklgpufpk/lnx/include:$CPATH
+fi
+
 echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
