@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2021 Intel Corporation
+# Copyright 2020-2022 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,10 @@ load("@onedal//dev/bazel:cc.bzl",
 )
 load("@onedal//dev/bazel/deps:mpi.bzl",
     "mpi_test",
+)
+
+load("@onedal//dev/bazel/deps:ccl.bzl",
+    "ccl_test",
 )
 load("@onedal//dev/bazel:release.bzl",
     "headers_filter",
@@ -155,7 +159,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
              extra_deps=[], host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[], compile_as=[ "c++", "dpc++" ],
              framework="gtest", data=[], tags=[], private=False,
-             mpi=False, mpi_ranks=0, args=[], **kwargs):
+             mpi=False, ccl=False, mpi_ranks=0, args=[], **kwargs):
     # TODO: Check `compile_as` parameter
     # TODO: Refactor this rule once decision on the tests structure is made
     if not framework in ["gtest", "catch2", "none"]:
@@ -184,7 +188,10 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
             "@onedal//cpp/oneapi/dal/test/engine:catch2_main",
         ] if is_catch2 else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:mpi",
-        ] if mpi else []),
+        ] if mpi else []) + ([
+            "@onedal//cpp/oneapi/dal/test/engine:mpi",
+            "@onedal//cpp/oneapi/dal/test/engine:ccl",
+        ] if ccl else []),
         extra_deps = _test_deps_on_daal() + extra_deps,
         testonly = True,
         **kwargs,

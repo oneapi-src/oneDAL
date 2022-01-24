@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2021 Intel Corporation
+# Copyright 2014-2022 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -357,5 +357,6 @@ nitpick_ignore = [
     ('cpp:identifier', 'subgraph_isomorphism'),
     ('cpp:identifier', 'kind::induced'),
     ('cpp:identifier', 'kind::non_induced'),
-    ('cpp:identifier', 'preview')
+    ('cpp:identifier', 'preview'),
+    ('cpp:identifier', 'connected_components')
 ]

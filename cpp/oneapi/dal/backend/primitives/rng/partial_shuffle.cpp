@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,10 +23,12 @@
 
 namespace oneapi::dal::backend::primitives {
 
-void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::int64_t top) {
+void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array,
+                                  std::int64_t top,
+                                  std::int64_t seed) {
     using msg = dal::detail::error_messages;
     daal::algorithms::engines::EnginePtr engine =
-        daal::algorithms::engines::mt19937::Batch<>::create(777777);
+        daal::algorithms::engines::mt19937::Batch<>::create(seed);
     if (engine.get() == nullptr) {
         throw internal_error(msg::failed_to_generate_random_numbers());
     }
@@ -56,6 +58,10 @@ void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::in
         k++;
     }
     ONEDAL_ASSERT(k == count);
+}
+
+void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::int64_t top) {
+    partial_fisher_yates_shuffle(result_array, top, 7777);
 }
 
 } // namespace oneapi::dal::backend::primitives

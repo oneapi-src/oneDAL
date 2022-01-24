@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public:
 };
 
 template <>
-communicator<device_memory_access::none> make_communicator<backend::ccl>() {
+inline communicator<device_memory_access::none> make_communicator<backend::ccl>() {
     auto& info = de::singleton<ccl_info>::get();
     // integral cast
     return dal::detail::ccl_communicator<device_memory_access::none>{ info.kvs,
@@ -65,7 +65,7 @@ communicator<device_memory_access::none> make_communicator<backend::ccl>() {
 }
 
 template <>
-communicator<device_memory_access::usm> make_communicator<backend::ccl>(sycl::queue& queue) {
+inline communicator<device_memory_access::usm> make_communicator<backend::ccl>(sycl::queue& queue) {
     auto& info = de::singleton<ccl_info>::get();
     return dal::detail::ccl_communicator<device_memory_access::usm>{
         queue,

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,12 +23,18 @@
 namespace oneapi::dal::preview::connected_components {
 
 namespace task {
+/// Tag-type that parameterizes entities that are used for Connected Components algorithm.
 struct vertex_partitioning {};
+
+/// Alias tag-type for the vertex partitioning task.
 using by_default = vertex_partitioning;
 } // namespace task
 
 namespace method {
+/// Tag-type that denotes Afforest computational method.
 struct afforest {};
+
+/// Alias tag-type for Afforest computational method.
 using by_default = afforest;
 } // namespace method
 
@@ -68,10 +74,12 @@ protected:
 
 /// Class for the Connected Components algorithm descriptor
 ///
-/// @tparam Float The data type of the result
-/// @tparam Method The algorithm method
-/// @tparam Task   The task to solve by the algorithm
-/// @tparam Allocator   Custom allocator for all memory management inside the algorithm
+/// @tparam Float       This parameter is not used for Connected Components algorithm.
+/// @tparam Method      Tag-type that specifies the implementation of the algorithm. Can
+///                     be :expr:`method::afforest`.
+/// @tparam Task        Tag-type that specifies the type of the problem to solve. Can
+///                     be :expr:`task::vertex_partitioning`.
+/// @tparam Allocator   Custom allocator for all memory management inside the algorithm.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -92,6 +100,7 @@ public:
         alloc_ = allocator;
     }
 
+    /// Returns a copy of the allocator used in the algorithm for internal memory management.
     Allocator get_allocator() const {
         return alloc_;
     }

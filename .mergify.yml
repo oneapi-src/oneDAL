@@ -8,15 +8,6 @@ pull_request_rules:
         branches:
           - rls/2021-gold-mnt
         ignore_conflicts: true
-  - name: backport patches to 2020 branch
-    conditions:
-      - base=master
-      - label=backport-2020
-    actions:
-      backport:
-        branches:
-          - rls/daal-2020-mnt
-        ignore_conflicts: true
   - name: delete head branch after merge
     conditions:
       - head~=^renovate/
@@ -33,4 +24,13 @@ pull_request_rules:
       request_reviews:
         users:
           - napetrov
-          - PetrovKP
+          - vmeshche
+  - name: automatic merge on renovate updates for documentation
+    conditions:
+      - author=renovate[bot]
+      - check-success=docbuild
+      - files=docs/requirements.txt
+      - "#files=1"
+    actions:
+      merge:
+        method: squash
