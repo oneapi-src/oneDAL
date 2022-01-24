@@ -22,6 +22,17 @@ namespace oneapi::dal::decision_forest {
 template <typename Task>
 class detail::v1::train_input_impl : public base {
 public:
+    train_input_impl(const table& data, const table& responses)
+            : data(data),
+              responses(responses) {}
+
+    table data;
+    table responses;
+};
+
+template <typename Task>
+class detail::v2::train_input_impl : public base {
+public:
     train_input_impl(const table& data, const table& responses, const table& weights)
             : data(data),
               responses(responses),
@@ -42,14 +53,14 @@ public:
     table variable_importance;
 };
 
-using detail::v1::train_input_impl;
+using detail::v2::train_input_impl;
 using detail::v1::train_result_impl;
 
 namespace v1 {
 
 template <typename Task>
-train_input<Task>::train_input(const table& data, const table& responses, const table& weights)
-        : impl_(new train_input_impl<Task>(data, responses, weights)) {}
+train_input<Task>::train_input(const table& data, const table& responses)
+        : impl_(new detail::v1::train_input_impl<Task>(data, responses)) {}
 
 template <typename Task>
 const table& train_input<Task>::get_data() const {
@@ -62,11 +73,6 @@ const table& train_input<Task>::get_responses() const {
 }
 
 template <typename Task>
-const table& train_input<Task>::get_weights() const {
-    return impl_->weights;
-}
-
-template <typename Task>
 void train_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
@@ -74,11 +80,6 @@ void train_input<Task>::set_data_impl(const table& value) {
 template <typename Task>
 void train_input<Task>::set_responses_impl(const table& value) {
     impl_->responses = value;
-}
-
-template <typename Task>
-void train_input<Task>::set_weights_impl(const table& value) {
-    impl_->weights = value;
 }
 
 template <typename Task>
@@ -124,10 +125,49 @@ void train_result<Task>::set_var_importance_impl(const table& value) {
     impl_->variable_importance = value;
 }
 
-template class ONEDAL_EXPORT train_input<task::classification>;
-template class ONEDAL_EXPORT train_input<task::regression>;
 template class ONEDAL_EXPORT train_result<task::classification>;
 template class ONEDAL_EXPORT train_result<task::regression>;
 
 } // namespace v1
+
+namespace v2 {
+
+template <typename Task>
+train_input<Task>::train_input(const table& data, const table& responses, const table& weights)
+        : impl_(new train_input_impl<Task>(data, responses, weights)) {}
+
+template <typename Task>
+const table& train_input<Task>::get_data() const {
+    return impl_->data;
+}
+
+template <typename Task>
+const table& train_input<Task>::get_responses() const {
+    return impl_->responses;
+}
+
+template <typename Task>
+const table& train_input<Task>::get_weights() const {
+    return impl_->weights;
+}
+
+template <typename Task>
+void train_input<Task>::set_data_impl(const table& value) {
+    impl_->data = value;
+}
+
+template <typename Task>
+void train_input<Task>::set_responses_impl(const table& value) {
+    impl_->responses = value;
+}
+
+template <typename Task>
+void train_input<Task>::set_weights_impl(const table& value) {
+    impl_->weights = value;
+}
+
+template class ONEDAL_EXPORT train_input<task::classification>;
+template class ONEDAL_EXPORT train_input<task::regression>;
+
+} // namespace v2
 } // namespace oneapi::dal::decision_forest
