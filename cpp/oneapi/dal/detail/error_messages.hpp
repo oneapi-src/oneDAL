@@ -140,7 +140,6 @@ public:
     MSG(negative_vertex_id);
     MSG(unimplemented_sorting_procedure);
     MSG(edge_values_are_empty);
-    MSG(non_numeric_character_in_edge_list);
 
     /* I/O */
     MSG(file_not_found);
