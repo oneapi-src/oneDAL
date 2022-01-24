@@ -209,7 +209,6 @@ private:
 };
 } // namespace v2
 
-//using v1::train_input;
 using v1::train_result;
 using v2::train_input;
 
