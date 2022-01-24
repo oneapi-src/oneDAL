@@ -37,28 +37,15 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'oneDAL'
-copyright = '2014 - 2021, Intel Corporation' # pylint: disable=redefined-builtin
+copyright = '2014 - 2022, Intel Corporation' # pylint: disable=redefined-builtin
 
 # The full version, including alpha/beta/rc tags
 # release = '2021'
 
 rst_prolog = """
-.. |short_name| replace:: oneDAL
-.. |product| replace:: oneDAL
-.. |namespace| replace:: daal
-.. |daal_in_code| replace:: daal
-.. |reg| unicode:: U+000AE
-.. |copy| unicode:: U+000A9
-.. |base_tk| replace:: Intel\ |reg|\  oneAPI Base Toolkit
-.. |dpcpp| replace:: Intel\ |reg|\  oneAPI DPC++/C++ Compiler
+.. include:: /substitutions_common.txt
+.. include:: /substitutions_specific.txt
 """
-
-if tags.has('use_intelname'):
-    # use supplied =t use_intelname
-    rst_prolog += ".. |full_name| replace:: Intel\ |reg|\  oneAPI Data Analytics Library"
-else:
-    rst_prolog += ".. |full_name| replace:: oneAPI Data Analytics Library"
-
 
 # for substitutions in code blocks and sphinx-prompts:
 substitutions = [
@@ -74,7 +61,13 @@ substitutions = [
 
 # sys.path.insert(0, path_relative_to_repo_root('source/elements/oneDAL'))
 
-extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs', 'dalapi', 'sphinx.ext.githubpages']
+extensions = ['sphinx-prompt',
+              'sphinx_substitution_extensions',
+              'sphinx.ext.extlinks',
+              'sphinx_tabs.tabs',
+              'dalapi',
+              'sphinx.ext.githubpages',
+              'notfound.extension']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -82,11 +75,10 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst', 'onedal/get-started/*.rst',
+exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst', 'get-started/*.rst',
                     'daal/algorithms/dbscan/distributed-steps/*',
                     'daal/algorithms/kmeans/includes/*',
-                    'notes/issues/2021.1-beta06/includes/*',
-                    'daal/includes/*', 'onedal/algorithms/.*/includes/*']
+                    'daal/includes/*', 'onedal/algorithms/.*/includes/*', 'index-toc.rst']
 
 extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
@@ -98,27 +90,15 @@ extlinks = {
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-## html_theme = 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-# html_context = {
-#     'css_files': [
-#         '_static/style.css',  # override wide tables in RTD theme
-#         ],
-#     }
-
-
 html_theme = 'sphinx_book_theme'
 html_logo = '_static/oneAPI-rgb-rev-100.png'
 html_favicon = '_static/favicons.png'
-# html_theme_path = ['_themes']
 
 # Theme options
 html_theme_options = {
@@ -134,6 +114,10 @@ html_theme_options = {
 onedal_enable_listing = False
 onedal_relative_doxyfile_dir = '../doxygen/oneapi'
 onedal_relative_sources_dir = '../../cpp/oneapi/dal'
+
+# not found 404 page
+
+notfound_urls_prefix = '/oneDAL/'
 
 # ignore these missing references during a doc build
 nitpick_ignore = [

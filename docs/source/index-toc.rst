@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2022 Intel Corporation
+.. * Copyright 2022 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,7 +14,41 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. |dpcpp_level_zero| replace:: Intel\ |reg|\  oneAPI DPC++/C++ Compiler Developer Guide and Reference
-.. _dpcpp_level_zero: https://software.intel.com/content/www/us/en/develop/documentation/oneapi-dpcpp-compiler-dev-guide-and-reference/top/optimization-and-programming-guide.html
 
-.. note:: For more information about Level Zero, refer to |dpcpp_level_zero|_.
+.. toctree::
+   :caption: About
+   :maxdepth: 1
+   :hidden:
+
+   data-analytics-pipeline.rst
+   system-requirements.rst
+   legal.rst
+
+.. toctree::
+   :caption: Get Started
+   :maxdepth: 2
+
+   installation.rst
+   quick-start.rst
+   examples.rst
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Developer Guide
+
+   oneapi-interfaces.rst
+   daal-interfaces.rst
+   bibliography.rst
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Developer Reference
+
+   api/index.rst
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Contributing Guide
+
+   contribution/coding_guide.rst

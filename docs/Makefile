@@ -47,3 +47,6 @@ html: create_rst_examples Makefile
 
 html-github: create_rst_examples Makefile
 	@$(SPHINXBUILD) -W --keep-going -w docbuild-log.txt -n -b html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+html-test: create_rst_examples Makefile
+	@$(SPHINXBUILD) -W --keep-going -w docbuild-log.txt -n -b $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

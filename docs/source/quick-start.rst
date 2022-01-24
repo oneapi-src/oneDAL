@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2022 Intel Corporation
+.. * Copyright 2019-2022 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,22 +14,20 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Undeclared identifier ``CL_DEVICE_IL_VERSION_KHR``
-**************************************************
+.. _onedal_get_started:
 
-When you build an application with |short_name|, you might encounter the following problem:
+Quick Start
+=======================
 
-.. code-block:: text
+.. toctree::
+   :maxdepth: 4
 
-    error: use of undeclared identifier CL_DEVICE_IL_VERSION_KHR
+.. include:: ./get-started/prerequisites.rst
 
-This is caused by a bug in |dpcpp| 2021.1-beta06 release.
+.. include:: ./get-started/end-to-end-example.rst
 
-How to fix
-----------
+.. include:: ./get-started/build-and-run-examples.rst
 
-The workaround for this issue is to set ``CPLUS_INCLUDE_PATH`` as follows:
-
-.. code-block:: bash
-
-    export CPLUS_INCLUDE_PATH="$DPCPP_ROOT/compiler/latest/linux/include/sycl"
+.. seealso::
+   
+   - :ref:`oneapi_dal_examples`
