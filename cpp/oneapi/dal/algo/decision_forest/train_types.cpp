@@ -114,6 +114,8 @@ void train_result<Task>::set_var_importance_impl(const table& value) {
     impl_->variable_importance = value;
 }
 
+template class ONEDAL_EXPORT train_input<task::classification>;
+template class ONEDAL_EXPORT train_input<task::regression>;
 template class ONEDAL_EXPORT train_result<task::classification>;
 template class ONEDAL_EXPORT train_result<task::regression>;
 
