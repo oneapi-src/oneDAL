@@ -1,6 +1,6 @@
 /* file: stump_regression_train_dense_default_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
