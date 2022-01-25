@@ -318,6 +318,8 @@ MSG(invalid_count, "SPMD: invalid data count")
 MSG(invalid_mpi_comm, "SPMD: invalid mpi communicator")
 MSG(invalid_root, "SPMD: invalid root")
 MSG(unknown_mpi_error, "SPMD: unknown MPI error")
+MSG(send_receive_replace_is_not_implemented_for_threaded_communicator,
+    "SPMD: send_recieve_replace communicator method is implemented only for MPI and CCL backend")
 
 } // namespace v1
 } // namespace oneapi::dal::detail

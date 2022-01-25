@@ -293,6 +293,7 @@ public:
     MSG(invalid_mpi_comm);
     MSG(invalid_root);
     MSG(unknown_mpi_error);
+    MSG(send_receive_replace_is_not_implemented_for_threaded_communicator);
 };
 
 #undef MSG

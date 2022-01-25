@@ -84,6 +84,11 @@ public:
                                      std::int64_t count,
                                      const data_type& dtype,
                                      const reduce_op& op) = 0;
+    virtual request_iface* send_receive_replace(byte_t* buf,
+                                     std::int64_t count,
+                                     const data_type& dtype,
+                                     std::int64_t destination_rank,
+                                     std::int64_t source_rank) = 0;
 };
 
 template <typename MemoryAccessKind>
@@ -102,6 +107,7 @@ public:
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
+    using base_t::send_receive_replace;
 
     virtual request_iface* bcast(sycl::queue& q,
                                  byte_t* send_buf,
@@ -123,6 +129,13 @@ public:
                                      std::int64_t count,
                                      const data_type& dtype,
                                      const reduce_op& op,
+                                     const std::vector<sycl::event>& deps) = 0;
+    virtual request_iface* send_receive_replace(sycl::queue& q,
+                                     byte_t* buf,
+                                     std::int64_t count,
+                                     const data_type& dtype,
+                                     std::int64_t destination_rank,
+                                     std::int64_t source_rank,
                                      const std::vector<sycl::event>& deps) = 0;
     virtual sycl::queue get_queue() = 0;
 };
@@ -413,8 +426,34 @@ public:
     }
     template <typename D>
     request allreduce(const array<D>& ary, const reduce_op& op = reduce_op::sum) const;
+
+    request send_receive_replace(byte_t* buf,
+                                     std::int64_t count,
+                                     const data_type& dtype,
+                                     std::int64_t destination_rank,
+                                     std::int64_t source_rank);
+    /// Shaffle data reusing the same buffer for send and receive operations 
+    ///
+    /// @param buf                  The buffer
+    /// @param count                The number of elements of `dtype` sent to and
+    ///                             received from for each rank
+    /// @param dtype                The type of elements in the passed buffers
+    /// @param destination_rank     The rank to send data to.
+    /// @param source_rank          The rank to receive data from.
+    ///
+    /// @return The object to track the progress of the operation
 #ifdef ONEDAL_DATA_PARALLEL
-    /// `bcast` that accepts USM pointers
+    /// `send_receive_replace` that accepts USM pointers
+    request send_receive_replace(sycl::queue& q,
+                                     byte_t* buf,
+                                     std::int64_t count,
+                                     const data_type& dtype,
+                                     std::int64_t destination_rank,
+                                     std::int64_t source_rank,
+                                     const std::vector<sycl::event>& deps);
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     sycl::queue get_queue() const {
         return impl_->get_queue();
