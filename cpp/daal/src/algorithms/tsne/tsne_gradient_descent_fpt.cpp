@@ -252,10 +252,10 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
 
     int verbose = 0;
 
-    IdxType off = 4*N;
+    // IdxType off = 4*N;
 
     //initialize array
-    services::internal::service_memset<IdxType, cpu>(child, -1, (nNodes - N + 1) * 4);
+    services::internal::service_memset<IdxType, cpu>(child, -1, (nNodes + 1) * 4);
     services::internal::service_memset<IdxType, cpu>(duplicates, 1, N);
     bottom = nNodes;
 
@@ -294,7 +294,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
         }
 
         // follow path to leaf cell
-        while ((ch = child[n * 4 + j - off]) >= N)
+        while ((ch = child[n * 4 + j]) >= N)
         {
             n = ch;
             depth++;
@@ -316,9 +316,9 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
             if (ch == -1)
             {
                 // Child is a nullptr ('-1'), so we write our body index to the leaf, and move on to the next body.
-                if (child[locked - off] == -1)
+                if (child[locked] == -1)
                 {
-                    child[locked - off] = i;
+                    child[locked] = i;
                     if (depth > localmaxDepth) localmaxDepth = depth;
 
                     i += inc; // move on to next body
@@ -336,7 +336,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
                     skip = 1;
                     continue;
                 }
-                if (child[locked - off] == ch)
+                if (child[locked] == ch)
                 {
                     patch         = -1;
 
@@ -358,7 +358,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
 
                         if (patch != -1)
                         {
-                            child[n * 4 + j - off] = cell;
+                            child[n * 4 + j] = cell;
                         }
 
                         if (cell > patch)
@@ -373,7 +373,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
                             j |= 2;
                         }
 
-                        child[cell * 4 + j - off] = ch;
+                        child[cell * 4 + j] = ch;
                         n                   = cell;
                         r *= 0.5;
 
@@ -381,14 +381,14 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
 
                         y += ((y < py) ? (j |= 2, r) : (-r));
 
-                        ch = child[n * 4 + j - off];
+                        ch = child[n * 4 + j];
                         if (r <= 1e-10)
                         {
                             break;
                         }
                     }
 
-                    child[n * 4 + j - off] = i;
+                    child[n * 4 + j] = i;
 
                     if (depth > localmaxDepth) localmaxDepth = depth;
 
@@ -399,7 +399,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
         }
         if (skip == 2)
         {
-            child[locked - off] = patch;
+            child[locked] = patch;
         }
     }
 
@@ -429,7 +429,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     const auto inc = 1;
     auto k         = bottom;
 
-    IdxType off = 4*N;
+    // IdxType off = 4*N;
 
     //initialize array
     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
@@ -443,7 +443,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
         {
             for (IdxType i = 0; i < 4; i++)
             {
-                const auto ch = child[k * 4 + i - off];
+                const auto ch = child[k * 4 + i];
                 curChild[i]   = ch;
                 if (ch >= 0) curMass[i]    = mass[ch];
             }
@@ -511,7 +511,7 @@ services::Status sortKernelImpl(IdxType * sort, const IdxType * count, IdxType *
     IdxType begin;
     IdxType limiter = 0;
 
-    IdxType off = 4*N;
+    // IdxType off = 4*N;
 
     // iterate over all cells assigned to thread
     while (k >= bottom)
@@ -525,14 +525,14 @@ services::Status sortKernelImpl(IdxType * sort, const IdxType * count, IdxType *
         IdxType j = 0;
         for (IdxType i = 0; i < 4; i++)
         {
-            const auto ch = child[k * 4 + i - off];
+            const auto ch = child[k * 4 + i];
             if (ch >= 0)
             {
                 if (i != j)
                 {
                     // move children to front (needed later for speed)
-                    child[k * 4 + i - off] = -1;
-                    child[k * 4 + j - off] = ch;
+                    child[k * 4 + i] = -1;
+                    child[k * 4 + j] = ch;
                 }
                 if (ch >= N)
                 {
@@ -566,7 +566,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
     DAAL_CHECK_MALLOC(repx);
     DAAL_CHECK_MALLOC(repy);
     SafeStatus safeStat;
-    IdxType off = 4*N;
+    // IdxType off = 4*N;
 
     //struct for tls
     struct RepulsionTask
@@ -681,7 +681,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
                     const auto index = nd + pd++;
                     if (index < 0 || index >= MAX_SIZE) break;
 
-                    const auto n = child[index - off]; // load child pointer
+                    const auto n = child[index]; // load child pointer
 
                     // Non child
                     if (n < 0 || n > nNodes) break;
@@ -871,7 +871,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const IdxType nnz                  = sizeIter[1];
     const IdxType nIterWithoutProgress = sizeIter[2];
     const IdxType maxIter              = sizeIter[3];
-    const IdxType nNodes               = N <= 50 ? 4*N : 3*N;
+    const IdxType nNodes               = N <= 50 ? 4*N : 2*N;
     const IdxType nIterCheck           = 50;
     const IdxType explorationIter      = 250;
 
@@ -933,7 +933,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     services::internal::tmemcpy<DataType, cpu>(posy, yInit, N);
 
     // allocate and init memory for auxiliary arrays
-    IdxType * child = services::internal::service_scalable_calloc<IdxType, cpu>((nNodes - N + 1) * 4);
+    IdxType * child = services::internal::service_scalable_calloc<IdxType, cpu>((nNodes + 1) * 4);
     DAAL_CHECK_MALLOC(child);
     IdxType * count = services::internal::service_scalable_calloc<IdxType, cpu>(nNodes + 1);
     DAAL_CHECK_MALLOC(count);
