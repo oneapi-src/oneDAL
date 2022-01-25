@@ -44,9 +44,9 @@ inline void read_edge_list(const std::string &name, edge_list<Vertex> &elist) {
     std::string line;
     char *source_endptr;
     char *dest_endptr;
-    const char *edgeline;
-    std::int32_t source_vertex;
-    std::int32_t destination_vertex;
+    char *edgeline;
+    Vertex source_vertex;
+    Vertex destination_vertex;
 
     while (getline(file, line)) {
         if (line.empty()) {
@@ -92,11 +92,11 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
     char *source_endptr;
     char *dest_endptr;
     char *value_endptr;
-
-    const char *edgeline;
+    char *edgeline;
     Vertex source_vertex;
     Vertex destination_vertex;
     Weight edge_value;
+
     while (getline(file, line)) {
         if (line.empty()) {
             continue;
