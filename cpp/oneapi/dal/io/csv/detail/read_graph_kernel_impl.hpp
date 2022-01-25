@@ -324,7 +324,7 @@ void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
                                            EdgeIndex *unfiltered_offsets,
                                            VertexIndex *new_degrees,
                                            std::int64_t vertex_count) {
-    // removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
+    //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     dal::detail::threader_for_int64(vertex_count, [&](std::int64_t u) {
         auto start_p = unfiltered_neighs + unfiltered_offsets[u];
         auto end_p = unfiltered_neighs + unfiltered_offsets[u + 1];
@@ -342,7 +342,7 @@ void filter_neighbors_and_fill_new_degrees(std::pair<Vertex, Weight> *unfiltered
                                            EdgeIndex *unfiltered_offsets,
                                            Vertex *new_degrees,
                                            std::int64_t vertex_count) {
-    // removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
+    //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     dal::detail::threader_for_int64(vertex_count, [&](std::int64_t u) {
         auto start_p = unfiltered_neighs_vals + unfiltered_offsets[u];
         auto end_p = unfiltered_neighs_vals + unfiltered_offsets[u + 1];
