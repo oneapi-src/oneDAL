@@ -28,7 +28,6 @@
 #include "oneapi/dal/io/csv/detail/read_graph_service.hpp"
 #include "oneapi/dal/io/csv/detail/common.hpp"
 
-#include <iostream>
 namespace oneapi::dal::preview::csv::detail {
 
 template <typename EdgeList>
