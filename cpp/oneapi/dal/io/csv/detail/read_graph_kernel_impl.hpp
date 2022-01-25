@@ -28,6 +28,7 @@
 #include "oneapi/dal/io/csv/detail/read_graph_service.hpp"
 #include "oneapi/dal/io/csv/detail/common.hpp"
 
+#include <iostream>
 namespace oneapi::dal::preview::csv::detail {
 
 template <typename EdgeList>
@@ -53,7 +54,7 @@ inline void read_edge_list(const std::string &name, edge_list<Vertex> &elist) {
             continue;
         }
         edgeline = line.c_str();
-        source_vertex = daal_string_to_int(&edgeline[0], &source_endptr);
+        source_vertex = daal_string_to_int(edgeline, &source_endptr);
         destination_vertex = daal_string_to_int(source_endptr, &dest_endptr);
 
         if (source_endptr == dest_endptr) {
@@ -64,9 +65,13 @@ inline void read_edge_list(const std::string &name, edge_list<Vertex> &elist) {
             throw invalid_argument("Negative vertex ids: " + line);
         }
 
-        if (dest_endptr[0] != '\0') {
-            throw invalid_argument("Incorrect number of values per line or extra white-space: " +
-                                   line);
+        if (*dest_endptr != '\0') {
+            while (*dest_endptr != '\0') {
+                if (!isspace(*dest_endptr)) {
+                    throw invalid_argument("Invalid line content: " + line);
+                }
+                dest_endptr++;
+            }
         }
 
         auto edge = std::make_pair(source_vertex, destination_vertex);
@@ -98,7 +103,7 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
             continue;
         }
         edgeline = line.c_str();
-        source_vertex = daal_string_to<Vertex>(&edgeline[0], &source_endptr);
+        source_vertex = daal_string_to<Vertex>(edgeline, &source_endptr);
         destination_vertex = daal_string_to<Vertex>(source_endptr, &dest_endptr);
         edge_value = daal_string_to<Weight>(dest_endptr, &value_endptr);
 
@@ -110,14 +115,17 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
             throw invalid_argument("Negative vertex ids: " + line);
         }
 
-        if (value_endptr[0] != '\0') {
-            throw invalid_argument("Incorrect number of values per line or extra white-space: " +
-                                   line);
+        if (*value_endptr != '\0') {
+            while (*value_endptr != '\0') {
+                if (!isspace(*value_endptr)) {
+                    throw invalid_argument("Invalid line content: " + line);
+                }
+                value_endptr++;
+            }
         }
 
         auto edge =
             std::tuple<Vertex, Vertex, Weight>(source_vertex, destination_vertex, edge_value);
-
         elist.push_back(edge);
     }
     file.close();
@@ -316,13 +324,12 @@ void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
                                            EdgeIndex *unfiltered_offsets,
                                            VertexIndex *new_degrees,
                                            std::int64_t vertex_count) {
-    // removing self-loops,  multiple edges from graph, and make neighbors in CSR
-    // sorted
+    // removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     dal::detail::threader_for_int64(vertex_count, [&](std::int64_t u) {
         auto start_p = unfiltered_neighs + unfiltered_offsets[u];
         auto end_p = unfiltered_neighs + unfiltered_offsets[u + 1];
 
-        // dal::detail::parallel_sort(start_p, end_p);
+        //dal::detail::parallel_sort(start_p, end_p);
         std::sort(start_p, end_p);
         auto neighs_u_new_end = std::unique(start_p, end_p);
         neighs_u_new_end = std::remove(start_p, neighs_u_new_end, u);
@@ -335,8 +342,7 @@ void filter_neighbors_and_fill_new_degrees(std::pair<Vertex, Weight> *unfiltered
                                            EdgeIndex *unfiltered_offsets,
                                            Vertex *new_degrees,
                                            std::int64_t vertex_count) {
-    // removing self-loops,  multiple edges from graph, and make neighbors in CSR
-    // sorted
+    // removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     dal::detail::threader_for_int64(vertex_count, [&](std::int64_t u) {
         auto start_p = unfiltered_neighs_vals + unfiltered_offsets[u];
         auto end_p = unfiltered_neighs_vals + unfiltered_offsets[u + 1];
