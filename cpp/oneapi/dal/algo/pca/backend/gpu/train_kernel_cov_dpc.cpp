@@ -64,37 +64,32 @@ auto compute_means(sycl::queue& q,
 
 template <typename Float>
 auto compute_variances(sycl::queue& q,
-                       std::int64_t row_count,
                        const pr::ndview<Float, 2>& cov,
-                       const pr::ndview<Float, 1>& sums,
                        const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_vars, q);
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(sums.get_dimension(0) > 0);
-
-    const std::int64_t column_count = sums.get_dimension(0);
+    auto column_count = cov.get_dimension(0);
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    auto vars_event = pr::variances(q, row_count, cov, sums, vars, deps);
+    auto vars_event = pr::variances(q, cov, vars, deps);
     return std::make_tuple(vars, vars_event);
 }
 
 template <typename Float>
 auto compute_covariance(sycl::queue& q,
                         std::int64_t row_count,
-                        const pr::ndview<Float, 2>& xtx,
+                        const pr::ndview<Float, 2>& data,
                         const pr::ndarray<Float, 1>& sums,
                         const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(xtx.has_data());
 
-    const std::int64_t column_count = xtx.get_dimension(1);
+    const std::int64_t column_count = data.get_dimension(1);
 
     auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
 
-    auto copy_event = copy(q, cov, xtx, { deps });
+    auto gemm_event = gemm(q, data.t(), data, cov, Float(1), Float(0), deps);
 
-    auto cov_event = pr::covariance(q, row_count, sums, cov, { copy_event });
+    auto cov_event = pr::covariance(q, row_count, sums, cov, { gemm_event });
     return std::make_tuple(cov, cov_event);
 }
 template <typename Float>
@@ -155,8 +150,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     auto [means, means_event] = compute_means(q, data_nd.get_dimension(0), sums, { sums_event });
     auto [cov, cov_event] =
         compute_covariance(q, data_nd.get_dimension(0), data_nd, sums, { means_event });
-    auto [vars, vars_event] =
-        compute_variances(q, data_nd.get_dimension(0), cov, sums, { cov_event });
+    auto [vars, vars_event] = compute_variances(q, cov, { cov_event });
     auto [corr, corr_event] =
         compute_correlation_from_covariance(q, data_nd.get_dimension(0), cov, sums, { vars_event });
     auto [eigvecs, eigvals] =

@@ -63,9 +63,7 @@ sycl::event covariance(sycl::queue& q,
 /// @param[out] vars The [p] vars for each feature
 template <typename Float>
 sycl::event variances(sycl::queue& queue,
-                      std::int64_t row_count,
                       const ndview<Float, 2>& cov,
-                      const ndview<Float, 1>& sums,
                       ndview<Float, 1>& vars,
                       const event_vector& deps = {});
 

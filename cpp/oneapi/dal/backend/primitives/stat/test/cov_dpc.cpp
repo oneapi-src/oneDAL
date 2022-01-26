@@ -50,10 +50,12 @@ public:
         auto sums = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
         auto corr =
             ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+        auto cov =
+            ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
         auto means = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
         auto vars = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
         auto tmp = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-        return std::make_tuple(sums, corr, means, vars, tmp);
+        return std::make_tuple(sums, corr, cov, means, vars, tmp);
     }
 
     void check_nans(const ndarray<Float, 2>& corr) {
@@ -232,9 +234,11 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
     // [ 0 0 0 ]
     const auto data = this->generate_diagonal_data(row_count, column_count, diag_element);
 
-    auto [sums, corr, means, vars, tmp] = this->allocate_arrays(column_count);
+    auto [sums, corr, cov, means, vars, tmp] = this->allocate_arrays(column_count);
     auto sums_event = sums.fill(this->get_queue(), diag_element);
     pr::means(this->get_queue(), data.get_dimension(0), sums, means, { sums_event });
+    pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, { sums_event });
+    pr::variances(this->get_queue(), cov, vars, { sums_event });
     INFO("run correlation");
     auto gemm_event =
         pr::gemm(this->get_queue(), data.t(), data, corr, float_t(1), float_t(0), { sums_event });
@@ -252,11 +256,11 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
         this->check_correlation_for_diagonal_matrix(corr, off_diag_element);
     }
 
-    // INFO("check if mean is expected") {
-    //     const double n = row_count;
-    //     const double expected_mean = double(diag_element) / n;
-    //     this->check_constant_mean(means, n, expected_mean);
-    // }
+    INFO("check if mean is expected") {
+        const double n = row_count;
+        const double expected_mean = double(diag_element) / n;
+        this->check_constant_mean(means, n, expected_mean);
+    }
 
     // INFO("check if variance is expected") {
     //     const double n = row_count;
@@ -277,7 +281,7 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     const auto data_host = ndarray<float_t, 2>::wrap(data_ptr, { 1, column_count });
     const auto data = data_host.to_device(this->get_queue());
 
-    auto [sums, corr, means, vars, tmp] = this->allocate_arrays(column_count);
+    auto [sums, corr, cov, means, vars, tmp] = this->allocate_arrays(column_count);
     auto sums_event = sums.assign(this->get_queue(), data.get_data(), column_count);
     sums_event.wait_and_throw();
     pr::means(this->get_queue(), data.get_dimension(0), sums, means, { sums_event });
@@ -292,11 +296,11 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     INFO("check if diagonal elements are ones");
     this->check_diagonal_is_ones(corr);
 
-    // INFO("check if mean is zero")
-    // this->check_constant_mean(vars, 1, 0.0);
+    INFO("check if mean is zero")
+    this->check_constant_mean(vars, 1, 0.0);
 
-    // INFO("check if variance is zero")
-    // this->check_constant_variance(vars, 1, 0.0);
+    INFO("check if variance is zero")
+    this->check_constant_variance(vars, 1, 0.0);
 }
 
 // TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
