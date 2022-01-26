@@ -196,7 +196,7 @@ public:
     }
 
     void check_variances(const te::basic_statistics<double>& reference, const table& variances) {
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
+        const double tol = te::get_tolerance<Float>(10, 1e-10);
         const double diff = te::rel_error(reference.get_variances(), variances, tol);
         CHECK(diff < tol);
     }
