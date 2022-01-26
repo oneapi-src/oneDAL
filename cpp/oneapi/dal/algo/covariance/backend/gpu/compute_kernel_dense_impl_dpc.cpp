@@ -106,8 +106,7 @@ auto compute_correlation(sycl::queue& q,
 
     auto copy_event = copy(q, corr, xtx, { deps });
 
-    auto corr_event =
-        pr::correlation_with_distributed(q, row_count, sums, corr, tmp, { copy_event });
+    auto corr_event = pr::correlation(q, row_count, sums, corr, tmp, { copy_event });
 
     auto smart_event = bk::smart_event{ corr_event }.attach(tmp);
     return std::make_tuple(corr, smart_event);
