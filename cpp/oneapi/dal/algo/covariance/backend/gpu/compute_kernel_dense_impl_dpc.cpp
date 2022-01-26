@@ -85,7 +85,7 @@ auto compute_covariance(sycl::queue& q,
 
     auto copy_event = copy(q, cov, xtx, { deps });
 
-    auto cov_event = pr::covariance_with_distributed(q, row_count, sums, cov, { copy_event });
+    auto cov_event = pr::covariance(q, row_count, sums, cov, { copy_event });
     return std::make_tuple(cov, cov_event);
 }
 

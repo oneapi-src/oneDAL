@@ -51,11 +51,11 @@ inline sycl::event means(sycl::queue& q,
 }
 
 template <typename Float>
-inline sycl::event finalize_covariance(sycl::queue& q,
-                                       std::int64_t row_count,
-                                       const ndview<Float, 1>& sums,
-                                       ndview<Float, 2>& cov,
-                                       const event_vector& deps) {
+inline sycl::event compute_covariance(sycl::queue& q,
+                                      std::int64_t row_count,
+                                      const ndview<Float, 1>& sums,
+                                      ndview<Float, 2>& cov,
+                                      const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
@@ -220,69 +220,6 @@ inline sycl::event finalize_correlation(sycl::queue& q,
 }
 
 template <typename Float>
-sycl::event means(sycl::queue& q,
-                  const ndview<Float, 2>& data,
-                  const ndview<Float, 1>& sums,
-                  ndview<Float, 1>& means,
-                  const event_vector& deps) {
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
-                  "Element count of sums must match feature count");
-    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
-                  "Element count of means must match feature count");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-    const auto row_count = data.get_dimension(0);
-    auto finalize_event = compute_means(q, row_count, sums, means, deps);
-
-    return finalize_event;
-}
-
-template <typename Float>
-sycl::event covariance(sycl::queue& q,
-                       const ndview<Float, 2>& data,
-                       const ndview<Float, 1>& sums,
-                       const ndview<Float, 1>& means,
-                       ndview<Float, 2>& cov,
-                       ndview<Float, 1>& vars,
-                       ndview<Float, 1>& tmp,
-                       const event_vector& deps) {
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(cov.has_mutable_data());
-    ONEDAL_ASSERT(means.has_mutable_data());
-    ONEDAL_ASSERT(vars.has_mutable_data());
-    ONEDAL_ASSERT(tmp.has_mutable_data());
-    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-    ONEDAL_ASSERT(cov.get_dimension(0) == data.get_dimension(1),
-                  "Dimensions of covariance matrix must match feature count");
-    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_dimension(1),
-                  "Element count of sums must match feature count");
-    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_dimension(1),
-                  "Element count of vars must match feature count");
-    ONEDAL_ASSERT(means.get_dimension(0) == data.get_dimension(1),
-                  "Element count of means must match feature count");
-    ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_dimension(1),
-                  "Element count of temporary buffer must match feature count");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, data.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
-
-    auto prepare_event =
-        prepare_correlation(q, data.get_dimension(0), sums, cov, means, vars, tmp, deps);
-    auto finalize_event =
-        finalize_covariance(q, data.get_dimension(0), sums, cov, { prepare_event });
-    finalize_event.wait_and_throw();
-    return finalize_event;
-}
-
-template <typename Float>
 sycl::event correlation(sycl::queue& q,
                         const ndview<Float, 2>& data,
                         const ndview<Float, 1>& sums,
@@ -356,11 +293,11 @@ sycl::event correlation_with_covariance(sycl::queue& q,
 }
 
 template <typename Float>
-sycl::event covariance_with_distributed(sycl::queue& q,
-                                        std::int64_t row_count,
-                                        const ndview<Float, 1>& sums,
-                                        ndview<Float, 2>& cov,
-                                        const event_vector& deps) {
+sycl::event covariance(sycl::queue& q,
+                       std::int64_t row_count,
+                       const ndview<Float, 1>& sums,
+                       ndview<Float, 2>& cov,
+                       const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
 
@@ -369,8 +306,8 @@ sycl::event covariance_with_distributed(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
 
-    auto finalize_event = finalize_covariance(q, row_count, sums, cov, deps);
-    return finalize_event;
+    auto compute_event = compute_covariance(q, row_count, sums, cov, deps);
+    return compute_event;
 }
 
 template <typename Float>
@@ -492,12 +429,9 @@ INSTANTIATE_MEANS(double)
 
 #define INSTANTIATE_COV(F)                                                \
     template ONEDAL_EXPORT sycl::event covariance<F>(sycl::queue&,        \
-                                                     const ndview<F, 2>&, \
-                                                     const ndview<F, 1>&, \
+                                                     std::int64_t,        \
                                                      const ndview<F, 1>&, \
                                                      ndview<F, 2>&,       \
-                                                     ndview<F, 1>&,       \
-                                                     ndview<F, 1>&,       \
                                                      const event_vector&);
 
 INSTANTIATE_COV(float)
@@ -526,16 +460,6 @@ INSTANTIATE_COR(double)
 
 INSTANTIATE_COR_WITH_COV(float)
 INSTANTIATE_COR_WITH_COV(double)
-
-#define INSTANTIATE_COV_DISTR(F)                                                           \
-    template ONEDAL_EXPORT sycl::event covariance_with_distributed<F>(sycl::queue&,        \
-                                                                      std::int64_t,        \
-                                                                      const ndview<F, 1>&, \
-                                                                      ndview<F, 2>&,       \
-                                                                      const event_vector&);
-
-INSTANTIATE_COV_DISTR(float)
-INSTANTIATE_COV_DISTR(double)
 
 #define INSTANTIATE_COR_DISTR(F)                                                            \
     template ONEDAL_EXPORT sycl::event correlation_with_distributed<F>(sycl::queue&,        \
