@@ -198,6 +198,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                     {
                         clusterS1[indexes * p + j] -= row[j];
                     }
+
                     result |=
                         daal::services::internal::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
                     cPos++;
