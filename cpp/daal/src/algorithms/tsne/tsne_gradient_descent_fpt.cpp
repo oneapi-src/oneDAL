@@ -176,8 +176,6 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
     DAAL_CHECK_MALLOC(child);
     DAAL_CHECK_MALLOC(duplicates);
 
-    int verbose = 0;
-
     //initialize array
     services::internal::service_memset<IdxType, cpu>(child, -1, (nNodes + 1) * 4);
     services::internal::service_memset<IdxType, cpu>(duplicates, 1, N);
@@ -877,14 +875,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     IdxType * duplicates = services::internal::service_scalable_calloc<IdxType, cpu>(N);
     DAAL_CHECK_MALLOC(duplicates);
 
-    double boundingBox   = 0.;
-    double treeBuild     = 0.;
-    double summarization = 0.;
-    double sorting       = 0.;
-    double repulsion     = 0.;
-    double attractive    = 0.;
-    double integration   = 0.;
-
     status = maxRowElementsImpl<IdxType, cpu>(row, N, nElements);
     DAAL_CHECK_STATUS_VAR(status);
 
@@ -944,14 +934,14 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child, posx, posy, nNodes, N, maxDepth, bottom, radius, duplicates);
-        DAAL_CHECK_STATUS_VAR(status);        
+        DAAL_CHECK_STATUS_VAR(status);
         status = summarizationKernelImpl<IdxType, DataType, cpu>(count, child, mass, posx, posy, nNodes, N, bottom, duplicates);
-        DAAL_CHECK_STATUS_VAR(status);        
+        DAAL_CHECK_STATUS_VAR(status);
         status = sortKernelImpl<IdxType, cpu>(sort, count, start, child, nNodes, N, bottom);
-        DAAL_CHECK_STATUS_VAR(status);        
+        DAAL_CHECK_STATUS_VAR(status);
         status =
             repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort, child, mass, posx, posy, repx, repy, zNorm, nNodes, N, radius, maxDepth);
-        DAAL_CHECK_STATUS_VAR(status);        
+        DAAL_CHECK_STATUS_VAR(status);
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
             status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx, posy, attrx, attry, zNorm, divergence, nNodes, N, nnz,
@@ -1001,6 +991,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     services::internal::service_scalable_free<DataType, cpu>(posx);
     services::internal::service_scalable_free<DataType, cpu>(posy);
     services::internal::service_scalable_free<IdxType, cpu>(child);
+    services::internal::service_scalable_free<IdxType, cpu>(duplicates);
     services::internal::service_scalable_free<IdxType, cpu>(count);
     services::internal::service_scalable_free<DataType, cpu>(mass);
     services::internal::service_scalable_free<IdxType, cpu>(sort);
