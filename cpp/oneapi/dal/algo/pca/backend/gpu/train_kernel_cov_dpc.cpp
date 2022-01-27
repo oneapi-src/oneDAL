@@ -40,6 +40,9 @@ auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
                   const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_sums, q);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(data.get_dimension(1) > 0);
+
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
     auto reduce_event =
@@ -67,6 +70,10 @@ auto compute_variances(sycl::queue& q,
                        const pr::ndview<Float, 2>& cov,
                        const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_vars, q);
+    ONEDAL_ASSERT(cov.has_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) > 0);
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+
     auto column_count = cov.get_dimension(0);
     auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
     auto vars_event = pr::variances(q, cov, vars, deps);
@@ -82,6 +89,7 @@ auto compute_covariance(sycl::queue& q,
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(data.get_dimension(1) > 0);
 
     const std::int64_t column_count = data.get_dimension(1);
 
@@ -98,7 +106,10 @@ auto compute_correlation_from_covariance(sycl::queue& q,
                                          const pr::ndview<Float, 2>& cov,
                                          const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_correlation, q);
-    ONEDAL_ASSERT(cov.get_dimension(1) > 0);
+    ONEDAL_ASSERT(cov.has_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) > 0);
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+
     const std::int64_t column_count = cov.get_dimension(1);
 
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
@@ -116,7 +127,10 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
                                   std::int64_t component_count,
                                   const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1));
+    ONEDAL_ASSERT(corr.has_data());
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
+                  "Correlation matrix must be square");
+    ONEDAL_ASSERT(corr.get_dimension(0) > 0);
     const std::int64_t column_count = corr.get_dimension(0);
 
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
@@ -131,6 +145,8 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     auto& q = ctx.get_queue();
+    ONEDAL_ASSERT(input.get_data().has_data());
+
     const auto data = input.get_data();
 
     const std::int64_t row_count = data.get_row_count();
