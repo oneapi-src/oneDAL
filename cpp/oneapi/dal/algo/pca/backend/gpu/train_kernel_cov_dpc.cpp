@@ -96,7 +96,6 @@ template <typename Float>
 auto compute_correlation_from_covariance(sycl::queue& q,
                                          std::int64_t row_count,
                                          const pr::ndview<Float, 2>& cov,
-                                         const pr::ndarray<Float, 1>& sums,
                                          const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_correlation, q);
     ONEDAL_ASSERT(sums.has_data());
@@ -107,9 +106,7 @@ auto compute_correlation_from_covariance(sycl::queue& q,
 
     auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
 
-    //auto copy_event = copy(q, corr, xtx, { deps });
-
-    auto corr_event = pr::correlation_from_covariance(q, row_count, sums, cov, corr, tmp, deps);
+    auto corr_event = pr::correlation_from_covariance(q, row_count, cov, corr, tmp, deps);
 
     return std::make_tuple(corr, corr_event);
 }
@@ -152,7 +149,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         compute_covariance(q, data_nd.get_dimension(0), data_nd, sums, { means_event });
     auto [vars, vars_event] = compute_variances(q, cov, { cov_event });
     auto [corr, corr_event] =
-        compute_correlation_from_covariance(q, data_nd.get_dimension(0), cov, sums, { vars_event });
+        compute_correlation_from_covariance(q, data_nd.get_dimension(0), cov, { vars_event });
     auto [eigvecs, eigvals] =
         compute_eigenvectors_on_host(q, std::move(corr), component_count, { corr_event });
 

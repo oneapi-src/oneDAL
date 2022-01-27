@@ -97,7 +97,6 @@ sycl::event correlation(sycl::queue& q,
 template <typename Float>
 sycl::event correlation_from_covariance(sycl::queue& q,
                                         std::int64_t row_count,
-                                        const ndview<Float, 1>& sums,
                                         const ndview<Float, 2>& cov,
                                         ndview<Float, 2>& corr,
                                         ndview<Float, 1>& tmp,

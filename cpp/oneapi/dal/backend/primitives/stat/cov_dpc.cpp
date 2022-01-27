@@ -236,24 +236,20 @@ sycl::event correlation(sycl::queue& q,
 template <typename Float>
 inline sycl::event prepare_correlation_from_covariance(sycl::queue& q,
                                                        std::int64_t row_count,
-                                                       const ndview<Float, 1>& sums,
                                                        const ndview<Float, 2>& cov,
                                                        ndview<Float, 1>& tmp,
                                                        const event_vector& deps) {
-    ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_data());
 
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, cov.get_data()));
 
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
     const auto n = row_count;
-    const auto p = sums.get_count();
-    const Float inv_n = Float(1.0 / double(n));
+    const auto p = cov.get_dimension(1);
+    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
 
-    const Float* sums_ptr = sums.get_data();
     const Float* cov_ptr = cov.get_data();
 
     Float* tmp_ptr = tmp.get_mutable_data();
@@ -265,10 +261,8 @@ inline sycl::event prepare_correlation_from_covariance(sycl::queue& q,
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            const Float s = sums_ptr[idx];
-            const Float m = inv_n * s * s;
-            const Float c = cov_ptr[idx * p + idx];
-            const Float v = c - m;
+            Float c = cov_ptr[idx * p + idx] / inv_n1;
+            const Float v = c;
 
             // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
             // to avoid NaN/Inf in the resulting correlation matrix
@@ -319,7 +313,6 @@ inline sycl::event finalize_correlation_from_covariance(sycl::queue& q,
 template <typename Float>
 sycl::event correlation_from_covariance(sycl::queue& q,
                                         std::int64_t row_count,
-                                        const ndview<Float, 1>& sums,
                                         const ndview<Float, 2>& cov,
                                         ndview<Float, 2>& corr,
                                         ndview<Float, 1>& tmp,
@@ -333,7 +326,7 @@ sycl::event correlation_from_covariance(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
-    auto prepare_event = prepare_correlation_from_covariance(q, row_count, sums, cov, tmp, deps);
+    auto prepare_event = prepare_correlation_from_covariance(q, row_count, cov, tmp, deps);
     auto finalize_event =
         finalize_correlation_from_covariance(q, row_count, cov, tmp, corr, { prepare_event });
     finalize_event.wait_and_throw();
@@ -363,7 +356,6 @@ INSTANTIATE_COV(double)
 #define INSTANTIATE_COR_FROM_COV(F)                                                        \
     template ONEDAL_EXPORT sycl::event correlation_from_covariance<F>(sycl::queue&,        \
                                                                       std::int64_t,        \
-                                                                      const ndview<F, 1>&, \
                                                                       const ndview<F, 2>&, \
                                                                       ndview<F, 2>&,       \
                                                                       ndview<F, 1>&,       \

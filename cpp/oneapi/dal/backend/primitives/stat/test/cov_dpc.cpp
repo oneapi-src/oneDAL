@@ -236,13 +236,20 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
 
     auto [sums, corr, cov, means, vars, tmp] = this->allocate_arrays(column_count);
     auto sums_event = sums.fill(this->get_queue(), diag_element);
-    pr::means(this->get_queue(), data.get_dimension(0), sums, means, { sums_event });
-    pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, { sums_event });
-    pr::variances(this->get_queue(), cov, vars, { sums_event });
     INFO("run correlation");
-    auto gemm_event =
-        pr::gemm(this->get_queue(), data.t(), data, corr, float_t(1), float_t(0), { sums_event });
-    correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event })
+    auto gemm_event_cov =
+        pr::gemm(this->get_queue(), data.t(), data, cov, float_t(1), float_t(0), { sums_event });
+    auto gemm_event_corr = pr::gemm(this->get_queue(),
+                                    data.t(),
+                                    data,
+                                    corr,
+                                    float_t(1),
+                                    float_t(0),
+                                    { gemm_event_cov });
+    pr::means(this->get_queue(), data.get_dimension(0), sums, means, { gemm_event_corr });
+    pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, { gemm_event_corr });
+    pr::variances(this->get_queue(), cov, vars, { gemm_event_corr });
+    correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event_corr })
         .wait_and_throw();
 
     // The upper part of data matrix is diagonal. In diagonal matrix each column
@@ -262,13 +269,13 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
         this->check_constant_mean(means, n, expected_mean);
     }
 
-    // INFO("check if variance is expected") {
-    //     const double n = row_count;
-    //     const double d = double(diag_element) * double(diag_element);
-    //     ONEDAL_ASSERT(n > 1);
-    //     const double expected_var = (d - d / n) / (n - 1.0);
-    //     this->check_constant_variance(vars, n, expected_var);
-    // }
+    INFO("check if variance is expected") {
+        const double n = row_count;
+        const double d = double(diag_element) * double(diag_element);
+        ONEDAL_ASSERT(n > 1);
+        const double expected_var = (d - d / n) / (n - 1.0);
+        this->check_constant_variance(vars, n, expected_var);
+    }
 }
 
 TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
@@ -303,20 +310,29 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     this->check_constant_variance(vars, 1, 0.0);
 }
 
-// TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
-//     using float_t = TestType;
-//     SKIP_IF(this->get_policy().is_cpu());
-//     SKIP_IF(this->not_float64_friendly());
+TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
+    using float_t = TestType;
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
 
-//     auto [data, sums] = this->get_gold_input();
-//     auto [_, corr, means, vars, tmp] = this->allocate_arrays(data.get_dimension(1));
+    auto [data, sums] = this->get_gold_input();
+    auto [_, corr, cov, means, vars, tmp] = this->allocate_arrays(data.get_dimension(1));
+    INFO("run correlation");
+    auto gemm_event_cov = pr::gemm(this->get_queue(), data.t(), data, cov, float_t(1), float_t(0));
+    auto gemm_event_corr = pr::gemm(this->get_queue(),
+                                    data.t(),
+                                    data,
+                                    corr,
+                                    float_t(1),
+                                    float_t(0),
+                                    { gemm_event_cov });
+    pr::means(this->get_queue(), data.get_dimension(0), sums, means, { gemm_event_corr });
+    pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, { gemm_event_corr });
+    pr::variances(this->get_queue(), cov, vars, { gemm_event_corr });
+    correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event_corr })
+        .wait_and_throw();
 
-//     INFO("run correlation");
-//     auto gemm_event = pr::gemm(this->get_queue(), data.t(), data, corr, float_t(1), float_t(0));
-//     gemm_event.wait_and_throw();
-//     correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp).wait_and_throw();
-
-//     this->check_gold_results(corr, means, vars);
-// }
+    this->check_gold_results(corr, means, vars);
+}
 
 } // namespace oneapi::dal::backend::primitives::test
