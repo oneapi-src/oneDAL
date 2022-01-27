@@ -81,7 +81,7 @@ auto compute_covariance(sycl::queue& q,
                         const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(xtx.has_data());
+    ONEDAL_ASSERT(data.has_data());
 
     const std::int64_t column_count = data.get_dimension(1);
 
@@ -98,8 +98,7 @@ auto compute_correlation_from_covariance(sycl::queue& q,
                                          const pr::ndview<Float, 2>& cov,
                                          const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_correlation, q);
-    ONEDAL_ASSERT(sums.has_data());
-
+    ONEDAL_ASSERT(cov.get_dimension(1) > 0);
     const std::int64_t column_count = cov.get_dimension(1);
 
     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);

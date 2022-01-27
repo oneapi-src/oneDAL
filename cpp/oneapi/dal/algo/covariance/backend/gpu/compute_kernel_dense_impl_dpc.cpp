@@ -46,7 +46,7 @@ auto compute_sums(sycl::queue& q,
                   const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_sums, q);
     ONEDAL_ASSERT(data.has_data());
-
+    ONEDAL_ASSERT(data.get_dimension(1) > 0);
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
     auto reduce_event =
@@ -115,7 +115,7 @@ auto compute_correlation(sycl::queue& q,
 template <typename Float>
 result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
                                                       const input_t& input) {
-    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(input.get_data().has_data());
 
     const auto data = input.get_data();
     std::int64_t row_count = data.get_row_count();

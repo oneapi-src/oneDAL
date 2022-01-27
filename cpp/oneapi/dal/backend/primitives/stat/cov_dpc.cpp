@@ -110,13 +110,13 @@ sycl::event variances(sycl::queue& q,
                       const ndview<Float, 2>& cov,
                       ndview<Float, 1>& vars,
                       const event_vector& deps) {
-    ONEDAL_ASSERT(cov.has_mutable_data());
+    ONEDAL_ASSERT(cov.has_data());
     ONEDAL_ASSERT(vars.has_mutable_data());
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, cov.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, vars.get_mutable_data()));
     const auto p = cov.get_dimension(0);
-    const Float* cov_ptr = cov.get_mutable_data();
+    const Float* cov_ptr = cov.get_data();
     Float* vars_ptr = vars.get_mutable_data();
 
     return q.submit([&](sycl::handler& cgh) {
@@ -220,7 +220,7 @@ sycl::event correlation(sycl::queue& q,
                         ndview<Float, 1>& tmp,
                         const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(corr.has_data());
+    ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
@@ -278,22 +278,22 @@ inline sycl::event finalize_correlation_from_covariance(sycl::queue& q,
                                                         const ndview<Float, 1>& tmp,
                                                         ndview<Float, 2>& corr,
                                                         const event_vector& deps) {
-    ONEDAL_ASSERT(cov.has_mutable_data());
+    ONEDAL_ASSERT(cov.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(tmp.has_mutable_data());
+    ONEDAL_ASSERT(tmp.has_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
+    ONEDAL_ASSERT(is_known_usm(q, cov.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, tmp.get_data()));
 
     const auto n = row_count;
     const auto p = cov.get_dimension(1);
     const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
-    const Float* tmp_ptr = tmp.get_mutable_data();
+    const Float* tmp_ptr = tmp.get_data();
     Float* corr_ptr = corr.get_mutable_data();
-    Float* cov_ptr = cov.get_mutable_data();
+    const Float* cov_ptr = cov.get_data();
     return q.submit([&](sycl::handler& cgh) {
         const auto range = make_range_2d(p, p);
 
