@@ -26,7 +26,17 @@ template <typename Context, typename Float, typename Task, typename Method, type
 struct train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
-                                  const train_input<Task>&) const;
+                                  const oneapi::dal::decision_forest::v2::train_input<Task>&) const;
+
+    train_result<Task> operator()(
+        const Context& ctx,
+        const descriptor_base<Task>& desc,
+        const oneapi::dal::decision_forest::v1::train_input<Task>& input) const {
+        return this->operator()(
+            ctx,
+            desc,
+            v2::train_input<Task>(input.get_data(), input.get_responses(), table{}));
+    }
 };
 
 template <typename Descriptor>
