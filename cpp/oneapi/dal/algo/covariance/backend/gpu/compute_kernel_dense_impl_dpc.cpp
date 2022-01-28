@@ -122,9 +122,10 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     ONEDAL_ASSERT(input.get_data().has_data());
 
     const auto data = input.get_data();
-    std::int64_t row_count = data.get_row_count();
+    const std::int64_t row_count = data.get_row_count();
     auto rows_count_global = row_count;
-    std::int64_t column_count = data.get_column_count();
+    const std::int64_t column_count = data.get_column_count();
+    ONEDAL_ASSERT(data.get_column_count() > 0);
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
