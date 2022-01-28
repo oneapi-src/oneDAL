@@ -304,7 +304,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
                         y += ((y < py) ? (j |= 2, r) : (-r));
 
                         ch = child[n * 4 + j];
-                        if (r <= 1e-10)
+                        if (r <= radius*1e-10)
                         {
                             break;
                         }
@@ -775,6 +775,8 @@ template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
                                          const NumericTablePtr paramTable, const NumericTablePtr resultTable)
 {
+    auto begin = std::chrono::high_resolution_clock::now();
+
     // sizes and number of iterations
     daal::internal::ReadColumns<IdxType, cpu> sizeIterDataBlock(*sizeIterTable, 0, 0, sizeIterTable->getNumberOfRows());
     const IdxType * sizeIter = sizeIterDataBlock.get();
@@ -787,6 +789,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const IdxType nNodes               = N <= 50 ? 4*N : 2*N;
     const IdxType nIterCheck           = 50;
     const IdxType explorationIter      = 250;
+    const IdxType verbose              = 1;
 
     // parameters
     daal::internal::ReadColumns<DataType, cpu> paramDataBlock(*paramTable, 0, 0, paramTable->getNumberOfRows());
@@ -875,23 +878,57 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     IdxType * duplicates = services::internal::service_scalable_calloc<IdxType, cpu>(N);
     DAAL_CHECK_MALLOC(duplicates);
 
+    auto init = std::chrono::high_resolution_clock::now();
+    if (verbose == 1) std::cout << "Alloc and init gradient time = " << std::chrono::duration<double, std::milli>(init - begin).count() << std::endl;
+
+    double boundingBox   = 0.;
+    double treeBuild     = 0.;
+    double summarization = 0.;
+    double sorting       = 0.;
+    double repulsion     = 0.;
+    double attractive    = 0.;
+    double integration   = 0.;
+
+
     status = maxRowElementsImpl<IdxType, cpu>(row, N, nElements);
     DAAL_CHECK_STATUS_VAR(status);
 
     //start iterations
     for (IdxType i = 0; i < explorationIter; ++i)
     {
+        auto kernel0 = std::chrono::high_resolution_clock::now();
         status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel1 = std::chrono::high_resolution_clock::now();
+        boundingBox += std::chrono::duration<double, std::milli>(kernel1 - kernel0).count();
+
+
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child, posx, posy, nNodes, N, maxDepth, bottom, radius, duplicates);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel2 = std::chrono::high_resolution_clock::now();
+        treeBuild += std::chrono::duration<double, std::milli>(kernel2 - kernel1).count();
+
         status = summarizationKernelImpl<IdxType, DataType, cpu>(count, child, mass, posx, posy, nNodes, N, bottom, duplicates);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel3 = std::chrono::high_resolution_clock::now();
+        summarization += std::chrono::duration<double, std::milli>(kernel3 - kernel2).count();
+
         status = sortKernelImpl<IdxType, cpu>(sort, count, start, child, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel4 = std::chrono::high_resolution_clock::now();
+        sorting += std::chrono::duration<double, std::milli>(kernel4 - kernel3).count();
+
         status =
             repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort, child, mass, posx, posy, repx, repy, zNorm, nNodes, N, radius, maxDepth);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel5 = std::chrono::high_resolution_clock::now();
+        repulsion += std::chrono::duration<double, std::milli>(kernel5 - kernel4).count();
+
         if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
         {
             status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx, posy, attrx, attry, zNorm, divergence, nNodes, N, nnz,
@@ -903,9 +940,16 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
                                                                          nElements, exaggeration);
         }
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel6 = std::chrono::high_resolution_clock::now();
+        attractive += std::chrono::duration<double, std::milli>(kernel6 - kernel5).count();
+
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx, posy, attrx, attry, repx, repy, gainx, gainy,
                                                                oldForcex, oldForcey, gradNorm, zNorm, nNodes, N);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel7 = std::chrono::high_resolution_clock::now();
+        integration += std::chrono::duration<double, std::milli>(kernel7 - kernel6).count();
 
         if ((i + 1) % nIterCheck == 0)
         {
@@ -931,17 +975,38 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
     for (IdxType i = explorationIter; i < maxIter; ++i)
     {
+        auto kernel0 = std::chrono::high_resolution_clock::now();
         status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx, posy, N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel1 = std::chrono::high_resolution_clock::now();
+        boundingBox += std::chrono::duration<double, std::milli>(kernel1 - kernel0).count();
+
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child, posx, posy, nNodes, N, maxDepth, bottom, radius, duplicates);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel2 = std::chrono::high_resolution_clock::now();
+        treeBuild += std::chrono::duration<double, std::milli>(kernel2 - kernel1).count();
+
         status = summarizationKernelImpl<IdxType, DataType, cpu>(count, child, mass, posx, posy, nNodes, N, bottom, duplicates);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel3 = std::chrono::high_resolution_clock::now();
+        summarization += std::chrono::duration<double, std::milli>(kernel3 - kernel2).count();
+
         status = sortKernelImpl<IdxType, cpu>(sort, count, start, child, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel4 = std::chrono::high_resolution_clock::now();
+        sorting += std::chrono::duration<double, std::milli>(kernel4 - kernel3).count();
+
         status =
             repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort, child, mass, posx, posy, repx, repy, zNorm, nNodes, N, radius, maxDepth);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel5 = std::chrono::high_resolution_clock::now();
+        repulsion += std::chrono::duration<double, std::milli>(kernel5 - kernel4).count();
+
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
             status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx, posy, attrx, attry, zNorm, divergence, nNodes, N, nnz,
@@ -953,9 +1018,16 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
                                                                          nElements, exaggeration);
         }
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel6 = std::chrono::high_resolution_clock::now();
+        attractive += std::chrono::duration<double, std::milli>(kernel6 - kernel5).count();
+
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx, posy, attrx, attry, repx, repy, gainx, gainy,
                                                                oldForcex, oldForcey, gradNorm, zNorm, nNodes, N);
         DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel7 = std::chrono::high_resolution_clock::now();
+        integration += std::chrono::duration<double, std::milli>(kernel7 - kernel6).count();
 
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
@@ -1004,6 +1076,22 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     services::internal::service_scalable_free<DataType, cpu>(gainy);
     services::internal::service_scalable_free<DataType, cpu>(oldForcex);
     services::internal::service_scalable_free<DataType, cpu>(oldForcey);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    if (verbose == 1)
+    {
+        std::cout << "Full gradient time = " << std::chrono::duration<double, std::milli>(end - begin).count() << std::endl;
+        std::cout << "     BoundingBox time = " << boundingBox << std::endl;
+        std::cout << "     TreeBuilding time = " << treeBuild << std::endl;
+        std::cout << "     Summarization time = " << summarization << std::endl;
+        std::cout << "     Sort time = " << sorting << std::endl;
+        std::cout << "     Repulsion time = " << repulsion << std::endl;
+        std::cout << "     Attractive time = " << attractive << std::endl;
+        std::cout << "     Integration time = " << integration << std::endl;
+        std::cout << "     Divergence = " << divergence << std::endl;
+        std::cout << "     Gradient norm = " << gradNorm << std::endl;
+        std::cout << "     Last iteration = " << curIter << std::endl;
+    }
 
     return services::Status();
 }
