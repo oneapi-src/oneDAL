@@ -44,7 +44,7 @@ inline void read_edge_list(const std::string &name, edge_list<Vertex> &elist) {
     std::string line;
     char *source_endptr;
     char *dest_endptr;
-    char *edgeline;
+    const char *edgeline;
     Vertex source_vertex;
     Vertex destination_vertex;
 
@@ -66,7 +66,7 @@ inline void read_edge_list(const std::string &name, edge_list<Vertex> &elist) {
 
         if (*dest_endptr != '\0') {
             while (*dest_endptr != '\0') {
-                if (!isspace(*dest_endptr)) {
+                if (!std::isspace(*dest_endptr)) {
                     throw invalid_argument("Invalid line content: " + line);
                 }
                 dest_endptr++;
@@ -85,14 +85,13 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
-
     elist.reserve(1024);
 
     std::string line;
     char *source_endptr;
     char *dest_endptr;
     char *value_endptr;
-    char *edgeline;
+    const char *edgeline;
     Vertex source_vertex;
     Vertex destination_vertex;
     Weight edge_value;
@@ -116,7 +115,7 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
 
         if (*value_endptr != '\0') {
             while (*value_endptr != '\0') {
-                if (!isspace(*value_endptr)) {
+                if (!std::isspace(*value_endptr)) {
                     throw invalid_argument("Invalid line content: " + line);
                 }
                 value_endptr++;
