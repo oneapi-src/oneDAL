@@ -22,6 +22,7 @@
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
 #include "oneapi/dal/backend/primitives/selection/select_indexed.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
+#include "oneapi/dal/backend/primitives/distance/cosine_distance_misc.hpp"
 #include "oneapi/dal/backend/primitives/distance/squared_l2_distance_misc.hpp"
 
 namespace oneapi::dal::backend::primitives {
@@ -196,6 +197,61 @@ protected:
     event_vector train_events_;
     ndarray<Float, 1> train_norms_;
     ndarray<Float, 1> query_norms_;
+    uniform_blocking train_blocking_;
+};
+
+template <typename Float>
+class search_temp_objects<Float, cosine_distance<Float>>
+        : public search_temp_objects_base<Float, cosine_distance<Float>> {
+    using distance_t = cosine_distance<Float>;
+    using base_t = search_temp_objects_base<Float, distance_t>;
+
+public:
+    search_temp_objects(sycl::queue& q,
+                        std::int64_t k,
+                        std::int64_t query_block,
+                        std::int64_t train_block,
+                        std::int64_t select_block)
+            : base_t(q, k, query_block, train_block, select_block),
+              query_inv_norms_(ndarray<Float, 1>::empty(q, { query_block }, sycl::usm::alloc::device)) {
+    }
+
+    template <ndorder torder>
+    auto& init_train_inv_norms(sycl::queue& queue,
+                               const ndview<Float, 2, torder>& train,
+                               const event_vector& deps = {}) {
+        const std::int32_t samples_count = train.get_dimension(0);
+        train_blocking_ = uniform_blocking(samples_count, this->tblock_);
+        train_events_ = event_vector(train_blocking_.get_block_count());
+        inv_train_norms_ = ndarray<Float, 1>::empty(queue, { samples_count }, sycl::usm::alloc::device);
+        for (std::int64_t tb = 0; tb < train_blocking_.get_block_count(); ++tb) {
+            const auto from = train_blocking_.get_block_start_index(tb);
+            const auto to = train_blocking_.get_block_end_index(tb);
+            auto train_block = train.get_row_slice(from, to);
+            auto inv_norms_block = get_train_inv_norms_block(tb);
+            train_events_[tb] = compute_inversed_l2_norms(queue, train_block, inv_norms_block, deps);
+        }
+        return *this;
+    }
+
+    ndview<Float, 1> get_train_inv_norms_block(std::int64_t tb) const {
+        const auto from = train_blocking_.get_block_start_index(tb);
+        const auto to = train_blocking_.get_block_end_index(tb);
+        return train_inv_norms_.get_slice(from, to);
+    }
+
+    sycl::event get_train_inv_norms_event(std::int64_t tb) const {
+        return train_events_.at(tb);
+    }
+
+    ndview<Float, 1>& get_query_inv_norms() {
+        return query_inv_norms_;
+    }
+
+protected:
+    event_vector train_events_;
+    ndarray<Float, 1> train_inv_norms_;
+    ndarray<Float, 1> query_inv_norms_;
     uniform_blocking train_blocking_;
 };
 
@@ -572,8 +628,10 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
     template std::int64_t propose_train_block<F>(const sycl::queue&, std::int64_t); \
     template std::int64_t propose_query_block<F>(const sycl::queue&, std::int64_t); \
     template class search_temp_objects<F, distance<F, lp_metric<F>>>;               \
+    template class search_temp_objects<F, distance<F, cosine_metric<F>>>;           \
     template class search_temp_objects<F, distance<F, squared_l2_metric<F>>>;       \
     template class search_temp_objects_deleter<F, distance<F, lp_metric<F>>>;       \
+    template class search_temp_objects_deleter<F, distance<F, cosine_metric<F>>>;   \
     template class search_temp_objects_deleter<F, distance<F, squared_l2_metric<F>>>;
 
 INSTANTIATE_F(float)
