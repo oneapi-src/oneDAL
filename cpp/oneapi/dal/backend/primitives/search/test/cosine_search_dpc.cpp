@@ -259,7 +259,7 @@ using search_types = COMBINE_TYPES((float, double), (c_order, f_order), (c_order
 
 TEMPLATE_LIST_TEST_M(search_test,
                      "Randomly filled cosine-distance search",
-                     "[l2][search][small]",
+                     "[cosine][search][small]",
                      search_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
