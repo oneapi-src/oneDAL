@@ -37,9 +37,9 @@ using address = sycl::access::address_space;
 template <typename T>
 inline T atomic_global_add(T* ptr, T operand) {
     sycl::atomic_ref<T,
-                                  sycl::memory_order::relaxed,
-                                  sycl::memory_scope::device,
-                                  sycl::access::address_space::ext_intel_global_device_space>
+                     sycl::memory_order::relaxed,
+                     sycl::memory_scope::device,
+                     sycl::access::address_space::ext_intel_global_device_space>
         atomic_var(*ptr);
     return atomic_var.fetch_add(operand);
 }
