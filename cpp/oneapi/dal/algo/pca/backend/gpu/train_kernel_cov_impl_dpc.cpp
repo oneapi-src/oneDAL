@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
                                   std::int64_t component_count,
                                   const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.has_data());
+    ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
     ONEDAL_ASSERT(corr.get_dimension(0) > 0);
@@ -160,7 +160,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
 
     std::int64_t row_count = data.get_row_count();
     auto rows_count_global = row_count;
-    //ONEDAL_ASSERT(data.get_column_count() > 0);
+    ONEDAL_ASSERT(data.get_column_count() > 0);
     std::int64_t column_count = data.get_column_count();
 
     const std::int64_t component_count = get_component_count(desc, data);
@@ -181,6 +181,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     comm_.allreduce(xtx.flatten(q_, { gemm_event }), spmd::reduce_op::sum).wait();
 
     comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+
     auto [means, means_event] = compute_means(q_, rows_count_global, sums, { gemm_event });
     auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { means_event });
     auto [vars, vars_event] = compute_variances(q_, cov, { cov_event });

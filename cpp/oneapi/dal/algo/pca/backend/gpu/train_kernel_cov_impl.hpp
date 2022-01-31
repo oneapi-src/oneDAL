@@ -30,7 +30,6 @@ namespace bk = dal::backend;
 
 template <typename Float>
 class train_kernel_cov_impl {
-    using task_t = task::dim_reduction;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
     using input_t = train_input<task::dim_reduction>;
     using result_t = train_result<task::dim_reduction>;
