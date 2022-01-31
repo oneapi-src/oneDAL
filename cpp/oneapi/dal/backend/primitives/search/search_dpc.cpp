@@ -223,7 +223,7 @@ public:
         const std::int32_t samples_count = train.get_dimension(0);
         train_blocking_ = uniform_blocking(samples_count, this->tblock_);
         train_events_ = event_vector(train_blocking_.get_block_count());
-        inv_train_norms_ = ndarray<Float, 1>::empty(queue, { samples_count }, sycl::usm::alloc::device);
+        train_inv_norms_ = ndarray<Float, 1>::empty(queue, { samples_count }, sycl::usm::alloc::device);
         for (std::int64_t tb = 0; tb < train_blocking_.get_block_count(); ++tb) {
             const auto from = train_blocking_.get_block_start_index(tb);
             const auto to = train_blocking_.get_block_end_index(tb);
