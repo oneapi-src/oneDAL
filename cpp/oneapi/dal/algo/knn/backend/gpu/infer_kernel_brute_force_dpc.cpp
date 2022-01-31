@@ -328,13 +328,14 @@ static infer_result<Task> kernel(const context_gpu& ctx,
     if (!distance_impl) {
         throw internal_error{ de::error_messages::unknown_distance_type() };
     }
-    else if (distance_impl->get_daal_distance_type() != daal_distance_t::minkowski) {
+
+    const bool is_minkowski_distance = distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
+    const bool is_cosine_distance = distance_impl->get_daal_distance_type() == daal_distance_t::cosine;
+    const bool is_euclidean_distance = is_minkowski_distance && (distance_impl->get_degree() == 2.0);
+
+    if (distance_impl->get_daal_distance_type() == daal_distance_t::chebyshev){
         throw internal_error{ de::error_messages::distance_is_not_supported_for_gpu() };
     }
-
-    const bool is_euclidean_distance =
-        (distance_impl->get_daal_distance_type() == daal_distance_t::minkowski) &&
-        (distance_impl->get_degree() == 2.0);
 
     auto& queue = ctx.get_queue();
     bk::interop::execution_context_guard guard(queue);
@@ -421,7 +422,16 @@ static infer_result<Task> kernel(const context_gpu& ctx,
         }
     }
 
-    if (is_euclidean_distance) {
+    if(is_cosine_distance) {
+        using dst_t = pr::cosine_distance<Float>;
+        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
+        using search_t = pr::search_engine<Float, dst_t, order>;
+
+        const dst_t dist{ queue };
+        const search_t search{ queue, train_data, train_block, dist };
+        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
+    }
+    else if (is_euclidean_distance) {
         using dst_t = pr::squared_l2_distance<Float>;
         [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
         using search_t = pr::search_engine<Float, dst_t, order>;
@@ -432,7 +442,7 @@ static infer_result<Task> kernel(const context_gpu& ctx,
         const search_t search{ queue, train_data, train_block, dist };
         search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
     }
-    else {
+    else if(is_minkowski_distance) {
         using met_t = pr::lp_metric<Float>;
         using dst_t = pr::lp_distance<Float>;
         [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
