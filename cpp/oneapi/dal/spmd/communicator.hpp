@@ -85,10 +85,10 @@ public:
                                      const data_type& dtype,
                                      const reduce_op& op) = 0;
     virtual request_iface* send_receive_replace(byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank) = 0;
+                                                std::int64_t count,
+                                                const data_type& dtype,
+                                                std::int64_t destination_rank,
+                                                std::int64_t source_rank) = 0;
 };
 
 template <typename MemoryAccessKind>
@@ -131,12 +131,12 @@ public:
                                      const reduce_op& op,
                                      const std::vector<sycl::event>& deps) = 0;
     virtual request_iface* send_receive_replace(sycl::queue& q,
-                                     byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank,
-                                     const std::vector<sycl::event>& deps) = 0;
+                                                byte_t* buf,
+                                                std::int64_t count,
+                                                const data_type& dtype,
+                                                std::int64_t destination_rank,
+                                                std::int64_t source_rank,
+                                                const std::vector<sycl::event>& deps) = 0;
     virtual sycl::queue get_queue() = 0;
 };
 
@@ -426,7 +426,7 @@ public:
     }
     template <typename D>
     request allreduce(const array<D>& ary, const reduce_op& op = reduce_op::sum) const;
-    /// Shaffle data reusing the same buffer for send and receive operations 
+    /// Shaffle data reusing the same buffer for send and receive operations
     ///
     /// @param buf                  The buffer
     /// @param count                The number of elements of `dtype` sent to and
@@ -437,10 +437,10 @@ public:
     ///
     /// @return The object to track the progress of the operation
     request send_receive_replace(byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank) const {
+                                 std::int64_t count,
+                                 const data_type& dtype,
+                                 std::int64_t destination_rank,
+                                 std::int64_t source_rank) const {
         wait_for_exception_handling();
         return dal::detail::make_private<request>(
             impl_->send_receive_replace(buf, count, dtype, destination_rank, source_rank));
@@ -448,12 +448,12 @@ public:
 #ifdef ONEDAL_DATA_PARALLEL
     /// `send_receive_replace` that accepts USM pointers
     request send_receive_replace(sycl::queue& q,
-                                     byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank,
-                                     const std::vector<sycl::event>& deps = {}) const{
+                                 byte_t* buf,
+                                 std::int64_t count,
+                                 const data_type& dtype,
+                                 std::int64_t destination_rank,
+                                 std::int64_t source_rank,
+                                 const std::vector<sycl::event>& deps = {}) const {
         wait_for_exception_handling();
         return dal::detail::make_private<request>(
             impl_->send_receive_replace(q, buf, count, dtype, destination_rank, source_rank, deps));
@@ -461,14 +461,14 @@ public:
 #endif
     template <typename D, enable_if_primitive_t<D>* = nullptr>
     request send_receive_replace(D* buf,
-                       std::int64_t count,
-                       std::int64_t destination_rank,
-                       std::int64_t source_rank) const {
+                                 std::int64_t count,
+                                 std::int64_t destination_rank,
+                                 std::int64_t source_rank) const {
         return send_receive_replace(reinterpret_cast<byte_t*>(buf),
-                          count,
-                          dal::detail::make_data_type<D>(),
-                          destination_rank,
-                          source_rank);
+                                    count,
+                                    dal::detail::make_data_type<D>(),
+                                    destination_rank,
+                                    source_rank);
     }
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename D,
@@ -476,24 +476,24 @@ public:
               typename = std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::usm> &&
                                           is_primitive_v<D>>>
     request send_receive_replace(sycl::queue& queue,
-                       D* buf,
-                       std::int64_t count,
-                       std::int64_t destination_rank,
-                       std::int64_t source_rank,
-                       const std::vector<sycl::event>& deps = {}) const {
+                                 D* buf,
+                                 std::int64_t count,
+                                 std::int64_t destination_rank,
+                                 std::int64_t source_rank,
+                                 const std::vector<sycl::event>& deps = {}) const {
         return send_receive_replace(queue,
-                          reinterpret_cast<byte_t*>(buf),
-                          count,
-                          dal::detail::make_data_type<D>(),
-                          destination_rank,
-                          source_rank,
-                          deps);
+                                    reinterpret_cast<byte_t*>(buf),
+                                    count,
+                                    dal::detail::make_data_type<D>(),
+                                    destination_rank,
+                                    source_rank,
+                                    deps);
     }
 #endif
     template <typename D>
     request send_receive_replace(const array<D>& buf,
-                       std::int64_t destination_rank,
-                       std::int64_t source_rank) const;
+                                 std::int64_t destination_rank,
+                                 std::int64_t source_rank) const;
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T = MemoryAccessKind, typename = enable_if_device_memory_accessible_t<T>>
     sycl::queue get_queue() const {

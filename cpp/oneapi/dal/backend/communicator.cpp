@@ -119,10 +119,10 @@ public:
         return nullptr;
     }
     request_t* send_receive_replace(byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank) override {
+                                    std::int64_t count,
+                                    const data_type& dtype,
+                                    std::int64_t destination_rank,
+                                    std::int64_t source_rank) override {
         return nullptr;
     }
 };
@@ -222,18 +222,18 @@ public:
         return nullptr;
     }
     request_t* send_receive_replace(byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank) override {
+                                    std::int64_t count,
+                                    const data_type& dtype,
+                                    std::int64_t destination_rank,
+                                    std::int64_t source_rank) override {
         return nullptr;
     }
     request_t* send_receive_replace(sycl::queue& q,
                                     byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank,
+                                    std::int64_t count,
+                                    const data_type& dtype,
+                                    std::int64_t destination_rank,
+                                    std::int64_t source_rank,
                                     const event_vector& deps) override {
         sycl::event::wait_and_throw(deps);
         return nullptr;

@@ -46,8 +46,8 @@ request communicator<MemoryAccessKind>::allgatherv(const array<D>& send,
 template <typename MemoryAccessKind>
 template <typename D>
 request communicator<MemoryAccessKind>::send_receive_replace(const array<D>& buf,
-                       std::int64_t destination_rank,
-                       std::int64_t source_rank) const {
+                                                             std::int64_t destination_rank,
+                                                             std::int64_t source_rank) const {
     return de::send_receive_replace(*this, buf, destination_rank, source_rank);
 }
 

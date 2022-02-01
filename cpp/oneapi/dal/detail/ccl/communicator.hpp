@@ -123,8 +123,7 @@ public:
                                           std::int64_t rank_count)
             : queue_(queue),
               rank_(rank),
-              rank_count_(rank_count)
- {
+              rank_count_(rank_count) {
         auto dev = ccl::create_device(queue_.get_device());
         auto ctx = ccl::create_context(queue_.get_context());
         device_comm_.reset(
@@ -225,16 +224,16 @@ public:
         return new ccl_request_impl{ std::move(event) };
     }
     spmd::request_iface* send_receive_replace(sycl::queue& q,
-                                     byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank,
-                                     const std::vector<sycl::event>& deps) override {
+                                              byte_t* buf,
+                                              std::int64_t count,
+                                              const data_type& dtype,
+                                              std::int64_t destination_rank,
+                                              std::int64_t source_rank,
+                                              const std::vector<sycl::event>& deps) override {
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
         ONEDAL_ASSERT(destination_rank < rank_count_);
-        ONEDAL_ASSERT(source_rank  < rank_count_);
+        ONEDAL_ASSERT(source_rank < rank_count_);
 
         if (count == 0) {
             return nullptr;
@@ -394,14 +393,14 @@ public:
         return new ccl_request_impl{ std::move(event) };
     }
     spmd::request_iface* send_receive_replace(byte_t* buf,
-                               std::int64_t count,
-                               const data_type& dtype,
-                               std::int64_t destination_rank,
-                               std::int64_t source_rank) override {
+                                              std::int64_t count,
+                                              const data_type& dtype,
+                                              std::int64_t destination_rank,
+                                              std::int64_t source_rank) override {
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
         ONEDAL_ASSERT(destination_rank < rank_count_);
-        ONEDAL_ASSERT(source_rank  < rank_count_);
+        ONEDAL_ASSERT(source_rank < rank_count_);
 
         if (count == 0) {
             return nullptr;

@@ -69,12 +69,12 @@ public:
                                    const spmd::reduce_op& op,
                                    const std::vector<sycl::event>& deps) override;
     spmd::request_iface* send_receive_replace(sycl::queue& q,
-                                     byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank,
-                                     const std::vector<sycl::event>& deps) override;
+                                              byte_t* buf,
+                                              std::int64_t count,
+                                              const data_type& dtype,
+                                              std::int64_t destination_rank,
+                                              std::int64_t source_rank,
+                                              const std::vector<sycl::event>& deps) override;
 
 private:
     sycl::queue queue_;

@@ -174,13 +174,14 @@ spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-spmd::request_iface* spmd_communicator_via_host_impl::send_receive_replace(sycl::queue& q,
-                                     byte_t* buf,
-                                     std::int64_t count,
-                                     const data_type& dtype,
-                                     std::int64_t destination_rank,
-                                     std::int64_t source_rank,
-                                     const std::vector<sycl::event>& deps) {
+spmd::request_iface* spmd_communicator_via_host_impl::send_receive_replace(
+    sycl::queue& q,
+    byte_t* buf,
+    std::int64_t count,
+    const data_type& dtype,
+    std::int64_t destination_rank,
+    std::int64_t source_rank,
+    const std::vector<sycl::event>& deps) {
     ONEDAL_ASSERT(destination_rank >= 0);
     ONEDAL_ASSERT(source_rank >= 0);
 
@@ -200,7 +201,11 @@ spmd::request_iface* spmd_communicator_via_host_impl::send_receive_replace(sycl:
     const auto buff_host = array<byte_t>::empty(size);
     memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
 
-    wait_request(send_receive_replace(buff_host.get_mutable_data(), count, dtype, destination_rank, source_rank));
+    wait_request(send_receive_replace(buff_host.get_mutable_data(),
+                                      count,
+                                      dtype,
+                                      destination_rank,
+                                      source_rank));
 
     memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
 

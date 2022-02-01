@@ -112,25 +112,25 @@ public:
 
     template <typename T>
     void test_send_receive_replace(T* buffer,
-                         std::int64_t count,
-                         std::int64_t destination_rank,
-                         std::int64_t source_rank) {
+                                   std::int64_t count,
+                                   std::int64_t destination_rank,
+                                   std::int64_t source_rank) {
         get_new_comm().send_receive_replace(buffer, count, destination_rank, source_rank).wait();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     void test_send_receive_replace_on_device(T* buffer,
-                         std::int64_t count,
-                         std::int64_t destination_rank,
-                         std::int64_t source_rank) {
+                                             std::int64_t count,
+                                             std::int64_t destination_rank,
+                                             std::int64_t source_rank) {
         auto comm = get_new_comm();
         auto buffer_device = copy_to_device(buffer, count);
         comm.send_receive_replace(get_queue(),
-                        buffer_device.get_mutable_data(),
-                        count,
-                        destination_rank,
-                        source_rank)
+                                  buffer_device.get_mutable_data(),
+                                  count,
+                                  destination_rank,
+                                  source_rank)
             .wait();
         copy_to_host(buffer, buffer_device.get_data(), count);
     }
@@ -272,18 +272,12 @@ TEST_M(mpi_comm_test, "send_receive_replace") {
     }
 
     SECTION("host") {
-        test_send_receive_replace(buffer.data(),
-                        count,
-                        destination_rank,
-                        source_rank);
+        test_send_receive_replace(buffer.data(), count, destination_rank, source_rank);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     SECTION("device") {
-        test_send_receive_replace_on_device(buffer.data(),
-                        count,
-                        destination_rank,
-                        source_rank);
+        test_send_receive_replace_on_device(buffer.data(), count, destination_rank, source_rank);
     }
 #endif
 
