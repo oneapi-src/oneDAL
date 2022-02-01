@@ -96,29 +96,29 @@ sycl::event compute_cosine_inner_product(sycl::queue& q,
     return event;
 }
 
-#define INSTANTIATE(F, A, B)                                                    \
-    template sycl::event compute_cosine_inner_product<F, A, B>(sycl::queue&,        \
-                                                        const ndview<F, 2, A>&, \
-                                                        const ndview<F, 2, B>&, \
-                                                        ndview<F, 2>&,          \
-                                                        const event_vector&);
+#define INSTANTIATE(F, A, B)                                                           \
+    template sycl::event compute_cosine_inner_product<F, A, B>(sycl::queue&,           \
+                                                               const ndview<F, 2, A>&, \
+                                                               const ndview<F, 2, B>&, \
+                                                               ndview<F, 2>&,          \
+                                                               const event_vector&);
 
-#define INSTANTIATE_A(F, B)                                                         \
-    INSTANTIATE(F, ndorder::c, B)                                                   \
-    INSTANTIATE(F, ndorder::f, B)                                                   \
+#define INSTANTIATE_A(F, B)                                                          \
+    INSTANTIATE(F, ndorder::c, B)                                                    \
+    INSTANTIATE(F, ndorder::f, B)                                                    \
     template sycl::event compute_inversed_l2_norms<F, B>(sycl::queue&,               \
-                                                        const ndview<F, 2, B>&,     \
-                                                        ndview<F, 1>&,              \
-                                                        const event_vector&);       \
+                                                         const ndview<F, 2, B>&,     \
+                                                         ndview<F, 1>&,              \
+                                                         const event_vector&);       \
     template std::tuple<ndarray<F, 1>, sycl::event> compute_inversed_l2_norms<F, B>( \
-        sycl::queue&,                                                               \
-        const ndview<F, 2, B>&,                                                     \
-        const event_vector&,                                                        \
+        sycl::queue&,                                                                \
+        const ndview<F, 2, B>&,                                                      \
+        const event_vector&,                                                         \
         const sycl::usm::alloc&);
 
-#define INSTANTIATE_F(F)                                    \
-    INSTANTIATE_A(F, ndorder::c)                            \
-    INSTANTIATE_A(F, ndorder::f)                            \
+#define INSTANTIATE_F(F)                                         \
+    INSTANTIATE_A(F, ndorder::c)                                 \
+    INSTANTIATE_A(F, ndorder::f)                                 \
     template sycl::event finalize_cosine<F>(sycl::queue & q,     \
                                             const ndview<F, 1>&, \
                                             const ndview<F, 1>&, \

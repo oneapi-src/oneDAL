@@ -96,7 +96,8 @@ protected:
     using inv_norms_res_t = std::tuple<ndarray<Float, 1>, sycl::event>;
 
     template <ndorder order>
-    inv_norms_res_t get_inversed_norms(const ndview<Float, 2, order>& inp, const event_vector& deps = {}) const;
+    inv_norms_res_t get_inversed_norms(const ndview<Float, 2, order>& inp,
+                                       const event_vector& deps = {}) const;
 
 private:
     sycl::queue& q_;
