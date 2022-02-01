@@ -614,9 +614,8 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Cosine distance") 
     const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
                                                           range(feature_count, feature_count + 1));
 
-    using distance_t = oneapi::dal::minkowski_distance::descriptor<>;
-    const double minkowski_degree = 2.5;
-    const auto distance_desc = distance_t(minkowski_degree);
+    using distance_t = oneapi::dal::cosine_distance::descriptor<>;
+    const auto distance_desc = distance_t();
     const auto score = this->classification(x_train_table,
                                             y_train_table,
                                             x_infer_table,
