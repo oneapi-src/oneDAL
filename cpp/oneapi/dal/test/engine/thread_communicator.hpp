@@ -207,31 +207,6 @@ private:
     std::vector<buffer_info> send_buffers_;
 };
 
-class thread_communicator_send_receive_replace {
-public:
-    struct buffer_info {
-        const byte_t* buf = nullptr;
-        std::int64_t count = 0;
-    };
-
-    explicit thread_communicator_send_receive_replace(thread_communicator_context& ctx)
-            : ctx_(ctx),
-              barrier_(ctx),
-              send_buffers_(ctx_.get_thread_count()) {}
-
-    void operator()(const byte_t* send_buf,
-                    std::int64_t send_count,
-                    byte_t* recv_buf,
-                    const std::int64_t* recv_counts,
-                    const std::int64_t* displs,
-                    const data_type& dtype);
-
-private:
-    thread_communicator_context& ctx_;
-    thread_communicator_barrier barrier_;
-    std::vector<buffer_info> send_buffers_;
-};
-
 class thread_communicator_allreduce {
 public:
     struct buffer_info {
