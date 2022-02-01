@@ -587,7 +587,7 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance
     REQUIRE(score >= target_score);
 }
 
-KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance (p = 2.5)") {
+KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Cosine distance") {
     SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
