@@ -316,7 +316,7 @@ POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------
 
 5. Intel intel-64-architecture-processor-topology-enumeration
-Copyright 2008-2016 Intel Corporation
+Copyright 2008 Intel Corporation
 All rights reserved.
 
 3-clause BSD License

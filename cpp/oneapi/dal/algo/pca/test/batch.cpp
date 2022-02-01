@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -234,7 +234,7 @@ TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batc
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
+        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_uniform(3, 12),
                            te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
 
     // Homogen floating point type is the same as algorithm's floating point type
