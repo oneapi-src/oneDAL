@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/test/engine/ccl_global.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
+
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -82,8 +83,10 @@ public:
         for (std::int64_t i = 0; i < comm.get_rank_count(); i++) {
             total_count += recv_counts[i];
         }
+
         auto recv_buffer_device =
             array<T>::empty(get_queue(), total_count, sycl::usm::alloc::device);
+        
         comm.allgatherv(get_queue(),
                         send_buffer_device.get_mutable_data(),
                         send_count,
@@ -97,9 +100,15 @@ public:
 private:
     template <typename T>
     array<T> copy_to_device(const T* data, std::int64_t count) {
+        if(count > 0){
         auto x = array<T>::empty(get_queue(), count, sycl::usm::alloc::device);
         dal::detail::memcpy_host2usm(get_queue(), x.get_mutable_data(), data, sizeof(T) * count);
         return x;
+        }
+        else{
+        auto x = array<T>::empty(get_queue(), 1, sycl::usm::alloc::device);
+        return x;
+        }  
     }
 
     template <typename T>
@@ -165,7 +174,7 @@ TEST_M(ccl_comm_test, "allgatherv") {
     for (std::int64_t i = 0; i < rank_count; i++) {
         recv_counts[i] = (i + 1) * granularity;
         displs[i] = total_size;
-        total_size += recv_counts[i];
+        total_size += recv_counts[i]; 
     }
 
     const std::int64_t rank_size = recv_counts[rank];
@@ -204,6 +213,79 @@ TEST_M(ccl_comm_test, "allgatherv") {
 
     for (std::int64_t i = 0; i < total_size; i++) {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
+    }
+}
+
+TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
+    auto comm = get_new_comm();
+    const std::int64_t granularity = 10;
+    const std::int64_t rank_count = comm.get_rank_count();
+    const std::int64_t rank = comm.get_rank();
+
+    std::vector<std::int64_t> recv_counts(rank_count);
+    std::vector<std::int64_t> displs(rank_count);
+    std::int64_t total_size = 0;
+    for (std::int64_t i = 0; i < rank_count; i++) {
+        if (i != 1){                                             
+        recv_counts[i] = (i + 1) * granularity;
+        displs[i] = total_size;
+        total_size += recv_counts[i];
+        }
+        else{
+            recv_counts[i] = 0 * granularity;
+            displs[i] = total_size;
+            total_size += recv_counts[i];   
+        }
+    }
+    
+    const std::int64_t rank_size = recv_counts[rank];
+    std::vector<float> send_buffer;
+
+    if (rank != 1){                                        
+        send_buffer.reserve(rank_size);
+        for (std::int64_t i = 0; i < rank_size; i++) {
+            send_buffer[i] = float(rank);
+        } 
+    }
+    else{
+        send_buffer.reserve(1);
+    }
+    std::vector<float> recv_buffer(total_size);
+    std::vector<float> final_buffer(total_size);
+    std::int64_t offset = 0;
+    for (std::int64_t i = 0; i < rank_count; i++) {
+        for (std::int64_t j = 0; j < recv_counts[i]; j++) {
+            final_buffer[offset] = float(i);
+            offset++;
+        }
+    }
+
+ SECTION("host") {
+        test_allgatherv(send_buffer.data(),
+                        rank_size,
+                        recv_buffer.data(),
+                        recv_counts.data(),
+                        displs.data());
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    SECTION("device") {
+        test_allgatherv_on_device(send_buffer.data(),
+                                  rank_size,
+                                  recv_buffer.data(),
+                                  recv_counts.data(),
+                                  displs.data());
+    }
+#endif
+
+    for (std::int64_t i = 0; i < total_size; i++) {
+        if (displs[2] <= i or i < displs[1]){
+            REQUIRE(recv_buffer[i] == final_buffer[i]);
+        }
+        else{
+             REQUIRE(recv_buffer[i] == float(0));
+        }
+        
     }
 }
 
