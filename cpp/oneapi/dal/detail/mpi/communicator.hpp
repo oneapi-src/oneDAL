@@ -283,13 +283,14 @@ public:
         ONEDAL_ASSERT(count > 0);
 
         MPI_Status status;
+        constexpr int zero_tag = 0;
         mpi_call(MPI_Sendrecv_replace(buf,
                            integral_cast<int>(count),
                            make_mpi_data_type(dtype),
                            integral_cast<int>(destination_rank),
-                           MPI_ANY_TAG,
+                           zero_tag,
                            integral_cast<int>(source_rank),
-                           MPI_ANY_TAG,
+                           zero_tag,
                            mpi_comm_,
                            &status));
         return nullptr;

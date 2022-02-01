@@ -129,6 +129,7 @@ dal_test_suite(
 
 dal_test_suite(
     name = "ccl_communicator_test",
+    mpi_ranks = 2,
     framework = "catch2",
     srcs = glob([
         "test/ccl_*.cpp"
