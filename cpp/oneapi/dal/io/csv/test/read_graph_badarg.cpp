@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ public:
 #define READ_GRAPH_BADARG_TEST(name) TEST_M(read_graph_badarg_test, name, "[read_graph][badarg]")
 
 READ_GRAPH_BADARG_TEST("Empty input file") {
-    std::string file_content = " ";
+    std::string file_content = "";
     std::string filename = "empty_file.csv";
     write_test_data(filename, file_content);
     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
@@ -130,182 +130,173 @@ READ_GRAPH_BADARG_TEST("Non-exist input file") {
                       invalid_argument);
 }
 
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST("Incorrect read_mode - unweighted graph with read_mode::weighted_edge_list") {
-//     std::string file_content = "0 1,0 2,0 3,1 2,1 3,2 3";
-//     std::string filename = "k4_unweighted.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename },
-//                                           dal::preview::read_mode::weighted_edge_list), invalid_argument);
-//     delete_test_data(filename);
-// }
-
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST("Incorrect read_mode - weighted graph with read_mode::edge_list") {
-//     std::string file_content = "0 1 1,0 2 2,0 3 3,1 2 4,1 3 5,2 3 6";
-//     std::string filename = "k4_weighted.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-//                                           dal::preview::read_mode::edge_list), invalid_argument);
-//     delete_test_data(filename);
-// }
-
-//Fails - incorrect result graph
-// READ_GRAPH_BADARG_TEST("The first few lines of input file consist of odd number of words, unweighted") {
-//     std::string filename = "odd_word_num_unweighted.csv";
-//     std::string file_content = "#dataset name,unweighted,0 1,0 2,0 3,1 2,1 3,2 3";
-//     write_test_data(filename, file_content);
-//     REQUIRE_NOTHROW(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }));
-//     const auto graph = dal::read<unweighted_graph_t>(dal::csv::data_source{ filename });
-//     delete_test_data(filename);
-//     check_graph_correctness<K4_graph_data>(graph);
-// }
-
-//Correct result graph
-READ_GRAPH_BADARG_TEST(
-    "The first few lines of input file consist of odd number of words, weighted") {
-    std::string filename = "odd_word_num_weighted.csv";
-    std::string file_content = "#dataset name,weighted,0 1 1,0 2 2,0 3 3,1 2 4,1 3 5,2 3 6";
+READ_GRAPH_BADARG_TEST("Edge list contains non-numeric characters, unweighted graph") {
+    std::string filename = "non_numeric_chars_unweighted.csv";
+    std::string file_content = "0 1,0 2,0 3,ab1 2,1 3,2 3";
     write_test_data(filename, file_content);
-    REQUIRE_NOTHROW(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                dal::preview::read_mode::weighted_edge_list));
-    const auto graph = dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                   dal::preview::read_mode::weighted_edge_list);
+    REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
+                      invalid_argument);
     delete_test_data(filename);
-    check_graph_correctness<K4_graph_data>(graph);
+
+    file_content = "0 1,0 2,0 3,1ab 2,1 3,2 3";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
+                      invalid_argument);
+    delete_test_data(filename);
+
+    file_content = "0 1,0 2,0 3,1 ab2,1 3,2 3";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
+                      invalid_argument);
+    delete_test_data(filename);
+
+    file_content = "0 1,0 2,0 3,1 2ab,1 3,2 3";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
+                      invalid_argument);
+    delete_test_data(filename);
 }
 
-//Correct result graph
-READ_GRAPH_BADARG_TEST(
-    "The first few lines of input file consist of even number of words, unweighted") {
-    std::string filename = "even_word_num_unweighted.csv";
-    std::string file_content = "#dataset name, vertex_count=4 edge_count=6,0 1,0 2,0 3,1 2,1 3,2 3";
+READ_GRAPH_BADARG_TEST("Edge list contains non-numeric characters, weighted graph") {
+    std::string filename = "non_numeric_chars_weighted.csv";
+    std::string file_content = "ab0 1 1,0 2 2,0 3 3,1 2 4";
     write_test_data(filename, file_content);
-    REQUIRE_NOTHROW(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }));
-    const auto graph = dal::read<unweighted_graph_t>(dal::csv::data_source{ filename });
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
     delete_test_data(filename);
-    check_graph_correctness<K4_graph_data>(graph);
+
+    file_content = "0ab 1 1,0 2 2,0 3 3,1 2 4";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
+
+    file_content = "0 ab1 1,0 2 2,0 3 3,1 2 4";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
+
+    file_content = "0 1ab 1,0 2 2,0 3 3,1 2 4";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
+
+    file_content = "0 1 ab1,0 2 2,0 3 3,1 2 4";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
+
+    file_content = "0 1 1ab,0 2 2,0 3 3,1 2 4";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
 }
 
-//Fails - incorrect result graph
-// READ_GRAPH_BADARG_TEST("The first few lines of input file consist of even number of words, weighted") {
-//     std::string filename = "even_word_num_weighted.csv";
-//     std::string file_content = "#dataset name, vertex_count=4 edge_count=6,0 1 1,0 2 2,0 3 3,1 2 4,1 3 5,2 3 6";
-//     write_test_data(filename, file_content);
-//     REQUIRE_NOTHROW(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-//                                          dal::preview::read_mode::weighted_edge_list));
-//     const auto graph = dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-//                                             dal::preview::read_mode::weighted_edge_list);
-//     delete_test_data(filename);
-//     check_graph_correctness<K4_graph_data>(graph);
-// }
+READ_GRAPH_BADARG_TEST("Extra values in line, unweighted graph") {
+    std::string file_content = "0 1 10,0 2,1 2,3 4,5 6";
+    std::string filename = "extra_values_unweighted.csv";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
+                      invalid_argument);
+    delete_test_data(filename);
+}
 
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST(
-//     "File contains non-numeric characters on different lines, unweighted graph") {
-//     std::string file_content = "0 1,0 ?,graph 3,1 2,1 3,2 3";
-//     std::string filename = "non_numeric_unweighted.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{filename}), invalid_argument);
-//     delete_test_data(filename);
-// }
+READ_GRAPH_BADARG_TEST("Extra values in line, weighted graph") {
+    std::string file_content = "0 1 3 10,0 2 1,1 2 3,3 4 6,5 6 7";
+    std::string filename = "extra_values_weighted.csv";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
+}
 
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST("File contains non-numeric characters on different lines, weighted graph") {
-//     std::string file_content = "0 1 1,0 2 2,0 3 abc,# 2 4,1 3$ 5,2 3 6";
-//     std::string filename = "non_numeric_weighted.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-//                                           dal::preview::read_mode::weighted_edge_list), invalid_argument);
-//     delete_test_data(filename);
-// }
+READ_GRAPH_BADARG_TEST("Edge is incomplete, unweighted graph") {
+    std::string file_content = "0 1,0 2,1,3 4,5 6";
+    std::string filename = "incomplete_edge_unweighted.csv";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
+                      invalid_argument);
+    delete_test_data(filename);
+}
 
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST("File contains non-numeric characters on the same line, unweighted graph") {
-//     std::string file_content = "0 1,0 2,graph ?,1 2,1 3,2 3";
-//     std::string filename = "non_numeric_edge_unweighted.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{filename}), invalid_argument);
-//     delete_test_data(filename);
-// }
+READ_GRAPH_BADARG_TEST("Edge is incomplete, weighted graph") {
+    std::string file_content = "0 1 3,0 2 1,1,3 4 6,5 6 7";
+    std::string filename = "incomplete_edge_weighted.csv";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
+}
 
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST("File contains non-numeric characters on the same line, weighted graph") {
-//     std::string file_content = "0 1 1,0 2 2,0 3 3,# @ a,1 3 5,2 3 6";
-//     std::string filename = "non_numeric_edge_weighted.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-//                                           dal::preview::read_mode::weighted_edge_list), invalid_argument);
-//     delete_test_data(filename);
-// }
+READ_GRAPH_BADARG_TEST("Not all edges have weights for weighted graph") {
+    std::string file_content = "0 1 1,0 2 2,0 3,1 2 4,1 3,2 3 6";
+    std::string filename = "not_all_weights.csv";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
+}
 
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST("Last edge is incomplete, unweighted graph") {
-//     std::string file_content = "0 1,0 2,1 3,3 4,5";
-//     std::string filename = "incomplete_edge_unweighted.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{filename}), invalid_argument);
-//     delete_test_data(filename);
-// }
-
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST("Last edge is incomplete, weighted graph") {
-//     std::string file_content = "0 1 3,0 2 1,1 3 4,3 4 6,5";
-//     std::string filename = "incomplete_edge_weighted.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{filename}, dal::preview::read_mode::weighted_edge_list), invalid_argument);
-//     delete_test_data(filename);
-// }
-
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST("Not all edges have weights for weighted graph") {
-//     std::string file_content = "0 1 1,0 2 2,0 3,1 2 4,1 3,2 3 6";
-//     std::string filename = "not_all_weights.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{filename}, dal::preview::read_mode::weighted_edge_list), invalid_argument);
-//     delete_test_data(filename);
-// }
+READ_GRAPH_BADARG_TEST("Weights column is missing for weighted graph") {
+    std::string file_content = "0 1,0 2,0 3,1 2,1 3,2 3";
+    std::string filename = "missed_weights.csv";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
+}
 
 READ_GRAPH_BADARG_TEST("Vertex indices is not integer, unweighted") {
     std::string file_content = "0 1.1,0.2 2.2,0 3.3,1.4 2.4,1 3.5,2.6 3.6";
     std::string filename = "not_int_ids_unweighted.csv";
     write_test_data(filename, file_content);
-    REQUIRE_NOTHROW(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }));
-    const auto graph = dal::read<unweighted_graph_t>(dal::csv::data_source{ filename });
+    REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
+                      invalid_argument);
     delete_test_data(filename);
-    check_graph_correctness<K4_graph_data>(graph);
 }
 
-READ_GRAPH_BADARG_TEST("Vertex indices is not integer, weighted") {
+READ_GRAPH_BADARG_TEST("Vertex indices is not integer, weighted graph") {
     std::string file_content = "0 1.1 1,0.2 2.2 2,0 3.3 3,1.4 2.4 4,1 3.5 5,2.6 3.6 6";
     std::string filename = "not_int_ids_weighted.csv";
     write_test_data(filename, file_content);
-    REQUIRE_NOTHROW(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                dal::preview::read_mode::weighted_edge_list));
-    const auto graph = dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                   dal::preview::read_mode::weighted_edge_list);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
     delete_test_data(filename);
-    check_graph_correctness<K4_graph_data>(graph);
 }
 
-//seg fault
-// READ_GRAPH_BADARG_TEST("Negative vertex indices") {
-//     std::string file_content = "0 1,0 2,0 -3,1 2,1 3,-2 3";
-//     std::string filename = "negative_ids.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{filename}), invalid_argument);
-//     delete_test_data(filename);
-// }
+READ_GRAPH_BADARG_TEST("Negative vertex indices, unweighted graph") {
+    std::string file_content = "0 1,0 2,0 -3,1 2,1 3,-2 3";
+    std::string filename = "negative_ids_unweighted.csv";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
+                      invalid_argument);
+    delete_test_data(filename);
+}
 
-//Fails - no exception
-// READ_GRAPH_BADARG_TEST("Weights column is missing for weighted graph ") {
-//     std::string file_content = "0 1,0 2,0 3,1 2,1 3,2 3";
-//     std::string filename = "missed_weights.csv";
-//     write_test_data(filename, file_content);
-//     REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-//                                           dal::preview::read_mode::weighted_edge_list), invalid_argument);
-//     delete_test_data(filename);
-// }
+READ_GRAPH_BADARG_TEST("Negative vertex indices, weighted graph") {
+    std::string file_content = "0 1 1,0 2 2,0 -3 3,1 2 4,1 3 5,-2 3 6";
+    std::string filename = "negative_ids_weighted.csv";
+    write_test_data(filename, file_content);
+    REQUIRE_THROWS_AS(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
+                                                  dal::preview::read_mode::weighted_edge_list),
+                      invalid_argument);
+    delete_test_data(filename);
+}
 
 READ_GRAPH_BADARG_TEST("Vertex id is greater than int32_max") {
     std::string file_content = "0 1,0 2,0 2147483648,1 2,1 3,2 3";
@@ -314,52 +305,6 @@ READ_GRAPH_BADARG_TEST("Vertex id is greater than int32_max") {
     REQUIRE_THROWS_AS(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }),
                       range_error);
     delete_test_data(filename);
-}
-
-READ_GRAPH_BADARG_TEST("Zero weights") {
-    std::string file_content = "0 1 0,0 2 0,0 3 0,1 2 0,1 3 0,2 3 0";
-    std::string filename = "zero_weights.csv";
-    write_test_data(filename, file_content);
-    REQUIRE_NOTHROW(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                dal::preview::read_mode::weighted_edge_list));
-    const auto graph = dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                   dal::preview::read_mode::weighted_edge_list);
-    delete_test_data(filename);
-    check_graph_correctness<K4_graph_data>(graph);
-}
-
-READ_GRAPH_BADARG_TEST("Negative weights") {
-    std::string file_content = "0 1 -1,0 2 -2,0 3 -3,1 2 -4,1 3 -5,2 3 -6";
-    std::string filename = "negative_weights.csv";
-    write_test_data(filename, file_content);
-    REQUIRE_NOTHROW(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                dal::preview::read_mode::weighted_edge_list));
-    const auto graph = dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                   dal::preview::read_mode::weighted_edge_list);
-    delete_test_data(filename);
-    check_graph_correctness<K4_graph_data>(graph);
-}
-
-READ_GRAPH_BADARG_TEST("Single row data, unweighted graph") {
-    std::string file_content = "0 1 0 2 0 3 1 2 1 3 2 3";
-    std::string filename = "single_row_data_unweighted.csv";
-    write_test_data(filename, file_content);
-    REQUIRE_NOTHROW(dal::read<unweighted_graph_t>(dal::csv::data_source{ filename }));
-    const auto graph = dal::read<unweighted_graph_t>(dal::csv::data_source{ filename });
-    delete_test_data(filename);
-    check_graph_correctness<K4_graph_data>(graph);
-}
-
-READ_GRAPH_BADARG_TEST("Single row data, weighted graph") {
-    std::string file_content = "0 1 1 0 2 2 0 3 3 1 2 4 1 3 5 2 3 6";
-    std::string filename = "single_row_data_weighted.csv";
-    write_test_data(filename, file_content);
-    REQUIRE_NOTHROW(dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                dal::preview::read_mode::weighted_edge_list));
-    const auto graph = dal::read<weighted_graph_t>(dal::csv::data_source{ filename },
-                                                   dal::preview::read_mode::weighted_edge_list);
-    delete_test_data(filename);
-    check_graph_correctness<K4_graph_data>(graph);
 }
 
 } //namespace oneapi::dal::preview::csv::test
