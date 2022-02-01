@@ -321,13 +321,13 @@ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA OR PR
 
   --------------------------------------------------------------
 12. Intel(R) oneAPI Threading Building Blocks: 
-    Copyright 2005-2019 Intel Corporation.  All Rights Reserved.
+    Copyright 2005 Intel Corporation.  All Rights Reserved.
 
    Intel(R) Integrated Performance Primitives Library
    Copyright 2020 Intel Corporation. All Rights Reserved.
 
    Intel(R) OpenMP* Runtime:
-   Copyright 1985-2019 Intel Corporation.  All Rights Reserved.
+   Copyright 1985 Intel Corporation.  All Rights Reserved.
 
    The source code contained or described herein and all  documents related to the source code    ("Material") are owned by Intel Corporation or its suppliers or licensors.  Title to the    Material remains with Intel Corporation or its suppliers and licensors.  The Material is    protected by worldwide copyright laws and treaty provisions.  No part of the Material may be     used, copied, reproduced, modified, published, uploaded, posted, transmitted, distributed, or    disclosed in any way without Intel's prior express written permission.
 
