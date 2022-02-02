@@ -17,7 +17,6 @@
 #include "oneapi/dal/test/engine/ccl_global.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 
-
 #ifdef ONEDAL_DATA_PARALLEL
 
 namespace oneapi::dal::test {
@@ -86,7 +85,7 @@ public:
 
         auto recv_buffer_device =
             array<T>::empty(get_queue(), total_count, sycl::usm::alloc::device);
-        
+
         comm.allgatherv(get_queue(),
                         send_buffer_device.get_mutable_data(),
                         send_count,
@@ -100,15 +99,18 @@ public:
 private:
     template <typename T>
     array<T> copy_to_device(const T* data, std::int64_t count) {
-        if(count > 0){
-        auto x = array<T>::empty(get_queue(), count, sycl::usm::alloc::device);
-        dal::detail::memcpy_host2usm(get_queue(), x.get_mutable_data(), data, sizeof(T) * count);
-        return x;
+        if (count > 0) {
+            auto x = array<T>::empty(get_queue(), count, sycl::usm::alloc::device);
+            dal::detail::memcpy_host2usm(get_queue(),
+                                         x.get_mutable_data(),
+                                         data,
+                                         sizeof(T) * count);
+            return x;
         }
-        else{
-        auto x = array<T>::empty(get_queue(), 1, sycl::usm::alloc::device);
-        return x;
-        }  
+        else {
+            auto x = array<T>::empty(get_queue(), 1, sycl::usm::alloc::device);
+            return x;
+        }
     }
 
     template <typename T>
@@ -174,7 +176,7 @@ TEST_M(ccl_comm_test, "allgatherv") {
     for (std::int64_t i = 0; i < rank_count; i++) {
         recv_counts[i] = (i + 1) * granularity;
         displs[i] = total_size;
-        total_size += recv_counts[i]; 
+        total_size += recv_counts[i];
     }
 
     const std::int64_t rank_size = recv_counts[rank];
@@ -226,28 +228,28 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     std::vector<std::int64_t> displs(rank_count);
     std::int64_t total_size = 0;
     for (std::int64_t i = 0; i < rank_count; i++) {
-        if (i != 1){                                             
-        recv_counts[i] = (i + 1) * granularity;
-        displs[i] = total_size;
-        total_size += recv_counts[i];
+        if (i != 1) {
+            recv_counts[i] = (i + 1) * granularity;
+            displs[i] = total_size;
+            total_size += recv_counts[i];
         }
-        else{
+        else {
             recv_counts[i] = 0 * granularity;
             displs[i] = total_size;
-            total_size += recv_counts[i];   
+            total_size += recv_counts[i];
         }
     }
-    
+
     const std::int64_t rank_size = recv_counts[rank];
     std::vector<float> send_buffer;
 
-    if (rank != 1){                                        
+    if (rank != 1) {
         send_buffer.reserve(rank_size);
         for (std::int64_t i = 0; i < rank_size; i++) {
             send_buffer[i] = float(rank);
-        } 
+        }
     }
-    else{
+    else {
         send_buffer.reserve(1);
     }
     std::vector<float> recv_buffer(total_size);
@@ -260,7 +262,7 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
         }
     }
 
- SECTION("host") {
+    SECTION("host") {
         test_allgatherv(send_buffer.data(),
                         rank_size,
                         recv_buffer.data(),
@@ -279,13 +281,12 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
 #endif
 
     for (std::int64_t i = 0; i < total_size; i++) {
-        if (displs[2] <= i or i < displs[1]){
+        if (displs[2] <= i or i < displs[1]) {
             REQUIRE(recv_buffer[i] == final_buffer[i]);
         }
-        else{
-             REQUIRE(recv_buffer[i] == float(0));
+        else {
+            REQUIRE(recv_buffer[i] == float(0));
         }
-        
     }
 }
 
