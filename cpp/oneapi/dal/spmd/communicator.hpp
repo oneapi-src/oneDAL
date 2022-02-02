@@ -491,7 +491,7 @@ public:
     }
 #endif
     template <typename D>
-    request send_receive_replace(const array<D>& buf,
+    request send_receive_replace(array<D>& buf,
                                  std::int64_t destination_rank,
                                  std::int64_t source_rank) const;
 #ifdef ONEDAL_DATA_PARALLEL
