@@ -1096,22 +1096,37 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     return services::Status();
 }
 
-template <typename algorithmIdxType, typename algorithmFPType>
-void tsneGradientDescentDispImpl(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
-                                 const NumericTablePtr paramTable, const NumericTablePtr resultTable)
-{
-#define DAAL_TSNE_GRADIENT_DESCENT_IMPL(cpuId, ...) tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, cpuId>(__VA_ARGS__);
-    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_TSNE_GRADIENT_DESCENT_IMPL, initTable, pTable, sizeIterTable, paramTable, resultTable);
-#undef DAAL_TSNE_GRADIENT_DESCENT_IMPL
-}
+// template <typename algorithmIdxType, typename algorithmFPType>
+// void tsneGradientDescentDispImpl(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
+//                                  const NumericTablePtr paramTable, const NumericTablePtr resultTable)
+// {
+// #define DAAL_TSNE_GRADIENT_DESCENT_IMPL(cpuId, ...) tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, cpuId>(__VA_ARGS__);
+//     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_TSNE_GRADIENT_DESCENT_IMPL, initTable, pTable, sizeIterTable, paramTable, resultTable);
+// #undef DAAL_TSNE_GRADIENT_DESCENT_IMPL
+// }
+
+// template <typename algorithmIdxType, typename algorithmFPType>
+// DAAL_EXPORT void tsneGradientDescent(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
+//                                      const NumericTablePtr paramTable, const NumericTablePtr resultTable)
+// {
+//     DAAL_SAFE_CPU_CALL(
+//         (tsneGradientDescentDispImpl<algorithmIdxType, algorithmFPType>(initTable, pTable, sizeIterTable, paramTable, resultTable)),
+//         (tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, daal::CpuType::sse2>(initTable, pTable, sizeIterTable, paramTable, resultTable)));
+// }
+
+// template DAAL_EXPORT void tsneGradientDescent<int, DAAL_FPTYPE>(const NumericTablePtr initTable, const CSRNumericTablePtr pTable,
+//                                                                 const NumericTablePtr sizeIterTable, const NumericTablePtr paramTable,
+//                                                                 const NumericTablePtr resultTable);
 
 template <typename algorithmIdxType, typename algorithmFPType>
 DAAL_EXPORT void tsneGradientDescent(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
                                      const NumericTablePtr paramTable, const NumericTablePtr resultTable)
 {
-    DAAL_SAFE_CPU_CALL(
-        (tsneGradientDescentDispImpl<algorithmIdxType, algorithmFPType>(initTable, pTable, sizeIterTable, paramTable, resultTable)),
-        (tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, daal::CpuType::sse2>(initTable, pTable, sizeIterTable, paramTable, resultTable)));
+#define DAAL_TSNE_GRADIENT_DESCENT(cpuId, ...) tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, cpuId>(__VA_ARGS__);
+
+    DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(DAAL_TSNE_GRADIENT_DESCENT, initTable, pTable, sizeIterTable, paramTable, resultTable);
+
+#undef DAAL_TSNE_GRADIENT_DESCENT
 }
 
 template DAAL_EXPORT void tsneGradientDescent<int, DAAL_FPTYPE>(const NumericTablePtr initTable, const CSRNumericTablePtr pTable,
