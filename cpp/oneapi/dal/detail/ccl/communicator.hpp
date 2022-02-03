@@ -50,7 +50,7 @@ inline ccl::datatype make_ccl_data_type(const data_type& dtype) {
         case data_type::bfloat16: return ccl::datatype::uint16;
         default: throw communication_error(dal::detail::error_messages::invalid_data_type());
     }
-}
+} 
 
 inline ccl::reduction make_ccl_reduce_op(const spmd::reduce_op& op) {
     switch (op) {
@@ -318,9 +318,15 @@ public:
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_buf);
 
+        std::int64_t data_type_size = get_data_type_size(dtype);
+        std::vector<void*> recv_bufs(rank_count_);
+        for (std::int64_t i = 0; i < rank_count_; i++) {
+            recv_bufs[i] = recv_buf + data_type_size * displs[i];
+        }
+        
         auto event = ccl::allgatherv(send_buf,
                                      integral_cast<size_t>(send_count),
-                                     recv_buf,
+                                     recv_bufs,
                                      internal_recv_counts,
                                      make_ccl_data_type(dtype),
                                      host_comm_->get_ref());
