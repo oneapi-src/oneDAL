@@ -220,7 +220,8 @@ public:
     auto& init_train_inv_norms(sycl::queue& queue,
                                const ndview<Float, 2, torder>& train,
                                const event_vector& deps = {}) {
-        const std::int32_t samples_count = train.get_dimension(0);
+        ONEDAL_ASSERT(train.has_data());
+        const std::int64_t samples_count = train.get_dimension(0);
         train_blocking_ = uniform_blocking(samples_count, this->tblock_);
         train_events_ = event_vector(train_blocking_.get_block_count());
         train_inv_norms_ =

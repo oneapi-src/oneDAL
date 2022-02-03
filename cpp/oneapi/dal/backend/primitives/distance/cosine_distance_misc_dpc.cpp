@@ -26,6 +26,7 @@ template <typename Float>
 inline sycl::event inverse_l2_norms(sycl::queue& q,
                                     ndview<Float, 1>& out,
                                     const event_vector& deps) {
+    ONEDAL_ASSERT(out.has_mutable_data());
     return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto count = out.get_count();
@@ -43,6 +44,8 @@ sycl::event compute_inversed_l2_norms(sycl::queue& q,
                                       const ndview<Float, 2, order>& inp,
                                       ndview<Float, 1>& out,
                                       const event_vector& deps) {
+    ONEDAL_ASSERT(inp.has_data());
+    ONEDAL_ASSERT(out.has_mutable_data());
     auto sq_event = compute_squared_l2_norms(q, inp, out, deps);
     return inverse_l2_norms(q, out, { sq_event });
 }
@@ -64,6 +67,9 @@ sycl::event finalize_cosine(sycl::queue& q,
                             const ndview<Float, 1>& inp2,
                             ndview<Float, 2>& out,
                             const event_vector& deps) {
+    ONEDAL_ASSERT(inp1.had_data());
+    ONEDAL_ASSERT(inp2.had_data());
+    ONEDAL_ASSERT(out.had_mutable_data());
     const auto out_stride = out.get_leading_stride();
     const auto n_samples1 = inp1.get_dimension(0);
     const auto n_samples2 = inp2.get_dimension(0);
