@@ -210,7 +210,7 @@ public:
                     const auto q = train_row[k];
                     const auto t = query_row[k];
                     const auto d = std::abs(q - t);
-                    gtv  = std::max(gtv, d);
+                    gtv = std::max(gtv, d);
                 }
 
                 distances_ptr[j * m + i] = gtv;

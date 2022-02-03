@@ -73,7 +73,7 @@ public:
                     const auto q = inp_row1[k];
                     const auto t = inp_row2[k];
                     const auto d = std::abs(q - t);
-                    gtv  = std::max(gtv, d);
+                    gtv = std::max(gtv, d);
                 }
 
                 const auto val = *(out.get_data() + out.get_leading_stride() * i + j);

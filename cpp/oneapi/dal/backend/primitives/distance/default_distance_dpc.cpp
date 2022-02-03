@@ -153,24 +153,24 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2, order1>& 
     });
 }
 
-#define INSTANTIATE(F, A, B)                                                           \
-    template sycl::event distance<F, lp_metric<F>>::operator()(const ndview<F, 2, A>&, \
-                                                               const ndview<F, 2, B>&, \
-                                                               ndview<F, 2>&,          \
-                                                               const event_vector&) const;\
+#define INSTANTIATE(F, A, B)                                                                  \
+    template sycl::event distance<F, lp_metric<F>>::operator()(const ndview<F, 2, A>&,        \
+                                                               const ndview<F, 2, B>&,        \
+                                                               ndview<F, 2>&,                 \
+                                                               const event_vector&) const;    \
     template sycl::event distance<F, chebyshev_metric<F>>::operator()(const ndview<F, 2, A>&, \
-                                                               const ndview<F, 2, B>&, \
-                                                               ndview<F, 2>&,          \
-                                                               const event_vector&) const;
+                                                                      const ndview<F, 2, B>&, \
+                                                                      ndview<F, 2>&,          \
+                                                                      const event_vector&) const;
 
 #define INSTANTIATE_B(F, A)       \
     INSTANTIATE(F, A, ndorder::c) \
     INSTANTIATE(F, A, ndorder::f)
 
-#define INSTANTIATE_F(F)         \
-    INSTANTIATE_B(F, ndorder::c) \
-    INSTANTIATE_B(F, ndorder::f) \
-    template class distance<F, lp_metric<F>>;\
+#define INSTANTIATE_F(F)                      \
+    INSTANTIATE_B(F, ndorder::c)              \
+    INSTANTIATE_B(F, ndorder::f)              \
+    template class distance<F, lp_metric<F>>; \
     template class distance<F, chebyshev_metric<F>>;
 
 INSTANTIATE_F(float);
