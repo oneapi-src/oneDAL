@@ -236,10 +236,10 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     const std::int64_t rank_size = recv_counts[rank];
     std::vector<float> send_buffer;
 
-        send_buffer.reserve(rank_size);
-        for (std::int64_t i = 0; i < rank_size; i++) {
-            send_buffer[i] = float(rank);
-        }
+    send_buffer.reserve(rank_size);
+    for (std::int64_t i = 0; i < rank_size; i++) {
+        send_buffer[i] = float(rank);
+    }
     std::vector<float> recv_buffer(total_size);
     std::vector<float> final_buffer(total_size);
     std::int64_t offset = 0;
@@ -269,7 +269,7 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
 #endif
 
     for (std::int64_t i = 0; i < total_size; i++) {
-            REQUIRE(recv_buffer[i] == final_buffer[i]);
+        REQUIRE(recv_buffer[i] == final_buffer[i]);
     }
 }
 
