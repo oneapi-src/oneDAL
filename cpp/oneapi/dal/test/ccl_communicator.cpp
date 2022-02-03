@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -228,30 +228,18 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     std::vector<std::int64_t> displs(rank_count);
     std::int64_t total_size = 0;
     for (std::int64_t i = 0; i < rank_count; i++) {
-        if (i != 1) {
-            recv_counts[i] = (i + 1) * granularity;
-            displs[i] = total_size;
-            total_size += recv_counts[i];
-        }
-        else {
-            recv_counts[i] = 0 * granularity;
-            displs[i] = total_size;
-            total_size += recv_counts[i];
-        }
+        recv_counts[i] = i != 1 ? (i + 1) * granularity : 0;
+        displs[i] = total_size;
+        total_size += recv_counts[i];
     }
 
     const std::int64_t rank_size = recv_counts[rank];
     std::vector<float> send_buffer;
 
-    if (rank != 1) {
         send_buffer.reserve(rank_size);
         for (std::int64_t i = 0; i < rank_size; i++) {
             send_buffer[i] = float(rank);
         }
-    }
-    else {
-        send_buffer.reserve(1);
-    }
     std::vector<float> recv_buffer(total_size);
     std::vector<float> final_buffer(total_size);
     std::int64_t offset = 0;
@@ -281,12 +269,7 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
 #endif
 
     for (std::int64_t i = 0; i < total_size; i++) {
-        if (displs[2] <= i or i < displs[1]) {
             REQUIRE(recv_buffer[i] == final_buffer[i]);
-        }
-        else {
-            REQUIRE(recv_buffer[i] == float(0));
-        }
     }
 }
 
