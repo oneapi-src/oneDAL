@@ -188,10 +188,13 @@ void thread_communicator_send_receive_replace::operator()(byte_t* buf,
         }
     }
 
+    barrier_();
+
+    for (std::int64_t i = 0; i < recv_size; i++) {
+        buf[i] = recv_buf[i];
+    }
+
     barrier_([&]() {
-        for (std::int64_t i = 0; i < recv_size; i++) {
-            buf[i] = recv_buf[i];
-        }
         send_buffers_.clear();
         send_buffers_.resize(ctx_.get_thread_count());
     });
