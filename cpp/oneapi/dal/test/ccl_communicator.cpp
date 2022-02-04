@@ -227,7 +227,7 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     std::vector<std::int64_t> recv_counts(rank_count);
     std::vector<std::int64_t> displs(rank_count);
     std::int64_t total_size = 0;
-    std::int64_t empty_rank = 1;
+    constexpr std::int64_t empty_rank = 1;
     for (std::int64_t i = 0; i < rank_count; i++) {
         recv_counts[i] = i != empty_rank ? (i + 1) * granularity : 0;
         displs[i] = total_size;
