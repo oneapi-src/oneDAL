@@ -650,12 +650,6 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
             auto dists = temp_objs->get_distances()
                              .get_col_slice(0, train_block_size)
                              .get_row_slice(0, query_block_size);
-            /*auto ip_event = this->distance(query,
-                                       train,
-                                       dists,
-                                       qinorms,
-                                       tinorms,
-                                       { qievent, tinorms, last_event });*/
 
             auto gemm_event = compute_cosine_inner_product(this->get_queue(),
                                                            query,
