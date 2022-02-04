@@ -237,6 +237,56 @@ protected:
                          const event_vector& deps) const;
 };
 
+template <typename Float, ndorder torder>
+class search_engine<Float, cosine_distance<Float>, torder>
+        : public search_engine_base<Float,
+                                    cosine_distance<Float>,
+                                    search_engine<Float, cosine_distance<Float>, torder>,
+                                    torder> {
+    using base_t = search_engine_base<Float, cosine_distance<Float>, search_engine, torder>;
+    using temp_t = search_temp_objects<Float, cosine_distance<Float>>;
+    using temp_del_t = search_temp_objects_deleter<Float, cosine_distance<Float>>;
+    using temp_ptr_t = std::shared_ptr<temp_t>;
+    using event_ptr_t = std::shared_ptr<sycl::event>;
+    using selc_t = kselect_by_rows<Float>;
+
+    friend class search_engine_base<Float, cosine_distance<Float>, search_engine, torder>;
+
+public:
+    search_engine(sycl::queue& queue,
+                  const ndview<Float, 2, torder>& train_data,
+                  std::int64_t train_block);
+
+    search_engine(sycl::queue& queue,
+                  const ndview<Float, 2, torder>& train_data,
+                  std::int64_t train_block,
+                  const cosine_distance<Float>& distance_instance);
+
+    template <ndorder qorder, typename CallbackImpl>
+    sycl::event operator()(const ndview<Float, 2, qorder>& query_data,
+                           CallbackImpl& callback,
+                           std::int64_t query_block,
+                           std::int64_t k_neighbors = 1,
+                           const event_vector& deps = {}) const {
+        return base_t::operator()(query_data, callback, query_block, k_neighbors, deps);
+    }
+
+protected:
+    template <ndorder qorder>
+    sycl::event do_search(const ndview<Float, 2, qorder>& query,
+                          std::int64_t k_neighbors,
+                          temp_ptr_t temp_objs,
+                          selc_t& select,
+                          const event_vector& deps) const;
+    template <ndorder qorder>
+    sycl::event distance(const ndview<Float, 2, qorder>& query,
+                         const ndview<Float, 2, torder>& train,
+                         ndview<Float, 2>& distances,
+                         const ndview<Float, 1>& query_inv_norms,
+                         const ndview<Float, 1>& train_inv_norms,
+                         const event_vector& deps) const;
+};
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives
