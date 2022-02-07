@@ -338,7 +338,6 @@ static infer_result<Task> kernel(const context_gpu& ctx,
     const bool is_euclidean_distance =
         is_minkowski_distance && (distance_impl->get_degree() == 2.0);
 
-
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
     const auto train = trained_model->get_data();
     const auto resps = trained_model->get_responses();
