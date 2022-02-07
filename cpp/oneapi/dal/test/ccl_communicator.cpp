@@ -108,8 +108,7 @@ private:
             return x;
         }
         else {
-            auto x = array<T>::empty(get_queue(), 1, sycl::usm::alloc::device);
-            return x;
+            return array<T>::empty(get_queue(), 1, sycl::usm::alloc::device);
         }
     }
 
