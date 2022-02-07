@@ -86,7 +86,6 @@ services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType
     return services::Status();
 }
 
-
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status boundingBoxKernelImpl(DataType * posx, DataType * posy, const IdxType N, const IdxType nNodes, DataType & radius)
 {
@@ -94,10 +93,10 @@ services::Status boundingBoxKernelImpl(DataType * posx, DataType * posy, const I
 
     daal::static_tls<DataType *> tlsBox([=]() {
         DataType * localBox = services::internal::service_malloc<DataType, cpu>(4);
-        localBox[0]   = daal::services::internal::MaxVal<DataType>::get();
-        localBox[1]   = -daal::services::internal::MaxVal<DataType>::get();
-        localBox[2]   = daal::services::internal::MaxVal<DataType>::get();
-        localBox[3]   = -daal::services::internal::MaxVal<DataType>::get();
+        localBox[0]         = daal::services::internal::MaxVal<DataType>::get();
+        localBox[1]         = -daal::services::internal::MaxVal<DataType>::get();
+        localBox[2]         = daal::services::internal::MaxVal<DataType>::get();
+        localBox[3]         = -daal::services::internal::MaxVal<DataType>::get();
         return localBox;
     });
     const IdxType nThreads    = tlsBox.nthreads();
@@ -145,10 +144,9 @@ services::Status boundingBoxKernelImpl(DataType * posx, DataType * posy, const I
     return services::Status();
 }
 
-
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx, const DataType * posy, IdxType * duplicates, const IdxType nNodes, const IdxType N,
-                                         IdxType & maxDepth, IdxType & bottom, const DataType & radius)
+services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx, const DataType * posy, IdxType * duplicates, const IdxType nNodes,
+                                         const IdxType N, IdxType & maxDepth, IdxType & bottom, const DataType & radius)
 {
     // internal variables
     IdxType j      = 0;
@@ -173,11 +171,11 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
     const DataType rooty = posy[nNodes];
 
     IdxType localmaxDepth = 1;
-    maxDepth = 1;
+    maxDepth              = 1;
     IdxType skip          = 1;
 
-    const IdxType inc      = 1;
-    IdxType i              = 0;
+    const IdxType inc = 1;
+    IdxType i         = 0;
 
     // iterate over all bodies assigned to thread
     while (i < N)
@@ -236,8 +234,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
             {
                 // Child node isn't empty, so we store the current value of the child, lock the leaf, and patch in a new cell
                 // Some points may be duplicated, so we count the number of duplicate points
-                if (posx[i] - posx[ch] <= 1e-6 && posy[i] - posy[ch] <= 1e-6 &&
-                    posx[i] - posx[ch] >= -1e-6 && posy[i] - posy[ch] >= -1e-6)
+                if (posx[i] - posx[ch] <= 1e-6 && posy[i] - posy[ch] <= 1e-6 && posx[i] - posx[ch] >= -1e-6 && posy[i] - posy[ch] >= -1e-6)
                 {
                     duplicates[ch]++;
                     i += inc;
@@ -246,7 +243,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
                 }
                 if (child[locked] == ch)
                 {
-                    patch         = -1;
+                    patch = -1;
                     while (ch >= 0)
                     {
                         depth++;
@@ -289,7 +286,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posx,
                         y += ((y < py) ? (j |= 2, r) : (-r));
 
                         ch = child[n * 4 + j];
-                        if (r <= radius*1e-10)
+                        if (r <= radius * 1e-10)
                         {
                             break;
                         }
@@ -327,7 +324,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     DataType curMass[4];
 
     const IdxType inc = 1;
-    auto k         = bottom;
+    auto k            = bottom;
 
     //initialize array
     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
@@ -343,7 +340,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             {
                 const auto ch = child[k * 4 + i];
                 curChild[i]   = ch;
-                if (ch >= 0) curMass[i]    = mass[ch];
+                if (ch >= 0) curMass[i] = mass[ch];
             }
 
             // all children are ready
@@ -358,7 +355,8 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                 if (ch >= 0)
                 {
                     DataType m = 0;
-                    if (duplicates[ch] > 1){
+                    if (duplicates[ch] > 1)
+                    {
                         if (ch >= N)
                         {
                             cnt += count[ch];
@@ -370,7 +368,8 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                             m = mass[ch] + DataType(duplicates[ch]) - 1.;
                         }
                     }
-                    else m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+                    else
+                        m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
                     // add child's contribution
                     cm += m;
                     px += posx[ch] * m;
@@ -630,8 +629,8 @@ services::Status attractiveKernelImpl(const DataType * val, const size_t * col, 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(IdxType(N), iStart + sizeOfBlock);
-        DataType * logLocal = logTlsData.local(tid);
-        DataType * divLocal = divTlsData.local(tid);
+        DataType * logLocal  = logTlsData.local(tid);
+        DataType * divLocal  = divTlsData.local(tid);
         for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
         {
             IdxType iSize = 0;
@@ -727,26 +726,27 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const IdxType * sizeIter = sizeIterDataBlock.get();
     DAAL_CHECK_BLOCK_STATUS(sizeIterDataBlock);
     DAAL_CHECK(sizeIterTable->getNumberOfRows() == 4, daal::services::ErrorIncorrectSizeOfInputNumericTable);
-    const IdxType N                    = sizeIter[0];  // Number of points
-    const IdxType nnz                  = sizeIter[1];  // Number of elements in sparce matrix P
-    const IdxType nIterWithoutProgress = sizeIter[2];  // Number of iterations without introducing changes
-    const IdxType maxIter              = sizeIter[3];  // Number of iterations
+    const IdxType N                    = sizeIter[0]; // Number of points
+    const IdxType nnz                  = sizeIter[1]; // Number of elements in sparce matrix P
+    const IdxType nIterWithoutProgress = sizeIter[2]; // Number of iterations without introducing changes
+    const IdxType maxIter              = sizeIter[3]; // Number of iterations
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, 2, N);
-    const IdxType nNodes               = N <= 50 ? 4*N : 2*N;  // A small number of points may require more memory to store tree nodes
-    const IdxType nIterCheck           = 50;
-    const IdxType explorationIter      = 250;  // Aligned with scikit-learn
+    const IdxType nNodes          = N <= 50 ? 4 * N : 2 * N; // A small number of points may require more memory to store tree nodes
+    const IdxType nIterCheck      = 50;
+    const IdxType explorationIter = 250; // Aligned with scikit-learn
 
     // parameters
     daal::internal::ReadColumns<DataType, cpu> paramDataBlock(*paramTable, 0, 0, paramTable->getNumberOfRows());
     const DataType * params = paramDataBlock.get();
     DAAL_CHECK_BLOCK_STATUS(paramDataBlock);
     DAAL_CHECK(paramTable->getNumberOfRows() == 4, daal::services::ErrorIncorrectSizeOfInputNumericTable);
-    const DataType eps         = 0.000001;   // A tiny jitter to promote numerical stability
-    DataType momentum          = 0.5;        // The momentum used during the exaggeration phase. Aligned with scikit-learn
-    DataType exaggeration      = params[0];  // How much pressure to apply to clusters to spread out during the exaggeration phase. Aligned with scikit-learn
-    const DataType eta         = params[1];  // Learning rate. Aligned with scikit-learn
-    const DataType minGradNorm = params[2];  // The smallest gradient norm TSNE should terminate on
-    const DataType theta       = params[3];  // is the angular size of a distant node as measured from a point. Tradeoff for speed (0) vs accuracy (1)
+    const DataType eps = 0.000001; // A tiny jitter to promote numerical stability
+    DataType momentum  = 0.5;      // The momentum used during the exaggeration phase. Aligned with scikit-learn
+    DataType exaggeration =
+        params[0]; // How much pressure to apply to clusters to spread out during the exaggeration phase. Aligned with scikit-learn
+    const DataType eta         = params[1]; // Learning rate. Aligned with scikit-learn
+    const DataType minGradNorm = params[2]; // The smallest gradient norm TSNE should terminate on
+    const DataType theta       = params[3]; // is the angular size of a distant node as measured from a point. Tradeoff for speed (0) vs accuracy (1)
 
     // results
     daal::internal::WriteColumns<DataType, cpu> resultDataBlock(*resultTable, 0, 0, resultTable->getNumberOfRows());
@@ -833,33 +833,36 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx.get(), posy.get(), N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child.get(), posx.get(), posy.get(), duplicates.get(), nNodes, N, maxDepth, bottom, radius);
+        status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child.get(), posx.get(), posy.get(), duplicates.get(), nNodes, N, maxDepth, bottom,
+                                                                 radius);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status = summarizationKernelImpl<IdxType, DataType, cpu>(count.get(), child.get(), mass.get(), posx.get(), posy.get(), duplicates.get(), nNodes, N, bottom);
+        status = summarizationKernelImpl<IdxType, DataType, cpu>(count.get(), child.get(), mass.get(), posx.get(), posy.get(), duplicates.get(),
+                                                                 nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
         status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status =
-            repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posx.get(), posy.get(), repx.get(), repy.get(), zNorm, nNodes, N, radius, maxDepth);
+        status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posx.get(), posy.get(), repx.get(),
+                                                             repy.get(), zNorm, nNodes, N, radius, maxDepth);
         DAAL_CHECK_STATUS_VAR(status);
 
         if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
         {
-            status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx.get(), posy.get(), attrx.get(), attry.get(), zNorm, divergence, nNodes, N, nnz,
-                                                                        nElements, exaggeration, eps);
+            status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx.get(), posy.get(), attrx.get(), attry.get(), zNorm,
+                                                                        divergence, nNodes, N, nnz, nElements, exaggeration, eps);
         }
         else
         {
-            status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posx.get(), posy.get(), attrx.get(), attry.get(), zNorm, divergence, nNodes, N, nnz,
-                                                                         nElements, exaggeration, eps);
+            status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posx.get(), posy.get(), attrx.get(), attry.get(), zNorm,
+                                                                         divergence, nNodes, N, nnz, nElements, exaggeration, eps);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-        status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx.get(), posy.get(), attrx.get(), attry.get(), repx.get(), repy.get(), gainx.get(), gainy.get(),
-                                                               oldForcex.get(), oldForcey.get(), gradNorm, zNorm, nNodes, N);
+        status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx.get(), posy.get(), attrx.get(), attry.get(),
+                                                               repx.get(), repy.get(), gainx.get(), gainy.get(), oldForcex.get(), oldForcey.get(),
+                                                               gradNorm, zNorm, nNodes, N);
         DAAL_CHECK_STATUS_VAR(status);
 
         if ((i + 1) % nIterCheck == 0)
@@ -887,33 +890,36 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posx.get(), posy.get(), N, nNodes, radius);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child.get(), posx.get(), posy.get(), duplicates.get(), nNodes, N, maxDepth, bottom, radius);
+        status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(child.get(), posx.get(), posy.get(), duplicates.get(), nNodes, N, maxDepth, bottom,
+                                                                 radius);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status = summarizationKernelImpl<IdxType, DataType, cpu>(count.get(), child.get(), mass.get(), posx.get(), posy.get(),  duplicates.get(), nNodes, N, bottom);
+        status = summarizationKernelImpl<IdxType, DataType, cpu>(count.get(), child.get(), mass.get(), posx.get(), posy.get(), duplicates.get(),
+                                                                 nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
         status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status =
-            repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posx.get(), posy.get(), repx.get(), repy.get(), zNorm, nNodes, N, radius, maxDepth);
+        status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posx.get(), posy.get(), repx.get(),
+                                                             repy.get(), zNorm, nNodes, N, radius, maxDepth);
         DAAL_CHECK_STATUS_VAR(status);
 
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
-            status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx.get(), posy.get(), attrx.get(), attry.get(), zNorm, divergence, nNodes, N, nnz,
-                                                                        nElements, exaggeration, eps);
+            status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posx.get(), posy.get(), attrx.get(), attry.get(), zNorm,
+                                                                        divergence, nNodes, N, nnz, nElements, exaggeration, eps);
         }
         else
         {
-            status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posx.get(), posy.get(), attrx.get(), attry.get(), zNorm, divergence, nNodes, N, nnz,
-                                                                         nElements, exaggeration, eps);
+            status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posx.get(), posy.get(), attrx.get(), attry.get(), zNorm,
+                                                                         divergence, nNodes, N, nnz, nElements, exaggeration, eps);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-        status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx.get(), posy.get(), attrx.get(), attry.get(), repx.get(), repy.get(), gainx.get(), gainy.get(),
-                                                               oldForcex.get(), oldForcey.get(), gradNorm, zNorm, nNodes, N);
+        status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posx.get(), posy.get(), attrx.get(), attry.get(),
+                                                               repx.get(), repy.get(), gainx.get(), gainy.get(), oldForcex.get(), oldForcey.get(),
+                                                               gradNorm, zNorm, nNodes, N);
         DAAL_CHECK_STATUS_VAR(status);
 
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
