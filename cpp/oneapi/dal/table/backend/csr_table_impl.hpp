@@ -27,15 +27,13 @@ class csr_table_impl : public detail::csr_table_template<csr_table_impl> {
 public:
     csr_table_impl()
             : col_count_(0),
-              row_count_(0),
               layout_(data_layout::row_major),
               csr_indexing_(detail::csr_indexing::one_based) {}
 
-    csr_table_impl(std::int64_t column_count,
-                   std::int64_t row_count,
-                   const array<byte_t>& data,
+    csr_table_impl(const array<byte_t>& data,
                    const array<std::int64_t>& column_indices,
                    const array<std::int64_t>& row_indices,
+                   std::int64_t column_count,
                    data_type dtype,
                    detail::csr_indexing indexing)
             : meta_(create_metadata(column_count, dtype)),
@@ -43,14 +41,9 @@ public:
               column_indices_(column_indices),
               row_indices_(row_indices),
               col_count_(column_count),
-              row_count_(row_count),
               layout_(data_layout::row_major),
               csr_indexing_(indexing) {
         using error_msg = dal::detail::error_messages;
-
-        if (row_count <= 0) {
-            throw dal::domain_error(error_msg::rc_leq_zero());
-        }
 
         if (column_count <= 0) {
             throw dal::domain_error(error_msg::cc_leq_zero());
@@ -60,7 +53,7 @@ public:
             throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
-        const int64_t element_count = row_indices_[row_count] - 1;
+        const int64_t element_count = row_indices_[get_row_count()] - 1;
         const int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
@@ -88,7 +81,8 @@ public:
     }
 
     std::int64_t get_row_count() const override {
-        return row_count_;
+        std::int64_t row_indices_count = row_indices_.get_count();
+        return (row_indices_count ? row_indices_count - 1 : 0);
     }
 
     const table_metadata& get_metadata() const override {
@@ -122,9 +116,8 @@ public:
                                  const range& rows) const {
         csr_info origin_info{ meta_.get_data_type(0),
                               layout_,
-                              row_count_,
                               col_count_,
-                              row_indices_[row_count_] - row_indices_[0],
+                              row_indices_[get_row_count()] - row_indices_[0],
                               csr_indexing_ };
 
         // Overflow is checked here
@@ -135,7 +128,7 @@ public:
                 detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
-        block_info block_info{ rows.start_idx, rows.get_element_count(row_count_), indexing };
+        block_info block_info{ rows.start_idx, rows.get_element_count(get_row_count()), indexing };
 
         csr_pull_block(policy,
                        origin_info,
@@ -149,9 +142,9 @@ public:
 
 private:
     void check_block_row_range(const range& rows) const {
-        const std::int64_t range_row_count = rows.get_element_count(row_count_);
+        const std::int64_t range_row_count = rows.get_element_count(get_row_count());
         detail::check_sum_overflow(rows.start_idx, range_row_count);
-        if (rows.start_idx + range_row_count > row_count_) {
+        if (rows.start_idx + range_row_count > get_row_count()) {
             throw range_error{ detail::error_messages::invalid_range_of_rows() };
         }
     }
@@ -161,7 +154,6 @@ private:
     array<std::int64_t> column_indices_;
     array<std::int64_t> row_indices_;
     std::int64_t col_count_;
-    std::int64_t row_count_;
     data_layout layout_;
     detail::csr_indexing csr_indexing_;
 };

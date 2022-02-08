@@ -99,6 +99,7 @@ public:
 
     /* Tables */
     MSG(allocated_memory_size_is_not_enough_to_copy_data);
+    MSG(allocated_memory_size_is_not_enough_to_copy_row_indices);
     MSG(cannot_get_data_type_from_empty_metadata);
     MSG(cannot_get_feature_type_from_empty_metadata);
     MSG(cc_leq_zero);
@@ -125,6 +126,7 @@ public:
     MSG(column_indices_gt_max_value);
     MSG(zero_based_indexing_is_not_supported);
     MSG(object_does_not_provide_read_access_to_csr);
+    MSG(ec_leq_zero);
 
     /* Ranges */
     MSG(invalid_range_of_rows);

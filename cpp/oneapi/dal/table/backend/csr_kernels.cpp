@@ -186,6 +186,17 @@ void pull_csr_block_impl(const Policy& policy,
 }
 
 template <typename Policy, typename BlockData>
+void csr_pull_rows(const Policy& policy,
+                   const csr_info& origin_info,
+                   const array<byte_t>& origin_data,
+                   const array<std::int64_t>& origin_column_indices,
+                   const array<std::int64_t>& origin_row_indices,
+                   array<BlockData>& block,
+                   const range& rows_range,
+                   alloc_kind requested_alloc_kind,
+                   bool preserve_mutability) {}
+
+template <typename Policy, typename BlockData>
 void csr_pull_block(const Policy& policy,
                     const csr_info& origin_info,
                     const block_info& block_info,
@@ -212,6 +223,15 @@ void csr_pull_block(const Policy& policy,
 }
 
 #define INSTANTIATE(Policy, BlockData)                                             \
+    template void csr_pull_rows(const Policy& policy,                              \
+                                const csr_info& origin_info,                       \
+                                const array<byte_t>& origin_data,                  \
+                                const array<std::int64_t>& origin_column_indices,  \
+                                const array<std::int64_t>& origin_row_indices,     \
+                                array<BlockData>& block,                           \
+                                const range& rows_range,                           \
+                                alloc_kind requested_alloc_kind,                   \
+                                bool preserve_mutability);                         \
     template void csr_pull_block(const Policy& policy,                             \
                                  const csr_info& origin_info,                      \
                                  const block_info& block_info,                     \
@@ -222,10 +242,16 @@ void csr_pull_block(const Policy& policy,
                                  alloc_kind requested_alloc_kind,                  \
                                  bool preserve_mutability);
 
-#define INSTANTIATE_HOST_POLICY(Data) INSTANTIATE(detail::default_host_policy, Data)
+#ifdef ONEDAL_DATA_PARALLEL
+#define INSTANTIATE_ALL_POLICIES(Data)             \
+    INSTANTIATE(detail::default_host_policy, Data) \
+    INSTANTIATE(detail::data_parallel_policy, Data)
+#else
+#define INSTANTIATE_ALL_POLICIES(Data) INSTANTIATE(detail::default_host_policy, Data)
+#endif
 
-INSTANTIATE_HOST_POLICY(float)
-INSTANTIATE_HOST_POLICY(double)
-INSTANTIATE_HOST_POLICY(std::int32_t)
+INSTANTIATE_ALL_POLICIES(float)
+INSTANTIATE_ALL_POLICIES(double)
+INSTANTIATE_ALL_POLICIES(std::int32_t)
 
 } // namespace oneapi::dal::backend

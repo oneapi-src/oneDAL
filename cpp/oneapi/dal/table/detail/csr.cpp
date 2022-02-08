@@ -47,18 +47,16 @@ std::int64_t csr_table::get_non_zero_count() const {
     return non_zero_count;
 }
 
-void csr_table::init_impl(std::int64_t column_count,
-                          std::int64_t row_count,
-                          const dal::array<byte_t>& data,
+void csr_table::init_impl(const dal::array<byte_t>& data,
                           const dal::array<std::int64_t>& column_indices,
                           const dal::array<std::int64_t>& row_indices,
+                          std::int64_t column_count,
                           const data_type& dtype,
                           csr_indexing indexing) {
-    table::init_impl(new backend::csr_table_impl(column_count,
-                                                 row_count,
-                                                 data,
+    table::init_impl(new backend::csr_table_impl(data,
                                                  column_indices,
                                                  row_indices,
+                                                 column_count,
                                                  dtype,
                                                  indexing));
 }

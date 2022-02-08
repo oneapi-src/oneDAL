@@ -44,17 +44,15 @@ public:
     /// @param data           The array of values in the CSR layout.
     /// @param column_indices The array of column indices in the CSR layout.
     /// @param row_indices    The array of row indices in the CSR layout.
-    /// @param row_count      The number of rows in the corresponding dense table.
     /// @param column_count   The number of columns in the corresponding dense table.
     /// @param indexing       The indexing scheme used to access data in the CSR layout. Support only :literal:`csr_indexing::one_based`.
     template <typename Data>
     csr_table(const dal::array<Data>& data,
               const dal::array<std::int64_t>& column_indices,
               const dal::array<std::int64_t>& row_indices,
-              std::int64_t row_count,
               std::int64_t column_count,
               csr_indexing indexing = csr_indexing::one_based) {
-        init_impl(data, column_indices, row_indices, row_count, column_count, indexing);
+        init_impl(data, column_indices, row_indices, column_count, indexing);
     }
 
     /// The unique id of the csr table type.
@@ -86,10 +84,10 @@ public:
 private:
     explicit csr_table(detail::csr_table_iface* impl) : table(impl) {}
 
-    void check_indices(const std::int64_t row_count,
-                       const std::int64_t column_count,
-                       const std::int64_t* row_indices,
+    void check_indices(const std::int64_t* row_indices,
                        const std::int64_t* column_indices,
+                       const std::int64_t row_count,
+                       const std::int64_t column_count,
                        const csr_indexing indexing) const {
         using error_msg = dal::detail::error_messages;
         const std::int64_t min_value = (indexing == csr_indexing::zero_based) ? 0 : 1;
@@ -137,29 +135,28 @@ private:
     void init_impl(const dal::array<Data>& data,
                    const dal::array<std::int64_t>& column_indices,
                    const dal::array<std::int64_t>& row_indices,
-                   std::int64_t row_count,
                    std::int64_t column_count,
                    csr_indexing indexing) {
-        check_indices(row_count,
-                      column_count,
-                      row_indices.get_data(),
+        std::int64_t row_count = row_indices.get_count();
+        row_count = (row_count ? row_count - 1 : std::int64_t(0));
+        check_indices(row_indices.get_data(),
                       column_indices.get_data(),
+                      row_count,
+                      column_count,
                       indexing);
 
-        init_impl(column_count,
-                  row_count,
-                  detail::reinterpret_array_cast<byte_t>(data),
+        init_impl(detail::reinterpret_array_cast<byte_t>(data),
                   column_indices,
                   row_indices,
+                  column_count,
                   detail::make_data_type<Data>(),
                   indexing);
     }
 
-    void init_impl(std::int64_t column_count,
-                   std::int64_t row_count,
-                   const dal::array<byte_t>& data,
+    void init_impl(const dal::array<byte_t>& data,
                    const dal::array<std::int64_t>& column_indices,
                    const dal::array<std::int64_t>& row_indices,
+                   std::int64_t column_count,
                    const data_type& dtype,
                    csr_indexing indexing);
 };

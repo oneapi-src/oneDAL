@@ -19,6 +19,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/detail/homogen_utils.hpp"
+#include "oneapi/dal/table/detail/csr_utils.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -123,6 +124,43 @@ public:
 private:
     homogen_table_builder_iface& get_impl() {
         return cast_impl<homogen_table_builder_iface>(*this);
+    }
+};
+
+class ONEDAL_EXPORT csr_table_builder : public table_builder {
+    using array_i64 = dal::array<std::int64_t>;
+public:
+    csr_table_builder();
+
+    table build() {
+        return detail::make_private<table>(get_impl().build_csr());
+    }
+
+    auto& reset(table&& t) {
+        const table local_table = std::move(t);
+
+        const std::int64_t column_count = local_table.get_column_count();
+        const data_type dtype = local_table.get_metadata().get_data_type(0);
+        const auto byte_data = get_original_data(local_table);
+        const auto original_column_indices = get_original_column_indices(local_table);
+        const auto original_row_indices = get_original_row_indices(local_table);
+
+        get_impl().set_data_type(dtype);
+        get_impl().reset(byte_data, original_column_indices, original_row_indices, column_count);
+        return *this;
+    }
+
+    template <typename Data>
+    auto& reset(const dal::array<Data>& data, const array_i64& column_indices, const array_i64& row_indices,
+                std::int64_t column_count) {
+        const auto byte_data = detail::reinterpret_array_cast<byte_t>(data);
+        get_impl().set_data_type(detail::make_data_type<Data>());
+        get_impl().reset(byte_data, column_indices, row_indices, column_count);
+        return *this;
+    }
+private:
+    csr_table_builder_iface& get_impl() {
+        return cast_impl<csr_table_builder_iface>(*this);
     }
 };
 

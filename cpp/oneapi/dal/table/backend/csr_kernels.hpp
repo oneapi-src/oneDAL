@@ -24,17 +24,14 @@ namespace oneapi::dal::backend {
 struct csr_info {
     csr_info(data_type dtype,
              data_layout layout,
-             std::int64_t row_count,
              std::int64_t column_count,
              std::int64_t element_count,
              detail::csr_indexing indexing)
             : dtype_(dtype),
               layout_(layout),
-              row_count_(row_count),
               column_count_(column_count),
               element_count_(element_count),
               indexing_(indexing) {
-        ONEDAL_ASSERT(row_count_ > 0);
         ONEDAL_ASSERT(column_count_ > 0);
         ONEDAL_ASSERT(element_count_ > 0);
         ONEDAL_ASSERT(indexing_ == detail::csr_indexing::one_based);
@@ -43,7 +40,6 @@ struct csr_info {
 
     data_type dtype_;
     data_layout layout_;
-    std::int64_t row_count_;
     std::int64_t column_count_;
     std::int64_t element_count_;
     detail::csr_indexing indexing_;
@@ -63,6 +59,17 @@ struct block_info {
     std::int64_t row_count_;
     detail::csr_indexing indexing_;
 };
+
+template <typename Policy, typename BlockData>
+void csr_pull_rows(const Policy& policy,
+                   const csr_info& origin_info,
+                   const array<byte_t>& origin_data,
+                   const array<std::int64_t>& origin_column_indices,
+                   const array<std::int64_t>& origin_row_indices,
+                   array<BlockData>& block,
+                   const range& rows_range,
+                   alloc_kind requested_alloc_kind,
+                   bool preserve_mutability = false);
 
 template <typename Policy, typename BlockData>
 void csr_pull_block(const Policy& policy,

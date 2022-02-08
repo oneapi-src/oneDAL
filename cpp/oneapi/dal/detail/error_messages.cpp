@@ -71,6 +71,8 @@ MSG(failed_to_generate_random_numbers, "Failed to generate random numbers")
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,
     "Allocated memory size is not enough to copy the data")
+MSG(allocated_memory_size_is_not_enough_to_copy_row_indices,
+    "Allocated memory size is not enough to copy the row indices")
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
 MSG(cannot_get_feature_type_from_empty_metadata, "Cannot get feature type from empty metadata")
 MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match,
@@ -87,6 +89,7 @@ MSG(rc_and_cc_do_not_match_element_count_in_array,
     "Row count and column count do not match element count in array")
 MSG(rc_leq_zero, "Row count is lower than or equal to zero")
 MSG(cc_leq_zero, "Column count is lower than or equal to zero")
+MSG(ec_leq_zero, "Element count is lower than or equal to zero")
 MSG(object_does_not_provide_read_access_to_rows,
     "Given object does not provide read access to rows")
 MSG(object_does_not_provide_write_access_to_rows,

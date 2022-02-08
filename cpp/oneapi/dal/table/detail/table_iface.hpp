@@ -108,6 +108,47 @@ public:
 #endif
 };
 
+class csr_table_builder_iface : public table_builder_iface {
+public:
+    virtual csr_table_iface* build_csr() = 0;
+
+    virtual void set_data_type(data_type dt) = 0;
+    virtual void set_layout(data_layout layout) = 0;
+    virtual void set_feature_type(feature_type ft) = 0;
+
+    virtual void reset(const dal::array<byte_t>& data,
+                       const dal::array<std::int64_t>& column_indices,
+                       const dal::array<std::int64_t>& row_indices,
+                       std::int64_t column_count) = 0;
+
+    virtual void allocate(std::int64_t element_count,
+                          std::int64_t row_count) = 0;
+
+    virtual void copy_data(const void* data,
+                           const int64_t* column_indices,
+                           const int64_t* row_indices,
+                           std::int64_t element_count,
+                           std::int64_t row_count) = 0;
+
+    virtual void copy_data(const dal::array<byte_t>& data,
+                           const dal::array<std::int64_t>& column_indices,
+                           const dal::array<std::int64_t>& row_indices) = 0;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    virtual void allocate(const data_parallel_policy& policy,
+                          std::int64_t elements_count,
+                          std::int64_t row_count,
+                          sycl::usm::alloc alloc) = 0;
+
+    virtual void copy_data(const data_parallel_policy& policy,
+                           const void* data,
+                           const int64_t* column_indices,
+                           const int64_t* row_indices,
+                           std::int64_t row_count,
+                           std::int64_t column_count) = 0;
+#endif
+};
+
 /// Generic table template is expected to implement all access interfaces to the table.
 /// The example of the table that implements generic interface is the empty one.
 template <typename Derived>
@@ -193,6 +234,22 @@ public:
     }
 };
 
+/// CSR builder template must implement the same set of accessor as CSR table
+/// template.
+template <typename Derived>
+class csr_table_builder_template : public csr_table_builder_iface,
+                                   public pull_rows_template<Derived>,
+                                   public pull_csr_block_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return this;
+    }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return this;
+    }
+};
+
 } // namespace v1
 
 using v1::table_iface;
@@ -204,5 +261,7 @@ using v1::csr_table_template;
 using v1::table_builder_iface;
 using v1::homogen_table_builder_iface;
 using v1::homogen_table_builder_template;
+using v1::csr_table_builder_iface;
+using v1::csr_table_builder_template;
 
 } // namespace oneapi::dal::detail
