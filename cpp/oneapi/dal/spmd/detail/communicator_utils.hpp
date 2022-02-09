@@ -182,4 +182,37 @@ spmd::request allgather(const spmd::communicator<MemoryAccessKind>& comm,
     return allgather(comm, send, recv);
 }
 
+template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>
+spmd::request send_receive_replace(const spmd::communicator<MemoryAccessKind>& comm,
+                                   const array<T>& buf,
+                                   std::int64_t destination_rank,
+                                   std::int64_t source_rank) {
+    ONEDAL_ASSERT(buf.has_mutable_data());
+    ONEDAL_ASSERT(destination_rank >= 0);
+    ONEDAL_ASSERT(source_rank >= 0);
+
+    spmd::request request;
+
+    if constexpr (!std::is_same_v<MemoryAccessKind, spmd::device_memory_access::none>) {
+        __ONEDAL_IF_QUEUE__(buf.get_queue(), {
+            ONEDAL_ASSERT(buf.get_queue().has_value());
+            auto q = buf.get_queue().value();
+            request = comm.send_receive_replace(q,
+                                                buf.get_mutable_data(),
+                                                buf.get_count(),
+                                                destination_rank,
+                                                source_rank);
+        });
+    }
+
+    __ONEDAL_IF_NO_QUEUE__(buf.get_queue(), {
+        request = comm.send_receive_replace(buf.get_mutable_data(),
+                                            buf.get_count(),
+                                            destination_rank,
+                                            source_rank);
+    });
+
+    return request;
+}
+
 } // namespace oneapi::dal::detail

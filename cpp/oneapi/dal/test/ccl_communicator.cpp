@@ -94,6 +94,30 @@ public:
         copy_to_host(recv_buf, recv_buffer_device.get_data(), total_count);
     }
 
+    template <typename T>
+    void test_send_receive_replace(T* buffer,
+                                   std::int64_t count,
+                                   std::int64_t destination_rank,
+                                   std::int64_t source_rank) {
+        get_new_comm().send_receive_replace(buffer, count, destination_rank, source_rank).wait();
+    }
+
+    template <typename T>
+    void test_send_receive_replace_on_device(T* buffer,
+                                             std::int64_t count,
+                                             std::int64_t destination_rank,
+                                             std::int64_t source_rank) {
+        auto comm = get_new_comm();
+        auto buffer_device = copy_to_device(buffer, count);
+        comm.send_receive_replace(get_queue(),
+                                  buffer_device.get_mutable_data(),
+                                  count,
+                                  destination_rank,
+                                  source_rank)
+            .wait();
+        copy_to_host(buffer, buffer_device.get_data(), count);
+    }
+
 private:
     template <typename T>
     array<T> copy_to_device(const T* data, std::int64_t count) {
@@ -204,6 +228,34 @@ TEST_M(ccl_comm_test, "allgatherv") {
 
     for (std::int64_t i = 0; i < total_size; i++) {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
+    }
+}
+
+TEST_M(ccl_comm_test, "send_receive_replace") {
+    auto comm = get_new_comm();
+    const std::int64_t count = 2;
+    const std::int64_t rank_count = comm.get_rank_count();
+    const std::int64_t rank = comm.get_rank();
+    const std::int64_t destination_rank = (rank == 0) ? (rank_count - 1) : (rank - 1);
+    const std::int64_t source_rank = (rank == (rank_count - 1)) ? 0 : (rank + 1);
+
+    std::vector<float> buffer(count);
+    for (std::int64_t i = 0; i < count; i++) {
+        buffer[i] = float(rank);
+    }
+
+    SECTION("host") {
+        test_send_receive_replace(buffer.data(), count, destination_rank, source_rank);
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    SECTION("device") {
+        test_send_receive_replace_on_device(buffer.data(), count, destination_rank, source_rank);
+    }
+#endif
+
+    for (std::int64_t i = 0; i < count; i++) {
+        REQUIRE(buffer[i] == source_rank);
     }
 }
 
