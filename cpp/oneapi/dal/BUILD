@@ -129,13 +129,14 @@ dal_test_suite(
 
 dal_test_suite(
     name = "ccl_communicator_test",
+    ccl = True,
+    mpi_ranks = 2,
     framework = "catch2",
     srcs = glob([
         "test/ccl_*.cpp"
     ]),
     dal_deps = [
         ":common",
-        "@onedal//cpp/oneapi/dal/test/engine:ccl",
     ],
 )
 
