@@ -426,7 +426,7 @@ public:
     }
     template <typename D>
     request allreduce(const array<D>& ary, const reduce_op& op = reduce_op::sum) const;
-    /// Shaffle data reusing the same buffer for send and receive operations
+    /// Shuffle data reusing the same buffer for send and receive operations
     ///
     /// @param buf                  The buffer
     /// @param count                The number of elements of `dtype` sent to and
