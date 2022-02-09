@@ -236,8 +236,8 @@ TEST_M(ccl_comm_test, "send_receive_replace") {
     const std::int64_t count = 2;
     const std::int64_t rank_count = comm.get_rank_count();
     const std::int64_t rank = comm.get_rank();
-    const std::int64_t destination_rank = rank == 0 ? rank_count - 1 : rank - 1;
-    const std::int64_t source_rank = rank == rank_count - 1 ? 0 : rank + 1;
+    const std::int64_t destination_rank = (rank == 0) ? (rank_count - 1) : (rank - 1);
+    const std::int64_t source_rank = (rank == (rank_count - 1)) ? 0 : (rank + 1);
 
     std::vector<float> buffer(count);
     for (std::int64_t i = 0; i < count; i++) {
