@@ -27,9 +27,10 @@ namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
 using model_t = model<task::dim_reduction>;
+using task_t = task::dim_reduction;
 using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
-using descriptor_t = detail::descriptor_base<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task_t>;
 
 namespace daal_pca = daal::algorithms::pca;
 namespace daal_cov = daal::algorithms::covariance;
@@ -44,13 +45,12 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const table& data) {
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = get_component_count(desc, data);
-
+    auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
-
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
@@ -78,32 +78,28 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         *daal_means,
         *daal_variances));
 
-    // clang-format off
-    const auto mdl = model_t{}
-        .set_eigenvectors(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_eigvec, component_count, column_count)
-                .build()
-        );
+    if (desc.get_result_options().test(result_options::eigenvectors)) {
+        const auto mdl =
+            model_t{}.set_eigenvectors(dal::detail::homogen_table_builder{}
+                                           .reset(arr_eigvec, component_count, column_count)
+                                           .build());
+        result.set_model(mdl);
+    }
 
-    return result_t{}
-        .set_model(mdl)
-        .set_eigenvalues(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_eigval, 1, component_count)
-                .build()
-        )
-        .set_variances(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_vars, 1, column_count)
-                .build()
-        )
-        .set_means(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_means, 1, column_count)
-                .build()
-        );
-    // clang-format on
+    if (desc.get_result_options().test(result_options::eigenvalues)) {
+        result.set_eigenvalues(
+            dal::detail::homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
+    }
+    if (desc.get_result_options().test(result_options::vars)) {
+        result.set_variances(
+            dal::detail::homogen_table_builder{}.reset(arr_vars, 1, column_count).build());
+    }
+    if (desc.get_result_options().test(result_options::means)) {
+        result.set_means(
+            dal::detail::homogen_table_builder{}.reset(arr_means, 1, column_count).build());
+    }
+
+    return result;
 }
 
 template <typename Float>

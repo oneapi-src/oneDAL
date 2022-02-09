@@ -161,13 +161,12 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     std::int64_t column_count = data.get_column_count();
 
     const std::int64_t component_count = get_component_count(desc, data);
-    auto result = train_result<task_t>{};
+    auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
     auto [sums, sums_event] = compute_sums(q_, data_nd);
     comm_.allreduce(sums.flatten(q_, { sums_event }), spmd::reduce_op::sum).wait();
     auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-
     sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(gemm, q_);
@@ -179,26 +178,38 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
 
     comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
 
-    auto [means, means_event] = compute_means(q_, rows_count_global, sums, { gemm_event });
-    auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { means_event });
-    auto [vars, vars_event] = compute_variances(q_, cov, { cov_event });
-    auto [corr, corr_event] =
-        compute_correlation_from_covariance(q_, rows_count_global, cov, { vars_event });
-    auto [eigvecs, eigvals] =
-        compute_eigenvectors_on_host(q_, std::move(corr), component_count, { corr_event });
-
-    if (desc.get_deterministic()) {
-        sign_flip(eigvecs);
+    if (desc.get_result_options().test(result_options::means)) {
+        auto [means, means_event] = compute_means(q_, rows_count_global, sums, { gemm_event });
+        result.set_means(homogen_table::wrap(means.flatten(q_), 1, column_count));
     }
 
-    const auto model = model_t{}.set_eigenvectors(
-        homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+    auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
+    if (desc.get_result_options().test(result_options::vars)) {
+        auto [vars, vars_event] = compute_variances(q_, cov, { gemm_event });
+        result.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
+    }
+    if (desc.get_result_options().test(result_options::eigenvectors |
+                                       result_options::eigenvalues)) {
+        auto [corr, corr_event] =
+            compute_correlation_from_covariance(q_, rows_count_global, cov, { gemm_event });
 
-    return result_t{}
-        .set_model(model)
-        .set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count))
-        .set_means(homogen_table::wrap(means.flatten(q_), 1, column_count))
-        .set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
+        auto [eigvecs, eigvals] =
+            compute_eigenvectors_on_host(q_, std::move(corr), component_count, { corr_event });
+        if (desc.get_result_options().test(result_options::eigenvalues)) {
+            result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+        }
+
+        if (desc.get_deterministic()) {
+            sign_flip(eigvecs);
+        }
+        if (desc.get_result_options().test(result_options::eigenvectors)) {
+            const auto model = model_t{}.set_eigenvectors(
+                homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+            result.set_model(model);
+        }
+    }
+
+    return result;
 }
 
 template class train_kernel_cov_impl<float>;
