@@ -306,6 +306,23 @@ DF_BATCH_CLS_TEST("df cls base check with default params") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
+DF_BATCH_CLS_TEST("df cls base check with default params and train weights") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const auto [data, data_test, class_count, checker_list] =
+        this->get_cls_dataframe_weighted_base();
+
+    auto desc = this->get_default_descriptor();
+
+    desc.set_class_count(class_count);
+
+    const auto train_result =
+        this->train_weighted_base_checks(desc, data, this->get_homogen_table_id());
+    const auto model = train_result.get_model();
+    this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+}
+
 DF_BATCH_CLS_TEST("df cls base check with non default params") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -348,6 +365,20 @@ DF_BATCH_REG_TEST("df reg base check with default params") {
     auto desc = this->get_default_descriptor();
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
+    const auto model = train_result.get_model();
+    this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+}
+
+DF_BATCH_REG_TEST("df reg base check with default params and train weights") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const auto [data, data_test, checker_list] = this->get_reg_dataframe_weighted_base();
+
+    auto desc = this->get_default_descriptor();
+
+    const auto train_result =
+        this->train_weighted_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
