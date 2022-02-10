@@ -241,7 +241,6 @@ TEST_M(ccl_comm_test, "allgatherv") {
     }
 }
 
-  
 TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     auto comm = get_new_comm();
     const std::int64_t granularity = 10;
@@ -281,11 +280,11 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
                         recv_buffer.data(),
                         recv_counts.data(),
                         displs.data());
-                        }
+    }
 
 #ifdef ONEDAL_DATA_PARALLEL
     SECTION("device") {
-    test_allgatherv_on_device(send_buffer.data(),
+        test_allgatherv_on_device(send_buffer.data(),
                                   rank_size,
                                   recv_buffer.data(),
                                   recv_counts.data(),
@@ -298,7 +297,6 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     }
 }
 
-  
 TEST_M(ccl_comm_test, "send_receive_replace") {
     auto comm = get_new_comm();
     const std::int64_t count = 2;
@@ -324,7 +322,6 @@ TEST_M(ccl_comm_test, "send_receive_replace") {
 
     for (std::int64_t i = 0; i < count; i++) {
         REQUIRE(buffer[i] == source_rank);
-
     }
 }
 
