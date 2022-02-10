@@ -59,7 +59,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
-    const auto data_use_in_model = daal_knn::doNotUse;
+    const auto data_use_in_model = daal_knn::doUse;
     daal_knn::Parameter original_daal_parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
         dal::detail::integral_cast<std::size_t>(neighbor_count),
