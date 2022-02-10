@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2022 Intel Corporation
+.. * Copyright 2022 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _onedal_get_started:
+:orphan:
+:nosearch:
 
-Get Started with oneDAL
-=======================
+Page not found
+==============
 
-.. toctree::
-   :maxdepth: 4
+Unfortunately, we could not find the page you were looking for. Try:
 
-.. include:: ./get-started/prerequisites.rst
-
-.. include:: ./get-started/end-to-end-example.rst
-
-.. include:: ./get-started/build-and-run-examples.rst
-
-See Also
-~~~~~~~~
-
-- :ref:`oneapi_dal_examples`
+- using :ref:`search <search>` to browse documentation
+- checking the table of contents on the left
+- filing an `issue <https://github.com/oneapi-src/oneDAL/issues>`_ or
+  starting a `discussion <https://github.com/oneapi-src/oneDAL/discussions>`_ on GitHub

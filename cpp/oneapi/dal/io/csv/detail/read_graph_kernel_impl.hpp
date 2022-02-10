@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,21 +33,49 @@ namespace oneapi::dal::preview::csv::detail {
 template <typename EdgeList>
 inline void read_edge_list(const std::string &name, EdgeList &elist);
 
-template <>
-inline void read_edge_list(const std::string &name, edge_list<std::int32_t> &elist) {
+template <typename Vertex>
+inline void read_edge_list(const std::string &name, edge_list<Vertex> &elist) {
     std::ifstream file(name);
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
-
     elist.reserve(1024);
-    char source_vertex[32], destination_vertex[32];
-    while (file >> source_vertex >> destination_vertex) {
-        auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),
-                                   daal_string_to_int(&destination_vertex[0], 0));
+
+    std::string line;
+    char *source_endptr;
+    char *dest_endptr;
+    const char *edgeline;
+    Vertex source_vertex;
+    Vertex destination_vertex;
+
+    while (getline(file, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        edgeline = line.c_str();
+        source_vertex = daal_string_to_int(edgeline, &source_endptr);
+        destination_vertex = daal_string_to_int(source_endptr, &dest_endptr);
+
+        if (source_endptr == dest_endptr) {
+            throw invalid_argument("Invalid line content: " + line);
+        }
+
+        if (source_vertex < 0 || destination_vertex < 0) {
+            throw invalid_argument("Negative vertex ids: " + line);
+        }
+
+        if (*dest_endptr != '\0') {
+            while (*dest_endptr != '\0') {
+                if (!std::isspace(*dest_endptr)) {
+                    throw invalid_argument("Invalid line content: " + line);
+                }
+                dest_endptr++;
+            }
+        }
+
+        auto edge = std::make_pair(source_vertex, destination_vertex);
         elist.push_back(edge);
     }
-
     file.close();
 }
 
@@ -57,14 +85,45 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
-
     elist.reserve(1024);
-    char source_vertex[32], destination_vertex[32], edge_value[64];
-    while (file >> source_vertex >> destination_vertex >> edge_value) {
+
+    std::string line;
+    char *source_endptr;
+    char *dest_endptr;
+    char *value_endptr;
+    const char *edgeline;
+    Vertex source_vertex;
+    Vertex destination_vertex;
+    Weight edge_value;
+
+    while (getline(file, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        edgeline = line.c_str();
+        source_vertex = daal_string_to<Vertex>(edgeline, &source_endptr);
+        destination_vertex = daal_string_to<Vertex>(source_endptr, &dest_endptr);
+        edge_value = daal_string_to<Weight>(dest_endptr, &value_endptr);
+
+        if (dest_endptr == value_endptr) {
+            throw invalid_argument("Invalid line content: " + line);
+        }
+
+        if (source_vertex < 0 || destination_vertex < 0) {
+            throw invalid_argument("Negative vertex ids: " + line);
+        }
+
+        if (*value_endptr != '\0') {
+            while (*value_endptr != '\0') {
+                if (!std::isspace(*value_endptr)) {
+                    throw invalid_argument("Invalid line content: " + line);
+                }
+                value_endptr++;
+            }
+        }
+
         auto edge =
-            std::tuple<Vertex, Vertex, Weight>(daal_string_to<Vertex>(&source_vertex[0], 0),
-                                               daal_string_to<Vertex>(&destination_vertex[0], 0),
-                                               daal_string_to<Weight>(&edge_value[0], 0));
+            std::tuple<Vertex, Vertex, Weight>(source_vertex, destination_vertex, edge_value);
         elist.push_back(edge);
     }
     file.close();
