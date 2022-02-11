@@ -189,7 +189,6 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         ] if is_catch2 else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:mpi",
         ] if mpi else []) + ([
-            "@onedal//cpp/oneapi/dal/test/engine:mpi",
             "@onedal//cpp/oneapi/dal/test/engine:ccl",
         ] if ccl else []),
         extra_deps = _test_deps_on_daal() + extra_deps,
@@ -213,6 +212,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         _dal_cc_test(
             name = name + "_host",
             mpi = mpi,
+            ccl = ccl,
             mpi_ranks = mpi_ranks,
             deps = [ ":" + module_name ],
             data = data,
@@ -225,6 +225,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
             name = name + "_dpc",
             features = [ "dpc++" ],
             mpi = mpi,
+            ccl = ccl,
             mpi_ranks = mpi_ranks,
             deps = [
                 ":" + module_name + "_dpc",
@@ -510,7 +511,7 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         **kwargs,
     )
 
-def _dal_cc_test(name, mpi=False, mpi_ranks=0, **kwargs):
+def _dal_cc_test(name, mpi=False, ccl = False, mpi_ranks=0, **kwargs):
     if mpi:
         if mpi_ranks <= 0:
             fail("Test is marked as MPI, you must provide `mpi_ranks` " +
@@ -522,6 +523,21 @@ def _dal_cc_test(name, mpi=False, mpi_ranks=0, **kwargs):
         mpi_test(
             name = name,
             src = "_mpi_" + name,
+            mpi_ranks = mpi_ranks,
+            mpiexec = "@mpi//:mpiexec",
+            fi = "@mpi//:fi",
+        )
+    elif ccl:
+        if mpi_ranks <= 0:
+            fail("Test is marked as CCL, you must provide `mpi_ranks` " +
+                 "attribute with the valid number of MPI ranks ")
+        cc_test(
+            name = "_ccl_" + name,
+            **kwargs,
+        )
+        ccl_test(
+            name = name,
+            src = "_ccl_" + name,
             mpi_ranks = mpi_ranks,
             mpiexec = "@mpi//:mpiexec",
             fi = "@mpi//:fi",

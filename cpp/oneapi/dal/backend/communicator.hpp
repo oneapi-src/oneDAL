@@ -111,6 +111,10 @@ public:
     communicator_event allreduce(Args&&... args) const {
         return public_comm_.allreduce(std::forward<Args>(args)...);
     }
+    template <typename... Args>
+    communicator_event send_receive_replace(Args&&... args) const {
+        return public_comm_.send_receive_replace(std::forward<Args>(args)...);
+    }
 
     void set_active_exception(const std::exception_ptr& ex_ptr) const {
         public_comm_.set_active_exception(ex_ptr);
