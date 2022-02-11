@@ -309,6 +309,7 @@ DF_BATCH_CLS_TEST("df cls base check with default params") {
 DF_BATCH_CLS_TEST("df cls base check with default params and train weights") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu());
 
     const auto [data, data_test, class_count, checker_list] =
         this->get_cls_dataframe_weighted_base();
@@ -372,6 +373,7 @@ DF_BATCH_REG_TEST("df reg base check with default params") {
 DF_BATCH_REG_TEST("df reg base check with default params and train weights") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu());
 
     const auto [data, data_test, checker_list] = this->get_reg_dataframe_weighted_base();
 

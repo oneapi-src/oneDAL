@@ -386,7 +386,7 @@ DF_SPMD_CLS_TEST("df cls base check with default params") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_SPMD_CLS_TEST("df cls base check with default params and train weigths") {
+DF_SPMD_CLS_TEST("df cls base check with default params and train weights") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());

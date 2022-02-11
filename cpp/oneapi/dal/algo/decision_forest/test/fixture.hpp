@@ -97,7 +97,7 @@ public:
     auto get_cls_dataframe_weighted_base() {
         constexpr double required_accuracy = 0.95;
         constexpr std::int64_t row_count_train = 10;
-        constexpr std::int64_t row_count_test = 4;
+        constexpr std::int64_t row_count_test = 3;
         constexpr std::int64_t column_count_train = 4;
         constexpr std::int64_t column_count_test = 3;
         constexpr std::int64_t class_count = 2;
