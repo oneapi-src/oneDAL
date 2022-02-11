@@ -291,37 +291,44 @@ TEST_M(mpi_comm_test, "allgatherv_arbitrary_displacements") {
     const std::int64_t granularity = 10;
     const std::int64_t rank_count = comm.get_rank_count();
     const std::int64_t rank = comm.get_rank();
+    const std::int64_t arb_displc = 10;
 
     std::vector<std::int64_t> recv_counts(rank_count);
+    std::vector<std::int64_t> recv_counts_send_buf(rank_count);
     std::vector<std::int64_t> displs(rank_count);
     std::int64_t total_size = 0;
+    std::int64_t total_size_send_buf = 0;
     for (std::int64_t i = 0; i < rank_count; i++) {
-        recv_counts[i] = (i + 2) * granularity;
-        displs[i] = total_size;
-        total_size += recv_counts[i];
+        recv_counts_send_buf[i] = (i + 1) * granularity + arb_displc;
+        recv_counts[i] = (i + 1) * granularity;
+        displs[i] = total_size_send_buf;
+        total_size += (recv_counts[i]);
+        total_size_send_buf += (recv_counts[i]);
     }
 
-    const std::int64_t rank_size = recv_counts[rank];
+    const std::int64_t rank_size = recv_counts_send_buf[rank];
     std::vector<float> send_buffer(rank_size);
-    for (std::int64_t i = 0; i < rank_size - 10; i++) {
-        send_buffer[i] = float(rank);
+    for (std::int64_t i = 0; i < rank_size; i++) {
+        if (i < (rank_size - arb_displc)) {
+            send_buffer[i] = float(rank);
+        }
+        else {
+            send_buffer[i] = float(-1);
+        }
     }
     std::vector<float> recv_buffer(total_size);
     std::vector<float> final_buffer(total_size);
     std::int64_t offset = 0;
     for (std::int64_t i = 0; i < rank_count; i++) {
-        for (std::int64_t j = 0; j < recv_counts[i] - 10; j++) {
+        for (std::int64_t j = 0; j < recv_counts[i]; j++) {
             final_buffer[offset] = float(i);
             offset++;
-            if (j == (recv_counts[i] - 11)) {
-                offset += 10;
-            }
         }
     }
 
     SECTION("host") {
         test_allgatherv(send_buffer.data(),
-                        rank_size,
+                        rank_size - arb_displc,
                         recv_buffer.data(),
                         recv_counts.data(),
                         displs.data());
@@ -330,7 +337,7 @@ TEST_M(mpi_comm_test, "allgatherv_arbitrary_displacements") {
 #ifdef ONEDAL_DATA_PARALLEL
     SECTION("device") {
         test_allgatherv_on_device(send_buffer.data(),
-                                  rank_size,
+                                  rank_size - arb_displc,
                                   recv_buffer.data(),
                                   recv_counts.data(),
                                   displs.data());
@@ -341,5 +348,4 @@ TEST_M(mpi_comm_test, "allgatherv_arbitrary_displacements") {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
     }
 }
-
 } // namespace oneapi::dal::test
