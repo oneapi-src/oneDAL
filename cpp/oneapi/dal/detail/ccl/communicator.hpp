@@ -318,7 +318,7 @@ public:
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_buf);
 
-        std::int64_t data_type_size = get_data_type_size(dtype);
+        const std::int64_t data_type_size = get_data_type_size(dtype);
         std::vector<void*> recv_bufs(rank_count_);
         for (std::int64_t i = 0; i < rank_count_; i++) {
             recv_bufs[i] = recv_buf + data_type_size * displs[i];
