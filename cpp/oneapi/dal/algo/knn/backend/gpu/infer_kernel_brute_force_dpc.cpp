@@ -350,6 +350,9 @@ static infer_result<Task> kernel(const context_gpu& ctx,
 
     ONEDAL_ASSERT(train.get_column_count() == infer.get_column_count());
 
+    auto& queue = ctx.get_queue();
+    bk::interop::execution_context_guard guard(queue);
+
     auto arr_responses = array<res_t>{};
     if (desc.get_result_options().test(result_options::responses)) {
         arr_responses = array<res_t>::empty(queue, infer_row_count, sycl::usm::alloc::device);
