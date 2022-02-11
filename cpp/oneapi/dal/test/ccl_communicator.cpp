@@ -240,7 +240,6 @@ TEST_M(ccl_comm_test, "allgatherv") {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
     }
 }
-  
 
 TEST_M(ccl_comm_test, "allgatherv_arbitrary_displacements") {
     auto comm = get_new_comm();
@@ -260,7 +259,6 @@ TEST_M(ccl_comm_test, "allgatherv_arbitrary_displacements") {
     const std::int64_t rank_size = recv_counts[rank];
     std::vector<float> send_buffer(rank_size);
     for (std::int64_t i = 0; i < rank_size - 10; i++) {
-
         send_buffer[i] = float(rank);
     }
     std::vector<float> recv_buffer(total_size);
@@ -298,7 +296,6 @@ TEST_M(ccl_comm_test, "allgatherv_arbitrary_displacements") {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
     }
 }
-
 
 TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     auto comm = get_new_comm();
@@ -383,7 +380,6 @@ TEST_M(ccl_comm_test, "send_receive_replace") {
         REQUIRE(buffer[i] == source_rank);
     }
 }
-
 
 } // namespace oneapi::dal::test
 #endif
