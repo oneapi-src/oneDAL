@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -293,6 +293,7 @@ public:
     MSG(invalid_mpi_comm);
     MSG(invalid_root);
     MSG(unknown_mpi_error);
+    MSG(send_receive_replace_is_not_implemented_for_threaded_communicator);
 };
 
 #undef MSG

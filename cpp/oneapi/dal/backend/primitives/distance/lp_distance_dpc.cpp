@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,12 +53,12 @@ struct dkeeper<Float, ndorder::c, Idx> {
         return std::make_pair(get_first_in_row_iterator(idx), get_last_in_row_iterator(idx));
     }
 
-    auto get_first_in_row_iterator(Idx idx) const {
+    row_iterator get_first_in_row_iterator(Idx idx) const {
         const Float* const row = ptr + idx * str;
         return row_iterator{ Idx(0), row };
     }
 
-    auto get_last_in_row_iterator(Idx idx) const {
+    row_iterator get_last_in_row_iterator(Idx idx) const {
         const Float* const row = ptr + idx * str;
         return row_iterator{ width, row };
     }
@@ -100,12 +100,12 @@ struct dkeeper<Float, ndorder::f, Idx> {
         return std::make_pair(get_first_in_row_iterator(idx), get_last_in_row_iterator(idx));
     }
 
-    auto get_first_in_row_iterator(Idx idx) const {
+    row_iterator get_first_in_row_iterator(Idx idx) const {
         const Float* const row = ptr + idx;
         return row_iterator{ Idx(0), str, row };
     }
 
-    auto get_last_in_row_iterator(Idx idx) const {
+    row_iterator get_last_in_row_iterator(Idx idx) const {
         const Float* const row = ptr + idx;
         return row_iterator{ width, str, row };
     }

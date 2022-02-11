@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -110,6 +110,10 @@ public:
     template <typename... Args>
     communicator_event allreduce(Args&&... args) const {
         return public_comm_.allreduce(std::forward<Args>(args)...);
+    }
+    template <typename... Args>
+    communicator_event send_receive_replace(Args&&... args) const {
+        return public_comm_.send_receive_replace(std::forward<Args>(args)...);
     }
 
     void set_active_exception(const std::exception_ptr& ex_ptr) const {

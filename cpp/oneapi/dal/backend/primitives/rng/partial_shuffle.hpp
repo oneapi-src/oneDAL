@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 namespace oneapi::dal::backend::primitives {
 
+void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array,
+                                  std::int64_t top,
+                                  std::int64_t seed);
 void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::int64_t top);
 
 } // namespace oneapi::dal::backend::primitives

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -147,6 +147,51 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
             }
             r++;
         }
+    }
+
+    barrier_([&]() {
+        send_buffers_.clear();
+        send_buffers_.resize(ctx_.get_thread_count());
+    });
+}
+
+void thread_communicator_send_receive_replace::operator()(byte_t* buf,
+                                                          std::int64_t count,
+                                                          const data_type& dtype,
+                                                          std::int64_t destination_rank,
+                                                          std::int64_t source_rank) {
+    ONEDAL_ASSERT(send_buf);
+    ONEDAL_ASSERT(recv_buf);
+
+    const std::int64_t rank = ctx_.get_this_thread_rank();
+    const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
+
+    send_buffers_[rank] = buffer_info{ buf, count };
+    const std::int64_t recv_size = dal::detail::check_mul_overflow(dtype_size, count);
+
+    std::vector<byte_t> recv_buf(recv_size);
+
+    barrier_();
+
+#ifdef ONEDAL_ENABLE_ASSERT
+    if (rank == ctx_.get_root_rank()) {
+        for (const auto& info : send_buffers_) {
+            ONEDAL_ASSERT(info.buf != nullptr);
+        }
+    }
+#endif
+
+    {
+        const auto& send = send_buffers_[source_rank];
+        for (std::int64_t i = 0; i < recv_size; i++) {
+            recv_buf[i] = send.buf[i];
+        }
+    }
+
+    barrier_();
+
+    for (std::int64_t i = 0; i < recv_size; i++) {
+        buf[i] = recv_buf[i];
     }
 
     barrier_([&]() {
@@ -448,6 +493,18 @@ auto thread_communicator_impl<MemoryAccessKind>::allreduce(const byte_t* send_bu
     -> request_t* {
     collective_operation_guard guard{ ctx_ };
     allreduce_(send_buf, recv_buf, count, dtype, op);
+    return nullptr;
+}
+
+template <typename MemoryAccessKind>
+auto thread_communicator_impl<MemoryAccessKind>::send_receive_replace(byte_t* buf,
+                                                                      std::int64_t count,
+                                                                      const data_type& dtype,
+                                                                      std::int64_t destination_rank,
+                                                                      std::int64_t source_rank)
+    -> request_t* {
+    collective_operation_guard guard{ ctx_ };
+    send_receive_replace_(buf, count, dtype, destination_rank, source_rank);
     return nullptr;
 }
 

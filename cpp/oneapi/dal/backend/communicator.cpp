@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -118,6 +118,13 @@ public:
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
         return nullptr;
     }
+    request_t* send_receive_replace(byte_t* buf,
+                                    std::int64_t count,
+                                    const data_type& dtype,
+                                    std::int64_t destination_rank,
+                                    std::int64_t source_rank) override {
+        return nullptr;
+    }
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -212,6 +219,23 @@ public:
                          const event_vector& deps) override {
         sycl::event::wait_and_throw(deps);
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
+        return nullptr;
+    }
+    request_t* send_receive_replace(byte_t* buf,
+                                    std::int64_t count,
+                                    const data_type& dtype,
+                                    std::int64_t destination_rank,
+                                    std::int64_t source_rank) override {
+        return nullptr;
+    }
+    request_t* send_receive_replace(sycl::queue& q,
+                                    byte_t* buf,
+                                    std::int64_t count,
+                                    const data_type& dtype,
+                                    std::int64_t destination_rank,
+                                    std::int64_t source_rank,
+                                    const event_vector& deps) override {
+        sycl::event::wait_and_throw(deps);
         return nullptr;
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ TEST("100K x 4K", "[cor][perf]") {
     auto gemm_event = pr::gemm(q, data.t(), data, corr, float_t(1), float_t(0));
     gemm_event.wait_and_throw();
     BENCHMARK("correlation") {
-        correlation(q, data, sums, means, corr, vars, tmp, { sums_event }).wait_and_throw();
+        correlation(q, data.get_dimension(0), sums, corr, tmp, { sums_event }).wait_and_throw();
     };
 }
 
