@@ -96,15 +96,18 @@ public:
 
     auto get_cls_dataframe_weighted_base() {
         constexpr double required_accuracy = 0.95;
-        constexpr std::int64_t row_count_train = 6;
+        constexpr std::int64_t row_count_train = 10;
         constexpr std::int64_t row_count_test = 4;
         constexpr std::int64_t column_count_train = 4;
         constexpr std::int64_t column_count_test = 3;
         constexpr std::int64_t class_count = 2;
 
         static const float train_arr[] = {
-            -2.f, -1.f, 0.f, 0.25f, -1.f, -1.f, 0.f, 0.15f, -1.f, -2.f, 0.f, 0.3f,
-            +1.f, +1.f, 1.f, 0.1f,  +1.f, +2.f, 1.f, 0.2f,  +2.f, +1.f, 1.f, 0.2f,
+            -2.2408f, 0.5005f,  0.f,  0.1f, -1.6002f, -0.512f,  0.f,  0.2f,
+            -2.3748f, 0.8277f,  0.f,  0.1f, -1.4341f, 1.5004f,  1.f,  0.1f,
+            -0.9874f, 0.9996f,  1.f,  0.6f, -1.1954f, 1.2781f,  1.f,  0.1f,
+            0.29484f, -0.7925f, 0.f,  0.1f, 0.6476f,  -0.8175f, 0.0f, 0.44f,
+            2.3836f,  1.5691f,  1.0f, 0.1f, 1.51783f, 1.2214f,  1.0f, 0.1f,
         };
 
         static const float test_arr[] = { -1.f, -1.f, 0.f, +2.f, +2.f, 1.f, +3.f, +2.f, 1.f };
