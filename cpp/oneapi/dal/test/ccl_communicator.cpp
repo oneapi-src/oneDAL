@@ -248,17 +248,15 @@ TEST_M(ccl_comm_test, "allgatherv_arbitrary_displacements") {
     const std::int64_t rank = comm.get_rank();
     const std::int64_t arb_displc = 10;
 
-    std::vector<std::int64_t> recv_counts(rank_count);
+    std::vector<std::int64_t> recv_counts_final_buf(rank_count);
     std::vector<std::int64_t> recv_counts_send_buf(rank_count);
     std::vector<std::int64_t> displs(rank_count);
-    std::int64_t total_size = 0;
-    std::int64_t total_size_send_buf = 0;
+    std::int64_t total_size_final_buf = 0;
     for (std::int64_t i = 0; i < rank_count; i++) {
-        recv_counts_send_buf[i] = (i + 1) * granularity + arb_displc;
-        recv_counts[i] = (i + 1) * granularity;
-        displs[i] = total_size_send_buf;
-        total_size += (recv_counts[i]);
-        total_size_send_buf += (recv_counts[i]);
+        recv_counts_send_buf[i] = (i + 1) * granularity;
+        recv_counts_final_buf[i] = (i + 1) * granularity + arb_displc;
+        displs[i] = total_size_final_buf;
+        total_size_final_buf += (recv_counts_final_buf[i]);
     }
 
     const std::int64_t rank_size = recv_counts_send_buf[rank];
@@ -267,39 +265,45 @@ TEST_M(ccl_comm_test, "allgatherv_arbitrary_displacements") {
         if (i < (rank_size - arb_displc)) {
             send_buffer[i] = float(rank);
         }
-        else {
-            send_buffer[i] = float(-1);
-        }
     }
-    std::vector<float> recv_buffer(total_size);
-    std::vector<float> final_buffer(total_size);
+    std::vector<float> recv_buffer(total_size_final_buf);
+    std::vector<float> final_buffer(total_size_final_buf);
     std::int64_t offset = 0;
+    for (std::int64_t i = 0; i < total_size_final_buf; i++) {
+        recv_buffer[i] = float(-1);
+    }
     for (std::int64_t i = 0; i < rank_count; i++) {
-        for (std::int64_t j = 0; j < recv_counts[i]; j++) {
-            final_buffer[offset] = float(i);
-            offset++;
+        for (std::int64_t j = 0; j < recv_counts_final_buf[i]; j++) {
+            if (j < (recv_counts_final_buf[i] - arb_displc)) {
+                final_buffer[offset] = float(i);
+                offset++;
+            }
+            else {
+                final_buffer[offset] = float(-1);
+                offset++;
+            }
         }
     }
 
     SECTION("host") {
         test_allgatherv(send_buffer.data(),
-                        rank_size - arb_displc,
+                        rank_size,
                         recv_buffer.data(),
-                        recv_counts.data(),
+                        recv_counts_final_buf.data(),
                         displs.data());
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     SECTION("device") {
         test_allgatherv_on_device(send_buffer.data(),
-                                  rank_size - arb_displc,
+                                  rank_size,
                                   recv_buffer.data(),
-                                  recv_counts.data(),
+                                  recv_counts_final_buf.data(),
                                   displs.data());
     }
 #endif
 
-    for (std::int64_t i = 0; i < total_size; i++) {
+    for (std::int64_t i = 0; i < total_size_final_buf; i++) {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
     }
 }
