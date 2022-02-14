@@ -14,7 +14,6 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-
 The Sigmoid kernel is a popular kernel function
 used in kernelized learning algorithms.
 

@@ -14,7 +14,6 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-
 The Radial Basis Function (RBF) kernel is a popular kernel function
 used in kernelized learning algorithms.
 

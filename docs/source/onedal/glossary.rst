@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2021 Intel Corporation
+.. * Copyright 2019 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -229,6 +229,13 @@ Graph analytics terms
         A value assigned to :capterm:`graph`, vertex or edge.
         Can be numerical (:capterm:`weight`), string or any other custom data type.
 
+    Component
+        A :capterm:`connected<Connected graph>` :capterm:`subgraph<Subgraph>` :math:`H` of graph :math:`G` such that no subgraph
+        of :math:`G` that properly contains :math:`H` is connected [Gross2014]_.
+    
+    Connected graph
+        A :capterm:`graph` is connected if there is a :capterm:`walk` between every pair of its vertices [Gross2014]_.
+
     Edge index
         The index :math:`i` of an edge :math:`e_i` in an edge set :math:`E=\{e_1, e_2,  ..., e_m\}`
         of :capterm:`graph` :math:`G`. Can be an integer value.         
@@ -276,6 +283,10 @@ Graph analytics terms
     Vertex index
         The index :math:`i` of a vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
         of :capterm:`graph` :math:`G`. Can be an integer value. 
+
+    Walk
+        An alternating sequence of vertices and edges such that for each edge, 
+        one endpoint precedes and the other succeeds that edge in the sequence [Gross2014]_.
 
     Weight
         A numerical value assigned to vertex, edge or graph.

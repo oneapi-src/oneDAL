@@ -558,7 +558,7 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance
     constexpr std::int64_t n_neighbors = 3;
 
     const te::dataframe train_dataframe = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_50t_test.csv" });
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
 
     const te::dataframe infer_dataframe = GENERATE_DATAFRAME(
         te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
@@ -587,9 +587,48 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance
     REQUIRE(score >= target_score);
 }
 
+KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Cosine distance") {
+    SKIP_IF(this->is_kd_tree);
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    constexpr double target_score = 0.78;
+
+    constexpr std::int64_t feature_count = 28;
+    constexpr std::int64_t n_classes = 2;
+    constexpr std::int64_t n_neighbors = 3;
+
+    const te::dataframe train_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_50t_test.csv" });
+
+    const te::dataframe infer_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
+
+    const table x_train_table =
+        train_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
+    const table x_infer_table =
+        infer_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
+
+    const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(feature_count, feature_count + 1));
+    const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(feature_count, feature_count + 1));
+
+    using distance_t = oneapi::dal::cosine_distance::descriptor<>;
+    const auto distance_desc = distance_t();
+    const auto score = this->classification(x_train_table,
+                                            y_train_table,
+                                            x_infer_table,
+                                            y_infer_table,
+                                            n_classes,
+                                            n_neighbors,
+                                            distance_desc);
+    CAPTURE(score);
+    REQUIRE(score >= target_score);
+}
+
 KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Chebyshev distance") {
     SKIP_IF(this->is_kd_tree);
-    SKIP_IF(this->get_policy().is_gpu());
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->not_available_on_device());
 

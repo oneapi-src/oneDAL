@@ -1,6 +1,6 @@
 /* file: kmeans_cl_kernels_distr_steps.cl */
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,9 +45,9 @@ DECLARE_SOURCE(
         const int local_id                  = get_local_id(1);
         const int oldN                      = partialCentroidsCounters[global_id];
         const int newN                      = cCounters[global_id];
-        const algorithmFPType oldContrib    = oldN * partialCentroids[global_id * P + local_id];
-        const algorithmFPType newContrib    = newN * centroids[global_id * P + local_id];
-        centroids[global_id * P + local_id] = (oldContrib + newContrib) / (oldN + newN);
+        const algorithmFPType oldContrib    = oldN > 0 ? oldN * partialCentroids[global_id * P + local_id] : 0.0;
+        const algorithmFPType newContrib    = newN > 0 ? newN * centroids[global_id * P + local_id] : 0.0;
+        centroids[global_id * P + local_id] = (oldN + newN > 0) ? (oldContrib + newContrib) / (oldN + newN) : 0.0;
         if (local_id == 0) cCounters[global_id] = oldN + newN;
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,17 +53,20 @@ template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
-                                 const table& responses) {
+                                 const table& responses,
+                                 const table& weights) {
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_responses = interop::convert_to_daal_table<Float>(responses);
+    const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
     /* init param for daal kernel */
     auto daal_input = daal::algorithms::classifier::training::Input();
     daal_input.set(daal::algorithms::classifier::training::data, daal_data);
     daal_input.set(daal::algorithms::classifier::training::labels, daal_responses);
+    daal_input.set(daal::algorithms::classifier::training::weights, daal_weights);
 
     auto daal_parameter = daal_df_cls_train::Parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()));
@@ -136,7 +139,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                     daal::services::internal::hostApp(daal_input),
                                                     daal_data.get(),
                                                     daal_responses.get(),
-                                                    nullptr, // no weights
+                                                    daal_weights.get(),
                                                     *mptr,
                                                     daal_result,
                                                     daal_parameter));
@@ -170,7 +173,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
 template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float, CpuKernel>(ctx, desc, input.get_data(), input.get_responses());
+    return call_daal_kernel<Float, CpuKernel>(ctx,
+                                              desc,
+                                              input.get_data(),
+                                              input.get_responses(),
+                                              input.get_weights());
 }
 
 template <typename Float, typename Task>

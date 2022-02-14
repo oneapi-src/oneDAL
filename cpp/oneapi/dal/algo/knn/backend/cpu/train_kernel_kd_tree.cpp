@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,9 +55,9 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
 
-    const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const std::int64_t dummy_seed = 777;
-    const auto data_use_in_model = daal_knn::doUse;
+    const auto data_use_in_model = daal_knn::doNotUse;
     daal_knn::Parameter daal_parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
@@ -69,23 +69,23 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(status);
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
-    // Data or responses should not be copied, copy is already happened when
-    // the tables are converted to NumericTables
+    // Data or responses should not be copied, copy will be happened when
+    // the tables are passed to old ifaces
     const bool copy_data_responses = data_use_in_model == daal_knn::doNotUse;
     knn_model->impl()->setData<Float>(daal_data, copy_data_responses);
 
     auto daal_responses = daal::data_management::NumericTablePtr();
     if (desc.get_result_options().test(result_options::responses)) {
-        daal_responses = interop::copy_to_daal_homogen_table<Float>(responses);
+        daal_responses = interop::convert_to_daal_table<Float>(responses);
         knn_model->impl()->setLabels<Float>(daal_responses, copy_data_responses);
     }
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(ctx,
-                                                                    daal_data.get(),
-                                                                    daal_responses.get(),
-                                                                    knn_model,
-                                                                    *daal_parameter.engine.get()));
+    interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
+        ctx,
+        knn_model->impl()->getData().get(),
+        knn_model->impl()->getLabels().get(),
+        knn_model,
+        *daal_parameter.engine.get()));
 
     auto interop = new daal_model_interop_t(model_ptr);
     const auto model_impl = std::make_shared<kd_tree_model_impl<Task>>(interop);

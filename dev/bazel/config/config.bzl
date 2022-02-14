@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2021 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -210,7 +210,7 @@ def _declare_onedal_config_impl(repo_ctx):
         substitutions = {
             "%{auto_cpu}":         auto_cpu,
             "%{version_major}":    "2021",
-            "%{version_minor}":    "5",
+            "%{version_minor}":    "6",
             "%{version_update}":   "0",
             "%{version_build}":    utils.datestamp(repo_ctx),
             "%{version_buildrev}": "work",

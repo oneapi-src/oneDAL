@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,12 +22,14 @@ namespace oneapi::dal::decision_forest {
 template <typename Task>
 class detail::v1::train_input_impl : public base {
 public:
-    train_input_impl(const table& data, const table& responses)
+    train_input_impl(const table& data, const table& responses, const table& weights)
             : data(data),
-              responses(responses) {}
+              responses(responses),
+              weights(weights) {}
 
     table data;
     table responses;
+    table weights;
 };
 
 template <typename Task>
@@ -47,7 +49,7 @@ namespace v1 {
 
 template <typename Task>
 train_input<Task>::train_input(const table& data, const table& responses)
-        : impl_(new train_input_impl<Task>(data, responses)) {}
+        : impl_(new train_input_impl<Task>(data, responses, table{})) {}
 
 template <typename Task>
 const table& train_input<Task>::get_data() const {
@@ -118,4 +120,45 @@ template class ONEDAL_EXPORT train_result<task::classification>;
 template class ONEDAL_EXPORT train_result<task::regression>;
 
 } // namespace v1
+
+namespace v2 {
+
+template <typename Task>
+train_input<Task>::train_input(const table& data, const table& responses, const table& weights)
+        : impl_(new train_input_impl<Task>(data, responses, weights)) {}
+
+template <typename Task>
+const table& train_input<Task>::get_data() const {
+    return impl_->data;
+}
+
+template <typename Task>
+const table& train_input<Task>::get_responses() const {
+    return impl_->responses;
+}
+
+template <typename Task>
+const table& train_input<Task>::get_weights() const {
+    return impl_->weights;
+}
+
+template <typename Task>
+void train_input<Task>::set_data_impl(const table& value) {
+    impl_->data = value;
+}
+
+template <typename Task>
+void train_input<Task>::set_responses_impl(const table& value) {
+    impl_->responses = value;
+}
+
+template <typename Task>
+void train_input<Task>::set_weights_impl(const table& value) {
+    impl_->weights = value;
+}
+
+template class ONEDAL_EXPORT train_input<task::classification>;
+template class ONEDAL_EXPORT train_input<task::regression>;
+
+} // namespace v2
 } // namespace oneapi::dal::decision_forest

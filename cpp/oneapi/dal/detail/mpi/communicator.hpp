@@ -110,6 +110,7 @@ public:
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
+    using base_t::send_receive_replace;
 
     explicit mpi_communicator_impl(std::int64_t default_root = 0)
             : mpi_comm_(MPI_COMM_WORLD),
@@ -264,6 +265,35 @@ public:
             // indicating that operation was performed synchronously
             return nullptr;
         }
+    }
+
+    spmd::request_iface* send_receive_replace(byte_t* buf,
+                                              std::int64_t count,
+                                              const data_type& dtype,
+                                              std::int64_t destination_rank,
+                                              std::int64_t source_rank) override {
+        ONEDAL_ASSERT(destination_rank >= 0);
+        ONEDAL_ASSERT(source_rank >= 0);
+
+        if (count == 0) {
+            return nullptr;
+        }
+
+        ONEDAL_ASSERT(buf);
+        ONEDAL_ASSERT(count > 0);
+
+        MPI_Status status;
+        constexpr int zero_tag = 0;
+        mpi_call(MPI_Sendrecv_replace(buf,
+                                      integral_cast<int>(count),
+                                      make_mpi_data_type(dtype),
+                                      integral_cast<int>(destination_rank),
+                                      zero_tag,
+                                      integral_cast<int>(source_rank),
+                                      zero_tag,
+                                      mpi_comm_,
+                                      &status));
+        return nullptr;
     }
 
 private:

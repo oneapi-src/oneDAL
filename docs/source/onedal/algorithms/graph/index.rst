@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -24,7 +24,12 @@ This chapter describes graph algorithms implemented in |short_name|:
    :titlesonly:
 
    subgraph-isomorphism.rst
+   connected-components.rst
 
 .. rubric:: Examples: Subgraph Isomorphism
 
 .. include:: ../../../includes/graph/subgraph-isomorphism-examples.rst
+
+.. rubric:: Examples: Connected Components
+
+.. include:: ../../../includes/graph/connected-components-examples.rst

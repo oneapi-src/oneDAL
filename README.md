@@ -1,6 +1,6 @@
 ﻿<!--
 ******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,12 +25,12 @@ oneAPI Data Analytics Library (oneDAL) is a powerful machine learning library th
 
 oneAPI Data Analytics Library is an extension of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
 
-oneDAL is part of [oneAPI](https://oneapi.io).
+oneDAL is part of [oneAPI](https://oneapi.io). The current branch implements version 1.1 of oneAPI Specification.
 
 ## Table of Contents <!-- omit in toc -->
 - [Python API](#python-api)
-  - [Scikit-learn patching](#scikit-learn-patching)
   - [Distributed multi-node mode](#distributed-multi-node-mode)
+- [Scikit-learn patching](#scikit-learn-patching)
 - [oneDAL Apache Spark MLlib samples](#onedal-apache-spark-mllib-samples)
 - [Installation](#installation)
 - [Documentation](#documentation)
@@ -168,13 +168,7 @@ Check the [samples](#samples) tab for more details.
 
 ## Installation
 
-You can install oneDAL:
-
-- from [oneDAL home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html) as a part of Intel&reg; oneAPI Base Toolkit.
-- from [GitHub\*](https://github.com/oneapi-src/oneDAL/releases).
-
-### Installation from Source <!-- omit in toc -->
-See [Installation from Sources](INSTALL.md) for details.
+You can [download the specific version of oneDAL](https://github.com/oneapi-src/oneDAL/releases) or [install from sources](INSTALL.md).
 
 ## Examples <!-- omit in toc -->
 
@@ -186,14 +180,13 @@ Beside C++ and Python API, oneDAL also provides APIs for DPC++ and Java:
 - [Python](https://github.com/intel/scikit-learn-intelex/tree/master/examples)
 
 ## Documentation
-- [System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)
+- [System Requirements](https://oneapi-src.github.io/oneDAL/system-requirements.html)
 - [Get Started Guide](http://oneapi-src.github.io/oneDAL/onedal/get-started.html#onedal-get-started)
 - [Developer Guide and Reference](http://oneapi-src.github.io/oneDAL/)
 - [daal4py documentation](https://intelpython.github.io/daal4py/)
 - [Intel(R) Extension for Scikit-learn* documentation](https://intel.github.io/scikit-learn-intelex/)
 - [Specification](https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html)
 - [Release Notes](https://software.intel.com/content/www/us/en/develop/articles/oneapi-dal-release-notes.html)
-- [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
 
 Refer to GitHub Wiki to browse [the full list of oneDAL and daal4py resources](https://github.com/oneapi-src/oneDAL/wiki/Resources).
 
@@ -253,7 +246,7 @@ This repository contains branches corresponding to both oneAPI and classical ver
 
 |Product|Latest release|Branch|
 |-------|--------------|------|
-|oneDAL       |2021.4|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021.4-rls](https://github.com/oneapi-src/oneDAL/tree/rls/2021.4-rls)|
+|oneDAL       |2021.5|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021.5-rls](https://github.com/oneapi-src/oneDAL/tree/rls/2021.5-rls)|
 |Intel&reg; DAAL|2020 Update 3|[rls/daal-2020-u3-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-u3-rls)|
 
 

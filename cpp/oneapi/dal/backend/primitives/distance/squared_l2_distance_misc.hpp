@@ -25,16 +25,16 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Float>
+template <typename Float, ndorder order>
 sycl::event compute_squared_l2_norms(sycl::queue& q,
-                                     const ndview<Float, 2>& inp,
+                                     const ndview<Float, 2, order>& inp,
                                      ndview<Float, 1>& out,
                                      const event_vector& deps = {});
 
-template <typename Float>
+template <typename Float, ndorder order>
 std::tuple<ndarray<Float, 1>, sycl::event> compute_squared_l2_norms(
     sycl::queue& q,
-    const ndview<Float, 2>& inp,
+    const ndview<Float, 2, order>& inp,
     const event_vector& deps = {},
     const sycl::usm::alloc& alloc = sycl::usm::alloc::device);
 
@@ -45,10 +45,10 @@ sycl::event scatter_2d(sycl::queue& q,
                        ndview<Float, 2>& out,
                        const event_vector& deps = {});
 
-template <typename Float>
+template <typename Float, ndorder order1, ndorder order2>
 sycl::event compute_inner_product(sycl::queue& q,
-                                  const ndview<Float, 2>& inp1,
-                                  const ndview<Float, 2>& inp2,
+                                  const ndview<Float, 2, order1>& inp1,
+                                  const ndview<Float, 2, order2>& inp2,
                                   ndview<Float, 2>& out,
                                   const event_vector& deps = {});
 

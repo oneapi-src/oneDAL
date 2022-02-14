@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,6 +43,18 @@ struct compute_ops {
 
         if (!input.get_data().has_data()) {
             throw domain_error(msg::input_data_is_empty());
+        }
+
+        const auto& data_table = input.get_data();
+        const auto sample_count = data_table.get_row_count();
+        const auto cluster_count = params.get_cluster_count();
+
+        if (0 >= cluster_count) {
+            throw domain_error(msg::cluster_count_leq_zero());
+        }
+
+        if (cluster_count >= sample_count) {
+            throw domain_error(msg::cluster_count_exceeds_data_row_count());
         }
     }
 

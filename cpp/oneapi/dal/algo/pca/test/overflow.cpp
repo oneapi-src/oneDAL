@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include "oneapi/dal/algo/pca/train.hpp"
 #include "oneapi/dal/algo/pca/infer.hpp"
 
+#include "oneapi/dal/algo/pca/test/fixture.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/mocks.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
@@ -57,7 +58,7 @@ public:
 }; // namespace oneapi::dal::pca::test
 
 #define PCA_OVERFLOW_TEST(name) \
-    TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", pca::method::cov, pca::method::svd)
+    TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", pca::method::svd)
 
 PCA_OVERFLOW_TEST("train throws if component count leads to overflow") {
     SKIP_IF(this->not_available_on_device());

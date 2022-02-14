@@ -24,3 +24,4 @@ This chapter describes programming interfaces of the graph algorithms implemente
    :titlesonly:
 
    subgraph-isomorphism.rst
+   connected-components.rst

@@ -62,9 +62,8 @@ KMEANS_INIT_BADARG_TEST("throws if cluster_count is zero") {
     REQUIRE_THROWS_AS(this->get_descriptor().set_cluster_count(0), domain_error);
 }
 
-KMEANS_INIT_BADARG_TEST("throws if  data is empty") {
+KMEANS_INIT_BADARG_TEST("throws if data is empty") {
     const auto desc = this->get_descriptor().set_cluster_count(2);
-
     REQUIRE_THROWS_AS(this->compute(desc, table{}), domain_error);
 }
 
@@ -79,7 +78,7 @@ KMEANS_INIT_BADARG_TEST("throws if  cluster count leads to overflow") {
     const auto data_table = homogen_table::wrap(data, row_count, column_count);
 
     const auto desc = this->get_descriptor().set_cluster_count(0x7FFFFFFFFFFFFFFF);
-    REQUIRE_THROWS_AS(this->compute(desc, data_table), range_error);
+    REQUIRE_THROWS_AS(this->compute(desc, data_table), domain_error);
 }
 
 } // namespace oneapi::dal::kmeans_init::test

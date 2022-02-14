@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -142,10 +142,69 @@ private:
 
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
 };
-
 } // namespace v1
 
-using v1::train_input;
+namespace v2 {
+
+/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+///                be :expr:`task::classification` or :expr:`task::regression`.
+template <typename Task = task::by_default>
+class train_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
+public:
+    using task_t = Task;
+
+    /// Creates a new instance of the class with the given :literal:`data`,
+    /// :literal:`responses` and :literal:`weights` property values
+    train_input(const table& data, const table& responses, const table& weights = table{});
+
+    /// The training set $X$
+    /// @remark default = table{}
+    const table& get_data() const;
+
+    auto& set_data(const table& value) {
+        set_data_impl(value);
+        return *this;
+    }
+
+    /// Vector of labels $y$ for the training set $X$
+    /// @remark default = table{}
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
+
+    /// Vector of responses $y$ for the training set $X$
+    /// @remark default = table{}
+    const table& get_responses() const;
+
+    auto& set_responses(const table& value) {
+        set_responses_impl(value);
+        return *this;
+    }
+
+    /// The vector of weights $w$ for the training set $X$
+    /// @remark default = table{}
+    const table& get_weights() const;
+
+    auto& set_weights(const table& value) {
+        set_weights_impl(value);
+        return *this;
+    }
+
+private:
+    void set_data_impl(const table& value);
+    void set_responses_impl(const table& value);
+    void set_weights_impl(const table& value);
+
+    dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
+};
+} // namespace v2
+
 using v1::train_result;
+using v2::train_input;
 
 } // namespace oneapi::dal::decision_forest

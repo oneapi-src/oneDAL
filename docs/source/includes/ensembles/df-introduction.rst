@@ -14,7 +14,6 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-
 Decision Forest (DF) :capterm:`classification` and :capterm:`regression` algorithms are based on an ensemble of
 tree-structured classifiers, which are known as :ref:`decision trees <dt>`. Decision forest is built
 using the general technique of bagging, a bootstrap aggregation, and a random choice of features.

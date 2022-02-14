@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2021 Intel Corporation
+# Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,3 +47,6 @@ html: create_rst_examples Makefile
 
 html-github: create_rst_examples Makefile
 	@$(SPHINXBUILD) -W --keep-going -w docbuild-log.txt -n -b html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+html-test: create_rst_examples Makefile
+	@$(SPHINXBUILD) -W --keep-going -w docbuild-log.txt -n -b $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
