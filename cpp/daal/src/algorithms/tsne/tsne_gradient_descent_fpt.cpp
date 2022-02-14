@@ -604,7 +604,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
         delete tls;
     });
 
-    return services::Status();
+    return safeStat.detach();
 }
 
 template <bool DivComp, typename IdxType, typename DataType, daal::CpuType cpu>
