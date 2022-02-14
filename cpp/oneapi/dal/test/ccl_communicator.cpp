@@ -44,18 +44,16 @@ public:
 
     template <typename T>
     void test_bcast_on_device(T* buffer, std::int64_t count) {
-        if (count>1) {
-                    auto buffer_device = copy_to_device(buffer, count);
-                    get_new_comm().bcast(get_queue(), buffer_device.get_mutable_data(), count).wait();
-                    copy_to_host(buffer, buffer_device.get_data(), count);
+        if (count > 1) {
+            auto buffer_device = copy_to_device(buffer, count);
+            get_new_comm().bcast(get_queue(), buffer_device.get_mutable_data(), count).wait();
+            copy_to_host(buffer, buffer_device.get_data(), count);
         }
-        else{ 
-                    auto buffer_device = copy_to_device(buffer, 1);
-                    get_new_comm().bcast(get_queue(), buffer_device.get_mutable_data(), 1).wait();
-                    copy_to_host(buffer, buffer_device.get_data(), 1);
-
+        else {
+            auto buffer_device = copy_to_device(buffer, 1);
+            get_new_comm().bcast(get_queue(), buffer_device.get_mutable_data(), 1).wait();
+            copy_to_host(buffer, buffer_device.get_data(), 1);
         }
-                    
     }
 
     template <typename T>
@@ -151,7 +149,6 @@ TEST_M(ccl_comm_test, "bcast") {
     }
 }
 
-
 // TEST_M(ccl_comm_test, "empty bcast") {
 //     constexpr std::int64_t count = 0;
 
@@ -168,13 +165,10 @@ TEST_M(ccl_comm_test, "bcast") {
 // #endif
 // }
 
-
-
 TEST_M(ccl_comm_test, "bcast single value") {
-
     float value;
     if (get_new_comm().is_root_rank()) {
-        value =  float(1);
+        value = float(1);
     }
 
     SECTION("host") {
@@ -183,8 +177,6 @@ TEST_M(ccl_comm_test, "bcast single value") {
 
     REQUIRE(value == float(1));
 }
-
-
 
 TEST_M(ccl_comm_test, "allreduce") {
     constexpr std::int64_t count = 100;
@@ -210,13 +202,11 @@ TEST_M(ccl_comm_test, "allreduce") {
     }
 }
 
-
 // TEST_M(ccl_comm_test, "allreduce single value") {
 //     constexpr std::int64_t count = 1;
 
 //     float buffer[count];
 //     buffer[0] = 1.0f;
-    
 
 //     SECTION("host") {
 //         test_allreduce(buffer, count);
@@ -228,13 +218,13 @@ TEST_M(ccl_comm_test, "allreduce") {
 
 //     const std::int64_t rank_count = get_new_comm().get_rank_count();
 //     REQUIRE(buffer[0] == float(rank_count));
-    
+
 // }
 
 // TEST_M(ccl_comm_test, "empty allreduce") {
 //     constexpr std::int64_t count = 1;
 
-//     float* buffer = nullptr; 
+//     float* buffer = nullptr;
 
 //     SECTION("host") {
 //         test_allreduce(buffer, count);
@@ -298,7 +288,7 @@ TEST_M(ccl_comm_test, "allgatherv") {
     for (std::int64_t i = 0; i < total_size; i++) {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
     }
- }
+}
 
 } // namespace oneapi::dal::test
 #endif
