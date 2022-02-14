@@ -54,6 +54,9 @@ inline void read_edge_list(const std::string &name, edge_list<Vertex> &elist) {
         }
         edgeline = line.c_str();
         source_vertex = daal_string_to_int(edgeline, &source_endptr);
+        if (std::isspace(*(source_endptr))) {
+            source_endptr++;
+        }
         destination_vertex = daal_string_to_int(source_endptr, &dest_endptr);
 
         if (source_endptr == dest_endptr) {
@@ -102,7 +105,13 @@ inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, W
         }
         edgeline = line.c_str();
         source_vertex = daal_string_to<Vertex>(edgeline, &source_endptr);
+        if (std::isspace(*(source_endptr))) {
+            source_endptr++;
+        }
         destination_vertex = daal_string_to<Vertex>(source_endptr, &dest_endptr);
+        if (std::isspace(*(dest_endptr))) {
+            dest_endptr++;
+        }
         edge_value = daal_string_to<Weight>(dest_endptr, &value_endptr);
 
         if (dest_endptr == value_endptr) {
