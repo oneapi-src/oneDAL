@@ -49,9 +49,8 @@ public:
                     get_new_comm().bcast(get_queue(), buffer_device.get_mutable_data(), count).wait();
                     copy_to_host(buffer, buffer_device.get_data(), count);
         }
-        else{       std::cout<<"count =  "<<count<<" buffer = "<<buffer<<"\n";
+        else{ 
                     auto buffer_device = copy_to_device(buffer, 1);
-                    std::cout<<"copy buffer device DONE\n";
                     get_new_comm().bcast(get_queue(), buffer_device.get_mutable_data(), 1).wait();
                     copy_to_host(buffer, buffer_device.get_data(), 1);
 
@@ -161,8 +160,6 @@ TEST_M(ccl_comm_test, "bcast") {
 //     SECTION("host") {
 //         test_bcast(empty_buf, count);
 //     }
-//     std::cout<<"device\n";
-//     std::cout<<empty_buf<<count<<"\n";
 
 // #ifdef ONEDAL_DATA_PARALLEL
 //     SECTION("device") {
@@ -243,7 +240,6 @@ TEST_M(ccl_comm_test, "allreduce") {
 //         test_allreduce(buffer, count);
 //     }
 // #ifdef ONEDAL_DATA_PARALLEL
-//     std::cout<<"device\n";
 //     SECTION("device") {
 //         test_allreduce_on_device(buffer, count);
 //     }
