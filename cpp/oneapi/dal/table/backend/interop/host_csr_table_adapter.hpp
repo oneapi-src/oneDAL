@@ -37,12 +37,14 @@ class host_csr_table_adapter : public daal::data_management::CSRNumericTable {
     using ptr_index_t = daal::services::SharedPtr<std::size_t>;
     using status_t = daal::services::Status;
     using rw_mode_t = daal::data_management::ReadWriteMode;
+    using array_data_t = dal::array<Data>;
+    using array_index_t = dal::array<std::int64_t>;
 
     template <typename T>
     using block_desc_t = daal::data_management::CSRBlockDescriptor<T>;
 
 public:
-    static ptr_t create(const detail::csr_table& table);
+    static ptr_t create(const table& table);
 
 private:
     status_t getSparseBlock(std::size_t vector_idx,
@@ -72,10 +74,10 @@ private:
                                      rw_mode_t rwflag,
                                      block_desc_t<BlockData>& block);
 
-    host_csr_table_adapter(const detail::csr_table& table, status_t& stat);
+    host_csr_table_adapter(const table& table, status_t& stat);
 
 private:
-    detail::csr_table original_table_;
+    table original_table_;
 };
 
 } // namespace oneapi::dal::backend::interop

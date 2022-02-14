@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/table/backend/accessor_impl.hpp"
 
 namespace oneapi::dal {
 namespace v1 {
@@ -99,7 +100,7 @@ public:
             std::int64_t column_index,
             const range& row_range = { 0, -1 }) const {
         pull_iface_->pull_column(detail::default_host_policy{}, block, column_index, row_range);
-        return get_block_data(block);
+        return impl_.get_block_data(block);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -156,7 +157,7 @@ public:
                                  column_index,
                                  row_range,
                                  alloc);
-        return get_block_data(block);
+        return impl_.get_block_data(block);
     }
 #endif
 
@@ -181,13 +182,7 @@ public:
 #endif
 
 private:
-    static T* get_block_data(const dal::array<data_t>& block) {
-        if constexpr (is_readonly) {
-            return block.get_data();
-        }
-        return block.get_mutable_data();
-    }
-
+    backend::accessor_impl<T> impl_;
     detail::shared<detail::pull_column_iface> pull_iface_;
     detail::shared<detail::push_column_iface> push_iface_;
 };

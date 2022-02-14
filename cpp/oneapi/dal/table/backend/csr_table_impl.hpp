@@ -111,7 +111,9 @@ public:
 
     template <typename T>
     void pull_csr_block_template(const detail::default_host_policy& policy,
-                                 detail::csr_block<T>& block,
+                                 dal::array<T>& data,
+                                 dal::array<std::int64_t>& column_indices,
+                                 dal::array<std::int64_t>& row_indices,
                                  const detail::csr_indexing& indexing,
                                  const range& rows) const {
         csr_info origin_info{ meta_.get_data_type(0),
@@ -136,7 +138,9 @@ public:
                        data_,
                        column_indices_,
                        row_indices_,
-                       block,
+                       data,
+                       column_indices,
+                       row_indices,
                        alloc_kind::host);
     }
 

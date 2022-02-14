@@ -196,23 +196,22 @@ inline table convert_from_daal_csr_table(const daal::data_management::NumericTab
     auto block_owner = std::make_shared<csr_block_owner<T>>(csr_block_owner<T>{ nt });
 
     ONEDAL_ASSERT(sizeof(std::size_t) == sizeof(std::int64_t));
-
-    return detail::csr_table{
-        array<T>{ block_owner->get_data(),
-                  block_owner->get_element_count(),
-                  [block_owner](const T* p) {} },
-        array<std::int64_t>{ reinterpret_cast<std::int64_t*>(block_owner->get_column_indices()),
-                             block_owner->get_element_count(),
-                             [block_owner](const std::int64_t* p) {} },
-        array<std::int64_t>{ reinterpret_cast<std::int64_t*>(block_owner->get_row_indices()),
-                             block_owner->get_row_count() + 1,
-                             [block_owner](const std::int64_t* p) {} },
-        block_owner->get_column_count()
-    };
+    return detail::csr_table_builder{}
+                .reset(array<T>{ block_owner->get_data(),
+                                 block_owner->get_element_count(),
+                                 [block_owner](const T* p) {} },
+                       array<std::int64_t>{ reinterpret_cast<std::int64_t*>(block_owner->get_column_indices()),
+                                            block_owner->get_element_count(),
+                                            [block_owner](const std::int64_t* p) {} },
+                       array<std::int64_t>{ reinterpret_cast<std::int64_t*>(block_owner->get_row_indices()),
+                                            block_owner->get_row_count() + 1,
+                                            [block_owner](const std::int64_t* p) {} },
+                       block_owner->get_column_count())
+                .build();
 }
 
 inline daal::data_management::CSRNumericTablePtr wrap_by_host_csr_adapter(
-    const detail::csr_table& table) {
+    const table& table) {
     const auto& dtype = table.get_metadata().get_data_type(0);
 
     switch (dtype) {

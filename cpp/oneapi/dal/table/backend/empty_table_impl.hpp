@@ -90,7 +90,9 @@ public:
 
     template <typename T>
     void pull_csr_block_template(const detail::default_host_policy& policy,
-                                 detail::csr_block<T>& block,
+                                 dal::array<T>& data,
+                                 dal::array<std::int64_t>& column_indices,
+                                 dal::array<std::int64_t>& row_indices,
                                  const detail::csr_indexing& indexing,
                                  const range& row_range) const {}
 

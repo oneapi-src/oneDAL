@@ -14,7 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <tuple>
+
 #include "oneapi/dal/table/backend/interop/host_csr_table_adapter.hpp"
+#include "oneapi/dal/table/csr_row_accessor.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -41,7 +44,7 @@ static void convert_feature_information_to_daal(
 }
 
 template <typename Data>
-auto host_csr_table_adapter<Data>::create(const detail::csr_table& table) -> ptr_t {
+auto host_csr_table_adapter<Data>::create(const table& table) -> ptr_t {
     status_t internal_stat;
     auto result = ptr_t{ new host_csr_table_adapter(table, internal_stat) };
     status_to_exception(internal_stat);
@@ -98,7 +101,7 @@ std::size_t host_csr_table_adapter<Data>::getDataSize() {
 template <typename Data>
 void host_csr_table_adapter<Data>::freeDataMemoryImpl() {
     base::freeDataMemoryImpl();
-    original_table_ = detail::csr_table{};
+    original_table_ = detail::csr_table_builder{}.build();
 }
 
 template <typename Data>
@@ -116,32 +119,39 @@ auto host_csr_table_adapter<Data>::read_sparse_values_impl(std::size_t vector_id
 }
 
 template <typename Data>
-host_csr_table_adapter<Data>::host_csr_table_adapter(const detail::csr_table& table, status_t& stat)
-        // The following const_cast is safe only when this class is used for read-only
-        // operations. Use on write leads to undefined behaviour.
-        : base(ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
-               ptr_index_t{ const_cast<std::size_t*>(
-                                reinterpret_cast<const std::size_t*>(table.get_column_indices())),
-                            daal_object_owner(table) },
-               ptr_index_t{ const_cast<std::size_t*>(
-                                reinterpret_cast<const std::size_t*>(table.get_row_indices())),
-                            daal_object_owner(table) },
-               table.get_column_count(),
-               table.get_row_count(),
-               daal::data_management::CSRNumericTableIface::CSRIndexing::oneBased,
-               stat) {
-    if (!stat.ok()) {
+host_csr_table_adapter<Data>::host_csr_table_adapter(const table& table, status_t& stat) :
+            original_table_(table) {
+    this->_layout = daal::data_management::NumericTableIface::csrArray;
+    this->_indexing = daal::data_management::CSRNumericTableIface::CSRIndexing::oneBased;
+    this->_obsnum = table.get_row_count();
+    this->_ddict = daal::data_management::NumericTableDictionaryPtr(
+        new daal::data_management::NumericTableDictionary(table.get_column_count(),
+                                                          daal::data_management::DictionaryIface::equal));
+    this->_memStatus = daal::data_management::NumericTableIface::userAllocated;
+    this->_normalizationFlag = daal::data_management::NumericTable::nonNormalized;
+
+    csr_row_accessor<const Data> acc{ table };
+    std::tuple<array_data_t, array_index_t, array_index_t> block = acc.pull();
+    ///// csr_block<Data> block = acc.pull();
+    // The following const_cast is safe only when this class is used for read-only
+    // operations. Use on write leads to undefined behaviour.
+    this->_status |= setArrays<Data>(
+        ptr_data_t{ const_cast<Data*>(std::get<0>(block).get_data()), daal_object_owner(table) },
+        ptr_index_t{ const_cast<std::size_t*>(
+                        reinterpret_cast<const std::size_t*>(std::get<1>(block).get_data())),
+                        daal_object_owner(table) },
+        ptr_index_t{ const_cast<std::size_t*>(
+                        reinterpret_cast<const std::size_t*>(std::get<2>(block).get_data())),
+                        daal_object_owner(table) });
+    this->_defaultFeature.template setType<Data>();
+    this->_status |= _ddict->setAllFeatures(_defaultFeature);
+      if (!this->_status.ok()) {
         return;
     }
     else if (!table.has_data()) {
         stat.add(daal::services::ErrorIncorrectParameter);
         return;
     }
-
-    original_table_ = table;
-
-    this->_memStatus = daal::data_management::NumericTableIface::userAllocated;
-    this->_layout = daal::data_management::NumericTableIface::csrArray;
 
     auto& daal_dictionary = *this->getDictionarySharedPtr();
     convert_feature_information_to_daal(original_table_.get_metadata(), daal_dictionary);

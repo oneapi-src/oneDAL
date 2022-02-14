@@ -37,7 +37,7 @@ void pull_data_impl(const Policy& policy,
                     const bool same_data_type,
                     const std::int64_t origin_offset,
                     const std::int64_t block_size,
-                    detail::csr_block<BlockData>& block,
+                    array<BlockData>& data,
                     alloc_kind kind,
                     bool preserve_mutability) {
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
@@ -49,17 +49,17 @@ void pull_data_impl(const Policy& policy,
         refer_origin_data(origin_data,
                           origin_offset * block_dtype_size,
                           block_size,
-                          block.data,
+                          data,
                           preserve_mutability);
     }
     else {
-        if (block.data.get_count() < block_size || !block.data.has_mutable_data() ||
-            alloc_kind_requires_copy(get_alloc_kind(block.data), kind)) {
-            reset_array(policy, block.data, block_size, kind);
+        if (data.get_count() < block_size || !data.has_mutable_data() ||
+            alloc_kind_requires_copy(get_alloc_kind(data), kind)) {
+            reset_array(policy, data, block_size, kind);
         }
 
         auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
-        auto dst_data = block.data.get_mutable_data();
+        auto dst_data = data.get_mutable_data();
 
         backend::convert_vector(policy,
                                 src_data + origin_offset * block_dtype_size,
@@ -70,27 +70,27 @@ void pull_data_impl(const Policy& policy,
     }
 }
 
-template <typename Policy, typename BlockData>
+template <typename Policy>
 void pull_column_indices_impl(const Policy& policy,
                               const array<std::int64_t>& origin_column_indices,
                               const std::int64_t origin_offset,
                               const std::int64_t block_size,
-                              detail::csr_block<BlockData>& block,
+                              array<std::int64_t>& column_indices,
                               alloc_kind kind,
                               bool preserve_mutability) {
     if (!alloc_kind_requires_copy(get_alloc_kind(origin_column_indices), kind)) {
         refer_origin_data(origin_column_indices,
                           origin_offset,
                           block_size,
-                          block.column_indices,
+                          column_indices,
                           preserve_mutability);
     }
     else {
-        reset_array(policy, block.column_indices, block_size, kind);
+        reset_array(policy, column_indices, block_size, kind);
 
         const auto dtype_size = sizeof(std::int64_t);
         auto src_data = origin_column_indices.get_data() + origin_offset * dtype_size;
-        auto dst_data = block.column_indices.get_mutable_data();
+        auto dst_data = column_indices.get_mutable_data();
 
         backend::convert_vector(policy,
                                 src_data + origin_offset * dtype_size,
@@ -101,28 +101,28 @@ void pull_column_indices_impl(const Policy& policy,
     }
 }
 
-template <typename Policy, typename BlockData>
+template <typename Policy>
 void pull_row_indices_impl(const Policy& policy,
                            const array<std::int64_t>& origin_row_indices,
                            const block_info& block_info,
-                           detail::csr_block<BlockData>& block,
+                           array<std::int64_t>& row_indices,
                            alloc_kind kind,
                            bool preserve_mutability) {
-    if (block.row_indices.get_count() < block_info.row_count_ + 1 ||
-        !block.row_indices.has_mutable_data() ||
-        alloc_kind_requires_copy(get_alloc_kind(block.row_indices), kind)) {
-        reset_array(policy, block.row_indices, block_info.row_count_ + 1, kind);
+    if (row_indices.get_count() < block_info.row_count_ + 1 ||
+        !row_indices.has_mutable_data() ||
+        alloc_kind_requires_copy(get_alloc_kind(row_indices), kind)) {
+        reset_array(policy, row_indices, block_info.row_count_ + 1, kind);
     }
     if (block_info.row_offset_ == 0) {
         refer_origin_data(origin_row_indices,
                           0,
                           block_info.row_count_,
-                          block.row_indices,
+                          row_indices,
                           preserve_mutability);
     }
     else {
         auto src_row_indices = origin_row_indices.get_data();
-        auto dst_row_indices = block.row_indices.get_mutable_data();
+        auto dst_row_indices = row_indices.get_mutable_data();
 
         for (std::int64_t i = 0; i < block_info.row_count_ + 1; i++) {
             dst_row_indices[i] = src_row_indices[block_info.row_offset_ + i] -
@@ -138,7 +138,9 @@ void pull_csr_block_impl(const Policy& policy,
                          const array<byte_t>& origin_data,
                          const array<std::int64_t>& origin_column_indices,
                          const array<std::int64_t>& origin_row_indices,
-                         detail::csr_block<BlockData>& block,
+                         array<BlockData>& data,
+                         array<std::int64_t>& column_indices,
+                         array<std::int64_t>& row_indices,
                          alloc_kind kind,
                          bool preserve_mutability) {
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
@@ -165,24 +167,24 @@ void pull_csr_block_impl(const Policy& policy,
                                       same_data_type,
                                       origin_offset,
                                       block_size,
-                                      block,
+                                      data,
                                       kind,
                                       preserve_mutability);
 
-    pull_column_indices_impl<Policy, BlockData>(policy,
-                                                origin_column_indices,
-                                                origin_offset,
-                                                block_size,
-                                                block,
-                                                kind,
-                                                preserve_mutability);
+    pull_column_indices_impl<Policy>(policy,
+                                     origin_column_indices,
+                                     origin_offset,
+                                     block_size,
+                                     column_indices,
+                                     kind,
+                                     preserve_mutability);
 
-    pull_row_indices_impl<Policy, BlockData>(policy,
-                                             origin_row_indices,
-                                             block_info,
-                                             block,
-                                             kind,
-                                             preserve_mutability);
+    pull_row_indices_impl<Policy>(policy,
+                                  origin_row_indices,
+                                  block_info,
+                                  row_indices,
+                                  kind,
+                                  preserve_mutability);
 }
 
 template <typename Policy, typename BlockData>
@@ -203,7 +205,9 @@ void csr_pull_block(const Policy& policy,
                     const array<byte_t>& origin_data,
                     const array<std::int64_t>& origin_column_indices,
                     const array<std::int64_t>& origin_row_indices,
-                    detail::csr_block<BlockData>& block,
+                    array<BlockData>& data,
+                    array<std::int64_t>& column_indices,
+                    array<std::int64_t>& row_indices,
                     alloc_kind requested_alloc_kind,
                     bool preserve_mutability) {
     switch (origin_info.layout_) {
@@ -214,7 +218,9 @@ void csr_pull_block(const Policy& policy,
                                 origin_data,
                                 origin_column_indices,
                                 origin_row_indices,
-                                block,
+                                data,
+                                column_indices,
+                                row_indices,
                                 requested_alloc_kind,
                                 preserve_mutability);
             break;
@@ -238,7 +244,9 @@ void csr_pull_block(const Policy& policy,
                                  const array<byte_t>& origin_data,                 \
                                  const array<std::int64_t>& origin_column_indices, \
                                  const array<std::int64_t>& origin_row_indices,    \
-                                 detail::csr_block<BlockData>& block,              \
+                                 array<BlockData>& data,                           \
+                                 array<std::int64_t>& column_indices,              \
+                                 array<std::int64_t>& row_indices,                 \
                                  alloc_kind requested_alloc_kind,                  \
                                  bool preserve_mutability);
 

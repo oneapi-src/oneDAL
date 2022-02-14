@@ -107,7 +107,7 @@ MSG(column_indices_lt_min_value, "Column indices are less than the minimum accep
 MSG(column_indices_gt_max_value, "Column indices are larger than the maximum acceptable value")
 MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for csr table")
 MSG(object_does_not_provide_read_access_to_csr,
-    "Given object does not provide read access to the block of csr format")
+    "Given object does not provide read access to the block in CSR format")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")

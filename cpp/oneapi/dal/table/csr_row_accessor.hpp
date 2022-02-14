@@ -16,8 +16,12 @@
 
 #pragma once
 
+#include <tuple>
+#include <type_traits>
+
 #include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/table/backend/accessor_impl.hpp"
 
 namespace oneapi::dal {
 namespace v1 {
@@ -32,26 +36,50 @@ template <typename T>
 class csr_row_accessor {
     using data_t = std::remove_const_t<T>;
     static constexpr bool is_readonly = std::is_const_v<T>;
+    typedef typename std::conditional<is_readonly, const std::int64_t, std::int64_t>::type I;
+    using array_d = dal::array<data_t>;
+    using array_i = dal::array<std::int64_t>;
 
 public:
     /// Creates a read-only accessor object from the table. Available only for
     /// const-qualified :literal:`T`.
     template <typename U = T, std::enable_if_t<std::is_const_v<U>, int> = 0>
-    explicit csr_row_accessor(const table& table) : pull_iface_(detail::get_pull_rows_iface(table)) {
+    explicit csr_row_accessor(const table& table) : pull_iface_(detail::get_pull_csr_block_iface(table)) {
         if (!pull_iface_) {
             using msg = detail::error_messages;
-            throw invalid_argument{ msg::object_does_not_provide_read_access_to_rows() };
+            throw invalid_argument{ msg::object_does_not_provide_read_access_to_csr() };
         }
+    }
+
+    explicit csr_row_accessor(const detail::table_builder& builder)
+            : pull_iface_(detail::get_pull_csr_block_iface(static_cast<const detail::csr_table_builder&>(builder))) {
+        if (!pull_iface_) {
+            using msg = detail::error_messages;
+            throw invalid_argument{ msg::object_does_not_provide_read_access_to_csr() };
+        }
+    }
+
+    std::tuple<array_d, array_i, array_i> pull(const range& row_range = { 0, -1 },
+                           const detail::csr_indexing indexing = detail::csr_indexing::one_based) const {
+        array_d data;
+        array_i column_indices;
+        array_i row_indices;
+        pull(data, column_indices, row_indices, row_range, indexing);
+        return std::make_tuple(data, column_indices, row_indices);
+    }
+
+    std::tuple<T*, I*, I*> pull(array_d& data, array_i& column_indices, array_i& row_indices,
+                           const range& row_range = { 0, -1 },
+                           const detail::csr_indexing indexing = detail::csr_indexing::one_based) const {
+        pull_iface_->pull_csr_block(detail::default_host_policy{}, data, column_indices, row_indices, indexing, row_range);
+        return std::make_tuple(data_impl_.get_block_data(data),
+                               indices_impl_.get_block_data(column_indices),
+                               indices_impl_.get_block_data(row_indices));
     }
 
 private:
-    static T* get_block_data(const dal::array<data_t>& block) {
-        if constexpr (is_readonly) {
-            return block.get_data();
-        }
-        return block.get_mutable_data();
-    }
-
+    backend::accessor_impl<T> data_impl_;
+    backend::accessor_impl<I> indices_impl_;
     detail::shared<detail::pull_csr_block_iface> pull_iface_;
 };
 

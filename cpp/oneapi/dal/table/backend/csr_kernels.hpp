@@ -78,7 +78,9 @@ void csr_pull_block(const Policy& policy,
                     const array<byte_t>& origin_data,
                     const array<std::int64_t>& origin_column_indices,
                     const array<std::int64_t>& origin_row_indices,
-                    detail::csr_block<BlockData>& block,
+                    array<BlockData>& data,
+                    array<std::int64_t>& column_indices,
+                    array<std::int64_t>& row_indices,
                     alloc_kind requested_alloc_kind,
                     bool preserve_mutability = false);
 

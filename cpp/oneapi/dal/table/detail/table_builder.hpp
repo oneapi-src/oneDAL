@@ -168,5 +168,6 @@ private:
 
 using v1::table_builder;
 using v1::homogen_table_builder;
+using v1::csr_table_builder;
 
 } // namespace oneapi::dal::detail
