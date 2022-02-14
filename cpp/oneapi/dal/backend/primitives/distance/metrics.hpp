@@ -22,8 +22,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-#ifdef ONEDAL_DATA_PARALLEL
-
 struct distance_metric_tag;
 
 template <typename Float>
@@ -101,6 +99,21 @@ public:
     }
 };
 
-#endif
+template <typename Float>
+struct chebyshev_metric : public metric_base<Float> {
+public:
+    chebyshev_metric() {}
+    template <typename InputIt1, typename InputIt2>
+    Float operator()(InputIt1 first1, InputIt1 last1, InputIt2 first2) const {
+        Float max_difference = 0;
+        auto it1 = first1;
+        auto it2 = first2;
+        for (; it1 != last1; ++it1, ++it2) {
+            const auto diff = std::abs(*it1 - *it2);
+            max_difference = std::max(max_difference, diff);
+        }
+        return max_difference;
+    }
+};
 
 } // namespace oneapi::dal::backend::primitives
