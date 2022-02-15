@@ -57,7 +57,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
 
     const auto data_use_in_model = daal_knn::doUse;
     daal_knn::Parameter original_daal_parameter(
