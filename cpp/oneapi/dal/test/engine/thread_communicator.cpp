@@ -155,13 +155,12 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf,
     });
 }
 
-void thread_communicator_send_receive_replace::operator()(byte_t* buf,
-                                                          std::int64_t count,
-                                                          const data_type& dtype,
-                                                          std::int64_t destination_rank,
-                                                          std::int64_t source_rank) {
-    ONEDAL_ASSERT(send_buf);
-    ONEDAL_ASSERT(recv_buf);
+void thread_communicator_sendrecv_replace::operator()(byte_t* buf,
+                                                      std::int64_t count,
+                                                      const data_type& dtype,
+                                                      std::int64_t destination_rank,
+                                                      std::int64_t source_rank) {
+    ONEDAL_ASSERT(buf);
 
     const std::int64_t rank = ctx_.get_this_thread_rank();
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
@@ -497,14 +496,14 @@ auto thread_communicator_impl<MemoryAccessKind>::allreduce(const byte_t* send_bu
 }
 
 template <typename MemoryAccessKind>
-auto thread_communicator_impl<MemoryAccessKind>::send_receive_replace(byte_t* buf,
-                                                                      std::int64_t count,
-                                                                      const data_type& dtype,
-                                                                      std::int64_t destination_rank,
-                                                                      std::int64_t source_rank)
+auto thread_communicator_impl<MemoryAccessKind>::sendrecv_replace(byte_t* buf,
+                                                                  std::int64_t count,
+                                                                  const data_type& dtype,
+                                                                  std::int64_t destination_rank,
+                                                                  std::int64_t source_rank)
     -> request_t* {
     collective_operation_guard guard{ ctx_ };
-    send_receive_replace_(buf, count, dtype, destination_rank, source_rank);
+    sendrecv_replace_(buf, count, dtype, destination_rank, source_rank);
     return nullptr;
 }
 

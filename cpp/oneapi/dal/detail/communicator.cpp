@@ -174,7 +174,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-spmd::request_iface* spmd_communicator_via_host_impl::send_receive_replace(
+spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
     sycl::queue& q,
     byte_t* buf,
     std::int64_t count,
@@ -201,11 +201,11 @@ spmd::request_iface* spmd_communicator_via_host_impl::send_receive_replace(
     const auto buff_host = array<byte_t>::empty(size);
     memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
 
-    wait_request(send_receive_replace(buff_host.get_mutable_data(),
-                                      count,
-                                      dtype,
-                                      destination_rank,
-                                      source_rank));
+    wait_request(sendrecv_replace(buff_host.get_mutable_data(),
+                                  count,
+                                  dtype,
+                                  destination_rank,
+                                  source_rank));
 
     memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
 
