@@ -75,7 +75,7 @@ public:
     }
 
     template <typename T>
-    void test_allreduce_v(T& value) {
+    void test_allreduce_value(T& value) {
         get_new_comm().allreduce(value, spmd::reduce_op::sum).wait();
     }
 
@@ -185,6 +185,7 @@ TEST_M(mpi_comm_test, "bcast") {
     }
 }
 
+// TODO
 // TEST_M(mpi_comm_test, "empty bcast") {
 //     constexpr std::int64_t count = 0;
 
@@ -202,7 +203,7 @@ TEST_M(mpi_comm_test, "bcast") {
 // }
 
 TEST_M(mpi_comm_test, "bcast single value") {
-    float value;
+    float value = 0.0f;
     if (get_new_comm().is_root_rank()) {
         value = float(1);
     }
@@ -239,10 +240,8 @@ TEST_M(mpi_comm_test, "allreduce") {
 }
 
 TEST_M(mpi_comm_test, "allreduce_single_value") {
-    float value = float(1);
-
     SECTION("host") {
-        test_allreduce_v(value);
+        test_allreduce_value(value);
     }
 
     const std::int64_t rank_count = get_new_comm().get_rank_count();
