@@ -185,9 +185,15 @@ public:
             internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
         }
 
+        const std::int64_t data_type_size = get_data_type_size(dtype);
+        std::vector<void*> recv_bufs(rank_count_);
+        for (std::int64_t i = 0; i < rank_count_; i++) {
+            recv_bufs[i] =  recv_buf + data_type_size * displs_host[i];
+        }
+
         auto event = ccl::allgatherv(send_buf,
                                      integral_cast<int>(send_count),
-                                     recv_buf,
+                                     recv_bufs,
                                      internal_recv_counts,
                                      make_ccl_data_type(dtype),
                                      device_comm_->get_ref(),

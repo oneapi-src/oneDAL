@@ -82,7 +82,33 @@ public:
         for (std::int64_t i = 0; i < comm.get_rank_count(); i++) {
             total_count += recv_counts[i];
         }
+        
+        auto recv_buffer_device =
+            array<T>::empty(get_queue(), total_count, sycl::usm::alloc::device);
+        std::cout<<"kekdev\n";
+        comm.allgatherv(get_queue(),
+                        send_buffer_device.get_mutable_data(),
+                        send_count,
+                        recv_buffer_device.get_mutable_data(),
+                        recv_counts,
+                        displs)
+            .wait();
+            
+        
+        copy_to_host(recv_buf, recv_buffer_device.get_data(), total_count);
+    }
 
+    template <typename T>
+    void test_allgatherv_on_device_arb_displ(T* send_buf,
+                                             std::int64_t send_count,
+                                             std::int64_t total_count,
+                                             T* recv_buf,
+                                             std::int64_t* recv_counts,
+                                             std::int64_t* displs) {
+        
+        auto comm = get_new_comm();
+        auto send_buffer_device = copy_to_device(send_buf, send_count);
+       
         auto recv_buffer_device =
             array<T>::empty(get_queue(), total_count, sycl::usm::alloc::device);
 
@@ -93,7 +119,9 @@ public:
                         recv_counts,
                         displs)
             .wait();
+
         copy_to_host(recv_buf, recv_buffer_device.get_data(), total_count);
+
     }
 
     template <typename T>
@@ -226,15 +254,15 @@ TEST_M(ccl_comm_test, "allgatherv") {
                         displs.data());
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
-    SECTION("device") {
-        test_allgatherv_on_device(send_buffer.data(),
-                                  rank_size,
-                                  recv_buffer.data(),
-                                  recv_counts.data(),
-                                  displs.data());
-    }
-#endif
+// #ifdef ONEDAL_DATA_PARALLEL
+//     SECTION("device") {
+//         test_allgatherv_on_device(send_buffer.data(),
+//                                   rank_size,
+//                                   recv_buffer.data(),
+//                                   recv_counts.data(),
+//                                   displs.data());
+//     }
+// #endif
 
     for (std::int64_t i = 0; i < total_size; i++) {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
@@ -246,67 +274,52 @@ TEST_M(ccl_comm_test, "allgatherv_arbitrary_displacements") {
     const std::int64_t granularity = 10;
     const std::int64_t rank_count = comm.get_rank_count();
     const std::int64_t rank = comm.get_rank();
-    constexpr  std::int64_t arb_displc = 10;
-    std::vector<std::int64_t> recv_counts_final_buf(rank_count);
-    std::vector<std::int64_t> recv_counts_send_buf(rank_count);
+    constexpr std::int64_t gap = 10;
+    std::vector<std::int64_t> recv_counts(rank_count);
     std::vector<std::int64_t> displs(rank_count);
     std::int64_t total_size = 0;
-
     for (std::int64_t i = 0; i < rank_count; i++) {
-        recv_counts_send_buf[i] = (i + 1) * granularity;
-        recv_counts_final_buf[i] = (i + 1) * granularity + arb_displc;
+        recv_counts[i] = (i + 1) * granularity;
         displs[i] = total_size;
-        total_size += recv_counts_final_buf[i];
+        total_size += recv_counts[i] + gap;
     }
 
-    const std::int64_t rank_size = recv_counts_send_buf[rank];
+    const std::int64_t rank_size = recv_counts[rank];
     std::vector<float> send_buffer(rank_size);
     for (std::int64_t i = 0; i < rank_size; i++) {
-            send_buffer[i] = float(rank);
+        send_buffer[i] = float(rank);
     }
-    std::vector<float> recv_buffer(total_size);
-    std::vector<float> final_buffer(total_size);
+    std::vector<float> recv_buffer(total_size, float(0));
+    std::vector<float> final_buffer(total_size, float(0));
     std::int64_t offset = 0;
-    for (std::int64_t i = 0; i < total_size; i++) {
-        recv_buffer[i] = float(-1);
-    }
     for (std::int64_t i = 0; i < rank_count; i++) {
-        for (std::int64_t j = 0; j < recv_counts_final_buf[i]; j++) {
-            if (j < (recv_counts_final_buf[i] - arb_displc)) {
+        for (std::int64_t j = 0; j < recv_counts[i]; j++) {
                 final_buffer[offset] = float(i);
                 offset++;
-            }
-            else {
-                final_buffer[offset] = float(-1);
-                offset++;
-            }
         }
+        offset += gap;
     }
 
     SECTION("host") {
         test_allgatherv(send_buffer.data(),
                         rank_size,
                         recv_buffer.data(),
-                        recv_counts_send_buf.data(),
+                        recv_counts.data(),
                         displs.data());
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     SECTION("device") {
-        test_allgatherv_on_device(send_buffer.data(),
-                                  rank_size,
-                                  recv_buffer.data(),
-                                  recv_counts_send_buf.data(),
-                                  displs.data());
+        test_allgatherv_on_device_arb_displ(send_buffer.data(),
+                                            rank_size,
+                                            total_size,
+                                            recv_buffer.data(),
+                                            recv_counts.data(),
+                                            displs.data());
     }
+
 #endif
-//     for (std::int64_t i = 0; i < total_size; i++) {
-//         std::cout<<i<<"\n";
-//         std::cout<<recv_buffer[i]<<"\n";
-//         std::cout<<final_buffer[i]<<"\n";
-//     }
-//     std::cout<<recv_buffer.size()<<"\n";
-//     std::cout<<recv_buffer.size()<<"\n";
+
     for (std::int64_t i = 0; i < total_size; i++) {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
     }
@@ -325,8 +338,11 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     for (std::int64_t i = 0; i < rank_count; i++) {
         recv_counts[i] = i != empty_rank ? (i + 1) * granularity : 0;
         displs[i] = total_size;
+        std::cout<<i<<"   "<< displs[i]<<"\n";
+        std::cout<<i<<"   "<< recv_counts[i]<<"\n";
         total_size += recv_counts[i];
     }
+        std::cout<< total_size<<"\n";
 
     const std::int64_t rank_size = recv_counts[rank];
     std::vector<float> send_buffer;
@@ -344,15 +360,22 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
             offset++;
         }
     }
+ std::cout<<"kek\n";
+//     SECTION("host") {
+//         test_allgatherv(send_buffer.data(),
+//                         rank_size,
+//                         recv_buffer.data(),
+//                         recv_counts.data(),
+//                         displs.data());
+//     }
+// std::cout<< "host yes\n";
 
-    SECTION("host") {
-        test_allgatherv(send_buffer.data(),
-                        rank_size,
-                        recv_buffer.data(),
-                        recv_counts.data(),
-                        displs.data());
+
+    for (std::int64_t i = 0; i < rank_count; i++) {
+        std::cout<<i<<"   "<< displs[i]<<"\n";
+        std::cout<<i<<"   "<< recv_counts[i]<<"\n";
     }
-
+        std::cout<< total_size<<"\n";
 #ifdef ONEDAL_DATA_PARALLEL
     SECTION("device") {
         test_allgatherv_on_device(send_buffer.data(),
@@ -361,8 +384,10 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
                                   recv_counts.data(),
                                   displs.data());
     }
-#endif
-
+#endif    
+for (std::int64_t i = 0; i < total_size; i++) {
+        std::cout<<i<<"i recv buf"<<recv_buffer[i]<<"\n";
+    }
     for (std::int64_t i = 0; i < total_size; i++) {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
     }
