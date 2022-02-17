@@ -529,13 +529,13 @@ protected:
         {
             _minSamplesSplit = 2 > par.minObservationsInSplitNode ? 2 : par.minObservationsInSplitNode;
             _minSamplesSplit = _minSamplesSplit > 2 * par.minObservationsInLeafNode ? _minSamplesSplit : 2 * par.minObservationsInLeafNode;
+            algorithmFPType totalWeights = 0.0;
             if (_weights)
             {
                 const size_t firstRow = 0;
                 const size_t lastRow  = x->getNumberOfRows();
                 ReadRows<algorithmFPType, cpu> bd(const_cast<NumericTable *>(_weights), firstRow, lastRow - firstRow + 1);
                 const auto pbd               = bd.get();
-                algorithmFPType totalWeights = 0.0;
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t i = 0; i < lastRow; ++i)
                 {
