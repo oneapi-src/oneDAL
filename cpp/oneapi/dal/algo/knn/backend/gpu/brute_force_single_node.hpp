@@ -52,8 +52,11 @@ using response_t = typename task_to_response_map<Task, Float>::type;
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename Task, typename Float, pr::ndorder torder,
-        pr::ndorder qorder, typename RespT = response_t<Task, Float>>
+template <typename Task,
+          typename Float,
+          pr::ndorder torder,
+          pr::ndorder qorder,
+          typename RespT = response_t<Task, Float>>
 sycl::event bf_kernel(sycl::queue& queue,
                       const descriptor_t<Task>& desc,
                       const pr::ndview<Float, 2, torder>& train,

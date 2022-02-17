@@ -104,7 +104,8 @@ static infer_result<Task> kernel(const context_gpu& ctx,
         (desc.get_voting_mode() == voting_t::distance)) {
         const auto length = de::check_mul_overflow(infer_row_count, neighbor_count);
         arr_distances = array<Float>::empty(queue, length, sycl::usm::alloc::device);
-        dists = pr::ndview<Float, 2>::wrap_mutable(arr_distances, { infer_row_count, neighbor_count });
+        dists =
+            pr::ndview<Float, 2>::wrap_mutable(arr_distances, { infer_row_count, neighbor_count });
     }
 
     auto arr_indices = array<idx_t>{};
@@ -112,7 +113,8 @@ static infer_result<Task> kernel(const context_gpu& ctx,
     if (desc.get_result_options().test(result_options::indices)) {
         const auto length = de::check_mul_overflow(infer_row_count, neighbor_count);
         arr_indices = array<idx_t>::empty(queue, length, sycl::usm::alloc::device);
-        indcs = pr::ndview<idx_t, 2>::wrap_mutable(arr_indices, { infer_row_count, neighbor_count });
+        indcs =
+            pr::ndview<idx_t, 2>::wrap_mutable(arr_indices, { infer_row_count, neighbor_count });
     }
 
     using train_t = ndarray_t<Float, cm_train>;
@@ -128,7 +130,8 @@ static infer_result<Task> kernel(const context_gpu& ctx,
         responses_data = pr::table2ndarray_1d<res_t>(queue, responses, sycl::usm::alloc::device);
     }
 
-    bf_kernel(queue, desc, train_data, query_data, responses_data, dists, indcs, resps).wait_and_throw();
+    bf_kernel(queue, desc, train_data, query_data, responses_data, dists, indcs, resps)
+        .wait_and_throw();
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 
@@ -161,12 +164,16 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     const bool cm_train = is_col_major(train);
     const bool cm_query = is_col_major(infer);
     if (cm_train) {
-        if (cm_query) return kernel<Float, Task, true, true>(ctx, desc, infer, m);
-        else return kernel<Float, Task, true, false>(ctx, desc, infer, m);
+        if (cm_query)
+            return kernel<Float, Task, true, true>(ctx, desc, infer, m);
+        else
+            return kernel<Float, Task, true, false>(ctx, desc, infer, m);
     }
     else {
-        if (cm_query) return kernel<Float, Task, false, true>(ctx, desc, infer, m);
-        else return kernel<Float, Task, false, false>(ctx, desc, infer, m);
+        if (cm_query)
+            return kernel<Float, Task, false, true>(ctx, desc, infer, m);
+        else
+            return kernel<Float, Task, false, false>(ctx, desc, infer, m);
     }
 }
 

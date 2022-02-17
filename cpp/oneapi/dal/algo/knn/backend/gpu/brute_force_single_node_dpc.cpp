@@ -213,8 +213,10 @@ protected:
 
         // Generally !csqrt is more probable
         const bool& csqrt = this->compute_sqrt_;
-        if (!csqrt) return pr::copy(queue, out_dts, inp_dts, deps);
-        else return copy_with_sqrt(queue, inp_dts, out_dts, deps);
+        if (!csqrt)
+            return pr::copy(queue, out_dts, inp_dts, deps);
+        else
+            return copy_with_sqrt(queue, inp_dts, out_dts, deps);
     }
 
     sycl::event output_indices(const std::pair<idx_t, idx_t>& bnds,
@@ -283,7 +285,8 @@ protected:
 
         bk::event_vector ndeps{ deps.cbegin(), deps.cend() };
         auto sq_event = copy_with_sqrt(queue, inp_dts, inp_dts, deps);
-        if (this->compute_sqrt_) ndeps.push_back(sq_event);
+        if (this->compute_sqrt_)
+            ndeps.push_back(sq_event);
 
         auto out_rps = this->responses_.get_slice(first, last);
         ONEDAL_ASSERT((last - first) == out_rps.get_count());
@@ -306,7 +309,8 @@ protected:
 
         bk::event_vector ndeps{ deps.cbegin(), deps.cend() };
         auto sq_event = copy_with_sqrt(queue, inp_dts, inp_dts, deps);
-        if (this->compute_sqrt_) ndeps.push_back(sq_event);
+        if (this->compute_sqrt_)
+            ndeps.push_back(sq_event);
 
         auto out_rps = this->responses_.get_slice(first, last);
         ONEDAL_ASSERT((last - first) == out_rps.get_count());
@@ -332,18 +336,22 @@ protected:
 
         if constexpr (std::is_same_v<Task, task::classification>) {
             const auto ucls = bool(this->uniform_voting_);
-            if (ucls) return this->do_ucls(bnds, tmp_rps, { s_evt });
+            if (ucls)
+                return this->do_ucls(bnds, tmp_rps, { s_evt });
 
             const auto dcls = bool(this->distance_voting_);
-            if (dcls) return this->do_dcls(bnds, tmp_rps, inp_dts, { s_evt });
+            if (dcls)
+                return this->do_dcls(bnds, tmp_rps, inp_dts, { s_evt });
         }
 
         if constexpr (std::is_same_v<Task, task::regression>) {
             const auto ureg = bool(this->uniform_regression_);
-            if (ureg) return this->do_ureg(bnds, tmp_rps, { s_evt });
+            if (ureg)
+                return this->do_ureg(bnds, tmp_rps, { s_evt });
 
             const auto dreg = bool(this->distance_regression_);
-            if (dreg) return this->do_dreg(bnds, tmp_rps, inp_dts, { s_evt });
+            if (dreg)
+                return this->do_dreg(bnds, tmp_rps, inp_dts, { s_evt });
         }
 
         ONEDAL_ASSERT(false);
@@ -366,8 +374,7 @@ private:
     bool compute_sqrt_ = false;
 };
 
-template<typename Task, typename Float, pr::ndorder torder,
-                        pr::ndorder qorder, typename RespT>
+template <typename Task, typename Float, pr::ndorder torder, pr::ndorder qorder, typename RespT>
 sycl::event bf_kernel(sycl::queue& queue,
                       const descriptor_t<Task>& desc,
                       const pr::ndview<Float, 2, torder>& train,
@@ -421,8 +428,7 @@ sycl::event bf_kernel(sycl::queue& queue,
     if constexpr (std::is_same_v<Task, task::classification>) {
         if (desc.get_result_options().test(result_options::responses) &&
             (desc.get_voting_mode() == voting_mode::uniform)) {
-            callback.set_uniform_voting(
-                std::move(pr::make_uniform_voting(queue, qbcount, kcount)));
+            callback.set_uniform_voting(std::move(pr::make_uniform_voting(queue, qbcount, kcount)));
         }
 
         if (desc.get_result_options().test(result_options::responses) &&
@@ -453,10 +459,14 @@ sycl::event bf_kernel(sycl::queue& queue,
     }
 
     using daal_distance_t = decltype(distance_impl->get_daal_distance_type());
-    const bool is_minkowski_distance = distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
-    const bool is_chebyshev_distance = distance_impl->get_daal_distance_type() == daal_distance_t::chebyshev;
-    const bool is_cosine_distance = distance_impl->get_daal_distance_type() == daal_distance_t::cosine;
-    const bool is_euclidean_distance = is_minkowski_distance && (distance_impl->get_degree() == 2.0);
+    const bool is_minkowski_distance =
+        distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
+    const bool is_chebyshev_distance =
+        distance_impl->get_daal_distance_type() == daal_distance_t::chebyshev;
+    const bool is_cosine_distance =
+        distance_impl->get_daal_distance_type() == daal_distance_t::cosine;
+    const bool is_euclidean_distance =
+        is_minkowski_distance && (distance_impl->get_degree() == 2.0);
 
     sycl::event search_event;
 
@@ -502,24 +512,23 @@ sycl::event bf_kernel(sycl::queue& queue,
     return search_event;
 }
 
-#define INSTANTIATE(T, I, R, F, A, B)                       \
-template sycl::event bf_kernel(sycl::queue&,                \
-                               const descriptor_t<T>&,      \
-                               const pr::ndview<F, 2, A>&,  \
-                               const pr::ndview<F, 2, B>&,  \
-                               const pr::ndview<R, 1>&,     \
-                               pr::ndview<F, 2>&,           \
-                               pr::ndview<I, 2>&,           \
-                               pr::ndview<R, 1>&,           \
-                               const bk::event_vector&);
+#define INSTANTIATE(T, I, R, F, A, B)                          \
+    template sycl::event bf_kernel(sycl::queue&,               \
+                                   const descriptor_t<T>&,     \
+                                   const pr::ndview<F, 2, A>&, \
+                                   const pr::ndview<F, 2, B>&, \
+                                   const pr::ndview<R, 1>&,    \
+                                   pr::ndview<F, 2>&,          \
+                                   pr::ndview<I, 2>&,          \
+                                   pr::ndview<R, 1>&,          \
+                                   const bk::event_vector&);
 
-
-#define INSTANTIATE_B(T, I, R, F, A)            \
-    INSTANTIATE(T, I, R, F, A, pr::ndorder::c)  \
+#define INSTANTIATE_B(T, I, R, F, A)           \
+    INSTANTIATE(T, I, R, F, A, pr::ndorder::c) \
     INSTANTIATE(T, I, R, F, A, pr::ndorder::f)
 
-#define INSTANTIATE_A(T, I, R, F)               \
-    INSTANTIATE_B(T, I, R, F, pr::ndorder::c)   \
+#define INSTANTIATE_A(T, I, R, F)             \
+    INSTANTIATE_B(T, I, R, F, pr::ndorder::c) \
     INSTANTIATE_B(T, I, R, F, pr::ndorder::f)
 
 #define INSTANTIATE_T(I, F)                                 \
@@ -527,9 +536,9 @@ template sycl::event bf_kernel(sycl::queue&,                \
     INSTANTIATE_A(task::regression, I, float, F)            \
     INSTANTIATE_A(task::search, I, int, F)
 
-#define INSTANTIATE_F(I)        \
-    INSTANTIATE_T(I, float)     \
-    INSTANTIATE_T(I, double)    \
+#define INSTANTIATE_F(I)    \
+    INSTANTIATE_T(I, float) \
+    INSTANTIATE_T(I, double)
 
 INSTANTIATE_F(std::int32_t)
 
