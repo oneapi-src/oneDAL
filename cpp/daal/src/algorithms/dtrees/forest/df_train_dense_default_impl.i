@@ -541,7 +541,7 @@ protected:
                 {
                     totalWeights += pbd[i];
                 }
-                _minWeightLeaf       = par.minWeightFractionInLeafNode * totalWeights;
+                _minWeightLeaf = par.minWeightFractionInLeafNode * totalWeights;
                 _minImpurityDecrease =
                     par.minImpurityDecreaseInSplitNode * totalWeights - daal::services::internal::EpsilonVal<algorithmFPType>::get() * totalWeights;
             }
