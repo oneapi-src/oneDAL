@@ -822,7 +822,9 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
                     _aConstFeatureIdx[i - 1]                                  = 0; //clean index
                 }
                 else
+                {
                     break;
+                }
             }
         }
         typename DataHelper::NodeType::Base * right =
