@@ -490,7 +490,7 @@ TEST_M(communicator_test, "empty USM allreduce is allowed", "[allreduce][usm][em
 }
 #endif
 
-TEST_M(communicator_test, "send_receive_replace", "[send_receive_replace][single value]") {
+TEST_M(communicator_test, "sendrecv_replace", "[sendrecv_replace][single value]") {
     constexpr std::int64_t count_per_rank = 1;
     auto comm = create_communicator();
     execute([&](std::int64_t rank) {
@@ -498,7 +498,7 @@ TEST_M(communicator_test, "send_receive_replace", "[send_receive_replace][single
         const std::int64_t source_rank = rank == rank_count - 1 ? 0 : rank + 1;
         const std::int64_t destination_rank = rank == 0 ? rank_count - 1 : rank - 1;
         auto ary = this->array_full(count_per_rank, float(rank));
-        comm.send_receive_replace(ary, destination_rank, source_rank).wait();
+        comm.sendrecv_replace(ary, destination_rank, source_rank).wait();
         exclusive([&]() {
             const auto expected = this->array_full(count_per_rank, float(source_rank));
             check_if_arrays_equal(ary, expected);
@@ -507,7 +507,7 @@ TEST_M(communicator_test, "send_receive_replace", "[send_receive_replace][single
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "send_receive_replace USM", "[send_receive_replace][usm][single value]") {
+TEST_M(communicator_test, "sendrecv_replace USM", "[sendrecv_replace][usm][single value]") {
     constexpr std::int64_t count_per_rank = 1;
     auto comm = create_communicator();
     execute([&](std::int64_t rank) {
@@ -515,7 +515,7 @@ TEST_M(communicator_test, "send_receive_replace USM", "[send_receive_replace][us
         const std::int64_t source_rank = rank == rank_count - 1 ? 0 : rank + 1;
         const std::int64_t destination_rank = rank == 0 ? rank_count - 1 : rank - 1;
         auto ary = this->to_device(this->array_full(count_per_rank, float(rank)));
-        comm.send_receive_replace(ary, destination_rank, source_rank).wait();
+        comm.sendrecv_replace(ary, destination_rank, source_rank).wait();
         exclusive([&]() {
             const auto expected = this->array_full(count_per_rank, float(source_rank));
             check_if_arrays_equal(this->to_host(ary), expected);
