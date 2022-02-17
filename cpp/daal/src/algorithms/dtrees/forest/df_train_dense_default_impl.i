@@ -547,8 +547,8 @@ protected:
             {
                 _minWeightLeaf = par.minWeightFractionInLeafNode * x->getNumberOfRows();
             }
-            _minImpurityDecrease = par.minImpurityDecreaseInSplitNode * totalWeights
-                                   - daal::services::internal::EpsilonVal<algorithmFPType>::get() * totalWeights;
+            _minImpurityDecrease =
+                par.minImpurityDecreaseInSplitNode * totalWeights - daal::services::internal::EpsilonVal<algorithmFPType>::get() * totalWeights;
             _maxLeafNodes = par.maxLeafNodes;
         }
     }
@@ -803,8 +803,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         const double impLeft = split.left.var;
 
         // check impurity decrease
-        if (split.totalWeights * split.impurityDecrease < _minImpurityDecrease)
-            return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
+        if (split.totalWeights * split.impurityDecrease < _minImpurityDecrease) return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
         if (_par.varImportance == training::MDI) addImpurityDecrease(iFeature, n, curImpurity, split);
         typename DataHelper::NodeType::Base * left =
             buildDepthFirst(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses, split.leftWeights);
