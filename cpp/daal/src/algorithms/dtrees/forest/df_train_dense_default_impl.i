@@ -535,7 +535,7 @@ protected:
                 const size_t firstRow = 0;
                 const size_t lastRow  = x->getNumberOfRows();
                 ReadRows<algorithmFPType, cpu> bd(const_cast<NumericTable *>(_weights), firstRow, lastRow - firstRow + 1);
-                const auto pbd               = bd.get();
+                const auto pbd = bd.get();
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t i = 0; i < lastRow; ++i)
                 {
