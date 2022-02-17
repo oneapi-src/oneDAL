@@ -76,19 +76,8 @@ static infer_result<Task> kernel(const context_gpu& ctx,
         throw internal_error{ de::error_messages::unknown_distance_type() };
     }
 
-<<<<<<< HEAD
     auto& queue = ctx.get_queue();
     bk::interop::execution_context_guard guard(queue);
-=======
-    const bool is_minkowski_distance =
-        distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
-    const bool is_chebyshev_distance =
-        distance_impl->get_daal_distance_type() == daal_distance_t::chebyshev;
-    const bool is_cosine_distance =
-        distance_impl->get_daal_distance_type() == daal_distance_t::cosine;
-    const bool is_euclidean_distance =
-        is_minkowski_distance && (distance_impl->get_degree() == 2.0);
->>>>>>> origin/master
 
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
     const auto responses = trained_model->get_responses();
@@ -138,26 +127,6 @@ static infer_result<Task> kernel(const context_gpu& ctx,
     if (desc.get_result_options().test(result_options::responses)) {
         responses_data = pr::table2ndarray_1d<res_t>(queue, responses, sycl::usm::alloc::device);
     }
-<<<<<<< HEAD
-=======
-
-    if (is_chebyshev_distance) {
-        using dst_t = pr::chebyshev_distance<Float>;
-        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
-        using search_t = pr::search_engine<Float, dst_t, order>;
-
-        const dst_t dist{ queue };
-        const search_t search{ queue, train_data, train_block, dist };
-        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
-    }
-
-    if (is_euclidean_distance) {
-        using dst_t = pr::squared_l2_distance<Float>;
-        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
-        using search_t = pr::search_engine<Float, dst_t, order>;
-
-        callback.set_euclidean_distance(true);
->>>>>>> origin/master
 
     bf_kernel(queue, desc, train_data, query_data, responses_data, dists, indcs, resps).wait_and_throw();
 
