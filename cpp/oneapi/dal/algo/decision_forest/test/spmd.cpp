@@ -105,6 +105,22 @@ public:
         return train_result;
     }
 
+    train_result_t train_spmd_weighted_base_checks(const descriptor_t& desc,
+                                                   const te::dataframe& data,
+                                                   const te::table_id& data_table_id) {
+        const auto x = data.get_table(data_table_id, range(0, -2));
+        const auto y =
+            data.get_table(data_table_id,
+                           range(data.get_column_count() - 2, data.get_column_count() - 1));
+        const auto w = data.get_table(data_table_id,
+                                      range(data.get_column_count() - 1, data.get_column_count()));
+        INFO("run training");
+        const auto train_result = this->train(desc, x, y, w);
+
+        base_t::check_train_shapes(desc, data, train_result);
+        return train_result;
+    }
+
 private:
     std::int64_t rank_count_ = 1;
 };
@@ -370,6 +386,25 @@ DF_SPMD_CLS_TEST("df cls base check with default params") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
+DF_SPMD_CLS_TEST("df cls base check with default params and train weights") {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const auto [data, data_test, class_count, checker_list] =
+        this->get_cls_dataframe_weighted_base();
+
+    auto desc = this->get_default_descriptor();
+
+    desc.set_class_count(class_count);
+
+    this->set_rank_count(2);
+    const auto train_result =
+        this->train_spmd_weighted_base_checks(desc, data, this->get_homogen_table_id());
+    const auto model = train_result.get_model();
+    this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+}
+
 DF_SPMD_CLS_TEST("df cls base check with non default params") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
@@ -418,6 +453,22 @@ DF_SPMD_REG_TEST("df reg base check with default params") {
     this->set_rank_count(2);
     const auto train_result =
         this->train_spmd_base_checks(desc, data, this->get_homogen_table_id());
+    const auto model = train_result.get_model();
+    this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+}
+
+DF_SPMD_REG_TEST("df reg base check with default params and train weights") {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const auto [data, data_test, checker_list] = this->get_reg_dataframe_weighted_base();
+
+    auto desc = this->get_default_descriptor();
+
+    this->set_rank_count(2);
+    const auto train_result =
+        this->train_spmd_weighted_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }

@@ -454,6 +454,7 @@ sycl::event bf_kernel(sycl::queue& queue,
 
     using daal_distance_t = decltype(distance_impl->get_daal_distance_type());
     const bool is_minkowski_distance = distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
+    const bool is_chebyshev_distance = distance_impl->get_daal_distance_type() == daal_distance_t::chebyshev;
     const bool is_cosine_distance = distance_impl->get_daal_distance_type() == daal_distance_t::cosine;
     const bool is_euclidean_distance = is_minkowski_distance && (distance_impl->get_degree() == 2.0);
 
@@ -467,7 +468,18 @@ sycl::event bf_kernel(sycl::queue& queue,
         const search_t search{ queue, train, tbcount, dist };
         search_event = search(query, callback, qbcount, kcount);
     }
-    else if (is_euclidean_distance) {
+
+    if (is_chebyshev_distance) {
+        using dst_t = pr::chebyshev_distance<Float>;
+        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
+        using search_t = pr::search_engine<Float, dst_t, order>;
+
+        const dst_t dist{ queue };
+        const search_t search{ queue, train_data, train_block, dist };
+        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
+    }
+
+    if (is_euclidean_distance) {
         using dst_t = pr::squared_l2_distance<Float>;
         using search_t = pr::search_engine<Float, dst_t, torder>;
 
