@@ -529,26 +529,28 @@ protected:
         {
             _minSamplesSplit = 2 > par.minObservationsInSplitNode ? 2 : par.minObservationsInSplitNode;
             _minSamplesSplit = _minSamplesSplit > 2 * par.minObservationsInLeafNode ? _minSamplesSplit : 2 * par.minObservationsInLeafNode;
-            algorithmFPType totalWeights = 0.0;
             if (_weights)
             {
                 const size_t firstRow = 0;
                 const size_t lastRow  = x->getNumberOfRows();
                 ReadRows<algorithmFPType, cpu> bd(const_cast<NumericTable *>(_weights), firstRow, lastRow - firstRow + 1);
-                const auto pbd = bd.get();
+                const auto pbd               = bd.get();
+                algorithmFPType totalWeights = 0.0;
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t i = 0; i < lastRow; ++i)
                 {
                     totalWeights += pbd[i];
                 }
-                _minWeightLeaf = par.minWeightFractionInLeafNode * totalWeights;
+                _minWeightLeaf       = par.minWeightFractionInLeafNode * totalWeights;
+                _minImpurityDecrease =
+                    par.minImpurityDecreaseInSplitNode * totalWeights - daal::services::internal::EpsilonVal<algorithmFPType>::get() * totalWeights;
             }
             else
             {
-                _minWeightLeaf = par.minWeightFractionInLeafNode * x->getNumberOfRows();
+                _minWeightLeaf       = par.minWeightFractionInLeafNode * x->getNumberOfRows();
+                _minImpurityDecrease = par.minImpurityDecreaseInSplitNode * x->getNumberOfRows()
+                                       - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows();
             }
-            _minImpurityDecrease =
-                par.minImpurityDecreaseInSplitNode * totalWeights - daal::services::internal::EpsilonVal<algorithmFPType>::get() * totalWeights;
             _maxLeafNodes = par.maxLeafNodes;
         }
     }
