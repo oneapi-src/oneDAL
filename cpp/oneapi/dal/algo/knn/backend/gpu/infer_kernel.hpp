@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
+
 #include "oneapi/dal/algo/knn/infer_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 

@@ -160,8 +160,7 @@ void thread_communicator_send_receive_replace::operator()(byte_t* buf,
                                                           const data_type& dtype,
                                                           std::int64_t destination_rank,
                                                           std::int64_t source_rank) {
-    ONEDAL_ASSERT(send_buf);
-    ONEDAL_ASSERT(recv_buf);
+    ONEDAL_ASSERT(buf);
 
     const std::int64_t rank = ctx_.get_this_thread_rank();
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
