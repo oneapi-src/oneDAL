@@ -481,12 +481,11 @@ sycl::event bf_kernel(sycl::queue& queue,
 
     if (is_chebyshev_distance) {
         using dst_t = pr::chebyshev_distance<Float>;
-        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
-        using search_t = pr::search_engine<Float, dst_t, order>;
+        using search_t = pr::search_engine<Float, dst_t, torder>;
 
         const dst_t dist{ queue };
-        const search_t search{ queue, train_data, train_block, dist };
-        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
+        const search_t search{ queue, train, tbcount, dist };
+        search_event = search(query, callback, qbcount, kcount);
     }
 
     if (is_euclidean_distance) {

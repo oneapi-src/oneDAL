@@ -76,9 +76,6 @@ static infer_result<Task> kernel(const context_gpu& ctx,
         throw internal_error{ de::error_messages::unknown_distance_type() };
     }
 
-    auto& queue = ctx.get_queue();
-    bk::interop::execution_context_guard guard(queue);
-
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
     const auto responses = trained_model->get_responses();
     const auto train = trained_model->get_data();
