@@ -45,7 +45,7 @@ request communicator<MemoryAccessKind>::allgatherv(const array<D>& send,
 
 template <typename MemoryAccessKind>
 template <typename D>
-request communicator<MemoryAccessKind>::sendrecv_replace(array<D>& buf,
+request communicator<MemoryAccessKind>::sendrecv_replace(const array<D>& buf,
                                                          std::int64_t destination_rank,
                                                          std::int64_t source_rank) const {
     return de::sendrecv_replace(*this, buf, destination_rank, source_rank);
@@ -113,7 +113,7 @@ void communicator<MemoryAccessKind>::reset_error_flag() const {
                                                     const std::int64_t* displs) const;         \
     template request communicator<M>::allreduce<D>(const array<D>& ary, const reduce_op& op)   \
         const;                                                                                 \
-    template request communicator<M>::sendrecv_replace<D>(array<D> & ary,                      \
+    template request communicator<M>::sendrecv_replace<D>(const array<D>& ary,                 \
                                                           std::int64_t destination_rank,       \
                                                           std::int64_t) const;
 

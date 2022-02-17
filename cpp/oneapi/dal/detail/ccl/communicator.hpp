@@ -223,6 +223,7 @@ public:
                                     stream_->get_ref());
         return new ccl_request_impl{ std::move(event) };
     }
+    /// `sendrecv_replace` that accepts USM pointers
     spmd::request_iface* sendrecv_replace(sycl::queue& q,
                                           byte_t* buf,
                                           std::int64_t count,

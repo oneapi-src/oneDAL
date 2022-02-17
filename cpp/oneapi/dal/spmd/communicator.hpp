@@ -426,7 +426,7 @@ public:
     }
     template <typename D>
     request allreduce(const array<D>& ary, const reduce_op& op = reduce_op::sum) const;
-    /// Shuffle data reusing the same buffer for send and receive operations
+    /// Shuffles data reusing the same buffer for send and receive operations
     ///
     /// @param buf                  The buffer
     /// @param count                The number of elements of `dtype` sent to and
@@ -491,7 +491,7 @@ public:
     }
 #endif
     template <typename D>
-    request sendrecv_replace(array<D>& buf,
+    request sendrecv_replace(const array<D>& buf,
                              std::int64_t destination_rank,
                              std::int64_t source_rank) const;
 #ifdef ONEDAL_DATA_PARALLEL
