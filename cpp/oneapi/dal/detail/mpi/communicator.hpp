@@ -110,7 +110,7 @@ public:
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
-    using base_t::send_receive_replace;
+    using base_t::sendrecv_replace;
 
     explicit mpi_communicator_impl(std::int64_t default_root = 0)
             : mpi_comm_(MPI_COMM_WORLD),
@@ -178,8 +178,6 @@ public:
                                     const std::int64_t* recv_counts,
                                     const std::int64_t* displs,
                                     const data_type& dtype) override {
-        ONEDAL_ASSERT(root >= 0);
-
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
@@ -267,11 +265,11 @@ public:
         }
     }
 
-    spmd::request_iface* send_receive_replace(byte_t* buf,
-                                              std::int64_t count,
-                                              const data_type& dtype,
-                                              std::int64_t destination_rank,
-                                              std::int64_t source_rank) override {
+    spmd::request_iface* sendrecv_replace(byte_t* buf,
+                                          std::int64_t count,
+                                          const data_type& dtype,
+                                          std::int64_t destination_rank,
+                                          std::int64_t source_rank) override {
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
 

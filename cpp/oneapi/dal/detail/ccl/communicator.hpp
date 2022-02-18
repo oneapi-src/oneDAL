@@ -114,7 +114,7 @@ public:
     using spmd::communicator_iface::bcast;
     using spmd::communicator_iface::allgatherv;
     using spmd::communicator_iface::allreduce;
-    using spmd::communicator_iface::send_receive_replace;
+    using spmd::communicator_iface::sendrecv_replace;
 
     template <typename Kvs>
     explicit ccl_device_communicator_impl(const sycl::queue& queue,
@@ -223,13 +223,14 @@ public:
                                     stream_->get_ref());
         return new ccl_request_impl{ std::move(event) };
     }
-    spmd::request_iface* send_receive_replace(sycl::queue& q,
-                                              byte_t* buf,
-                                              std::int64_t count,
-                                              const data_type& dtype,
-                                              std::int64_t destination_rank,
-                                              std::int64_t source_rank,
-                                              const std::vector<sycl::event>& deps) override {
+    /// `sendrecv_replace` that accepts USM pointers
+    spmd::request_iface* sendrecv_replace(sycl::queue& q,
+                                          byte_t* buf,
+                                          std::int64_t count,
+                                          const data_type& dtype,
+                                          std::int64_t destination_rank,
+                                          std::int64_t source_rank,
+                                          const std::vector<sycl::event>& deps) override {
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
         ONEDAL_ASSERT(destination_rank < rank_count_);
@@ -288,7 +289,7 @@ public:
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
-    using base_t::send_receive_replace;
+    using base_t::sendrecv_replace;
 
     explicit ccl_communicator_impl(ccl::shared_ptr_class<ccl::kvs> kvs,
                                    std::int64_t rank,
@@ -360,7 +361,6 @@ public:
             internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
         }
 
-        ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_buf);
 
         auto event = ccl::allgatherv(send_buf,
@@ -392,11 +392,11 @@ public:
                                     host_comm_->get_ref());
         return new ccl_request_impl{ std::move(event) };
     }
-    spmd::request_iface* send_receive_replace(byte_t* buf,
-                                              std::int64_t count,
-                                              const data_type& dtype,
-                                              std::int64_t destination_rank,
-                                              std::int64_t source_rank) override {
+    spmd::request_iface* sendrecv_replace(byte_t* buf,
+                                          std::int64_t count,
+                                          const data_type& dtype,
+                                          std::int64_t destination_rank,
+                                          std::int64_t source_rank) override {
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
         ONEDAL_ASSERT(destination_rank < rank_count_);
