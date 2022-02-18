@@ -67,7 +67,7 @@ void convert_vector(const detail::data_parallel_policy& policy,
                     std::int64_t dst_stride,
                     std::int64_t element_count);
 
-/// Converts matrix of `src_type` to matrix of `dst_type` and copy memory to 
+/// Converts matrix of `src_type` to matrix of `dst_type` and copy memory to
 /// device in case 'dst' is accesible on the device.
 void convert_matrix(const detail::data_parallel_policy& policy,
                     const void* src,
