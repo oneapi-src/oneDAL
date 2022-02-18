@@ -93,7 +93,7 @@ public:
                                  dal::array<T>& data,
                                  dal::array<std::int64_t>& column_indices,
                                  dal::array<std::int64_t>& row_indices,
-                                 const detail::csr_indexing& indexing,
+                                 const sparse_indexing& indexing,
                                  const range& row_range) const {}
 
     void serialize(detail::output_archive& ar) const override {

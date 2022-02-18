@@ -101,8 +101,9 @@ MSG(object_does_not_provide_write_access_to_columns,
 MSG(object_does_not_provide_access_to_rows_or_columns,
     "Given object does not provide access to rows or columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
-MSG(row_indices_lt_min_value, "Row indices are less than the minimum acceptable value")
-MSG(row_indices_gt_max_value, "Row indices are larger than the maximum acceptable value")
+MSG(invalid_first_row_offset, "Invalid row offset for the first row is provided")
+MSG(row_offsets_lt_min_value, "Row offsets are less than the minimum acceptable value")
+MSG(row_offsets_gt_max_value, "Row offsets are larger than the maximum acceptable value")
 MSG(column_indices_lt_min_value, "Column indices are less than the minimum acceptable value")
 MSG(column_indices_gt_max_value, "Column indices are larger than the maximum acceptable value")
 MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for csr table")

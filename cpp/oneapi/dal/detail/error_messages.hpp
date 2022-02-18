@@ -120,8 +120,9 @@ public:
     MSG(object_does_not_provide_write_access_to_columns);
     MSG(object_does_not_provide_access_to_rows_or_columns);
     MSG(unsupported_conversion_types);
-    MSG(row_indices_lt_min_value);
-    MSG(row_indices_gt_max_value);
+    MSG(invalid_first_row_offset);
+    MSG(row_offsets_lt_min_value);
+    MSG(row_offsets_gt_max_value);
     MSG(column_indices_lt_min_value);
     MSG(column_indices_gt_max_value);
     MSG(zero_based_indexing_is_not_supported);

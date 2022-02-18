@@ -16,17 +16,26 @@
 
 #pragma once
 
-#include "oneapi/dal/table/detail/csr_block.hpp"
+#include "oneapi/dal/array.hpp"
+
+namespace oneapi::dal {
+namespace v1 {
+enum class sparse_indexing;
+} // namespace v1
+
+using v1::sparse_indexing;
+
+} // namespace oneapi::dal
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-#define PULL_CSR_BLOCK_SIGNATURE_HOST(T)                   \
-    void pull_csr_block(const default_host_policy& policy, \
-                        dal::array<T>& data,               \
-                        dal::array<std::int64_t>& column_indices,               \
-                        dal::array<std::int64_t>& row_indices,               \
-                        const csr_indexing& indexing,      \
+#define PULL_CSR_BLOCK_SIGNATURE_HOST(T)                            \
+    void pull_csr_block(const default_host_policy& policy,          \
+                        dal::array<T>& data,                        \
+                        dal::array<std::int64_t>& column_indices,   \
+                        dal::array<std::int64_t>& row_indices,      \
+                        const dal::sparse_indexing& indexing,       \
                         const range& row_range)
 
 #define DECLARE_PULL_CSR_BLOCK_HOST(T) virtual PULL_CSR_BLOCK_SIGNATURE_HOST(T) = 0;

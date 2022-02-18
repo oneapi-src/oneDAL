@@ -28,28 +28,28 @@ public:
     csr_table_impl()
             : col_count_(0),
               layout_(data_layout::row_major),
-              csr_indexing_(detail::csr_indexing::one_based) {}
+              indexing_(sparse_indexing::one_based) {}
 
     csr_table_impl(const array<byte_t>& data,
                    const array<std::int64_t>& column_indices,
                    const array<std::int64_t>& row_indices,
                    std::int64_t column_count,
                    data_type dtype,
-                   detail::csr_indexing indexing)
+                   sparse_indexing indexing)
             : meta_(create_metadata(column_count, dtype)),
               data_(data),
               column_indices_(column_indices),
               row_indices_(row_indices),
               col_count_(column_count),
               layout_(data_layout::row_major),
-              csr_indexing_(indexing) {
+              indexing_(indexing) {
         using error_msg = dal::detail::error_messages;
 
         if (column_count <= 0) {
             throw dal::domain_error(error_msg::cc_leq_zero());
         }
 
-        if (indexing != detail::csr_indexing::one_based) {
+        if (indexing != sparse_indexing::one_based) {
             throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
@@ -114,18 +114,18 @@ public:
                                  dal::array<T>& data,
                                  dal::array<std::int64_t>& column_indices,
                                  dal::array<std::int64_t>& row_indices,
-                                 const detail::csr_indexing& indexing,
+                                 const sparse_indexing& indexing,
                                  const range& rows) const {
         csr_info origin_info{ meta_.get_data_type(0),
                               layout_,
                               col_count_,
                               row_indices_[get_row_count()] - row_indices_[0],
-                              csr_indexing_ };
+                              indexing_ };
 
         // Overflow is checked here
         check_block_row_range(rows);
 
-        if (indexing != detail::csr_indexing::one_based) {
+        if (indexing != sparse_indexing::one_based) {
             throw dal::unimplemented(
                 detail::error_messages::zero_based_indexing_is_not_supported());
         }
@@ -159,7 +159,7 @@ private:
     array<std::int64_t> row_indices_;
     std::int64_t col_count_;
     data_layout layout_;
-    detail::csr_indexing csr_indexing_;
+    sparse_indexing indexing_;
 };
 
 } // namespace oneapi::dal::backend

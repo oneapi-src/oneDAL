@@ -26,11 +26,13 @@ namespace v1 {
 class table_metadata;
 enum class data_layout;
 enum class feature_type;
+enum class sparse_indexing;
 } // namespace v1
 
 using v1::table_metadata;
 using v1::data_layout;
 using v1::feature_type;
+using v1::sparse_indexing;
 
 } // namespace oneapi::dal
 

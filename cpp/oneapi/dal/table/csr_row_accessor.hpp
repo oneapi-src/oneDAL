@@ -60,7 +60,7 @@ public:
     }
 
     std::tuple<array_d, array_i, array_i> pull(const range& row_range = { 0, -1 },
-                           const detail::csr_indexing indexing = detail::csr_indexing::one_based) const {
+                           const sparse_indexing indexing = sparse_indexing::one_based) const {
         array_d data;
         array_i column_indices;
         array_i row_indices;
@@ -70,7 +70,7 @@ public:
 
     std::tuple<T*, I*, I*> pull(array_d& data, array_i& column_indices, array_i& row_indices,
                            const range& row_range = { 0, -1 },
-                           const detail::csr_indexing indexing = detail::csr_indexing::one_based) const {
+                           const sparse_indexing indexing = sparse_indexing::one_based) const {
         pull_iface_->pull_csr_block(detail::default_host_policy{}, data, column_indices, row_indices, indexing, row_range);
         return std::make_tuple(data_impl_.get_block_data(data),
                                indices_impl_.get_block_data(column_indices),

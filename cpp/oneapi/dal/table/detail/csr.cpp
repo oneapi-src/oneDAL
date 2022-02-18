@@ -52,7 +52,7 @@ void csr_table::init_impl(const dal::array<byte_t>& data,
                           const dal::array<std::int64_t>& row_indices,
                           std::int64_t column_count,
                           const data_type& dtype,
-                          csr_indexing indexing) {
+                          sparse_indexing indexing) {
     table::init_impl(new backend::csr_table_impl(data,
                                                  column_indices,
                                                  row_indices,

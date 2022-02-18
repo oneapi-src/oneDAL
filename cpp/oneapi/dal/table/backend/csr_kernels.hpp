@@ -26,7 +26,7 @@ struct csr_info {
              data_layout layout,
              std::int64_t column_count,
              std::int64_t element_count,
-             detail::csr_indexing indexing)
+             sparse_indexing indexing)
             : dtype_(dtype),
               layout_(layout),
               column_count_(column_count),
@@ -34,7 +34,7 @@ struct csr_info {
               indexing_(indexing) {
         ONEDAL_ASSERT(column_count_ > 0);
         ONEDAL_ASSERT(element_count_ > 0);
-        ONEDAL_ASSERT(indexing_ == detail::csr_indexing::one_based);
+        ONEDAL_ASSERT(indexing_ == sparse_indexing::one_based);
         ONEDAL_ASSERT(layout_ == data_layout::row_major);
     }
 
@@ -42,22 +42,22 @@ struct csr_info {
     data_layout layout_;
     std::int64_t column_count_;
     std::int64_t element_count_;
-    detail::csr_indexing indexing_;
+    sparse_indexing indexing_;
 };
 
 struct block_info {
-    block_info(std::int64_t row_offset, std::int64_t row_count, detail::csr_indexing indexing)
+    block_info(std::int64_t row_offset, std::int64_t row_count, sparse_indexing indexing)
             : row_offset_(row_offset),
               row_count_(row_count),
               indexing_(indexing) {
         ONEDAL_ASSERT(row_offset >= 0);
         ONEDAL_ASSERT(row_count > 0);
-        ONEDAL_ASSERT(indexing == detail::csr_indexing::one_based);
+        ONEDAL_ASSERT(indexing == sparse_indexing::one_based);
     }
 
     std::int64_t row_offset_;
     std::int64_t row_count_;
-    detail::csr_indexing indexing_;
+    sparse_indexing indexing_;
 };
 
 template <typename Policy, typename BlockData>
