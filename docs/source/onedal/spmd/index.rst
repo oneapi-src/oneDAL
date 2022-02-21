@@ -59,7 +59,7 @@ The following collective operations are supported:
   Gathers data from all processes and shares the result among all processes.
 
 - ``sendrecv_replace``
-  Sends and receives using a single buffer.
+  Sends and receives data using a single buffer.
 
 .. _backend_restrictions:
 
