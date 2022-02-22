@@ -590,7 +590,7 @@ double MinkowskiDistances<double, avx512>::computeDistance(const double * x, con
 
     const size_t vecSize    = 8;
     double d                = 0.0;
-    const size_t nBlocks   = n / vecSize;
+    const size_t nBlocks    = n / vecSize;
     double * tmp            = new double[vecSize];
     const __m512d * ptr512x = (__m512d *)x;
     const __m512d * ptr512y = (__m512d *)y;
