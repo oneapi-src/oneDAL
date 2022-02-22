@@ -73,7 +73,7 @@ public:
 };
 
 template <typename TestType, typename Derived>
-class crtp_algo_fixture : public float_algo_fixture<std::tuple_element_t<0, TestType>> {
+class crtp_base_algo_fixture : public float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using base_t = float_algo_fixture<std::tuple_element_t<0, TestType>>;
     using float_t = std::tuple_element_t<0, TestType>;
@@ -149,6 +149,16 @@ public:
         ONEDAL_ASSERT(!"This method must be overriden in the derived class");
     }
 
+    Derived& derived() {
+        return *(static_cast<Derived*>(this));
+    }
+};
+
+template <typename TestType, typename Derived>
+class crtp_algo_fixture : public crtp_base_algo_fixture<TestType, Derived> {
+    using crtp_base_algo_fixture<TestType, Derived>::derived;
+
+public:
     template <typename Descriptor, typename... Args>
     auto train_via_spmd_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
         ONEDAL_ASSERT(thread_count > 0);
@@ -229,11 +239,6 @@ public:
             std::forward<Args>(args)...);
 
         return this->merge_compute_result(results);
-    }
-
-private:
-    Derived& derived() {
-        return *(static_cast<Derived*>(this));
     }
 };
 
