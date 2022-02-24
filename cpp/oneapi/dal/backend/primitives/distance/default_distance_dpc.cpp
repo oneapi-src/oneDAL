@@ -25,42 +25,18 @@ struct dkeeper {};
 
 template <typename Float, typename Idx>
 struct dkeeper<Float, ndorder::c, Idx> {
-    struct row_iterator {
-        explicit row_iterator(Idx col, const Float* row)
-                : col_(std::move(col)),
-                  row_(std::move(row)) {}
-
-        const Float& operator*() const {
-            return *(row_ + col_);
-        }
-
-        row_iterator& operator++() {
-            ++col_;
-            return *this;
-        }
-
-        bool operator!=(const row_iterator& rhs) const {
-            const auto& lhs = *this;
-            return lhs.col_ != rhs.col_;
-        }
-
-    private:
-        Idx col_ = 0;
-        const Float* const row_;
-    };
+    using row_iterator = const Float*;
 
     auto get_row_bound_iterators(Idx idx) const {
         return std::make_pair(get_first_in_row_iterator(idx), get_last_in_row_iterator(idx));
     }
 
     row_iterator get_first_in_row_iterator(Idx idx) const {
-        const Float* const row = ptr + idx * str;
-        return row_iterator{ Idx(0), row };
+        return (ptr + idx * str);
     }
 
     row_iterator get_last_in_row_iterator(Idx idx) const {
-        const Float* const row = ptr + idx * str;
-        return row_iterator{ width, row };
+        return (ptr + idx * str + width);
     }
 
     const Float* const ptr;
