@@ -78,7 +78,7 @@ services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType
         IdxType * localMax   = maxTlsData.local();
         for (IdxType i = iStart; i < iEnd; ++i)
         {
-            localMax[0] = services::internal::max<cpu, IdxType>(localMax[0], IdxType((row[i + 1] - row[i])));
+            localMax[0] = services::internal::max<cpu, IdxType>(localMax[0], static_cast<IdxType>((row[i + 1] - row[i])));
         }
     });
     maxTlsData.reduceTo(&nElements, 1);
@@ -254,7 +254,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posX,
                         depth++;
 
                         const IdxType cell = bottom - 1;
-                        bottom += IdxType(-1);
+                        bottom += static_cast<IdxType>(-1);
                         if (cell == N)
                         {
                             bottom = nNodes;
@@ -638,13 +638,13 @@ services::Status attractiveKernelImpl(const DataType * val, const size_t * col, 
     daal::StaticTlsSum<DataType, cpu> divTlsData(1);
     daal::static_tls<DataType *> logTlsData([=]() { return services::internal::service_scalable_calloc<DataType, cpu>(nElements); });
 
-    const IdxType nThreads    = IdxType(logTlsData.nthreads());
+    const IdxType nThreads    = static_cast<IdxType>(logTlsData.nthreads());
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
-    const IdxType nBlocks     = IdxType(N) / sizeOfBlock + !!(IdxType(N) % sizeOfBlock);
+    const IdxType nBlocks     = static_cast<IdxType>(N) / sizeOfBlock + !!(static_cast<IdxType>(N) % sizeOfBlock);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::min<cpu, IdxType>(IdxType(N), iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(static_cast<IdxType>(N), iStart + sizeOfBlock);
         DataType * logLocal  = logTlsData.local(tid);
         DataType * divLocal  = divTlsData.local(tid);
         for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
