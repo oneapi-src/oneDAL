@@ -277,10 +277,11 @@ protected:
                     sum += data[i * nCols + j] * data[i * nCols + j];
                 }
                 r[i] = sum;
-                if (_isSqrtNorm)
-                {
-                    Math<FPType, cpu>::vSqrt(end - begin, r, r);
-                }
+            }
+
+            if (_isSqrtNorm)
+            {
+                Math<FPType, cpu>::vSqrt(end - begin, r, r);
             }
         });
 
