@@ -711,12 +711,10 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
             const DataType dy = exaggeration * attrY[i] - zNorm * repY[i];
             localSum[0] += dx * dx + dy * dy;
 
-            gx =
-                (dx * (ux = oldForceX[i]) < DataType(0)) ? gainX[i] + DataType(0.2) : gainX[i] * DataType(0.8);
+            gx = (dx * (ux = oldForceX[i]) < DataType(0)) ? gainX[i] + DataType(0.2) : gainX[i] * DataType(0.8);
             if (gx < DataType(0.01)) gx = DataType(0.01);
 
-            gy =
-                (dy * (uy = oldForceY[i]) < DataType(0)) ? gainY[i] + DataType(0.2) : gainY[i] * DataType(0.8);
+            gy = (dy * (uy = oldForceY[i]) < DataType(0)) ? gainY[i] + DataType(0.2) : gainY[i] * DataType(0.8);
             if (gy < DataType(0.01)) gy = DataType(0.01);
 
             gainX[i] = gx;
