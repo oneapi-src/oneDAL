@@ -87,9 +87,11 @@ public:
     descriptor_base();
 
     std::int64_t get_cluster_count() const;
+    std::int64_t get_seed() const;
 
 protected:
     void set_cluster_count_impl(std::int64_t);
+    void set_seed_impl(std::int64_t value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -143,9 +145,18 @@ public:
         return base_t::get_cluster_count();
     }
 
+    std::int64_t get_seed() const {
+        return base_t::get_seed();
+    }
+
+
     auto& set_cluster_count(int64_t value) {
         base_t::set_cluster_count_impl(value);
         return *this;
+    }
+
+    auto& set_seed(std::int64_t value) {
+        return base_t::set_seed(value);
     }
 };
 
