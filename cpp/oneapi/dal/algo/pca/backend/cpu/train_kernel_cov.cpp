@@ -44,7 +44,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
     const std::int64_t column_count = data.get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
+    ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);

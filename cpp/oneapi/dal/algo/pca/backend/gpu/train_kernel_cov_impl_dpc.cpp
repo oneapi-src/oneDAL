@@ -159,8 +159,9 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     auto rows_count_global = row_count;
     ONEDAL_ASSERT(data.get_column_count() > 0);
     std::int64_t column_count = data.get_column_count();
-
+    ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
+    ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
