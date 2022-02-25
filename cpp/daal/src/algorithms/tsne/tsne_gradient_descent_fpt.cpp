@@ -78,7 +78,7 @@ services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType
         IdxType * localMax   = maxTlsData.local();
         for (IdxType i = iStart; i < iEnd; ++i)
         {
-            localMax[0] = services::internal::max<cpu, IdxType>(localMax[0], static_cast<IdxType>((row[i + 1] - row[i])));
+            localMax[0] = services::internal::max<cpu, IdxType>(localMax[0], IdxType((row[i + 1] - row[i])));
         }
     });
     maxTlsData.reduceTo(&nElements, 1);
@@ -130,18 +130,18 @@ services::Status boundingBoxKernelImpl(DataType * posX, DataType * posY, const I
 
     //scale the maximum to get all points strictly in the bounding box
     if (box[1] >= 0.)
-        box[1] = (box[1] * (static_cast<DataType>(1.) + boxEps));
+        box[1] = (box[1] * (DataType(1.) + boxEps));
     else
-        box[1] = (box[1] * (static_cast<DataType>(1.) - boxEps));
+        box[1] = (box[1] * (DataType(1.) - boxEps));
     if (box[3] >= 0.)
-        box[3] = (box[3] * (static_cast<DataType>(1.) + boxEps));
+        box[3] = (box[3] * (DataType(1.) + boxEps));
     else
-        box[3] = (box[3] * (static_cast<DataType>(1.) - boxEps));
+        box[3] = (box[3] * (DataType(1.) - boxEps));
 
     //save results
-    radius       = services::internal::max<cpu, DataType>(box[1] - box[0], box[3] - box[2]) * static_cast<DataType>(0.5);
-    posX[nNodes] = (box[0] + box[1]) * static_cast<DataType>(0.5);
-    posY[nNodes] = (box[2] + box[3]) * static_cast<DataType>(0.5);
+    radius       = services::internal::max<cpu, DataType>(box[1] - box[0], box[3] - box[2]) * DataType(0.5);
+    posX[nNodes] = (box[0] + box[1]) * DataType(0.5);
+    posY[nNodes] = (box[2] + box[3]) * DataType(0.5);
 
     return services::Status();
 }
@@ -254,7 +254,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posX,
                         depth++;
 
                         const IdxType cell = bottom - 1;
-                        bottom += static_cast<IdxType>(-1);
+                        bottom += IdxType(-1);
                         if (cell == N)
                         {
                             bottom = nNodes;
@@ -332,8 +332,8 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     auto k            = bottom;
 
     //initialize array
-    services::internal::service_memset<DataType, cpu>(mass, static_cast<DataType>(1), k);
-    services::internal::service_memset<DataType, cpu>(&mass[k], static_cast<DataType>(-1), nNodes - k + 1);
+    services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
+    services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
 
     const auto restart = k;
     // iterate over all cells assigned to thread
@@ -370,7 +370,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                         else
                         {
                             cnt += duplicates[ch];
-                            m = mass[ch] + static_cast<DataType>(duplicates[ch]) - static_cast<DataType>(1);
+                            m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
                         }
                     }
                     else
@@ -386,7 +386,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                 }
             }
             count[k]         = cnt;
-            const DataType m = cm ? static_cast<DataType>(1) / cm : static_cast<DataType>(1);
+            const DataType m = cm ? DataType(1) / cm : DataType(1);
 
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, px, m);
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, py, m);
@@ -486,15 +486,15 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
         {
             _sum.reset(1);
             sumData = _sum.get();
-            services::internal::service_memset_seq<DataType, cpu>(sumData, static_cast<DataType>(0), 1);
+            services::internal::service_memset_seq<DataType, cpu>(sumData, DataType(0), 1);
 
             _pos.reset(maxDepth);
             posData = _pos.get();
-            services::internal::service_memset_seq<IdxType, cpu>(posData, static_cast<IdxType>(0), maxDepth);
+            services::internal::service_memset_seq<IdxType, cpu>(posData, IdxType(0), maxDepth);
 
             _node.reset(maxDepth);
             nodeData = _node.get();
-            services::internal::service_memset_seq<IdxType, cpu>(nodeData, static_cast<IdxType>(0), maxDepth);
+            services::internal::service_memset_seq<IdxType, cpu>(nodeData, IdxType(0), maxDepth);
         }
 
         TArrayScalable<DataType, cpu> _sum;
@@ -503,14 +503,14 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
     };
 
     //initialize arrays
-    services::internal::service_memset<DataType, cpu>(repX, static_cast<DataType>(0), nNodes + 1);
-    services::internal::service_memset<DataType, cpu>(repY, static_cast<DataType>(0), nNodes + 1);
-    zNorm = static_cast<DataType>(0);
+    services::internal::service_memset<DataType, cpu>(repX, DataType(0), nNodes + 1);
+    services::internal::service_memset<DataType, cpu>(repY, DataType(0), nNodes + 1);
+    zNorm = DataType(0);
 
     const IdxType fourNNodes     = 4 * nNodes;
     const DataType thetaSquared  = theta * theta;
     const DataType radiusSquared = radius * radius;
-    const DataType epsInc        = eps + static_cast<DataType>(1);
+    const DataType epsInc        = eps + DataType(1);
     TArrayCalloc<DataType, cpu> dqArray(maxDepth);
     DAAL_CHECK_MALLOC(dqArray.get());
     DataType * dq = dqArray.get();
@@ -528,11 +528,11 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, static_cast<DataType>(1), radiusSquared / thetaSquared);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, DataType(1), radiusSquared / thetaSquared);
     dq[0] = radiusSquared / thetaSquared;
     for (auto i = 1; i < maxDepth; i++)
     {
-        dq[i] = dq[i - 1] * static_cast<DataType>(0.25);
+        dq[i] = dq[i - 1] * DataType(0.25);
         dq[i - 1] += eps;
     }
     dq[maxDepth - 1] += eps;
@@ -589,7 +589,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
 
                     if ((n < N) || (dxy1 >= dq[depth]))
                     {
-                        DAAL_CHECK_THR(dxy1 * dxy1 != static_cast<DataType>(0), services::ErrorBufferSizeIntegerOverflow)
+                        DAAL_CHECK_THR(dxy1 * dxy1 != DataType(0), services::ErrorBufferSizeIntegerOverflow)
                         const DataType tdist_2 = mass[n] / (dxy1 * dxy1);
                         localSum[0] += tdist_2 * dxy1;
                         vx += dx * tdist_2;
@@ -629,22 +629,22 @@ services::Status attractiveKernelImpl(const DataType * val, const size_t * col, 
                                       const IdxType & blockOfRows)
 {
     //initialize arrays
-    services::internal::service_memset<DataType, cpu>(attrX, static_cast<DataType>(0), N);
-    services::internal::service_memset<DataType, cpu>(attrY, static_cast<DataType>(0), N);
+    services::internal::service_memset<DataType, cpu>(attrX, DataType(0), N);
+    services::internal::service_memset<DataType, cpu>(attrY, DataType(0), N);
 
-    const DataType multiplier = exaggeration * static_cast<DataType>(zNorm);
-    divergence                = static_cast<DataType>(0);
+    const DataType multiplier = exaggeration * DataType(zNorm);
+    divergence                = DataType(0);
 
     daal::StaticTlsSum<DataType, cpu> divTlsData(1);
     daal::static_tls<DataType *> logTlsData([=]() { return services::internal::service_scalable_calloc<DataType, cpu>(nElements); });
 
-    const IdxType nThreads    = static_cast<IdxType>(logTlsData.nthreads());
+    const IdxType nThreads    = IdxType(logTlsData.nthreads());
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
-    const IdxType nBlocks     = static_cast<IdxType>(N) / sizeOfBlock + !!(static_cast<IdxType>(N) % sizeOfBlock);
+    const IdxType nBlocks     = IdxType(N) / sizeOfBlock + !!(IdxType(N) % sizeOfBlock);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::min<cpu, IdxType>(static_cast<IdxType>(N), iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(IdxType(N), iStart + sizeOfBlock);
         DataType * logLocal  = logTlsData.local(tid);
         DataType * divLocal  = divTlsData.local(tid);
         for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
@@ -656,8 +656,8 @@ services::Status attractiveKernelImpl(const DataType * val, const size_t * col, 
 
                 const DataType y1d    = posX[iRow] - posX[iCol];
                 const DataType y2d    = posY[iRow] - posY[iCol];
-                const DataType sqDist = services::internal::max<cpu, DataType>(static_cast<DataType>(0), y1d * y1d + y2d * y2d);
-                const DataType PQ     = val[index] / (sqDist + static_cast<DataType>(1));
+                const DataType sqDist = services::internal::max<cpu, DataType>(DataType(0), y1d * y1d + y2d * y2d);
+                const DataType PQ     = val[index] / (sqDist + DataType(1));
 
                 // Apply forces
                 attrX[iRow] += PQ * (posX[iRow] - posX[iCol]);
@@ -683,7 +683,7 @@ services::Status attractiveKernelImpl(const DataType * val, const size_t * col, 
     logTlsData.reduce([&](DataType * buf) { services::internal::service_scalable_free<DataType, cpu>(buf); });
 
     //Find_Normalization
-    zNorm = (zNorm - static_cast<DataType>(N)) ? static_cast<DataType>(1) / (zNorm - static_cast<DataType>(N)) : (static_cast<DataType>(1) / eps);
+    zNorm = (zNorm - DataType(N)) ? DataType(1) / (zNorm - DataType(N)) : (DataType(1) / eps);
 
     return services::Status();
 }
@@ -712,18 +712,18 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
             localSum[0] += dx * dx + dy * dy;
 
             gx =
-                (dx * (ux = oldForceX[i]) < static_cast<DataType>(0)) ? gainX[i] + static_cast<DataType>(0.2) : gainX[i] * static_cast<DataType>(0.8);
-            if (gx < static_cast<DataType>(0.01)) gx = static_cast<DataType>(0.01);
+                (dx * (ux = oldForceX[i]) < DataType(0)) ? gainX[i] + DataType(0.2) : gainX[i] * DataType(0.8);
+            if (gx < DataType(0.01)) gx = DataType(0.01);
 
             gy =
-                (dy * (uy = oldForceY[i]) < static_cast<DataType>(0)) ? gainY[i] + static_cast<DataType>(0.2) : gainY[i] * static_cast<DataType>(0.8);
-            if (gy < static_cast<DataType>(0.01)) gy = static_cast<DataType>(0.01);
+                (dy * (uy = oldForceY[i]) < DataType(0)) ? gainY[i] + DataType(0.2) : gainY[i] * DataType(0.8);
+            if (gy < DataType(0.01)) gy = DataType(0.01);
 
             gainX[i] = gx;
             gainY[i] = gy;
 
-            oldForceX[i] = ux = momentum * ux - static_cast<DataType>(4) * eta * gx * dx;
-            oldForceY[i] = uy = momentum * uy - static_cast<DataType>(4) * eta * gy * dy;
+            oldForceX[i] = ux = momentum * ux - DataType(4) * eta * gx * dx;
+            oldForceY[i] = uy = momentum * uy - DataType(4) * eta * gy * dy;
 
             posX[i] += ux;
             posY[i] += uy;
