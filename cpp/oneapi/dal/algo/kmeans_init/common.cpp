@@ -24,6 +24,7 @@ template <typename Task>
 class descriptor_impl : public base {
 public:
     std::int64_t cluster_count = 2;
+    std::int64_t seed = 777777;
 };
 
 template <typename Task>
@@ -35,11 +36,21 @@ std::int64_t descriptor_base<Task>::get_cluster_count() const {
 }
 
 template <typename Task>
+std::int64_t descriptor_base<Task>::get_seed() const {
+    return impl_->seed;
+}
+
+template <typename Task>
 void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
         throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
     }
     impl_->cluster_count = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_seed_impl(std::int64_t value) {
+    impl_->seed = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::init>;

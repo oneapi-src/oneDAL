@@ -35,6 +35,7 @@ int main(int argc, char const *argv[]) {
 
     const auto kmeans_desc = dal::kmeans::descriptor<>()
                                  .set_cluster_count(20)
+                                 .set_seed(111111)
                                  .set_max_iteration_count(5)
                                  .set_accuracy_threshold(0.001);
 
