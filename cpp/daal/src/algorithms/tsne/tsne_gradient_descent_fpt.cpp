@@ -370,7 +370,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                         else
                         {
                             cnt += duplicates[ch];
-                            m = mass[ch] + static_cast<DataType>(duplicates[ch] - 1.);
+                            m = mass[ch] + static_cast<DataType>(duplicates[ch]) - static_cast<DataType>(1);
                         }
                     }
                     else
@@ -490,11 +490,11 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
 
             _pos.reset(maxDepth);
             posData = _pos.get();
-            services::internal::service_memset_seq<IdxType, cpu>(posData, static_cast<DataType>(0), maxDepth);
+            services::internal::service_memset_seq<IdxType, cpu>(posData, static_cast<IdxType>(0), maxDepth);
 
             _node.reset(maxDepth);
             nodeData = _node.get();
-            services::internal::service_memset_seq<IdxType, cpu>(nodeData, static_cast<DataType>(0), maxDepth);
+            services::internal::service_memset_seq<IdxType, cpu>(nodeData, static_cast<IdxType>(0), maxDepth);
         }
 
         TArrayScalable<DataType, cpu> _sum;
