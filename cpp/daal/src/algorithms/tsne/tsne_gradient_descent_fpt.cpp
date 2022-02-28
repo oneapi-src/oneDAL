@@ -528,7 +528,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, DataType(1), radiusSquared / thetaSquared);
+    // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, DataType(1), radiusSquared / thetaSquared);
     dq[0] = radiusSquared / thetaSquared;
     for (auto i = 1; i < maxDepth; i++)
     {
@@ -589,7 +589,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
 
                     if ((n < N) || (dxy1 >= dq[depth]))
                     {
-                        //DAAL_CHECK_THR(dxy1 * dxy1 != DataType(0), services::ErrorBufferSizeIntegerOverflow)
+                        DAAL_CHECK_THR(dxy1 * dxy1 != DataType(0), services::ErrorBufferSizeIntegerOverflow)
                         const DataType tdist_2 = mass[n] / (dxy1 * dxy1);
                         localSum[0] += tdist_2 * dxy1;
                         vx += dx * tdist_2;
