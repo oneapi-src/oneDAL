@@ -78,8 +78,6 @@ public:
     using base_t = float_algo_fixture<std::tuple_element_t<0, TestType>>;
     using float_t = std::tuple_element_t<0, TestType>;
     using derived_t = Derived;
-    //    using base_t::not_float64_friendly;
-    //    using base_t::get_homogen_table_id;
 
     template <typename... Args>
     auto train(Args&&... args) {
