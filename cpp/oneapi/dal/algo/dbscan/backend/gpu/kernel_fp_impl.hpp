@@ -369,7 +369,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                     return;
 
                 for (std::int32_t j = 0; j < algo_queue_size; j++) {
-                    const int32_t index = queue_ptr[j + queue_begin];
+                    conststd::int32_tindex = queue_ptr[j + queue_begin];
                     Float sum = Float(0);
                     for (std::int64_t i = local_id; i < column_count; i += local_size) {
                         Float val =

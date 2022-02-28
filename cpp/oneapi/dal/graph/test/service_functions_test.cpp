@@ -569,7 +569,7 @@ SERVICE_FUNCTIONS_TEST("Check get_edge_value on directed graph with double weigh
     this->check_edge_value_double_dir<d_complete_graph_5_type>();
 }
 
-SERVICE_FUNCTIONS_TEST("Check get_edge_value on directed graph with int32_t weights") {
+SERVICE_FUNCTIONS_TEST("Check get_edge_value on directed graph withstd::int32_tweights") {
     this->check_edge_value_int_dir<d_complete_graph_5_type>();
 }
 
