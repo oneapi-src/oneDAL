@@ -165,7 +165,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * child, const DataType * posX,
     const DataType localEps = 1e-6;
 
     //initialize array
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, (nNodes + 1), 4);
+    // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, (nNodes + 1), 4);
     services::internal::service_memset<IdxType, cpu>(child, -1, (nNodes + 1) * 4);
     services::internal::service_memset<IdxType, cpu>(duplicates, 1, N);
     bottom = nNodes;
@@ -377,10 +377,10 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                         m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
                     // add child's contribution
                     cm += m;
-                    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, posX[ch], m);
-                    DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, px, posX[ch] * m);
-                    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, posY[ch], m);
-                    DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, py, posY[ch] * m);
+                    // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, posX[ch], m);
+                    // DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, px, posX[ch] * m);
+                    // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, posY[ch], m);
+                    // DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, py, posY[ch] * m);
                     px += posX[ch] * m;
                     py += posY[ch] * m;
                 }
@@ -388,8 +388,8 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             count[k]         = cnt;
             const DataType m = cm ? DataType(1) / cm : DataType(1);
 
-            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, px, m);
-            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, py, m);
+            // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, px, m);
+            // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, py, m);
             posX[k] = px * m;
             posY[k] = py * m;
 
@@ -528,7 +528,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, DataType(1), radiusSquared / thetaSquared);
+    // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, DataType(1), radiusSquared / thetaSquared);
     dq[0] = radiusSquared / thetaSquared;
     for (auto i = 1; i < maxDepth; i++)
     {
@@ -589,7 +589,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
 
                     if ((n < N) || (dxy1 >= dq[depth]))
                     {
-                        DAAL_CHECK_THR(dxy1 * dxy1 != DataType(0), services::ErrorBufferSizeIntegerOverflow)
+                        //DAAL_CHECK_THR(dxy1 * dxy1 != DataType(0), services::ErrorBufferSizeIntegerOverflow)
                         const DataType tdist_2 = mass[n] / (dxy1 * dxy1);
                         localSum[0] += tdist_2 * dxy1;
                         vx += dx * tdist_2;
