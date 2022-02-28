@@ -36,8 +36,8 @@ namespace bk = dal::backend;
 template <typename Float>
 auto make_responses(sycl::queue& q,
                     const pr::ndarray<Float, 1>& distances,
-                    const int64_t first_class_response,
-                    const int64_t second_class_response,
+                    conststd::int64_tfirst_class_response,
+                    conststd::int64_tsecond_class_response,
                     const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(distances.has_data());
     ONEDAL_ASSERT(distances.get_dimension(0) > 0);

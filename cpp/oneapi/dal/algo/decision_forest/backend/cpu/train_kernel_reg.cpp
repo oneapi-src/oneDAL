@@ -55,8 +55,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const table& data,
                                  const table& responses,
                                  const table& weights) {
-    const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
+    conststd::int64_trow_count = data.get_row_count();
+    conststd::int64_tcolumn_count = data.get_column_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_responses = interop::convert_to_daal_table<Float>(responses);

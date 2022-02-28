@@ -49,7 +49,7 @@ TEST("can_construct_array_of_ones") {
 }
 
 TEST("can_construct_array_from_raw_pointer") {
-    constexpr int64_t size = 10;
+    constexprstd::int64_tsize = 10;
     auto ptr = new float[size];
     for (int64_t i = 0; i < size; i++) {
         ptr[i] = float(i);
@@ -108,7 +108,7 @@ TEST("can reset array with smaller size") {
 TEST("can reset array with raw pointer") {
     auto arr = array<float>::zeros(5);
 
-    constexpr int64_t size = 10;
+    constexprstd::int64_tsize = 10;
     auto ptr = new float[size];
     arr.reset(ptr, size, [](auto ptr) {
         delete[] ptr;
@@ -123,7 +123,7 @@ TEST("can reset array with raw pointer") {
 TEST("can reset array with non owning raw pointer") {
     auto arr = array<float>::zeros(5);
 
-    constexpr int64_t size = 10;
+    constexprstd::int64_tsize = 10;
     const float* ptr = new float[size];
     arr.reset(array<float>(), ptr, size);
 
@@ -324,7 +324,7 @@ TEST("can reset array with queue and raw pointer") {
 
     auto arr = array<float>::zeros(q, 5);
 
-    constexpr int64_t count = 10;
+    constexprstd::int64_tcount = 10;
     auto* data = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
          cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
@@ -344,7 +344,7 @@ TEST("can reset array with queue and raw pointer") {
 TEST("can wrap const data with queue, offset and deleter") {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
-    constexpr int64_t count = 3;
+    constexprstd::int64_tcount = 3;
 
     auto data = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {

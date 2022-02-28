@@ -22,7 +22,7 @@ namespace oneapi::dal::preview::connected_components {
 class detail::vertex_partitioning_result_impl : public base {
 public:
     table labels;
-    int64_t component_count;
+    std::int64_t component_count;
 };
 
 using detail::vertex_partitioning_result_impl;

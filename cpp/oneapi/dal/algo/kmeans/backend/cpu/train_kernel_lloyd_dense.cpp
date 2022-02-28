@@ -49,8 +49,8 @@ static daal::data_management::NumericTablePtr get_initial_centroids(
     const descriptor_t& desc,
     const table& data,
     const table& initial_centroids) {
-    const int64_t column_count = data.get_column_count();
-    const int64_t cluster_count = desc.get_cluster_count();
+    conststd::int64_tcolumn_count = data.get_column_count();
+    conststd::int64_tcluster_count = desc.get_cluster_count();
 
     daal::data_management::NumericTablePtr daal_initial_centroids;
     if (!initial_centroids.has_data()) {
@@ -88,11 +88,11 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,
                                            const table& data,
                                            const table& initial_centroids) {
-    const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
+    conststd::int64_trow_count = data.get_row_count();
+    conststd::int64_tcolumn_count = data.get_column_count();
 
-    const int64_t cluster_count = desc.get_cluster_count();
-    const int64_t max_iteration_count = desc.get_max_iteration_count();
+    conststd::int64_tcluster_count = desc.get_cluster_count();
+    conststd::int64_tmax_iteration_count = desc.get_max_iteration_count();
     const double accuracy_threshold = desc.get_accuracy_threshold();
 
     daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),

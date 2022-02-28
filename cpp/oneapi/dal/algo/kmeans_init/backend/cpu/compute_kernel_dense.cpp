@@ -40,8 +40,8 @@ template <typename Float, typename Method, typename Task>
 static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                              const detail::descriptor_base<Task>& desc,
                                              const table& data) {
-    const int64_t column_count = data.get_column_count();
-    const int64_t cluster_count = desc.get_cluster_count();
+    conststd::int64_tcolumn_count = data.get_column_count();
+    conststd::int64_tcluster_count = desc.get_cluster_count();
 
     daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 

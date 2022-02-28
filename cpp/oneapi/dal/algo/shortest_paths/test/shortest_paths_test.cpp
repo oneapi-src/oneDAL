@@ -126,7 +126,7 @@ public:
         }
         cols[vertex_count - 1] = 2;
         cols[vertex_count] = vertex_count - 1;
-        int64_t current_index = vertex_count + 1;
+       std::int64_tcurrent_index = vertex_count + 1;
         for (int index = 3; index <= 151; ++index, ++current_index) {
             cols[current_index] = index;
         }
@@ -180,7 +180,7 @@ public:
         }
         cols[vertex_count - 1] = 2;
         cols[vertex_count] = vertex_count - 1;
-        int64_t current_index = vertex_count + 1;
+       std::int64_tcurrent_index = vertex_count + 1;
         for (int index = 3; index <= 1501; ++index, ++current_index) {
             cols[current_index] = index;
         }
@@ -706,7 +706,7 @@ public:
     bool check_predecessors(const DirectedGraphType& graph,
                             const std::vector<int32_t>& predecessors,
                             const std::array<EdgeValueType, Size>& distances,
-                            int64_t source) {
+                           std::int64_tsource) {
         EdgeValueType unreachable_distance = std::numeric_limits<EdgeValueType>::max();
         if (predecessors.size() != distances.size()) {
             return false;
@@ -755,7 +755,7 @@ public:
             int,
             std::allocator<char>>& graph,
         double delta,
-        int64_t source,
+       std::int64_tsource,
         oneapi::dal::preview::shortest_paths::optional_result_id result_type,
         const std::array<EdgeValueType, Size>& true_distances,
         const Allocator& alloc) {

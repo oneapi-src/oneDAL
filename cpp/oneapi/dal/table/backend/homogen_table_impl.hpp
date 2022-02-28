@@ -51,8 +51,8 @@ public:
         }
 
         detail::check_mul_overflow(row_count, column_count);
-        const int64_t element_count = row_count * column_count;
-        const int64_t dtype_size = detail::get_data_type_size(dtype);
+        conststd::int64_telement_count = row_count * column_count;
+        conststd::int64_tdtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
         if (data.get_count() != element_count * dtype_size) {
@@ -156,8 +156,8 @@ private:
 
     table_metadata meta_;
     array<byte_t> data_;
-    int64_t row_count_;
-    int64_t col_count_;
+    std::int64_t row_count_;
+    std::int64_t col_count_;
     data_layout layout_;
 
     // Needed for backward compatibility. Should be remove in oneDAL 2022.1.

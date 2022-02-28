@@ -82,7 +82,7 @@ public:
     }
 
     /// The number pattern matches in the target graph.
-    int64_t get_match_count() const {
+   std::int64_tget_match_count() const {
         return get_match_count_impl();
     }
 
@@ -100,7 +100,7 @@ public:
 
 private:
     const table& get_vertex_match_impl() const;
-    int64_t get_match_count_impl() const;
+   std::int64_tget_match_count_impl() const;
     void set_vertex_match_impl(const table& value);
     void set_match_count_impl(int64_t value);
     dal::detail::pimpl<detail::graph_matching_result_impl> impl_;

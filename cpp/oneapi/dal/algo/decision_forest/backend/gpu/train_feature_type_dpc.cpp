@@ -233,7 +233,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     last_event = event;
 
     Index com_bin_count = 0;
-    // using int64_t instead of Index because of it is used as displ in gatherv
+    // usingstd::int64_tinstead of Index because of it is used as displ in gatherv
     auto com_bin_count_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
     auto com_bin_offset_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
 
