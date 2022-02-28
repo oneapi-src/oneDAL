@@ -121,7 +121,7 @@ public:
     /// The number of iterations performed by the algorithm.
     /// @remark default = 0
     /// @invariant :expr:`iteration_count >= 0`
-   std::int64_tget_iteration_count() const;
+    std::int64_tget_iteration_count() const;
 
     auto& set_iteration_count(std::int64_t value) {
         set_iteration_count_impl(value);

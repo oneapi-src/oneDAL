@@ -40,7 +40,7 @@ using detail::v1::table_metadata_impl;
 class empty_metadata_impl : public table_metadata_impl,
                             public ONEDAL_SERIALIZABLE(empty_table_metadata_id) {
 public:
-   std::int64_tget_feature_count() const override {
+    std::int64_tget_feature_count() const override {
         return 0;
     }
 
@@ -80,7 +80,7 @@ public:
         }
     }
 
-   std::int64_tget_feature_count() const override {
+    std::int64_tget_feature_count() const override {
         return dtypes_.get_count();
     }
 

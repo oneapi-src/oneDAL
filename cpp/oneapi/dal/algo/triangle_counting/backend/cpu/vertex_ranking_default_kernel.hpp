@@ -62,7 +62,7 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
                     }
                     if (w == *u_neighbors_ptr) {
                         int thread_id = dal::detail::threader_get_current_thread_index();
-                       std::int64_tindx = (int64_t)thread_id * (int64_t)vertex_count;
+                        std::int64_tindx = (int64_t)thread_id * (int64_t)vertex_count;
                         triangles_local[indx + u]++;
                         triangles_local[indx + v]++;
                         triangles_local[indx + w]++;
@@ -91,7 +91,7 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
                                 ;
 
                             int thread_id = dal::detail::threader_get_current_thread_index();
-                           std::int64_tindx = (int64_t)thread_id * (int64_t)vertex_count;
+                            std::int64_tindx = (int64_t)thread_id * (int64_t)vertex_count;
 
                             auto tc = intersection_local_tc<Cpu>{}(t.get_vertex_neighbors_begin(u),
                                                                    t.get_vertex_neighbors_begin(v),
@@ -117,7 +117,7 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
 
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t u) {
         for (int j = 0; j < thread_cnt; j++) {
-           std::int64_tidx_glob = (int64_t)j * (int64_t)vertex_count;
+            std::int64_tidx_glob = (int64_t)j * (int64_t)vertex_count;
             triangles_ptr[u] += triangles_local[idx_glob + u];
         }
     });

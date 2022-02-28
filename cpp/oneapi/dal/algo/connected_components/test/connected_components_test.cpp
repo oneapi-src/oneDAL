@@ -118,7 +118,7 @@ public:
         std::fill(degrees.begin() + head_vertex_count, degrees.end(), 2);
         degrees[head_vertex_count - 1] = head_vertex_count;
         degrees.back() = 1;
-       std::int64_tcols_index = 0;
+        std::int64_tcols_index = 0;
         for (int64_t vertex_index = 0; vertex_index < head_vertex_count; ++vertex_index) {
             for (int64_t neighbour = 0; neighbour < head_vertex_count; ++neighbour) {
                 if (neighbour != vertex_index) {
