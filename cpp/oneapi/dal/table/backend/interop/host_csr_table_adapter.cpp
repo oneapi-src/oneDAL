@@ -14,10 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <tuple>
-
 #include "oneapi/dal/table/backend/interop/host_csr_table_adapter.hpp"
-#include "oneapi/dal/table/csr_row_accessor.hpp"
+// #include "oneapi/dal/table/csr_accessor.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -130,9 +128,9 @@ host_csr_table_adapter<Data>::host_csr_table_adapter(const table& table, status_
     this->_memStatus = daal::data_management::NumericTableIface::userAllocated;
     this->_normalizationFlag = daal::data_management::NumericTable::nonNormalized;
 
-    csr_row_accessor<const Data> acc{ table };
-    std::tuple<array_data_t, array_index_t, array_index_t> block = acc.pull();
-    ///// csr_block<Data> block = acc.pull();
+    csr_accessor<const Data> acc{ table };
+    auto block = acc.pull();
+
     // The following const_cast is safe only when this class is used for read-only
     // operations. Use on write leads to undefined behaviour.
     this->_status |= setArrays<Data>(

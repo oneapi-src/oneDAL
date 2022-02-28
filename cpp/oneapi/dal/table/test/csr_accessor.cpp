@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/csr_row_accessor.hpp"
+#include "oneapi/dal/table/csr_accessor.hpp"
 #include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
@@ -44,7 +44,7 @@ TEST("can read CSR table via CSR accessor") {
                  array<std::int64_t>::wrap(row_offsets, row_count + 1),
                  column_count };
     const auto [data_array, cidx_array, roffs_array] =
-        csr_row_accessor<const double>(t).pull({ 0, -1 });
+        csr_accessor<const double>(t).pull({ 0, -1 });
 
     REQUIRE(data == data_array.get_data());
     REQUIRE(column_indices == cidx_array.get_data());
@@ -83,7 +83,7 @@ TEST("can read CSR table via CSR accessor and create smaller block") {
     const std::int64_t start_idx = 1;
     const std::int64_t end_idx = 3;
     const auto [data_array, cidx_array, roffs_array] =
-        csr_row_accessor<const double>(t).pull({ start_idx, end_idx });
+        csr_accessor<const double>(t).pull({ start_idx, end_idx });
 
     std::int64_t element_count_before_start = row_offsets[start_idx] - row_offsets[0];
     REQUIRE(data + element_count_before_start == data_array.get_data());
@@ -121,7 +121,7 @@ TEST("can read CSR table via CSR accessor with conversion") {
                  array<std::int64_t>::wrap(row_offsets, row_count + 1),
                  column_count };
     const auto [data_array, cidx_array, roffs_array] =
-        csr_row_accessor<const double>(t).pull({ 0, -1 });
+        csr_accessor<const double>(t).pull({ 0, -1 });
 
     REQUIRE((void*)data != (void*)data_array.get_data());
     REQUIRE(column_indices == cidx_array.get_data());

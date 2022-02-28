@@ -19,8 +19,8 @@
 #include <daal/include/data_management/data/csr_numeric_table.h>
 
 #include "oneapi/dal/array.hpp"
-#include "oneapi/dal/table/detail/csr.hpp"
-#include "oneapi/dal/table/detail/csr_accessor.hpp"
+#include "oneapi/dal/table/csr.hpp"
+#include "oneapi/dal/table/csr_accessor.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/daal_object_owner.hpp"
 #include "oneapi/dal/table/backend/interop/block_info.hpp"

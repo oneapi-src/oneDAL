@@ -180,12 +180,12 @@ inline auto convert_to_daal_csr_table(array<T>& data,
 
 template <typename Float>
 inline daal::data_management::CSRNumericTablePtr copy_to_daal_csr_table(
-    const detail::csr_table& table) {
+    const csr_table& table) {
     const bool allow_copy = true;
-    auto block = detail::csr_accessor<const Float>{ table }.pull();
-    return convert_to_daal_csr_table(block.data,
-                                     block.column_indices,
-                                     block.row_indices,
+    auto block = csr_accessor<const Float>{ table }.pull();
+    return convert_to_daal_csr_table(std::get<0>(block),  // data
+                                     std::get<1>(block),  // column indices
+                                     std::get<2>(block),  // row offsets
                                      table.get_row_count(),
                                      table.get_column_count(),
                                      allow_copy);
@@ -224,7 +224,7 @@ inline daal::data_management::CSRNumericTablePtr wrap_by_host_csr_adapter(
 
 template <typename Float>
 inline daal::data_management::CSRNumericTablePtr convert_to_daal_table(
-    const detail::csr_table& table) {
+    const csr_table& table) {
     auto wrapper = wrap_by_host_csr_adapter(table);
     if (!wrapper) {
         return copy_to_daal_csr_table<Float>(table);
@@ -240,8 +240,8 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const table&
         const auto& homogen = static_cast<const homogen_table&>(table);
         return convert_to_daal_table<Data>(homogen);
     }
-    else if (table.get_kind() == detail::csr_table::kind()) {
-        const auto& csr = static_cast<const detail::csr_table&>(table);
+    else if (table.get_kind() == csr_table::kind()) {
+        const auto& csr = static_cast<const csr_table&>(table);
         return convert_to_daal_table<Data>(csr);
     }
     else {

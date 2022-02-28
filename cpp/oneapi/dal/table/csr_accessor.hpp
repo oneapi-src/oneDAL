@@ -33,7 +33,7 @@ namespace v1 {
 ///           supports at least :literal:`float`, :literal:`double`, and
 ///           :literal:`std::int32_t`.
 template <typename T>
-class csr_row_accessor {
+class csr_accessor {
     using data_t = std::remove_const_t<T>;
     static constexpr bool is_readonly = std::is_const_v<T>;
     typedef typename std::conditional<is_readonly, const std::int64_t, std::int64_t>::type I;
@@ -44,14 +44,14 @@ public:
     /// Creates a read-only accessor object from the table. Available only for
     /// const-qualified :literal:`T`.
     template <typename U = T, std::enable_if_t<std::is_const_v<U>, int> = 0>
-    explicit csr_row_accessor(const table& table) : pull_iface_(detail::get_pull_csr_block_iface(table)) {
+    explicit csr_accessor(const table& table) : pull_iface_(detail::get_pull_csr_block_iface(table)) {
         if (!pull_iface_) {
             using msg = detail::error_messages;
             throw invalid_argument{ msg::object_does_not_provide_read_access_to_csr() };
         }
     }
 
-    explicit csr_row_accessor(const detail::table_builder& builder)
+    explicit csr_accessor(const detail::table_builder& builder)
             : pull_iface_(detail::get_pull_csr_block_iface(static_cast<const detail::csr_table_builder&>(builder))) {
         if (!pull_iface_) {
             using msg = detail::error_messages;
@@ -85,6 +85,6 @@ private:
 
 } // namespace v1
 
-using v1::csr_row_accessor;
+using v1::csr_accessor;
 
 } // namespace oneapi::dal
