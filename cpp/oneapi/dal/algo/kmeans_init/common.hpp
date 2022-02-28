@@ -134,8 +134,9 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`cluster_count`
-    explicit descriptor(std::int64_t cluster_count = 2) {
+    explicit descriptor(std::int64_t cluster_count = 2, std::int64_t seed = 777) {
         set_cluster_count(cluster_count);
+        set_seed(seed);
     }
 
     /// The number of clusters k
