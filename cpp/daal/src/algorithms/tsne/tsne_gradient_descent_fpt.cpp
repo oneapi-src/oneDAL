@@ -378,9 +378,9 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                     // add child's contribution
                     cm += m;
                     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, posX[ch], m);
-                    DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, px, posX[ch] * m);
+                    // DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, px, posX[ch] * m);
                     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, posY[ch], m);
-                    DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, py, posY[ch] * m);
+                    // DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, py, posY[ch] * m);
                     px += posX[ch] * m;
                     py += posY[ch] * m;
                 }
@@ -528,7 +528,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
-    // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, DataType(1), radiusSquared / thetaSquared);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, DataType(1), radiusSquared / thetaSquared);
     dq[0] = radiusSquared / thetaSquared;
     for (auto i = 1; i < maxDepth; i++)
     {
