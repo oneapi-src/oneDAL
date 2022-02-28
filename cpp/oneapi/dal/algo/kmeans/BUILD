@@ -50,9 +50,53 @@ dal_test_suite(
     framework = "catch2",
     hdrs = glob([
         "test/*.hpp",
+    ], exclude=[
+        "test/mpi_*.hpp",
+        "test/ccl_*.hpp"
     ]),
     srcs = glob([
         "test/*.cpp",
+    ], exclude=[
+        "test/mpi_*.cpp",
+        "test/ccl_*.cpp"
+    ]),
+    dal_deps = [
+        ":kmeans",
+    ],
+)
+
+dal_test_suite(
+    name = "mpi_tests",
+    mpi = True,
+    mpi_ranks = 2,
+    framework = "catch2",
+    hdrs = glob([
+        "test/mpi_*.hpp",
+        "test/data.hpp",
+        "test/multi_proc_fixture.hpp",
+        "test/multi_proc_template.hpp",
+    ]),
+    srcs = glob([
+        "test/mpi_*.cpp"
+    ]),
+    dal_deps = [
+        ":kmeans",
+    ],
+)
+
+dal_test_suite(
+    name = "ccl_tests",
+    ccl = True,
+    mpi_ranks = 2,
+    framework = "catch2",
+    hdrs = glob([
+        "test/ccl_*.hpp",
+        "test/data.hpp",
+        "test/multi_proc_fixture.hpp",
+        "test/multi_proc_template.hpp",
+    ]),
+    srcs = glob([
+        "test/ccl_*.cpp"
     ]),
     dal_deps = [
         ":kmeans",
