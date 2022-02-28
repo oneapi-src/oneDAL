@@ -24,7 +24,7 @@ template <typename Task>
 class descriptor_impl : public base {
 public:
     std::int64_t cluster_count = 2;
-    std::int64_t seed = 777777;
+    std::int64_t seed = 777;
 };
 
 template <typename Task>
