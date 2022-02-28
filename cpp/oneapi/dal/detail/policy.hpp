@@ -59,7 +59,7 @@ inline constexpr bool is_host_policy_v = is_host_policy<T>::value;
 template <typename T>
 inline constexpr bool is_data_parallel_policy_v = is_data_parallel_policy<T>::value;
 
-enum class cpu_extension :std::uint64_t{
+enum class cpu_extension : std::uint64_t {
     none = 0U,
     sse2 = 1U << 0,
     ssse3 = 1U << 1,
