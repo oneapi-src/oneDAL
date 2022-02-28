@@ -53,7 +53,7 @@ ONEDAL_EXPORT void _onedal_threader_for_int32ptr(const std::int32_t *begin,
 }
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64(
-   std::int32_tn,
+    std::int32_tn,
     std::int64_t init,
     const void *a,
     oneapi::dal::preview::loop_functype_int32_int64 loop_func,
@@ -69,7 +69,7 @@ ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64(
 }
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64_simple(
-   std::int32_tn,
+    std::int32_tn,
     std::int64_t init,
     const void *a,
     oneapi::dal::preview::loop_functype_int32_int64 loop_func,
@@ -85,8 +85,8 @@ ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64_simple(
 }
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32ptr_int64_simple(
-    conststd::int32_t*begin,
-    conststd::int32_t*end,
+    conststd::int32_t *begin,
+    conststd::int32_t *end,
     std::int64_t init,
     const void *a,
     oneapi::dal::preview::loop_functype_int32ptr_int64 loop_func,

@@ -680,7 +680,7 @@ public:
         return optional_results::distances & optional_results::predecessors;
     }
 
-    inline bool compare_distances(int32_t lhs,std::int32_trhs) {
+    inline bool compare_distances(int32_t lhs, std::int32_trhs) {
         return lhs == rhs;
     }
     inline bool compare_distances(double lhs, double rhs) {
@@ -715,7 +715,7 @@ public:
             return false;
         }
         for (size_t index = 0; index < predecessors.size(); ++index) {
-           std::int32_tpredecessor = predecessors[index];
+            std::int32_tpredecessor = predecessors[index];
             if (predecessor != -1) {
                 oneapi::dal::preview::vertex_outward_edge_size_type<DirectedGraphType> from =
                     predecessor;
@@ -873,7 +873,8 @@ SHORTEST_PATHS_TEST("All vertexes are isolated, double edge weights, predecessor
     this->shortest_paths_check<d_isolated_vertexes_graph_type, double>(15, false, true);
 }
 
-SHORTEST_PATHS_TEST("All vertexes are isolated,std::int32_tedge weights, distances + predecessors") {
+SHORTEST_PATHS_TEST(
+    "All vertexes are isolated,std::int32_tedge weights, distances + predecessors") {
     this->shortest_paths_check<d_isolated_vertexes_int_graph_type, int32_t>(15, true, true);
 }
 
