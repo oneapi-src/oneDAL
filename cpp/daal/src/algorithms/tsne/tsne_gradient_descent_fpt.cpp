@@ -534,7 +534,7 @@ services::Status repulsionKernelImpl(const DataType theta, const DataType eps, c
     for (auto i = 0; i < maxDepth; i++) dq[i] += 1.;
 
     // iterate over all bodies assigned to thread
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, fourNNodes, 4);
+    DAAL_OVERFLOW_CHECK_BY_ADDING(IdxType, fourNNodes, 4);
     const auto MAX_SIZE = fourNNodes + 4;
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
