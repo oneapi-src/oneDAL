@@ -378,9 +378,9 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                     // add child's contribution
                     cm += m;
                     //DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, posX[ch], m);
-                    DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, px, posX[ch] * m);
+                    //DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, px, posX[ch] * m);
                     //DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, posY[ch], m);
-                    DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, py, posY[ch] * m);
+                    //DAAL_OVERFLOW_CHECK_BY_ADDING(DataType, py, posY[ch] * m);
                     px += posX[ch] * m;
                     py += posY[ch] * m;
                 }
