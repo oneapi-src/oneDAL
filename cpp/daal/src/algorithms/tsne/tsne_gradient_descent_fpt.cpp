@@ -388,8 +388,8 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             count[k]         = cnt;
             const DataType m = cm ? DataType(1) / cm : DataType(1);
 
-            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, px, m);
-            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, py, m);
+            //DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, px, m);
+            //DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DataType, py, m);
             posX[k] = px * m;
             posY[k] = py * m;
 
