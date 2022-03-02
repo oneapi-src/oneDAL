@@ -31,10 +31,9 @@ void run(const dal::table& x_train, const std::string& method_name) {
     constexpr std::int64_t max_iteration_count = 1000;
     constexpr double accuracy_threshold = 0.01;
 
-    const auto kmeans_init_desc =
-        dal::kmeans_init::descriptor<float, Method>()
-            .set_cluster_count(cluster_count)
-            .set_seed(seed);
+    const auto kmeans_init_desc = dal::kmeans_init::descriptor<float, Method>()
+                                      .set_cluster_count(cluster_count)
+                                      .set_seed(seed);
 
     const auto result_init = dal::compute(kmeans_init_desc, x_train);
 
