@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -146,9 +146,9 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
                 const Index local_size = item.get_local_range()[0];
 
                 const Index n_groups = item.get_group_range(0);
-                const Index group_id = item.get_group().get_id(0);
+                const Index group_id = item.get_group().get_group_id(0);
                 const Index n_tree_groups = item.get_group_range(1);
-                const Index tree_group_id = item.get_group().get_id(1);
+                const Index tree_group_id = item.get_group().get_group_id(1);
                 const Index tree_id = proc_tree_count + tree_group_id;
                 const Index leaf_mark = impl_const_t::leaf_mark;
 
@@ -251,9 +251,9 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
                 const Index local_size = item.get_local_range()[0];
 
                 const Index n_groups = item.get_group_range(0);
-                const Index group_id = item.get_group().get_id(0);
+                const Index group_id = item.get_group().get_group_id(0);
                 const Index n_tree_groups = item.get_group_range(1);
-                const Index tree_group_id = item.get_group().get_id(1);
+                const Index tree_group_id = item.get_group().get_group_id(1);
                 const Index tree_id = proc_tree_count + tree_group_id;
                 const Index leaf_mark = impl_const_t::leaf_mark;
 
@@ -351,7 +351,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
             if (sbg.get_group_id() > 0) {
                 return;
             }
-            const Index group_id = item.get_group().get_id(0);
+            const Index group_id = item.get_group().get_group_id(0);
             const Index n_groups = item.get_group_range(0);
             const Index sub_group_local_id = sbg.get_local_id();
             const Index sub_group_size = sbg.get_local_range()[0];
@@ -433,7 +433,7 @@ infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& c
             const Index local_id = item.get_local_id()[0];
             const Index local_size = item.get_local_range()[0];
             const Index n_groups = item.get_group_range(0);
-            const Index group_id = item.get_group().get_id(0);
+            const Index group_id = item.get_group().get_group_id(0);
 
             const Index elem_count = row_count / n_groups + bool(row_count % n_groups);
 

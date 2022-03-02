@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ namespace v1 {
 
 using dal::detail::host_policy;
 
-template <typename Float, typename Method, typename Task>
-struct compute_ops_dispatcher<host_policy, Float, Method, Task> {
-    compute_result<Task> operator()(const host_policy& ctx,
+template <typename Policy, typename Float, typename Method, typename Task>
+struct compute_ops_dispatcher<Policy, Float, Method, Task> {
+    compute_result<Task> operator()(const Policy& ctx,
                                     const descriptor_base<Task>& desc,
                                     const compute_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
@@ -34,8 +34,9 @@ struct compute_ops_dispatcher<host_policy, Float, Method, Task> {
     }
 };
 
-#define INSTANTIATE(F, M, T) \
-    template struct ONEDAL_EXPORT compute_ops_dispatcher<host_policy, F, M, T>;
+#define INSTANTIATE(F, M, T)                                                                 \
+    template struct ONEDAL_EXPORT compute_ops_dispatcher<dal::detail::host_policy, F, M, T>; \
+    template struct ONEDAL_EXPORT compute_ops_dispatcher<dal::detail::spmd_host_policy, F, M, T>;
 
 INSTANTIATE(float, method::dense, task::init)
 INSTANTIATE(double, method::dense, task::init)

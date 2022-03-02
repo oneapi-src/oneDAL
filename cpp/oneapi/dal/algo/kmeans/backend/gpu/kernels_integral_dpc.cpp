@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -93,11 +93,10 @@ sycl::event count_clusters(sycl::queue& queue,
                 (offset + block_size) > row_count ? row_count : (offset + block_size);
             for (std::int64_t i = offset + local_id; i < end; i += local_range) {
                 const std::int32_t cl = response_ptr[i];
-                sycl::ext::oneapi::atomic_ref<
-                    std::int32_t,
-                    cl::sycl::ext::oneapi::memory_order::relaxed,
-                    cl::sycl::ext::oneapi::memory_scope::device,
-                    cl::sycl::access::address_space::ext_intel_global_device_space>
+                sycl::atomic_ref<std::int32_t,
+                                 sycl::memory_order::relaxed,
+                                 sycl::memory_scope::device,
+                                 sycl::access::address_space::ext_intel_global_device_space>
                     counter_atomic(counter_ptr[cl]);
                 counter_atomic.fetch_add(1);
             }

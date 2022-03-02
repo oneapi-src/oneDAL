@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -94,6 +94,37 @@ public:
         return std::make_tuple(data, data_test, class_count, checker_list);
     }
 
+    auto get_cls_dataframe_weighted_base() {
+        constexpr double required_accuracy = 0.95;
+        constexpr std::int64_t row_count_train = 10;
+        constexpr std::int64_t row_count_test = 3;
+        constexpr std::int64_t column_count_train = 4;
+        constexpr std::int64_t column_count_test = 3;
+        constexpr std::int64_t class_count = 2;
+
+        static const float train_arr[] = {
+            -2.2408f, 0.5005f,  0.f,  0.1f, -1.6002f, -0.512f,  0.f,  0.2f,
+            -2.3748f, 0.8277f,  0.f,  0.1f, -1.4341f, 1.5004f,  1.f,  0.1f,
+            -0.9874f, 0.9996f,  1.f,  0.6f, -1.1954f, 1.2781f,  1.f,  0.1f,
+            0.29484f, -0.7925f, 0.f,  0.1f, 0.6476f,  -0.8175f, 0.0f, 0.44f,
+            2.3836f,  1.5691f,  1.0f, 0.1f, 1.51783f, 1.2214f,  1.0f, 0.1f,
+        };
+
+        static const float test_arr[] = { -1.f, -1.f, 0.f, +2.f, +2.f, 1.f, +3.f, +2.f, 1.f };
+
+        te::dataframe data{ array<float>::wrap(train_arr, row_count_train * column_count_train),
+                            row_count_train,
+                            column_count_train };
+        te::dataframe data_test{ array<float>::wrap(test_arr, row_count_test * column_count_test),
+                                 row_count_test,
+                                 column_count_test };
+
+        const std::list<checker_info<double>> checker_list = { this->get_cls_checker(
+            1 - required_accuracy) };
+
+        return std::make_tuple(data, data_test, class_count, checker_list);
+    }
+
     auto get_cls_dataframe(std::string ds_name, double required_accuracy) {
         const te::dataframe data =
             GENERATE_DATAFRAME(te::dataframe_builder{ ds_name + ".train.csv" });
@@ -136,6 +167,38 @@ public:
         return std::make_tuple(data, data_test, checker_list);
     }
 
+    auto get_reg_dataframe_weighted_base() {
+        const double required_mse = 0.05;
+        constexpr std::int64_t row_count_train = 10;
+        constexpr std::int64_t row_count_test = 5;
+        constexpr std::int64_t column_count_train = 4;
+        constexpr std::int64_t column_count_test = 3;
+
+        static const float train_arr[] = {
+            0.1f,    0.25f, 0.0079f, 0.1f,  0.15f,   0.35f, 0.0160f, 0.2f,  0.25f,   0.55f,
+            0.0407f, 0.1f,  0.3f,    0.65f, 0.0573f, 0.1f,  0.4f,    0.85f, 0.0989f, 0.6f,
+            0.45f,   0.95f, 0.1240f, 0.1f,  0.55f,   1.15f, 0.1827f, 0.1f,  0.6f,    1.25f,
+            0.2163f, 0.44f, 0.7f,    1.45f, 0.2919f, 0.1f,  0.8f,    1.65f, 0.3789f, 0.1f,
+        };
+
+        static const float test_arr[] = {
+            0.6f,    0.45f, 0.0262f, 0.6f,    0.75f, 0.0671f, 0.6f,    1.05f,
+            0.1281f, 0.6f,  1.35f,   0.2315f, 0.6f,  1.55f,   0.3113f,
+        };
+
+        te::dataframe data{ array<float>::wrap(train_arr, row_count_train * column_count_train),
+                            row_count_train,
+                            column_count_train };
+        te::dataframe data_test{ array<float>::wrap(test_arr, row_count_test * column_count_test),
+                                 row_count_test,
+                                 column_count_test };
+
+        const std::list<checker_info<double>> checker_list = { this->get_mse_checker(
+            required_mse) };
+
+        return std::make_tuple(data, data_test, checker_list);
+    }
+
     auto get_reg_dataframe(std::string ds_name, double required_mse, double required_mae) {
         const te::dataframe data =
             GENERATE_DATAFRAME(te::dataframe_builder{ ds_name + ".train.csv" });
@@ -157,6 +220,21 @@ public:
                                       range(data.get_column_count() - 1, data.get_column_count()));
         INFO("run training");
         const auto train_result = this->train(desc, x, y);
+        check_train_shapes(desc, data, train_result);
+        return train_result;
+    }
+
+    auto train_weighted_base_checks(const df::descriptor<Float, Method, Task>& desc,
+                                    const te::dataframe& data,
+                                    const te::table_id& data_table_id) {
+        const auto x = data.get_table(data_table_id, range(0, -2));
+        const auto y =
+            data.get_table(data_table_id,
+                           range(data.get_column_count() - 2, data.get_column_count() - 1));
+        const auto w = data.get_table(data_table_id,
+                                      range(data.get_column_count() - 1, data.get_column_count()));
+        INFO("run training");
+        const auto train_result = this->train(desc, x, y, w);
         check_train_shapes(desc, data, train_result);
         return train_result;
     }

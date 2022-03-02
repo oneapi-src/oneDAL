@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/rng/partial_shuffle.hpp"
+#include "oneapi/dal/backend/primitives/selection/select_indexed_rows.hpp"
 
 #include "oneapi/dal/algo/kmeans_init/common.hpp"
 
@@ -29,9 +30,12 @@ namespace oneapi::dal::kmeans_init::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
+using task_t = task::init;
+using ctx_t = dal::backend::context_gpu;
+
 template <typename Float, typename Method>
 struct kmeans_init_kernel {
-    static sycl::event compute_initial_centroids(sycl::queue& queue,
+    static sycl::event compute_initial_centroids(const ctx_t& ctx,
                                                  const pr::ndview<Float, 2>& data,
                                                  pr::ndview<Float, 2>& centroids) {
         using msg = dal::detail::error_messages;
@@ -50,9 +54,10 @@ struct kmeans_init_kernel {
 
 template <typename Float>
 struct kmeans_init_kernel<Float, kmeans_init::method::dense> {
-    static sycl::event compute_initial_centroids(sycl::queue& queue,
+    static sycl::event compute_initial_centroids(const ctx_t& ctx,
                                                  const pr::ndview<Float, 2>& data,
                                                  pr::ndview<Float, 2>& centroids) {
+        auto& queue = ctx.get_queue();
         ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
         ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
         const std::int64_t cluster_count = centroids.get_dimension(0);
@@ -61,48 +66,6 @@ struct kmeans_init_kernel<Float, kmeans_init::method::dense> {
         const auto data_ptr = data.get_data();
         auto centroids_ptr = centroids.get_mutable_data();
         return bk::copy(queue, centroids_ptr, data_ptr, cluster_count * column_count);
-    }
-};
-
-template <typename Float>
-struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
-    static sycl::event compute_initial_centroids(sycl::queue& queue,
-                                                 const pr::ndview<Float, 2>& data,
-                                                 pr::ndview<Float, 2>& centroids) {
-        ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
-        ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
-        const std::int64_t row_count = data.get_dimension(0);
-        const std::int64_t cluster_count = centroids.get_dimension(0);
-        const std::int64_t column_count = centroids.get_dimension(1);
-        const auto data_ptr = data.get_data();
-        auto centroids_ptr = centroids.get_mutable_data();
-        dal::detail::check_mul_overflow(
-            cluster_count,
-            dal::detail::integral_cast<std::int64_t>(sizeof(std::int64_t)));
-
-        auto indices = pr::ndarray<std::int64_t, 1>::empty(queue, cluster_count);
-        partial_fisher_yates_shuffle(indices, row_count);
-        auto indices_on_device = indices.to_device(queue);
-        auto indices_ptr = indices_on_device.get_data();
-
-        const std::int64_t required_local_size = bk::device_max_wg_size(queue);
-        const std::int64_t local_size = std::min(bk::down_pow2(column_count), required_local_size);
-
-        auto gather_event = queue.submit([&](sycl::handler& cgh) {
-            const auto range =
-                bk::make_multiple_nd_range_2d({ local_size, cluster_count }, { local_size, 1 });
-            cgh.parallel_for(range, [=](sycl::nd_item<2> id) {
-                const auto cluster = id.get_global_id(1);
-                const std::int64_t local_id = id.get_local_id(0);
-                const std::int64_t local_size = id.get_local_range()[0];
-                const auto index = indices_ptr[cluster];
-                for (std::int64_t k = local_id; k < column_count; k += local_size) {
-                    centroids_ptr[cluster * column_count + k] = data_ptr[index * column_count + k];
-                }
-            });
-        });
-        gather_event.wait_and_throw();
-        return gather_event;
     }
 };
 

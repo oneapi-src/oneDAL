@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,8 +32,10 @@ public:
         static_assert(dal::detail::is_tag_one_of_v<Metric, distance_metric_tag>,
                       "Metric must be a special operation defined in metrics header");
     }
-    sycl::event operator()(const ndview<Float, 2>& inp1,
-                           const ndview<Float, 2>& inp2,
+
+    template <ndorder order1, ndorder order2>
+    sycl::event operator()(const ndview<Float, 2, order1>& inp1,
+                           const ndview<Float, 2, order2>& inp2,
                            ndview<Float, 2>& out,
                            const event_vector& deps = {}) const;
 
@@ -46,12 +48,16 @@ template <typename Float>
 class distance<Float, squared_l2_metric<Float>> {
 public:
     distance(sycl::queue& q) : q_{ q } {};
-    sycl::event operator()(const ndview<Float, 2>& inp1,
-                           const ndview<Float, 2>& inp2,
+
+    template <ndorder order1, ndorder order2>
+    sycl::event operator()(const ndview<Float, 2, order1>& inp1,
+                           const ndview<Float, 2, order2>& inp2,
                            ndview<Float, 2>& out,
                            const event_vector& deps = {}) const;
-    sycl::event operator()(const ndview<Float, 2>& inp1,
-                           const ndview<Float, 2>& inp2,
+
+    template <ndorder order1, ndorder order2>
+    sycl::event operator()(const ndview<Float, 2, order1>& inp1,
+                           const ndview<Float, 2, order2>& inp2,
                            ndview<Float, 2>& out,
                            const ndview<Float, 1>& inp1_norms,
                            const ndview<Float, 1>& inp2_norms,
@@ -59,7 +65,39 @@ public:
 
 protected:
     using norms_res_t = std::tuple<ndarray<Float, 1>, sycl::event>;
-    norms_res_t get_norms(const ndview<Float, 2>& inp, const event_vector& deps = {}) const;
+
+    template <ndorder order>
+    norms_res_t get_norms(const ndview<Float, 2, order>& inp, const event_vector& deps = {}) const;
+
+private:
+    sycl::queue& q_;
+};
+
+template <typename Float>
+class distance<Float, cosine_metric<Float>> {
+public:
+    distance(sycl::queue& q) : q_{ q } {};
+
+    template <ndorder order1, ndorder order2>
+    sycl::event operator()(const ndview<Float, 2, order1>& inp1,
+                           const ndview<Float, 2, order2>& inp2,
+                           ndview<Float, 2>& out,
+                           const event_vector& deps = {}) const;
+
+    template <ndorder order1, ndorder order2>
+    sycl::event operator()(const ndview<Float, 2, order1>& inp1,
+                           const ndview<Float, 2, order2>& inp2,
+                           ndview<Float, 2>& out,
+                           const ndview<Float, 1>& inp1_norms,
+                           const ndview<Float, 1>& inp2_norms,
+                           const event_vector& deps = {}) const;
+
+protected:
+    using inv_norms_res_t = std::tuple<ndarray<Float, 1>, sycl::event>;
+
+    template <ndorder order>
+    inv_norms_res_t get_inversed_norms(const ndview<Float, 2, order>& inp,
+                                       const event_vector& deps = {}) const;
 
 private:
     sycl::queue& q_;
@@ -72,8 +110,14 @@ template <typename Float>
 using squared_l2_distance = distance<Float, squared_l2_metric<Float>>;
 
 template <typename Float>
-void check_inputs(const ndview<Float, 2>& inp1,
-                  const ndview<Float, 2>& inp2,
+using cosine_distance = distance<Float, cosine_metric<Float>>;
+
+template <typename Float>
+using chebyshev_distance = distance<Float, chebyshev_metric<Float>>;
+
+template <typename Float, ndorder order1, ndorder order2>
+void check_inputs(const ndview<Float, 2, order1>& inp1,
+                  const ndview<Float, 2, order2>& inp2,
                   const ndview<Float, 2>& out);
 
 #endif

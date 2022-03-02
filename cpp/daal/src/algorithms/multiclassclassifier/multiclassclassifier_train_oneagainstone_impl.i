@@ -1,6 +1,6 @@
 /* file: multiclassclassifier_train_oneagainstone_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -290,13 +290,11 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu>::com
                                                                                              const NumericTable * xTable, const algorithmFPType * y,
                                                                                              size_t & nSubsetVectors, size_t & dataSize)
 {
-    TArray<size_t, cpu> buffer(4 * nClasses);
+    TArray<size_t, cpu> buffer(2 * nClasses);
     DAAL_CHECK_MALLOC(buffer.get());
     daal::services::internal::service_memset_seq<size_t, cpu>(buffer.get(), 0, buffer.size());
     size_t * classLabelsCount        = buffer.get();
     size_t * classNonZeroValuesCount = buffer.get() + nClasses;
-    size_t * classDataSize           = buffer.get() + 2 * nClasses;
-    size_t * classIndex              = buffer.get() + 3 * nClasses;
     for (size_t i = 0; i < nVectors; ++i)
     {
         ++classLabelsCount[size_t(y[i])];
@@ -313,15 +311,8 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu>::com
             classNonZeroValuesCount[size_t(y[i])] += (rowOffsets[i + 1] - rowOffsets[i]);
         }
 
-        for (size_t i = 0; i < nClasses; ++i)
-        {
-            classDataSize[i] = classLabelsCount[i] + classNonZeroValuesCount[i];
-            classIndex[i]    = i;
-        }
-
-        daal::algorithms::internal::qSort<size_t, size_t, cpu>(nClasses, classDataSize, classIndex);
-        const auto idx1 = classIndex[nClasses - 1], idx2 = classIndex[nClasses - 2];
-        dataSize = classNonZeroValuesCount[idx1] + classNonZeroValuesCount[idx2];
+        daal::algorithms::internal::qSort<size_t, cpu>(nClasses, classNonZeroValuesCount);
+        dataSize = classNonZeroValuesCount[nClasses - 1] + classNonZeroValuesCount[nClasses - 2];
         daal::algorithms::internal::qSort<size_t, cpu>(nClasses, classLabelsCount);
         nSubsetVectors = classLabelsCount[nClasses - 1] + classLabelsCount[nClasses - 2];
     }
