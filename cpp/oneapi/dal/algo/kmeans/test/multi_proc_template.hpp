@@ -18,6 +18,8 @@
 #include "oneapi/dal/algo/kmeans/test/multi_proc_fixture.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
+#include "oneapi/dal/array.hpp"
+#include "oneapi/dal/detail/memory_impl_dpc.hpp"
 
 namespace oneapi::dal::kmeans::test {
 #ifdef ONEDAL_DATA_PARALLEL
@@ -60,9 +62,46 @@ public:
         return split_input;
     }
 
-    train_result_t merge_train_result_override(const train_result_t& result) {
-        // TODO collect from all ranks
-        return result;
+    train_result_t merge_train_result_override(const train_result_t& local_result) {
+        auto local_responses = local_result.get_responses();
+        auto row_count = local_responses.get_row_count();
+        ONEDAL_ASSERT(local_responses.get_column_count() == 1);
+
+        auto arr_temp = row_accessor<const float_t>(local_responses)
+                            .pull(this->get_queue(), { 0, -1 }, sycl::usm::alloc::device);
+        auto arr_local = oneapi::dal::array<float_t>::empty(this->get_queue(),
+                                                            row_count,
+                                                            sycl::usm::alloc::device);
+        dal::detail::memcpy(this->get_queue(),
+                            arr_local.get_mutable_data(),
+                            arr_temp.get_data(),
+                            sizeof(float_t) * row_count);
+
+        std::int64_t total_row_count = row_count;
+        auto comm = this->get_comm();
+        std::int64_t rank = comm.get_rank();
+        std::int64_t rank_count = comm.get_rank_count();
+        comm.allreduce(total_row_count).wait();
+        auto arr_total = oneapi::dal::array<float_t>::empty(this->get_queue(),
+                                                            total_row_count,
+                                                            sycl::usm::alloc::device);
+        auto recv_counts = dal::array<std::int64_t>::zeros(rank_count);
+        recv_counts.get_mutable_data()[rank] = row_count;
+        comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
+        auto displs = array<std::int64_t>::zeros(rank_count);
+        auto displs_ptr = displs.get_mutable_data();
+        std::int64_t total_count = 0;
+        for (std::int64_t i = 0; i < rank_count; i++) {
+            displs_ptr[i] = total_count;
+            total_count += recv_counts.get_data()[i];
+        }
+        comm.allgatherv(arr_local, arr_total, recv_counts.get_data(), displs.get_data()).wait();
+
+        return train_result_t{}
+            .set_responses(dal::homogen_table::wrap(arr_total, total_row_count, 1))
+            .set_iteration_count(local_result.get_iteration_count())
+            .set_objective_function_value(local_result.get_objective_function_value())
+            .set_model(local_result.get_model());
     }
 
     void check_if_results_same_on_all_ranks() {
@@ -120,7 +159,6 @@ TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
 
     this->check_if_results_same_on_all_ranks();
 }
-
 TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
                      "distributed kmeans empty clusters test",
                      "[spmd][smoke]",
