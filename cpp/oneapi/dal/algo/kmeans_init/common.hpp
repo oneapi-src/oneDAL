@@ -74,6 +74,12 @@ constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method,
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::init>;
 
+template <typename M>
+constexpr bool is_not_default_dense = !std::is_same_v<M, method::dense>;
+
+template <typename M>
+using enable_if_not_default_dense = std::enable_if_t<is_not_default_dense<M>>;
+
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
@@ -134,9 +140,8 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`cluster_count`
-    explicit descriptor(std::int64_t cluster_count = 2, std::int64_t seed = 777) {
+    explicit descriptor(std::int64_t cluster_count = 2) {
         set_cluster_count(cluster_count);
-        set_seed(seed);
     }
 
     /// The number of clusters k
@@ -146,6 +151,7 @@ public:
         return base_t::get_cluster_count();
     }
 
+    template <typename M = Method, typename = detail::v1::enable_if_not_default_dense<M>>
     std::int64_t get_seed() const {
         return base_t::get_seed();
     }
@@ -155,6 +161,7 @@ public:
         return *this;
     }
 
+    template <typename M = Method, typename = detail::v1::enable_if_not_default_dense<M>>
     auto& set_seed(std::int64_t value) {
         base_t::set_seed_impl(value);
         return *this;
