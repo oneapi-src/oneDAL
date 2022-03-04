@@ -26,7 +26,11 @@ template <typename Context, typename Float, typename Task, typename Method, type
 struct train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
-                                  const train_input<Task>&) const;
+                                  const oneapi::dal::decision_forest::v2::train_input<Task>&) const;
+
+    train_result<Task> operator()(const Context&,
+                                  const descriptor_base<Task>&,
+                                  const oneapi::dal::decision_forest::v1::train_input<Task>&) const;
 };
 
 template <typename Descriptor>
@@ -52,6 +56,10 @@ struct train_ops {
         }
         if (input.get_data().get_row_count() != input.get_responses().get_row_count()) {
             throw invalid_argument(msg::input_data_rc_neq_input_responses_rc());
+        }
+        if (input.get_weights().has_data() &&
+            input.get_data().get_row_count() != input.get_weights().get_row_count()) {
+            throw invalid_argument(msg::input_data_rc_neq_input_weights_rc());
         }
         if (!params.get_bootstrap() &&
             (params.get_variable_importance_mode() == variable_importance_mode::mda_raw ||

@@ -145,6 +145,12 @@ Programming Interface
 
 Refer to :ref:`API Reference: Principal Components Analysis <api_pca>`.
 
+----------------
+Distributed mode
+----------------
+
+The algorithm supports distributed execution in SMPD mode (only on GPU).
+
 -------------
 Usage example
 -------------

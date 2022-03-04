@@ -112,6 +112,9 @@ using squared_l2_distance = distance<Float, squared_l2_metric<Float>>;
 template <typename Float>
 using cosine_distance = distance<Float, cosine_metric<Float>>;
 
+template <typename Float>
+using chebyshev_distance = distance<Float, chebyshev_metric<Float>>;
+
 template <typename Float, ndorder order1, ndorder order2>
 void check_inputs(const ndview<Float, 2, order1>& inp1,
                   const ndview<Float, 2, order2>& inp2,

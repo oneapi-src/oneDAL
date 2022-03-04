@@ -118,6 +118,13 @@ public:
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
         return nullptr;
     }
+    request_t* sendrecv_replace(byte_t* buf,
+                                std::int64_t count,
+                                const data_type& dtype,
+                                std::int64_t destination_rank,
+                                std::int64_t source_rank) override {
+        return nullptr;
+    }
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -212,6 +219,23 @@ public:
                          const event_vector& deps) override {
         sycl::event::wait_and_throw(deps);
         copy_if_different_pointers(recv_buf, send_buf, count, dtype);
+        return nullptr;
+    }
+    request_t* sendrecv_replace(byte_t* buf,
+                                std::int64_t count,
+                                const data_type& dtype,
+                                std::int64_t destination_rank,
+                                std::int64_t source_rank) override {
+        return nullptr;
+    }
+    request_t* sendrecv_replace(sycl::queue& q,
+                                byte_t* buf,
+                                std::int64_t count,
+                                const data_type& dtype,
+                                std::int64_t destination_rank,
+                                std::int64_t source_rank,
+                                const event_vector& deps) override {
+        sycl::event::wait_and_throw(deps);
         return nullptr;
     }
 

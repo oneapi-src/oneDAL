@@ -181,31 +181,6 @@ private:
     std::int64_t recv_count_;
     byte_t* recv_buf_;
 };
-/*
-class thread_communicator_allgatherv {
-public:
-    explicit thread_communicator_allgatherv(thread_communicator_context& ctx)
-            : ctx_(ctx),
-              barrier_(ctx),
-              recv_counts_(nullptr),
-              displs_(nullptr),
-              recv_buf_(nullptr) {}
-
-    void operator()(const byte_t* send_buf,
-                    std::int64_t send_count,
-                    byte_t* recv_buf,
-                    const std::int64_t* recv_counts,
-                    const std::int64_t* displs,
-                    const data_type& dtype);
-
-private:
-    thread_communicator_context& ctx_;
-    thread_communicator_barrier barrier_;
-    const std::int64_t* recv_counts_;
-    const std::int64_t* displs_;
-    byte_t* recv_buf_;
-};
-*/
 
 class thread_communicator_allgatherv {
 public:
@@ -225,6 +200,30 @@ public:
                     const std::int64_t* recv_counts,
                     const std::int64_t* displs,
                     const data_type& dtype);
+
+private:
+    thread_communicator_context& ctx_;
+    thread_communicator_barrier barrier_;
+    std::vector<buffer_info> send_buffers_;
+};
+
+class thread_communicator_sendrecv_replace {
+public:
+    struct buffer_info {
+        byte_t* buf = nullptr;
+        std::int64_t count = 0;
+    };
+
+    explicit thread_communicator_sendrecv_replace(thread_communicator_context& ctx)
+            : ctx_(ctx),
+              barrier_(ctx),
+              send_buffers_(ctx_.get_thread_count()) {}
+
+    void operator()(byte_t* buf,
+                    std::int64_t count,
+                    const data_type& dtype,
+                    std::int64_t destination_rank,
+                    std::int64_t source_rank);
 
 private:
     thread_communicator_context& ctx_;
@@ -326,6 +325,7 @@ public:
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
+    using base_t::sendrecv_replace;
 
     class collective_operation_guard {
     public:
@@ -347,6 +347,7 @@ public:
               bcast_(ctx_),
               gather_(ctx_),
               allgatherv_(ctx_),
+              sendrecv_replace_(ctx_),
               allreduce_(ctx_),
               allgather_(ctx_) {}
 #endif
@@ -360,6 +361,7 @@ public:
               bcast_(ctx_),
               gather_(ctx_),
               allgatherv_(ctx_),
+              sendrecv_replace_(ctx_),
               allreduce_(ctx_),
               allgather_(ctx_) {}
 #endif
@@ -400,12 +402,11 @@ public:
                          const data_type& dtype,
                          const spmd::reduce_op& op) override;
 
-    /*    request_t* allgather(const byte_t* send_buf,
-                         std::int64_t send_count,
-                         byte_t* recv_buf,
-                         std::int64_t recv_count,
-                         const data_type& dtype) override;
-*/
+    request_t* sendrecv_replace(byte_t* buf,
+                                std::int64_t count,
+                                const data_type& dtype,
+                                std::int64_t destination_rank,
+                                std::int64_t source_rank) override;
 
 private:
     thread_communicator_context ctx_;
@@ -413,6 +414,7 @@ private:
     thread_communicator_bcast bcast_;
     thread_communicator_gather gather_;
     thread_communicator_allgatherv allgatherv_;
+    thread_communicator_sendrecv_replace sendrecv_replace_;
     thread_communicator_allreduce allreduce_;
     thread_communicator_allgather allgather_;
 };

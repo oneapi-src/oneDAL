@@ -629,7 +629,6 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Cosine distance") 
 
 KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Chebyshev distance") {
     SKIP_IF(this->is_kd_tree);
-    SKIP_IF(this->get_policy().is_gpu());
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->not_available_on_device());
 

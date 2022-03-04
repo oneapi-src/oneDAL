@@ -173,4 +173,44 @@ spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
 }
 #endif
 
+#ifdef ONEDAL_DATA_PARALLEL
+spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
+    sycl::queue& q,
+    byte_t* buf,
+    std::int64_t count,
+    const data_type& dtype,
+    std::int64_t destination_rank,
+    std::int64_t source_rank,
+    const std::vector<sycl::event>& deps) {
+    ONEDAL_ASSERT(destination_rank >= 0);
+    ONEDAL_ASSERT(source_rank >= 0);
+
+    if (count == 0) {
+        return nullptr;
+    }
+
+    ONEDAL_ASSERT(buf);
+    ONEDAL_ASSERT(count > 0);
+
+    preview::detail::check_if_pointer_matches_queue(q, buf);
+    sycl::event::wait_and_throw(deps);
+
+    const std::int64_t dtype_size = get_data_type_size(dtype);
+    const std::int64_t size = check_mul_overflow(dtype_size, count);
+
+    const auto buff_host = array<byte_t>::empty(size);
+    memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
+
+    wait_request(sendrecv_replace(buff_host.get_mutable_data(),
+                                  count,
+                                  dtype,
+                                  destination_rank,
+                                  source_rank));
+
+    memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
+
+    return nullptr;
+}
+#endif
+
 } // namespace oneapi::dal::detail::v1
