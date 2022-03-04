@@ -187,7 +187,7 @@ result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& de
 
     //auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
     if (desc.get_result_options().test(result_options::vars)) {
-        auto [vars, vars_event] = compute_variances(q_, data_nd, { gemm_event });
+        auto [vars, vars_event] = compute_variances(q_, data_nd, {}).wait_and_throw();
         result.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
     }
     if (desc.get_result_options().test(result_options::eigenvectors |
@@ -196,7 +196,7 @@ result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& de
         //     compute_correlation_from_covariance(q_, rows_count_global, cov, { gemm_event });
 
         auto [eigvecs, eigvals] =
-            compute_eigenvectors_on_host(q_, std::move(data_nd), component_count, { corr_event });
+            compute_eigenvectors_on_host(q_, std::move(data_nd), component_count, {}).wait_and_throw();
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
         }

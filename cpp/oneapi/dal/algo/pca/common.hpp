@@ -44,7 +44,6 @@ namespace v1 {
 /// method.
 struct cov {};
 
-/// Tag-type that denotes :ref:`precomputed <pca_t_math_precomputed>` computational method.
 struct precomputed {};
 
 /// Tag-type that denotes :ref:`SVD <pca_t_math_svd>` computational method.
