@@ -554,7 +554,7 @@ public:
                                        std::int64_t y_offset,
                                        const array<float_t>& y,
                                        std::int64_t feature_count) {
-        float_t sum = 0.0;
+        float_t sum = float_t(0);
         for (std::int64_t i = 0; i < feature_count; i++) {
             float_t val = x[x_offset * feature_count + i] - y[y_offset * feature_count + i];
             sum += val * val;
