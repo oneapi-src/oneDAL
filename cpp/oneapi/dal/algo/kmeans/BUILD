@@ -73,8 +73,8 @@ dal_test_suite(
     hdrs = glob([
         "test/mpi_*.hpp",
         "test/data.hpp",
-        "test/multi_proc_fixture.hpp",
-        "test/multi_proc_template.hpp",
+        "test/spmd_backend_fixture.hpp",
+        "test/spmd_backend_template.hpp",
     ]),
     srcs = glob([
         "test/mpi_*.cpp"
@@ -92,8 +92,8 @@ dal_test_suite(
     hdrs = glob([
         "test/ccl_*.hpp",
         "test/data.hpp",
-        "test/multi_proc_fixture.hpp",
-        "test/multi_proc_template.hpp",
+        "test/spmd_backend_fixture.hpp",
+        "test/spmd_backend_template.hpp",
     ]),
     srcs = glob([
         "test/ccl_*.cpp"

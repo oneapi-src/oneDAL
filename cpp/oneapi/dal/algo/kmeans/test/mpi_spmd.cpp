@@ -18,4 +18,4 @@
 
 #define PARALLE_BACKEND dal::preview::spmd::backend::mpi
 
-#include "multi_proc_template.hpp"
+#include "spmd_backend_template.hpp"

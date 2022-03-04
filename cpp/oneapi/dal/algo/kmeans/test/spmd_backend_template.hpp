@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/kmeans/test/data.hpp"
-#include "oneapi/dal/algo/kmeans/test/multi_proc_fixture.hpp"
+#include "oneapi/dal/algo/kmeans/test/spmd_backend_fixture.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
 #include "oneapi/dal/array.hpp"
@@ -24,11 +24,13 @@
 namespace oneapi::dal::kmeans::test {
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename TestType>
-class kmeans_multi_proc_spmd_test
-        : public kmeans_mpi_test<PARALLE_BACKEND, TestType, kmeans_multi_proc_spmd_test<TestType>> {
+class kmeans_spmd_backend_test
+        : public kmeans_spmd_backend_fixture<PARALLE_BACKEND,
+                                             TestType,
+                                             kmeans_spmd_backend_test<TestType>> {
 public:
     using base_t =
-        kmeans_mpi_test<PARALLE_BACKEND, TestType, kmeans_multi_proc_spmd_test<TestType>>;
+        kmeans_spmd_backend_fixture<PARALLE_BACKEND, TestType, kmeans_spmd_backend_test<TestType>>;
     using float_t = typename base_t::float_t;
     using train_input_t = typename base_t::train_input_t;
     using train_result_t = typename base_t::train_result_t;
@@ -148,7 +150,7 @@ public:
     }
 };
 
-TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_backend_test,
                      "make sure results are the same on all ranks",
                      "[spmd][smoke]",
                      kmeans_types) {
@@ -159,7 +161,7 @@ TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
 
     this->check_if_results_same_on_all_ranks();
 }
-TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_backend_test,
                      "distributed kmeans empty clusters test",
                      "[spmd][smoke]",
                      kmeans_types) {
@@ -169,7 +171,7 @@ TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
     this->check_empty_clusters();
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_backend_test,
                      "distributed kmeans smoke train/infer test",
                      "[spmd][smoke]",
                      kmeans_types) {
@@ -179,7 +181,7 @@ TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
     this->check_on_smoke_data();
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_backend_test,
                      "distributed kmeans train/infer on gold data",
                      "[spmd][smoke]",
                      kmeans_types) {
@@ -189,7 +191,7 @@ TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
     this->check_on_gold_data();
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_backend_test,
                      "distributed kmeans block test",
                      "[spmd][block][nightly]",
                      kmeans_types) {
@@ -199,7 +201,7 @@ TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
     this->check_on_large_data_with_one_cluster();
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_backend_test,
                      "distributed higgs: samples=1M, iters=3",
                      "[kmeans][spmd][higgs][external-dataset]",
                      kmeans_types) {
@@ -222,7 +224,7 @@ TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
     }
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_backend_test,
                      "distributed susy: samples=0.5M, iters=10",
                      "[kmeans][nightly][spmd][susy][external-dataset]",
                      kmeans_types) {
@@ -245,7 +247,7 @@ TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
     }
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_multi_proc_spmd_test,
+TEMPLATE_LIST_TEST_M(kmeans_spmd_backend_test,
                      "distributed epsilon: samples=80K, iters=2",
                      "[kmeans][nightly][spmd][epsilon][external-dataset]",
                      kmeans_types) {
