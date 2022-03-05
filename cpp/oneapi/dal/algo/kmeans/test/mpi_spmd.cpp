@@ -18,4 +18,4 @@
 
 #define PARALLEL_BACKEND dal::preview::spmd::backend::mpi
 
-#include "spmd_backend_template.hpp"
+#include "oneapi/dal/algo/kmeans/test/spmd_backend_template.hpp"

@@ -175,7 +175,8 @@ public:
 #endif
         const auto input_per_rank =
             this->split_train_input(thread_count, std::forward<Args>(args)...);
-        ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(thread_count));
 
         const auto results = comm.map([&](std::int64_t rank) {
             return dal::test::engine::spmd_train(this->get_policy(),
@@ -183,7 +184,7 @@ public:
                                                  desc,
                                                  input_per_rank[rank]);
         });
-        ONEDAL_ASSERT(results.size() == std::size_t(thread_count));
+        ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
 
         return results;
     }
@@ -217,7 +218,8 @@ public:
 
         const auto input_per_rank =
             this->split_compute_input(thread_count, std::forward<Args>(args)...);
-        ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(thread_count));
 
         const auto results = comm.map([&](std::int64_t rank) {
             return dal::test::engine::spmd_compute(this->get_policy(),
@@ -225,7 +227,7 @@ public:
                                                    desc,
                                                    input_per_rank[rank]);
         });
-        ONEDAL_ASSERT(results.size() == std::size_t(thread_count));
+        ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
 
         return results;
     }
@@ -263,7 +265,8 @@ public:
         auto policy = this->get_policy();
         const auto input_per_rank =
             this->split_train_input(comm.get_rank_count(), std::forward<Args>(args)...);
-        ONEDAL_ASSERT(input_per_rank.size() == std::size_t(comm.get_rank_count()));
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(comm.get_rank_count()));
 
         const auto local_result = dal::preview::train(comm, desc, input_per_rank[comm.get_rank()]);
         return local_result;
@@ -282,7 +285,8 @@ public:
         auto comm = derived().get_comm();
         const auto input_per_rank =
             this->split_train_input(comm.get_rank_count(), std::forward<Args>(args)...);
-        ONEDAL_ASSERT(input_per_rank.size() == std::size_t(comm.get_rank_count()));
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(comm.get_rank_count()));
 
         const auto local_result =
             dal::preview::compute(comm, desc, input_per_rank[comm.get_rank()]);
