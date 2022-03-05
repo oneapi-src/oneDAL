@@ -249,7 +249,7 @@ struct ccl_backend {};
 struct mpi_backend {};
 
 template <typename TestType, typename Derived>
-class crtp_par_algo_fixture : public crtp_base_algo_fixture<TestType, Derived> {
+class crtp_spmd_backend_algo_fixture : public crtp_base_algo_fixture<TestType, Derived> {
     using crtp_base_algo_fixture<TestType, Derived>::derived;
 
 public:

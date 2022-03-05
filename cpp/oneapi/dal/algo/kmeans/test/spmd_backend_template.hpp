@@ -124,9 +124,38 @@ public:
 
         INFO("check if all results bitwise equal on all ranks") {
             INFO("check centroids") {
+                auto comm = this->get_comm();
                 const auto centroids = result.get_model().get_centroids();
-                // TODO compare centroids
-                //                    te::check_if_tables_equal<float_t>(centroids);
+                std::int64_t cluster_count = centroids.get_row_count();
+                std::int64_t column_count = centroids.get_column_count();
+                std::int64_t min_value = cluster_count;
+                comm.allreduce(min_value, dal::preview::spmd::reduce_op::min);
+                std::int64_t max_value = cluster_count;
+                comm.allreduce(max_value, dal::preview::spmd::reduce_op::max);
+                REQUIRE(min_value == max_value);
+
+                auto arr_local = oneapi::dal::array<float_t>::zeros(this->get_queue(),
+                                                                    cluster_count * column_count,
+                                                                    sycl::usm::alloc::device);
+                constexpr std::int64_t root_rank = 0;
+                std::int64_t rank = comm.get_rank();
+                if (rank == root_rank) {
+                    auto arr_temp =
+                        row_accessor<const float_t>(centroids).pull(this->get_queue(),
+                                                                    { 0, -1 },
+                                                                    sycl::usm::alloc::device);
+
+                    dal::detail::memcpy(this->get_queue(),
+                                        arr_local.get_mutable_data(),
+                                        arr_temp.get_data(),
+                                        sizeof(float_t) * cluster_count * column_count);
+                }
+                comm.bcast(arr_local);
+                if (rank != root_rank) {
+                    auto front_centroids =
+                        dal::homogen_table::wrap(arr_local, cluster_count, column_count);
+                    te::check_if_tables_equal<float_t>(centroids, front_centroids);
+                }
             }
 
             INFO("check iterations") {

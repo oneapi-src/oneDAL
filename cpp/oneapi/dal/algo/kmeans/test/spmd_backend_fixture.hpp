@@ -40,9 +40,9 @@ namespace la = dal::test::engine::linalg;
 using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
 
 template <typename Backend, typename TestType, typename Derived>
-class kmeans_spmd_backend_fixture : public te::crtp_par_algo_fixture<TestType, Derived> {
+class kmeans_spmd_backend_fixture : public te::crtp_spmd_backend_algo_fixture<TestType, Derived> {
 public:
-    using base_t = te::crtp_par_algo_fixture<TestType, Derived>;
+    using base_t = te::crtp_spmd_backend_algo_fixture<TestType, Derived>;
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using task_t = kmeans::task::clustering;
