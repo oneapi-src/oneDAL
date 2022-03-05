@@ -386,7 +386,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     {
         const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
         const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
-        leftWeights += weights;
+        leftWeights += this->_aWeights[aIdx[i - 1]].val;
         if (bSameFeaturePrev || (i < nMinSplitPart) || (leftWeights < minWeightLeaf) || (totalWeights - leftWeights < minWeightLeaf))
         {
             //can't make a split
