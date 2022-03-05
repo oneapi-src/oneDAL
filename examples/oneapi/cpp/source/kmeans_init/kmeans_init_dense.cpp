@@ -56,7 +56,7 @@ int main(int argc, char const* argv[]) {
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
-    //run<dal::kmeans_init::method::dense>(x_train, "dense");
+    run<dal::kmeans_init::method::dense>(x_train, "dense");
     run<dal::kmeans_init::method::random_dense>(x_train, "random_dense");
     run<dal::kmeans_init::method::plus_plus_dense>(x_train, "plus_plus_dense");
     run<dal::kmeans_init::method::parallel_plus_dense>(x_train, "parallel_plus_dense");
