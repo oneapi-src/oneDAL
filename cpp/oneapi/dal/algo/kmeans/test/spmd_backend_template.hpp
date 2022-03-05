@@ -113,7 +113,7 @@ public:
 
         const std::int64_t cluster_count = gold_dataset::get_cluster_count();
         constexpr std::int64_t max_iteration_count = 100;
-        const float_t accuracy_threshold = 0.0;
+        constexpr float_t accuracy_threshold = 0.0;
 
         INFO("create descriptor")
         const auto kmeans_desc =
