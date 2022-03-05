@@ -25,12 +25,12 @@ namespace oneapi::dal::kmeans::test {
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename TestType>
 class kmeans_spmd_backend_test
-        : public kmeans_spmd_backend_fixture<PARALLE_BACKEND,
+        : public kmeans_spmd_backend_fixture<PARALLEL_BACKEND,
                                              TestType,
                                              kmeans_spmd_backend_test<TestType>> {
 public:
     using base_t =
-        kmeans_spmd_backend_fixture<PARALLE_BACKEND, TestType, kmeans_spmd_backend_test<TestType>>;
+        kmeans_spmd_backend_fixture<PARALLEL_BACKEND, TestType, kmeans_spmd_backend_test<TestType>>;
     using float_t = typename base_t::float_t;
     using train_input_t = typename base_t::train_input_t;
     using train_result_t = typename base_t::train_result_t;

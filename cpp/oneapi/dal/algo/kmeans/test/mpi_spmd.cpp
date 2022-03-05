@@ -16,6 +16,6 @@
 
 #include "oneapi/dal/spmd/mpi/communicator.hpp"
 
-#define PARALLE_BACKEND dal::preview::spmd::backend::mpi
+#define PARALLEL_BACKEND dal::preview::spmd::backend::mpi
 
 #include "spmd_backend_template.hpp"

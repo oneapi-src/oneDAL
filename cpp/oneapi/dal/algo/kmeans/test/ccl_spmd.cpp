@@ -16,6 +16,6 @@
 
 #include "oneapi/dal/spmd/ccl/communicator.hpp"
 
-#define PARALLE_BACKEND dal::preview::spmd::backend::ccl
+#define PARALLEL_BACKEND dal::preview::spmd::backend::ccl
 
 #include "spmd_backend_template.hpp"
