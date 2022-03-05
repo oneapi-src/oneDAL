@@ -143,19 +143,19 @@ public:
         const data_type dtype = local_table.get_metadata().get_data_type(0);
         const auto byte_data = get_original_data(local_table);
         const auto original_column_indices = get_original_column_indices(local_table);
-        const auto original_row_indices = get_original_row_indices(local_table);
+        const auto original_row_offsets = get_original_row_offsets(local_table);
 
         get_impl().set_data_type(dtype);
-        get_impl().reset(byte_data, original_column_indices, original_row_indices, column_count);
+        get_impl().reset(byte_data, original_column_indices, original_row_offsets, column_count);
         return *this;
     }
 
     template <typename Data>
-    auto& reset(const dal::array<Data>& data, const array_i64& column_indices, const array_i64& row_indices,
+    auto& reset(const dal::array<Data>& data, const array_i64& column_indices, const array_i64& row_offsets,
                 std::int64_t column_count) {
         const auto byte_data = detail::reinterpret_array_cast<byte_t>(data);
         get_impl().set_data_type(detail::make_data_type<Data>());
-        get_impl().reset(byte_data, column_indices, row_indices, column_count);
+        get_impl().reset(byte_data, column_indices, row_offsets, column_count);
         return *this;
     }
 private:

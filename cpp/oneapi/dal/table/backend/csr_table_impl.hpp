@@ -32,14 +32,14 @@ public:
 
     csr_table_impl(const array<byte_t>& data,
                    const array<std::int64_t>& column_indices,
-                   const array<std::int64_t>& row_indices,
+                   const array<std::int64_t>& row_offsets,
                    std::int64_t column_count,
                    data_type dtype,
                    sparse_indexing indexing)
             : meta_(create_metadata(column_count, dtype)),
               data_(data),
               column_indices_(column_indices),
-              row_indices_(row_indices),
+              row_offsets_(row_offsets),
               col_count_(column_count),
               layout_(data_layout::row_major),
               indexing_(indexing) {
@@ -53,7 +53,7 @@ public:
             throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
-        const int64_t element_count = row_indices_[get_row_count()] - 1;
+        const int64_t element_count = row_offsets_[get_row_count()] - 1;
         const int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
@@ -81,8 +81,17 @@ public:
     }
 
     std::int64_t get_row_count() const override {
-        std::int64_t row_indices_count = row_indices_.get_count();
-        return (row_indices_count ? row_indices_count - 1 : 0);
+        std::int64_t row_offsets_count = row_offsets_.get_count();
+        return (row_offsets_count ? row_offsets_count - 1 : 0);
+    }
+
+    std::int64_t get_non_zero_count() const override {
+        std::int64_t row_offsets_count = row_offsets_.get_count();
+        return (row_offsets_count ? row_offsets_[row_offsets_count-1] - row_offsets_[0] : 0);
+    }
+
+    virtual sparse_indexing get_indexing() const override {
+        return indexing_;
     }
 
     const table_metadata& get_metadata() const override {
@@ -101,8 +110,8 @@ public:
         return column_indices_;
     }
 
-    array<std::int64_t> get_row_indices() const override {
-        return row_indices_;
+    array<std::int64_t> get_row_offsets() const override {
+        return row_offsets_;
     }
 
     data_layout get_data_layout() const override {
@@ -113,13 +122,13 @@ public:
     void pull_csr_block_template(const detail::default_host_policy& policy,
                                  dal::array<T>& data,
                                  dal::array<std::int64_t>& column_indices,
-                                 dal::array<std::int64_t>& row_indices,
+                                 dal::array<std::int64_t>& row_offsets,
                                  const sparse_indexing& indexing,
                                  const range& rows) const {
         csr_info origin_info{ meta_.get_data_type(0),
                               layout_,
                               col_count_,
-                              row_indices_[get_row_count()] - row_indices_[0],
+                              row_offsets_[get_row_count()] - row_offsets_[0],
                               indexing_ };
 
         // Overflow is checked here
@@ -137,10 +146,10 @@ public:
                        block_info,
                        data_,
                        column_indices_,
-                       row_indices_,
+                       row_offsets_,
                        data,
                        column_indices,
-                       row_indices,
+                       row_offsets,
                        alloc_kind::host);
     }
 
@@ -156,7 +165,7 @@ private:
     table_metadata meta_;
     array<byte_t> data_;
     array<std::int64_t> column_indices_;
-    array<std::int64_t> row_indices_;
+    array<std::int64_t> row_offsets_;
     std::int64_t col_count_;
     data_layout layout_;
     sparse_indexing indexing_;

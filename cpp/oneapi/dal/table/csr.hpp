@@ -48,7 +48,6 @@ public:
     /// @param row_offsets_pointer    The pointer to row offsets block in CSR layout.
     /// @param row_count              The number of rows in the table.
     /// @param column_count           The number of columns in the table.
-    /// @param element_count          The number of non zero elements in the table.
     /// @param indexing               The indexing scheme used to access data in the CSR layout.
     ///                               Should be :literal:`sparse_indexing::zero_based` or
     ///                               :literal:`sparse_indexing::one_based`.
@@ -58,15 +57,15 @@ public:
                           const std::int64_t* row_offsets_pointer,
                           std::int64_t row_count,
                           std::int64_t column_count,
-                          std::int64_t element_count,
                           sparse_indexing indexing = sparse_indexing::one_based) {
         return csr_table{ data_pointer,
                           column_indices_pointer,
                           row_offsets_pointer,
                           row_count,
                           column_count,
-                          element_count,
                           dal::detail::empty_delete<const Data>(),
+                          dal::detail::empty_delete<const std::int64_t>(),
+                          dal::detail::empty_delete<const std::int64_t>(),
                           indexing };
     }
 
@@ -99,6 +98,64 @@ public:
               std::int64_t column_count,
               sparse_indexing indexing = sparse_indexing::one_based) {
         init_impl(data, column_indices, row_offsets, column_count, indexing);
+    }
+
+    /// Creates a new ``csr_table`` instance from externally-defined data blocks.
+    /// Table object owns the data, column indices and row offsets pointers.
+    /// The :literal:`data` should point to the ``data_pointer`` memory block.
+    /// The :literal:`column_indices` should point to the ``column_indices_pointer`` memory block.
+    /// The :literal:`row_offsets` should point to the ``row_offsets_pointer`` memory block.
+    ///
+    /// @tparam Data         The type of elements in the data block that will be stored into the table.
+    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double`
+    ///                      or :expr:`std::int32_t`.
+    /// @tparam ConstDataDeleter
+    ///                      The type of a deleter called on ``data_pointer`` when
+    ///                      the last table that refers it is out of the scope.
+    /// @tparam ConstColumnIndicesDeleter
+    ///                      The type of a deleter called on ``column_indices_pointer`` when
+    ///                      the last table that refers it is out of the scope.
+    /// @tparam ConstRowOffsetsDeleter
+    ///                      The type of a deleter called on ``row_offsets_pointer`` when
+    ///                      the last table that refers it is out of the scope.
+    ///
+    /// @param data_pointer           The pointer to values block in the CSR layout.
+    /// @param column_indices_pointer The pointer to column indices block in the CSR layout.
+    /// @param row_offsets_pointer    The pointer to row offsets block in the CSR layout.
+    /// @param row_count              The number of rows in the table.
+    /// @param column_count           The number of columns in the table.
+    /// @param data_deleter           The deleter that is called on the ``data_pointer``
+    ///                               when the last table that refers it is out of the scope.
+    /// @param column_indices_deleter The deleter that is called on the ``column_indices_pointer``
+    ///                               when the last table that refers it is out of the scope.
+    /// @param row_offsets_deleter    The deleter that is called on the ``row_offsets_pointer``
+    ///                               when the last table that refers it is out of the scope.
+    /// @param indexing               The indexing scheme used to access data in the CSR layout.
+    ///                               Should be :literal:`sparse_indexing::zero_based` or
+    ///                               :literal:`sparse_indexing::one_based`.
+    template <typename Data,
+              typename ConstDataDeleter,
+              typename ConstColumnIndicesDeleter,
+              typename ConstRowOffsetsDeleter>
+    csr_table(const Data* data_pointer,
+              const std::int64_t* column_indices_pointer,
+              const std::int64_t* row_offsets_pointer,
+              std::int64_t row_count,
+              std::int64_t column_count,
+              ConstDataDeleter&& data_deleter,
+              ConstColumnIndicesDeleter&& column_indices_deleter,
+              ConstRowOffsetsDeleter&& row_offsets_deleter,
+              sparse_indexing indexing = sparse_indexing::one_based) {
+        init_impl(detail::default_host_policy{},
+                  data_pointer,
+                  column_indices_pointer,
+                  row_offsets_pointer,
+                  row_count,
+                  column_count,
+                  std::forward<ConstDataDeleter>(data_deleter),
+                  std::forward<ConstColumnIndicesDeleter>(column_indices_deleter),
+                  std::forward<ConstRowOffsetsDeleter>(row_offsets_deleter),
+                  indexing);
     }
 
     /// Creates a new ``csr_table`` instance from arrays of data, column indices and row offsets.
@@ -134,6 +191,10 @@ public:
     /// The number of non-zero elements in the table.
     /// @remark default = 0
     std::int64_t get_non_zero_count() const;
+
+    /// The indexing scheme used to access data in the CSR layout.
+    /// @remark default = :expr:`sparse_indexing::one_based`
+    sparse_indexing get_indexing() const;
 
     /// Returns the :literal:`data` pointer cast to the :literal:`Data` type. No checks are
     /// performed that this type is the actual type of the data within the table.
@@ -196,6 +257,51 @@ private:
                 throw dal::domain_error(error_msg::column_indices_gt_max_value());
             }
         }
+    }
+
+    template <typename Policy,
+              typename Data,
+              typename ConstDataDeleter,
+              typename ConstColumnIndicesDeleter,
+              typename ConstRowOffsetsDeleter>
+    void init_impl(const Policy& policy,
+                   const Data* data_pointer,
+                   const std::int64_t* column_indices_pointer,
+                   const std::int64_t* row_offsets_pointer,
+                   std::int64_t row_count,
+                   std::int64_t column_count,
+                   ConstDataDeleter&& data_deleter,
+                   ConstColumnIndicesDeleter&& column_indices_deleter,
+                   ConstRowOffsetsDeleter&& row_offsets_deleter,
+                   sparse_indexing indexing) {
+        check_indices(column_indices_pointer, row_offsets_pointer, row_count, column_count, indexing);
+        const std::int64_t element_count = row_offsets_pointer[row_count] - row_offsets_pointer[0];
+
+        const auto data = detail::array_via_policy<Data>::wrap(
+            policy,
+            data_pointer,
+            element_count,
+            std::forward<ConstDataDeleter>(data_deleter));
+        
+        const auto column_indices = detail::array_via_policy<std::int64_t>::wrap(
+            policy,
+            column_indices_pointer,
+            element_count,
+            std::forward<ConstColumnIndicesDeleter>(column_indices_deleter));
+        
+        const auto row_offsets = detail::array_via_policy<std::int64_t>::wrap(
+            policy,
+            row_offsets_pointer,
+            row_count + 1,
+            std::forward<ConstRowOffsetsDeleter>(row_offsets_deleter));
+
+        init_impl(policy,
+                  detail::reinterpret_array_cast<byte_t>(data),
+                  column_indices,
+                  row_offsets,
+                  column_count,
+                  detail::make_data_type<Data>(),
+                  indexing);
     }
 
     template <typename Data>

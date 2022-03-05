@@ -49,18 +49,18 @@ inline dal::array<std::int64_t> get_original_column_indices(const table& t) {
 /// mutability. If the table was created from custom implementation, returns
 /// empty array.
 ///
-/// @param[in] t Table to extract the row indices from
+/// @param[in] t Table to extract the row offsets from
 /// @return      Original array of int64_t held in the table.
-///              If the table was created from mutable row indices object,
-///              this array contains mutable row indices.
-inline dal::array<std::int64_t> get_original_row_indices(const table& t) {
-    return detail::cast_impl<detail::csr_table_iface>(t).get_row_indices();
+///              If the table was created from mutable row offsets object,
+///              this array contains mutable row offsets.
+inline dal::array<std::int64_t> get_original_row_offsets(const table& t) {
+    return detail::cast_impl<detail::csr_table_iface>(t).get_row_offsets();
 }
 
 } // namespace v1
 
 using v1::get_original_data;
 using v1::get_original_column_indices;
-using v1::get_original_row_indices;
+using v1::get_original_row_offsets;
 
 } // namespace oneapi::dal::detail
