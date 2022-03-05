@@ -138,7 +138,7 @@ public:
                                                                     cluster_count * column_count,
                                                                     sycl::usm::alloc::device);
                 constexpr std::int64_t root_rank = 0;
-                std::int64_t rank = comm.get_rank();
+                const std::int64_t rank = comm.get_rank();
                 if (rank == root_rank) {
                     auto arr_temp =
                         row_accessor<const float_t>(centroids).pull(this->get_queue(),
