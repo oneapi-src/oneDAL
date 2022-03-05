@@ -112,8 +112,8 @@ public:
         const auto initial_centroids = gold_dataset::get_initial_centroids().get_table(table_id);
 
         const std::int64_t cluster_count = gold_dataset::get_cluster_count();
-        const std::int64_t max_iteration_count = 100;
-        const float_t accuracy_threshold = 0.0;
+        constexpr std::int64_t max_iteration_count = 100;
+        constexpr float_t accuracy_threshold = 0.0;
 
         INFO("create descriptor")
         const auto kmeans_desc =
@@ -126,8 +126,8 @@ public:
             INFO("check centroids") {
                 auto comm = this->get_comm();
                 const auto centroids = result.get_model().get_centroids();
-                std::int64_t cluster_count = centroids.get_row_count();
-                std::int64_t column_count = centroids.get_column_count();
+                const std::int64_t cluster_count = centroids.get_row_count();
+                const std::int64_t column_count = centroids.get_column_count();
                 std::int64_t min_value = cluster_count;
                 comm.allreduce(min_value, dal::preview::spmd::reduce_op::min);
                 std::int64_t max_value = cluster_count;
@@ -138,7 +138,7 @@ public:
                                                                     cluster_count * column_count,
                                                                     sycl::usm::alloc::device);
                 constexpr std::int64_t root_rank = 0;
-                std::int64_t rank = comm.get_rank();
+                const std::int64_t rank = comm.get_rank();
                 if (rank == root_rank) {
                     auto arr_temp =
                         row_accessor<const float_t>(centroids).pull(this->get_queue(),
