@@ -159,3 +159,19 @@ dal_collect_test_suites(
         # "@onedal//cpp/oneapi:dal_hpp_test",
     ],
 )
+
+dal_collect_test_suites(
+    name = "mpi_tests",
+    root = "@onedal//cpp/oneapi/dal",
+    tests = [
+        "@onedal//cpp/oneapi/dal/algo/kmeans:mpi_tests",
+    ],
+)
+
+dal_collect_test_suites(
+    name = "ccl_tests",
+    root = "@onedal//cpp/oneapi/dal",
+    tests = [
+        "@onedal//cpp/oneapi/dal/algo/kmeans:ccl_tests",
+    ],
+)

@@ -41,3 +41,5 @@ dal_collect_test_suites(
     root = "@onedal//cpp/oneapi/dal/algo",
     modules = ALGOS,
 )
+
+
