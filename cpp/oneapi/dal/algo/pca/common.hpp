@@ -108,7 +108,8 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::cov, method::svd>;
+constexpr bool is_valid_method_v =
+    dal::detail::is_one_of_v<Method, method::cov, method::svd, method::precomputed>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::dim_reduction>;
