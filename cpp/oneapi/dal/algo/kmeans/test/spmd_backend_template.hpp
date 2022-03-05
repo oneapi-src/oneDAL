@@ -126,8 +126,8 @@ public:
             INFO("check centroids") {
                 auto comm = this->get_comm();
                 const auto centroids = result.get_model().get_centroids();
-                std::int64_t cluster_count = centroids.get_row_count();
-                std::int64_t column_count = centroids.get_column_count();
+                const std::int64_t cluster_count = centroids.get_row_count();
+                const std::int64_t column_count = centroids.get_column_count();
                 std::int64_t min_value = cluster_count;
                 comm.allreduce(min_value, dal::preview::spmd::reduce_op::min);
                 std::int64_t max_value = cluster_count;
