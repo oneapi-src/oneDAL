@@ -77,6 +77,7 @@ public:
                                    std::int64_t* recv_counts,
                                    std::int64_t* displs) {
         auto comm = get_new_comm();
+
         auto send_buffer_device = copy_to_device(send_buf, send_count);
         std::int64_t total_count = 0;
         for (std::int64_t i = 0; i < comm.get_rank_count(); i++) {
@@ -85,7 +86,7 @@ public:
         
         auto recv_buffer_device =
             array<T>::empty(get_queue(), total_count, sycl::usm::alloc::device);
-        std::cout<<"kekdev\n";
+        std::cout<<"kek_in_allgatherv_on_device_before_allgatherv\n";
         comm.allgatherv(get_queue(),
                         send_buffer_device.get_mutable_data(),
                         send_count,
@@ -93,7 +94,7 @@ public:
                         recv_counts,
                         displs)
             .wait();
-            
+        std::cout<<"kek_in_allgatherv_on_device_after\n";
         
         copy_to_host(recv_buf, recv_buffer_device.get_data(), total_count);
     }
@@ -334,7 +335,7 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
     std::vector<std::int64_t> recv_counts(rank_count);
     std::vector<std::int64_t> displs(rank_count);
     std::int64_t total_size = 0;
-    constexpr std::int64_t empty_rank = 1;
+    constexpr std::int64_t empty_rank = 0;
     for (std::int64_t i = 0; i < rank_count; i++) {
         recv_counts[i] = i != empty_rank ? (i + 1) * granularity : 0;
         displs[i] = total_size;
@@ -346,7 +347,6 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
 
     const std::int64_t rank_size = recv_counts[rank];
     std::vector<float> send_buffer;
-
     send_buffer.reserve(rank_size);
     for (std::int64_t i = 0; i < rank_size; i++) {
         send_buffer[i] = float(rank);
@@ -360,7 +360,7 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
             offset++;
         }
     }
- std::cout<<"kek\n";
+
 //     SECTION("host") {
 //         test_allgatherv(send_buffer.data(),
 //                         rank_size,

@@ -22,55 +22,123 @@
 #define ONEDAL_DATA_PARALLEL
 #endif
 
-#include "oneapi/dal/algo/kmeans.hpp"
-#include "oneapi/dal/io/csv.hpp"
 #include "oneapi/dal/spmd/ccl/communicator.hpp"
+
 
 #include "utils.hpp"
 
-void run(sycl::queue& queue) {
-    const auto train_data_file_name = get_data_path("data/kmeans_dense_train_data.csv");
-    const auto initial_centroids_file_name = get_data_path("data/kmeans_dense_train_centroids.csv");
+using namespace std;
+using namespace sycl;
 
-    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
-    const auto initial_centroids =
-        dal::read<dal::table>(queue, dal::csv::data_source{ initial_centroids_file_name });
+inline void mpi_finalize() {
+    int is_finalized = 0;
+    MPI_Finalized(&is_finalized);
 
-    const auto kmeans_desc = dal::kmeans::descriptor<>()
-                                 .set_cluster_count(20)
-                                 .set_max_iteration_count(5)
-                                 .set_accuracy_threshold(0.001);
-    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(queue);
-    auto rank_id = comm.get_rank();
-    auto rank_count = comm.get_rank_count();
-
-    auto input_vec = split_table_by_rows<float>(queue, x_train, rank_count);
-    dal::kmeans::train_input local_input { input_vec[rank_id], initial_centroids };
-
-    const auto result_train = dal::preview::train(comm, kmeans_desc, local_input);
-    if(comm.get_rank() == 0) {
-        std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
-        std::cout << "Objective function value: " << result_train.get_objective_function_value()
-                << std::endl;
-        std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
-    }
+    if (!is_finalized)
+        MPI_Finalize();
 }
 
 int main(int argc, char const *argv[]) {
     ccl::init();
     int status = MPI_Init(nullptr, nullptr);
-    if (status != MPI_SUCCESS) {
-        throw std::runtime_error{ "Problem occurred during MPI init" };
+
+
+    auto device = gpu_selector{}.select_device();
+    cout << "Running on " << device.get_info<info::device::name>() << "\n";
+    queue q{ device };
+        // const size_t count = 10 * 1024 * 1024;
+
+    int size = 0;
+    int rank = 0;
+
+
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    atexit(mpi_finalize);
+
+    /* create kvs */
+    ccl::shared_ptr_class<ccl::kvs> kvs;
+    ccl::kvs::address_type main_addr;
+    if (rank == 0) {
+        kvs = ccl::create_main_kvs();
+        main_addr = kvs->get_address();
+        MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+    }
+    else {
+        MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+        kvs = ccl::create_kvs(main_addr);
     }
 
-    auto device = sycl::gpu_selector{}.select_device();
-    std::cout << "Running on " << device.get_info<sycl::info::device::name>() << std::endl;
-    sycl::queue q{ device };
-    run(q);
+    /* create communicator */
+    auto dev = ccl::create_device(q.get_device());
+    auto ctx = ccl::create_context(q.get_context());
+    auto comm = ccl::create_communicator(size, rank, dev, ctx, kvs);
+
+    /* create stream */
+    auto stream = ccl::create_stream(q);
+
+    /* create buffers */
+    const size_t granularity = 10;
+    const size_t rank_count = size;
+
+    std::vector<size_t> recv_counts(rank_count); // size_t instead std::int64_t
+    std::vector<size_t> displs(rank_count);
+    size_t total_size = 0;
+    constexpr size_t empty_rank = 1;
+    for (size_t i = 0; i < rank_count; i++) {
+        recv_counts[i] = i != empty_rank ? (i + 1) * granularity : 0;
+        displs[i] = total_size;
+        total_size += recv_counts[i];
+    }
+
+    std::vector<float> check_buf(total_size);
+    float *recv_buffer = malloc_device<float>(total_size, q);
+
+    const size_t data_type_size = sizeof(float);
+    std::vector<void*> recv_bufs(rank_count);
+    for (size_t i = 0; i < rank_count; i++) {
+        recv_bufs[i] =  recv_buffer + data_type_size * displs[i];
+    }
+
+    std::vector<float> final_buffer(total_size);
+    std::int64_t offset = 0;
+    for (size_t i = 0; i < rank_count; i++) {
+        for (size_t j = 0; j < recv_counts[i]; j++) {
+            final_buffer[offset] = float(i);
+            offset++;
+        }
+    }
+    const size_t rank_size = recv_counts[rank];
+    float *send_buffer = sycl::malloc_device<float>(rank_size, q);
+    auto e = q.submit([&](auto &h) {
+            h.parallel_for(rank_size , [=](auto id) {
+                    send_buffer[id] = float(rank);
+            });
+            });
+
+        ccl::allgatherv(send_buffer, rank_size, recv_bufs, recv_counts, ccl::datatype::float32, comm, stream).wait();
+        q.submit([&](handler &h){
+            h.memcpy(check_buf.data(), recv_buffer, sizeof(float) * total_size);
+        });
+        
+ 
+
 
     status = MPI_Finalize();
     if (status != MPI_SUCCESS) {
         throw std::runtime_error{ "Problem occurred during MPI finalize" };
     }
-    return 0;
+    int flag = 0;
+    for (size_t i = 0; i < total_size; i++) {
+        std::cout<< i << "check_buf[i] = "<< check_buf[i] << " final_buffer[i] =  " << final_buffer[i] << "\n";
+        if (check_buf[i] == final_buffer[i]){
+            flag = 0;
+        }
+        else{
+            flag = 1;
+             throw std::runtime_error{ "Problem with check_buf" };
+        }
+    }
+    return flag;
 }
