@@ -188,13 +188,10 @@ TEST_M(mpi_comm_test, "bcast") {
 // TODO
 // TEST_M(mpi_comm_test, "empty bcast") {
 //     constexpr std::int64_t count = 0;
-
 //     float* empty_buf = nullptr;
-
 //     SECTION("host") {
 //         test_bcast(empty_buf, count);
 //     }
-
 // #ifdef ONEDAL_DATA_PARALLEL
 //     SECTION("device") {
 //         test_bcast_on_device(empty_buf, count);
@@ -240,6 +237,7 @@ TEST_M(mpi_comm_test, "allreduce") {
 }
 
 TEST_M(mpi_comm_test, "allreduce_single_value") {
+    float value = 1.0f;
     SECTION("host") {
         test_allreduce_value(value);
     }
@@ -251,13 +249,10 @@ TEST_M(mpi_comm_test, "allreduce_single_value") {
 // TODO
 // TEST_M(mpi_comm_test, "empty allreduce") {
 //     constexpr std::int64_t count = 0;
-
 //     float* buffer = nullptr;
-
 //     SECTION("host") {
 //         test_allreduce(buffer, count);
 //     }
-
 // #ifdef ONEDAL_DATA_PARALLEL
 //     SECTION("device") {
 //         test_allreduce_on_device(buffer, count);
