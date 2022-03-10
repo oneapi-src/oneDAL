@@ -20,8 +20,6 @@
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_helpers.hpp"
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/dbg_helpers.hpp"
-
 #ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_impl.hpp"
