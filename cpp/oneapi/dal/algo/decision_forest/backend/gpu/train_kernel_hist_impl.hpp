@@ -29,6 +29,7 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_feature_type.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_model_manager.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_impl.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_sp_opt_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -54,6 +55,10 @@ class train_kernel_hist_impl {
     using rng_engine_list_t = std::vector<rng_engine_t>;
     using msg = dal::detail::error_messages;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
+    using node_t = node<Index>;
+    using node_list_t = node_list<Index>;
+    using node_group_t = node_group<Index>;
+    using node_group_list_t = node_group_list<Index>;
 
 public:
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
@@ -61,7 +66,8 @@ public:
     train_kernel_hist_impl(const bk::context_gpu& ctx)
             : queue_(ctx.get_queue()),
               comm_(ctx.get_communicator()),
-              train_service_kernels_(queue_) {}
+              train_service_kernels_(queue_),
+              node_group_list_(queue_) {}
     ~train_kernel_hist_impl() = default;
 
     result_t operator()(const descriptor_t& desc, const table& data, const table& labels);
@@ -213,6 +219,20 @@ private:
                                            Index node_count,
                                            const bk::event_vector& deps = {});
 
+    sycl::event compute_partial_histograms_new(const train_context_t& ctx,
+                                               const pr::ndarray<Bin, 2>& data,
+                                               const pr::ndview<Float, 1>& response,
+                                               const pr::ndarray<Index, 1>& tree_order,
+                                               const pr::ndarray<Index, 1>& selected_ftr_list,
+                                               const pr::ndarray<Index, 1>& bin_offset_list,
+                                               const pr::ndarray<Index, 1>& node_list,
+                                               const pr::ndarray<Index, 1>& node_ind_list,
+                                               Index node_ind_ofs,
+                                               pr::ndarray<hist_type_t, 1>& part_hist_list,
+                                               Index part_hist_count,
+                                               Index node_count,
+                                               const bk::event_vector& deps = {});
+
     sycl::event reduce_partial_histograms(const train_context_t& ctx,
                                           const pr::ndarray<hist_type_t, 1>& part_hist_list,
                                           pr::ndarray<hist_type_t, 1>& hist_list,
@@ -340,6 +360,8 @@ private:
     pr::ndarray<Float, 1> var_imp_variance_host_;
 
     pr::ndarray<Float, 1> res_var_imp_;
+
+    node_group_list_t node_group_list_;
 };
 
 #endif
