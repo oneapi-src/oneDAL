@@ -334,7 +334,8 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_backend_test,
     const te::dataframe data =
         te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" }.build();
 
-    const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
+    const table x =
+        data.get_table(this->get_policy(), this->get_homogen_table_id(), sycl::usm::alloc::device);
 
     constexpr double epsilon = 1.7e3;
     constexpr std::int64_t min_observations = 3;
@@ -352,7 +353,8 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_backend_test,
 
     const te::dataframe data = GENERATE_DATAFRAME(
         te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
-    const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
+    const table x =
+        data.get_table(this->get_policy(), this->get_homogen_table_id(), sycl::usm::alloc::device);
 
     constexpr double epsilon = 5;
     constexpr std::int64_t min_observations = 3;
@@ -370,7 +372,8 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_backend_test,
 
     const te::dataframe data = GENERATE_DATAFRAME(
         te::dataframe_builder{ "workloads/road_network/dataset/road_network_20t_cluster.csv" });
-    const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
+    const table x =
+        data.get_table(this->get_policy(), this->get_homogen_table_id(), sycl::usm::alloc::device);
 
     constexpr double epsilon = 1.0e3;
     constexpr std::int64_t min_observations = 220;
