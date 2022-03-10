@@ -125,8 +125,8 @@ constexpr bool is_max_op_v = is_typed_max_op_v<bin_op_t<BinaryOp>, BinaryOp>;
 template <typename BinaryOp, typename T = bin_op_t<BinaryOp>>
 inline T atomic_binary_op(T* ptr, T val) {
     sycl::ext::oneapi::atomic_ref<T,
-                                  cl::sycl::ext::oneapi::memory_order::relaxed,
-                                  cl::sycl::ext::oneapi::memory_scope::device,
+                                  cl::sycl::memory_order::relaxed,
+                                  cl::sycl::memory_scope::device,
                                   cl::sycl::access::address_space::ext_intel_global_device_space>
         atomic_ref(*ptr);
     if constexpr (is_sum_op_v<BinaryOp>) {
