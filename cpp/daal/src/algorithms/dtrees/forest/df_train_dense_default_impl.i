@@ -1,6 +1,6 @@
 /* file: df_train_dense_default_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -542,13 +542,15 @@ protected:
                     totalWeights += pbd[i];
                 }
                 _minWeightLeaf = par.minWeightFractionInLeafNode * totalWeights;
+                _minImpurityDecrease =
+                    par.minImpurityDecreaseInSplitNode * totalWeights - daal::services::internal::EpsilonVal<algorithmFPType>::get() * totalWeights;
             }
             else
             {
-                _minWeightLeaf = par.minWeightFractionInLeafNode * x->getNumberOfRows();
+                _minWeightLeaf       = par.minWeightFractionInLeafNode * x->getNumberOfRows();
+                _minImpurityDecrease = par.minImpurityDecreaseInSplitNode * x->getNumberOfRows()
+                                       - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows();
             }
-            _minImpurityDecrease = par.minImpurityDecreaseInSplitNode * x->getNumberOfRows()
-                                   - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows();
             _maxLeafNodes = par.maxLeafNodes;
         }
     }
@@ -615,18 +617,9 @@ protected:
     {
         const size_t n    = nFeatures();
         const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
-        if (n == _nFeaturesPerNode)
-        {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < n; ++i) _aFeatureIdx[i] = i;
-        }
-        else
-        {
-            *_numElems += n;
-            RNGs<IndexType, cpu> rng;
-            rng.uniformWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), 0, n);
-        }
+        *_numElems += n;
+        RNGs<IndexType, cpu> rng;
+        rng.uniformWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), 0, n);
     }
 
     services::Status computeResults(const dtrees::internal::Tree & t);
@@ -801,22 +794,6 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
     const size_t maxFeatures = nFeatures();
     if (_hostApp.isCancelled(s, n)) return nullptr;
 
-    if (!_par.memorySavingMode && !_useConstFeatures)
-    {
-        for (size_t i = _nConstFeature; i > 0; --i)
-        {
-            if (level + 1 < _aConstFeatureIdx[maxFeatures + _aConstFeatureIdx[i - 1]])
-            {
-                DAAL_ASSERT(_nConstFeature > 0);
-                --_nConstFeature;
-                _aConstFeatureIdx[maxFeatures + _aConstFeatureIdx[i - 1]] = 0; //clean level
-                _aConstFeatureIdx[i - 1]                                  = 0; //clean index
-            }
-            else
-                break;
-        }
-    }
-
     if (terminateCriteria(n, level, curImpurity, totalWeights)) return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
 
     typename DataHelper::TSplitData split;
@@ -828,13 +805,28 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         const double impLeft = split.left.var;
 
         // check impurity decrease
-        if (imp * split.totalWeights - impLeft * split.leftWeights - (split.totalWeights - split.leftWeights) * (imp - impLeft)
-            < _minImpurityDecrease)
-            return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
+        if (split.totalWeights * split.impurityDecrease < _minImpurityDecrease) return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
         if (_par.varImportance == training::MDI) addImpurityDecrease(iFeature, n, curImpurity, split);
         typename DataHelper::NodeType::Base * left =
             buildDepthFirst(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses, split.leftWeights);
         _helper.convertLeftImpToRight(n, curImpurity, split);
+        if (!_par.memorySavingMode && !_useConstFeatures)
+        {
+            for (size_t i = _nConstFeature; i > 0; --i)
+            {
+                if (level + 1 < _aConstFeatureIdx[maxFeatures + _aConstFeatureIdx[i - 1]])
+                {
+                    DAAL_ASSERT(_nConstFeature > 0);
+                    --_nConstFeature;
+                    _aConstFeatureIdx[maxFeatures + _aConstFeatureIdx[i - 1]] = 0; //clean level
+                    _aConstFeatureIdx[i - 1]                                  = 0; //clean index
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
         typename DataHelper::NodeType::Base * right =
             s.ok() ? buildDepthFirst(s, iStart + nLeft, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses, split.leftWeights) :
                      nullptr;

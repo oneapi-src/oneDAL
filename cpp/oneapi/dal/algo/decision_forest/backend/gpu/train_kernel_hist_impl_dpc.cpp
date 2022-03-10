@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,10 +58,10 @@ struct float_accuracy<double> {
 
 template <typename T>
 inline T atomic_global_add(T* ptr, T operand) {
-    sycl::ext::oneapi::atomic_ref<T,
-                                  cl::sycl::ext::oneapi::memory_order::relaxed,
-                                  cl::sycl::ext::oneapi::memory_scope::device,
-                                  cl::sycl::access::address_space::ext_intel_global_device_space>
+    sycl::atomic_ref<T,
+                     sycl::memory_order::relaxed,
+                     sycl::memory_scope::device,
+                     sycl::access::address_space::ext_intel_global_device_space>
         atomic_var(*ptr);
     return atomic_var.fetch_add(operand);
 }
@@ -1743,7 +1743,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_his
             const Index ftr_grp_idx = item.get_local_id()[0];
             const Index ftr_grp_size = item.get_local_range()[0];
             const Index part_hist_count = item.get_group_range(0);
-            const Index hist_idx = item.get_group().get_id(0);
+            const Index hist_idx = item.get_group().get_group_id(0);
 
             const Index row_ofs = node_list_ptr[node_id * node_prop_count + impl_const_t::ind_ofs];
             const Index row_count = node_list_ptr[node_id * node_prop_count +
@@ -1837,7 +1837,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_cou
             const Index ftr_grp_idx = item.get_local_id()[0];
             const Index ftr_grp_size = item.get_local_range()[0];
             const Index part_hist_count = item.get_group_range(0);
-            const Index hist_idx = item.get_group().get_id(0);
+            const Index hist_idx = item.get_group().get_group_id(0);
 
             const Index row_ofs = node_list_ptr[node_id * node_prop_count + impl_const_t::ind_ofs];
             const Index row_count = node_list_ptr[node_id * node_prop_count +
@@ -1936,7 +1936,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_sum
             const Index ftr_grp_idx = item.get_local_id()[0];
             const Index ftr_grp_size = item.get_local_range()[0];
             const Index part_hist_count = item.get_group_range(0);
-            const Index hist_idx = item.get_group().get_id(0);
+            const Index hist_idx = item.get_group().get_group_id(0);
 
             const Index row_ofs = node_list_ptr[node_id * node_prop_count + impl_const_t::ind_ofs];
             const Index row_count = node_list_ptr[node_id * node_prop_count +

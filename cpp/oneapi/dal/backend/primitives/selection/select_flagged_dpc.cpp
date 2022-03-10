@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,7 +53,8 @@ sycl::event select_flagged_base<Data, Flag>::scan(sycl::queue& queue,
 
             const integer_t local_id = sbg.get_local_id();
             const integer_t sub_group_id = sbg.get_group_id();
-            const integer_t group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
+            const integer_t group_id =
+                item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             integer_t ind_start = group_id * elems_for_sbg;
             integer_t ind_end =
@@ -154,7 +155,8 @@ sycl::event select_flagged_base<Data, Flag>::reorder(sycl::queue& queue,
 
             const integer_t local_id = sbg.get_local_id();
             const integer_t sub_group_id = sbg.get_group_id();
-            const integer_t group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
+            const integer_t group_id =
+                item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             integer_t ind_start = group_id * elems_for_sbg;
             integer_t ind_end =

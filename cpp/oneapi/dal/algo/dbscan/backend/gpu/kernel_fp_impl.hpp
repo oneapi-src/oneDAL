@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -387,11 +387,10 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                     if (cores_ptr[wg_id] == 0)
                         continue;
                     if (local_id == 0) {
-                        sycl::ext::oneapi::atomic_ref<
-                            std::int32_t,
-                            cl::sycl::ext::oneapi::memory_order::relaxed,
-                            cl::sycl::ext::oneapi::memory_scope::device,
-                            cl::sycl::access::address_space::ext_intel_global_device_space>
+                        sycl::atomic_ref<std::int32_t,
+                                         sycl::memory_order::relaxed,
+                                         sycl::memory_scope::device,
+                                         sycl::access::address_space::ext_intel_global_device_space>
                             counter_atomic(queue_front_ptr[0]);
                         std::int32_t new_front = counter_atomic.fetch_add(1);
                         queue_ptr[new_front] = probe;

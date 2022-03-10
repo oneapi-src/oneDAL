@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -81,6 +81,37 @@ void convert_vector(const detail::default_host_policy& policy,
                               dst_stride * dst_element_size,
                               element_count);
     }
+}
+
+void convert_matrix(const detail::default_host_policy& policy,
+                    const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dst_type,
+                    const std::int64_t src_row_stride,
+                    const std::int64_t dst_row_stride,
+                    const std::int64_t src_col_stride,
+                    const std::int64_t dst_col_stride,
+                    const std::int64_t dst_row_count,
+                    const std::int64_t dst_col_count) {
+    dispatch_by_data_type(src_type, [&](auto src_type_id) {
+        dispatch_by_data_type(dst_type, [&](auto dst_type_id) {
+            using src_t = decltype(src_type_id);
+            using dst_t = decltype(dst_type_id);
+            auto src_ptr = static_cast<const src_t*>(src);
+            auto dst_ptr = static_cast<dst_t*>(dst);
+            for (std::int64_t i = 0; i < dst_row_count; i++) {
+                backend::convert_vector(policy,
+                                        src_ptr + i * src_row_stride,
+                                        dst_ptr + i * dst_row_stride,
+                                        src_type,
+                                        dst_type,
+                                        src_col_stride,
+                                        dst_col_stride,
+                                        dst_col_count);
+            }
+        });
+    });
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -317,6 +348,99 @@ void convert_vector(const detail::data_parallel_policy& policy,
                        element_count);
     }
 }
+
+template <typename Src, typename Dst>
+sycl::event convert_matrix_host2device(sycl::queue& q,
+                                       const Src* src_host,
+                                       Dst* dst_device,
+                                       data_type src_type,
+                                       data_type dst_type,
+                                       const std::int64_t src_row_stride,
+                                       const std::int64_t dst_row_stride,
+                                       const std::int64_t src_col_stride,
+                                       const std::int64_t dst_col_stride,
+                                       const std::int64_t dst_row_count,
+                                       const std::int64_t dst_col_count) {
+    ONEDAL_ASSERT(src_host);
+    ONEDAL_ASSERT(dst_device);
+    ONEDAL_ASSERT(src_row_stride > 0);
+    ONEDAL_ASSERT(dst_row_stride > 0);
+    ONEDAL_ASSERT(src_col_stride > 0);
+    ONEDAL_ASSERT(dst_col_stride > 0);
+    ONEDAL_ASSERT(dst_row_count >= 0);
+    ONEDAL_ASSERT(dst_col_count >= 0);
+    ONEDAL_ASSERT(is_known_usm(q, dst_device));
+
+    const std::int64_t element_size_in_bytes = dal::detail::get_data_type_size(dst_type);
+    const std::int64_t dst_count = dal::detail::check_mul_overflow(dst_col_count, dst_row_count);
+    const std::int64_t dst_size_in_bytes =
+        dal::detail::check_mul_overflow(element_size_in_bytes, dst_count);
+
+    const auto tmp_host_unique = make_unique_usm_host<Dst>(q, dst_count);
+    for (std::int64_t i = 0; i < dst_row_count; i++) {
+        backend::convert_vector(detail::default_host_policy{},
+                                src_host + i * src_row_stride,
+                                tmp_host_unique.get() + i * dst_row_stride,
+                                src_type,
+                                dst_type,
+                                src_col_stride,
+                                dst_col_stride,
+                                dst_col_count);
+    }
+    auto copy_event = memcpy(q, dst_device, tmp_host_unique.get(), dst_size_in_bytes);
+    return copy_event;
+}
+
+void convert_matrix(const detail::data_parallel_policy& policy,
+                    const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dst_type,
+                    const std::int64_t src_row_stride,
+                    const std::int64_t dst_row_stride,
+                    const std::int64_t src_col_stride,
+                    const std::int64_t dst_col_stride,
+                    const std::int64_t dst_row_count,
+                    const std::int64_t dst_col_count) {
+    dispatch_by_data_type(src_type, [&](auto src_type_id) {
+        dispatch_by_data_type(dst_type, [&](auto dst_type_id) {
+            using src_t = decltype(src_type_id);
+            using dst_t = decltype(dst_type_id);
+            auto src_ptr = static_cast<const src_t*>(src);
+            auto dst_ptr = static_cast<dst_t*>(dst);
+            sycl::queue& q = policy.get_queue();
+            const bool src_device_friendly = is_device_friendly_usm(q, src_ptr);
+            const bool dst_device_friendly = is_device_friendly_usm(q, dst_ptr);
+            if (dst_device_friendly && !src_device_friendly) {
+                convert_matrix_host2device<src_t, dst_t>(q,
+                                                         src_ptr,
+                                                         dst_ptr,
+                                                         src_type,
+                                                         dst_type,
+                                                         src_row_stride,
+                                                         dst_row_stride,
+                                                         src_col_stride,
+                                                         dst_col_stride,
+                                                         dst_row_count,
+                                                         dst_col_count)
+                    .wait_and_throw();
+            }
+            else {
+                for (std::int64_t i = 0; i < dst_row_count; i++) {
+                    backend::convert_vector(policy,
+                                            src_ptr + i * src_row_stride,
+                                            dst_ptr + i * dst_row_stride,
+                                            src_type,
+                                            dst_type,
+                                            src_col_stride,
+                                            dst_col_stride,
+                                            dst_col_count);
+                }
+            }
+        });
+    });
+}
+
 #endif
 
 } // namespace oneapi::dal::backend
