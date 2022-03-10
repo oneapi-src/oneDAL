@@ -100,7 +100,8 @@ public:
 
         return result_t{}
             .set_responses(dal::homogen_table::wrap(arr_total, total_row_count, 1))
-            .set_cluster_count(local_result.get_cluster_count());
+            .set_cluster_count(local_result.get_cluster_count())
+            .set_result_options(local_result.get_result_options());
     }
 
     void run_spmd_response_checks(const table& data,
@@ -112,7 +113,7 @@ public:
         const auto dbscan_desc = this->get_descriptor(epsilon, min_observations);
 
         INFO("run computation");
-        const auto result = this->compute_in_parallel(dbscan_desc, data, weights);
+        const auto result = this->compute(dbscan_desc, data, weights);
 
         INFO("check references")
         base_t::check_responses_against_ref(result.get_responses(), ref_responses);
@@ -126,7 +127,7 @@ public:
         const auto dbscan_desc = this->get_descriptor(epsilon, min_observations);
 
         INFO("run computation");
-        const auto result = this->compute_in_parallel(dbscan_desc, data, table{});
+        const auto result = this->compute(dbscan_desc, data, table{});
         const auto cluster_count = result.get_cluster_count();
         REQUIRE(cluster_count > 0);
 

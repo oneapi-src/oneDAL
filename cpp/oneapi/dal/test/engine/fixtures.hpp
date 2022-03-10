@@ -294,9 +294,7 @@ public:
     }
 
     template <typename Descriptor, typename... Args>
-    auto compute_in_parallel_and_merge(std::int64_t thread_count,
-                                       const Descriptor& desc,
-                                       Args&&... args) {
+    auto compute_in_parallel_and_merge(const Descriptor& desc, Args&&... args) {
         const auto results = this->compute_in_parallel( //
             desc,
             std::forward<Args>(args)...);
