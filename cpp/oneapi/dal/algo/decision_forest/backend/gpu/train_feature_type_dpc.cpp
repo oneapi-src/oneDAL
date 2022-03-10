@@ -138,7 +138,8 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
 
             const std::uint32_t local_id = sbg.get_local_id();
             const std::uint32_t sub_group_id = sbg.get_group_id();
-            const std::uint32_t group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
+            const std::uint32_t group_id =
+                item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             Index ind_start = group_id * elems_for_sbg;
             Index ind_end =

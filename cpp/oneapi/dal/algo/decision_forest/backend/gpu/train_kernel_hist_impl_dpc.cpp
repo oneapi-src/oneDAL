@@ -18,6 +18,8 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_helpers.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_node_helpers.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -55,16 +57,6 @@ template <>
 struct float_accuracy<double> {
     static constexpr double val = double(1e-10);
 };
-
-template <typename T>
-inline T atomic_global_add(T* ptr, T operand) {
-    sycl::ext::oneapi::atomic_ref<T,
-                                  cl::sycl::ext::oneapi::memory_order::relaxed,
-                                  cl::sycl::ext::oneapi::memory_scope::device,
-                                  cl::sycl::access::address_space::ext_intel_global_device_space>
-        atomic_var(*ptr);
-    return atomic_var.fetch_add(operand);
-}
 
 template <typename Float, typename Bin, typename Index, typename Task>
 std::int64_t train_kernel_hist_impl<Float, Bin, Index, Task>::get_part_hist_required_mem_size(
@@ -154,6 +146,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     ctx.distr_mode_ = (comm_.get_rank_count() > 1);
 
     ctx.use_private_mem_buf_ = true;
+    //ctx.use_private_mem_buf_ = false;
 
     if constexpr (std::is_same_v<Task, task::classification>) {
         ctx.class_count_ = de::integral_cast<Index>(desc.get_class_count());
@@ -311,10 +304,12 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
             ? available_global_mem_size - (ctx.tree_in_block_ * required_mem_size_for_one_tree)
             : 0;
     // size for one part hist was already reserved, add some more if there is available mem
-    ctx.max_part_hist_cumulative_size_ = std::min(
-        max_mem_alloc_size,
-        static_cast<std::uint64_t>(part_hist_size + available_global_mem_size *
-                                                        ctx.global_mem_fraction_for_part_hist_));
+    ctx.max_part_hist_cumulative_size_ =
+        std::min(max_mem_alloc_size,
+                 static_cast<std::uint64_t>(part_hist_size +
+                                            available_global_mem_size *
+                                                ctx.global_mem_fraction_for_part_hist_)) /
+        2;
 
     ctx.oob_prop_count_ = impl_const_t::oob_aux_prop_count_;
     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -556,7 +551,7 @@ inline void merge_stat(Float* dst, const Float* src, Index) {
     Float sum_n1n2 = dst[0] + src[0];
     Float mul_n1n2 = dst[0] * src[0];
     Float delta_scl = mul_n1n2 / sum_n1n2;
-    Float mean_scl = (Float)1 / sum_n1n2;
+    Float mean_scl = Float(1) / sum_n1n2;
     Float delta = src[1] - dst[1];
 
     dst[2] = dst[2] + src[2] + delta * delta * delta_scl;
@@ -1173,38 +1168,30 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
 
     using bs_kernels_prv_t = train_best_split_impl<Float, Bin, Index, Task, true>;
     using bs_kernels_loc_t = train_best_split_impl<Float, Bin, Index, Task, false>;
+    using bs_kernels_opt_t = train_best_split_sp_opt_impl<Float, Bin, Index, Task>;
     // no overflow check is required because of ctx.node_group_count_ and ctx.node_group_prop_count_ are small constants
-    auto node_grp_list =
-        pr::ndarray<Index, 1>::empty(queue_,
-                                     { ctx.node_group_count_ * ctx.node_group_prop_count_ },
-                                     alloc::device);
-    auto node_ind_list = pr::ndarray<Index, 1>::empty(queue_, { node_count }, alloc::device);
 
-    auto last_event =
-        train_service_kernels_.split_node_list_on_groups_by_size(ctx,
-                                                                 node_list,
-                                                                 node_grp_list,
-                                                                 node_ind_list,
-                                                                 node_count,
-                                                                 ctx.node_group_count_,
-                                                                 ctx.node_group_prop_count_,
-                                                                 deps);
+    node_list_t node_list_wrap(queue_, node_list, node_count);
+    sycl::event last_event;
+    { last_event = node_group_list_.filter(node_list_wrap, deps); }
+    auto node_ind_list = node_group_list_.get_node_indices_list();
 
-    auto node_grp_list_host_nd = node_grp_list.to_host(queue_, { last_event });
-    const Index* node_grp_list_host = node_grp_list_host_nd.get_data();
+    auto node_grp_list = node_group_list_.get_list();
 
     Index grp_node_count = 0;
-    Index processed_node_count = 0;
+    //    Index processed_node_count = 0;
     const Index max_ph_block_elem_count = ctx.max_part_hist_cumulative_size_ / sizeof(hist_type_t);
 
-    for (Index i = 0; i < ctx.node_group_count_; ++i, processed_node_count += grp_node_count) {
-        grp_node_count = node_grp_list_host[i * ctx.node_group_prop_count_ + 0];
+    for (Index i = 0; i < node_group_list_.get_count(); ++i) {
+        auto node_group = node_group_list_.get_group_view(i);
+        //grp_node_count = node_grp_list_host[i * ctx.node_group_prop_count_ + 0];
+        grp_node_count = node_group.get_node_count();
         if (0 == grp_node_count)
             continue;
 
-        Index max_grp_block_count = node_grp_list_host[i * ctx.node_group_prop_count_ + 1];
-
-        Index grp_ind_ofs = processed_node_count;
+        //Index max_grp_block_count = node_grp_list_host[i * ctx.node_group_prop_count_ + 1];
+        Index max_grp_block_count = node_group.get_max_row_block_count();
+        Index grp_ind_ofs = node_group.get_node_indices_offset();
 
         if (max_grp_block_count > 1 || ctx.distr_mode_) {
             Index hist_prop_count = 0;
@@ -1233,6 +1220,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                     part_hist_count >>= 1;
                 }
             }
+            // hack
+            part_hist_count = 2;
 
             const auto part_hist_cumulative_elem_count =
                 de::check_mul_overflow<size_t>(grp_node_count, part_hist_elem_count);
@@ -1281,83 +1270,85 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                        { last_event });
                 last_event = event;
 
-                if (ctx.use_private_mem_buf_) {
-                    last_event =
-                        bs_kernels_prv_t::compute_best_split_by_histogram(queue_,
-                                                                          ctx,
-                                                                          node_hist_list,
-                                                                          selected_ftr_list,
-                                                                          bin_offset_list,
-                                                                          imp_data_list,
-                                                                          node_ind_list,
-                                                                          block_ind_ofs,
-                                                                          node_list,
-                                                                          left_child_imp_data_list,
-                                                                          node_imp_decrease_list,
-                                                                          update_imp_dec_required,
-                                                                          block_node_count,
-                                                                          { last_event });
+                {
+                    if (ctx.use_private_mem_buf_) {
+                        last_event = bs_kernels_prv_t::compute_best_split_by_histogram(
+                            queue_,
+                            ctx,
+                            node_hist_list,
+                            selected_ftr_list,
+                            bin_offset_list,
+                            imp_data_list,
+                            node_ind_list,
+                            block_ind_ofs,
+                            node_list,
+                            left_child_imp_data_list,
+                            node_imp_decrease_list,
+                            update_imp_dec_required,
+                            block_node_count,
+                            { last_event });
+                    }
+                    else {
+                        last_event = bs_kernels_loc_t::compute_best_split_by_histogram(
+                            queue_,
+                            ctx,
+                            node_hist_list,
+                            selected_ftr_list,
+                            bin_offset_list,
+                            imp_data_list,
+                            node_ind_list,
+                            block_ind_ofs,
+                            node_list,
+                            left_child_imp_data_list,
+                            node_imp_decrease_list,
+                            update_imp_dec_required,
+                            block_node_count,
+                            { last_event });
+                    }
+                    last_event.wait_and_throw();
                 }
-                else {
-                    last_event =
-                        bs_kernels_loc_t::compute_best_split_by_histogram(queue_,
-                                                                          ctx,
-                                                                          node_hist_list,
-                                                                          selected_ftr_list,
-                                                                          bin_offset_list,
-                                                                          imp_data_list,
-                                                                          node_ind_list,
-                                                                          block_ind_ofs,
-                                                                          node_list,
-                                                                          left_child_imp_data_list,
-                                                                          node_imp_decrease_list,
-                                                                          update_imp_dec_required,
-                                                                          block_node_count,
-                                                                          { last_event });
-                }
-                last_event.wait_and_throw();
             }
         }
         else {
-            if (ctx.use_private_mem_buf_) {
+            Index max_row_count = node_group.get_max_row_count();
+            if (max_row_count > 32) {
                 last_event =
-                    bs_kernels_prv_t::compute_best_split_single_pass(queue_,
-                                                                     ctx,
-                                                                     data,
-                                                                     response,
-                                                                     tree_order,
-                                                                     selected_ftr_list,
-                                                                     bin_offset_list,
-                                                                     imp_data_list,
-                                                                     node_ind_list,
-                                                                     grp_ind_ofs,
-                                                                     node_list,
-                                                                     left_child_imp_data_list,
-                                                                     node_imp_decrease_list,
-                                                                     update_imp_dec_required,
-                                                                     grp_node_count,
-                                                                     { last_event });
+                    bs_kernels_opt_t::compute_best_split_single_pass_large(queue_,
+                                                                           ctx,
+                                                                           data,
+                                                                           response,
+                                                                           tree_order,
+                                                                           selected_ftr_list,
+                                                                           bin_offset_list,
+                                                                           imp_data_list,
+                                                                           node_ind_list,
+                                                                           grp_ind_ofs,
+                                                                           node_list,
+                                                                           left_child_imp_data_list,
+                                                                           node_imp_decrease_list,
+                                                                           update_imp_dec_required,
+                                                                           grp_node_count,
+                                                                           { last_event });
+                last_event.wait_and_throw();
             }
             else {
                 last_event =
-                    bs_kernels_loc_t::compute_best_split_single_pass(queue_,
-                                                                     ctx,
-                                                                     data,
-                                                                     response,
-                                                                     tree_order,
-                                                                     selected_ftr_list,
-                                                                     bin_offset_list,
-                                                                     imp_data_list,
-                                                                     node_ind_list,
-                                                                     grp_ind_ofs,
-                                                                     node_list,
-                                                                     left_child_imp_data_list,
-                                                                     node_imp_decrease_list,
-                                                                     update_imp_dec_required,
-                                                                     grp_node_count,
-                                                                     { last_event });
+                    bs_kernels_opt_t::compute_best_split_single_pass_small(queue_,
+                                                                           ctx,
+                                                                           data,
+                                                                           response,
+                                                                           tree_order,
+                                                                           selected_ftr_list,
+                                                                           bin_offset_list,
+                                                                           imp_data_list,
+                                                                           node_group,
+                                                                           node_list_wrap,
+                                                                           left_child_imp_data_list,
+                                                                           node_imp_decrease_list,
+                                                                           update_imp_dec_required,
+                                                                           { last_event });
+                last_event.wait_and_throw();
             }
-            last_event.wait_and_throw();
         }
     }
 
@@ -1743,7 +1734,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_his
             const Index ftr_grp_idx = item.get_local_id()[0];
             const Index ftr_grp_size = item.get_local_range()[0];
             const Index part_hist_count = item.get_group_range(0);
-            const Index hist_idx = item.get_group().get_id(0);
+            const Index hist_idx = item.get_group().get_group_id(0);
 
             const Index row_ofs = node_list_ptr[node_id * node_prop_count + impl_const_t::ind_ofs];
             const Index row_count = node_list_ptr[node_id * node_prop_count +
@@ -1837,7 +1828,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_cou
             const Index ftr_grp_idx = item.get_local_id()[0];
             const Index ftr_grp_size = item.get_local_range()[0];
             const Index part_hist_count = item.get_group_range(0);
-            const Index hist_idx = item.get_group().get_id(0);
+            const Index hist_idx = item.get_group().get_group_id(0);
 
             const Index row_ofs = node_list_ptr[node_id * node_prop_count + impl_const_t::ind_ofs];
             const Index row_count = node_list_ptr[node_id * node_prop_count +
@@ -1936,7 +1927,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_sum
             const Index ftr_grp_idx = item.get_local_id()[0];
             const Index ftr_grp_size = item.get_local_range()[0];
             const Index part_hist_count = item.get_group_range(0);
-            const Index hist_idx = item.get_group().get_id(0);
+            const Index hist_idx = item.get_group().get_group_id(0);
 
             const Index row_ofs = node_list_ptr[node_id * node_prop_count + impl_const_t::ind_ofs];
             const Index row_count = node_list_ptr[node_id * node_prop_count +
@@ -2750,279 +2741,283 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
     using imp_data_mng_t = impurity_data_manager<Float, Index, Task>;
     using tree_level_record_t = tree_level_record<Float, Index, Task>;
 
-    validate_input(desc, data, responses);
-
-    train_context_t ctx;
-    init_params(ctx, desc, data, responses);
-
-    allocate_buffers(ctx);
-
     result_t res;
-    model_manager_t model_manager(ctx, ctx.tree_count_, ctx.column_count_);
+    {
+        validate_input(desc, data, responses);
 
-    /*init engines*/
-    auto skip_num =
-        de::check_mul_overflow<size_t>(ctx.row_total_count_, (ctx.selected_ftr_count_ + 1));
-    skip_num = de::check_mul_overflow<size_t>(ctx.tree_count_, skip_num);
+        train_context_t ctx;
+        init_params(ctx, desc, data, responses);
 
-    de::check_mul_overflow<size_t>((ctx.tree_count_ - 1), skip_num);
+        allocate_buffers(ctx);
 
-    pr::engine_collection collection(ctx.tree_count_, desc.get_seed());
-    rng_engine_list_t engine_arr = collection([&](size_t i, size_t& skip) {
-        skip = i * skip_num;
-    });
+        model_manager_t model_manager(ctx, ctx.tree_count_, ctx.column_count_);
 
-    pr::ndarray<Float, 1> node_imp_decrease_list;
+        /*init engines*/
+        auto skip_num =
+            de::check_mul_overflow<size_t>(ctx.row_total_count_, (ctx.selected_ftr_count_ + 1));
+        skip_num = de::check_mul_overflow<size_t>(ctx.tree_count_, skip_num);
 
-    sycl::event last_event;
+        de::check_mul_overflow<size_t>((ctx.tree_count_ - 1), skip_num);
 
-    for (Index iter = 0; iter < ctx.tree_count_; iter += ctx.tree_in_block_) {
-        Index iter_tree_count = std::min(ctx.tree_count_ - iter, ctx.tree_in_block_);
+        pr::engine_collection collection(ctx.tree_count_, desc.get_seed());
+        rng_engine_list_t engine_arr = collection([&](size_t i, size_t& skip) {
+            skip = i * skip_num;
+        });
 
-        Index node_count = iter_tree_count; // num of potential nodes to split on current tree level
-        auto oob_row_count_list =
-            pr::ndarray<Index, 1>::empty(queue_, { iter_tree_count + 1 }, alloc::device);
-        pr::ndarray<Index, 1> oob_rows_list;
+        pr::ndarray<Float, 1> node_imp_decrease_list;
 
-        std::vector<tree_level_record_t> level_records;
-        // lists of nodes int props(row_ofs, rows, ftrId, ftrVal ... )
-        std::vector<pr::ndarray<Index, 1>> level_node_lists;
+        sycl::event last_event;
 
-        imp_data_mng_t imp_data_holder(queue_, ctx);
-        // initilizing imp_list and class_hist_list (for classification)
-        imp_data_holder.init_new_level(node_count);
+        for (Index iter = 0; iter < ctx.tree_count_; iter += ctx.tree_in_block_) {
+            Index iter_tree_count = std::min(ctx.tree_count_ - iter, ctx.tree_in_block_);
 
-        de::check_mul_overflow(node_count, impl_const_t::node_prop_count_);
-        de::check_mul_overflow(node_count, impl_const_t::node_imp_prop_count_);
-        auto node_vs_tree_map_list_host = pr::ndarray<Index, 1>::empty({ node_count });
-        auto level_node_list_init_host =
-            pr::ndarray<Index, 1>::empty({ node_count * impl_const_t::node_prop_count_ });
+            Index node_count =
+                iter_tree_count; // num of potential nodes to split on current tree level
+            auto oob_row_count_list =
+                pr::ndarray<Index, 1>::empty(queue_, { iter_tree_count + 1 }, alloc::device);
+            pr::ndarray<Index, 1> oob_rows_list;
 
-        auto tree_map = node_vs_tree_map_list_host.get_mutable_data();
-        auto node_list_ptr = level_node_list_init_host.get_mutable_data();
+            std::vector<tree_level_record_t> level_records;
+            // lists of nodes int props(row_ofs, rows, ftrId, ftrVal ... )
+            std::vector<pr::ndarray<Index, 1>> level_node_lists;
 
-        for (Index node = 0; node < node_count; ++node) {
-            Index* node_ptr = node_list_ptr + node * impl_const_t::node_prop_count_;
-            tree_map[node] = iter + node;
-            node_ptr[impl_const_t::ind_ofs] =
-                ctx.selected_row_total_count_ * node; // local row offset
-            node_ptr[impl_const_t::ind_lrc] =
-                ctx.distr_mode_
-                    ? 0
-                    : ctx.selected_row_count_; // for distr_mode it will be updated during gen_initial_tree_order
-            node_ptr[impl_const_t::ind_grc] =
-                ctx.selected_row_total_count_; // global selected rows - it is already filtered for current block
-            node_ptr[impl_const_t::ind_lch_lrc] =
-                0; // for distr_mode it will be updated during tree_order_gen
-        }
+            imp_data_mng_t imp_data_holder(queue_, ctx);
+            // initilizing imp_list and class_hist_list (for classification)
+            imp_data_holder.init_new_level(node_count);
 
-        last_event = gen_initial_tree_order(ctx,
-                                            engine_arr,
-                                            level_node_list_init_host,
-                                            tree_order_lev_,
-                                            iter,
-                                            node_count);
+            de::check_mul_overflow(node_count, impl_const_t::node_prop_count_);
+            de::check_mul_overflow(node_count, impl_const_t::node_imp_prop_count_);
+            auto node_vs_tree_map_list_host = pr::ndarray<Index, 1>::empty({ node_count });
+            auto level_node_list_init_host =
+                pr::ndarray<Index, 1>::empty({ node_count * impl_const_t::node_prop_count_ });
 
-        auto node_vs_tree_map_list = node_vs_tree_map_list_host.to_device(queue_);
-        level_node_lists.push_back(level_node_list_init_host.to_device(queue_));
+            auto tree_map = node_vs_tree_map_list_host.get_mutable_data();
+            auto node_list_ptr = level_node_list_init_host.get_mutable_data();
 
-        last_event = compute_initial_histogram(ctx,
-                                               response_nd_,
-                                               tree_order_lev_,
-                                               level_node_lists[0],
-                                               imp_data_holder.get_mutable_data(0),
-                                               node_count,
-                                               { last_event });
-        last_event.wait_and_throw();
-
-        if (ctx.oob_required_) {
-            sycl::event event = train_service_kernels_.get_oob_row_list(
-                tree_order_lev_,
-                level_node_lists[0],
-                oob_row_count_list,
-                oob_rows_list,
-                ctx.selected_row_total_count_,
-                ctx.row_count_,
-                node_count); // oob_row_count_list and oob_rows_list are the output
-            event.wait_and_throw();
-        }
-
-        for (Index level = 0; node_count > 0; ++level) {
-            auto node_list = level_node_lists[level];
-
-            imp_data_t left_child_imp_data(queue_, ctx, node_count);
-
-            auto [selected_features_com, event] =
-                gen_feature_list(ctx, node_count, node_vs_tree_map_list, engine_arr);
-            event.wait_and_throw();
-
-            if (ctx.mdi_required_) {
-                node_imp_decrease_list =
-                    pr::ndarray<Float, 1>::empty(queue_, { node_count }, alloc::device);
+            for (Index node = 0; node < node_count; ++node) {
+                Index* node_ptr = node_list_ptr + node * impl_const_t::node_prop_count_;
+                tree_map[node] = iter + node;
+                node_ptr[impl_const_t::ind_ofs] =
+                    ctx.selected_row_total_count_ * node; // local row offset
+                node_ptr[impl_const_t::ind_lrc] =
+                    ctx.distr_mode_
+                        ? 0
+                        : ctx.selected_row_count_; // for distr_mode it will be updated during gen_initial_tree_order
+                node_ptr[impl_const_t::ind_grc] =
+                    ctx.selected_row_total_count_; // global selected rows - it is already filtered for current block
+                node_ptr[impl_const_t::ind_lch_lrc] =
+                    0; // for distr_mode it will be updated during tree_order_gen
             }
 
-            last_event = compute_best_split(ctx,
-                                            full_data_nd_,
-                                            response_nd_,
-                                            tree_order_lev_,
-                                            selected_features_com,
-                                            ftr_bin_offsets_nd_,
-                                            imp_data_holder.get_data(level),
-                                            node_list,
-                                            left_child_imp_data,
-                                            node_imp_decrease_list,
-                                            ctx.mdi_required_,
-                                            node_count,
-                                            { last_event });
+            last_event = gen_initial_tree_order(ctx,
+                                                engine_arr,
+                                                level_node_list_init_host,
+                                                tree_order_lev_,
+                                                iter,
+                                                node_count);
+
+            auto node_vs_tree_map_list = node_vs_tree_map_list_host.to_device(queue_);
+            level_node_lists.push_back(level_node_list_init_host.to_device(queue_));
+
+            last_event = compute_initial_histogram(ctx,
+                                                   response_nd_,
+                                                   tree_order_lev_,
+                                                   level_node_lists[0],
+                                                   imp_data_holder.get_mutable_data(0),
+                                                   node_count,
+                                                   { last_event });
             last_event.wait_and_throw();
 
-            tree_level_record_t level_record(queue_,
-                                             node_list,
-                                             imp_data_holder.get_data(level),
-                                             node_count,
-                                             ctx);
-            level_records.push_back(level_record);
-
-            if (ctx.mdi_required_) {
-                //mdi is calculated only on split nodes and is not calculated on last level
-                last_event =
-                    train_service_kernels_.update_mdi_var_importance(node_list,
-                                                                     node_imp_decrease_list,
-                                                                     res_var_imp_,
-                                                                     ctx.column_count_,
-                                                                     node_count,
-                                                                     { last_event });
+            if (ctx.oob_required_) {
+                sycl::event event = train_service_kernels_.get_oob_row_list(
+                    tree_order_lev_,
+                    level_node_lists[0],
+                    oob_row_count_list,
+                    oob_rows_list,
+                    ctx.selected_row_total_count_,
+                    ctx.row_count_,
+                    node_count); // oob_row_count_list and oob_rows_list are the output
+                event.wait_and_throw();
             }
 
-            Index node_count_new;
-            last_event = train_service_kernels_.get_split_node_count(node_list,
-                                                                     node_count,
-                                                                     node_count_new,
-                                                                     { last_event });
-            last_event.wait_and_throw();
+            for (Index level = 0; node_count > 0; ++level) {
+                auto node_list = level_node_lists[level];
 
-            if (node_count_new) {
-                //there are split nodes -> next level is required
-                node_count_new *= 2;
+                imp_data_t left_child_imp_data(queue_, ctx, node_count);
 
-                de::check_mul_overflow(node_count_new, impl_const_t::node_prop_count_);
-                auto node_list_new = pr::ndarray<Index, 1>::empty(
-                    queue_,
-                    { node_count_new * impl_const_t::node_prop_count_ },
-                    alloc::device);
+                auto [selected_features_com, event] =
+                    gen_feature_list(ctx, node_count, node_vs_tree_map_list, engine_arr);
+                event.wait_and_throw();
 
-                imp_data_holder.init_new_level(node_count_new);
+                if (ctx.mdi_required_) {
+                    node_imp_decrease_list =
+                        pr::ndarray<Float, 1>::empty(queue_, { node_count }, alloc::device);
+                }
 
-                auto node_vs_tree_map_list_new =
-                    pr::ndarray<Index, 1>::empty(queue_, { node_count_new }, alloc::device);
+                last_event = compute_best_split(ctx,
+                                                full_data_nd_,
+                                                response_nd_,
+                                                tree_order_lev_,
+                                                selected_features_com,
+                                                ftr_bin_offsets_nd_,
+                                                imp_data_holder.get_data(level),
+                                                node_list,
+                                                left_child_imp_data,
+                                                node_imp_decrease_list,
+                                                ctx.mdi_required_,
+                                                node_count,
+                                                { last_event });
+                last_event.wait_and_throw();
 
-                if (ctx.distr_mode_) {
+                tree_level_record_t level_record(queue_,
+                                                 node_list,
+                                                 imp_data_holder.get_data(level),
+                                                 node_count,
+                                                 ctx);
+                level_records.push_back(level_record);
+
+                if (ctx.mdi_required_) {
+                    //mdi is calculated only on split nodes and is not calculated on last level
                     last_event =
-                        train_service_kernels_.calculate_left_child_row_count_on_local_data(
+                        train_service_kernels_.update_mdi_var_importance(node_list,
+                                                                         node_imp_decrease_list,
+                                                                         res_var_imp_,
+                                                                         ctx.column_count_,
+                                                                         node_count,
+                                                                         { last_event });
+                }
+
+                Index node_count_new;
+                last_event = train_service_kernels_.get_split_node_count(node_list,
+                                                                         node_count,
+                                                                         node_count_new,
+                                                                         { last_event });
+                last_event.wait_and_throw();
+
+                if (node_count_new) {
+                    //there are split nodes -> next level is required
+                    node_count_new *= 2;
+
+                    de::check_mul_overflow(node_count_new, impl_const_t::node_prop_count_);
+                    auto node_list_new = pr::ndarray<Index, 1>::empty(
+                        queue_,
+                        { node_count_new * impl_const_t::node_prop_count_ },
+                        alloc::device);
+
+                    imp_data_holder.init_new_level(node_count_new);
+
+                    auto node_vs_tree_map_list_new =
+                        pr::ndarray<Index, 1>::empty(queue_, { node_count_new }, alloc::device);
+
+                    if (ctx.distr_mode_) {
+                        last_event =
+                            train_service_kernels_.calculate_left_child_row_count_on_local_data(
+                                ctx,
+                                full_data_nd_,
+                                node_list,
+                                tree_order_lev_,
+                                ctx.column_count_,
+                                node_count,
+                                { last_event });
+                        last_event.wait_and_throw();
+                    }
+
+                    last_event = do_node_split(ctx,
+                                               node_list,
+                                               node_vs_tree_map_list,
+                                               imp_data_holder.get_data(level),
+                                               left_child_imp_data,
+                                               node_list_new,
+                                               node_vs_tree_map_list_new,
+                                               imp_data_holder.get_mutable_data(level + 1),
+                                               node_count,
+                                               node_count_new,
+                                               { last_event });
+                    last_event.wait_and_throw();
+
+                    if (ctx.max_tree_depth_ > 0 && ctx.max_tree_depth_ == level) {
+                        tree_level_record_t level_record(queue_,
+                                                         node_list_new,
+                                                         imp_data_holder.get_data(level + 1),
+                                                         node_count_new,
+                                                         ctx);
+                        level_records.push_back(level_record);
+                        node_count_new = 0;
+                    }
+                    else {
+                        level_node_lists.push_back(node_list_new);
+
+                        node_vs_tree_map_list = node_vs_tree_map_list_new;
+
+                        last_event = train_service_kernels_.do_level_partition_by_groups(
                             ctx,
                             full_data_nd_,
                             node_list,
                             tree_order_lev_,
+                            tree_order_lev_buf_,
+                            ctx.row_count_,
+                            ctx.selected_row_total_count_,
                             ctx.column_count_,
                             node_count,
+                            ctx.tree_in_block_,
                             { last_event });
-                    last_event.wait_and_throw();
+                    }
                 }
 
-                last_event = do_node_split(ctx,
-                                           node_list,
-                                           node_vs_tree_map_list,
-                                           imp_data_holder.get_data(level),
-                                           left_child_imp_data,
-                                           node_list_new,
-                                           node_vs_tree_map_list_new,
-                                           imp_data_holder.get_mutable_data(level + 1),
-                                           node_count,
-                                           node_count_new,
-                                           { last_event });
-                last_event.wait_and_throw();
-
-                if (ctx.max_tree_depth_ > 0 && ctx.max_tree_depth_ == level) {
-                    tree_level_record_t level_record(queue_,
-                                                     node_list_new,
-                                                     imp_data_holder.get_data(level + 1),
-                                                     node_count_new,
-                                                     ctx);
-                    level_records.push_back(level_record);
-                    node_count_new = 0;
-                }
-                else {
-                    level_node_lists.push_back(node_list_new);
-
-                    node_vs_tree_map_list = node_vs_tree_map_list_new;
-
-                    last_event = train_service_kernels_.do_level_partition_by_groups(
-                        ctx,
-                        full_data_nd_,
-                        node_list,
-                        tree_order_lev_,
-                        tree_order_lev_buf_,
-                        ctx.row_count_,
-                        ctx.selected_row_total_count_,
-                        ctx.column_count_,
-                        node_count,
-                        ctx.tree_in_block_,
-                        { last_event });
-                }
+                node_count = node_count_new;
             }
 
-            node_count = node_count_new;
+            model_manager.add_tree_block(level_records, bin_borders_host_, iter_tree_count);
+
+            for (Index tree_idx = 0; tree_idx < iter_tree_count; ++tree_idx) {
+                compute_results(ctx,
+                                model_manager,
+                                data_host_,
+                                response_host_,
+                                oob_rows_list,
+                                oob_row_count_list,
+                                oob_per_obs_list_,
+                                res_var_imp_,
+                                var_imp_variance_host_,
+                                engine_arr,
+                                tree_idx,
+                                iter_tree_count,
+                                iter,
+                                { last_event })
+                    .wait_and_throw();
+            }
         }
 
-        model_manager.add_tree_block(level_records, bin_borders_host_, iter_tree_count);
+        // Finalize results
+        if (ctx.oob_err_required_ || ctx.oob_err_obs_required_) {
+            pr::ndarray<Float, 1> res_oob_err;
+            pr::ndarray<Float, 1> res_oob_err_obs;
 
-        for (Index tree_idx = 0; tree_idx < iter_tree_count; ++tree_idx) {
-            compute_results(ctx,
-                            model_manager,
-                            data_host_,
-                            response_host_,
-                            oob_rows_list,
-                            oob_row_count_list,
-                            oob_per_obs_list_,
-                            res_var_imp_,
-                            var_imp_variance_host_,
-                            engine_arr,
-                            tree_idx,
-                            iter_tree_count,
-                            iter,
-                            { last_event })
+            finalize_oob_error(ctx, response_host_, oob_per_obs_list_, res_oob_err, res_oob_err_obs)
                 .wait_and_throw();
-        }
-    }
 
-    // Finalize results
-    if (ctx.oob_err_required_ || ctx.oob_err_obs_required_) {
-        pr::ndarray<Float, 1> res_oob_err;
-        pr::ndarray<Float, 1> res_oob_err_obs;
+            if (ctx.oob_err_required_) {
+                auto res_oob_err_host = res_oob_err.to_host(queue_);
+                res.set_oob_err(homogen_table::wrap(res_oob_err_host.flatten(), 1, 1));
+            }
 
-        finalize_oob_error(ctx, response_host_, oob_per_obs_list_, res_oob_err, res_oob_err_obs)
-            .wait_and_throw();
-
-        if (ctx.oob_err_required_) {
-            auto res_oob_err_host = res_oob_err.to_host(queue_);
-            res.set_oob_err(homogen_table::wrap(res_oob_err_host.flatten(), 1, 1));
+            if (ctx.oob_err_obs_required_) {
+                auto res_oob_err_obs_host = res_oob_err_obs.to_host(queue_);
+                res.set_oob_err_per_observation(
+                    homogen_table::wrap(res_oob_err_obs_host.flatten(), ctx.row_count_, 1));
+            }
         }
 
-        if (ctx.oob_err_obs_required_) {
-            auto res_oob_err_obs_host = res_oob_err_obs.to_host(queue_);
-            res.set_oob_err_per_observation(
-                homogen_table::wrap(res_oob_err_obs_host.flatten(), ctx.row_count_, 1));
+        if (ctx.mdi_required_ || ctx.mda_required_) {
+            finalize_var_imp(ctx, res_var_imp_, var_imp_variance_host_).wait_and_throw();
+            auto res_var_imp_host = res_var_imp_.to_host(queue_);
+            res.set_var_importance(
+                homogen_table::wrap(res_var_imp_host.flatten(), 1, ctx.column_count_));
         }
-    }
 
-    if (ctx.mdi_required_ || ctx.mda_required_) {
-        finalize_var_imp(ctx, res_var_imp_, var_imp_variance_host_).wait_and_throw();
-        auto res_var_imp_host = res_var_imp_.to_host(queue_);
-        res.set_var_importance(
-            homogen_table::wrap(res_var_imp_host.flatten(), 1, ctx.column_count_));
+        res.set_model(model_manager.get_model());
     }
-
-    return res.set_model(model_manager.get_model());
+    return res;
 }
 
 #define INSTANTIATE(F, B, I, T) template class train_kernel_hist_impl<F, B, I, T>;

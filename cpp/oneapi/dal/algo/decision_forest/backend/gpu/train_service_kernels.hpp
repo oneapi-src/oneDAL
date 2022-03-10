@@ -35,6 +35,7 @@ template <typename Float,
 class train_service_kernels {
     using impl_const_t = impl_const<Index, Task>;
     using context_t = train_context<Float, Index, Task>;
+    //using node_group_manager_t = node_group_manager<Index>;
 
 public:
     train_service_kernels(sycl::queue& q) : queue_(q){};
@@ -43,16 +44,14 @@ public:
     std::uint64_t get_oob_rows_required_mem_size(Index row_count,
                                                  Index tree_count,
                                                  double observations_per_tree_fraction);
-
+    /*
     sycl::event split_node_list_on_groups_by_size(const context_t& ctx,
                                                   const pr::ndarray<Index, 1>& node_list,
-                                                  pr::ndarray<Index, 1>& node_groups,
+                                                  node_group_manager_t& node_grp_mng,
                                                   pr::ndarray<Index, 1>& node_indices,
                                                   Index node_count,
-                                                  Index group_count,
-                                                  Index group_prop_count,
                                                   const bk::event_vector& deps = {});
-
+*/
     sycl::event get_split_node_count(const pr::ndarray<Index, 1>& node_list,
                                      Index node_count,
                                      Index& split_node_count,
