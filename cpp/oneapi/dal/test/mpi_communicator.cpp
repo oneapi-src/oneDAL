@@ -186,7 +186,7 @@ private:
 #endif
 };
 
-/*
+
 TEST_M(mpi_comm_test, "bcast") {
     constexpr std::int64_t count = 100;
 
@@ -340,7 +340,7 @@ TEST_M(mpi_comm_test, "allgatherv") {
         REQUIRE(recv_buffer[i] == final_buffer[i]);
     }
 }
-*/
+
 TEST_M(mpi_comm_test, "sendrecv_replace") {
     auto comm = get_new_comm();
     const std::int64_t count = 2;
