@@ -186,7 +186,6 @@ private:
 #endif
 };
 
-
 TEST_M(mpi_comm_test, "bcast") {
     constexpr std::int64_t count = 100;
 
