@@ -284,7 +284,7 @@ public:
     auto compute_in_parallel(const Descriptor& desc, Args&&... args) {
         auto comm = derived().get_comm();
         const auto input_per_rank =
-            this->split_train_input(comm.get_rank_count(), std::forward<Args>(args)...);
+            this->split_compute_input(comm.get_rank_count(), std::forward<Args>(args)...);
         ONEDAL_ASSERT(input_per_rank.size() ==
                       dal::detail::integral_cast<std::size_t>(comm.get_rank_count()));
 

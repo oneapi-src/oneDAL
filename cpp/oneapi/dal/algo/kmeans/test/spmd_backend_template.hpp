@@ -22,7 +22,9 @@
 #include "oneapi/dal/detail/memory_impl_dpc.hpp"
 
 namespace oneapi::dal::kmeans::test {
+
 #ifdef ONEDAL_DATA_PARALLEL
+
 template <typename TestType>
 class kmeans_spmd_backend_test
         : public kmeans_spmd_backend_fixture<PARALLEL_BACKEND,
