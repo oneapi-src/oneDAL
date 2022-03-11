@@ -646,7 +646,7 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
         local_accessor_rw_t<Float> lmean_buf(local_buffer_size, cgh);
 
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
-            const std::int64_t local_size = item.get_local_range(0);
+            const std::int64_t local_size = item.get_local_range()[0];
             const std::int64_t id = item.get_local_id(0);
             const std::int64_t group_id = item.get_group(0);
 
