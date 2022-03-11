@@ -45,7 +45,7 @@ sycl::event select_flagged_base<Data, Flag>::scan(sycl::queue& queue,
             auto sbg = item.get_sub_group();
 
             const integer_t n_groups = item.get_group_range(0);
-            const integer_t n_sub_groups = sbg.get_group_range(0);
+            const integer_t n_sub_groups = sbg.get_group_range()[0];
             const integer_t n_total_sub_groups = n_sub_groups * n_groups;
             const integer_t elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
@@ -147,7 +147,7 @@ sycl::event select_flagged_base<Data, Flag>::reorder(sycl::queue& queue,
             auto sbg = item.get_sub_group();
 
             const integer_t n_groups = item.get_group_range(0);
-            const integer_t n_sub_groups = sbg.get_group_range(0);
+            const integer_t n_sub_groups = sbg.get_group_range()[0];
             const integer_t n_total_sub_groups = n_sub_groups * n_groups;
             const integer_t elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);

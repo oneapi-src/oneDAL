@@ -59,7 +59,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_scan(sycl::queue& qu
                 return;
             }
             const std::uint32_t n_groups = item.get_group_range(0);
-            const std::uint32_t n_sub_groups = sbg.get_group_range(0);
+            const std::uint32_t n_sub_groups = sbg.get_group_range()[0];
             const std::uint32_t n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
@@ -190,7 +190,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
             }
 
             const std::uint32_t n_groups = item.get_group_range(0);
-            const std::uint32_t n_sub_groups = sbg.get_group_range(0);
+            const std::uint32_t n_sub_groups = sbg.get_group_range()[0];
             const std::uint32_t n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
