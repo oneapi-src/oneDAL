@@ -184,7 +184,7 @@ MSG(neighbor_count_lt_one, "Neighbor count lower than one")
 MSG(unknown_distance_type,
     "Custom distances for k-NN is not supported, use one of the predefined distances instead.")
 MSG(distance_is_not_supported_for_gpu,
-    "Only Minkowski, Cosine and Euclidean distances are supported for GPU")
+    "Only Minkowski, Cosine, Chebyshev and Euclidean distances are supported for GPU")
 MSG(incompatible_knn_model,
     "The provided model is incompatible with the selected k-NN task or method")
 MSG(invalid_set_of_result_options_to_search,
@@ -319,8 +319,8 @@ MSG(invalid_count, "SPMD: invalid data count")
 MSG(invalid_mpi_comm, "SPMD: invalid mpi communicator")
 MSG(invalid_root, "SPMD: invalid root")
 MSG(unknown_mpi_error, "SPMD: unknown MPI error")
-MSG(send_receive_replace_is_not_implemented_for_threaded_communicator,
-    "SPMD: send_recieve_replace communicator method is implemented only for MPI and CCL backend")
+MSG(sendrecv_replace_is_not_implemented_for_threaded_communicator,
+    "SPMD: sendrecv_replace communicator method is implemented only for MPI and CCL backend")
 
 } // namespace v1
 } // namespace oneapi::dal::detail
