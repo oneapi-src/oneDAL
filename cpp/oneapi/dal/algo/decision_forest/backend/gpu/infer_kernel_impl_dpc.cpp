@@ -354,7 +354,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
             const Index group_id = item.get_group(0);
             const Index n_groups = item.get_group_range(0);
             const Index sub_group_local_id = sbg.get_local_id();
-            const Index sub_group_size = sbg.get_local_range(0);
+            const Index sub_group_size = sbg.get_local_range()[0];
 
             const Index elem_count = row_count / n_groups + bool(row_count % n_groups);
 
