@@ -67,7 +67,18 @@ public:
         };
         return homogen_table::wrap(data, row_count, column_count);
     }
-
+    table get_gold_cor() {
+        const std::int64_t row_count = 5;
+        const std::int64_t column_count = 5;
+        static const Float data[] = {
+            1.00000000,  -0.36877337, -0.60139209, 0.30105230,  0.21180972, //
+            -0.36877337, 1.00000000,  0.44353396,  -0.16607387, 0.36798006, //
+            -0.60139209, 0.44353396,  1.00000000,  -0.14177580, -0.14416017, //
+            0.30105230,  -0.16607387, -0.14177580, 1.00000000,  0.111689627, //
+            0.21180972,  0.36798006,  -0.14416017, 0.11189627,  1.00000000, //
+        };
+        return homogen_table::wrap(data, row_count, column_count);
+    }
     table get_gold_eigenvectors() {
         const std::int64_t component_count = 5;
         static const Float data[] = {
@@ -211,7 +222,7 @@ public:
     void check_eigenvalues(const table& reference, const table& eigenvalues) {
         const auto v_ref = la::matrix<double>::wrap(reference);
         const auto v_actual = la::matrix<double>::wrap(eigenvalues);
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-8);
+        const double tol = te::get_tolerance<Float>(1e-4, 1e-6);
         const double diff = te::rel_error(v_ref, v_actual, tol);
         CHECK(diff < tol);
     }
@@ -219,7 +230,7 @@ public:
     void check_eigenvectors(const table& reference, const table& eigenvectors) {
         const auto v_ref = la::matrix<double>::wrap(reference);
         const auto v_actual = la::matrix<double>::wrap(eigenvectors);
-        const double tol = te::get_tolerance<Float>(1e-3, 1e-6);
+        const double tol = te::get_tolerance<Float>(1e-3, 1e-5);
         const double diff = te::rel_error(v_ref, v_actual, tol);
         CHECK(diff < tol);
     }

@@ -21,8 +21,8 @@ namespace oneapi::dal::pca::test {
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace pca = oneapi::dal::pca;
-using pca_types = COMBINE_TYPES((float, double),
-                                (pca::method::cov, method::svd, method::precomputed));
+using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, method::svd));
+using pca_types_precomputed = COMBINE_TYPES((float, double), (method::precomputed));
 
 template <typename TestType>
 class pca_batch_test : public pca_test<TestType, pca_batch_test<TestType>> {};
@@ -88,6 +88,34 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
     const auto data_table_id = this->get_homogen_table_id();
 
     this->general_checks(data, component_count, data_table_id);
+}
+
+TEMPLATE_LIST_TEST_M(pca_batch_test,
+                     "pca with cov",
+                     "[pca][integration][precomputed][batch]",
+                     pca_types_precomputed) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const std::int64_t component_count = 0;
+    const bool deterministic = true;
+    const auto pca_desc = this->get_descriptor(component_count, deterministic);
+    const auto gold_data = this->get_gold_cor();
+
+    const auto pca_result = te::train(this->get_policy(), pca_desc, gold_data);
+    const auto eigenvalues = pca_result.get_eigenvalues();
+
+    const auto eigenvectors = pca_result.get_eigenvectors();
+
+    INFO("check eigenvalues") {
+        const auto gold_eigenvalues = this->get_gold_eigenvalues();
+        this->check_eigenvalues(gold_eigenvalues, eigenvalues);
+    }
+
+    INFO("check eigenvectors") {
+        const auto gold_eigenvectors = this->get_gold_eigenvectors();
+        this->check_eigenvectors(gold_eigenvectors, eigenvectors);
+    }
 }
 
 } // namespace oneapi::dal::pca::test

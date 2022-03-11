@@ -65,8 +65,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     covariance_alg.input.set(daal_cov::data, daal_data);
 
     constexpr bool is_correlation = true;
-    constexpr std::uint64_t results_to_compute =
-        std::uint64_t(daal_pca::variance | daal_pca::eigenvalue);
+    constexpr std::uint64_t results_to_compute = std::uint64_t(daal_pca::eigenvalue);
 
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
         ctx,
@@ -91,10 +90,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(
             dal::detail::homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
-    }
-    if (desc.get_result_options().test(result_options::vars)) {
-        result.set_variances(
-            dal::detail::homogen_table_builder{}.reset(arr_vars, 1, column_count).build());
     }
 
     return result;
