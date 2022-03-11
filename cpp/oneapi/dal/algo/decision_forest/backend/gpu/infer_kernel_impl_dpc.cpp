@@ -431,7 +431,7 @@ infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& c
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             const Index local_id = item.get_local_id(0);
-            const Index local_size = item.get_local_range(0);
+            const Index local_size = item.get_local_range()[0];
             const Index n_groups = item.get_group_range(0);
             const Index group_id = item.get_group(0);
 
