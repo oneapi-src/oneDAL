@@ -109,7 +109,7 @@ public:
 
     bool check_value_with_ref_tol(float_t val, float_t ref_val, float_t ref_tol) {
         float_t max_abs = std::max(fabs(val), fabs(ref_val));
-        if (max_abs == 0.0)
+        if (max_abs == float_t(0))
             return true;
         CAPTURE(val, ref_val, fabs(val - ref_val) / max_abs, ref_tol);
         return fabs(val - ref_val) / max_abs < ref_tol;
