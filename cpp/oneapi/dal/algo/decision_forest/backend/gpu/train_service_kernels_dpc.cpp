@@ -520,7 +520,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
             const Index elems_for_sbg =
                 node_row_count / n_total_sub_groups + bool(node_row_count % n_total_sub_groups);
 
-            const Index local_size = sbg.get_local_range(0);
+            const Index local_size = sbg.get_local_range()[0];
 
             const Index local_id = sbg.get_local_id();
             const Index sub_group_id = sbg.get_group_id();
