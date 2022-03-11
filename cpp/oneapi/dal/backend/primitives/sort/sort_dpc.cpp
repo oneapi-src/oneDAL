@@ -67,8 +67,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_scan(sycl::queue& qu
 
             const std::uint32_t local_id = sbg.get_local_id();
             const std::uint32_t sub_group_id = sbg.get_group_id();
-            const std::uint32_t group_id =
-                item.get_group(0) * n_sub_groups + sub_group_id;
+            const std::uint32_t group_id = item.get_group(0) * n_sub_groups + sub_group_id;
 
             Index ind_start = group_id * elems_for_sbg;
             Index ind_end =
@@ -198,8 +197,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
 
             const std::uint32_t local_id = sbg.get_local_id();
             const std::uint32_t sub_group_id = sbg.get_group_id();
-            const std::uint32_t group_id =
-                item.get_group(0) * n_sub_groups + sub_group_id;
+            const std::uint32_t group_id = item.get_group(0) * n_sub_groups + sub_group_id;
 
             Index ind_start = group_id * elems_for_sbg;
             Index ind_end =
