@@ -45,16 +45,16 @@ sycl::event select_flagged_base<Data, Flag>::scan(sycl::queue& queue,
             auto sbg = item.get_sub_group();
 
             const integer_t n_groups = item.get_group_range(0);
-            const integer_t n_sub_groups = sbg.get_group_range()[0];
+            const integer_t n_sub_groups = sbg.get_group_range(0);
             const integer_t n_total_sub_groups = n_sub_groups * n_groups;
             const integer_t elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
-            const integer_t local_size = sbg.get_local_range()[0];
+            const integer_t local_size = sbg.get_local_range(0);
 
             const integer_t local_id = sbg.get_local_id();
             const integer_t sub_group_id = sbg.get_group_id();
             const integer_t group_id =
-                item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
+                item.get_group(0) * n_sub_groups + sub_group_id;
 
             integer_t ind_start = group_id * elems_for_sbg;
             integer_t ind_end =
@@ -147,16 +147,16 @@ sycl::event select_flagged_base<Data, Flag>::reorder(sycl::queue& queue,
             auto sbg = item.get_sub_group();
 
             const integer_t n_groups = item.get_group_range(0);
-            const integer_t n_sub_groups = sbg.get_group_range()[0];
+            const integer_t n_sub_groups = sbg.get_group_range(0);
             const integer_t n_total_sub_groups = n_sub_groups * n_groups;
             const integer_t elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
-            const integer_t local_size = sbg.get_local_range()[0];
+            const integer_t local_size = sbg.get_local_range(0);
 
             const integer_t local_id = sbg.get_local_id();
             const integer_t sub_group_id = sbg.get_group_id();
             const integer_t group_id =
-                item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
+                item.get_group(0) * n_sub_groups + sub_group_id;
 
             integer_t ind_start = group_id * elems_for_sbg;
             integer_t ind_end =
