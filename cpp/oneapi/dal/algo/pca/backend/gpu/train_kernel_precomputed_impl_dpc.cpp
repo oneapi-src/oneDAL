@@ -98,7 +98,6 @@ result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& de
     }
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-
         auto [eigvecs, eigvals] =
             compute_eigenvectors_on_host(q_, std::move(data_nd), component_count);
         if (desc.get_result_options().test(result_options::eigenvalues)) {
