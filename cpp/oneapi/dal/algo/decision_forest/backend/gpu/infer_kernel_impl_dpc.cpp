@@ -142,13 +142,13 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
             cgh.depends_on(deps);
             cgh.depends_on(last_event);
             cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
-                const Index local_id = item.get_local_id()[0];
-                const Index local_size = item.get_local_range()[0];
+                const Index local_id = item.get_local_id(0);
+                const Index local_size = item.get_local_range(0);
 
                 const Index n_groups = item.get_group_range(0);
-                const Index group_id = item.get_group().get_group_id(0);
+                const Index group_id = item.get_group(0);
                 const Index n_tree_groups = item.get_group_range(1);
-                const Index tree_group_id = item.get_group().get_group_id(1);
+                const Index tree_group_id = item.get_group(1);
                 const Index tree_id = proc_tree_count + tree_group_id;
                 const Index leaf_mark = impl_const_t::leaf_mark;
 
@@ -251,9 +251,9 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
                 const Index local_size = item.get_local_range()[0];
 
                 const Index n_groups = item.get_group_range(0);
-                const Index group_id = item.get_group().get_group_id(0);
+                const Index group_id = item.get_group(0);
                 const Index n_tree_groups = item.get_group_range(1);
-                const Index tree_group_id = item.get_group().get_group_id(1);
+                const Index tree_group_id = item.get_group(1);
                 const Index tree_id = proc_tree_count + tree_group_id;
                 const Index leaf_mark = impl_const_t::leaf_mark;
 
@@ -351,10 +351,10 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
             if (sbg.get_group_id() > 0) {
                 return;
             }
-            const Index group_id = item.get_group().get_group_id(0);
+            const Index group_id = item.get_group(0);
             const Index n_groups = item.get_group_range(0);
             const Index sub_group_local_id = sbg.get_local_id();
-            const Index sub_group_size = sbg.get_local_range()[0];
+            const Index sub_group_size = sbg.get_local_range(0);
 
             const Index elem_count = row_count / n_groups + bool(row_count % n_groups);
 
@@ -430,10 +430,10 @@ infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& c
     last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
-            const Index local_id = item.get_local_id()[0];
-            const Index local_size = item.get_local_range()[0];
+            const Index local_id = item.get_local_id(0);
+            const Index local_size = item.get_local_range(0);
             const Index n_groups = item.get_group_range(0);
-            const Index group_id = item.get_group().get_group_id(0);
+            const Index group_id = item.get_group(0);
 
             const Index elem_count = row_count / n_groups + bool(row_count % n_groups);
 
