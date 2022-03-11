@@ -358,7 +358,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_backend_test,
 
     constexpr double epsilon = 5;
     constexpr std::int64_t min_observations = 3;
-    constexpr float_t ref_dbi = 0.78373;
+    constexpr float_t ref_dbi = float_t(0.78373);
     this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
 }
 
