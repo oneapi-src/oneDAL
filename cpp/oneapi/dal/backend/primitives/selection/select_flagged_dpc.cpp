@@ -151,7 +151,7 @@ sycl::event select_flagged_base<Data, Flag>::reorder(sycl::queue& queue,
             const integer_t n_total_sub_groups = n_sub_groups * n_groups;
             const integer_t elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
-            const integer_t local_size = sbg.get_local_range(0);
+            const integer_t local_size = sbg.get_local_range()[0];
 
             const integer_t local_id = sbg.get_local_id();
             const integer_t sub_group_id = sbg.get_group_id();
