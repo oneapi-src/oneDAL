@@ -42,36 +42,6 @@ using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
-// template <typename Float>
-// auto compute_sums(sycl::queue& q,
-//                   const pr::ndview<Float, 2>& data,
-//                   const bk::event_vector& deps = {}) {
-//     ONEDAL_PROFILER_TASK(compute_sums, q);
-//     ONEDAL_ASSERT(data.has_data());
-//     ONEDAL_ASSERT(data.get_dimension(1) > 0);
-
-//     const std::int64_t column_count = data.get_dimension(1);
-//     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-//     auto reduce_event =
-//         pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-//     return std::make_tuple(sums, reduce_event);
-// }
-
-// template <typename Float>
-// auto compute_means(sycl::queue& q,
-//                    std::int64_t row_count,
-//                    const pr::ndview<Float, 1>& sums,
-//                    const bk::event_vector& deps = {}) {
-//     ONEDAL_PROFILER_TASK(compute_means, q);
-//     ONEDAL_ASSERT(sums.has_data());
-//     ONEDAL_ASSERT(sums.get_dimension(0) > 0);
-
-//     const std::int64_t column_count = sums.get_dimension(0);
-//     auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-//     auto means_event = pr::means(q, row_count, sums, means, deps);
-//     return std::make_tuple(means, means_event);
-// }
-
 template <typename Float>
 auto compute_variances(sycl::queue& q,
                        const pr::ndview<Float, 2>& cov,
@@ -86,48 +56,6 @@ auto compute_variances(sycl::queue& q,
     auto vars_event = pr::variances(q, cov, vars, deps);
     return std::make_tuple(vars, vars_event);
 }
-
-// template <typename Float>
-// auto compute_covariance(sycl::queue& q,
-//                         std::int64_t row_count,
-//                         const pr::ndview<Float, 2>& xtx,
-//                         const pr::ndarray<Float, 1>& sums,
-//                         const bk::event_vector& deps = {}) {
-//     ONEDAL_PROFILER_TASK(compute_covariance, q);
-//     ONEDAL_ASSERT(sums.has_data());
-//     ONEDAL_ASSERT(xtx.has_data());
-//     ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
-
-//     const std::int64_t column_count = xtx.get_dimension(1);
-
-//     auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-
-//     auto copy_event = copy(q, cov, xtx, { deps });
-
-//     auto cov_event = pr::covariance(q, row_count, sums, cov, { copy_event });
-//     return std::make_tuple(cov, cov_event);
-// }
-
-// template <typename Float>
-// auto compute_correlation_from_covariance(sycl::queue& q,
-//                                          std::int64_t row_count,
-//                                          const pr::ndview<Float, 2>& cov,
-//                                          const bk::event_vector& deps = {}) {
-//     ONEDAL_PROFILER_TASK(compute_correlation, q);
-//     ONEDAL_ASSERT(cov.has_data());
-//     ONEDAL_ASSERT(cov.get_dimension(0) > 0);
-//     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-
-//     const std::int64_t column_count = cov.get_dimension(1);
-
-//     auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-
-//     auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-
-//     auto corr_event = pr::correlation_from_covariance(q, row_count, cov, corr, tmp, deps);
-
-//     return std::make_tuple(corr, corr_event);
-// }
 
 template <typename Float>
 auto compute_eigenvectors_on_host(sycl::queue& q,
