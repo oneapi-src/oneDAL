@@ -936,7 +936,7 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
     auto last_event = q_.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             const std::int64_t tid = item.get_local_id(0);
-            const std::int64_t tnum = item.get_local_range(0);
+            const std::int64_t tnum = item.get_local_range()[0];
             const std::int64_t gid = item.get_group(0);
 
             const std::int64_t row_block_idx = gid / column_block_count;
