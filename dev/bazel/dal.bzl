@@ -270,7 +270,7 @@ def dal_test_suite(name, srcs=[], tests=[],
         tests = tests + targets,
     )
 
-def dal_collect_test_suites(name, root, modules, target="tests", tests=[], **kwargs):
+def dal_collect_test_suites(name, root, modules=[], target="tests", tests=[], **kwargs):
     test_deps = []
     for module_name in modules:
         test_label = "{0}/{1}:{2}".format(root, module_name, target)
