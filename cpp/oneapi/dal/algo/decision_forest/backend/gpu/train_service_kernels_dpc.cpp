@@ -632,7 +632,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
             auto sbg = item.get_sub_group();
 
             const Index n_groups = item.get_group_range(0);
-            const Index n_sub_groups = sbg.get_group_range(0);
+            const Index n_sub_groups = sbg.get_group_range()[0];
             const Index n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
                 node_row_count / n_total_sub_groups + bool(node_row_count % n_total_sub_groups);
@@ -684,7 +684,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
             auto sbg = item.get_sub_group();
 
             const Index n_groups = item.get_group_range(0);
-            const Index n_sub_groups = sbg.get_group_range(0);
+            const Index n_sub_groups = sbg.get_group_range()[0];
             const Index n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
                 block_row_count / n_total_sub_groups + bool(block_row_count % n_total_sub_groups);
@@ -799,7 +799,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
             auto sbg = item.get_sub_group();
 
             const Index n_groups = item.get_group_range(0);
-            const Index n_sub_groups = sbg.get_group_range(0);
+            const Index n_sub_groups = sbg.get_group_range()[0];
             const Index n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
                 block_row_count / n_total_sub_groups + bool(block_row_count % n_total_sub_groups);

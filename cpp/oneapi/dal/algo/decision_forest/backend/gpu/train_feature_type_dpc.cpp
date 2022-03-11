@@ -130,7 +130,7 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
             const std::uint32_t n_groups = item.get_group_range(0);
-            const std::uint32_t n_sub_groups = sbg.get_group_range(0);
+            const std::uint32_t n_sub_groups = sbg.get_group_range()[0];
             const std::uint32_t n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
                 row_count / n_total_sub_groups + bool(row_count % n_total_sub_groups);
