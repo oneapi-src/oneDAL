@@ -804,7 +804,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
             const Index elems_for_sbg =
                 block_row_count / n_total_sub_groups + bool(block_row_count % n_total_sub_groups);
 
-            const Index local_size = sbg.get_local_range(0);
+            const Index local_size = sbg.get_local_range()[0];
 
             const Index local_id = sbg.get_local_id();
             const Index sub_group_id = sbg.get_group_id();
