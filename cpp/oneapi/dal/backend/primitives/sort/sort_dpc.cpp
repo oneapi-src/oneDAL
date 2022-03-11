@@ -194,7 +194,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
             const std::uint32_t n_total_sub_groups = n_sub_groups * n_groups;
             const Index elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
-            const std::uint32_t local_size = sbg.get_local_range(0);
+            const std::uint32_t local_size = sbg.get_local_range()[0];
 
             const std::uint32_t local_id = sbg.get_local_id();
             const std::uint32_t sub_group_id = sbg.get_group_id();
