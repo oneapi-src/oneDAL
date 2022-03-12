@@ -94,24 +94,19 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                 *daal_variances.get()));
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        const auto mdl =
-            model_t{}.set_eigenvectors(dal::detail::homogen_table_builder{}
-                                           .reset(arr_eigvec, component_count, column_count)
-                                           .build());
+        const auto mdl = model_t{}.set_eigenvectors(
+            homogen_table::wrap(arr_eigvec, component_count, column_count));
         result.set_model(mdl);
     }
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        result.set_eigenvalues(
-            dal::detail::homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
+        result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
     }
     if (desc.get_result_options().test(result_options::vars)) {
-        result.set_variances(
-            dal::detail::homogen_table_builder{}.reset(arr_vars, 1, column_count).build());
+        result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
     }
     if (desc.get_result_options().test(result_options::means)) {
-        result.set_means(
-            dal::detail::homogen_table_builder{}.reset(arr_means, 1, column_count).build());
+        result.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }
 
     return result;
