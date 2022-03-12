@@ -165,6 +165,7 @@ dal_collect_test_suites(
     root = "@onedal//cpp/oneapi/dal",
     tests = [
         "@onedal//cpp/oneapi/dal/algo/kmeans:mpi_tests",
+        "@onedal//cpp/oneapi/dal/algo/dbscan:mpi_tests",
     ],
 )
 
@@ -173,5 +174,6 @@ dal_collect_test_suites(
     root = "@onedal//cpp/oneapi/dal",
     tests = [
         "@onedal//cpp/oneapi/dal/algo/kmeans:ccl_tests",
+        "@onedal//cpp/oneapi/dal/algo/dbscan:ccl_tests",
     ],
 )

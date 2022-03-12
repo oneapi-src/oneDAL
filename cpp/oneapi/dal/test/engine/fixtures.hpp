@@ -284,7 +284,7 @@ public:
     auto compute_in_parallel(const Descriptor& desc, Args&&... args) {
         auto comm = derived().get_comm();
         const auto input_per_rank =
-            this->split_train_input(comm.get_rank_count(), std::forward<Args>(args)...);
+            this->split_compute_input(comm.get_rank_count(), std::forward<Args>(args)...);
         ONEDAL_ASSERT(input_per_rank.size() ==
                       dal::detail::integral_cast<std::size_t>(comm.get_rank_count()));
 
@@ -294,9 +294,7 @@ public:
     }
 
     template <typename Descriptor, typename... Args>
-    auto compute_in_parallel_and_merge(std::int64_t thread_count,
-                                       const Descriptor& desc,
-                                       Args&&... args) {
+    auto compute_in_parallel_and_merge(const Descriptor& desc, Args&&... args) {
         const auto results = this->compute_in_parallel( //
             desc,
             std::forward<Args>(args)...);
