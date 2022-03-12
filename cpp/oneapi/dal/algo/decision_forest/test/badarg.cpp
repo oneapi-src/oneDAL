@@ -79,6 +79,23 @@ public:
 
         return std::make_tuple(x_train_table, y_train_table);
     }
+
+    auto get_incorrect_train_data2() {
+        constexpr std::int64_t row_count_train = 6;
+        constexpr std::int64_t row_count_train_less = 5;
+        constexpr std::int64_t column_count = 2;
+
+        static const float x_train[] = { -2.f, -1.f, -1.f, -1.f, -1.f, -2.f,
+                                         +1.f, +1.f, +1.f, +2.f, +2.f, +1.f };
+        static const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
+        static const float z_train[] = { 1.f, 1.f, 1.f, 1.f, 1.f, 1.f };
+
+        const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
+        const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
+        const auto z_train_table = dal::homogen_table::wrap(z_train, row_count_train_less, 1);
+
+        return std::make_tuple(x_train_table, y_train_table, z_train_table);
+    }
 };
 
 using df_cls_types = _TE_COMBINE_TYPES_3((float),
@@ -290,6 +307,13 @@ DF_BADARG_TEST("throws if train input data row count doesn't match responses row
 
     const auto [x, y] = this->get_incorrect_train_data();
     REQUIRE_THROWS_AS(this->train(this->get_default_descriptor(), x, y), invalid_argument);
+}
+
+DF_BADARG_TEST("throws if train input data row count doesn't match weights row count") {
+    SKIP_IF(this->not_available_on_device());
+
+    const auto [x, y, z] = this->get_incorrect_train_data2();
+    REQUIRE_THROWS_AS(this->train(this->get_default_descriptor(), x, y, z), invalid_argument);
 }
 
 } // namespace oneapi::dal::decision_forest::test

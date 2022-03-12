@@ -712,6 +712,12 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
         std::shared_ptr<search_temp_objects<F, lp_distance<F>>>,                                   \
         kselect_by_rows<F>&,                                                                       \
         const event_vector&) const;                                                                \
+    template sycl::event search_engine<F, chebyshev_distance<F>, A>::do_search(                    \
+        const ndview<F, 2, B>&,                                                                    \
+        std::int64_t,                                                                              \
+        std::shared_ptr<search_temp_objects<F, chebyshev_distance<F>>>,                            \
+        kselect_by_rows<F>&,                                                                       \
+        const event_vector&) const;                                                                \
     template sycl::event search_engine<F, squared_l2_distance<F>, A>::distance(                    \
         const ndview<F, 2, B>&,                                                                    \
         const ndview<F, 2, A>&,                                                                    \
@@ -729,7 +735,12 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
     template sycl::event search_engine<F, lp_distance<F>, A>::distance(const ndview<F, 2, B>&,     \
                                                                        const ndview<F, 2, A>&,     \
                                                                        ndview<F, 2>&,              \
-                                                                       const event_vector&) const;
+                                                                       const event_vector&) const; \
+    template sycl::event search_engine<F, chebyshev_distance<F>, A>::distance(                     \
+        const ndview<F, 2, B>&,                                                                    \
+        const ndview<F, 2, A>&,                                                                    \
+        ndview<F, 2>&,                                                                             \
+        const event_vector&) const;
 
 #define INSTANTIATE_B(F, A)                                                                   \
     INSTANTIATE(F, A, ndorder::c)                                                             \
@@ -746,20 +757,27 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
                                       distance<F, cosine_metric<F>>,                          \
                                       search_engine<F, distance<F, cosine_metric<F>>, A>,     \
                                       A>;                                                     \
+    template class search_engine_base<F,                                                      \
+                                      distance<F, chebyshev_metric<F>>,                       \
+                                      search_engine<F, distance<F, chebyshev_metric<F>>, A>,  \
+                                      A>;                                                     \
     template class search_engine<F, distance<F, lp_metric<F>>, A>;                            \
     template class search_engine<F, distance<F, cosine_metric<F>>, A>;                        \
+    template class search_engine<F, distance<F, chebyshev_metric<F>>, A>;                     \
     template class search_engine<F, distance<F, squared_l2_metric<F>>, A>;
 
-#define INSTANTIATE_F(F)                                                            \
-    INSTANTIATE_B(F, ndorder::c)                                                    \
-    INSTANTIATE_B(F, ndorder::f)                                                    \
-    template std::int64_t propose_train_block<F>(const sycl::queue&, std::int64_t); \
-    template std::int64_t propose_query_block<F>(const sycl::queue&, std::int64_t); \
-    template class search_temp_objects<F, distance<F, lp_metric<F>>>;               \
-    template class search_temp_objects<F, distance<F, cosine_metric<F>>>;           \
-    template class search_temp_objects<F, distance<F, squared_l2_metric<F>>>;       \
-    template class search_temp_objects_deleter<F, distance<F, lp_metric<F>>>;       \
-    template class search_temp_objects_deleter<F, distance<F, cosine_metric<F>>>;   \
+#define INSTANTIATE_F(F)                                                             \
+    INSTANTIATE_B(F, ndorder::c)                                                     \
+    INSTANTIATE_B(F, ndorder::f)                                                     \
+    template std::int64_t propose_train_block<F>(const sycl::queue&, std::int64_t);  \
+    template std::int64_t propose_query_block<F>(const sycl::queue&, std::int64_t);  \
+    template class search_temp_objects<F, distance<F, lp_metric<F>>>;                \
+    template class search_temp_objects<F, distance<F, cosine_metric<F>>>;            \
+    template class search_temp_objects<F, distance<F, chebyshev_metric<F>>>;         \
+    template class search_temp_objects<F, distance<F, squared_l2_metric<F>>>;        \
+    template class search_temp_objects_deleter<F, distance<F, lp_metric<F>>>;        \
+    template class search_temp_objects_deleter<F, distance<F, cosine_metric<F>>>;    \
+    template class search_temp_objects_deleter<F, distance<F, chebyshev_metric<F>>>; \
     template class search_temp_objects_deleter<F, distance<F, squared_l2_metric<F>>>;
 
 INSTANTIATE_F(float)

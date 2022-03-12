@@ -45,6 +45,14 @@ request communicator<MemoryAccessKind>::allgatherv(const array<D>& send,
 
 template <typename MemoryAccessKind>
 template <typename D>
+request communicator<MemoryAccessKind>::sendrecv_replace(const array<D>& buf,
+                                                         std::int64_t destination_rank,
+                                                         std::int64_t source_rank) const {
+    return de::sendrecv_replace(*this, buf, destination_rank, source_rank);
+}
+
+template <typename MemoryAccessKind>
+template <typename D>
 request communicator<MemoryAccessKind>::allgather(D& scalar, const array<D>& recv) const {
     return de::allgather(*this, scalar, recv);
 }
@@ -103,7 +111,11 @@ void communicator<MemoryAccessKind>::reset_error_flag() const {
                                                     const array<D>& recv,                      \
                                                     const std::int64_t* recv_counts,           \
                                                     const std::int64_t* displs) const;         \
-    template request communicator<M>::allreduce<D>(const array<D>& ary, const reduce_op& op) const;
+    template request communicator<M>::allreduce<D>(const array<D>& ary, const reduce_op& op)   \
+        const;                                                                                 \
+    template request communicator<M>::sendrecv_replace<D>(const array<D>& ary,                 \
+                                                          std::int64_t destination_rank,       \
+                                                          std::int64_t) const;
 
 #define INSTANTIATE_MEMORY_ACCESS(M)                                                             \
     template void communicator<M>::set_active_exception(const std::exception_ptr& ex_ptr) const; \

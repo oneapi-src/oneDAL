@@ -37,6 +37,18 @@ void convert_vector(const detail::default_host_policy& policy,
                     std::int64_t dst_stride,
                     std::int64_t element_count);
 
+void convert_matrix(const detail::default_host_policy& policy,
+                    const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dst_type,
+                    const std::int64_t src_row_stride,
+                    const std::int64_t dst_row_stride,
+                    const std::int64_t src_col_stride,
+                    const std::int64_t dst_col_stride,
+                    const std::int64_t dst_row_count,
+                    const std::int64_t dst_col_count);
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 void convert_vector(const detail::data_parallel_policy& policy,
@@ -54,6 +66,20 @@ void convert_vector(const detail::data_parallel_policy& policy,
                     std::int64_t src_stride,
                     std::int64_t dst_stride,
                     std::int64_t element_count);
+
+/// Converts matrix of `src_type` to matrix of `dst_type` and copy memory to
+/// device in case 'dst' is accesible on the device.
+void convert_matrix(const detail::data_parallel_policy& policy,
+                    const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dst_type,
+                    const std::int64_t src_row_stride,
+                    const std::int64_t dst_row_stride,
+                    const std::int64_t src_col_stride,
+                    const std::int64_t dst_col_stride,
+                    const std::int64_t dst_row_count,
+                    const std::int64_t dst_col_count);
 
 /// Converts array of `src_type` to array of `dst_type` on device represented by
 /// `q` assuming `src` and `dst` are accesible on the device.
