@@ -993,7 +993,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
                                                                  nNodes, N, bottom, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom, blockOfRows);
+        status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
         status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posX.get(), posY.get(), repX.get(),
@@ -1050,7 +1050,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
                                                                  nNodes, N, bottom, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom, blockOfRows);
+        status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
 
         status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posX.get(), posY.get(), repX.get(),
