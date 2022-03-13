@@ -99,11 +99,73 @@ inline T atomic_global_cmpxchg(T* ptr, T expected, T desired) {
     return expected_;
 }
 
+template <typename Float>
+inline void merge_stat(Float& dst_count,
+                       Float& dst_mean,
+                       Float& dst_s2c,
+                       Float src_count,
+                       Float src_mean,
+                       Float src_s2c) {
+    if (Float(0) == src_count)
+        return;
+
+    Float sum_n1n2 = dst_count + src_count;
+    Float mul_n1n2 = dst_count * src_count;
+    Float delta_scl = mul_n1n2 / sum_n1n2;
+    Float mean_scl = Float(1) / sum_n1n2;
+    Float delta = src_mean - dst_mean;
+
+    dst_s2c = dst_s2c + src_s2c + delta * delta * delta_scl;
+    dst_mean = (dst_mean * dst_count + src_mean * src_count) * mean_scl;
+    dst_count = sum_n1n2;
+}
+
 template <typename T, typename Index>
 T* get_buf_ptr(byte_t** buf_ptr, Index elem_count) {
     T* res_ptr = reinterpret_cast<T*>(*buf_ptr);
     (*buf_ptr) += elem_count * sizeof(T);
     return res_ptr;
+}
+
+template <typename Float, typename Index = std::int32_t, typename ItemT>
+inline void reduce_hist_over_group(ItemT& item,
+                                   Float* slm_buf_ptr,
+                                   Float& count,
+                                   Float& mean,
+                                   Float& sum2cent) {
+    auto sbg = item.get_sub_group();
+    Index sub_group_id = sbg.get_group_id();
+    Index sub_group_count = item.get_local_range()[0] / sbg.get_local_range()[0];
+    Index local_id = item.get_local_id(0);
+
+    Float* count_buf_ptr = slm_buf_ptr + sub_group_count * 0;
+    Float* mean_buf_ptr = slm_buf_ptr + sub_group_count * 1;
+    Float* sum2cent_buf_ptr = slm_buf_ptr + sub_group_count * 2;
+
+    //try remove this condition for perf check
+    if (sbg.get_local_id() == 0) {
+        count_buf_ptr[sub_group_id] = count;
+        mean_buf_ptr[sub_group_id] = mean;
+        sum2cent_buf_ptr[sub_group_id] = sum2cent;
+    }
+
+    item.barrier(sycl::access::fence_space::local_space);
+    for (Index stride = sub_group_count / 2; stride > 0; stride /= 2) {
+        if (local_id < stride) {
+            merge_stat(count_buf_ptr[local_id],
+                       mean_buf_ptr[local_id],
+                       sum2cent_buf_ptr[local_id],
+                       count_buf_ptr[local_id + stride],
+                       mean_buf_ptr[local_id + stride],
+                       sum2cent_buf_ptr[local_id + stride]);
+        }
+        item.barrier(sycl::access::fence_space::local_space);
+    }
+    item.barrier(sycl::access::fence_space::local_space);
+
+    count = count_buf_ptr[0];
+    mean = mean_buf_ptr[0];
+    sum2cent = sum2cent_buf_ptr[0];
 }
 
 template <typename T, typename ItemT>

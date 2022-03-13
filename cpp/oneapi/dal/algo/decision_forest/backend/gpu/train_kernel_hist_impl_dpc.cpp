@@ -146,7 +146,6 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     ctx.distr_mode_ = (comm_.get_rank_count() > 1);
 
     ctx.use_private_mem_buf_ = true;
-    //ctx.use_private_mem_buf_ = false;
 
     if constexpr (std::is_same_v<Task, task::classification>) {
         ctx.class_count_ = de::integral_cast<Index>(desc.get_class_count());
@@ -304,12 +303,10 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
             ? available_global_mem_size - (ctx.tree_in_block_ * required_mem_size_for_one_tree)
             : 0;
     // size for one part hist was already reserved, add some more if there is available mem
-    ctx.max_part_hist_cumulative_size_ =
-        std::min(max_mem_alloc_size,
-                 static_cast<std::uint64_t>(part_hist_size +
-                                            available_global_mem_size *
-                                                ctx.global_mem_fraction_for_part_hist_)) /
-        2;
+    ctx.max_part_hist_cumulative_size_ = std::min(
+        max_mem_alloc_size,
+        static_cast<std::uint64_t>(part_hist_size + available_global_mem_size *
+                                                        ctx.global_mem_fraction_for_part_hist_));
 
     ctx.oob_prop_count_ = impl_const_t::oob_aux_prop_count_;
     if constexpr (std::is_same_v<Task, task::classification>) {

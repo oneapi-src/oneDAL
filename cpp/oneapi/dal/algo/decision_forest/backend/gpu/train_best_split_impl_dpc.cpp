@@ -1243,8 +1243,6 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
     return last_event;
 }
 
-#define ENABLE_PRINT
-
 template <typename Float, typename Bin, typename Index, typename Task, bool use_private_mem>
 sycl::event
 train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_split_single_pass(
