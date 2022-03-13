@@ -1217,8 +1217,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                     part_hist_count >>= 1;
                 }
             }
-            // hack
-            part_hist_count = 2;
 
             const auto part_hist_cumulative_elem_count =
                 de::check_mul_overflow<size_t>(grp_node_count, part_hist_elem_count);
