@@ -480,60 +480,43 @@ struct split_smp {
         auto sbg = item.get_sub_group();
         const Index sub_group_local_id = sbg.get_local_id();
 
-        const Float bestImpDec = sycl::reduce_over_group(sbg, bs.imp_dec, maximum<Float>());
+        const Float best_imp_dec = sycl::reduce_over_group(sbg, bs.imp_dec, maximum<Float>());
 
-        const Index impDecIsBest = float_eq(bestImpDec, bs.imp_dec);
+        const Index imp_dec_is_best = float_eq(best_imp_dec, bs.imp_dec);
 
-        const Index bestFeatureId =
-            sycl::reduce_over_group(sbg, impDecIsBest ? bs.ftr_id : index_max, minimum<Index>());
-        const Index bestFeatureValue = sycl::reduce_over_group(
+        const Index best_ftr_id =
+            sycl::reduce_over_group(sbg, imp_dec_is_best ? bs.ftr_id : index_max, minimum<Index>());
+        const Index best_ftr_val = sycl::reduce_over_group(
             sbg,
-            (bestFeatureId == bs.ftr_id && impDecIsBest) ? bs.ftr_bin : index_max,
+            (best_ftr_id == bs.ftr_id && imp_dec_is_best) ? bs.ftr_bin : index_max,
             minimum<Index>());
 
-        const bool noneSplitFoundBySubGroup =
-            ((impl_const_t::leaf_mark_ == bestFeatureId) && (0 == sub_group_local_id));
-        const bool mySplitIsBest = (impl_const_t::leaf_mark_ != bestFeatureId &&
-                                    bs.ftr_id == bestFeatureId && bs.ftr_bin == bestFeatureValue);
-        return (noneSplitFoundBySubGroup || mySplitIsBest);
+        const bool none_split_found_by_sbg =
+            ((impl_const_t::leaf_mark_ == best_ftr_id) && (0 == sub_group_local_id));
+        const bool my_split_is_best = (impl_const_t::leaf_mark_ != best_ftr_id &&
+                                       bs.ftr_id == best_ftr_id && bs.ftr_bin == best_ftr_val);
+        return (none_split_found_by_sbg || my_split_is_best);
     }
 };
 
-template <typename Float, typename Bin, typename Index, typename Task>
-std::int64_t
-train_best_split_sp_opt_impl<Float, Bin, Index, Task>::define_local_size_for_small_single_pass(
-    const sycl::queue& queue,
-    std::int64_t selected_ftr_count) {
-    //auto vec_size = bk::device_native_vector_size<Float>(queue);
-    auto vec_size = bk::device_max_sg_size(queue);
-    auto max_local_size = std::min(bk::device_max_wg_size(queue), vec_size * vec_size);
-    auto max_sbg_count = max_local_size / vec_size;
-    auto local_size =
-        std::max(std::int64_t(std::min(bk::up_pow2(selected_ftr_count), max_sbg_count) * vec_size),
-                 std::int64_t(128));
-
-    return local_size;
-}
-
-template <typename Float, typename Bin, typename Index, typename Task>
-sycl::event
-train_best_split_sp_opt_impl<Float, Bin, Index, Task>::compute_best_split_single_pass_large(
-    sycl::queue& queue,
-    const context_t& ctx,
-    const pr::ndarray<Bin, 2>& data,
-    const pr::ndview<Float, 1>& response,
-    const pr::ndarray<Index, 1>& tree_order,
-    const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& bin_offset_list,
-    const imp_data_t& imp_data_list,
-    const pr::ndarray<Index, 1>& node_ind_list,
-    Index node_ind_ofs,
-    pr::ndarray<Index, 1>& node_list,
-    imp_data_t& left_child_imp_data_list,
-    pr::ndarray<Float, 1>& node_imp_dec_list,
-    bool update_imp_dec_required,
-    Index node_count,
-    const bk::event_vector& deps) {
+template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
+sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
+    compute_best_split_single_pass_large(sycl::queue& queue,
+                                         const context_t& ctx,
+                                         const pr::ndarray<Bin, 2>& data,
+                                         const pr::ndview<Float, 1>& response,
+                                         const pr::ndarray<Index, 1>& tree_order,
+                                         const pr::ndarray<Index, 1>& selected_ftr_list,
+                                         const pr::ndarray<Index, 1>& bin_offset_list,
+                                         const imp_data_t& imp_data_list,
+                                         const pr::ndarray<Index, 1>& node_ind_list,
+                                         Index node_ind_ofs,
+                                         pr::ndarray<Index, 1>& node_list,
+                                         imp_data_t& left_child_imp_data_list,
+                                         pr::ndarray<Float, 1>& node_imp_dec_list,
+                                         bool update_imp_dec_required,
+                                         Index node_count,
+                                         const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(compute_best_split_single_pass, queue);
 
     using split_smp_t = split_smp<Float, Index, Task>;
@@ -571,71 +554,57 @@ train_best_split_sp_opt_impl<Float, Bin, Index, Task>::compute_best_split_single
         ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
     }
 
-    [[maybe_unused]] const Bin* data_ptr = data.get_data();
-    [[maybe_unused]] const Float* response_ptr = response.get_data();
-    [[maybe_unused]] const Index* tree_order_ptr = tree_order.get_data();
+    const Bin* data_ptr = data.get_data();
+    const Float* response_ptr = response.get_data();
+    const Index* tree_order_ptr = tree_order.get_data();
 
-    [[maybe_unused]] const Index* selected_ftr_list_ptr = selected_ftr_list.get_data();
+    const Index* selected_ftr_list_ptr = selected_ftr_list.get_data();
 
     imp_data_list_ptr<Float, Index, Task> imp_list_ptr(imp_data_list);
 
-    [[maybe_unused]] const Index* node_indices_ptr = node_ind_list.get_data();
-    [[maybe_unused]] Index* node_list_ptr = node_list.get_mutable_data();
-    [[maybe_unused]] Float* node_imp_decr_list_ptr =
+    const Index* node_indices_ptr = node_ind_list.get_data();
+    Index* node_list_ptr = node_list.get_mutable_data();
+    Float* node_imp_decr_list_ptr =
         update_imp_dec_required ? node_imp_dec_list.get_mutable_data() : nullptr;
 
     imp_data_list_ptr_mutable<Float, Index, Task> left_imp_list_ptr(left_child_imp_data_list);
 
-    [[maybe_unused]] const Index column_count = ctx.column_count_;
+    const Index column_count = ctx.column_count_;
 
-    [[maybe_unused]] const Index selected_ftr_count = ctx.selected_ftr_count_;
+    const Index selected_ftr_count = ctx.selected_ftr_count_;
 
-    [[maybe_unused]] const Index index_max = ctx.index_max_;
+    const Index index_max = ctx.index_max_;
 
-    Index max_sbg_size = bk::device_max_sg_size(queue);
     Index max_wg_size = 256;
 
     Index local_size = max_wg_size;
 
-    std::size_t local_hist_buf_size = 0;
+    std::size_t local_hist_buf_size = hist_prop_count * 2; // x2 because bs_hist and ts_hist
 
     std::size_t local_buf_int_size = local_size;
     std::size_t local_buf_float_size = local_size;
 
     // 1 counter for global count of processed ftrs for node, and max_sbg_size - num of slot flags
-    std::size_t global_aux_ftr_buf_int_size = 1 + max_sbg_size;
-
-    local_hist_buf_size = hist_prop_count * 2; // x2 because bs_hist and ts_hist
+    std::size_t global_aux_ftr_buf_int_size = sbg_size;
 
     sycl::event last_event;
 
-    [[maybe_unused]] const Index class_count = ctx.class_count_;
-    [[maybe_unused]] const Float imp_threshold = ctx.impurity_threshold_;
-    [[maybe_unused]] const Index min_obs_leaf = ctx.min_observations_in_leaf_node_;
+    const Index class_count = ctx.class_count_;
+    const Float imp_threshold = ctx.impurity_threshold_;
+    const Index min_obs_leaf = ctx.min_observations_in_leaf_node_;
 
-    [[maybe_unused]] const Float min_imp_dec = -de::limits<Float>::max();
-
-    [[maybe_unused]] const Float* node_imp_list_ptr = imp_list_ptr.imp_list_ptr_;
-    [[maybe_unused]] Float* left_child_imp_list_ptr = left_imp_list_ptr.imp_list_ptr_;
+    const Float* node_imp_list_ptr = imp_list_ptr.imp_list_ptr_;
+    Float* left_child_imp_list_ptr = left_imp_list_ptr.imp_list_ptr_;
 
     // following vars are not used for regression, but should present to compile kernel
-    [[maybe_unused]] const Index* class_hist_list_ptr =
-        imp_list_ptr.get_class_hist_list_ptr_or_null();
-    [[maybe_unused]] Index* left_child_class_hist_list_ptr =
-        left_imp_list_ptr.get_class_hist_list_ptr_or_null();
+    const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
+    Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
 
-    [[maybe_unused]] constexpr Index buff_size = impl_const_t::private_hist_buff_size;
-
-    Index wg_in_block_count = 8192;
-    //Index max_wg_count_for_node = 4;
     Index ftr_worker_per_node_count = 2;
-    Index node_in_block_count = wg_in_block_count / ftr_worker_per_node_count;
+    Index node_in_block_count = max_wg_count_ / ftr_worker_per_node_count;
 
-    //std::size_t hist_buf_size = hist_prop_count * 2; // x2 because of one hist for best split and another for test split
-    //std::size_t local_buf_byte_size = target_sbg_count * (hist_buf_size * sizeof(hist_type_t) + split_info<Float, Index, Task>::get_cache_byte_size());
-    //std::int64_t global_buf_byte_size = wg_in_block_count * (hist_prop_count * sizeof(hist_type_t) + split_info<Float, Index, Task>::get_cache_with_hist_byte_size(hist_prop_count));
     std::int64_t global_buf_byte_size =
-        wg_in_block_count * split_info_t::get_cache_byte_size(hist_prop_count);
+        max_wg_count_ * split_info_t::get_cache_byte_size(hist_prop_count);
 
     auto global_byte_buf =
         pr::ndarray<byte_t, 1>::empty(queue, { global_buf_byte_size }, alloc::device);
@@ -645,64 +614,54 @@ train_best_split_sp_opt_impl<Float, Bin, Index, Task>::compute_best_split_single
         { std::int64_t(node_in_block_count * global_aux_ftr_buf_int_size) },
         alloc::device);
 
-    [[maybe_unused]] Index* global_aux_ftr_buf_int_ptr = global_aux_ftr_buf_int.get_mutable_data();
-    //if(!device_has_enough_local_mem(queue, local_buf_byte_size)) {
-
-    //    throw "Device doesn't have enough local memory!";
-    //}
+    Index* global_aux_ftr_buf_int_ptr = global_aux_ftr_buf_int.get_mutable_data();
+    std::size_t local_buf_byte_size = local_buf_int_size * sizeof(Index) +
+                                      local_buf_float_size * sizeof(Float) +
+                                      local_hist_buf_size * sizeof(hist_type_t);
+    ONEDAL_ASSERT(device_has_enough_local_mem(queue, local_buf_byte_size));
+    // TODO: add separate branch to process situation when there isn't enough local mem
 
     for (Index processed_node_cnt = 0; processed_node_cnt < node_count;
          processed_node_cnt += node_in_block_count, node_ind_ofs += node_in_block_count) {
         auto fill_aux_ftr_event = global_aux_ftr_buf_int.fill(queue, 0);
-        bk::event_vector fill_deps{ fill_aux_ftr_event };
 
         const sycl::nd_range<2> nd_range =
-            bk::make_multiple_nd_range_2d({ local_size, wg_in_block_count }, { local_size, 1 });
+            bk::make_multiple_nd_range_2d({ local_size, max_wg_count_ }, { local_size, 1 });
 
         last_event = queue.submit([&](cl::sycl::handler& cgh) {
             cgh.depends_on(deps);
-            cgh.depends_on(fill_deps);
+            cgh.depends_on(fill_aux_ftr_event);
 
-            local_accessor_rw_t<std::uint8_t> local_byte_buf(
-                local_buf_int_size * sizeof(Index) + local_buf_float_size * sizeof(Float) +
-                    local_hist_buf_size * sizeof(hist_type_t),
-                cgh);
+            local_accessor_rw_t<byte_t> local_byte_buf(local_buf_byte_size, cgh);
 
             cgh.parallel_for(
                 nd_range,
-                [=](cl::sycl::nd_item<2> item) [[intel::reqd_sub_group_size(32)]] {
+                [=](cl::sycl::nd_item<2> item) [[intel::reqd_sub_group_size(sbg_size)]] {
                     auto sbg = item.get_sub_group();
                     const Index group_id = item.get_group(1);
-                    [[maybe_unused]] const Index ftr_group_id =
-                        group_id % ftr_worker_per_node_count;
-                    [[maybe_unused]] const Index node_idx =
-                        item.get_global_id()[1] / ftr_worker_per_node_count;
+                    const Index ftr_group_id = group_id % ftr_worker_per_node_count;
+                    const Index node_idx = item.get_global_id()[1] / ftr_worker_per_node_count;
                     if ((processed_node_cnt + node_idx) > (node_count - 1) ||
                         ftr_group_id > (selected_ftr_count - 1)) {
                         return;
                     }
 
-                    [[maybe_unused]] const Index node_id =
-                        node_indices_ptr[node_ind_ofs + node_idx];
-                    [[maybe_unused]] Index* node_ptr =
-                        node_list_ptr + node_id * impl_const_t::node_prop_count_;
+                    const Index node_id = node_indices_ptr[node_ind_ofs + node_idx];
+                    Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
 
-                    [[maybe_unused]] const Index local_id = item.get_local_id()[0];
-                    [[maybe_unused]] const Index local_size = item.get_local_range()[0];
+                    const Index local_id = item.get_local_id()[0];
 
-                    [[maybe_unused]] const Index sub_group_id = sbg.get_group_id();
-                    [[maybe_unused]] const Index sub_group_local_id = sbg.get_local_id();
-                    [[maybe_unused]] const Index sub_group_size = sbg.get_local_range()[0];
-                    //const Index sub_group_count = item.get_local_range()[0] / sub_group_size;
+                    const Index sub_group_id = sbg.get_group_id();
+                    const Index sub_group_local_id = sbg.get_local_id();
 
-                    [[maybe_unused]] const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
-                    [[maybe_unused]] const Index row_count = node_ptr[impl_const_t::ind_lrc];
+                    const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
+                    const Index row_count = node_ptr[impl_const_t::ind_lrc];
 
                     split_smp_t sp_hlp;
                     split_info<Float, Index, Task> bs;
 
                     // slm pointers declaration
-                    std::uint8_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
+                    byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
                     hist_type_t* local_hist_buf_ptr =
                         get_buf_ptr<hist_type_t>(&local_byte_buf_ptr, local_hist_buf_size);
                     Float* local_buf_float_ptr =
@@ -826,7 +785,7 @@ train_best_split_sp_opt_impl<Float, Bin, Index, Task>::compute_best_split_single
                         return;
                     }
 
-                    [[maybe_unused]] Index total_processed_ftr_count = 0;
+                    Index total_processed_ftr_count = 0;
 
                     byte_t* global_byte_buf_ptr =
                         global_byte_ptr + node_idx * ftr_worker_per_node_count *
@@ -881,23 +840,22 @@ train_best_split_sp_opt_impl<Float, Bin, Index, Task>::compute_best_split_single
 }
 
 //// new single pass
-template <typename Float, typename Bin, typename Index, typename Task>
-sycl::event
-train_best_split_sp_opt_impl<Float, Bin, Index, Task>::compute_best_split_single_pass_small(
-    sycl::queue& queue,
-    const context_t& ctx,
-    const pr::ndarray<Bin, 2>& data,
-    const pr::ndview<Float, 1>& response,
-    const pr::ndarray<Index, 1>& tree_order,
-    const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& bin_offset_list,
-    const imp_data_t& imp_data_list,
-    const node_group_view_t& node_group,
-    node_list_t& level_node_list,
-    imp_data_t& left_child_imp_data_list,
-    pr::ndarray<Float, 1>& node_imp_dec_list,
-    bool update_imp_dec_required,
-    const bk::event_vector& deps) {
+template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
+sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
+    compute_best_split_single_pass_small(sycl::queue& queue,
+                                         const context_t& ctx,
+                                         const pr::ndarray<Bin, 2>& data,
+                                         const pr::ndview<Float, 1>& response,
+                                         const pr::ndarray<Index, 1>& tree_order,
+                                         const pr::ndarray<Index, 1>& selected_ftr_list,
+                                         const pr::ndarray<Index, 1>& bin_offset_list,
+                                         const imp_data_t& imp_data_list,
+                                         const node_group_view_t& node_group,
+                                         node_list_t& level_node_list,
+                                         imp_data_t& left_child_imp_data_list,
+                                         pr::ndarray<Float, 1>& node_imp_dec_list,
+                                         bool update_imp_dec_required,
+                                         const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(compute_best_split_single_pass_small, queue);
 
     using split_smp_t = split_smp<Float, Index, Task>;
@@ -937,38 +895,34 @@ train_best_split_sp_opt_impl<Float, Bin, Index, Task>::compute_best_split_single
         ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
     }
 
-    [[maybe_unused]] const Bin* data_ptr = data.get_data();
-    [[maybe_unused]] const Float* response_ptr = response.get_data();
-    [[maybe_unused]] const Index* tree_order_ptr = tree_order.get_data();
+    const Bin* data_ptr = data.get_data();
+    const Float* response_ptr = response.get_data();
+    const Index* tree_order_ptr = tree_order.get_data();
 
-    [[maybe_unused]] const Index* selected_ftr_list_ptr = selected_ftr_list.get_data();
+    const Index* selected_ftr_list_ptr = selected_ftr_list.get_data();
 
     imp_data_list_ptr<Float, Index, Task> imp_list_ptr(imp_data_list);
 
-    [[maybe_unused]] const Index* node_indices_ptr = node_group.get_node_indices_list_ptr();
-    [[maybe_unused]] Index* node_list_ptr = level_node_list.get_list().get_mutable_data();
-    //[[maybe_unused]] const Index* node_indices_ptr = node_ind_list.get_data();
-    //[[maybe_unused]] Index* node_list_ptr = node_list.get_mutable_data();
-    [[maybe_unused]] Float* node_imp_decr_list_ptr =
+    const Index* node_indices_ptr = node_group.get_node_indices_list_ptr();
+    Index* node_list_ptr = level_node_list.get_list().get_mutable_data();
+    Float* node_imp_decr_list_ptr =
         update_imp_dec_required ? node_imp_dec_list.get_mutable_data() : nullptr;
 
     imp_data_list_ptr_mutable<Float, Index, Task> left_imp_list_ptr(left_child_imp_data_list);
 
-    [[maybe_unused]] const Index column_count = ctx.column_count_;
+    const Index column_count = ctx.column_count_;
 
-    [[maybe_unused]] const Index selected_ftr_count = ctx.selected_ftr_count_;
+    const Index selected_ftr_count = ctx.selected_ftr_count_;
 
-    [[maybe_unused]] const Index index_max = ctx.index_max_;
+    const Index index_max = ctx.index_max_;
 
-    Index max_sbg_size = bk::device_max_sg_size(queue);
-    Index target_sbg_size = max_sbg_size > 16 ? 32 : 16;
     Index max_wg_size = bk::device_max_wg_size(queue);
-    //Index max_wg_size = 512;
 
-    Index local_size = max_wg_size;
-    //auto local_size = max_sbg_size;
+    Index required_sbg_count = std::min(bk::down_pow2(selected_ftr_count), sbg_size);
+    Index local_size =
+        std::max(min_local_size_, std::min(max_wg_size, required_sbg_count * sbg_size));
 
-    Index target_sbg_count = (local_size / target_sbg_size);
+    Index target_sbg_count = (local_size / sbg_size);
 
     std::size_t hist_buf_size =
         hist_prop_count * 2; // x2 because of one hist for best split and another for test split
@@ -978,66 +932,51 @@ train_best_split_sp_opt_impl<Float, Bin, Index, Task>::compute_best_split_single
 
     sycl::event last_event;
 
-    [[maybe_unused]] const Index class_count = ctx.class_count_;
-    [[maybe_unused]] const Float imp_threshold = ctx.impurity_threshold_;
-    [[maybe_unused]] const Index min_obs_leaf = ctx.min_observations_in_leaf_node_;
+    const Index class_count = ctx.class_count_;
+    const Float imp_threshold = ctx.impurity_threshold_;
+    const Index min_obs_leaf = ctx.min_observations_in_leaf_node_;
 
-    [[maybe_unused]] const Float min_imp_dec = -de::limits<Float>::max();
-
-    [[maybe_unused]] const Float* node_imp_list_ptr = imp_list_ptr.imp_list_ptr_;
-    [[maybe_unused]] Float* left_child_imp_list_ptr = left_imp_list_ptr.imp_list_ptr_;
+    const Float* node_imp_list_ptr = imp_list_ptr.imp_list_ptr_;
+    Float* left_child_imp_list_ptr = left_imp_list_ptr.imp_list_ptr_;
 
     // following vars are not used for regression, but should present to compile kernel
-    [[maybe_unused]] const Index* class_hist_list_ptr =
-        imp_list_ptr.get_class_hist_list_ptr_or_null();
-    [[maybe_unused]] Index* left_child_class_hist_list_ptr =
-        left_imp_list_ptr.get_class_hist_list_ptr_or_null();
+    const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
+    Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
 
-    Index wg_in_block_count = 8192;
-    Index node_in_block_count = wg_in_block_count;
+    Index node_in_block_count = max_wg_count_;
 
-    constexpr Index target_row_count = 32;
-
-    //define_local_size_for_small_single_pass(queue, selected_ftr_count);
-
-    if (!device_has_enough_local_mem(queue, local_buf_byte_size)) {
-        throw "Device doesn't have enough local memory!";
-    }
+    ONEDAL_ASSERT(device_has_enough_local_mem(queue, local_buf_byte_size));
+    // TODO: add separate branch to process situation when there isn't enough local mem
 
     for (Index processed_node_cnt = 0; processed_node_cnt < node_count;
          processed_node_cnt += node_in_block_count, node_ind_ofs += node_in_block_count) {
         const sycl::nd_range<2> nd_range =
-            bk::make_multiple_nd_range_2d({ local_size, wg_in_block_count }, { local_size, 1 });
+            bk::make_multiple_nd_range_2d({ local_size, max_wg_count_ }, { local_size, 1 });
 
         last_event = queue.submit([&](cl::sycl::handler& cgh) {
             cgh.depends_on(deps);
-            local_accessor_rw_t<std::uint8_t> local_byte_buf(local_buf_byte_size, cgh);
+            local_accessor_rw_t<byte_t> local_byte_buf(local_buf_byte_size, cgh);
 
             cgh.parallel_for(
                 nd_range,
-                [=](cl::sycl::nd_item<2> item) [[intel::reqd_sub_group_size(target_row_count)]] {
+                [=](cl::sycl::nd_item<2> item) [[intel::reqd_sub_group_size(sbg_size)]] {
                     auto sbg = item.get_sub_group();
 
-                    [[maybe_unused]] const Index node_idx = item.get_global_id()[1];
-                    [[maybe_unused]] const Index node_id = node_indices_ptr[node_idx];
-                    [[maybe_unused]] Index* node_ptr =
-                        node_list_ptr + node_id * impl_const_t::node_prop_count_;
+                    const Index node_idx = item.get_global_id()[1];
+                    const Index node_id = node_indices_ptr[node_idx];
+                    Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
 
-                    [[maybe_unused]] const Index local_id = item.get_local_id()[0];
-                    [[maybe_unused]] const Index local_size = item.get_local_range()[0];
+                    const Index sub_group_id = sbg.get_group_id();
+                    const Index sub_group_local_id = sbg.get_local_id();
 
-                    [[maybe_unused]] const Index sub_group_id = sbg.get_group_id();
-                    [[maybe_unused]] const Index sub_group_local_id = sbg.get_local_id();
-                    [[maybe_unused]] const Index sub_group_size = sbg.get_local_range()[0];
-
-                    [[maybe_unused]] const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
-                    [[maybe_unused]] const Index row_count = node_ptr[impl_const_t::ind_lrc];
+                    const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
+                    const Index row_count = node_ptr[impl_const_t::ind_lrc];
 
                     if ((processed_node_cnt + node_idx) > (node_count - 1)) {
                         return;
                     }
 
-                    [[maybe_unused]] split_smp_t sp_hlp;
+                    split_smp_t sp_hlp;
                     split_info<Float, Index, Task> bs;
 
                     // slm pointers declaration

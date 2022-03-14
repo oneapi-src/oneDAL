@@ -90,7 +90,6 @@ inline T atomic_global_cmpxchg(T* ptr, T expected, T desired) {
                      sycl::memory_scope::device,
                      cl::sycl::access::address_space::ext_intel_global_device_space>
         atomic_var(*ptr);
-    //bool success = atomic_var.compare_exchange_weak(expected_, desired,
     atomic_var.compare_exchange_weak(expected_,
                                      desired,
                                      sycl::memory_order::relaxed,
@@ -142,15 +141,14 @@ inline void reduce_hist_over_group(ItemT& item,
     Float* mean_buf_ptr = slm_buf_ptr + sub_group_count * 1;
     Float* sum2cent_buf_ptr = slm_buf_ptr + sub_group_count * 2;
 
-    //try remove this condition for perf check
     if (sbg.get_local_id() == 0) {
         count_buf_ptr[sub_group_id] = count;
         mean_buf_ptr[sub_group_id] = mean;
         sum2cent_buf_ptr[sub_group_id] = sum2cent;
     }
 
-    item.barrier(sycl::access::fence_space::local_space);
     for (Index stride = sub_group_count / 2; stride > 0; stride /= 2) {
+        item.barrier(sycl::access::fence_space::local_space);
         if (local_id < stride) {
             merge_stat(count_buf_ptr[local_id],
                        mean_buf_ptr[local_id],
@@ -159,7 +157,6 @@ inline void reduce_hist_over_group(ItemT& item,
                        mean_buf_ptr[local_id + stride],
                        sum2cent_buf_ptr[local_id + stride]);
         }
-        item.barrier(sycl::access::fence_space::local_space);
     }
     item.barrier(sycl::access::fence_space::local_space);
 

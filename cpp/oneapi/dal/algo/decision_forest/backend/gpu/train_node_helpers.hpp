@@ -31,18 +31,58 @@ public:
         return node_prop_count_;
     }
 
+    static constexpr Index get_medium_node_max_row_count() {
+        return medium_node_max_row_count_;
+    }
+    static constexpr Index get_small_node_max_row_count() {
+        return small_node_max_row_count_;
+    }
+    static constexpr Index get_elementary_node_max_row_count() {
+        return elementary_node_max_row_count_;
+    }
+
+    static constexpr Index ind_ofs() {
+        return ind_ofs_;
+    }
+    static constexpr Index ind_lrc() {
+        return ind_lrc_;
+    }
+    static constexpr Index ind_fid() {
+        return ind_fid_;
+    }
+    static constexpr Index ind_bin() {
+        return ind_bin_;
+    }
+    static constexpr Index ind_lch_grc() {
+        return ind_lch_grc_;
+    }
+    static constexpr Index ind_win() {
+        return ind_win_;
+    }
+    static constexpr Index ind_grc() {
+        return ind_grc_;
+    }
+    static constexpr Index ind_lch_lrc() {
+        return ind_lch_lrc_;
+    }
+
+private:
+    static constexpr inline Index medium_node_max_row_count_ = 8192;
+    static constexpr inline Index small_node_max_row_count_ = 256;
+    static constexpr inline Index elementary_node_max_row_count_ = 32;
+
     // left part rows count, response
     // node_prop_count_ is going to be removed here after migration to node_list_manager
     // node props mapping
-    constexpr static Index ind_ofs = 0; // property index for local row offset
-    constexpr static Index ind_lrc = 1; // property index for local row count
-    constexpr static Index ind_fid = 2; // property index for local row count
-    constexpr static Index ind_bin = 3; // property index for local row count
-    constexpr static Index ind_lch_grc = 4; // property index for left child global row count
-    constexpr static Index ind_win = 5; // property index for winner class
-    constexpr static Index ind_grc = 6; // property index for global row count
-    constexpr static Index ind_lch_lrc = 7; // property index for left child local row count
-private:
+    constexpr static Index ind_ofs_ = 0; // property index for local row offset
+    constexpr static Index ind_lrc_ = 1; // property index for local row count
+    constexpr static Index ind_fid_ = 2; // property index for local row count
+    constexpr static Index ind_bin_ = 3; // property index for local row count
+    constexpr static Index ind_lch_grc_ = 4; // property index for left child global row count
+    constexpr static Index ind_win_ = 5; // property index for winner class
+    constexpr static Index ind_grc_ = 6; // property index for global row count
+    constexpr static Index ind_lch_lrc_ = 7; // property index for left child local row count
+
     static constexpr inline Index node_prop_count_ = 8;
 };
 
@@ -99,13 +139,10 @@ public:
     static constexpr Index get_prop_count() {
         return node_group_prop_count_;
     }
-    static constexpr Index get_row_block_size() {
-        return row_block_size_;
-    }
 
 private:
-    static constexpr inline Index node_group_prop_count_ = 2;
-    static constexpr inline Index row_block_size_ = 256;
+    static constexpr inline Index node_group_prop_count_ =
+        2; // group_index offset and max_row_count in group
 };
 
 template <typename Index = std::int32_t>
@@ -113,6 +150,7 @@ class node_group_list;
 
 template <typename Index = std::int32_t>
 class node_group_view : public node_group<Index> {
+    using node_t = node<Index>;
     using node_group_t = node_group<Index>;
     friend node_group_list<Index>;
 
@@ -129,7 +167,7 @@ public:
     }
 
     Index get_max_row_block_count() const {
-        const Index row_block_size = node_group_t::get_row_block_size();
+        const Index row_block_size = node_t::get_small_node_max_row_count();
         return max_row_count_ / row_block_size + bool(max_row_count_ % row_block_size);
     }
 
@@ -176,11 +214,10 @@ public:
                                          { (get_count() + 1) * node_group_t::get_prop_count() },
                                          alloc::device);
         // +1 is required because 0 elem stores a group offset in node indices list
-        //Index bound_list[group_count_ + 1] = { de::limits<Index>::max() / node_group_t::get_row_block_size(),
         Index bound_list[group_count_ + 1] = { de::limits<Index>::max(),
-                                               big_node_low_bound_row_count_,
-                                               node_group_t::get_row_block_size(),
-                                               32,
+                                               node_t::get_medium_node_max_row_count(),
+                                               node_t::get_small_node_max_row_count(),
+                                               node_t::get_elementary_node_max_row_count(),
                                                0 };
         group_bound_list_ =
             pr::ndarray<Index, 1>::wrap(bound_list, { get_count() + 1 }).to_device(queue_);
@@ -216,7 +253,6 @@ public:
 
     node_group_view_t get_group_view(Index group_idx, const bk::event_vector& deps = {}) {
         filter_event_.wait_and_throw();
-        //if constexpr(destination == destination_type::host) {
         if (!is_group_list_on_host_) {
             node_group_list_host_ = node_group_list_.to_host(queue_, deps);
             is_group_list_on_host_ = true;
@@ -224,10 +260,6 @@ public:
         return std::move(node_group_view_t(node_group_list_host_.get_data(),
                                            node_indices_list_.get_data(),
                                            group_idx));
-        //}
-
-        //sycl::event::wait_and_throw(deps);
-        //return std::move(node_group_view_t(node_group_list_.get_data(), group_idx));
     }
 
     bool state_is_valid() {
@@ -242,8 +274,9 @@ private:
 
 private:
     static constexpr inline Index group_count_ = 4;
+    static constexpr inline Index min_local_size_ = 256;
     //static constexpr inline Index big_node_low_bound_blocks_num_ = 32;
-    static constexpr inline Index big_node_low_bound_row_count_ = 8192;
+    // nodes with bigger row count than following one will require more than one hist
 
     sycl::queue queue_;
     sycl::event filter_event_;

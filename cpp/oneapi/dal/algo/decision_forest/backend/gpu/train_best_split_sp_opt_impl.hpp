@@ -37,7 +37,8 @@ namespace pr = bk::primitives;
 template <typename Float,
           typename Bin = std::uint32_t,
           typename Index = std::int32_t,
-          typename Task = task::by_default>
+          typename Task = task::by_default,
+          Index sbg_size = 32>
 class train_best_split_sp_opt_impl {
     using result_t = train_result<Task>;
     using impl_const_t = impl_const<Index, Task>;
@@ -47,7 +48,6 @@ class train_best_split_sp_opt_impl {
     using msg = de::error_messages;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
     using node_list_t = node_list<Index>;
-    //using node_group_list_t = node_group_list<Index>;
     using node_group_view_t = node_group_view<Index>;
 
 public:
@@ -71,23 +71,7 @@ public:
         bool update_imp_dec_required,
         Index node_count,
         const bk::event_vector& deps = {});
-    /*
-    static sycl::event compute_best_split_single_pass_large(
-        sycl::queue& queue,
-        const context_t& ctx,
-        const pr::ndarray<Bin, 2>& data,
-        const pr::ndview<Float, 1>& response,
-        const pr::ndarray<Index, 1>& tree_order,
-        const pr::ndarray<Index, 1>& selected_ftr_list,
-        const pr::ndarray<Index, 1>& bin_offset_list,
-        const imp_data_t& imp_data_list,
-        const node_group_view_t& node_group,
-        node_list_t& level_node_list,
-        imp_data_t& left_child_imp_data_list,
-        pr::ndarray<Float, 1>& node_imp_dec_list,
-        bool update_imp_dec_required,
-        const bk::event_vector& deps = {});
-    */
+
     static sycl::event compute_best_split_single_pass_small(
         sycl::queue& queue,
         const context_t& ctx,
@@ -104,8 +88,9 @@ public:
         bool update_imp_dec_required,
         const bk::event_vector& deps = {});
 
-    static std::int64_t define_local_size_for_small_single_pass(const sycl::queue& queue,
-                                                                std::int64_t selected_ftr_count);
+private:
+    constexpr static Index max_wg_count_ = 8192;
+    constexpr static Index min_local_size_ = 128;
 };
 
 #endif

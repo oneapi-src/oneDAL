@@ -49,14 +49,15 @@ sycl::event node_group_list<Index>::filter_internal(const node_list_t& node_list
     Index* node_groups_ptr = node_groups.get_mutable_data();
     Index* node_indices_ptr = this->get_node_indices_list().get_mutable_data();
 
-    Index target_sbg_size = std::min(Index(bk::device_max_sg_size(queue_)), Index(32));
-    Index local_size = std::max(Index(target_sbg_size * group_count), Index(256));
+    Index max_sbg_size = bk::device_max_sg_size(queue_);
+    Index local_size = std::max(Index(max_sbg_size * group_count), min_local_size_);
+    ONEDAL_ASSERT(bk::device_max_wg_size(queue_) >= local_size);
 
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(local_size, local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        local_accessor_rw_t<Index> local_buf(local_size / target_sbg_size, cgh);
+        local_accessor_rw_t<Index> local_buf(local_size, cgh);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
             const Index sub_group_id = sbg.get_group_id();
@@ -73,13 +74,10 @@ sycl::event node_group_list<Index>::filter_internal(const node_list_t& node_list
                 sub_group_id < group_count ? node_groups_bound_ptr[sub_group_id] : 0;
             Index bucket_low_bound =
                 sub_group_id < group_count ? node_groups_bound_ptr[sub_group_id + 1] : 0;
-            // calculate num of big and mid nodes
+
             for (Index i = local_id; i < node_count && sub_group_id < group_count;
                  i += local_size) {
-                Index row_count = node_list_ptr[i * node_prop_count + node_t::ind_grc];
-                //Index block_count = row_count / block_size + bool(row_count % block_size);
-
-                //Index into_bucket = (Index)(block_count <= bucket_up_bound && block_count > bucket_low_bound);
+                Index row_count = node_list_ptr[i * node_prop_count + node_t::ind_grc()];
                 Index into_bucket =
                     (Index)(row_count <= bucket_up_bound && row_count > bucket_low_bound);
 
@@ -88,8 +86,6 @@ sycl::event node_group_list<Index>::filter_internal(const node_list_t& node_list
                 max_row_count = sycl::reduce_over_group(sbg, max_row_count, maximum<Index>());
             }
 
-            //bucket_count = sycl::group_broadcast(sbg, big_node_count, 0);
-            //mid_node_count = sycl::group_broadcast(sbg, mid_node_count, 0);
             local_buf_ptr[sub_group_id] = bucket_count;
 
             item.barrier(sycl::access::fence_space::local_space);
@@ -109,9 +105,7 @@ sycl::event node_group_list<Index>::filter_internal(const node_list_t& node_list
 
             //split nodes on groups
             for (Index i = local_id; i < node_count && bucket_count > 0; i += local_size) {
-                Index row_count = node_list_ptr[i * node_prop_count + node_t::ind_grc];
-                //Index block_count = row_count / block_size + bool(row_count % block_size);
-                //Index into_bucket = (Index)(block_count <= bucket_up_bound && block_count > bucket_low_bound);
+                Index row_count = node_list_ptr[i * node_prop_count + node_t::ind_grc()];
                 Index into_bucket =
                     (Index)(row_count <= bucket_up_bound && row_count > bucket_low_bound);
 

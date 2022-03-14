@@ -1176,17 +1176,14 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     auto node_grp_list = node_group_list_.get_list();
 
     Index grp_node_count = 0;
-    //    Index processed_node_count = 0;
     const Index max_ph_block_elem_count = ctx.max_part_hist_cumulative_size_ / sizeof(hist_type_t);
 
     for (Index i = 0; i < node_group_list_.get_count(); ++i) {
         auto node_group = node_group_list_.get_group_view(i);
-        //grp_node_count = node_grp_list_host[i * ctx.node_group_prop_count_ + 0];
         grp_node_count = node_group.get_node_count();
         if (0 == grp_node_count)
             continue;
 
-        //Index max_grp_block_count = node_grp_list_host[i * ctx.node_group_prop_count_ + 1];
         Index max_grp_block_count = node_group.get_max_row_block_count();
         Index grp_ind_ofs = node_group.get_node_indices_offset();
 
@@ -1306,7 +1303,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
         }
         else {
             Index max_row_count = node_group.get_max_row_count();
-            if (max_row_count > 32) {
+            if (max_row_count > node_t::get_elementary_node_max_row_count()) {
                 last_event =
                     bs_kernels_opt_t::compute_best_split_single_pass_large(queue_,
                                                                            ctx,
