@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -125,9 +125,9 @@ constexpr bool is_max_op_v = is_typed_max_op_v<bin_op_t<BinaryOp>, BinaryOp>;
 template <typename BinaryOp, typename T = bin_op_t<BinaryOp>>
 inline T atomic_binary_op(T* ptr, T val) {
     sycl::atomic_ref<T,
-                     cl::sycl::memory_order::relaxed,
-                     cl::sycl::memory_scope::device,
-                     cl::sycl::access::address_space::ext_intel_global_device_space>
+                     sycl::memory_order::relaxed,
+                     sycl::memory_scope::device,
+                     sycl::access::address_space::ext_intel_global_device_space>
         atomic_ref(*ptr);
     if constexpr (is_sum_op_v<BinaryOp>) {
         return atomic_ref.fetch_add(val);

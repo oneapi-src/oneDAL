@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
 
 namespace oneapi::dal::backend::primitives {
-
-#ifdef ONEDAL_DATA_PARALLEL
 
 struct distance_metric_tag;
 
@@ -75,6 +73,47 @@ public:
     }
 };
 
-#endif
+template <typename Float>
+struct cosine_metric : public metric_base<Float> {
+public:
+    cosine_metric() {}
+    template <typename InputIt1, typename InputIt2>
+    Float operator()(InputIt1 first1, InputIt1 last1, InputIt2 first2) const {
+        constexpr Float zero = 0;
+        constexpr Float one = 1;
+        Float ip_acc = zero;
+        Float n1_acc = zero;
+        Float n2_acc = zero;
+        auto it1 = first1;
+        auto it2 = first2;
+        for (; it1 != last1; ++it1, ++it2) {
+            const Float v1 = *it1;
+            const Float v2 = *it2;
+            n1_acc += (v1 * v1);
+            n2_acc += (v2 * v2);
+            ip_acc += (v1 * v2);
+        }
+        const Float rsqn1 = one / std::sqrt(n1_acc);
+        const Float rsqn2 = one / std::sqrt(n2_acc);
+        return one - ip_acc * rsqn1 * rsqn2;
+    }
+};
+
+template <typename Float>
+struct chebyshev_metric : public metric_base<Float> {
+public:
+    chebyshev_metric() {}
+    template <typename InputIt1, typename InputIt2>
+    Float operator()(InputIt1 first1, InputIt1 last1, InputIt2 first2) const {
+        Float max_difference = 0;
+        auto it1 = first1;
+        auto it2 = first2;
+        for (; it1 != last1; ++it1, ++it2) {
+            const auto diff = std::abs(*it1 - *it2);
+            max_difference = std::max(max_difference, diff);
+        }
+        return max_difference;
+    }
+};
 
 } // namespace oneapi::dal::backend::primitives

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -110,6 +110,7 @@ public:
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
+    using base_t::sendrecv_replace;
 
     explicit mpi_communicator_impl(std::int64_t default_root = 0)
             : mpi_comm_(MPI_COMM_WORLD),
@@ -177,8 +178,6 @@ public:
                                     const std::int64_t* recv_counts,
                                     const std::int64_t* displs,
                                     const data_type& dtype) override {
-        ONEDAL_ASSERT(root >= 0);
-
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
@@ -264,6 +263,35 @@ public:
             // indicating that operation was performed synchronously
             return nullptr;
         }
+    }
+
+    spmd::request_iface* sendrecv_replace(byte_t* buf,
+                                          std::int64_t count,
+                                          const data_type& dtype,
+                                          std::int64_t destination_rank,
+                                          std::int64_t source_rank) override {
+        ONEDAL_ASSERT(destination_rank >= 0);
+        ONEDAL_ASSERT(source_rank >= 0);
+
+        if (count == 0) {
+            return nullptr;
+        }
+
+        ONEDAL_ASSERT(buf);
+        ONEDAL_ASSERT(count > 0);
+
+        MPI_Status status;
+        constexpr int zero_tag = 0;
+        mpi_call(MPI_Sendrecv_replace(buf,
+                                      integral_cast<int>(count),
+                                      make_mpi_data_type(dtype),
+                                      integral_cast<int>(destination_rank),
+                                      zero_tag,
+                                      integral_cast<int>(source_rank),
+                                      zero_tag,
+                                      mpi_comm_,
+                                      &status));
+        return nullptr;
     }
 
 private:

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,9 +36,6 @@ static train_result<Task> call_kernel(const context_gpu& ctx,
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
-    }
-    else if (distance_impl->get_daal_distance_type() != detail::v1::daal_distance_t::minkowski) {
-        throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
     }
 
     const auto model_impl = std::make_shared<brute_force_model_impl<Task>>(data, responses);

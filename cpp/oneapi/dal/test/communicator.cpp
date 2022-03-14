@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -481,10 +481,45 @@ TEST_M(communicator_test, "empty allreduce is allowed", "[allreduce][empty]") {
 #ifdef ONEDAL_DATA_PARALLEL
 TEST_M(communicator_test, "empty USM allreduce is allowed", "[allreduce][usm][empty]") {
     auto comm = create_communicator();
+
     execute([&](std::int64_t rank) {
         const byte_t* send_buf = nullptr;
         byte_t* recv_buf = nullptr;
         comm.allreduce(this->get_queue(), send_buf, recv_buf, 0, spmd::reduce_op::sum).wait();
+    });
+}
+#endif
+
+TEST_M(communicator_test, "sendrecv_replace", "[sendrecv_replace][single value]") {
+    constexpr std::int64_t count_per_rank = 1;
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const auto rank_count = comm.get_rank_count();
+        const std::int64_t source_rank = rank == rank_count - 1 ? 0 : rank + 1;
+        const std::int64_t destination_rank = rank == 0 ? rank_count - 1 : rank - 1;
+        auto ary = this->array_full(count_per_rank, float(rank));
+        comm.sendrecv_replace(ary, destination_rank, source_rank).wait();
+        exclusive([&]() {
+            const auto expected = this->array_full(count_per_rank, float(source_rank));
+            check_if_arrays_equal(ary, expected);
+        });
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "sendrecv_replace USM", "[sendrecv_replace][usm][single value]") {
+    constexpr std::int64_t count_per_rank = 1;
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const auto rank_count = comm.get_rank_count();
+        const std::int64_t source_rank = rank == rank_count - 1 ? 0 : rank + 1;
+        const std::int64_t destination_rank = rank == 0 ? rank_count - 1 : rank - 1;
+        auto ary = this->to_device(this->array_full(count_per_rank, float(rank)));
+        comm.sendrecv_replace(ary, destination_rank, source_rank).wait();
+        exclusive([&]() {
+            const auto expected = this->array_full(count_per_rank, float(source_rank));
+            check_if_arrays_equal(this->to_host(ary), expected);
+        });
     });
 }
 #endif

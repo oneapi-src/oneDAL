@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,9 +57,12 @@ inline auto convert_onedal_to_daal_knn_model(const model<Task>& m) {
 
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
 
-    const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->get_data());
+    // Changed to perform a copy as far as we have similar logic
+    // for d4p patching; to allign performance with DAAL
+    const auto daal_train_data =
+        interop::copy_to_daal_homogen_table<Float>(trained_model->get_data());
     const auto daal_train_responses =
-        interop::convert_to_daal_table<Float>(trained_model->get_responses());
+        interop::copy_to_daal_homogen_table<Float>(trained_model->get_responses());
 
     const auto model_ptr =
         create_daal_model_for_bf_knn<Float>(daal_train_data, daal_train_responses);

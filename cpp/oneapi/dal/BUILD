@@ -129,13 +129,14 @@ dal_test_suite(
 
 dal_test_suite(
     name = "ccl_communicator_test",
+    ccl = True,
+    mpi_ranks = 2,
     framework = "catch2",
     srcs = glob([
         "test/ccl_*.cpp"
     ]),
     dal_deps = [
         ":common",
-        "@onedal//cpp/oneapi/dal/test/engine:ccl",
     ],
 )
 
@@ -156,5 +157,23 @@ dal_collect_test_suites(
         # TODO: Temporary disabled due to
         #       unexpectedly high build time
         # "@onedal//cpp/oneapi:dal_hpp_test",
+    ],
+)
+
+dal_collect_test_suites(
+    name = "mpi_tests",
+    root = "@onedal//cpp/oneapi/dal",
+    tests = [
+        "@onedal//cpp/oneapi/dal/algo/kmeans:mpi_tests",
+        "@onedal//cpp/oneapi/dal/algo/dbscan:mpi_tests",
+    ],
+)
+
+dal_collect_test_suites(
+    name = "ccl_tests",
+    root = "@onedal//cpp/oneapi/dal",
+    tests = [
+        "@onedal//cpp/oneapi/dal/algo/kmeans:ccl_tests",
+        "@onedal//cpp/oneapi/dal/algo/dbscan:ccl_tests",
     ],
 )

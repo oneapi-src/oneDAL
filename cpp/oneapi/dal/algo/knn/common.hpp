@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -109,7 +109,7 @@ const inline result_option_id indices = detail::get_indices_id();
 /// Return the distances to the nearest neighbors
 const inline result_option_id distances = detail::get_distances_id();
 
-/// Return the :expr<classification> results
+/// Return the :expr<classification> or :expr<regression> results
 /// **Note:** This result is not available for the :expr<search> task.
 const inline result_option_id responses = detail::get_responses_id();
 
@@ -277,7 +277,7 @@ public:
 
     /// Creates a new instance of the class with the given :literal:`neighbor_count`
     /// property value.
-    /// Used with :expr:`task::search` only.
+    /// Used with :expr:`task::search` and :expr:`task::regression` only.
     template <typename T = Task, typename = detail::enable_if_not_classification_t<T>>
     explicit descriptor(std::int64_t neighbor_count) {
         set_neighbor_count(neighbor_count);
@@ -285,7 +285,7 @@ public:
 
     /// Creates a new instance of the class with the given :literal:`neighbor_count`
     /// and :literal:`distance` property values.
-    /// Used with :expr:`task::search` only.
+    /// Used with :expr:`task::search` and :expr:`task::regression` only.
     template <typename T = Task, typename = detail::enable_if_not_classification_t<T>>
     explicit descriptor(std::int64_t neighbor_count, const distance_t& distance)
             : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
@@ -350,7 +350,8 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::classification`.
+///              be :expr:`task::classification`, :expr:`task::search`
+///              and :expr:`task::regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);

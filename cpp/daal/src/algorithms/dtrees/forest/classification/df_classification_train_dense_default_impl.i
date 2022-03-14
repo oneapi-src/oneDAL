@@ -1,6 +1,6 @@
 /* file: df_classification_train_dense_default_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -386,7 +386,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     {
         const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
         const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
-        leftWeights += weights;
+        leftWeights += this->_aWeights[aIdx[i - 1]].val;
         if (bSameFeaturePrev || (i < nMinSplitPart) || (leftWeights < minWeightLeaf) || (totalWeights - leftWeights < minWeightLeaf))
         {
             //can't make a split
