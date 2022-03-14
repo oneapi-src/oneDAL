@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ template <typename Float,
 class train_service_kernels {
     using impl_const_t = impl_const<Index, Task>;
     using context_t = train_context<Float, Index, Task>;
-    //using node_group_manager_t = node_group_manager<Index>;
 
 public:
     train_service_kernels(sycl::queue& q) : queue_(q){};
@@ -44,14 +43,7 @@ public:
     std::uint64_t get_oob_rows_required_mem_size(Index row_count,
                                                  Index tree_count,
                                                  double observations_per_tree_fraction);
-    /*
-    sycl::event split_node_list_on_groups_by_size(const context_t& ctx,
-                                                  const pr::ndarray<Index, 1>& node_list,
-                                                  node_group_manager_t& node_grp_mng,
-                                                  pr::ndarray<Index, 1>& node_indices,
-                                                  Index node_count,
-                                                  const bk::event_vector& deps = {});
-*/
+
     sycl::event get_split_node_count(const pr::ndarray<Index, 1>& node_list,
                                      Index node_count,
                                      Index& split_node_count,
@@ -145,11 +137,9 @@ private:
     sycl::queue queue_;
 
     static constexpr inline double aproximate_oob_rows_fraction_ = 0.6;
-    static constexpr inline Index big_node_low_border_blocks_num_ = 32;
     static constexpr inline Index partition_min_block_size_ = 128;
     // max blocks number for one node
     static constexpr inline Index partition_max_block_count_ = 256;
-    static constexpr inline Index min_rows_block_ = 256;
 
     static constexpr inline Index max_local_sums_ = 256;
 

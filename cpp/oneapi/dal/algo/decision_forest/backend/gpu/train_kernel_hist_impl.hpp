@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -218,20 +218,6 @@ private:
                                            Index part_hist_count,
                                            Index node_count,
                                            const bk::event_vector& deps = {});
-
-    sycl::event compute_partial_histograms_new(const train_context_t& ctx,
-                                               const pr::ndarray<Bin, 2>& data,
-                                               const pr::ndview<Float, 1>& response,
-                                               const pr::ndarray<Index, 1>& tree_order,
-                                               const pr::ndarray<Index, 1>& selected_ftr_list,
-                                               const pr::ndarray<Index, 1>& bin_offset_list,
-                                               const pr::ndarray<Index, 1>& node_list,
-                                               const pr::ndarray<Index, 1>& node_ind_list,
-                                               Index node_ind_ofs,
-                                               pr::ndarray<hist_type_t, 1>& part_hist_list,
-                                               Index part_hist_count,
-                                               Index node_count,
-                                               const bk::event_vector& deps = {});
 
     sycl::event reduce_partial_histograms(const train_context_t& ctx,
                                           const pr::ndarray<hist_type_t, 1>& part_hist_list,
