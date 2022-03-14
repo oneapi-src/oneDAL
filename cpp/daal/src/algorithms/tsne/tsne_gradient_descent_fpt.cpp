@@ -429,7 +429,6 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 
             if (mass[k1] < DataType(0))
             {
-                
                 IdxType j=0;
                 // for (IdxType i = 0; i < 4; i++)
                 while(j < 4)
@@ -438,7 +437,6 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                     curChild[j]   = ch;
 
                     curMass[j] = mass[ch];
-                    
                     if (ch >= k && curMass[j] < 0.){
                         continue;
                     }
@@ -482,7 +480,6 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                         py += posY[ch] * m;
                     }
                 }
-                
                 count[k1]         = cnt;
 
                 const DataType m = cm ? DataType(1) / cm : DataType(1);
