@@ -25,20 +25,20 @@ help:
 	@echo "name              - sample name. Please see onedal.lst file"
 	@echo
 	@echo "compiler_name     - currently can be dpcpp only that stands
-	@echo "                    for Intel(R) oneAPI DPC++ Compiler."
+	@echo "                    for Intel(R) oneAPI DPC++/C++ Compiler."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## make lib sample=kmeans_distr_oneccl   - build by Intel(R) oneAPI DPC++ Compiler (as default)
+## make lib sample=kmeans_distr_oneccl   - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                          and run kmeans_distr_oneccl sample, static linking
 ##
-## make so                                - build by Intel(R) oneAPI DPC++ Compiler (as default)
+## make so                                - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                          and run all samples, dynamic linking
 ##
-## make so mode=build                     - build only (not run) by Intel(R) oneAPI DPC++ Compiler
+## make so mode=build                     - build only (not run) by Intel(R) oneAPI DPC++/C++ Compiler
 ##                                          (as default) all samples, dynamic linking
 ##
 ## make help                              - show help

@@ -14,7 +14,7 @@
 # limitations under the License.
 #===============================================================================
 
-COMPILERs = icc gnu clang vc
+COMPILERs = icc icx gnu clang vc
 COMPILER ?= icc
 
 $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
