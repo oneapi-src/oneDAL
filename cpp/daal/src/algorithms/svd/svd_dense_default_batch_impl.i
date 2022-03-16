@@ -84,9 +84,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
     NumericTable * const ntA     = const_cast<NumericTable *>(a[0]);
     NumericTable * const ntSigma = const_cast<NumericTable *>(r[0]);
 
-    const size_t n           = ntA->getNumberOfColumns();
-    const size_t m           = ntA->getNumberOfRows();
-    const size_t nComponents = ntSigma->getNumberOfColumns();
+    const size_t n            = ntA->getNumberOfColumns();
+    const size_t m            = ntA->getNumberOfRows();
+    const size_t minDimension = (n < m) ? n : m;
+    const size_t nComponents  = ntSigma->getNumberOfColumns();
 
     ReadRows<algorithmFPType, cpu, NumericTable> Ablock(ntA, 0, m);
     DAAL_CHECK_BLOCK_STATUS(Ablock);
@@ -95,7 +96,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> Ublock;
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> VTblock;
     algorithmFPType * U  = nullptr; /* Left singular vectors */
-    algorithmFPType * VT = nullptr; /* Right singular vectors */
+    algorithmFPType * resVT = nullptr; /* Right singular vectors */
 
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
     {
@@ -108,14 +109,47 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
     {
         VTblock.set(r[2], 0, nComponents);
         DAAL_CHECK_BLOCK_STATUS(VTblock);
-        VT = VTblock.get();
+        resVT = VTblock.get();
     }
 
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> sigmaBlock(ntSigma, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(sigmaBlock);
-    algorithmFPType * const Sigma = sigmaBlock.get();
+    algorithmFPType * const resSigma = sigmaBlock.get();
 
-    compute_svd_on_one_node<algorithmFPType, cpu>(n, m, A, n, Sigma, VT, n, U, m);
+    if (nComponents < minDimension)
+    {
+        TArray<algorithmFPType, cpu> sigmaPtr(minDimension);
+        DAAL_CHECK_MALLOC(sigmaPtr.get());
+        algorithmFPType * const Sigma = sigmaPtr.get();
+        const algorithmFPType zero(0.0);
+        service_memset<algorithmFPType, cpu>(Sigma, zero, minDimension);
+
+        if (svdPar->rightSingularMatrix == requiredInPackedForm)
+        {
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, m, n);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
+
+            TArray<algorithmFPType, cpu> VTPtr(n * m);
+            algorithmFPType * const VT = VTPtr.get();
+
+            const Status s = compute_svd_on_one_node<algorithmFPType, cpu>(n, m, A, n, Sigma, VT, n, U, m);
+            DAAL_CHECK_STATUS_VAR(s)
+            services::internal::daal_memcpy_s(resVT, n * nComponents * sizeof(algorithmFPType), VT, n * nComponents * sizeof(algorithmFPType));
+        }
+        else
+        {
+            const Status s = compute_svd_on_one_node<algorithmFPType, cpu>(n, m, A, n, Sigma, resVT, n, U, m);
+            DAAL_CHECK_STATUS_VAR(s)
+        }
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nComponents, sizeof(algorithmFPType));
+        services::internal::daal_memcpy_s(resSigma, nComponents * sizeof(algorithmFPType), Sigma, nComponents * sizeof(algorithmFPType));
+    }
+    else
+    {
+        const Status s = compute_svd_on_one_node<algorithmFPType, cpu>(n, m, A, n, resSigma, resVT, n, U, m);
+        DAAL_CHECK_STATUS_VAR(s)
+    }
 
     return Status();
 }
