@@ -95,7 +95,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
 
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> Ublock;
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> VTblock;
-    algorithmFPType * U  = nullptr; /* Left singular vectors */
+    algorithmFPType * U     = nullptr; /* Left singular vectors */
     algorithmFPType * resVT = nullptr; /* Right singular vectors */
 
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
