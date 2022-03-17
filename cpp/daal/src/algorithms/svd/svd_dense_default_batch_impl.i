@@ -77,6 +77,96 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute(const size_t na, co
     return SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(na, a, nr, r, svdPar);
 }
 
+/**
+// Helper class that simplifies the logic when the number of elements
+// in the results of SVD decomposition differs from the number of elements
+// in the resulting numeric tables 
+*/
+template <typename algorithmFPType, CpuType cpu>
+class SVDSeqHelper
+{
+public:
+    /**
+    // Creates a new instance of the class
+    // @param arraySize_ Number of elements in the result of SVD decomposition
+    //                   computed with LAPACK XGESVD
+    // @param blockSize_ Number of elements in the resulting numeric table returned to the user
+    */
+    SVDSeqHelper(size_t arraySize_, size_t blockSize_) : arraySize(arraySize_), blockSize(blockSize_), arrayPtr(nullptr), blockPtr(nullptr) {}
+
+    /**
+    // Initializes an instance of the class
+    // @param numRows        Number of rows in the resulting numeric table returned to the user
+    // @param nt             Pointer to the resulting numeric table returned to the user
+    // @param setArrayToZero Flag that specifies either to set the corresponding array that stores
+    //                       the results of SVD computations to zero before passing it to LAPACK XGESVD
+    */
+    Status init(size_t numRows, NumericTable * nt, bool setArrayToZero = false)
+    {
+        /* Initialize the block of results to be returned to the user */
+        block.set(nt, 0, numRows);
+        DAAL_CHECK_BLOCK_STATUS(block);
+        blockPtr = block.get();
+
+        if (arraySize > blockSize)
+        {
+            /* If the number of elements in the numeric table returned to the user
+               is less than the number of elements in the result of SVD decomposition,
+               allocate temporary array to store SVD decomposition results */
+            array.reset(arraySize);
+            arrayPtr = array.get();
+            DAAL_CHECK(arrayPtr, ErrorMemoryAllocationFailed);
+            if (setArrayToZero)
+            {
+                const algorithmFPType zero(0.0);
+                service_memset<algorithmFPType, cpu>(arrayPtr, zero, arraySize);
+            }
+        }
+
+        return Status();
+    }
+
+    /**
+    // Returns pointer to store the results of SVD decomposition computed using LAPACK XGESVD
+    */
+    algorithmFPType * get() const { return arrayPtr ? arrayPtr : blockPtr; }
+
+    /**
+    // If necessary, copies the results of SVD decomposition from temporary array into the data block
+    // associated with the resulting numeric table
+    */
+    Status copyResult()
+    {
+        if (arrayPtr)
+        {
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize, sizeof(algorithmFPType));
+            services::internal::daal_memcpy_s(blockPtr, blockSize * sizeof(algorithmFPType), arrayPtr, blockSize * sizeof(algorithmFPType));
+        }
+        return Status();
+    }
+
+    /**
+    // Sets the rest of the resulting numeric table to zero if needed
+    */
+    void postprocess(size_t meaningfulResultSize)
+    {
+        if (meaningfulResultSize < blockSize)
+        {
+            const algorithmFPType zero(0.0);
+            service_memset<algorithmFPType, cpu>(blockPtr + meaningfulResultSize, zero, blockSize - meaningfulResultSize);
+        }
+    }
+
+private:
+    TArray<algorithmFPType, cpu> array; /* Temporary array to store the results of SVD decomposition */
+    WriteOnlyRows<algorithmFPType, cpu, NumericTable>
+        block;                  /* Data block associated with the numeric table that stores the results of SVD decomposition */
+    algorithmFPType * arrayPtr; /* Temporary results of SVD decomposition */
+    algorithmFPType * blockPtr; /* Results of SVD decomposition associated with the resulting numeric table */
+    size_t arraySize;           /* Number of elements in the temporary array needed to store the result of SVD decomposition */
+    size_t blockSize;           /* Number of elements in the part of resulting numeric table sufficient to store the results of SVD decomposition */
+};
+
 template <typename algorithmFPType, daal::algorithms::svd::Method method, CpuType cpu>
 Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
                                                                  const Parameter * svdPar)
@@ -94,9 +184,9 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
     const algorithmFPType * const A = Ablock.get();
 
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> Ublock;
-    WriteOnlyRows<algorithmFPType, cpu, NumericTable> VTblock;
-    algorithmFPType * U     = nullptr; /* Left singular vectors */
-    algorithmFPType * resVT = nullptr; /* Right singular vectors */
+    algorithmFPType * U = nullptr; /* Left singular vectors */
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    SVDSeqHelper<algorithmFPType, cpu> VTHelper(n * n, nComponents * n); /* Right singular vectors */
 
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
     {
@@ -107,49 +197,26 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
 
     if (svdPar->rightSingularMatrix == requiredInPackedForm)
     {
-        VTblock.set(r[2], 0, nComponents);
-        DAAL_CHECK_BLOCK_STATUS(VTblock);
-        resVT = VTblock.get();
+        Status s = VTHelper.init(nComponents, r[2]);
+        DAAL_CHECK_STATUS_VAR(s);
     }
 
-    WriteOnlyRows<algorithmFPType, cpu, NumericTable> sigmaBlock(ntSigma, 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(sigmaBlock);
-    algorithmFPType * const resSigma = sigmaBlock.get();
+    SVDSeqHelper<algorithmFPType, cpu> SigmaHelper(n, nComponents);
+    Status s = SigmaHelper.init(1, r[0], true);
+    DAAL_CHECK_STATUS_VAR(s);
 
-    if (nComponents < minDimension)
-    {
-        TArray<algorithmFPType, cpu> sigmaPtr(minDimension);
-        DAAL_CHECK_MALLOC(sigmaPtr.get());
-        algorithmFPType * const Sigma = sigmaPtr.get();
-        const algorithmFPType zero(0.0);
-        service_memset<algorithmFPType, cpu>(Sigma, zero, minDimension);
+    s = compute_svd_on_one_node<algorithmFPType, cpu>(n, m, A, n, SigmaHelper.get(), VTHelper.get(), n, U, m);
+    DAAL_CHECK_STATUS_VAR(s);
 
-        if (svdPar->rightSingularMatrix == requiredInPackedForm)
-        {
-            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, m, n);
-            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
+    s = SigmaHelper.copyResult();
+    DAAL_CHECK_STATUS_VAR(s);
 
-            TArray<algorithmFPType, cpu> VTPtr(n * m);
-            algorithmFPType * const VT = VTPtr.get();
+    SigmaHelper.postprocess(minDimension);
 
-            const Status s = compute_svd_on_one_node<algorithmFPType, cpu>(n, m, A, n, Sigma, VT, n, U, m);
-            DAAL_CHECK_STATUS_VAR(s)
-            services::internal::daal_memcpy_s(resVT, n * nComponents * sizeof(algorithmFPType), VT, n * nComponents * sizeof(algorithmFPType));
-        }
-        else
-        {
-            const Status s = compute_svd_on_one_node<algorithmFPType, cpu>(n, m, A, n, Sigma, resVT, n, U, m);
-            DAAL_CHECK_STATUS_VAR(s)
-        }
+    s = VTHelper.copyResult();
+    DAAL_CHECK_STATUS_VAR(s);
 
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nComponents, sizeof(algorithmFPType));
-        services::internal::daal_memcpy_s(resSigma, nComponents * sizeof(algorithmFPType), Sigma, nComponents * sizeof(algorithmFPType));
-    }
-    else
-    {
-        const Status s = compute_svd_on_one_node<algorithmFPType, cpu>(n, m, A, n, resSigma, resVT, n, U, m);
-        DAAL_CHECK_STATUS_VAR(s)
-    }
+    VTHelper.postprocess(minDimension * n);
 
     return Status();
 }
