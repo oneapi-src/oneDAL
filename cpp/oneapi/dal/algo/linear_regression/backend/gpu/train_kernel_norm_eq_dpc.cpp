@@ -23,6 +23,7 @@
 
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/debug.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -37,6 +38,7 @@ using daal::services::Status;
 using dal::backend::context_gpu;
 
 namespace be = dal::backend;
+namespace pr = be::primitives;
 namespace interop = dal::backend::interop;
 namespace daal_lr = daal::algorithms::linear_regression;
 
@@ -95,6 +97,11 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                               intp);
 
         interop::status_to_exception(status);
+    }
+
+    {
+        auto xty_ndarr = pr::ndarray<Float, 2>::wrap(xty_arr, {response_count, ext_feature_count});
+        std::cout << "After: " << xty_ndarr << std::endl;
     }
 
     {

@@ -261,9 +261,9 @@ public:
         return tranposed_ndview_t{ data_, shape.t(), strides.t(), data_is_mutable_ };
     }
 
-    template <std::int64_t new_axis_count>
+    template <std::int64_t new_axis_count, ndorder new_order = order>
     auto reshape(const ndshape<new_axis_count>& new_shape) const {
-        using reshaped_ndview_t = ndview<T, new_axis_count, order>;
+        using reshaped_ndview_t = ndview<T, new_axis_count, new_order>;
         check_reshape_conditions(new_shape);
         return reshaped_ndview_t{ data_, new_shape, data_is_mutable_ };
     }

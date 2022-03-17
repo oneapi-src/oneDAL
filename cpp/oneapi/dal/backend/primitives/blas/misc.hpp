@@ -38,4 +38,10 @@ inline constexpr mkl::uplo flip_uplo(mkl::uplo order) {
     return (order == upper) ? lower : upper;
 }
 
+inline constexpr mkl::uplo ident_uplo(mkl::uplo order) {
+    constexpr auto upper = mkl::uplo::upper;
+    constexpr auto lower = mkl::uplo::lower;
+    return (order == upper) ? upper : lower;
+}
+
 } // namespace oneapi::dal::backend::primitives
