@@ -50,6 +50,9 @@ public:
         s_count_ = GENERATE(111, 113);
         f_count_ = GENERATE(2, 3, 5);
         r_count_ = GENERATE(2, 7, 9);
+        /*s_count_ = GENERATE(1);
+        f_count_ = GENERATE(3);
+        r_count_ = GENERATE(5);*/
     }
 
     te::table_id get_homogen_table_id() const {

@@ -24,17 +24,11 @@ namespace oneapi::dal::linear_regression::backend {
 namespace be = dal::backend;
 namespace pr = be::primitives;
 
-template<bool beta, typename Float, pr::ndorder layout>
-sycl::event update_xtx( sycl::queue& queue,
-                        const pr::ndview<Float, 2, layout>& x,
-                        pr::ndview<Float, 2, pr::ndorder::c>& xtx,
-                        const be::event_vector& deps = {});
-
-template<bool beta, typename Float, pr::ndorder xlayout, pr::ndorder ylayout>
-sycl::event update_xty( sycl::queue& queue,
-                        const pr::ndview<Float, 2, xlayout>& x,
-                        const pr::ndview<Float, 2, ylayout>& y,
-                        pr::ndview<Float, 2, pr::ndorder::f>& xty,
-                        const be::event_vector& deps = {});
+template<bool beta, typename Float, pr::ndorder xtxlayout, pr::ndorder xtylayout>
+sycl::event finalize(  sycl::queue& queue,
+                    const pr::ndview<Float, 2, xtxlayout>& xtx,
+                    const pr::ndview<Float, 2, xtylayout>& xty,
+                    pr::ndview<Float, 2, pr::ndorder::c>& beta,
+                    const be::event_vector& deps = {});
 
 } // namespace oneapi::dal::linear_regression::backend
