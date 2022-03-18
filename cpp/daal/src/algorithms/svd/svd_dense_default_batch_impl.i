@@ -80,7 +80,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute(const size_t na, co
 /**
 // Helper class that simplifies the logic when the number of elements
 // in the results of SVD decomposition differs from the number of elements
-// in the resulting numeric tables 
+// in the resulting numeric tables
 */
 template <typename algorithmFPType, CpuType cpu>
 class SVDSeqHelper
