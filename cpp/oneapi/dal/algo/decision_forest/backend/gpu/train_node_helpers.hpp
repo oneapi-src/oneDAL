@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -209,21 +209,24 @@ class node_group_list {
 public:
     node_group_list() = delete;
     node_group_list(sycl::queue queue) : queue_(queue), node_list_(queue_) {
+        constexpr Index elem_count = group_count_ + 1;
+        // +1 is required because 0 elem stores a group offset in node indices list
+
         node_group_list_ =
             pr::ndarray<Index, 1>::empty(queue_,
-                                         { (get_count() + 1) * node_group_t::get_prop_count() },
+                                         { elem_count * node_group_t::get_prop_count() },
                                          alloc::device);
-        // +1 is required because 0 elem stores a group offset in node indices list
-        Index bound_list[group_count_ + 1] = { de::limits<Index>::max(),
-                                               node_t::get_medium_node_max_row_count(),
-                                               node_t::get_small_node_max_row_count(),
-                                               node_t::get_elementary_node_max_row_count(),
-                                               0 };
+        Index bound_list[elem_count] = { de::limits<Index>::max(),
+                                         node_t::get_medium_node_max_row_count(),
+                                         node_t::get_small_node_max_row_count(),
+                                         node_t::get_elementary_node_max_row_count(),
+                                         0 };
         group_bound_list_ =
-            pr::ndarray<Index, 1>::wrap(bound_list, { get_count() + 1 }).to_device(queue_);
+            pr::ndarray<Index, 1>::wrap(bound_list, { elem_count }).to_device(queue_);
     }
 
     sycl::event filter(const node_list_t& node_list, const bk::event_vector& deps) {
+        ONEDAL_ASSERT(node_list.get_count() > 0);
         indices_count_ = node_list.get_count();
         node_list_ = node_list;
         if (node_indices_list_.get_count() < indices_count_) {
