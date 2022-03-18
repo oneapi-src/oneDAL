@@ -111,7 +111,7 @@ inline void merge_stat(Float* dst, const Float* src, Index) {
     Float sum_n1n2 = dst[0] + src[0];
     Float mul_n1n2 = dst[0] * src[0];
     Float delta_scl = mul_n1n2 / sum_n1n2;
-    Float mean_scl = (Float)1 / sum_n1n2;
+    Float mean_scl = Float(1) / sum_n1n2;
     Float delta = src[1] - dst[1];
 
     dst[2] = dst[2] + src[2] + delta * delta * delta_scl;
@@ -164,8 +164,8 @@ struct split_info {
     using impl_const_t = impl_const<Index, task_t>;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
     using byte_t = std::uint8_t;
-    static constexpr Index cache_buf_int_size = 3;
-    static constexpr Index cache_buf_float_size = 2;
+    static constexpr Index cache_buf_int_size = 3; // ftr_id, ftr_bin, left_count
+    static constexpr Index cache_buf_float_size = 2; // left_imp, and imp_dec
 
     static constexpr Index get_cache_without_hist_byte_size() {
         return cache_buf_int_size * sizeof(Index) + cache_buf_float_size * sizeof(Float);
