@@ -216,8 +216,8 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
                         }
 
                         if (0 == sub_group_local_id) {
-                            atomic_global_add(node + impl_const_t::ind_lch_lrc,
-                                              group_row_count - group_row_to_right_count);
+                            bk::atomic_global_add(node + impl_const_t::ind_lch_lrc,
+                                                  group_row_count - group_row_to_right_count);
                         }
                     }
                 }
@@ -354,10 +354,10 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
 
                         if (0 == sub_group_local_id) {
                             group_left_boundary =
-                                atomic_global_add(node_aux + 0,
-                                                  group_row_count - group_row_to_right_count);
+                                bk::atomic_global_add(node_aux + 0,
+                                                      group_row_count - group_row_to_right_count);
                             group_right_boundary =
-                                atomic_global_add(node_aux + 1, group_row_to_right_count);
+                                bk::atomic_global_add(node_aux + 1, group_row_to_right_count);
                         }
                         group_left_boundary = sycl::group_broadcast(sbg, group_left_boundary, 0);
                         group_right_boundary = sycl::group_broadcast(sbg, group_right_boundary, 0);

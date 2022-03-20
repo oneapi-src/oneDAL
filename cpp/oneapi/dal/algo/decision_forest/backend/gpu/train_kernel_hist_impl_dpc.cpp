@@ -624,7 +624,7 @@ inline void compute_hist_for_node(
     }
 
     for (Index cls_idx = 0; cls_idx < ctx.class_count_; ++cls_idx) {
-        atomic_global_add(node_histogram_ptr + cls_idx, prv_hist_ptr[cls_idx]);
+        bk::atomic_global_add(node_histogram_ptr + cls_idx, prv_hist_ptr[cls_idx]);
     }
 
     item.barrier(sycl::access::fence_space::local_space);

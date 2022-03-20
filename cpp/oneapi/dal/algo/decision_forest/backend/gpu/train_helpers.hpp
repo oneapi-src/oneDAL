@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/backend/atomic.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -29,74 +30,6 @@ using sycl::ext::oneapi::maximum;
 template <typename Data>
 using local_accessor_rw_t =
     sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
-
-template <typename T>
-inline T atomic_global_add(T* ptr, T operand) {
-    sycl::atomic_ref<T,
-                     sycl::memory_order::relaxed,
-                     sycl::memory_scope::device,
-                     cl::sycl::access::address_space::ext_intel_global_device_space>
-        atomic_var(*ptr);
-    return atomic_var.fetch_add(operand);
-}
-
-template <typename T>
-inline T atomic_global_sum(T* ptr, T operand) {
-    sycl::atomic_ref<T,
-                     sycl::memory_order::relaxed,
-                     sycl::memory_scope::device,
-                     cl::sycl::access::address_space::ext_intel_global_device_space>
-        atomic_var(*ptr);
-    auto old = atomic_var.fetch_add(operand);
-    return old + operand;
-}
-
-template <typename T>
-inline T atomic_local_add(T* ptr, T operand) {
-    sycl::atomic_ref<T,
-                     sycl::memory_order::relaxed,
-                     sycl::memory_scope::device,
-                     cl::sycl::access::address_space::local_space>
-        atomic_var(*ptr);
-    return atomic_var.fetch_add(operand);
-}
-
-template <typename T>
-inline T atomic_local_sum(T* ptr, T operand) {
-    sycl::atomic_ref<T,
-                     sycl::memory_order::relaxed,
-                     sycl::memory_scope::device,
-                     cl::sycl::access::address_space::local_space>
-        atomic_var(*ptr);
-    auto old = atomic_var.fetch_add(operand);
-    return old + operand;
-}
-
-template <typename T>
-inline T atomic_local_min(T* ptr, T operand) {
-    sycl::atomic_ref<T,
-                     sycl::memory_order::relaxed,
-                     sycl::memory_scope::device,
-                     cl::sycl::access::address_space::local_space>
-        atomic_var(*ptr);
-    return atomic_var.fetch_min(operand);
-}
-
-template <typename T>
-inline T atomic_global_cmpxchg(T* ptr, T expected, T desired) {
-    T expected_ = expected;
-    sycl::atomic_ref<T,
-                     sycl::memory_order::relaxed,
-                     sycl::memory_scope::device,
-                     cl::sycl::access::address_space::ext_intel_global_device_space>
-        atomic_var(*ptr);
-    atomic_var.compare_exchange_weak(expected_,
-                                     desired,
-                                     sycl::memory_order::relaxed,
-                                     sycl::memory_order::relaxed,
-                                     sycl::memory_scope::device);
-    return expected_;
-}
 
 template <typename Float>
 inline void merge_stat(Float& dst_count,
