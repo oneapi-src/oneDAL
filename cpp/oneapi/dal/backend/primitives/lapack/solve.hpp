@@ -36,6 +36,18 @@ namespace detail {
                                     array<Float>& scratchpad,
                                     const event_vector& deps);
 
+    template<mkl::uplo uplo, typename Float, ndorder xlayout, ndorder ylayout>
+    std::int64_t potrs_scratchpad_size( sycl::queue& queue,
+                                        const ndview<Float, 2, xlayout>& x,
+                                        const ndview<Float, 2, ylayout>& y);
+
+    template<mkl::uplo uplo, typename Float, ndorder xlayout, ndorder ylayout>
+    sycl::event potrs_solution(sycl::queue& queue,
+                               ndview<Float, 2, xlayout>& x,
+                               ndview<Float, 2, ylayout>& y,
+                               array<Float>& scratchpad,
+                               const event_vector& deps);
+
 } // namespace detail
 
 template<typename Float>
@@ -51,6 +63,20 @@ sycl::event potrf_factorization(sycl::queue& queue,
                                 ndview<Float, 2, layout>& x,
                                 opt_array<Float>& scratchpad = {},
                                 const event_vector& depenedincies = {});
+
+
+template<mkl::uplo uplo, typename Float, ndorder xlayout, ndorder ylayout>
+array<Float> potrs_scratchpad(sycl::queue& queue,
+                              const ndview<Float, 2, xlayout>& x,
+                              const ndview<Float, 2, ylayout>& y,
+                              const sycl::usm::alloc& alloc = sycl::usm::alloc::device);
+
+template<mkl::uplo uplo, typename Float, ndorder xlayout, ndorder ylayout>
+sycl::event potrs_solution(sycl::queue& queue,
+                           ndview<Float, 2, xlayout>& x,
+                           ndview<Float, 2, ylayout>& y,
+                           opt_array<Float>& scratchpad = {},
+                           const event_vector& depenedincies = {});
 
 #endif
 

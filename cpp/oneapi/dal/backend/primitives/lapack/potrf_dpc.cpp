@@ -20,15 +20,15 @@ namespace oneapi::dal::backend::primitives {
 
 namespace detail {
 
-    struct params {
+    struct potrf_params {
         std::int64_t n;
         std::int64_t lda;
         mkl::uplo uplo;
     };
 
     template<mkl::uplo uplo, typename Float, ndorder layout>
-    auto get_params(const ndview<Float, 2, layout>& x) {
-        params result;
+    auto get_potrf_params(const ndview<Float, 2, layout>& x) {
+        potrf_params result;
 
         if constexpr (layout == ndorder::c) {
             result.lda = x.get_stride(1);
@@ -49,7 +49,7 @@ namespace detail {
     std::int64_t potrf_scratchpad_size(sycl::queue& queue,
                                        const ndview<Float, 2, layout>& x) {
         ONEDAL_ASSERT(x.has_data());
-        const auto [ncount, nlda, nuplo] = get_params<uplo>(x);
+        const auto [ncount, nlda, nuplo] = get_potrf_params<uplo>(x);
         return mkl::lapack::potrf_scratchpad_size<Float>(queue,
                                                          nuplo,
                                                          ncount,
@@ -63,7 +63,7 @@ namespace detail {
                                     const event_vector& deps) {
         ONEDAL_ASSERT(x.has_mutable_data());
         ONEDAL_ASSERT(scratchpad.has_mutable_data());
-        const auto [ncount, nlda, nuplo] = get_params<uplo>(x);
+        const auto [ncount, nlda, nuplo] = get_potrf_params<uplo>(x);
 
 #ifdef ONEDAL_ENABLE_ASSERT
         const auto scratchpad_real_count = scratchpad.get_count();
