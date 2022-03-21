@@ -24,7 +24,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file."
 	@echo
-	@echo "compiler_name     - the only supported compiler is clang (default value)"
+	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
 	@echo "                    Intel(R) oneAPI DPC++ compiler"
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
@@ -38,7 +38,7 @@ help:
 ##                                 and run pca example for 64-bit
 ##                                 applications, static linking
 ##
-## make sointel64 compiler=clang   - build by Intel(R) oneAPI Compiler and run all examples
+## make sointel64 compiler=dpcpp   - build by Intel(R) oneAPI Compiler and run all examples
 ##                                 of oneDAL for
 ##                                 64-bit applications, dynamic linking
 ##
@@ -61,7 +61,12 @@ ifndef example
 endif
 
 ifndef compiler
-    compiler = clang
+    compiler = dpcpp
+endif
+
+ifeq ($(compiler),clang)
+    $(warning warning: clang driver usage has been deprecated. Please user dpcpp)
+    override compiler = dpcpp
 endif
 
 ifneq ($(mode),build)
@@ -99,8 +104,8 @@ DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,$(DAAL_LI
 
 COPTS := -Wall -w -I./source/utils
 
-ifeq ($(compiler),clang)
-    CC = clang++
+ifeq ($(compiler),dpcpp)
+    CC = dpcpp
     COPTS += -fsycl -fsycl-device-code-split=per_kernel
 endif
 

@@ -24,8 +24,8 @@ help:
 	@echo
 	@echo "name              - example name."
 	@echo
-	@echo "compiler_name     - the only supported compiler is clang (default value)"
-	@echo "                    Intel(R) oneAPI DPC++ compiler"
+	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
+	@echo "                    Intel(R) oneAPI DPC++/C++ Compiler"
 	@echo
 	@echo "mode_name         - can be build or run. Default is run."
 
@@ -36,19 +36,19 @@ help:
 ##                                                 and run kmeans_dense_batch example for 64-bit
 ##                                                 applications, static linking
 ##
-## nmake dll example=kmeans_dense_batch+         - build by Intel(R) oneAPI Compiler (as default)
+## nmake dll example=kmeans_dense_batch+         - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                                 and run kmeans_dense_batch example for 64-bit
 ##                                                 applications, dynamic linking
 ##
-## nmake dll compiler=clang                      - build by Intel(R) oneAPI Compiler (as default)
+## nmake dll compiler=dpcpp                      - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                                 and run all examples of Intel(R) oneDAL for
 ##                                                 64-bit applications, dynamic linking
 ##
-## nmake dll                                     - build by Intel(R) oneAPI Compiler (as default)
+## nmake dll                                     - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                                 and run all examples for Intel(R) 64 processor
 ##                                                 family applications, dynamic linking
 ##
-## nmake dll mode=build                          - build only (not run) by Intel(R) oneAPI Compiler
+## nmake dll mode=build                          - build only (not run) by Intel(R) oneAPI DPC++/C++ Compiler
 ##                                                 (as default) all examples for Intel(R) 64
 ##                                                 processor family applications, dynamic linking
 ##
@@ -62,8 +62,13 @@ help:
 example = $(EXAMPLES_LIST)
 !ENDIF
 
+!IF ("$(compiler)"=="clang")
+WARNING  clang driver usage has been deprecated. Please use dpcpp
+compiler = dpcpp
+!ENDIF
+
 !IFNDEF compiler
-compiler = clang
+compiler = dpcpp
 !ENDIF
 
 !IFNDEF mode
@@ -88,8 +93,8 @@ RES = $(example:+=.exe)
 RES = $(example:+=.res)
 !ENDIF
 
-!IF ("$(compiler)"=="clang")
-CC=dpcpp
+!IF ("$(compiler)"=="dpcpp")
+CC=dpcpp-cl
 COPTS= /EHs -fsycl-device-code-split=per_kernel
 OUT_OPTS=/Fe$(RES_DIR)
 RT_LIB=/link /ignore:4078 OpenCL.lib "$(DAAL_PATH)\onedal_sycl.lib"

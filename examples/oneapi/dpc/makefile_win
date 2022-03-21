@@ -25,7 +25,7 @@ help:
 	@echo "name              - example name."
 	@echo
 	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
-	@echo "                    Intel(R) oneAPI DPC++ Compiler"
+	@echo "                    Intel(R) oneAPI DPC++/C++ Compiler"
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
@@ -38,10 +38,10 @@ help:
 ##                                          and run kmeans_dense_batch example for 64-bit
 ##                                          applications, static linking
 ##
-## make dll                               - build by Intel(R) oneAPI DPC++ Compiler (as default)
+## make dll                               - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                          and run all examples, dynamic linking
 ##
-## make dll mode=build                    - build only (not run) by Intel(R) oneAPI DPC++ Compiler
+## make dll mode=build                    - build only (not run) by Intel(R) oneAPI DPC++/C++ Compiler
 ##                                          (as default) all examples, dynamic linking
 ##
 ## make help                              - show help
@@ -81,7 +81,7 @@ RES = $(example:+=.res)
 !ENDIF
 
 !IF ("$(compiler)"=="dpcpp" || "$(compiler)"=="clang")
-CC=dpcpp
+CC=dpcpp-cl
 COPTS=/W3 /EHsc /std:c++17 -fsycl-device-code-split=per_kernel
 OUT_OPTS=/Fe$(RES_DIR)
 CLEAN=
