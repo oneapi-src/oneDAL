@@ -44,6 +44,8 @@ namespace v1 {
 /// method.
 struct cov {};
 
+struct precomputed {};
+
 /// Tag-type that denotes :ref:`SVD <pca_t_math_svd>` computational method.
 struct svd {};
 
@@ -53,6 +55,7 @@ using by_default = cov;
 } // namespace v1
 
 using v1::cov;
+using v1::precomputed;
 using v1::svd;
 using v1::by_default;
 
@@ -105,7 +108,8 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::cov, method::svd>;
+constexpr bool is_valid_method_v =
+    dal::detail::is_one_of_v<Method, method::cov, method::svd, method::precomputed>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::dim_reduction>;
