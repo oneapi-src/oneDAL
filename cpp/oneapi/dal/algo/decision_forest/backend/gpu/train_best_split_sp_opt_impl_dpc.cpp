@@ -90,7 +90,7 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
     }
 
     if (update_imp_dec_required) {
-        ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
+        ONEDAL_ASSERT(node_imp_dec_list.get_count() >= node_count);
     }
 
     const Bin* data_ptr = data.get_data();
@@ -222,10 +222,9 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
                         Index bin =
                             (i < row_count) ? data_ptr[id * column_count + ts.ftr_id] : index_max;
                         Float response = (i < row_count) ? response_ptr[id] : Float(0);
-                        Index response_int =
-                            (i < row_count) ? static_cast<Index>(response) : Index(-1);
+                        Index response_int = (i < row_count) ? static_cast<Index>(response) : -1;
 
-                        ts.ftr_bin = Index(-1);
+                        ts.ftr_bin = -1;
 
                         ts.ftr_bin = sycl::reduce_over_group(item.get_group(),
                                                              bin > ts.ftr_bin ? bin : index_max,
@@ -236,7 +235,7 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
                             if constexpr (std::is_same_v<Task, task::classification>) {
                                 const Index left_count =
                                     sycl::reduce_over_group(item.get_group(), count, plus<Index>());
-                                const Index val = (bin <= ts.ftr_bin) ? response_int : Index(-1);
+                                const Index val = (bin <= ts.ftr_bin) ? response_int : -1;
                                 Index all_class_count = 0;
 
                                 for (Index class_id = 0; class_id < class_count - 1; class_id++) {
@@ -403,6 +402,9 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
         hist_prop_count = impl_const<Index, task::regression>::hist_prop_count_;
     }
 
+    ONEDAL_ASSERT(node_group.state_is_valid());
+    ONEDAL_ASSERT(level_node_list.state_is_valid());
+
     Index node_count = node_group.get_node_count();
     Index node_ind_ofs = node_group.get_node_indices_offset();
     ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
@@ -415,9 +417,8 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
     if constexpr (std::is_same_v<Task, task::classification>) {
         ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() >= node_count * ctx.class_count_);
     }
-    ONEDAL_ASSERT(node_ind_list.get_count() >= (node_ind_ofs + node_count));
-    ONEDAL_ASSERT(node_list.get_count() >=
-                  (node_ind_ofs + node_count) * impl_const_t::node_prop_count_);
+
+    ONEDAL_ASSERT(level_node_list.get_count() >= node_ind_ofs + node_count);
     ONEDAL_ASSERT(left_child_imp_data_list.imp_list_.get_count() >=
                   node_count * impl_const_t::node_imp_prop_count_);
     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -426,7 +427,7 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
     }
 
     if (update_imp_dec_required) {
-        ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
+        ONEDAL_ASSERT(node_imp_dec_list.get_count() >= node_count);
     }
 
     const Bin* data_ptr = data.get_data();
@@ -539,10 +540,9 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
                         Index bin =
                             (i < row_count) ? data_ptr[id * column_count + ts.ftr_id] : index_max;
                         Float response = (i < row_count) ? response_ptr[id] : Float(0);
-                        Index response_int =
-                            (i < row_count) ? static_cast<Index>(response) : Index(-1);
+                        Index response_int = (i < row_count) ? static_cast<Index>(response) : -1;
 
-                        ts.ftr_bin = Index(-1);
+                        ts.ftr_bin = -1;
 
                         while ((ts.ftr_bin =
                                     sycl::reduce_over_group(sbg,
@@ -553,7 +553,7 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
                             ts.left_count = sycl::reduce_over_group(sbg, count, plus<Index>());
 
                             if constexpr (std::is_same_v<Task, task::classification>) {
-                                const Index val = (bin <= ts.ftr_bin) ? response_int : Index(-1);
+                                const Index val = (bin <= ts.ftr_bin) ? response_int : -1;
                                 Index all_class_count = 0;
 
                                 for (Index class_id = 0; class_id < class_count - 1; class_id++) {

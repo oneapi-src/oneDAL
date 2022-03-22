@@ -26,6 +26,8 @@ enum class destination_type { host, device };
 
 template <typename Index = std::int32_t>
 class node {
+    static_assert(std::is_integral_v<Index>);
+
 public:
     static constexpr Index get_prop_count() {
         return node_prop_count_;
@@ -95,19 +97,25 @@ namespace pr = dal::backend::primitives;
 
 template <typename Index = std::int32_t>
 class node_list {
+    static_assert(std::is_integral_v<Index>);
+
     using node_t = node<Index>;
 
 public:
     node_list() = delete;
     node_list(const sycl::queue& queue) : queue_(queue), count_(0) {}
     node_list(const sycl::queue& queue, Index count) : queue_(queue), count_(count) {
-        list_ = pr::ndarray<Index, 1>::empty(queue_, { count_ }, alloc::device);
+        std::int64_t elem_count =
+            de::check_mul_overflow<std::int64_t>(count_ * node_t::get_prop_count());
+        list_ = pr::ndarray<Index, 1>::empty(queue_, { elem_count }, alloc::device);
     }
 
     node_list(const sycl::queue& queue, const pr::ndarray<Index, 1>& list, Index count)
             : queue_(queue),
               list_(list),
-              count_(count) {}
+              count_(count) {
+        ONEDAL_ASSERT(state_is_valid());
+    }
 
     Index get_count() const {
         return count_;
@@ -121,7 +129,7 @@ public:
         return list_;
     }
 
-    bool state_is_valid() {
+    bool state_is_valid() const {
         ONEDAL_ASSERT(list_.get_count() >= get_count() * node_t::get_prop_count());
         return true;
     }
@@ -135,6 +143,8 @@ private:
 
 template <typename Index = std::int32_t>
 class node_group {
+    static_assert(std::is_integral_v<Index>);
+
 public:
     static constexpr Index get_prop_count() {
         return node_group_prop_count_;
@@ -150,6 +160,8 @@ class node_group_list;
 
 template <typename Index = std::int32_t>
 class node_group_view : public node_group<Index> {
+    static_assert(std::is_integral_v<Index>);
+
     using node_t = node<Index>;
     using node_group_t = node_group<Index>;
     friend node_group_list<Index>;
@@ -179,14 +191,35 @@ public:
         return node_indices_list_ptr_ + group_node_indices_offset_;
     }
 
+    bool state_is_valid() const {
+        return true; // all validity check are performed in constructor
+    }
+
 private:
-    node_group_view(const Index* group_list_ptr, const Index* node_indices_list_ptr, Index idx)
-            : node_indices_list_ptr_(node_indices_list_ptr),
-              idx_(idx) {
-        group_node_indices_offset_ = group_list_ptr[idx_ * node_group_t::get_prop_count() + 0];
-        max_row_count_ = group_list_ptr[idx_ * node_group_t::get_prop_count() + 1];
+    node_group_view(const pr::ndarray<Index, 1>& node_group_list,
+                    const pr::ndarray<Index, 1>& node_indices_list,
+                    Index idx,
+                    Index total_group_count)
+            : idx_(idx) {
+        ONEDAL_ASSERT(node_group_list.has_data());
+        ONEDAL_ASSERT(node_indices_list.has_data());
+        ONEDAL_ASSERT(idx_ >= 0);
+        ONEDAL_ASSERT(idx_ <= total_group_count);
+
+        const Index* group_list_ptr = node_group_list.get_data();
         node_count_ = group_list_ptr[(idx_ + 1) * node_group_t::get_prop_count() + 0] -
                       group_list_ptr[idx_ * node_group_t::get_prop_count() + 0];
+        ONEDAL_ASSERT(node_count_ >= 0);
+        ONEDAL_ASSERT(node_count_ <= de::limits<Index>::max());
+
+        group_node_indices_offset_ = group_list_ptr[idx_ * node_group_t::get_prop_count() + 0];
+
+        ONEDAL_ASSERT(node_indices_list.get_count() >= (group_node_indices_offset_ + node_count_));
+        node_indices_list_ptr_ = node_indices_list.get_data();
+
+        max_row_count_ = group_list_ptr[idx_ * node_group_t::get_prop_count() + 1];
+        ONEDAL_ASSERT(max_row_count_ >= 0);
+        ONEDAL_ASSERT(max_row_count_ <= de::limits<Index>::max());
     }
 
 private:
@@ -200,6 +233,8 @@ private:
 
 template <typename Index>
 class node_group_list {
+    static_assert(std::is_integral_v<Index>);
+
     using node_t = node<Index>;
     using node_list_t = node_list<Index>;
     using node_group_t = node_group<Index>;
@@ -260,15 +295,16 @@ public:
             node_group_list_host_ = node_group_list_.to_host(queue_, deps);
             is_group_list_on_host_ = true;
         }
-        return std::move(node_group_view_t(node_group_list_host_.get_data(),
-                                           node_indices_list_.get_data(),
-                                           group_idx));
+
+        return std::move(
+            node_group_view_t(node_group_list_host_, node_indices_list_, group_idx, get_count()));
     }
 
-    bool state_is_valid() {
-        ONEDAL_ASSERT(node_group_list_.get_count() == get_count() * node_group::get_prop_count());
-        ONEDAL_ASSERT(group_bound_list.get_count() == get_count() + 1);
-        ONEDAL_ASSERT(node_indices_list.get_count() == indices_count_);
+    bool state_is_valid() const {
+        ONEDAL_ASSERT(node_group_list_.get_count() ==
+                      (get_count() + 1) * node_group_t::get_prop_count());
+        ONEDAL_ASSERT(group_bound_list_.get_count() == get_count() + 1);
+        ONEDAL_ASSERT(node_indices_list_.get_count() >= indices_count_);
         return true;
     }
 

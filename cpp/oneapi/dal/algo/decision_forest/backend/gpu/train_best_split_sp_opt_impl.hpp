@@ -40,6 +40,10 @@ template <typename Float,
           typename Task = task::by_default,
           Index sbg_size = 32>
 class train_best_split_sp_opt_impl {
+    static_assert(std::is_signed_v<Index>);
+    static_assert(std::is_integral_v<Index>);
+    static_assert(sbg_size > 8);
+
     using result_t = train_result<Task>;
     using impl_const_t = impl_const<Index, Task>;
     using descriptor_t = detail::descriptor_base<Task>;

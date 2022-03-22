@@ -34,7 +34,7 @@ sycl::event node_group_list<Index>::filter_internal(const node_list_t& node_list
     ONEDAL_PROFILER_TASK(split_node_list_on_groups_by_size, queue_);
 
     ONEDAL_ASSERT(node_list.state_is_valid());
-    ONEDAL_ASSERT(this.state_is_valid());
+    ONEDAL_ASSERT(this->state_is_valid());
 
     const Index node_prop_count = node_t::get_prop_count(); // num of split attributes for node
 
