@@ -36,9 +36,9 @@ TEST("can construct CSR table from raw data pointers") {
     std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
     std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
 
-    const std::int64_t row_count{ 4 };
-    const std::int64_t column_count{ 4 };
-    const std::int64_t element_count{ 7 };
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+    constexpr std::int64_t element_count{ 7 };
 
     csr_table t{ data, column_indices, row_offsets, row_count, column_count,
         empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
@@ -50,7 +50,7 @@ TEST("can construct CSR table from raw data pointers") {
 
     REQUIRE(t.get_indexing() == sparse_indexing::one_based);
 
-    auto meta = t.get_metadata();
+    const auto& meta = t.get_metadata();
     for (std::int64_t i = 0; i < t.get_column_count(); i++) {
         REQUIRE(meta.get_data_type(i) == data_type::float32);
         REQUIRE(meta.get_feature_type(i) == feature_type::ratio);
@@ -68,9 +68,9 @@ TEST("can construct float64 table") {
     std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
     std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
 
-    const std::int64_t row_count{ 4 };
-    const std::int64_t column_count{ 4 };
-    const std::int64_t element_count{ 7 };
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+    constexpr std::int64_t element_count{ 7 };
 
     csr_table t{ data, column_indices, row_offsets, row_count, column_count,
         empty_delete<const double>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
@@ -82,7 +82,7 @@ TEST("can construct float64 table") {
 
     REQUIRE(t.get_indexing() == sparse_indexing::one_based);
 
-    auto meta = t.get_metadata();
+    const auto& meta = t.get_metadata();
     for (std::int64_t i = 0; i < t.get_column_count(); i++) {
         REQUIRE(meta.get_data_type(i) == data_type::float64);
         REQUIRE(meta.get_feature_type(i) == feature_type::ratio);
@@ -100,8 +100,8 @@ TEST("can construct table reference") {
     std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
     std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
 
-    const std::int64_t row_count{ 4 };
-    const std::int64_t column_count{ 4 };
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
 
     csr_table t1{ data, column_indices, row_offsets, row_count, column_count,
         empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
@@ -141,9 +141,9 @@ TEST("can construct table with move") {
     std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
     std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
 
-    const std::int64_t row_count{ 4 };
-    const std::int64_t column_count{ 4 };
-    const std::int64_t element_count{ 7 };
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+    constexpr std::int64_t element_count{ 7 };
 
     csr_table t1{ data, column_indices, row_offsets, row_count, column_count,
         empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
@@ -174,16 +174,16 @@ TEST("can assign two table references") {
     std::int64_t column_indices1[] = { 1, 2, 4, 3, 2, 4, 2 };
     std::int64_t row_offsets1[] = { 1, 4, 5, 7, 8 };
 
-    const std::int64_t row_count1{ 4 };
-    const std::int64_t column_count1{ 4 };
+    constexpr std::int64_t row_count1{ 4 };
+    constexpr std::int64_t column_count1{ 4 };
 
     std::int32_t data2[] = { 1, -1, -3, -2, 5, 4, 6, 4, -4, 2, 7, 8, -5 };
     std::int64_t column_indices2[] = { 1, 2, 4, 1, 2, 3, 4, 5, 1, 3, 4, 2, 5 };
     std::int64_t row_offsets2[] = { 1, 4, 6, 9, 12, 14 };
 
-    const std::int64_t row_count2{ 5 };
-    const std::int64_t column_count2{ 5 };
-    const std::int64_t element_count2{ 13 };
+    constexpr std::int64_t row_count2{ 5 };
+    constexpr std::int64_t column_count2{ 5 };
+    constexpr std::int64_t element_count2{ 13 };
 
     csr_table t1{ data1, column_indices1, row_offsets1, row_count1, column_count1,
         empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
@@ -210,6 +210,106 @@ TEST("can assign two table references") {
     REQUIRE(t2.get_data<std::int32_t>() == data2);
     REQUIRE(t2.get_column_indices() == column_indices2);
     REQUIRE(t2.get_row_offsets() == row_offsets2);
+}
+
+TEST("can move assigned table reference") {
+    using oneapi::dal::detail::empty_delete;
+
+    float data1[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    std::int64_t column_indices1[] = { 1, 2, 4, 3, 2, 4, 2 };
+    std::int64_t row_offsets1[] = { 1, 4, 5, 7, 8 };
+
+    constexpr std::int64_t row_count1{ 4 };
+    constexpr std::int64_t column_count1{ 4 };
+
+    std::int32_t data2[] = { 1, -1, -3, -2, 5, 4, 6, 4, -4, 2, 7, 8, -5 };
+    std::int64_t column_indices2[] = { 1, 2, 4, 1, 2, 3, 4, 5, 1, 3, 4, 2, 5 };
+    std::int64_t row_offsets2[] = { 1, 4, 6, 9, 12, 14 };
+
+    constexpr std::int64_t row_count2{ 5 };
+    constexpr std::int64_t column_count2{ 5 };
+    constexpr std::int64_t element_count2{ 13 };
+
+    csr_table t1{ data1, column_indices1, row_offsets1, row_count1, column_count1,
+        empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
+    csr_table t2{ data2, column_indices2, row_offsets2, row_count2, column_count2,
+        empty_delete<const std::int32_t>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
+
+    t1 = std::move(t2);
+
+    REQUIRE(t1.has_data() == true);
+    REQUIRE(t1.get_row_count() == row_count2);
+    REQUIRE(t1.get_column_count() == column_count2);
+    REQUIRE(t1.get_non_zero_count() == element_count2);
+    REQUIRE(t1.get_metadata().get_data_type(0) == data_type::int32);
+    REQUIRE(t1.get_data<std::int32_t>() == data2);
+    REQUIRE(t1.get_column_indices() == column_indices2);
+    REQUIRE(t1.get_row_offsets() == row_offsets2);
+}
+
+TEST("can upcast table") {
+    float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
+    std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
+
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+    constexpr std::int64_t element_count{ 7 };
+
+    csr_table t = csr_table::wrap(data, column_indices, row_offsets, row_count, column_count);
+
+    REQUIRE(t.has_data() == true);
+    REQUIRE(t.get_row_count() == row_count);
+    REQUIRE(t.get_column_count() == column_count);
+    REQUIRE(t.get_non_zero_count() == element_count);
+    REQUIRE(csr_table::kind() == t.get_kind());
+
+    REQUIRE(t.get_indexing() == sparse_indexing::one_based);
+
+    const auto& meta = t.get_metadata();
+    for (std::int64_t i = 0; i < t.get_column_count(); i++) {
+        REQUIRE(meta.get_data_type(i) == data_type::float32);
+        REQUIRE(meta.get_feature_type(i) == feature_type::ratio);
+    }
+
+    REQUIRE(t.get_data<float>() == data);
+    REQUIRE(t.get_column_indices() == column_indices);
+    REQUIRE(t.get_row_offsets() == row_offsets);
+}
+
+TEST("create table from array") {
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+    constexpr std::int64_t element_count{ 7 };
+    float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
+    std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
+    const auto data_array = array<float>::wrap(data, element_count);
+    const auto column_indices_array = array<std::int64_t>::wrap(column_indices, element_count);
+    const auto row_offsets_array = array<std::int64_t>::wrap(row_offsets, row_count + 1);
+
+    auto t = csr_table::wrap(data_array, column_indices_array, row_offsets_array, column_count);
+
+    REQUIRE(t.get_data<float>() == data);
+    REQUIRE(t.get_column_indices() == column_indices);
+    REQUIRE(t.get_row_offsets() == row_offsets);
+    REQUIRE(t.get_row_count() == row_count);
+    REQUIRE(t.get_column_count() == column_count);
+    REQUIRE(t.get_non_zero_count() == element_count);
+}
+
+TEST("create table with invalid row or column count") {
+    float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
+    std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+
+    REQUIRE_NOTHROW(csr_table::wrap(data, column_indices, row_offsets, row_count, column_count));
+    REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices, row_offsets, 5, column_count),
+                      dal::domain_error);
+    REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices, row_offsets, row_count, 0),
+                      dal::domain_error);
 }
 
 } // namespace oneapi::dal::test
