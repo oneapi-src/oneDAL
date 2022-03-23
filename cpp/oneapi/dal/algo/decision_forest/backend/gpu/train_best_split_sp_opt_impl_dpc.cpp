@@ -114,9 +114,9 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
 
     const Index index_max = ctx.index_max_;
 
-    Index max_wg_size = 256;
-
-    Index local_size = max_wg_size;
+    Index max_wg_size = bk::device_max_wg_size(queue);
+    ONEDAL_ASSERT(node_t::get_small_node_max_row_count() <= max_wg_size);
+    Index local_size = std::min(bk::up_pow2(node_t::get_small_node_max_row_count()), max_wg_size);
 
     std::size_t local_hist_buf_size = hist_prop_count * 2; // x2 because bs_hist and ts_hist
 
@@ -139,7 +139,8 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
     const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
     Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
 
-    Index ftr_worker_per_node_count = 2;
+    Index ftr_worker_per_node_count =
+        std::min(bk::down_pow2(selected_ftr_count), max_feature_worker_per_node_count_);
     Index node_in_block_count = max_wg_count_ / ftr_worker_per_node_count;
 
     std::int64_t global_buf_byte_size =

@@ -51,6 +51,7 @@ class train_best_split_sp_opt_impl {
     using imp_data_t = impurity_data<Float, Index, Task>;
     using msg = de::error_messages;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
+    using node_t = node<Index>;
     using node_list_t = node_list<Index>;
     using node_group_view_t = node_group_view<Index>;
 
@@ -95,6 +96,7 @@ public:
 private:
     constexpr static Index max_wg_count_ = 8192;
     constexpr static Index min_local_size_ = 128;
+    constexpr static Index max_feature_worker_per_node_count_ = 2;
 };
 
 #endif
