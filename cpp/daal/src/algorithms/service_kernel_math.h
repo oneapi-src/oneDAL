@@ -542,7 +542,6 @@ float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const 
     const size_t vecSize   = 16;
     float d                = 0.0;
     const size_t nBlocks   = n / vecSize;
-    float * tmp            = new float[vecSize];
     const __m512 * ptr512x = (__m512 *)x;
     const __m512 * ptr512y = (__m512 *)y;
 
@@ -563,7 +562,8 @@ float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const 
     }
     else
     {
-        size_t i = 0;
+        float * tmp = new float[vecSize];
+        size_t i    = 0;
         for (; i < nBlocks; ++i)
         {
             _mm512_storeu_ps(tmp, _mm512_abs_ps(_mm512_sub_ps(ptr512x[i], ptr512y[i])));
@@ -592,7 +592,6 @@ double MinkowskiDistances<double, avx512>::computeDistance(const double * x, con
     const size_t vecSize    = 8;
     double d                = 0.0;
     const size_t nBlocks    = n / vecSize;
-    double * tmp            = new double[vecSize];
     const __m512d * ptr512x = (__m512d *)x;
     const __m512d * ptr512y = (__m512d *)y;
 
@@ -613,7 +612,8 @@ double MinkowskiDistances<double, avx512>::computeDistance(const double * x, con
     }
     else
     {
-        size_t i = 0;
+        double * tmp = new double[vecSize];
+        size_t i     = 0;
         for (; i < nBlocks; ++i)
         {
             _mm512_storeu_pd(tmp, _mm512_abs_pd(_mm512_sub_pd(ptr512x[i], ptr512y[i])));
