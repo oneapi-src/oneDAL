@@ -365,6 +365,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 {
     //initialize array
     services::internal::service_memset<IdxType, cpu>(child, -1, (nNodes + 1) * 4);
+    services::internal::service_memset<IdxType, cpu>(duplicates, 1, N);
     bottom = nNodes;
 
     // cache root data
@@ -546,27 +547,57 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     IdxType tree_seq_size = build_tree<IdxType, cpu>(morton_code, split_list_seq, NSEQ, tree_allocation, level_size, 0, tree_seq);
 
     IdxType i = 0;
-    for (IdxType lev = 0; lev <= SEQ_UPTO_LEVEL; lev++)
+    // for (IdxType lev = 0; lev <= SEQ_UPTO_LEVEL; lev++)
+    // {
+    //     for (IdxType k = 0; k < level_size[lev]; k++)
+    //     {
+    //         TreeNode<IdxType> tree_node = tree_seq[i];
+    //         tree_seq[i].pos             = bottom;
+    //         for (IdxType j = 0; j < 4; j++)
+    //         {
+    //             if (tree_node.child_internal[j] > 0)
+    //             {
+    //                 child[bottom * 4 + j] = nNodes - tree_node.child[j];
+    //             }
+    //             else
+    //             {
+    //                 child[bottom * 4 + j] = tree_node.child[j];
+    //             }
+    //         }
+    //         bottom--;
+    //         i++;
+    //     }
+    // }
+
+    IdxType lev;
+    for (lev = 0; lev <= SEQ_UPTO_LEVEL; lev++)
     {
         for (IdxType k = 0; k < level_size[lev]; k++)
         {
             TreeNode<IdxType> tree_node = tree_seq[i];
-            tree_seq[i].pos             = bottom;
+
+            bool isTerminalST = (tree_seq[i].second - tree_seq[i].first) > 0;
+            tree_seq[i].pos   = bottom;
             for (IdxType j = 0; j < 4; j++)
             {
                 if (tree_node.child_internal[j] > 0)
                 {
                     child[bottom * 4 + j] = nNodes - tree_node.child[j];
+                    isTerminalST          = false;
                 }
                 else
                 {
                     child[bottom * 4 + j] = tree_node.child[j];
+                    if (child[bottom * 4 + j] > 0) isTerminalST = false;
                 }
             }
+            if (isTerminalST) break;
             bottom--;
             i++;
         }
+        if (level_size[lev + 1] == 0) break;
     }
+
     IdxType par_tree_start = i;
     IdxType num_subtrees   = tree_seq_size - par_tree_start;
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, num_subtrees, (MAX_LEVEL + 1));
@@ -651,6 +682,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         IdxType subtree_i        = 0;
+        bool flag_tmp            = false;
         for (IdxType lev = 0; lev < MAX_LEVEL; lev++)
         {
             IdxType lev_start = subtree_level_start[subtree_id * (MAX_LEVEL + 1) + lev];
@@ -675,7 +707,22 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
                         }
                         else
                         {
-                            child[tree_node.pos * 4 + j] = tree_par[subtree_id][tree_node.child[j]].pos;
+                            IdxType first  = tree_par[subtree_id][tree_node.child[j]].first;
+                            IdxType second = tree_par[subtree_id][tree_node.child[j]].second;
+
+                            if (second != first && morton_code[first].morton == morton_code[second].morton)
+                            {
+                                flag_tmp                     = true;
+                                child[tree_node.pos * 4 + j] = morton_code[first].index;
+                                duplicates[morton_code[first].index] += second - first;
+                                break;
+                            }
+                            else
+                            {
+                                child[tree_node.pos * 4 + j] = tree_par[subtree_id][tree_node.child[j]].pos;
+                            }
+
+                            //child[tree_node.pos * 4 + j] = tree_par[subtree_id][tree_node.child[j]].pos;
                         }
                     }
                     else
@@ -683,8 +730,10 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
                         child[tree_node.pos * 4 + j] = tree_node.child[j];
                     }
                 }
+                if (flag_tmp) break;
                 subtree_i++;
             }
+            if (flag_tmp) break;
         }
     });
 
@@ -759,21 +808,21 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                 if (ch >= 0)
                 {
                     DataType m = 0;
-                    // if (duplicates[ch] > 1)
-                    // {
-                    //     if (ch >= N)
-                    //     {
-                    //         cnt += count[ch];
-                    //         m = curMass[i];
-                    //     }
-                    //     else
-                    //     {
-                    //         cnt += duplicates[ch];
-                    //         m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
-                    //     }
-                    // }
-                    // else
-                    m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+                    if (duplicates[ch] > 1)
+                    {
+                        if (ch >= N)
+                        {
+                            cnt += count[ch];
+                            m = curMass[i];
+                        }
+                        else
+                        {
+                            cnt += duplicates[ch];
+                            m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
+                        }
+                    }
+                    else
+                        m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
                     // add child's contribution
                     cm += m;
                     px += posX[ch] * m;
