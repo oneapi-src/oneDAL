@@ -252,6 +252,14 @@ IdxType build_tree(CodeType<IdxType> * morton_code, SplitType<IdxType> * split_l
         tree_node.child_internal[i] = 0;
     }
 
+    // std::cout << "$tree_node.first = " << tree_node.first << std::endl;
+    // std::cout << "$tree_node.second = " << tree_node.second << std::endl;
+    // std::cout << "$tree_node.parent = " << tree_node.parent << std::endl;
+    // std::cout << "$tree_node.pos = " << tree_node.pos << std::endl;
+    // for (int itt = 0; itt < 4 ; itt++) std::cout << "$tree_node.child[" << itt << "] = " << tree_node.child[itt] << std::endl;
+    // for (int itt = 0; itt < 4 ; itt++) std::cout << "$tree_node.child_internal[" << itt << "] = " << tree_node.child_internal[itt] << std::endl;
+    // std::cout << std::endl;
+
     level_size[root_level] = 1;
     IdxType i              = 0;
     IdxType lev            = root_level;
@@ -374,7 +382,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 
     TlsMax<IdxType, cpu> maxTlsDepth(1);
 
-    std::cout << "**************************************************\n*************************************************" << std::endl;
+    //std::cout << "**************************************************\n*************************************************" << std::endl;
 
     // cast all float point X and Y to morton code (Z order)
     IdxType nThreads    = threader_get_threads_number();
@@ -435,6 +443,14 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
         bool operator()(CodeType<IdxType> c1, CodeType<IdxType> c2) const { return c1.morton < c2.morton; }
     } customLess;
     std::sort(morton_code, morton_code + N, customLess);
+
+    // for (int i =0 ; i < N; i++)
+    // {
+    //     std::cout << "i = " << i << std::endl;
+    //     std::cout << "morton_code[ " << i << "].morton" << morton_code[i].morton << std::endl;
+    //     std::cout << "morton_code[ " << i << "].index" << morton_code[i].index << std::endl;
+
+    // }
 
     // copy sorted indices to sort array. Indices in right to left order in each part of bounding box
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
@@ -526,6 +542,21 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     });
     NSEQ = nseq[num_blocks - 1];
 
+    // for (int i =0 ; i < NSEQ; i++)
+    // {
+    //     std::cout << "i = " << i << std::endl;
+    //     std::cout << "split_list_seq.level = " << split_list_seq[i].level << std::endl;
+    //     std::cout << "split_list_seq.m_index = " << split_list_seq[i].m_index << std::endl;
+
+    // }
+
+    // for (int i =0 ; i < N-1; i++)
+    // {
+    //     std::cout << "i = " << i << std::endl;
+    //     std::cout << "split_list.level = " << split_list[i].level << std::endl;
+    //     std::cout << "split_list.m_index = " << split_list[i].m_index << std::endl;
+    // }
+
     // Sort the new split list and create tree using it.
     struct
     {
@@ -540,10 +571,15 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     TreeNode<IdxType> * tree_seq = services::internal::service_scalable_malloc<TreeNode<IdxType>, cpu>(tree_allocation);
     //TreeNode<IdxType> *tree_seq = services::internal::service_scalable_calloc<TreeNode<IdxType>, cpu>(tree_allocation);
     TreeNode<IdxType> t_node;
-    t_node.parent         = -1; // root node
-    t_node.first          = 0;
-    t_node.second         = N - 1;
-    tree_seq[0]           = t_node;
+    t_node.parent = -1; // root node
+    t_node.first  = 0;
+    t_node.second = N - 1;
+    tree_seq[0]   = t_node;
+    for (int i = 0; i < 4; i++)
+    {
+        tree_seq[0].child[i]          = -1;
+        tree_seq[0].child_internal[i] = 0;
+    }
     IdxType tree_seq_size = build_tree<IdxType, cpu>(morton_code, split_list_seq, NSEQ, tree_allocation, level_size, 0, tree_seq);
 
     IdxType i = 0;
@@ -578,6 +614,16 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 
             bool isTerminalST = (tree_seq[i].second - tree_seq[i].first) > 0;
             tree_seq[i].pos   = bottom;
+
+            // std::cout << "i = " << i << std::endl;
+            // std::cout << "tree_node.first = " << tree_node.first << std::endl;
+            // std::cout << "tree_node.second = " << tree_node.second << std::endl;
+            // std::cout << "tree_node.parent = " << tree_node.parent << std::endl;
+            // std::cout << "tree_node.pos = " << tree_node.pos << std::endl;
+            // for (int itt = 0; itt < 4 ; itt++) std::cout << "tree_node.child[" << itt << "] = " << tree_node.child[itt] << std::endl;
+            // for (int itt = 0; itt < 4 ; itt++) std::cout << "tree_node.child_internal[" << itt << "] = " << tree_node.child_internal[itt] << std::endl;
+            // std::cout << std::endl;
+
             for (IdxType j = 0; j < 4; j++)
             {
                 if (tree_node.child_internal[j] > 0)
@@ -771,6 +817,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 
     const IdxType inc = 1;
     auto k            = bottom;
+    //std::cout << "summarizationKernelImpl" << std::endl;
     //std::cout << "***************************************************************\n******************************************************************" << std::endl;
     //std::cout << "bottom = " << bottom << std::endl;
 
