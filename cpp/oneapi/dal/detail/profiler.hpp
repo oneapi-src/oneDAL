@@ -28,12 +28,10 @@ namespace spmd = oneapi::dal::preview::spmd;
 
 #define ONEDAL_PROFILER_UNIQUE_ID __LINE__
 
-#define ONEDAL_PROFILER_MACRO_CPU(name) oneapi::dal::detail::profiler::start_task(#name)
-//  \\ cpp
-#define ONEDAL_PROFILER_MACRO_GPU(name, queue) \
+#define ONEDAL_PROFILER_MACRO(name) oneapi::dal::detail::profiler::start_task(#name)
+#define ONEDAL_PROFILER_MACRO_DPC(name, queue) \
     oneapi::dal::detail::profiler::start_task(#name, queue)
-//  \\ dpc
-#define ONEDAL_PROFILER_MACRO_CCL(name, request) \
+#define ONEDAL_PROFILER_MACRO_SPMD(name, request) \
     oneapi::dal::detail::profiler::wait_request(#name, request)
 #define ONEDAL_PROFILER_GET_MACRO(arg_1, arg_2, MACRO, ...) MACRO
 #define ONEDAL_PROFILER_GET_MACRO1(arg_1, arg_2, MACRO)     MACRO
@@ -42,12 +40,12 @@ namespace spmd = oneapi::dal::preview::spmd;
     oneapi::dal::detail::profiler_task ONEDAL_PROFILER_CONCAT(__profiler_task__,            \
                                                               ONEDAL_ITTNOTIFY_UNIQUE_ID) = \
         ONEDAL_PROFILER_GET_MACRO(__VA_ARGS__,                                              \
-                                  ONEDAL_PROFILER_MACRO_GPU,                                \
-                                  ONEDAL_PROFILER_MACRO_CCL,                                \
+                                  ONEDAL_PROFILER_MACRO_DPC,                                \
+                                  ONEDAL_PROFILER_MACRO,                                    \
                                   FICTIVE)(__VA_ARGS__)
 
 #define ONEDAL_WAIT_ON_REQUEST(...) \
-    ONEDAL_PROFILER_GET_MACRO1(__VA_ARGS__, ONEDAL_PROFILER_MACRO_CCL)(__VA_ARGS__)
+    ONEDAL_PROFILER_GET_MACRO1(__VA_ARGS__, ONEDAL_PROFILER_MACRO_SPMD)(__VA_ARGS__)
 
 namespace oneapi::dal::detail {
 
