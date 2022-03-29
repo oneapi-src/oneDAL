@@ -17,3 +17,4 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/lapack/eigen.hpp"
+#include "oneapi/dal/backend/primitives/lapack/solve.hpp"
