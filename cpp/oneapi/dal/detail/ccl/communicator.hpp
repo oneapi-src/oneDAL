@@ -190,7 +190,7 @@ public:
         const std::int64_t data_type_size = get_data_type_size(dtype);
         std::vector<void*> recv_bufs(rank_count_);
         for (std::int64_t i = 0; i < rank_count_; i++) {
-            recv_bufs[i] =  recv_buf + data_type_size * displs_host[i];
+            recv_bufs[i] = recv_buf + data_type_size * displs_host[i];
         }
 
         auto event = ccl::allgatherv(send_buf,
@@ -200,8 +200,8 @@ public:
                                      make_ccl_data_type(dtype),
                                      device_comm_->get_ref(),
                                      stream_->get_ref());
-        auto request =  new ccl_request_impl{ std::move(event) };
-        ONEDAL_WAIT_ON_REQUEST(CCL_allgatherv, request);                        
+        auto request = new ccl_request_impl{ std::move(event) };
+        ONEDAL_WAIT_ON_REQUEST(CCL_allgatherv, request);
         return request;
     }
 

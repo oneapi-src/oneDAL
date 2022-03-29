@@ -282,15 +282,15 @@ TEST_M(ccl_comm_test, "allgatherv_empty_rank") {
                         displs.data());
     }
 
-// #ifdef ONEDAL_DATA_PARALLEL
-//     SECTION("device") {
-//         test_allgatherv_on_device(send_buffer.data(),
-//                                   rank_size,
-//                                   recv_buffer.data(),
-//                                   recv_counts.data(),
-//                                   displs.data());
-//     }
-// #endif
+    // #ifdef ONEDAL_DATA_PARALLEL
+    //     SECTION("device") {
+    //         test_allgatherv_on_device(send_buffer.data(),
+    //                                   rank_size,
+    //                                   recv_buffer.data(),
+    //                                   recv_counts.data(),
+    //                                   displs.data());
+    //     }
+    // #endif
 
     for (std::int64_t i = 0; i < total_size; i++) {
         REQUIRE(recv_buffer[i] == final_buffer[i]);

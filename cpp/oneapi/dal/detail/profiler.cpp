@@ -31,8 +31,7 @@ profiler_task profiler::start_task(const char* task_name, const sycl::queue& tas
     return profiler_task(task_name, task_queue);
 }
 
-void profiler::wait_request(const char* task_name, spmd::request_iface* req) {
-}
+void profiler::wait_request(const char* task_name, spmd::request_iface* req) {}
 
 profiler_task::profiler_task(const char* task_name, const sycl::queue& task_queue)
         : task_name_(task_name),
