@@ -78,6 +78,13 @@ sycl::event potrs_solution(sycl::queue& queue,
                            opt_array<Float>& scratchpad = {},
                            const event_vector& depenedincies = {});
 
+
+template<mkl::uplo uplo, bool beta, typename Float, ndorder xlayout, ndorder ylayout>
+sycl::event solve_system(   sycl::queue& queue,
+                            const ndview<Float, 2, xlayout>& x,
+                            const ndview<Float, 2, ylayout>& y,
+                            const event_vector& depenedincies = {});
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives
