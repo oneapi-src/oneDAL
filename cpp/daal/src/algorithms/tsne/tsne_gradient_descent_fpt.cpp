@@ -366,6 +366,162 @@ IdxType build_tree(CodeType<IdxType> * morton_code, SplitType<IdxType> * split_l
     return cur_node;
 }
 
+// template <typename IdxType>
+// inline void sort_splits(SplitType<IdxType> *in_start, IdxType cnt, SplitType<IdxType>* out_start)
+// {
+//     int i, t, a, hist[MAX_LEVEL + 1]={};
+
+//     std::cout << "hist 0 =  ";
+//     for (int j = 0; j < MAX_LEVEL; j++) std::cout << hist[j] << "  " ;
+//     std::cout << std::endl;
+//     std::cout << "sort_splits: debug 0" << std::endl;
+
+//     for (i = 0; i < cnt; i++) hist[in_start[i].level]++;
+//     std::cout << "sort_splits: debug 1" << std::endl;
+//     for (a = -1, i = 0; i < MAX_LEVEL; i++) { t = hist[i] + a; hist[i] = a; a = t; }
+//     std::cout << "sort_splits: debug 2" << std::endl;
+
+//     std::cout << "hist 1 =  ";
+//     for (int j = 0; j < MAX_LEVEL; j++) std::cout << hist[j] << "  " ;
+//     std::cout << std::endl;
+
+//     std::cout << "in_start[].level =  ";
+//     for (int j = 0; j < MAX_LEVEL; j++) std::cout << hist[j] << "  " ;
+//     std::cout << std::endl;
+
+//     //for (i = 0; i < cnt; i++) out_start[++hist[in_start[i].level]] = in_start[i];
+
+//     for (i = 0; i < cnt; i++)
+//     {
+//         std::cout << "i = " << i << std::endl;
+//         std::cout << "in_start[i].level = " << in_start[i].level << std::endl;
+//         std::cout << "hist[in_start[i].level] = " << hist[in_start[i].level] << std::endl;
+//         hist[in_start[i].level] += 1;
+//         std::cout << "hist[in_start[i].level] + 1 = " << hist[in_start[i].level] << std::endl;
+//         out_start[hist[in_start[i].level]] = in_start[i];
+//     }
+
+//     std::cout << "sort_splits: debug 3" << std::endl;
+// }
+
+template <typename IdxType>
+
+inline void sort_splits(SplitType<IdxType> * in_start, IdxType cnt, SplitType<IdxType> * out_start)
+
+{
+    int i, t, a, hist[MAX_LEVEL + 1] = {};
+
+    for (i = 0; i < cnt; i++) hist[in_start[i].level]++;
+
+    for (a = -1, i = 0; i < MAX_LEVEL + 1; i++)
+    {
+        t       = hist[i] + a;
+        hist[i] = a;
+        a       = t;
+    }
+
+    for (i = 0; i < cnt; i++) out_start[++hist[in_start[i].level]] = in_start[i];
+}
+
+template <typename IdxType>
+inline void sort_morton_codes(CodeType<IdxType> * mc, IdxType cnt, CodeType<IdxType> * tb, int * hist)
+{
+    uint64_t t;
+    IdxType i;
+
+    int * b1 = hist + 0 * 1024;
+    int * b2 = hist + 2 * 1024;
+    int * b3 = hist + 4 * 1024;
+    int * b4 = hist + 5 * 1024;
+    int * b5 = hist + 7 * 1024;
+    int * b6 = hist + 9 * 1024;
+
+    int tmp, a1, a2, a3, a4, a5, a6;
+
+    //daal::services::internal::service_memset<int, cpu>(hist, 0, 10 * 1024);
+    //memset(hist, 0, 10 * 1024 * sizeof(int));
+
+    for (i = 0; i < cnt; i++)
+    {
+        t = mc[i].morton;
+        b1[(t >> 00) & 0x7FF]++;
+        b2[(t >> 11) & 0x7FF]++;
+        b3[(t >> 22) & 0x3FF]++;
+        b4[(t >> 32) & 0x7FF]++;
+        b5[(t >> 43) & 0x7FF]++;
+        b6[(t >> 54)]++;
+    }
+
+    a1 = a2 = a3 = a4 = a5 = a6 = -1;
+    for (i = 0; i < 1024; i++)
+    {
+        tmp   = b1[i] + a1;
+        b1[i] = a1;
+        a1    = tmp;
+        tmp   = b2[i] + a2;
+        b2[i] = a2;
+        a2    = tmp;
+        tmp   = b3[i] + a3;
+        b3[i] = a3;
+        a3    = tmp;
+        tmp   = b4[i] + a4;
+        b4[i] = a4;
+        a4    = tmp;
+        tmp   = b5[i] + a5;
+        b5[i] = a5;
+        a5    = tmp;
+        tmp   = b6[i] + a6;
+        b6[i] = a6;
+        a6    = tmp;
+    }
+    for (i = 1024; i < 2048; i++)
+    {
+        tmp   = b1[i] + a1;
+        b1[i] = a1;
+        a1    = tmp;
+        tmp   = b2[i] + a2;
+        b2[i] = a2;
+        a2    = tmp;
+        tmp   = b4[i] + a4;
+        b4[i] = a4;
+        a4    = tmp;
+        tmp   = b5[i] + a5;
+        b5[i] = a5;
+        a5    = tmp;
+    }
+
+    for (i = 0; i < cnt; i++)
+    {
+        t                           = mc[i].morton;
+        tb[++b1[(t >> 00) & 0x7FF]] = mc[i];
+    }
+    for (i = 0; i < cnt; i++)
+    {
+        t                           = tb[i].morton;
+        mc[++b2[(t >> 11) & 0x7FF]] = tb[i];
+    }
+    for (i = 0; i < cnt; i++)
+    {
+        t                           = mc[i].morton;
+        tb[++b3[(t >> 22) & 0x3FF]] = mc[i];
+    }
+    for (i = 0; i < cnt; i++)
+    {
+        t                           = tb[i].morton;
+        mc[++b4[(t >> 32) & 0x7FF]] = tb[i];
+    }
+    for (i = 0; i < cnt; i++)
+    {
+        t                           = mc[i].morton;
+        tb[++b5[(t >> 43) & 0x7FF]] = mc[i];
+    }
+    for (i = 0; i < cnt; i++)
+    {
+        t                   = tb[i].morton;
+        mc[++b6[(t >> 54)]] = tb[i];
+    }
+}
+
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const DataType * posx, const DataType * posy, IdxType * duplicates,
                                          const IdxType nNodes, const IdxType N, IdxType & maxDepth, IdxType & bottom, const DataType & radius,
@@ -377,32 +533,44 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     bottom = nNodes;
 
     // cache root data
-    const DataType rootx = posx[nNodes];
-    const DataType rooty = posy[nNodes];
+    // const DataType rootx = posx[nNodes];
+    // const DataType rooty = posy[nNodes];
+
+    const DataType rootx = posx[nNodes] - radius;
+    const DataType rooty = posy[nNodes] - radius;
 
     TlsMax<IdxType, cpu> maxTlsDepth(1);
-
-    //std::cout << "**************************************************\n*************************************************" << std::endl;
+    //std::cout << "debug 1" << std::endl;
 
     // cast all float point X and Y to morton code (Z order)
     IdxType nThreads    = threader_get_threads_number();
     IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
     IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
-    CodeType<IdxType> * morton_code = services::internal::service_scalable_calloc<CodeType<IdxType>, cpu>(N);
+    CodeType<IdxType> * morton_code   = services::internal::service_scalable_calloc<CodeType<IdxType>, cpu>(N);
+    CodeType<IdxType> * t_morton_code = services::internal::service_scalable_calloc<CodeType<IdxType>, cpu>(N);
+    int * t_hist                      = services::internal::service_scalable_calloc<int, cpu>(5 * 2048);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
 
         uint64_t x, y;
+
+        double scale = 2147483648.0 / radius;
+
         // iterate over all bodies assigned to thread
         for (IdxType i = iStart; i < iEnd; i++)
         {
-            x = (uint64_t)services::internal::min<cpu, DataType>(
-                services::internal::max<cpu, DataType>(((posx[i] - (rootx - radius)) / (2.0d * radius)) * 4294967296.0d, 0.0d), 4294967295.0d);
-            y = (uint64_t)services::internal::min<cpu, DataType>(
-                services::internal::max<cpu, DataType>(((posy[i] - (rooty - radius)) / (2.0d * radius)) * 4294967296.0d, 0.0d), 4294967295.0d);
+            // x = (uint64_t)services::internal::min<cpu, DataType>(
+            //     services::internal::max<cpu, DataType>(((posx[i] - (rootx - radius)) / (2.0d * radius)) * 4294967296.0d, 0.0d), 4294967295.0d);
+            // y = (uint64_t)services::internal::min<cpu, DataType>(
+            //     services::internal::max<cpu, DataType>(((posy[i] - (rooty - radius)) / (2.0d * radius)) * 4294967296.0d, 0.0d), 4294967295.0d);
+
+            x = (uint64_t)services::internal::min<cpu, DataType>(services::internal::max<cpu, DataType>(((posx[i] - rootx) * scale), 0.0d),
+                                                                 4294967295.0d);
+            y = (uint64_t)services::internal::min<cpu, DataType>(services::internal::max<cpu, DataType>(((posy[i] - rooty) * scale), 0.0d),
+                                                                 4294967295.0d);
 
             x &=
                 0x00000000ffffffff; // x = -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  31,30,29,28  27,26,25,24 23,22,21,20  19,18,17,16  15,14,13,12  11,10,9,8  7,6,5,4  3,2,1,0
@@ -438,11 +606,15 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     /************************* Sorting ***********************/
 
     // sort all morton codes in binary representation
-    struct
-    {
-        bool operator()(CodeType<IdxType> c1, CodeType<IdxType> c2) const { return c1.morton < c2.morton; }
-    } customLess;
-    std::sort(morton_code, morton_code + N, customLess);
+
+    // struct
+    // {
+    //     bool operator()(CodeType<IdxType> c1, CodeType<IdxType> c2) const { return c1.morton < c2.morton; }
+    // } customLess;
+    // std::sort(morton_code, morton_code + N, customLess);
+
+    //std::cout << "debug 2" << std::endl;
+    sort_morton_codes(morton_code, N, t_morton_code, t_hist);
 
     // for (int i =0 ; i < N; i++)
     // {
@@ -453,6 +625,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     // }
 
     // copy sorted indices to sort array. Indices in right to left order in each part of bounding box
+    //std::cout << "debug 3" << std::endl;
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
@@ -466,12 +639,19 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 
     // filling split list structure. see on two bits for each level and search place, when result of XOR will be 01 or 10.
     // It means, that next point placed in the next level of bounding box
-    SplitType<IdxType> * split_list = services::internal::service_scalable_calloc<SplitType<IdxType>, cpu>(N - 1);
+    SplitType<IdxType> * split_list = services::internal::service_scalable_malloc<SplitType<IdxType>, cpu>(2 * (N - 1));
 
-    nThreads    = threader_get_threads_number();
+    //std::cout << "debug 4" << std::endl;
+    nThreads = threader_get_threads_number();
+
     sizeOfBlock = services::internal::min<cpu, IdxType>(256, (N - 1) / nThreads + 1);
-    nBlocks     = (N - 1) / sizeOfBlock + !!((N - 1) % sizeOfBlock);
 
+    nBlocks = (N - 1) / sizeOfBlock + !!((N - 1) % sizeOfBlock);
+    //std::cout << "debug 41" << std::endl;
+    // std::cout << "N = " << N << std::endl;
+    // std::cout << "sizeOfBlock = " << sizeOfBlock << std::endl;
+    // std::cout << "nBlocks = " << nBlocks << std::endl;
+    // std::cout << "nThreads = " << nThreads << std::endl;
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>((N - 1), iStart + sizeOfBlock);
@@ -479,6 +659,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
         IdxType * localmaxDepth = maxTlsDepth.local();
         for (IdxType i = iStart; i < iEnd; i++)
         {
+            //std::cout << tid << std::endl;
             lev = 0;
             while (lev < 32)
             {
@@ -496,20 +677,23 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
             }
         }
     });
-
+    //std::cout << "debug 42" << std::endl;
     SplitType<IdxType> * split_list_seq = services::internal::service_scalable_calloc<SplitType<IdxType>, cpu>(SEQ_SPLIT_LIST_SIZE);
 
     IdxType NSEQ = 0;
 
     IdxType block_size = (N / 1000) ? (N / 1000) : N;
+
     IdxType num_blocks = (N + block_size - 1) / block_size;
-    IdxType * nseq     = services::internal::service_scalable_calloc<IdxType, cpu>(num_blocks); // number of points with lev <= 4 in each block
+
+    IdxType * nseq = services::internal::service_scalable_calloc<IdxType, cpu>(num_blocks); // number of points with lev <= 4 in each block
 
     sizeOfBlock = 1;
     nBlocks     = num_blocks;
 
-    //  daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //std::cout << "debug 5" << std::endl;
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType b = iBlock * sizeOfBlock;
         IdxType lo      = b * block_size;                                                     // lower border of block in indices
         IdxType hi      = services::internal::min<cpu, IdxType>((b + 1) * block_size, N - 1); // upper border of block
@@ -526,8 +710,9 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
         nseq_start  = sum;
     }
 
-    //  daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //std::cout << "debug 6" << std::endl;
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType b = iBlock * sizeOfBlock;
         IdxType lo      = b * block_size;
         IdxType hi      = services::internal::min<cpu, IdxType>((b + 1) * block_size, N - 1);
@@ -541,6 +726,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
         }
     });
     NSEQ = nseq[num_blocks - 1];
+    //std::cout << "debug 7" << std::endl;
 
     // for (int i =0 ; i < NSEQ; i++)
     // {
@@ -558,11 +744,16 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     // }
 
     // Sort the new split list and create tree using it.
-    struct
-    {
-        bool operator()(SplitType<IdxType> s1, SplitType<IdxType> s2) const { return s1.level < s2.level; }
-    } customLess2;
-    std::stable_sort(split_list_seq, split_list_seq + NSEQ, customLess2);
+
+    // struct
+    // {
+    //     bool operator()(SplitType<IdxType> s1, SplitType<IdxType> s2) const { return s1.level < s2.level; }
+    // } customLess2;
+    // std::stable_sort(split_list_seq, split_list_seq + NSEQ, customLess2);
+
+    //std::cout << "debug 7" << std::endl;
+    sort_splits(split_list_seq, NSEQ, split_list + N - 1);
+    //std::cout << "debug 8" << std::endl;
 
     IdxType level_size[MAX_LEVEL + 1];
     for (IdxType i = 0; i <= MAX_LEVEL; i++) level_size[i] = 0; // memset
@@ -580,8 +771,11 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
         tree_seq[0].child[i]          = -1;
         tree_seq[0].child_internal[i] = 0;
     }
-    IdxType tree_seq_size = build_tree<IdxType, cpu>(morton_code, split_list_seq, NSEQ, tree_allocation, level_size, 0, tree_seq);
+    //std::cout << "debug 9" << std::endl;
+    //IdxType tree_seq_size = build_tree<IdxType, cpu>(morton_code, split_list_seq, NSEQ, tree_allocation, level_size, 0, tree_seq);
+    IdxType tree_seq_size = build_tree<IdxType, cpu>(morton_code, split_list + N - 1, NSEQ, tree_allocation, level_size, 0, tree_seq);
 
+    //std::cout << "debug 10" << std::endl;
     IdxType i = 0;
     // for (IdxType lev = 0; lev <= SEQ_UPTO_LEVEL; lev++)
     // {
@@ -645,7 +839,9 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     }
 
     IdxType par_tree_start = i;
-    IdxType num_subtrees   = tree_seq_size - par_tree_start;
+    //std::cout << "par_tree_start = " << par_tree_start << std::endl;
+    IdxType num_subtrees = tree_seq_size - par_tree_start;
+    //std::cout << "tree_seq_size = " << tree_seq_size << std::endl;
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, num_subtrees, (MAX_LEVEL + 1));
     IdxType * subtree_level_size = services::internal::service_scalable_calloc<IdxType, cpu>(num_subtrees * (MAX_LEVEL + 1));
 
@@ -655,8 +851,13 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
 
-    //  daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    // std::cout << "debug 11" << std::endl;
+    // std::cout << "nBlocks = " << nBlocks << std::endl;
+    // std::cout << "tree_seq size = " <<  tree_allocation << std::endl;
+
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+        //std::cout << "debug 11_0" << std::endl;
         const IdxType subtree_id        = iBlock * sizeOfBlock;
         TreeNode<IdxType> t_node        = tree_seq[par_tree_start + subtree_id];
         IdxType first                   = t_node.first;
@@ -666,16 +867,30 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
         //tree_par[subtree_id] = services::internal::service_scalable_calloc<TreeNode<IdxType>, cpu>(tree_par_allocation[subtree_id]);
 
         // Sort the subtree split list and create tree using it.
-        std::stable_sort(split_list + first, split_list + second, customLess2);
-
+        //std::stable_sort(split_list + first, split_list + second, customLess2);
+        // std::cout << "debug 11_1" << std::endl;
+        // std::cout << "first = " << first << std::endl;
+        // std::cout << "first + N - 1 = " << first + N - 1 << std::endl;
+        // std::cout << "second - first = " << second - first << std::endl;
+        sort_splits(split_list + first, second - first, split_list + first + N - 1);
+        //std::cout << "debug 11_2" << std::endl;
         tree_par[subtree_id][0] = t_node;
-        IdxType subtree_size    = build_tree<IdxType, cpu>(morton_code, split_list + first, second - first, tree_par_allocation[subtree_id],
+        // for (int i = 0; i < 4; i++)
+        // {
+        //     tree_par[subtree_id][0].child[i] = t_node.child[i];
+        //     tree_par[subtree_id][0].child_internal[i] = t_node.child_internal[i];
+        // }
+        // IdxType subtree_size    = build_tree<IdxType, cpu>(morton_code, split_list + first, second - first, tree_par_allocation[subtree_id],
+        //                                                 subtree_level_size + subtree_id * (MAX_LEVEL + 1), SEQ_UPTO_LEVEL + 1, tree_par[subtree_id]);
+        //std::cout << "debug 11_3" << std::endl;
+        IdxType subtree_size = build_tree<IdxType, cpu>(morton_code, split_list + first + N - 1, second - first, tree_par_allocation[subtree_id],
                                                         subtree_level_size + subtree_id * (MAX_LEVEL + 1), SEQ_UPTO_LEVEL + 1, tree_par[subtree_id]);
+        //std::cout << "debug 11_4" << std::endl;
     });
 
+    //std::cout << "debug 12" << std::endl;
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, num_subtrees, (MAX_LEVEL + 1));
     IdxType * subtree_level_start = services::internal::service_scalable_calloc<IdxType, cpu>(num_subtrees * (MAX_LEVEL + 1));
-    ;
 
     // Can also be parallelized but has only ~20K inner loop iterations
     IdxType start = 0;
@@ -697,8 +912,9 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
 
-    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //std::cout << "debug 13" << std::endl;
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         IdxType subtree_i        = 0;
         for (IdxType lev = 0; lev < MAX_LEVEL; lev++)
@@ -716,6 +932,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
         }
     });
 
+    //std::cout << "debug 14" << std::endl;
     for (int sm = 0; sm < num_subtrees; sm++)
     {
         if (bottom > min_pos[sm]) bottom = min_pos[sm];
@@ -723,9 +940,9 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
-
-    //  daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //std::cout << "debug 15" << std::endl;
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         IdxType subtree_i        = 0;
         bool flag_tmp            = false;
@@ -782,7 +999,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
             if (flag_tmp) break;
         }
     });
-
+    //std::cout << "debug 16" << std::endl;
     services::internal::service_scalable_free<TreeNode<IdxType>, cpu>(tree_seq);
     services::internal::service_scalable_free<IdxType, cpu>(subtree_level_size);
     services::internal::service_scalable_free<IdxType, cpu>(subtree_level_start);
@@ -792,35 +1009,114 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
 
-    //  daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         services::internal::service_scalable_free<TreeNode<IdxType>, cpu>(tree_par[subtree_id]);
     });
     // free memory
+    services::internal::service_scalable_free<int, cpu>(t_hist);
+    services::internal::service_scalable_free<CodeType<IdxType>, cpu>(t_morton_code);
+
     services::internal::service_scalable_free<CodeType<IdxType>, cpu>(morton_code);
     services::internal::service_scalable_free<SplitType<IdxType>, cpu>(split_list);
-    //services::internal::service_scalable_free<IdxType, cpu>(nseq);
+    services::internal::service_scalable_free<IdxType, cpu>(nseq);
 
     maxTlsDepth.reduceTo(&maxDepth, 1);
     return services::Status();
 }
 
+// template <typename IdxType, typename DataType, daal::CpuType cpu>
+// services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posX, DataType * posY, IdxType * duplicates,
+//                                          const IdxType nNodes, const IdxType N, const IdxType & bottom)
+// {
+//     bool flag = false;
+//     DataType cm, px, py;
+//     IdxType curChild[4];
+//     DataType curMass[4];
+
+//     const IdxType inc = 1;
+//     auto k            = bottom;
+//     //std::cout << "summarizationKernelImpl" << std::endl;
+//     //std::cout << "***************************************************************\n******************************************************************" << std::endl;
+//     //std::cout << "bottom = " << bottom << std::endl;
+
+//     // for (int i = 4*bottom; i < (nNodes+1)*4; i++)
+//     // {
+//     //     std::cout << "child[" << i << "] = " << child[i] << std::endl;
+//     // }
+
+//     //initialize array
+//     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
+//     services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
+
+//     const auto restart = k;
+//     // iterate over all cells assigned to thread
+//     while (k <= nNodes)
+//     {
+//         if (mass[k] < 0.)
+//         {
+//             for (IdxType i = 0; i < 4; i++)
+//             {
+//                 const auto ch = child[k * 4 + i];
+//                 curChild[i]   = ch;
+//                 if (ch >= 0) curMass[i] = mass[ch];
+//             }
+
+//             // all children are ready
+//             cm       = 0.;
+//             px       = 0.;
+//             py       = 0.;
+//             auto cnt = 0;
+
+//             for (IdxType i = 0; i < 4; i++)
+//             {
+//                 const IdxType ch = curChild[i];
+//                 if (ch >= 0)
+//                 {
+//                     DataType m = 0;
+//                     if (duplicates[ch] > 1)
+//                     {
+//                         if (ch >= N)
+//                         {
+//                             cnt += count[ch];
+//                             m = curMass[i];
+//                         }
+//                         else
+//                         {
+//                             cnt += duplicates[ch];
+//                             m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
+//                         }
+//                     }
+//                     else
+//                         m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+//                     // add child's contribution
+//                     cm += m;
+//                     px += posX[ch] * m;
+//                     py += posY[ch] * m;
+//                 }
+//             }
+//             count[k]         = cnt;
+//             const DataType m = cm ? DataType(1) / cm : DataType(1);
+
+//             posX[k] = px * m;
+//             posY[k] = py * m;
+//             mass[k] = cm;
+//         }
+
+//         k += inc; // move on to next cell
+//     }
+//     return services::Status();
+// }
+
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posX, DataType * posY, IdxType * duplicates,
                                          const IdxType nNodes, const IdxType N, const IdxType & bottom)
 {
-    bool flag = false;
-    DataType cm, px, py;
-    IdxType curChild[4];
-    DataType curMass[4];
+    const auto inc = 1;
+    auto k         = bottom;
 
-    const IdxType inc = 1;
-    auto k            = bottom;
-    //std::cout << "summarizationKernelImpl" << std::endl;
-    //std::cout << "***************************************************************\n******************************************************************" << std::endl;
-    //std::cout << "bottom = " << bottom << std::endl;
-
+    // std::cout << "bottom = " << bottom << std::endl;
     // for (int i = 4*bottom; i < (nNodes+1)*4; i++)
     // {
     //     std::cout << "child[" << i << "] = " << child[i] << std::endl;
@@ -828,30 +1124,47 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 
     //initialize array
     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
-    services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
+    services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + IdxType(1));
 
-    const auto restart = k;
-    // iterate over all cells assigned to thread
-    while (k <= nNodes)
-    {
-        if (mass[k] < 0.)
+    const IdxType nThreads = threader_get_threads_number();
+    const IdxType nBlocks  = nNodes - k + IdxType(1);
+
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+        const IdxType iStart = k + iBlock;
+
+        IdxType curChild[4];
+        DataType curMass[4];
+        DataType cm, px, py;
+
+        if (mass[iStart] < DataType(0))
         {
-            for (IdxType i = 0; i < 4; i++)
+            IdxType j = 0;
+            while (j < 4)
             {
-                const auto ch = child[k * 4 + i];
-                curChild[i]   = ch;
-                if (ch >= 0) curMass[i] = mass[ch];
+                const IdxType ch = child[iStart * 4 + j];
+                curChild[j]      = ch;
+
+                curMass[j] = mass[ch];
+                //std::cout << "ch = " << ch << std::endl;
+                //std::cout << "mass[ch] = " << mass[ch] << std::endl;
+
+                if (ch >= k && curMass[j] < DataType(0))
+                {
+                    continue;
+                }
+                j++;
             }
 
             // all children are ready
-            cm       = 0.;
-            px       = 0.;
-            py       = 0.;
-            auto cnt = 0;
+            cm          = 0.;
+            px          = 0.;
+            py          = 0.;
+            IdxType cnt = 0;
 
             for (IdxType i = 0; i < 4; i++)
             {
                 const IdxType ch = curChild[i];
+
                 if (ch >= 0)
                 {
                     DataType m = 0;
@@ -870,108 +1183,25 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
                     }
                     else
                         m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+
                     // add child's contribution
                     cm += m;
                     px += posX[ch] * m;
                     py += posY[ch] * m;
                 }
             }
-            count[k]         = cnt;
+            count[iStart] = cnt;
+
             const DataType m = cm ? DataType(1) / cm : DataType(1);
 
-            posX[k] = px * m;
-            posY[k] = py * m;
-            mass[k] = cm;
-        }
+            posX[iStart] = px * m;
+            posY[iStart] = py * m;
 
-        k += inc; // move on to next cell
-    }
+            mass[iStart] = cm;
+        }
+    });
     return services::Status();
 }
-
-// template <typename IdxType, typename DataType, daal::CpuType cpu>
-// services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posx, DataType * posy, IdxType * duplicates, const IdxType nNodes,
-//                                          const IdxType N, const IdxType & bottom)
-// {
-//     bool flag = false;
-
-//     const auto inc = 1;
-//     auto k         = bottom;
-
-//     //initialize array
-//     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
-//     services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
-
-//     const auto restart = k;
-
-//     const IdxType nThreads    = threader_get_threads_number();
-//     const IdxType sizeOfBlock = 1;
-//     const IdxType nBlocks     = (nNodes - k + 1);
-
-//     // daal::threader_for(nBlocks, nThreads, [&](IdxType iBlock) {           //[0 (t0), 1(t1), 2(t0), 3(t1), 4(t0), 5(t1)]  ------>  [5] [2] [1] [4] [3]
-//     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
-//         const IdxType iStart = k + iBlock * sizeOfBlock;
-
-//         IdxType curChild[4];
-//         DataType curMass[4];
-//         DataType cm, px, py;
-
-//         IdxType k1 = iStart;
-
-//         // iterate over all bodies assigned to thread
-//         // while (k1 < iEnd){
-
-//             if (mass[k1] < 0.)
-//             {
-
-//                 IdxType j=0;
-//                 // for (IdxType i = 0; i < 4; i++)
-//                 while(j < 4)
-//                 {
-//                     const auto ch = child[k1 * 4 + j];
-//                     curChild[j]   = ch;
-
-//                     curMass[j] = mass[ch];
-
-//                     if (ch >= k && curMass[j] < 0.){
-//                         continue;
-//                     }
-//                     j++;
-//                 }
-
-//                 // all children are ready
-//                 cm       = 0.;
-//                 px       = 0.;
-//                 py       = 0.;
-//                 auto cnt = 0;
-
-//                 for (IdxType i = 0; i < 4; i++)
-//                 {
-//                     const IdxType ch = curChild[i];
-
-//                     if (ch >= 0)
-//                     {
-//                         const DataType m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
-//                         // add child's contribution
-//                         cm += m;
-//                         px += posx[ch] * m;
-//                         py += posy[ch] * m;
-//                     }
-//                 }
-
-//                 count[k1]         = cnt;
-
-//                 const DataType m = cm ? 1. / cm : 1.;
-
-//                 posx[k1]          = px * m;
-//                 posy[k1]          = py * m;
-
-//                 mass[k1] = cm;
-//             }
-
-//     });
-//     return services::Status();
-// }
 
 template <typename IdxType, daal::CpuType cpu>
 services::Status sortKernelImpl(IdxType * sort, const IdxType * count, IdxType * start, IdxType * child, const IdxType nNodes, const IdxType N,
@@ -1302,7 +1532,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const IdxType nIterWithoutProgress = sizeIter[2]; // Number of iterations without introducing changes
     const IdxType maxIter              = sizeIter[3]; // Number of iterations
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, 2, N);
-    const IdxType nNodes          = N <= 50 ? 4 * N : 2 * N; // A small number of points may require more memory to store tree nodes
+    const IdxType nNodes          = N <= 50 ? 6 * N : 2 * N; // A small number of points may require more memory to store tree nodes
     const IdxType nIterCheck      = 50;
     const IdxType explorationIter = 250; // Aligned with scikit-learn
     const IdxType blockOfRows     = 256;
@@ -1436,11 +1666,13 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
                                                                          divergence, nNodes, N, nnz, nElements, exaggeration, eps, blockOfRows);
         }
         DAAL_CHECK_STATUS_VAR(status);
+        //std::cout << "attractive kernel" << std::endl;
 
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posX.get(), posY.get(), attrX.get(), attrY.get(),
                                                                repX.get(), repY.get(), gainX.get(), gainY.get(), oldForceX.get(), oldForceY.get(),
                                                                gradNorm, zNorm, nNodes, N, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
+        //std::cout << "integration kernel" << std::endl;
 
         if ((i + 1) % nIterCheck == 0)
         {
