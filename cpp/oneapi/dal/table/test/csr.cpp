@@ -14,11 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
-
+#include "oneapi/dal/test/engine/linalg.hpp"
 
 namespace oneapi::dal::test {
+
+namespace te = dal::test::engine;
+namespace la = te::linalg;
 
 TEST("can construct empty table") {
     csr_table t;
@@ -276,6 +280,52 @@ TEST("can upcast table") {
     REQUIRE(t.get_column_indices() == column_indices);
     REQUIRE(t.get_row_offsets() == row_offsets);
 }
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST("can create table from device allocated memory") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+    constexpr std::int64_t element_count{ 7 };
+
+    float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
+    std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
+
+    const auto usm_data = la::matrix<float>::wrap(data, { 1, element_count }).to_device(q);
+    const auto usm_column_indices = //
+        la::matrix<std::int64_t>::wrap(column_indices, { 1, element_count }).to_device(q);
+    const auto usm_row_offsets = //
+        la::matrix<std::int64_t>::wrap(row_offsets, { 1, row_count + 1 }).to_device(q);
+
+    csr_table t = csr_table::wrap(q,
+                                  usm_data.get_data(),
+                                  usm_column_indices.get_data(),
+                                  usm_row_offsets.get_data(),
+                                  row_count,
+                                  column_count);
+
+    REQUIRE(t.has_data() == true);
+    REQUIRE(t.get_row_count() == row_count);
+    REQUIRE(t.get_column_count() == column_count);
+    REQUIRE(t.get_non_zero_count() == element_count);
+    REQUIRE(csr_table::kind() == t.get_kind());
+
+    REQUIRE(t.get_indexing() == sparse_indexing::one_based);
+
+    const auto& meta = t.get_metadata();
+    for (std::int64_t i = 0; i < t.get_column_count(); i++) {
+        REQUIRE(meta.get_data_type(i) == data_type::float32);
+        REQUIRE(meta.get_feature_type(i) == feature_type::ratio);
+    }
+
+    REQUIRE(t.get_data<float>() == usm_data.get_data());
+    REQUIRE(t.get_column_indices() == usm_column_indices.get_data());
+    REQUIRE(t.get_row_offsets() == usm_row_offsets.get_data());
+}
+#endif
 
 TEST("create table from array") {
     constexpr std::int64_t row_count{ 4 };

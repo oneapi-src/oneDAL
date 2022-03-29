@@ -136,4 +136,54 @@ TEST("can read CSR table via CSR accessor with conversion") {
     }
 }
 
+TEST("can read table data via CSR accessor and arrays outside") {
+    using oneapi::dal::detail::empty_delete;
+
+    float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
+    std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
+
+    const std::int64_t row_count{ 4 };
+    const std::int64_t column_count{ 4 };
+
+    csr_table t{ data, column_indices, row_offsets, row_count, column_count,
+        empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
+    auto data_arr = array<float>::empty(10);
+    auto column_indices_arr = array<std::int64_t>::empty(10);
+    auto row_offsets_arr = array<std::int64_t>::empty(10);
+
+    const auto [ data_ptr, column_indices_ptr, row_offsets_ptr ] = csr_accessor<const float>(t).pull(
+            data_arr, column_indices_arr, row_offsets_arr, { 0, -1 });
+
+    REQUIRE(t.get_non_zero_count() == data_arr.get_count());
+    REQUIRE(t.get_non_zero_count() == column_indices_arr.get_count());
+    /// TODO: fix
+    /// REQUIRE(t.get_row_count() + 1 == row_offsets_arr.get_count());
+
+    REQUIRE(data == data_ptr);
+    REQUIRE(data == data_arr.get_data());
+    REQUIRE(column_indices == column_indices_ptr);
+    REQUIRE(column_indices == column_indices_arr.get_data());
+    REQUIRE(row_offsets == row_offsets_ptr);
+    REQUIRE(row_offsets == row_offsets_arr.get_data());
+
+    auto data_arr_ptr = data_arr.get_data();
+    for (std::int64_t i = 0; i < data_arr.get_count(); i++) {
+        REQUIRE(data_ptr[i] == data[i]);
+        REQUIRE(data_arr_ptr[i] == data[i]);
+    }
+
+    auto column_indices_arr_ptr = column_indices_arr.get_data();
+    for (std::int64_t i = 0; i < column_indices_arr.get_count(); i++) {
+        REQUIRE(column_indices_ptr[i] == column_indices[i]);
+        REQUIRE(column_indices_arr_ptr[i] == column_indices[i]);
+    }
+
+    auto row_offsets_arr_ptr = row_offsets_arr.get_data();
+    for (std::int64_t i = 0; i < row_offsets_arr.get_count(); i++) {
+        REQUIRE(row_offsets_ptr[i] == row_offsets[i]);
+        REQUIRE(row_offsets_arr_ptr[i] == row_offsets[i]);
+    }
+}
+
 } // namespace oneapi::dal
