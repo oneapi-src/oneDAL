@@ -37,9 +37,6 @@ static train_result<Task> call_kernel(const context_gpu& ctx,
     if (!distance_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
     }
-    else if (distance_impl->get_daal_distance_type() == detail::v1::daal_distance_t::chebyshev) {
-        throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
-    }
 
     const auto model_impl = std::make_shared<brute_force_model_impl<Task>>(data, responses);
     return train_result<Task>().set_model(dal::detail::make_private<model<Task>>(model_impl));

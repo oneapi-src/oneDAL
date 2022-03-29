@@ -38,11 +38,59 @@ All types and functions in this section are declared in the
 ``oneapi/dal/algo/decision_forest.hpp`` header file.
 
 Enum classes
-------------
-.. onedal_enumclass:: oneapi::dal::decision_forest::error_metric_mode
-.. onedal_enumclass:: oneapi::dal::decision_forest::variable_importance_mode
-.. onedal_enumclass:: oneapi::dal::decision_forest::infer_mode
-.. onedal_enumclass:: oneapi::dal::decision_forest::voting_mode
+++++++++++++
+
+`error_metric_mode`
+~~~~~~~~~~~~~~~~~~~
+
+error_metric_mode::none
+   Do not compute error metric.
+
+error_metric_mode::out_of_bag_error
+   Train produces :math:`1 \times 1` table with cumulative prediction error for out of bag observations.
+
+error_metric_mode::out_of_bag_error_per_observation
+   Train produces :math:`n \times 1` table with prediction error for out-of-bag observations.
+
+`variable_importance_mode`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+variable_importance_mode::none
+   Do not compute variable importance.
+
+variable_importance_mode::mdi
+   Mean Decrease Impurity.
+   Computed as the sum of weighted impurity decreases for all nodes where the variable is used, averaged over all trees in the forest.
+
+variable_importance_mode::mda_raw
+   Mean Decrease Accuracy (permutation importance).
+   For each tree, the prediction error on the out-of-bag portion of the data is computed (error rate for classification, MSE for regression).
+   The same is done after permuting each predictor variable. The difference between the two are then averaged over all trees.
+
+variable_importance_mode::mda_scaled
+   Mean Decrease Accuracy (permutation importance).
+   This is MDA_Raw value scaled by its standard deviation.
+
+`infer_mode`
+~~~~~~~~~~~~
+
+infer_mode::class_labels
+   Infer produces a "math:`n \times 1` table with the predicted labels.
+
+infer_mode::class_responses
+   deprecated
+
+infer_mode::class_probabilities
+   Infer produces :math:`n \times c` table with the predicted class probabilities for each observation.
+
+`voting_mode`
+~~~~~~~~~~~~~
+
+voting_mode::weighted
+   The final prediction is combined through a weighted majority voting.
+
+voting_mode::unweighted
+   The final prediction is combined through a simple majority voting.
 
 Descriptor
 ++++++++++
@@ -57,7 +105,7 @@ Task tags
 .. onedal_tags_namespace:: oneapi::dal::decision_forest::task
 
 Model
------
++++++
 .. onedal_class:: oneapi::dal::decision_forest::model
 
 .. _df_t_api:

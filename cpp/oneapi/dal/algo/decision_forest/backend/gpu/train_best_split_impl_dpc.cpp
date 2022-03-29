@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2021-2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -586,7 +586,7 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
                       node_count * ctx.class_count_);
     }
     if (update_imp_dec_required) {
-        ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
+        ONEDAL_ASSERT(node_imp_dec_list.get_count() >= node_count);
     }
 
     const hist_type_t* node_hist_list_ptr = node_hist_list.get_data();
@@ -873,7 +873,7 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
     }
 
     if (update_imp_dec_required) {
-        ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
+        ONEDAL_ASSERT(node_imp_dec_list.get_count() >= node_count);
     }
 
     const Bin* data_ptr = data.get_data();

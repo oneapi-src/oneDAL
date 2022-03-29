@@ -58,6 +58,9 @@ The following collective operations are supported:
 - ``allgatherv``
   Gathers data from all processes and shares the result among all processes.
 
+- ``sendrecv_replace``
+  Sends and receives data using a single buffer.
+
 .. _backend_restrictions:
 
 Backend-specific restrictions

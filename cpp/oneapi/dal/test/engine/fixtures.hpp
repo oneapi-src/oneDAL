@@ -73,7 +73,7 @@ public:
 };
 
 template <typename TestType, typename Derived>
-class crtp_algo_fixture : public float_algo_fixture<std::tuple_element_t<0, TestType>> {
+class crtp_base_algo_fixture : public float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using base_t = float_algo_fixture<std::tuple_element_t<0, TestType>>;
     using float_t = std::tuple_element_t<0, TestType>;
@@ -149,6 +149,17 @@ public:
         ONEDAL_ASSERT(!"This method must be overriden in the derived class");
     }
 
+    Derived& derived() {
+        return *(static_cast<Derived*>(this));
+    }
+};
+
+template <typename TestType, typename Derived>
+class crtp_algo_fixture : public crtp_base_algo_fixture<TestType, Derived> {
+    using crtp_base_algo_fixture<TestType, Derived>::derived;
+
+public:
+    //    using crtp_base_algo_fixture<TestType, Derived>::not_float64_friendly;
     template <typename Descriptor, typename... Args>
     auto train_via_spmd_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
         ONEDAL_ASSERT(thread_count > 0);
@@ -164,7 +175,8 @@ public:
 #endif
         const auto input_per_rank =
             this->split_train_input(thread_count, std::forward<Args>(args)...);
-        ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(thread_count));
 
         const auto results = comm.map([&](std::int64_t rank) {
             return dal::test::engine::spmd_train(this->get_policy(),
@@ -172,7 +184,7 @@ public:
                                                  desc,
                                                  input_per_rank[rank]);
         });
-        ONEDAL_ASSERT(results.size() == std::size_t(thread_count));
+        ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
 
         return results;
     }
@@ -206,7 +218,8 @@ public:
 
         const auto input_per_rank =
             this->split_compute_input(thread_count, std::forward<Args>(args)...);
-        ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(thread_count));
 
         const auto results = comm.map([&](std::int64_t rank) {
             return dal::test::engine::spmd_compute(this->get_policy(),
@@ -214,7 +227,7 @@ public:
                                                    desc,
                                                    input_per_rank[rank]);
         });
-        ONEDAL_ASSERT(results.size() == std::size_t(thread_count));
+        ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
 
         return results;
     }
@@ -230,11 +243,65 @@ public:
 
         return this->merge_compute_result(results);
     }
+};
 
-private:
-    Derived& derived() {
-        return *(static_cast<Derived*>(this));
+#ifdef ONEDAL_DATA_PARALLEL
+
+struct ccl_backend {};
+struct mpi_backend {};
+
+template <typename TestType, typename Derived>
+class crtp_spmd_backend_algo_fixture : public crtp_base_algo_fixture<TestType, Derived> {
+    using crtp_base_algo_fixture<TestType, Derived>::derived;
+
+public:
+    template <typename... Args>
+    auto get_comm(Args&&... args) {
+        derived().get_comm(std::forward<Args>(args)...);
+    }
+    template <typename Descriptor, typename... Args>
+    auto train_in_parallel(const Descriptor& desc, Args&&... args) {
+        auto comm = derived().get_comm();
+        auto policy = this->get_policy();
+        const auto input_per_rank =
+            this->split_train_input(comm.get_rank_count(), std::forward<Args>(args)...);
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(comm.get_rank_count()));
+
+        const auto local_result = dal::preview::train(comm, desc, input_per_rank[comm.get_rank()]);
+        return local_result;
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto train_in_parallel_and_merge(const Descriptor& desc, Args&&... args) {
+        const auto results = this->train_in_parallel( //
+            desc,
+            std::forward<Args>(args)...);
+        return this->merge_train_result(results);
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto compute_in_parallel(const Descriptor& desc, Args&&... args) {
+        auto comm = derived().get_comm();
+        const auto input_per_rank =
+            this->split_compute_input(comm.get_rank_count(), std::forward<Args>(args)...);
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(comm.get_rank_count()));
+
+        const auto local_result =
+            dal::preview::compute(comm, desc, input_per_rank[comm.get_rank()]);
+        return local_result;
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto compute_in_parallel_and_merge(const Descriptor& desc, Args&&... args) {
+        const auto results = this->compute_in_parallel( //
+            desc,
+            std::forward<Args>(args)...);
+        return this->merge_compute_result(results);
     }
 };
+
+#endif
 
 } // namespace oneapi::dal::test::engine

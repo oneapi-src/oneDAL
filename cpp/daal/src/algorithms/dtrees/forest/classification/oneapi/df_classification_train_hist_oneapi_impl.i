@@ -789,7 +789,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
     }
 
-    const size_t nSelectedFeatures = par.featuresPerNode ? par.featuresPerNode : daal::internal::Math<algorithmFPType, sse2>::sSqrt(_nFeatures);
+    const size_t nSelectedFeatures = par.featuresPerNode ? par.featuresPerNode : daal::internal::Math<double, sse2>::sSqrt(_nFeatures);
 
     _nSelectedRows = par.observationsPerTreeFraction * _nRows;
     DAAL_CHECK_EX((_nSelectedRows > 0), ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());

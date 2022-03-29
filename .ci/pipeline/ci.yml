@@ -104,38 +104,38 @@ jobs:
       echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
 
       # Display oneDAL build configuration
-      bazel build @config//:dump
+      $(BAZEL_VERSION) build @config//:dump
       echo
       cat bazel-bin/external/config/config.json
       echo
     displayName: 'bazel-configure'
 
   - script: |
-      bazel build :release
+      $(BAZEL_VERSION) build :release
     displayName: 'release'
 
   - script: |
-      bazel test //examples/oneapi/cpp:all \
+      $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=dev \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-dev'
 
   - script: |
       export DAALROOT=`pwd`/bazel-bin/release/daal/latest
-      bazel test //examples/oneapi/cpp:all \
+      $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=release_static \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-static'
 
   - script: |
       export DAALROOT=`pwd`/bazel-bin/release/daal/latest
-      bazel test //examples/oneapi/cpp:all \
+      $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=release_dynamic \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-dynamic'
 
   - script: |
-      bazel test //cpp/oneapi/dal:tests \
+      $(BAZEL_VERSION) test //cpp/oneapi/dal:tests \
                  --config=host \
                  --test_link_mode=dev \
                  --test_thread_mode=par
