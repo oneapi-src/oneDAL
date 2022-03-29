@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/profiler.hpp"
+namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail {
 profiler_task profiler::start_task(const char* task_name) {
@@ -28,6 +29,9 @@ profiler_task::profiler_task(const char* task_name) : task_name_(task_name) {}
 #ifdef ONEDAL_DATA_PARALLEL
 profiler_task profiler::start_task(const char* task_name, const sycl::queue& task_queue) {
     return profiler_task(task_name, task_queue);
+}
+
+void profiler::wait_request(const char* task_name, spmd::request_iface* req) {
 }
 
 profiler_task::profiler_task(const char* task_name, const sycl::queue& task_queue)

@@ -27,6 +27,7 @@
 #include "oneapi/dal/detail/communicator.hpp"
 #include <mpi.h>
 #include <ccl.hpp>
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace spmd = oneapi::dal::preview::spmd;
 
@@ -175,6 +176,7 @@ public:
         preview::detail::check_if_pointer_matches_queue(queue_, send_buf);
         preview::detail::check_if_pointer_matches_queue(queue_, recv_buf);
 
+        ONEDAL_PROFILER_TASK(CCL_allgatherv, q);
         ONEDAL_ASSERT(send_buf != nullptr);
         ONEDAL_ASSERT(recv_buf);
 
@@ -185,14 +187,22 @@ public:
             internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
         }
 
+        const std::int64_t data_type_size = get_data_type_size(dtype);
+        std::vector<void*> recv_bufs(rank_count_);
+        for (std::int64_t i = 0; i < rank_count_; i++) {
+            recv_bufs[i] =  recv_buf + data_type_size * displs_host[i];
+        }
+
         auto event = ccl::allgatherv(send_buf,
                                      integral_cast<int>(send_count),
-                                     recv_buf,
+                                     recv_bufs,
                                      internal_recv_counts,
                                      make_ccl_data_type(dtype),
                                      device_comm_->get_ref(),
                                      stream_->get_ref());
-        return new ccl_request_impl{ std::move(event) };
+        auto request =  new ccl_request_impl{ std::move(event) };
+        ONEDAL_WAIT_ON_REQUEST(CCL_allgatherv, request);                        
+        return request;
     }
 
     /// `allreduce` that accepts USM pointers
@@ -363,9 +373,15 @@ public:
 
         ONEDAL_ASSERT(recv_buf);
 
+        const std::int64_t data_type_size = get_data_type_size(dtype);
+        std::vector<void*> recv_bufs(rank_count_);
+        for (std::int64_t i = 0; i < rank_count_; i++) {
+            recv_bufs[i] = recv_buf + data_type_size * displs[i];
+        }
+
         auto event = ccl::allgatherv(send_buf,
                                      integral_cast<size_t>(send_count),
-                                     recv_buf,
+                                     recv_bufs,
                                      internal_recv_counts,
                                      make_ccl_data_type(dtype),
                                      host_comm_->get_ref());
