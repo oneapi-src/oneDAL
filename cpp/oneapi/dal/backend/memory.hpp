@@ -74,6 +74,12 @@ inline bool is_device_friendly_usm(const sycl::queue& queue, const void* pointer
            (pointer_type == sycl::usm::alloc::shared);
 }
 
+inline bool is_host_friendly_usm(const sycl::queue& queue, const void* pointer) {
+    const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
+    return (pointer_type == sycl::usm::alloc::host) || //
+           (pointer_type == sycl::usm::alloc::shared);
+}
+
 inline bool is_known_usm(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
     return pointer_type != sycl::usm::alloc::unknown;
@@ -206,8 +212,6 @@ inline sycl::event memcpy(sycl::queue& queue,
                           std::size_t size,
                           const event_vector& deps = {}) {
     ONEDAL_ASSERT(size > 0);
-    ONEDAL_ASSERT(is_known_usm(queue, dest));
-    ONEDAL_ASSERT(is_known_usm(queue, src));
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.memcpy(dest, src, size);
@@ -220,12 +224,7 @@ inline sycl::event memcpy_host2usm(sycl::queue& queue,
                                    std::size_t size,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, dest_usm));
-
-    // TODO: Remove additional copy to host usm memory once
-    //       bug in `copy` with the host memory is fixed
-    auto tmp_usm_host = make_unique_usm_host(queue, size);
-    memcpy(tmp_usm_host.get(), src_host, size);
-    memcpy(queue, dest_usm, tmp_usm_host.get(), size, deps).wait_and_throw();
+    memcpy(queue, dest_usm, src_host, size, deps).wait_and_throw();
     return {};
 }
 
@@ -235,12 +234,7 @@ inline sycl::event memcpy_usm2host(sycl::queue& queue,
                                    std::size_t size,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, src_usm));
-
-    // TODO: Remove additional copy to host usm memory once
-    //       bug in `copy` with the host memory is fixed
-    auto tmp_usm_host = make_unique_usm_host(queue, size);
-    memcpy(queue, tmp_usm_host.get(), src_usm, size, deps).wait_and_throw();
-    memcpy(dest_host, tmp_usm_host.get(), size);
+    memcpy(queue, dest_host, src_usm, size, deps).wait_and_throw();
     return {};
 }
 
@@ -314,11 +308,34 @@ inline bool is_device_friendly_usm(const array<T>& ary) {
 }
 
 template <typename T>
+inline bool is_host_friendly_usm(const array<T>& ary) {
+    const auto pointer_type = get_usm_type(ary);
+    return (pointer_type == sycl::usm::alloc::host) || //
+           (pointer_type == sycl::usm::alloc::shared);
+}
+
+template <typename T>
 inline bool is_known_usm(const array<T>& ary) {
     return get_usm_type(ary) != sycl::usm::alloc::unknown;
 }
 
 #endif
+
+template <typename T>
+using unique_host_ptr = std::unique_ptr<T, detail::default_delete<T, detail::default_host_policy>>;
+
+inline unique_host_ptr<void> make_unique_host(std::int64_t size) {
+    const detail::default_host_policy host_policy;
+    return unique_host_ptr<void>{ detail::malloc(host_policy, size),
+                                  detail::make_default_delete<void>(host_policy) };
+}
+
+template <typename T>
+inline unique_host_ptr<T> make_unique_host(std::int64_t count) {
+    const detail::default_host_policy host_policy;
+    return unique_host_ptr<T>{ detail::malloc<T>(host_policy, count),
+                               detail::make_default_delete<T>(host_policy) };
+}
 
 } // namespace oneapi::dal::backend
 
