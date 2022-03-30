@@ -84,7 +84,7 @@ Other related documentation:
 
 oneDAL provides Scala and Java interfaces that match Apache Spark MlLib API and use oneDAL solvers under the hood. This implementation allows you to get a **3-18x** increase in performance compared to the default Apache Spark MLlib.
 
-<img align="right" style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
+<img style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
 
 >*Technical details: FPType: double; HW: 7 x m5.2xlarge AWS instances; SW: Intel DAAL 2020 Gold, Apache Spark 2.4.4, emr-5.27.0; Spark config num executors 12, executor cores 8, executor memory 19GB, task cpus 8*
 
