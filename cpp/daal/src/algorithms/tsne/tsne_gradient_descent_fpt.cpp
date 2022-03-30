@@ -405,7 +405,6 @@ IdxType build_tree(CodeType<IdxType> * morton_code, SplitType<IdxType> * split_l
 // }
 
 template <typename IdxType>
-
 inline void sort_splits(SplitType<IdxType> * in_start, IdxType cnt, SplitType<IdxType> * out_start)
 
 {
@@ -692,8 +691,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     nBlocks     = num_blocks;
 
     //std::cout << "debug 5" << std::endl;
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType b = iBlock * sizeOfBlock;
         IdxType lo      = b * block_size;                                                     // lower border of block in indices
         IdxType hi      = services::internal::min<cpu, IdxType>((b + 1) * block_size, N - 1); // upper border of block
@@ -711,8 +710,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     }
 
     //std::cout << "debug 6" << std::endl;
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType b = iBlock * sizeOfBlock;
         IdxType lo      = b * block_size;
         IdxType hi      = services::internal::min<cpu, IdxType>((b + 1) * block_size, N - 1);
@@ -855,8 +854,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     // std::cout << "nBlocks = " << nBlocks << std::endl;
     // std::cout << "tree_seq size = " <<  tree_allocation << std::endl;
 
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         //std::cout << "debug 11_0" << std::endl;
         const IdxType subtree_id        = iBlock * sizeOfBlock;
         TreeNode<IdxType> t_node        = tree_seq[par_tree_start + subtree_id];
@@ -913,8 +912,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     nBlocks     = num_subtrees;
 
     //std::cout << "debug 13" << std::endl;
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         IdxType subtree_i        = 0;
         for (IdxType lev = 0; lev < MAX_LEVEL; lev++)
@@ -935,14 +934,16 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     //std::cout << "debug 14" << std::endl;
     for (int sm = 0; sm < num_subtrees; sm++)
     {
+        //std::cout << "min_pos["<< sm <<"] = " << min_pos[sm] << std::endl;
         if (bottom > min_pos[sm]) bottom = min_pos[sm];
     }
+    //std::cout  << std::endl;
 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
     //std::cout << "debug 15" << std::endl;
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         IdxType subtree_i        = 0;
         bool flag_tmp            = false;
@@ -975,6 +976,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 
                             if (second != first && morton_code[first].morton == morton_code[second].morton)
                             {
+                                //std::cout << "Duplicate, lev = " << lev << "subtree_id = " << subtree_id << std::endl;
+                                //min_pos[subtree_id] = nNodes + 1;
                                 flag_tmp                     = true;
                                 child[tree_node.pos * 4 + j] = morton_code[first].index;
                                 duplicates[morton_code[first].index] += second - first;
@@ -999,6 +1002,14 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
             if (flag_tmp) break;
         }
     });
+
+    // for (int sm = 0; sm < num_subtrees; sm++)
+    // {
+    //     std::cout << "min_pos_2["<< sm <<"] = " << min_pos[sm] << std::endl;
+    //     if (bottom > min_pos[sm]) bottom = min_pos[sm];
+    // }
+    // std::cout  << bottom << std::endl;
+
     //std::cout << "debug 16" << std::endl;
     services::internal::service_scalable_free<TreeNode<IdxType>, cpu>(tree_seq);
     services::internal::service_scalable_free<IdxType, cpu>(subtree_level_size);
@@ -1009,8 +1020,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
 
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         services::internal::service_scalable_free<TreeNode<IdxType>, cpu>(tree_par[subtree_id]);
     });
@@ -1020,92 +1031,9 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 
     services::internal::service_scalable_free<CodeType<IdxType>, cpu>(morton_code);
     services::internal::service_scalable_free<SplitType<IdxType>, cpu>(split_list);
-    services::internal::service_scalable_free<IdxType, cpu>(nseq);
+    //services::internal::service_scalable_free<IdxType, cpu>(nseq);
 
     maxTlsDepth.reduceTo(&maxDepth, 1);
-    return services::Status();
-}
-
-template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posX, DataType * posY, IdxType * duplicates,
-                                         const IdxType nNodes, const IdxType N, const IdxType & bottom)
-{
-    bool flag = false;
-    DataType cm, px, py;
-    IdxType curChild[4];
-    DataType curMass[4];
-
-    const IdxType inc = 1;
-    auto k            = bottom;
-    //std::cout << "summarizationKernelImpl" << std::endl;
-    //std::cout << "***************************************************************\n******************************************************************" << std::endl;
-    //std::cout << "bottom = " << bottom << std::endl;
-
-    // for (int i = 4*bottom; i < (nNodes+1)*4; i++)
-    // {
-    //     std::cout << "child[" << i << "] = " << child[i] << std::endl;
-    // }
-
-    //initialize array
-    services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
-    services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
-
-    const auto restart = k;
-    // iterate over all cells assigned to thread
-    while (k <= nNodes)
-    {
-        if (mass[k] < 0.)
-        {
-            for (IdxType i = 0; i < 4; i++)
-            {
-                const auto ch = child[k * 4 + i];
-                curChild[i]   = ch;
-                if (ch >= 0) curMass[i] = mass[ch];
-            }
-
-            // all children are ready
-            cm       = 0.;
-            px       = 0.;
-            py       = 0.;
-            auto cnt = 0;
-
-            for (IdxType i = 0; i < 4; i++)
-            {
-                const IdxType ch = curChild[i];
-                if (ch >= 0)
-                {
-                    DataType m = 0;
-                    if (duplicates[ch] > 1)
-                    {
-                        if (ch >= N)
-                        {
-                            cnt += count[ch];
-                            m = curMass[i];
-                        }
-                        else
-                        {
-                            cnt += duplicates[ch];
-                            m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
-                        }
-                    }
-                    else
-                        m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
-                    // add child's contribution
-                    cm += m;
-                    px += posX[ch] * m;
-                    py += posY[ch] * m;
-                }
-            }
-            count[k]         = cnt;
-            const DataType m = cm ? DataType(1) / cm : DataType(1);
-
-            posX[k] = px * m;
-            posY[k] = py * m;
-            mass[k] = cm;
-        }
-
-        k += inc; // move on to next cell
-    }
     return services::Status();
 }
 
@@ -1113,58 +1041,53 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 // services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posX, DataType * posY, IdxType * duplicates,
 //                                          const IdxType nNodes, const IdxType N, const IdxType & bottom)
 // {
-//     const auto inc = 1;
-//     auto k         = bottom;
+//     bool flag = false;
+//     DataType cm, px, py;
+//     IdxType curChild[4];
+//     DataType curMass[4];
 
-//     // std::cout << "bottom = " << bottom << std::endl;
-//     // for (int i = 4*bottom; i < (nNodes+1)*4; i++)
-//     // {
-//     //     std::cout << "child[" << i << "] = " << child[i] << std::endl;
-//     // }
+//     const IdxType inc = 1;
+//     auto k            = bottom;
+//     //std::cout << "summarizationKernelImpl" << std::endl;
+//     //std::cout << "***************************************************************\n******************************************************************" << std::endl;
+//     std::cout << "bottom = " << bottom << std::endl;
+
+//     for (int i = 4*bottom; i < (nNodes+1)*4; i++)
+//     {
+//         std::cout << "child[" << i << "] = " << child[i] << std::endl;
+//     }
+//     std::cout << std::endl;
+//     for (int i = 0; i < N; i++)
+//     {
+//         std::cout << "duplicates[" << i << "] = " << duplicates[i] << std::endl;
+//     }
 
 //     //initialize array
 //     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
-//     services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + IdxType(1));
+//     services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
 
-//     const IdxType nThreads = threader_get_threads_number();
-//     const IdxType nBlocks  = nNodes - k + IdxType(1);
-
-//     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
-//         const IdxType iStart = k + iBlock;
-
-//         IdxType curChild[4];
-//         DataType curMass[4];
-//         DataType cm, px, py;
-
-//         if (mass[iStart] < DataType(0))
+//     const auto restart = k;
+//     // iterate over all cells assigned to thread
+//     while (k <= nNodes)
+//     {
+//         if (mass[k] < 0.)
 //         {
-//             IdxType j = 0;
-//             while (j < 4)
+//             for (IdxType i = 0; i < 4; i++)
 //             {
-//                 const IdxType ch = child[iStart * 4 + j];
-//                 curChild[j]      = ch;
-
-//                 curMass[j] = mass[ch];
-//                 //std::cout << "ch = " << ch << std::endl;
-//                 //std::cout << "mass[ch] = " << mass[ch] << std::endl;
-
-//                 if (ch >= k && curMass[j] < DataType(0))
-//                 {
-//                     continue;
-//                 }
-//                 j++;
+//                 const auto ch = child[k * 4 + i];
+//                 curChild[i]   = ch;
+//                 if (ch >= 0) curMass[i] = mass[ch];
 //             }
 
 //             // all children are ready
-//             cm          = 0.;
-//             px          = 0.;
-//             py          = 0.;
-//             IdxType cnt = 0;
+//             cm       = 0.;
+//             px       = 0.;
+//             py       = 0.;
+//             auto cnt = 0;
 
 //             for (IdxType i = 0; i < 4; i++)
 //             {
 //                 const IdxType ch = curChild[i];
-
 //                 if (ch >= 0)
 //                 {
 //                     DataType m = 0;
@@ -1183,25 +1106,134 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 //                     }
 //                     else
 //                         m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
-
 //                     // add child's contribution
 //                     cm += m;
 //                     px += posX[ch] * m;
 //                     py += posY[ch] * m;
 //                 }
 //             }
-//             count[iStart] = cnt;
-
+//             count[k]         = cnt;
 //             const DataType m = cm ? DataType(1) / cm : DataType(1);
 
-//             posX[iStart] = px * m;
-//             posY[iStart] = py * m;
-
-//             mass[iStart] = cm;
+//             posX[k] = px * m;
+//             posY[k] = py * m;
+//             mass[k] = cm;
 //         }
-//     });
+
+//         k += inc; // move on to next cell
+//     }
 //     return services::Status();
 // }
+
+template <typename IdxType, typename DataType, daal::CpuType cpu>
+services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posX, DataType * posY, IdxType * duplicates,
+                                         const IdxType nNodes, const IdxType N, const IdxType & bottom)
+{
+    const auto inc = 1;
+    //auto k         = bottom;
+    auto k = bottom < N ? N : bottom;
+    // std::cout << "bottom = " << bottom << std::endl;
+
+    // for (int i = 4*bottom; i < (nNodes+1)*4; i++)
+    // {
+    //     std::cout << "child[" << i << "] = " << child[i] << std::endl;
+    // }
+    // std::cout << std::endl;
+    // for (int i = 0; i < N; i++)
+    // {
+    //     std::cout << "duplicates[" << i << "] = " << duplicates[i] << std::endl;
+    // }
+
+    //std::cout << "*****************************summarizationKernelImpl************************" << std::endl;
+
+    //initialize array
+    services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
+    services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + IdxType(1));
+
+    const IdxType nThreads = threader_get_threads_number();
+    const IdxType nBlocks  = nNodes - k + IdxType(1);
+
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+        const IdxType iStart = k + iBlock;
+
+        IdxType curChild[4];
+        DataType curMass[4];
+        DataType cm, px, py;
+
+        if (mass[iStart] < DataType(0))
+        {
+            IdxType j = 0;
+
+            //bool print_flag = true;
+            while (j < 4)
+            {
+                const IdxType ch = child[iStart * 4 + j];
+                curChild[j]      = ch;
+
+                curMass[j] = mass[ch];
+
+                // if (print_flag) {
+                //     std::cout << "curChild[" << j << "] = " << curChild[j] << std::endl;
+                //     std::cout << "curMass[" << j << "] = " << curMass[j] << std::endl;
+                //     print_flag = false;
+
+                // }
+
+                if (ch >= k && ch >= N && curMass[j] < DataType(0))
+                {
+                    continue;
+                }
+                //print_flag = true;
+                j++;
+            }
+
+            // all children are ready
+            cm          = 0.;
+            px          = 0.;
+            py          = 0.;
+            IdxType cnt = 0;
+
+            for (IdxType i = 0; i < 4; i++)
+            {
+                const IdxType ch = curChild[i];
+
+                if (ch >= 0)
+                {
+                    DataType m = 0;
+                    if (duplicates[ch] > 1)
+                    {
+                        if (ch >= N)
+                        {
+                            cnt += count[ch];
+                            m = curMass[i];
+                        }
+                        else
+                        {
+                            cnt += duplicates[ch];
+                            m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
+                        }
+                    }
+                    else
+                        m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+
+                    // add child's contribution
+                    cm += m;
+                    px += posX[ch] * m;
+                    py += posY[ch] * m;
+                }
+            }
+            count[iStart] = cnt;
+
+            const DataType m = cm ? DataType(1) / cm : DataType(1);
+
+            posX[iStart] = px * m;
+            posY[iStart] = py * m;
+
+            mass[iStart] = cm;
+        }
+    });
+    return services::Status();
+}
 
 template <typename IdxType, daal::CpuType cpu>
 services::Status sortKernelImpl(IdxType * sort, const IdxType * count, IdxType * start, IdxType * child, const IdxType nNodes, const IdxType N,
@@ -1532,7 +1564,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const IdxType nIterWithoutProgress = sizeIter[2]; // Number of iterations without introducing changes
     const IdxType maxIter              = sizeIter[3]; // Number of iterations
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, 2, N);
-    const IdxType nNodes          = N <= 50 ? 6 * N : 2 * N; // A small number of points may require more memory to store tree nodes
+    const IdxType nNodes          = N <= 50 ? 4 * N : 2 * N; // A small number of points may require more memory to store tree nodes
     const IdxType nIterCheck      = 50;
     const IdxType explorationIter = 250; // Aligned with scikit-learn
     const IdxType blockOfRows     = 256;
