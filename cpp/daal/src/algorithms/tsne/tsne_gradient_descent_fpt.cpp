@@ -691,8 +691,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     nBlocks     = num_blocks;
 
     //std::cout << "debug 5" << std::endl;
-    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType b = iBlock * sizeOfBlock;
         IdxType lo      = b * block_size;                                                     // lower border of block in indices
         IdxType hi      = services::internal::min<cpu, IdxType>((b + 1) * block_size, N - 1); // upper border of block
@@ -710,8 +710,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     }
 
     //std::cout << "debug 6" << std::endl;
-    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType b = iBlock * sizeOfBlock;
         IdxType lo      = b * block_size;
         IdxType hi      = services::internal::min<cpu, IdxType>((b + 1) * block_size, N - 1);
@@ -854,8 +854,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     // std::cout << "nBlocks = " << nBlocks << std::endl;
     // std::cout << "tree_seq size = " <<  tree_allocation << std::endl;
 
-    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         //std::cout << "debug 11_0" << std::endl;
         const IdxType subtree_id        = iBlock * sizeOfBlock;
         TreeNode<IdxType> t_node        = tree_seq[par_tree_start + subtree_id];
@@ -912,8 +912,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     nBlocks     = num_subtrees;
 
     //std::cout << "debug 13" << std::endl;
-    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         IdxType subtree_i        = 0;
         for (IdxType lev = 0; lev < MAX_LEVEL; lev++)
@@ -942,8 +942,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
     //std::cout << "debug 15" << std::endl;
-    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         IdxType subtree_i        = 0;
         bool flag_tmp            = false;
@@ -1020,8 +1020,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
 
-    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         services::internal::service_scalable_free<TreeNode<IdxType>, cpu>(tree_par[subtree_id]);
     });
@@ -1031,7 +1031,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 
     services::internal::service_scalable_free<CodeType<IdxType>, cpu>(morton_code);
     services::internal::service_scalable_free<SplitType<IdxType>, cpu>(split_list);
-    //services::internal::service_scalable_free<IdxType, cpu>(nseq);
+    services::internal::service_scalable_free<IdxType, cpu>(nseq);
 
     maxTlsDepth.reduceTo(&maxDepth, 1);
     return services::Status();
