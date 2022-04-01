@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -29,14 +27,13 @@ template<bool beta, typename Float, pr::ndorder xtxlayout, pr::ndorder xtylayout
 sycl::event finalize(   sycl::queue& queue,
                         const pr::ndview<Float, 2, xtxlayout>& xtx,
                         const pr::ndview<Float, 2, xtylayout>& xty,
-                        pr::ndview<Float, 2, pr::ndorder::c>& beta,
+                        pr::ndview<Float, 2, pr::ndorder::c>& betas,
                         const be::event_vector& deps) {
 
     auto [xtxc, xtxe] = pr::copy(queue, xtx, deps);
     auto [xtyc, xtye] = pr::copy(queue, xty, deps);
 
-    auto potrf_event = pr::potrf_factorization(queue, xtx, );
-    auto potrs_event = pr::potrf_factorization(queue, xtx, deps);
+
 
 
     return sycl::event{};

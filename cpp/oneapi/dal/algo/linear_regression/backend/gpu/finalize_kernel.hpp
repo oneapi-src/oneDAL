@@ -28,7 +28,7 @@ template<bool beta, typename Float, pr::ndorder xtxlayout, pr::ndorder xtylayout
 sycl::event finalize(  sycl::queue& queue,
                     const pr::ndview<Float, 2, xtxlayout>& xtx,
                     const pr::ndview<Float, 2, xtylayout>& xty,
-                    pr::ndview<Float, 2, pr::ndorder::c>& beta,
+                    pr::ndview<Float, 2, pr::ndorder::c>& betas,
                     const be::event_vector& deps = {});
 
 } // namespace oneapi::dal::linear_regression::backend

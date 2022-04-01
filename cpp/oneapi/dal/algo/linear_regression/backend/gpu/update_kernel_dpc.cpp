@@ -18,6 +18,8 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
 
+#include "oneapi/dal/backend/primitives/debug.hpp"
+
 #include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
@@ -40,16 +42,21 @@ sycl::event update_xtx( sycl::queue& queue,
     ONEDAL_ASSERT(ext_f_count == (f_count + std::int64_t(beta)));
 
     auto core = xtx.get_col_slice(0, f_count).get_row_slice(0, f_count);
-    auto syrk_event = pr::syrk<uplo::upper>(queue, x, core, one, one, deps);
+    auto syrk_event = pr::syrk<uplo::lower>(queue, x, core, one, one, deps);
+
+    syrk_event.wait_and_throw();
+    std::cout << core << std::endl;
 
     if constexpr (beta) {
         auto means_2d = xtx.get_col_slice(0, f_count).get_row_slice(f_count, ext_f_count);
-        auto means = means_2d.template reshape<1, pr::ndorder::c>(f_count);
-        auto count = xtx.get_col_slice(f_count, ext_f_count).get_row_slice(f_count, ext_f_count);
-
-        ONEDAL_ASSERT(count.get_count() == 1);
-        ONEDAL_ASSERT(means_2d.get_stride(1) == 1);
         ONEDAL_ASSERT(means_2d.get_count() == f_count);
+        ONEDAL_ASSERT(means_2d.get_stride(1) == 1);
+
+        auto means = means_2d.template reshape<1, pr::ndorder::c>(f_count);
+        ONEDAL_ASSERT(means.get_count() == f_count);
+
+        auto count = xtx.get_col_slice(f_count, ext_f_count).get_row_slice(f_count, ext_f_count);
+        ONEDAL_ASSERT(count.get_count() == 1);
 
         const auto s_count = x.get_dimension(0);
 
@@ -68,7 +75,7 @@ sycl::event update_xty( sycl::queue& queue,
                         const pr::ndview<Float, 2, ylayout>& y,
                         pr::ndview<Float, 2, pr::ndorder::f>& xty,
                         const be::event_vector& deps) {
-    constexpr Float one = 1;
+    //constexpr Float one = 1;
     constexpr pr::sum<Float> plus;
     constexpr pr::identity<Float> ident;
 
@@ -82,8 +89,14 @@ sycl::event update_xty( sycl::queue& queue,
     ONEDAL_ASSERT(x.get_dimension(0) == y.get_dimension(0));
     ONEDAL_ASSERT(ext_f_count == (f_count + std::int64_t(beta)));
 
+    ONEDAL_ASSERT(xty.get_dimension(1) == ext_f_count);
+    ONEDAL_ASSERT(xty.get_dimension(0) == r_count);
+
     auto core = xty.get_col_slice(0, f_count);
-    auto gemm_event = pr::gemm(queue, x, y, core, one, one, deps);
+    ONEDAL_ASSERT(core.get_dimension(1) == f_count);
+    ONEDAL_ASSERT(core.get_dimension(0) == r_count);
+    //auto gemm_event = pr::gemm(queue, x, y, core, one, one, deps);
+    auto gemm_event = sycl::event{};
 
     if constexpr (beta) {
         auto means_2d = xty.get_col_slice(f_count, ext_f_count);
