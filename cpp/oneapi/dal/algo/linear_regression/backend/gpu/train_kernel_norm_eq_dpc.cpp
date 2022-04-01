@@ -16,6 +16,7 @@
 
 #include <daal/src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h>
 
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -24,6 +25,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/debug.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -31,6 +33,8 @@
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
+#include "oneapi/dal/algo/linear_regression/backend/gpu/finalize_kernel.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
 
@@ -60,7 +64,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    bool intp = desc.get_compute_intercept();
+    const bool intp = desc.get_compute_intercept();
 
     const auto feature_count = data.get_column_count();
     const auto response_count = resp.get_column_count();
@@ -100,8 +104,23 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     }
 
     {
-        auto xty_ndarr = pr::ndarray<Float, 2>::wrap(xty_arr, {response_count, ext_feature_count});
-        std::cout << "After: " << xty_ndarr << std::endl;
+        constexpr auto alloc = sycl::usm::alloc::shared;
+        auto x = pr::table2ndarray<Float>(queue, data, alloc);
+        auto y = pr::table2ndarray<Float>(queue, resp, alloc);
+        std::cout << "X: " << x << std::endl;
+        const pr::ndshape<2> xty_shape{response_count, ext_feature_count};
+        const pr::ndshape<2> xtx_shape{ext_feature_count, ext_feature_count};
+        auto xtx_ndarr = pr::ndarray<Float, 2>::wrap(xtx_arr, xtx_shape);
+        std::cout << "Old Xtx: " << xtx_ndarr << std::endl;
+        auto xty_ndarr = pr::ndarray<Float, 2>::wrap(xty_arr, xty_shape);
+        std::cout << "Old Xty: " << xty_ndarr << std::endl;
+        auto [xty, xty_event] = pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
+        auto [xtx, xtx_event] = pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
+        auto xty_update_event = update_xty(queue, intp, x, y, xty, {xty_event});
+        auto xtx_update_event = update_xtx(queue, intp, x, xtx, {xtx_event});
+        sycl::event::wait_and_throw({xtx_update_event, xty_update_event});
+        std::cout << "Xtx: " << xtx << std::endl;
+        std::cout << "Xty: " << xty << std::endl;
     }
 
     {

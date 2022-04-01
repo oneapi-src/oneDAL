@@ -11,6 +11,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/backend/primitives:blas",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
+        "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
         "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],
     extra_deps = [

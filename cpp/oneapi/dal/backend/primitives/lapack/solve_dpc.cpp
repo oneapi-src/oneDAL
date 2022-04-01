@@ -14,10 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
-
-#include "oneapi/dal/backend/primitives/lapack/solve.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -65,7 +64,8 @@ sycl::event solve_system(   sycl::queue& queue,
 
     opt_array<Float> dummy{};
     auto potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
-    return potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
+    auto potrs_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
+    return potrs_event;
 }
 
 #define INSTANTIATE(U, B, F, XL, YL)                                            \

@@ -30,11 +30,32 @@ sycl::event update_xtx( sycl::queue& queue,
                         pr::ndview<Float, 2, pr::ndorder::c>& xtx,
                         const be::event_vector& deps = {});
 
+template<typename Float, pr::ndorder layout>
+inline sycl::event update_xtx(  sycl::queue& queue,
+                                bool beta,
+                                const pr::ndview<Float, 2, layout>& x,
+                                pr::ndview<Float, 2, pr::ndorder::c>& xtx,
+                                const be::event_vector& deps = {}) {
+    if (beta) return update_xtx<true>(queue, x, xtx, deps);
+    else return update_xtx<false>(queue, x, xtx, deps);
+}
+
 template<bool beta, typename Float, pr::ndorder xlayout, pr::ndorder ylayout>
 sycl::event update_xty( sycl::queue& queue,
                         const pr::ndview<Float, 2, xlayout>& x,
                         const pr::ndview<Float, 2, ylayout>& y,
                         pr::ndview<Float, 2, pr::ndorder::f>& xty,
                         const be::event_vector& deps = {});
+
+template<typename Float, pr::ndorder xlayout, pr::ndorder ylayout>
+inline sycl::event update_xty(  sycl::queue& queue,
+                                bool beta,
+                                const pr::ndview<Float, 2, xlayout>& x,
+                                const pr::ndview<Float, 2, ylayout>& y,
+                                pr::ndview<Float, 2, pr::ndorder::f>& xty,
+                                const be::event_vector& deps = {}) {
+    if (beta) return update_xty<true>(queue, x, y, xty, deps);
+    else return update_xty<false>(queue, x, y, xty, deps);
+}
 
 } // namespace oneapi::dal::linear_regression::backend
