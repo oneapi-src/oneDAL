@@ -76,6 +76,7 @@ services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
+    //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
     daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
@@ -691,8 +692,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     nBlocks     = num_blocks;
 
     //std::cout << "debug 5" << std::endl;
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType b = iBlock * sizeOfBlock;
         IdxType lo      = b * block_size;                                                     // lower border of block in indices
         IdxType hi      = services::internal::min<cpu, IdxType>((b + 1) * block_size, N - 1); // upper border of block
@@ -710,8 +711,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     }
 
     //std::cout << "debug 6" << std::endl;
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType b = iBlock * sizeOfBlock;
         IdxType lo      = b * block_size;
         IdxType hi      = services::internal::min<cpu, IdxType>((b + 1) * block_size, N - 1);
@@ -854,8 +855,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     // std::cout << "nBlocks = " << nBlocks << std::endl;
     // std::cout << "tree_seq size = " <<  tree_allocation << std::endl;
 
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         //std::cout << "debug 11_0" << std::endl;
         const IdxType subtree_id        = iBlock * sizeOfBlock;
         TreeNode<IdxType> t_node        = tree_seq[par_tree_start + subtree_id];
@@ -874,11 +875,11 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
         sort_splits(split_list + first, second - first, split_list + first + N - 1);
         //std::cout << "debug 11_2" << std::endl;
         tree_par[subtree_id][0] = t_node;
-        // for (int i = 0; i < 4; i++)
-        // {
-        //     tree_par[subtree_id][0].child[i] = t_node.child[i];
-        //     tree_par[subtree_id][0].child_internal[i] = t_node.child_internal[i];
-        // }
+        for (int i = 0; i < 4; i++)
+        {
+            tree_par[subtree_id][0].child[i]          = t_node.child[i];
+            tree_par[subtree_id][0].child_internal[i] = t_node.child_internal[i];
+        }
         // IdxType subtree_size    = build_tree<IdxType, cpu>(morton_code, split_list + first, second - first, tree_par_allocation[subtree_id],
         //                                                 subtree_level_size + subtree_id * (MAX_LEVEL + 1), SEQ_UPTO_LEVEL + 1, tree_par[subtree_id]);
         //std::cout << "debug 11_3" << std::endl;
@@ -912,8 +913,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     nBlocks     = num_subtrees;
 
     //std::cout << "debug 13" << std::endl;
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         IdxType subtree_i        = 0;
         for (IdxType lev = 0; lev < MAX_LEVEL; lev++)
@@ -931,7 +932,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
         }
     });
 
-    //std::cout << "debug 14" << std::endl;
+    // std::cout << "debug 14" << std::endl;
     for (int sm = 0; sm < num_subtrees; sm++)
     {
         //std::cout << "min_pos["<< sm <<"] = " << min_pos[sm] << std::endl;
@@ -942,8 +943,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
     //std::cout << "debug 15" << std::endl;
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         IdxType subtree_i        = 0;
         bool flag_tmp            = false;
@@ -1005,7 +1006,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 
     // for (int sm = 0; sm < num_subtrees; sm++)
     // {
-    //     std::cout << "min_pos_2["<< sm <<"] = " << min_pos[sm] << std::endl;
+    //     //std::cout << "min_pos_2["<< sm <<"] = " << min_pos[sm] << std::endl;
     //     if (bottom > min_pos[sm]) bottom = min_pos[sm];
     // }
     // std::cout  << bottom << std::endl;
@@ -1020,8 +1021,8 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
     sizeOfBlock = 1;
     nBlocks     = num_subtrees;
 
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
-        //daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+    //daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType subtree_id = iBlock * sizeOfBlock;
         services::internal::service_scalable_free<TreeNode<IdxType>, cpu>(tree_par[subtree_id]);
     });
@@ -1041,7 +1042,6 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 // services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataType * mass, DataType * posX, DataType * posY, IdxType * duplicates,
 //                                          const IdxType nNodes, const IdxType N, const IdxType & bottom)
 // {
-//     bool flag = false;
 //     DataType cm, px, py;
 //     IdxType curChild[4];
 //     DataType curMass[4];
@@ -1050,23 +1050,22 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 //     auto k            = bottom;
 //     //std::cout << "summarizationKernelImpl" << std::endl;
 //     //std::cout << "***************************************************************\n******************************************************************" << std::endl;
-//     std::cout << "bottom = " << bottom << std::endl;
+//     // std::cout << "bottom = " << bottom << std::endl;
 
-//     for (int i = 4*bottom; i < (nNodes+1)*4; i++)
-//     {
-//         std::cout << "child[" << i << "] = " << child[i] << std::endl;
-//     }
-//     std::cout << std::endl;
-//     for (int i = 0; i < N; i++)
-//     {
-//         std::cout << "duplicates[" << i << "] = " << duplicates[i] << std::endl;
-//     }
+//     // for (int i = 4*bottom; i < (nNodes+1)*4; i++)
+//     // {
+//     //     std::cout << "child[" << i << "] = " << child[i] << std::endl;
+//     // }
+//     // std::cout << std::endl;
+//     // for (int i = 0; i < N; i++)
+//     // {
+//     //     std::cout << "duplicates[" << i << "] = " << duplicates[i] << std::endl;
+//     // }
 
 //     //initialize array
 //     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
 //     services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
 
-//     const auto restart = k;
 //     // iterate over all cells assigned to thread
 //     while (k <= nNodes)
 //     {
@@ -1075,6 +1074,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 //             for (IdxType i = 0; i < 4; i++)
 //             {
 //                 const auto ch = child[k * 4 + i];
+//                 //if (ch < -1 || ch >= nNodes + 1) std::cout << "***********************************************************|" << std::endl;
 //                 curChild[i]   = ch;
 //                 if (ch >= 0) curMass[i] = mass[ch];
 //             }
@@ -1091,21 +1091,33 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
 //                 if (ch >= 0)
 //                 {
 //                     DataType m = 0;
-//                     if (duplicates[ch] > 1)
+//                     // if (duplicates[ch] > 1)
+//                     // {
+//                     //     if (ch >= N)
+//                     //     {
+//                     //         cnt += count[ch];
+//                     //         m = curMass[i];
+//                     //     }
+//                     //     else
+//                     //     {
+//                     //         cnt += duplicates[ch];
+//                     //         m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
+//                     //     }
+//                     // }
+//                     // else
+//                     //     m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+
+//                     if (ch >= N)
 //                     {
-//                         if (ch >= N)
-//                         {
-//                             cnt += count[ch];
-//                             m = curMass[i];
-//                         }
-//                         else
-//                         {
-//                             cnt += duplicates[ch];
-//                             m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
-//                         }
+//                         cnt += count[ch];
+//                         m = curMass[i];
 //                     }
 //                     else
-//                         m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+//                     {
+//                             cnt += duplicates[ch];
+//                             m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
+//                     }
+
 //                     // add child's contribution
 //                     cm += m;
 //                     px += posX[ch] * m;
@@ -1131,7 +1143,8 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 {
     const auto inc = 1;
     //auto k         = bottom;
-    auto k = bottom < N ? N : bottom;
+
+    IdxType k = bottom < N ? N : bottom;
     // std::cout << "bottom = " << bottom << std::endl;
 
     // for (int i = 4*bottom; i < (nNodes+1)*4; i++)
@@ -1148,13 +1161,16 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 
     //initialize array
     services::internal::service_memset<DataType, cpu>(mass, DataType(1), k);
-    services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + IdxType(1));
+    services::internal::service_memset<DataType, cpu>(&mass[k], DataType(-1), nNodes - k + 1);
 
     const IdxType nThreads = threader_get_threads_number();
     const IdxType nBlocks  = nNodes - k + IdxType(1);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = k + iBlock;
+
+        // if (iStart < 0 || iStart >= nNodes + 1)
+        //     std::cout << " ****************************************************************|" << std::endl;
 
         IdxType curChild[4];
         DataType curMass[4];
@@ -1163,28 +1179,25 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
         if (mass[iStart] < DataType(0))
         {
             IdxType j = 0;
-
-            //bool print_flag = true;
             while (j < 4)
             {
                 const IdxType ch = child[iStart * 4 + j];
                 curChild[j]      = ch;
-
-                curMass[j] = mass[ch];
-
-                // if (print_flag) {
-                //     std::cout << "curChild[" << j << "] = " << curChild[j] << std::endl;
-                //     std::cout << "curMass[" << j << "] = " << curMass[j] << std::endl;
-                //     print_flag = false;
-
-                // }
-
-                if (ch >= k && ch >= N && curMass[j] < DataType(0))
+                if (ch >= 0)
                 {
-                    continue;
+                    curMass[j] = mass[ch];
+                    if (ch >= k && curMass[j] < DataType(0))
+                    {
+                        continue;
+                    }
                 }
-                //print_flag = true;
                 j++;
+
+                // curMass[j] = mass[ch];
+                // if (ch >= k && curMass[j] < DataType(0) && ch )
+                // {
+                //     continue;
+                // }
             }
 
             // all children are ready
@@ -1196,25 +1209,35 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
             for (IdxType i = 0; i < 4; i++)
             {
                 const IdxType ch = curChild[i];
-
                 if (ch >= 0)
                 {
-                    DataType m = 0;
-                    if (duplicates[ch] > 1)
+                    DataType m = 0.;
+                    // if (duplicates[ch] > 1)
+                    // {
+                    //     if (ch >= N)
+                    //     {
+                    //         cnt += count[ch];
+                    //         m = curMass[i];
+                    //     }
+                    //     else
+                    //     {
+                    //         cnt += duplicates[ch];
+                    //         m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
+                    //     }
+                    // }
+                    // else
+                    //     m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+
+                    if (ch >= N)
                     {
-                        if (ch >= N)
-                        {
-                            cnt += count[ch];
-                            m = curMass[i];
-                        }
-                        else
-                        {
-                            cnt += duplicates[ch];
-                            m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
-                        }
+                        cnt += count[ch];
+                        m = curMass[i];
                     }
                     else
-                        m = (ch >= N) ? (cnt += count[ch], curMass[i]) : (cnt++, mass[ch]);
+                    {
+                        cnt += duplicates[ch];
+                        m = mass[ch] + DataType(duplicates[ch]) - DataType(1);
+                    }
 
                     // add child's contribution
                     cm += m;
@@ -1228,7 +1251,6 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
 
             posX[iStart] = px * m;
             posY[iStart] = py * m;
-
             mass[iStart] = cm;
         }
     });
@@ -1620,91 +1642,145 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     size_t * row   = CSRBlock.getBlockRowIndicesPtr();
 
     // allocate and init memory for auxiliary arrays: posX & posY
-    TArrayScalableCalloc<DataType, cpu> posX(nNodes + 1);
-    DAAL_CHECK_MALLOC(posX.get());
-    services::internal::tmemcpy<DataType, cpu>(posX.get(), xInit, N);
-    TArrayScalableCalloc<DataType, cpu> posY(nNodes + 1);
-    DAAL_CHECK_MALLOC(posY.get());
-    services::internal::tmemcpy<DataType, cpu>(posY.get(), yInit, N);
+    // TArrayScalableCalloc<DataType, cpu> posX(nNodes + 1);
+    // DAAL_CHECK_MALLOC(posX.get());
+    // services::internal::tmemcpy<DataType, cpu>(posX.get(), xInit, N);
+    // TArrayScalableCalloc<DataType, cpu> posY(nNodes + 1);
+    // DAAL_CHECK_MALLOC(posY.get());
+    // services::internal::tmemcpy<DataType, cpu>(posY.get(), yInit, N);
+
+    DataType * posX = services::internal::service_scalable_calloc<DataType, cpu>(nNodes + 1);
+    DAAL_CHECK_MALLOC(posX);
+    services::internal::tmemcpy<DataType, cpu>(posX, xInit, N);
+    DataType * posY = services::internal::service_scalable_calloc<DataType, cpu>(nNodes + 1);
+    DAAL_CHECK_MALLOC(posY);
+    services::internal::tmemcpy<DataType, cpu>(posY, yInit, N);
 
     // allocate and init memory for auxiliary arrays
+    // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, (nNodes + 1), 4);
+    // TArrayScalableCalloc<IdxType, cpu> child((nNodes + 1) * 4);
+    // DAAL_CHECK_MALLOC(child.get());
+    // TArrayScalableCalloc<IdxType, cpu> count(nNodes + 1);
+    // DAAL_CHECK_MALLOC(count.get());
+    // TArrayScalableCalloc<DataType, cpu> mass(nNodes + 1);
+    // DAAL_CHECK_MALLOC(mass.get());
+    // TArrayScalableCalloc<IdxType, cpu> sort(nNodes + 1);
+    // DAAL_CHECK_MALLOC(sort.get());
+    // TArrayScalableCalloc<IdxType, cpu> start(nNodes + 1);
+    // DAAL_CHECK_MALLOC(start.get());
+    // TArrayScalableCalloc<DataType, cpu> repX(nNodes + 1);
+    // DAAL_CHECK_MALLOC(repX.get());
+    // TArrayScalableCalloc<DataType, cpu> repY(nNodes + 1);
+    // DAAL_CHECK_MALLOC(repY.get());
+    // TArrayScalableCalloc<DataType, cpu> attrX(N);
+    // DAAL_CHECK_MALLOC(attrX.get());
+    // TArrayScalableCalloc<DataType, cpu> attrY(N);
+    // DAAL_CHECK_MALLOC(attrY.get());
+    // TArrayScalableCalloc<DataType, cpu> gainX(N);
+    // DAAL_CHECK_MALLOC(gainX.get());
+    // TArrayScalableCalloc<DataType, cpu> gainY(N);
+    // DAAL_CHECK_MALLOC(gainY.get());
+    // TArrayScalableCalloc<DataType, cpu> oldForceX(N);
+    // DAAL_CHECK_MALLOC(oldForceX.get());
+    // TArrayScalableCalloc<DataType, cpu> oldForceY(N);
+    // DAAL_CHECK_MALLOC(oldForceY.get());
+    // TArrayScalableCalloc<IdxType, cpu> duplicates(N);
+    // DAAL_CHECK_MALLOC(duplicates.get());
+
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, (nNodes + 1), 4);
-    TArrayScalableCalloc<IdxType, cpu> child((nNodes + 1) * 4);
-    DAAL_CHECK_MALLOC(child.get());
-    TArrayScalableCalloc<IdxType, cpu> count(nNodes + 1);
-    DAAL_CHECK_MALLOC(count.get());
-    TArrayScalableCalloc<DataType, cpu> mass(nNodes + 1);
-    DAAL_CHECK_MALLOC(mass.get());
-    TArrayScalableCalloc<IdxType, cpu> sort(nNodes + 1);
-    DAAL_CHECK_MALLOC(sort.get());
-    TArrayScalableCalloc<IdxType, cpu> start(nNodes + 1);
-    DAAL_CHECK_MALLOC(start.get());
-    TArrayScalableCalloc<DataType, cpu> repX(nNodes + 1);
-    DAAL_CHECK_MALLOC(repX.get());
-    TArrayScalableCalloc<DataType, cpu> repY(nNodes + 1);
-    DAAL_CHECK_MALLOC(repY.get());
-    TArrayScalableCalloc<DataType, cpu> attrX(N);
-    DAAL_CHECK_MALLOC(attrX.get());
-    TArrayScalableCalloc<DataType, cpu> attrY(N);
-    DAAL_CHECK_MALLOC(attrY.get());
-    TArrayScalableCalloc<DataType, cpu> gainX(N);
-    DAAL_CHECK_MALLOC(gainX.get());
-    TArrayScalableCalloc<DataType, cpu> gainY(N);
-    DAAL_CHECK_MALLOC(gainY.get());
-    TArrayScalableCalloc<DataType, cpu> oldForceX(N);
-    DAAL_CHECK_MALLOC(oldForceX.get());
-    TArrayScalableCalloc<DataType, cpu> oldForceY(N);
-    DAAL_CHECK_MALLOC(oldForceY.get());
-    TArrayScalableCalloc<IdxType, cpu> duplicates(N);
-    DAAL_CHECK_MALLOC(duplicates.get());
+    IdxType * child = services::internal::service_scalable_calloc<IdxType, cpu>((nNodes + 1) * 4);
+    DAAL_CHECK_MALLOC(child);
+    IdxType * count = services::internal::service_scalable_calloc<IdxType, cpu>(nNodes + 1);
+    DAAL_CHECK_MALLOC(count);
+    DataType * mass = services::internal::service_scalable_calloc<DataType, cpu>(nNodes + 1);
+    DAAL_CHECK_MALLOC(mass);
+    IdxType * sort = services::internal::service_scalable_calloc<IdxType, cpu>(nNodes + 1);
+    DAAL_CHECK_MALLOC(sort);
+    IdxType * start = services::internal::service_scalable_calloc<IdxType, cpu>(nNodes + 1);
+    DAAL_CHECK_MALLOC(start);
+    DataType * repX = services::internal::service_scalable_calloc<DataType, cpu>(nNodes + 1);
+    DAAL_CHECK_MALLOC(repX);
+    DataType * repY = services::internal::service_scalable_calloc<DataType, cpu>(nNodes + 1);
+    DAAL_CHECK_MALLOC(repY);
+    DataType * attrX = services::internal::service_scalable_calloc<DataType, cpu>(N);
+    DAAL_CHECK_MALLOC(attrX);
+    DataType * attrY = services::internal::service_scalable_calloc<DataType, cpu>(N);
+    DAAL_CHECK_MALLOC(attrY);
+    DataType * gainX = services::internal::service_scalable_calloc<DataType, cpu>(N);
+    DAAL_CHECK_MALLOC(gainX);
+    DataType * gainY = services::internal::service_scalable_calloc<DataType, cpu>(N);
+    DAAL_CHECK_MALLOC(gainY);
+    DataType * oldForceX = services::internal::service_scalable_calloc<DataType, cpu>(N);
+    DAAL_CHECK_MALLOC(oldForceX);
+    DataType * oldForceY = services::internal::service_scalable_calloc<DataType, cpu>(N);
+    DAAL_CHECK_MALLOC(oldForceY);
+    IdxType * duplicates = services::internal::service_scalable_calloc<IdxType, cpu>(N);
+    DAAL_CHECK_MALLOC(duplicates);
 
     status = maxRowElementsImpl<IdxType, cpu>(row, N, nElements, blockOfRows);
     DAAL_CHECK_STATUS_VAR(status);
 
+    // std::cout << "child pointer " << child << std::endl;
+    // std::cout << "mass pointer " << mass << std::endl;
+    // std::cout << std::endl;
+
     //start iterations
     for (IdxType i = 0; i < explorationIter; ++i)
     {
-        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posX.get(), posY.get(), N, nNodes, radius, blockOfRows);
+        // status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posX.get(), posY.get(), N, nNodes, radius, blockOfRows);
+        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posX, posY, N, nNodes, radius, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "BB" << std::endl;
+        // std::cout << "E: BB" << std::endl;
 
-        status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(sort.get(), child.get(), posX.get(), posY.get(), duplicates.get(), nNodes, N,
-                                                                 maxDepth, bottom, radius, blockOfRows);
+        // status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(sort.get(), child.get(), posX.get(), posY.get(), duplicates.get(), nNodes, N,
+        //                                                          maxDepth, bottom, radius, blockOfRows);
+        status =
+            qTreeBuildingKernelImpl<IdxType, DataType, cpu>(sort, child, posX, posY, duplicates, nNodes, N, maxDepth, bottom, radius, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "qtree" << std::endl;
+        // std::cout << "qtree" << std::endl;
 
-        status = summarizationKernelImpl<IdxType, DataType, cpu>(count.get(), child.get(), mass.get(), posX.get(), posY.get(), duplicates.get(),
-                                                                 nNodes, N, bottom);
+        // status = summarizationKernelImpl<IdxType, DataType, cpu>(count.get(), child.get(), mass.get(), posX.get(), posY.get(), duplicates.get(),
+        //                                                          nNodes, N, bottom);
+        status = summarizationKernelImpl<IdxType, DataType, cpu>(count, child, mass, posX, posY, duplicates, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "summ kernel" << std::endl;
+        // std::cout << "summ kernel" << std::endl;
 
-        status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom);
+        // status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom);
+        status = sortKernelImpl<IdxType, cpu>(sort, count, start, child, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "sort kernel" << std::endl;
+        // std::cout << "sort kernel" << std::endl;
 
-        status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posX.get(), posY.get(), repX.get(),
-                                                             repY.get(), zNorm, nNodes, N, radius, maxDepth, blockOfRows);
+        // status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posX.get(), posY.get(), repX.get(),
+        //                                              repY.get(), zNorm, nNodes, N, radius, maxDepth, blockOfRows);
+        status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort, child, mass, posX, posY, repX, repY, zNorm, nNodes, N, radius,
+                                                             maxDepth, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "repulsion kernel" << std::endl;
+        // std::cout << "repulsion kernel" << std::endl;
 
         if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
         {
-            status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posX.get(), posY.get(), attrX.get(), attrY.get(), zNorm,
-                                                                        divergence, nNodes, N, nnz, nElements, exaggeration, eps, blockOfRows);
+            // status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posX.get(), posY.get(), attrX.get(), attrY.get(), zNorm,
+            //                                                             divergence, nNodes, N, nnz, nElements, exaggeration, eps, blockOfRows);
+            status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posX, posY, attrX, attrY, zNorm, divergence, nNodes, N, nnz,
+                                                                        nElements, exaggeration, eps, blockOfRows);
         }
         else
         {
-            status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posX.get(), posY.get(), attrX.get(), attrY.get(), zNorm,
-                                                                         divergence, nNodes, N, nnz, nElements, exaggeration, eps, blockOfRows);
+            // status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posX.get(), posY.get(), attrX.get(), attrY.get(), zNorm,
+            //                                                              divergence, nNodes, N, nnz, nElements, exaggeration, eps, blockOfRows);
+            status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posX, posY, attrX, attrY, zNorm, divergence, nNodes, N, nnz,
+                                                                         nElements, exaggeration, eps, blockOfRows);
         }
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "attractive kernel" << std::endl;
+        // std::cout << "attractive kernel" << std::endl;
 
-        status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posX.get(), posY.get(), attrX.get(), attrY.get(),
-                                                               repX.get(), repY.get(), gainX.get(), gainY.get(), oldForceX.get(), oldForceY.get(),
-                                                               gradNorm, zNorm, nNodes, N, blockOfRows);
+        // status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posX.get(), posY.get(), attrX.get(), attrY.get(),
+        //                                                        repX.get(), repY.get(), gainX.get(), gainY.get(), oldForceX.get(), oldForceY.get(),
+        //                                                        gradNorm, zNorm, nNodes, N, blockOfRows);
+        status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posX, posY, attrX, attrY, repX, repY, gainX, gainY,
+                                                               oldForceX, oldForceY, gradNorm, zNorm, nNodes, N, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "integration kernel" << std::endl;
+        // std::cout << "integration kernel" << std::endl;
 
         if ((i + 1) % nIterCheck == 0)
         {
@@ -1721,6 +1797,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
             }
             curIter = i;
         }
+        // std::cout << "stop criteria" << std::endl;
     }
 
     momentum     = 0.8;
@@ -1728,46 +1805,61 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
     for (IdxType i = explorationIter; i < maxIter; ++i)
     {
-        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posX.get(), posY.get(), N, nNodes, radius, blockOfRows);
+        //status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posX.get(), posY.get(), N, nNodes, radius, blockOfRows);
+        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(posX, posY, N, nNodes, radius, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "BB" << std::endl;
+        // std::cout << "M: BB" << std::endl;
 
-        status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(sort.get(), child.get(), posX.get(), posY.get(), duplicates.get(), nNodes, N,
-                                                                 maxDepth, bottom, radius, blockOfRows);
+        // status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(sort.get(), child.get(), posX.get(), posY.get(), duplicates.get(), nNodes, N,
+        //                                                          maxDepth, bottom, radius, blockOfRows);
+        status =
+            qTreeBuildingKernelImpl<IdxType, DataType, cpu>(sort, child, posX, posY, duplicates, nNodes, N, maxDepth, bottom, radius, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
 
-        //std::cout << "qtree" << std::endl;
+        // std::cout << "qtree" << std::endl;
 
-        status = summarizationKernelImpl<IdxType, DataType, cpu>(count.get(), child.get(), mass.get(), posX.get(), posY.get(), duplicates.get(),
-                                                                 nNodes, N, bottom);
+        // status = summarizationKernelImpl<IdxType, DataType, cpu>(count.get(), child.get(), mass.get(), posX.get(), posY.get(), duplicates.get(),
+        //                                                          nNodes, N, bottom);
+        status = summarizationKernelImpl<IdxType, DataType, cpu>(count, child, mass, posX, posY, duplicates, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "summ kernel" << std::endl;
+        // std::cout << "summ kernel" << std::endl;
 
-        status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom);
+        // status = sortKernelImpl<IdxType, cpu>(sort.get(), count.get(), start.get(), child.get(), nNodes, N, bottom);
+        status = sortKernelImpl<IdxType, cpu>(sort, count, start, child, nNodes, N, bottom);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "sort kernel" << std::endl;
+        // std::cout << "sort kernel" << std::endl;
 
-        status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posX.get(), posY.get(), repX.get(),
-                                                             repY.get(), zNorm, nNodes, N, radius, maxDepth, blockOfRows);
+        // status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort.get(), child.get(), mass.get(), posX.get(), posY.get(), repX.get(),
+        //                                                      repY.get(), zNorm, nNodes, N, radius, maxDepth, blockOfRows);
+        status = repulsionKernelImpl<IdxType, DataType, cpu>(theta, eps, sort, child, mass, posX, posY, repX, repY, zNorm, nNodes, N, radius,
+                                                             maxDepth, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
-        //std::cout << "repulsion kernel" << std::endl;
+        // std::cout << "repulsion kernel" << std::endl;
 
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
-            status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posX.get(), posY.get(), attrX.get(), attrY.get(), zNorm,
-                                                                        divergence, nNodes, N, nnz, nElements, exaggeration, eps, blockOfRows);
+            // status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posX.get(), posY.get(), attrX.get(), attrY.get(), zNorm,
+            //                                                             divergence, nNodes, N, nnz, nElements, exaggeration, eps, blockOfRows);
+            status = attractiveKernelImpl<true, IdxType, DataType, cpu>(val, col, row, posX, posY, attrX, attrY, zNorm, divergence, nNodes, N, nnz,
+                                                                        nElements, exaggeration, eps, blockOfRows);
         }
         else
         {
-            status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posX.get(), posY.get(), attrX.get(), attrY.get(), zNorm,
-                                                                         divergence, nNodes, N, nnz, nElements, exaggeration, eps, blockOfRows);
+            // status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posX.get(), posY.get(), attrX.get(), attrY.get(), zNorm,
+            //                                                              divergence, nNodes, N, nnz, nElements, exaggeration, eps, blockOfRows);
+            status = attractiveKernelImpl<false, IdxType, DataType, cpu>(val, col, row, posX, posY, attrX, attrY, zNorm, divergence, nNodes, N, nnz,
+                                                                         nElements, exaggeration, eps, blockOfRows);
         }
         DAAL_CHECK_STATUS_VAR(status);
+        // std::cout << "attractive kernel" << std::endl;
 
-        status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posX.get(), posY.get(), attrX.get(), attrY.get(),
-                                                               repX.get(), repY.get(), gainX.get(), gainY.get(), oldForceX.get(), oldForceY.get(),
-                                                               gradNorm, zNorm, nNodes, N, blockOfRows);
+        // status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posX.get(), posY.get(), attrX.get(), attrY.get(),
+        //                                                        repX.get(), repY.get(), gainX.get(), gainY.get(), oldForceX.get(), oldForceY.get(),
+        //                                                        gradNorm, zNorm, nNodes, N, blockOfRows);
+        status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, posX, posY, attrX, attrY, repX, repY, gainX, gainY,
+                                                               oldForceX, oldForceY, gradNorm, zNorm, nNodes, N, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
+        // std::cout << "integration kernel" << std::endl;
 
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
@@ -1789,15 +1881,60 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
             }
             curIter = i;
         }
+        // std::cout << "stop criteria " << i << std::endl;
     }
 
     //save results
-    services::internal::tmemcpy<DataType, cpu>(xInit, posX.get(), N);
-    services::internal::tmemcpy<DataType, cpu>(yInit, posY.get(), N);
+    // std::cout << "save results X " << std::endl;
+    //services::internal::tmemcpy<DataType, cpu>(xInit, posX.get(), N);
+    services::internal::tmemcpy<DataType, cpu>(xInit, posX, N);
+    // std::cout << "save results Y " << std::endl;
+    //services::internal::tmemcpy<DataType, cpu>(yInit, posY.get(), N);
+    services::internal::tmemcpy<DataType, cpu>(yInit, posY, N);
 
+    // std::cout << "release Sparse Block" << std::endl;
     //release block
     status = pTable->releaseSparseBlock(CSRBlock);
+    // std::cout << "status" << std::endl;
     DAAL_CHECK_STATUS_VAR(status);
+    // std::cout << "return2" << std::endl;
+
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     std::cout << xInit[i] << ", " << yInit[i] << std::endl;
+    // }
+    // std::cout << "divergence = " << divergence << std::endl;
+
+    services::internal::service_scalable_free<DataType, cpu>(posX);
+    services::internal::service_scalable_free<DataType, cpu>(posY);
+    // std::cout << "free child " << child << std::endl;
+    services::internal::service_scalable_free<IdxType, cpu>(child);
+    // std::cout << "free count " << count << std::endl;
+    services::internal::service_scalable_free<IdxType, cpu>(count);
+    // std::cout << "free sort " << sort << std::endl;
+    services::internal::service_scalable_free<IdxType, cpu>(sort);
+    // std::cout << "free start " << start << std::endl;
+    services::internal::service_scalable_free<IdxType, cpu>(start);
+    // std::cout << "free repX " << repX << std::endl;
+    services::internal::service_scalable_free<DataType, cpu>(repX);
+    // std::cout << "free repY " << repY << std::endl;
+    services::internal::service_scalable_free<DataType, cpu>(repY);
+    // std::cout << "free attrX " << attrX << std::endl;
+    services::internal::service_scalable_free<DataType, cpu>(attrX);
+    // std::cout << "free attrY " << attrY << std::endl;
+    services::internal::service_scalable_free<DataType, cpu>(attrY);
+    // std::cout << "free gainX " << gainX << std::endl;
+    services::internal::service_scalable_free<DataType, cpu>(gainX);
+    // std::cout << "free gainY " << gainY << std::endl;
+    services::internal::service_scalable_free<DataType, cpu>(gainY);
+    // std::cout << "free oldForceX " << oldForceX << std::endl;
+    services::internal::service_scalable_free<DataType, cpu>(oldForceX);
+    // std::cout << "free oldForceY " << oldForceY << std::endl;
+    services::internal::service_scalable_free<DataType, cpu>(oldForceY);
+    // std::cout << "free duplicates " << duplicates << std::endl;
+    services::internal::service_scalable_free<IdxType, cpu>(duplicates);
+    // std::cout << "free mass " << mass << std::endl;
+    services::internal::service_scalable_free<DataType, cpu>(mass);
 
     return services::Status();
 }
