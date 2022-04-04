@@ -42,6 +42,7 @@ namespace detail {
         }
 
         if constexpr (xlayout == ndorder::f) {
+            ONEDAL_ASSERT(false);
             result.lda = x.get_stride(1);
             result.ldb = y.get_stride(1);
             result.n = x.get_dimension(0);
@@ -118,7 +119,7 @@ sycl::event potrs_solution(sycl::queue& q,
                            ndview<Float, 2, ylayout>& y,
                            opt_array<Float>& scratchpad,
                            const event_vector& dependencies) {
-    if(scratchpad.has_value()) scratchpad = potrs_scratchpad<uplo>(q, x, y);
+    if(!scratchpad.has_value()) scratchpad = potrs_scratchpad<uplo>(q, x, y);
     return detail::potrs_solution<uplo>(q, x, y, *scratchpad, dependencies);
 }
 

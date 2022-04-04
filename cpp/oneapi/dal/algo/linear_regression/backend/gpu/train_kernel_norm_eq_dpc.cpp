@@ -24,8 +24,10 @@
 
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/debug.hpp"
+#include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
+
+#include "oneapi/dal/backend/primitives/debug.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -51,6 +53,15 @@ constexpr auto daal_method = daal_lr::training::normEqDense;
 template <typename Float>
 using daal_lr_kernel_t = daal_lr::training::internal::OnlineKernelOneAPI<Float, daal_method>;
 
+template<typename Float>
+std::int64_t propose_block_size(const sycl::queue& q,
+                                const std::int64_t f,
+                                const std::int64_t r) {
+    //constexpr std::int64_t fsize = sizeof(Float);
+    //return 0x10000l * (8 / fsize);
+    return 32;
+}
+
 template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
@@ -64,24 +75,93 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
+//
     const bool intp = desc.get_compute_intercept();
-
+//
     const auto feature_count = data.get_column_count();
     const auto response_count = resp.get_column_count();
-
+//
     const auto ext_feature_count = feature_count + intp;
-
-    // xtx - Input matrix $X'^T \times X'$ of size P' x P'
-    const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
-    auto xtx_arr = array<Float>::zeros(queue, xtx_size);
-
-    // xty - Input matrix $X'^T \times Y$ of size Ny x P'
-    const auto xty_size = check_mul_overflow(response_count, ext_feature_count);
-    auto xty_arr = array<Float>::zeros(queue, xty_size);
-
-    // beta - Matrix with regression coefficients of size Ny x (P + 1)
+//
+    //// xtx - Input matrix $X'^T \times X'$ of size P' x P'
+    //const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
+    //auto xtx_arr = array<Float>::zeros(queue, xtx_size);
+//
+    //// xty - Input matrix $X'^T \times Y$ of size Ny x P'
+    //const auto xty_size = check_mul_overflow(response_count, ext_feature_count);
+    //auto xty_arr = array<Float>::zeros(queue, xty_size);
+//
+    //// beta - Matrix with regression coefficients of size Ny x (P + 1)
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(queue, betas_size);
+//
+    //auto xtx_daal_table =
+    //    interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
+    //auto xty_daal_table =
+    //    interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
+    //auto betas_daal_table =
+    //    interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
+//
+    //auto x_daal_table = interop::convert_to_daal_table<Float>(data);
+    //auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
+//
+    //{
+    //    const auto status = daal_lr_kernel_t<Float>().compute(*x_daal_table,
+    //                                                          *y_daal_table,
+    //                                                          *xtx_daal_table,
+    //                                                          *xty_daal_table,
+    //                                                          intp);
+//
+    //    interop::status_to_exception(status);
+    //}
+
+    constexpr auto uplo = pr::mkl::uplo::lower;
+    constexpr auto alloc = sycl::usm::alloc::shared;
+
+    row_accessor<const Float> x_accessor(data);
+    row_accessor<const Float> y_accessor(resp);
+
+    const auto s_count = data.get_row_count();
+    const auto f_count = data.get_column_count();
+    const auto r_count = resp.get_column_count();
+    ONEDAL_ASSERT(s_count == resp.get_row_count());
+    const bool beta = desc.get_compute_intercept();
+    const std::int64_t ext_f_count = f_count + beta;
+
+    const auto b_count = propose_block_size<Float>(queue, f_count, r_count);
+    const be::uniform_blocking blocking(s_count, b_count);
+
+    const pr::ndshape<2> xty_shape{r_count, ext_f_count};
+    const pr::ndshape<2> xtx_shape{ext_f_count, ext_f_count};
+    auto [xty, fill_xty_event] = pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
+    auto [xtx, fill_xtx_event] = pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
+    sycl::event last_xty_event = fill_xty_event, last_xtx_event = fill_xtx_event;
+
+    for(std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+        const auto last = blocking.get_block_end_index(b);
+        const auto first = blocking.get_block_start_index(b);
+
+        const std::int64_t length = last - first;
+
+        auto x_arr = x_accessor.pull(queue, {first, last}, alloc);
+        auto x = pr::ndarray<Float, 2>::wrap(x_arr, {length, f_count});
+
+        auto y_arr = y_accessor.pull(queue, {first, last}, alloc);
+        auto y = pr::ndarray<Float, 2>::wrap(y_arr, {length, r_count});
+
+        last_xty_event = update_xty(queue, beta, x, y, xty, {last_xty_event});
+        last_xtx_event = update_xtx(queue, beta, x, xtx, {last_xtx_event});
+    }
+
+    const be::event_vector solve_deps{last_xty_event, last_xtx_event};
+
+    sycl::event::wait_and_throw(solve_deps);
+
+    auto xtx_arr = xtx.flatten(queue);
+    auto xty_arr = xty.flatten(queue);
+
+    std::cout << "Xtx: " << xtx << std::endl;
+    std::cout << "Xty: " << xty << std::endl;
 
     auto xtx_daal_table =
         interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
@@ -90,39 +170,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     auto betas_daal_table =
         interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
 
-    auto x_daal_table = interop::convert_to_daal_table<Float>(data);
-    auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
-
-    {
-        const auto status = daal_lr_kernel_t<Float>().compute(*x_daal_table,
-                                                              *y_daal_table,
-                                                              *xtx_daal_table,
-                                                              *xty_daal_table,
-                                                              intp);
-
-        interop::status_to_exception(status);
-    }
-
-    {
-        constexpr auto alloc = sycl::usm::alloc::shared;
-        auto x = pr::table2ndarray<Float>(queue, data, alloc);
-        auto y = pr::table2ndarray<Float>(queue, resp, alloc);
-        const pr::ndshape<2> xty_shape{response_count, ext_feature_count};
-        const pr::ndshape<2> xtx_shape{ext_feature_count, ext_feature_count};
-        auto xtx_ndarr = pr::ndarray<Float, 2>::wrap(xtx_arr, xtx_shape);
-        std::cout << "Old Xtx: " << xtx_ndarr << std::endl;
-        auto xty_ndarr = pr::ndarray<Float, 2>::wrap(xty_arr, xty_shape);
-        std::cout << "Old Xty: " << xty_ndarr << std::endl;
-        auto [xty, xty_event] = pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
-        auto [xtx, xtx_event] = pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
-        auto xty_update_event = update_xty(queue, intp, x, y, xty, {xty_event});
-        auto xtx_update_event = update_xtx(queue, intp, x, xtx, {xtx_event});
-        sycl::event::wait_and_throw({xtx_update_event, xty_update_event});
-        std::cout << "Xtx: " << xtx << std::endl;
-        std::cout << "Xty: " << xty << std::endl;
-    }
-
-    {
+    /*{
         const auto status = daal_lr_kernel_t<Float>().finalizeCompute(*xtx_daal_table,
                                                                       *xty_daal_table,
                                                                       *xtx_daal_table,
@@ -131,7 +179,14 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                                       intp);
 
         interop::status_to_exception(status);
-    }
+    }*/
+
+    auto nxty = pr::ndarray<Float, 2>::empty(queue, xty_shape, alloc);
+    auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
+
+    auto solve_event = pr::solve_system<uplo>(queue, beta, xtx, xty, nxtx, nxty, solve_deps);
+
+    sycl::event::wait_and_throw({solve_event});
 
     auto betas = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
 

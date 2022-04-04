@@ -47,12 +47,12 @@ public:
     using task_t = std::tuple_element_t<2, TestType>;
 
     void generate_dimensions() {
-        /*s_count_ = GENERATE(111, 113);
-        f_count_ = GENERATE(2, 3, 5);
-        r_count_ = GENERATE(2, 7, 9);*/
-        s_count_ = GENERATE(3);
+        //s_count_ = GENERATE(111, 113);
+        //f_count_ = GENERATE(2, 3, 5);
+        //r_count_ = GENERATE(2, 7, 9);
+        s_count_ = GENERATE(1000);
         f_count_ = GENERATE(5);
-        r_count_ = GENERATE(7);
+        r_count_ = GENERATE(1);
     }
 
     te::table_id get_homogen_table_id() const {
