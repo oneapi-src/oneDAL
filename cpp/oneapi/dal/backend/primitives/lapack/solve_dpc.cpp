@@ -18,9 +18,11 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
 
+#include "oneapi/dal/backend/primitives/debug.hpp"
+
 namespace oneapi::dal::backend::primitives {
 
-template<mkl::uplo uplo, bool beta, typename Float, ndorder xlayout, ndorder ylayout>
+template<bool beta, typename Float, ndorder xlayout, ndorder ylayout>
 sycl::event x_copy_transform(   sycl::queue& queue,
                                 const ndview<Float, 2, xlayout>& src,
                                 ndview<Float, 2, ylayout>& dst,
@@ -39,13 +41,13 @@ sycl::event x_copy_transform(   sycl::queue& queue,
         const auto w = shape.at(1);
         const auto range = shape.to_range();
         h.parallel_for(range, [=](sycl::id<2> idx) {
-            const auto i = idx[0];
-            const auto j = idx[1];
+            const auto r = idx[0];
+            const auto c = idx[1];
 
-            if(j == 0) {
-                dst_ndx.at(i, 0) = src_ndx.at(i, w - 1);
+            if(beta && c == 0) {
+                dst_ndx.at(r, c) = src_ndx.at(r, w - 1);
             } else {
-                dst_ndx.at(i, j) = src_ndx.at(i, j - 1);
+                dst_ndx.at(r, c) = src_ndx.at(r, c - 1);
             }
         });
     });
@@ -58,18 +60,23 @@ sycl::event solve_system(   sycl::queue& queue,
                             ndview<Float, 2, ndorder::c>& final_xtx,
                             ndview<Float, 2, ndorder::c>& final_xty,
                             const event_vector& dependencies) {
-    //constexpr auto alloc = sycl::usm::alloc::device;
+    [[maybe_unused]] constexpr auto alloc = sycl::usm::alloc::shared;
 
-    auto [nxty, xty_event] = copy<ndorder::c>(queue, xty, dependencies);
-    auto [nxtx, xtx_event] = copy<ndorder::c>(queue, xtx, dependencies);
+    auto [nxty, xty_event] = copy<ndorder::c, Float, ylayout, alloc>(queue, xty, dependencies);
+    auto [nxtx, xtx_event] = copy<ndorder::c, Float, xlayout, alloc>(queue, xtx, dependencies);
 
-    //auto nxtx = ndarray<Float, 2, ndorder::f>::empty(queue, xtx.get_shape(), alloc);
-    //auto xtx_event = x_copy_transform<uplo, beta>(queue, xtx, nxtx, dependencies);
+    //auto nxtx = ndarray<Float, 2, ndorder::c>::empty(queue, xtx.get_shape(), alloc);
+    //auto xtx_event = x_copy_transform<beta>(queue, xtx, nxtx, dependencies);
+//
+    sycl::event::wait_and_throw({xtx_event});
+
+    std::cout << "Xtx after transform: " << nxtx << std::endl;
 
     opt_array<Float> dummy{};
     auto potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
     auto potrs_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
     return potrs_event;
+    //return xtx_event;
 }
 
 #define INSTANTIATE(U, B, F, XL, YL)                                            \
