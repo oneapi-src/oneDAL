@@ -15,7 +15,9 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/ndindexer.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 #include "oneapi/dal/backend/primitives/debug.hpp"
@@ -23,6 +25,25 @@
 #include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
+
+template<bool beta, typename Float>
+sycl::event symmetrize( sycl::queue& queue,
+                        pr::ndview<Float, 2, pr::ndorder::c>& xtx,
+                        const be::event_vector& deps) {
+    const auto ext_f_count = xtx.get_dimension(0);
+    ONEDAL_ASSERT(ext_f_count == xtx.get_dimension(1));
+
+    return queue.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+
+        const auto index = pr::make_ndindexer(xtx);
+        const auto shape = be::make_range_2d(ext_f_count, ext_f_count);
+        h.parallel_for(shape, [=](sycl::id<2> idx) {
+            const auto r = idx[0], c = idx[1];
+            if(r < c) index.at(r, c) = index.at(c, r);
+        });
+    });
+}
 
 template<bool beta, typename Float, pr::ndorder layout>
 sycl::event update_xtx( sycl::queue& queue,
@@ -44,9 +65,6 @@ sycl::event update_xtx( sycl::queue& queue,
     auto core = xtx.get_col_slice(0, f_count).get_row_slice(0, f_count);
     auto syrk_event = pr::syrk<uplo::lower>(queue, x, core, one, one, deps);
 
-    syrk_event.wait_and_throw();
-    std::cout << core << std::endl;
-
     if constexpr (beta) {
         auto means_2d = xtx.get_col_slice(0, f_count).get_row_slice(f_count, ext_f_count);
         ONEDAL_ASSERT(means_2d.get_count() == f_count);
@@ -66,7 +84,7 @@ sycl::event update_xtx( sycl::queue& queue,
         sycl::event::wait_and_throw({means_event, count_event});
     }
 
-    return syrk_event;
+    return symmetrize<beta>(queue, xtx, {syrk_event});
 }
 
 template<bool beta, typename Float, pr::ndorder xlayout, pr::ndorder ylayout>

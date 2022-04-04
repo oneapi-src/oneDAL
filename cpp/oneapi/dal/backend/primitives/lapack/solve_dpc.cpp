@@ -20,10 +20,10 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<mkl::uplo uplo, bool beta, typename Float, ndorder xlayout>
+template<mkl::uplo uplo, bool beta, typename Float, ndorder xlayout, ndorder ylayout>
 sycl::event x_copy_transform(   sycl::queue& queue,
                                 const ndview<Float, 2, xlayout>& src,
-                                ndview<Float, 2, ndorder::c>& dst,
+                                ndview<Float, 2, ylayout>& dst,
                                 const event_vector& dependencies) {
     ONEDAL_ASSERT(src.has_data());
     const auto shape = src.get_shape();
@@ -55,12 +55,16 @@ template<mkl::uplo uplo, bool beta, typename Float, ndorder xlayout, ndorder yla
 sycl::event solve_system(   sycl::queue& queue,
                             const ndview<Float, 2, xlayout>& xtx,
                             const ndview<Float, 2, ylayout>& xty,
+                            ndview<Float, 2, ndorder::c>& final_xtx,
+                            ndview<Float, 2, ndorder::c>& final_xty,
                             const event_vector& dependencies) {
-    constexpr auto alloc = sycl::usm::alloc::device;
+    //constexpr auto alloc = sycl::usm::alloc::device;
 
-    auto nxtx = ndarray<Float, 2>::empty(queue, xtx.get_shape(), alloc);
     auto [nxty, xty_event] = copy<ndorder::c>(queue, xty, dependencies);
-    auto xtx_event = x_copy_transform<uplo, beta>(queue, xtx, nxtx, dependencies);
+    auto [nxtx, xtx_event] = copy<ndorder::c>(queue, xtx, dependencies);
+
+    //auto nxtx = ndarray<Float, 2, ndorder::f>::empty(queue, xtx.get_shape(), alloc);
+    //auto xtx_event = x_copy_transform<uplo, beta>(queue, xtx, nxtx, dependencies);
 
     opt_array<Float> dummy{};
     auto potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
@@ -72,6 +76,8 @@ sycl::event solve_system(   sycl::queue& queue,
 template sycl::event solve_system<U, B>(sycl::queue&,               \
                                      const ndview<F, 2, XL>&,           \
                                      const ndview<F, 2, YL>&,          \
+                                     ndview<F, 2>&,                 \
+                                     ndview<F, 2>&,                 \
                                      const event_vector&);
 
 #define INSTANTIATE_YL(U, B, F, XL)        \
