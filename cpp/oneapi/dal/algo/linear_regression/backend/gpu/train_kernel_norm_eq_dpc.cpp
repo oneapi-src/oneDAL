@@ -107,7 +107,6 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
         constexpr auto alloc = sycl::usm::alloc::shared;
         auto x = pr::table2ndarray<Float>(queue, data, alloc);
         auto y = pr::table2ndarray<Float>(queue, resp, alloc);
-        std::cout << "X: " << x << std::endl;
         const pr::ndshape<2> xty_shape{response_count, ext_feature_count};
         const pr::ndshape<2> xtx_shape{ext_feature_count, ext_feature_count};
         auto xtx_ndarr = pr::ndarray<Float, 2>::wrap(xtx_arr, xtx_shape);
