@@ -34,14 +34,15 @@ namespace detail {
         if constexpr (layout == ndorder::c) {
             result.lda = x.get_stride(0);
             result.n = x.get_dimension(1);
-            result.uplo = flip_uplo(uplo);
+            //result.uplo = flip_uplo(uplo);
+            result.uplo = ident_uplo(uplo);
         }
 
         if constexpr (layout == ndorder::f) {
-            //ONEDAL_ASSERT(false);
-            result.lda = x.get_stride(1);
-            result.n = x.get_dimension(0);
-            result.uplo = ident_uplo(uplo);
+            ONEDAL_ASSERT(false);
+            //result.lda = x.get_stride(1);
+            //result.n = x.get_dimension(0);
+            //result.uplo = ident_uplo(uplo);
         }
 
         std::cout << "N  : " << result.n << std::endl;
