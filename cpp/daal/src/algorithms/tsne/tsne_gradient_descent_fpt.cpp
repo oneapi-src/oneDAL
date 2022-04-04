@@ -968,6 +968,7 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
                         }
                         if (lev == (MAX_LEVEL - 1))
                         {
+                            DAAL_ASSERT((tree_node.pos * 4 + j) >= 0 && (tree_node.pos * 4 + j) < (nNodes + 1) * 4);
                             child[tree_node.pos * 4 + j] = tree_par[subtree_id][tree_node.child[j]].first;
                         }
                         else
@@ -975,18 +976,23 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
                             IdxType first  = tree_par[subtree_id][tree_node.child[j]].first;
                             IdxType second = tree_par[subtree_id][tree_node.child[j]].second;
 
+                            DAAL_ASSERT(((first) >= 0 && (first) < N) || ((second) >= 0 && (second) < N));
                             if (second != first && morton_code[first].morton == morton_code[second].morton)
                             {
                                 //std::cout << "Duplicate, lev = " << lev << "subtree_id = " << subtree_id << std::endl;
                                 //min_pos[subtree_id] = nNodes + 1;
-                                flag_tmp                     = true;
+                                flag_tmp = true;
+                                DAAL_ASSERT((tree_node.pos * 4 + j) >= 0 && (tree_node.pos * 4 + j) < (nNodes + 1) * 4);
+                                DAAL_ASSERT((first) >= 0 && (first) < N);
                                 child[tree_node.pos * 4 + j] = morton_code[first].index;
                                 duplicates[morton_code[first].index] += second - first;
                                 break;
                             }
                             else
                             {
-                                child[tree_node.pos * 4 + j] = tree_par[subtree_id][tree_node.child[j]].pos;
+                                //DAAL_ASSERT((tree_node.pos * 4 + j) >= 0 && (tree_node.pos * 4 + j) < (nNodes+1)*4);
+                                if (!((tree_node.pos * 4 + j) < 0 || (tree_node.pos * 4 + j) >= (nNodes + 1) * 4))
+                                    child[tree_node.pos * 4 + j] = tree_par[subtree_id][tree_node.child[j]].pos;
                             }
 
                             //child[tree_node.pos * 4 + j] = tree_par[subtree_id][tree_node.child[j]].pos;
@@ -994,7 +1000,28 @@ services::Status qTreeBuildingKernelImpl(IdxType * sort, IdxType * child, const 
                     }
                     else
                     {
-                        child[tree_node.pos * 4 + j] = tree_node.child[j];
+                        // if ((tree_node.pos * 4 + j) < 0 || (tree_node.pos * 4 + j) >= (nNodes+1)*4)
+                        // {
+                        //     if ((tree_node.pos * 4 + j) < 0)
+                        //     {
+                        //         std::cout << "(tree_node.pos * 4 + j) < 0" << std::endl;
+                        //     }
+                        //     else
+                        //     {
+                        //         std::cout << "(tree_node.pos * 4 + j) >= (nNodes+1)*4"<< std::endl;
+                        //     }
+                        //     std::cout << "lev = " << lev << std::endl;
+                        //     std::cout << "tree_node.pos = " << tree_node.pos << std::endl;
+                        //     for (int y = 0; y < 4; y++) std::cout << "tree_node.child_internal["<< y<<"] = " << tree_node.child_internal[y] << std::endl;
+                        //     for (int y = 0; y < 4; y++) std::cout << "tree_node.child["<< y<<"] = " << tree_node.child[y] << std::endl;
+                        //     //DAAL_ASSERT(false);
+                        // }
+                        // else
+                        // //DAAL_ASSERT((tree_node.pos * 4 + j) >= 0 && (tree_node.pos * 4 + j) < (nNodes+1)*4);
+                        //     child[tree_node.pos * 4 + j] = tree_node.child[j];
+
+                        if (!((tree_node.pos * 4 + j) < 0 || (tree_node.pos * 4 + j) >= (nNodes + 1) * 4))
+                            child[tree_node.pos * 4 + j] = tree_node.child[j];
                     }
                 }
                 if (flag_tmp) break;
@@ -1145,7 +1172,7 @@ services::Status summarizationKernelImpl(IdxType * count, IdxType * child, DataT
     //auto k         = bottom;
 
     IdxType k = bottom < N ? N : bottom;
-    // std::cout << "bottom = " << bottom << std::endl;
+    //std::cout << "bottom = " << bottom << std::endl;
 
     // for (int i = 4*bottom; i < (nNodes+1)*4; i++)
     // {
@@ -1649,11 +1676,16 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     // DAAL_CHECK_MALLOC(posY.get());
     // services::internal::tmemcpy<DataType, cpu>(posY.get(), yInit, N);
 
-    DataType * posX = services::internal::service_scalable_calloc<DataType, cpu>(nNodes + 1);
-    DAAL_CHECK_MALLOC(posX);
+    // DataType * posX = services::internal::service_scalable_calloc<DataType, cpu>(nNodes + 1);
+    // DAAL_CHECK_MALLOC(posX);
+    // services::internal::tmemcpy<DataType, cpu>(posX, xInit, N);
+    // DataType * posY = services::internal::service_scalable_calloc<DataType, cpu>(nNodes + 1);
+    // DAAL_CHECK_MALLOC(posY);
+    // services::internal::tmemcpy<DataType, cpu>(posY, yInit, N);
+
+    DataType * posX = (DataType *)calloc(nNodes + 1, sizeof(DataType));
     services::internal::tmemcpy<DataType, cpu>(posX, xInit, N);
-    DataType * posY = services::internal::service_scalable_calloc<DataType, cpu>(nNodes + 1);
-    DAAL_CHECK_MALLOC(posY);
+    DataType * posY = (DataType *)calloc(nNodes + 1, sizeof(DataType));
     services::internal::tmemcpy<DataType, cpu>(posY, yInit, N);
 
     // allocate and init memory for auxiliary arrays
@@ -1716,6 +1748,21 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     DAAL_CHECK_MALLOC(oldForceY);
     IdxType * duplicates = services::internal::service_scalable_calloc<IdxType, cpu>(N);
     DAAL_CHECK_MALLOC(duplicates);
+
+    // IdxType * child = (IdxType *)calloc((nNodes + 1) * 4, sizeof(IdxType));
+    // IdxType * count = (IdxType *)calloc(nNodes + 1, sizeof(IdxType));
+    // DataType * mass = (DataType *)calloc(nNodes + 1, sizeof(DataType));
+    // IdxType * sort = (IdxType *)calloc(nNodes + 1, sizeof(IdxType));
+    // IdxType * start = (IdxType *)calloc(nNodes + 1, sizeof(IdxType));
+    // DataType * repX = (DataType *)calloc(nNodes + 1, sizeof(DataType));
+    // DataType * repY = (DataType *)calloc(nNodes + 1, sizeof(DataType));
+    // DataType * attrX = (DataType *)calloc(N, sizeof(DataType));
+    // DataType * attrY = (DataType *)calloc(N, sizeof(DataType));
+    // DataType * gainX = (DataType *)calloc(N, sizeof(DataType));
+    // DataType * gainY = (DataType *)calloc(N, sizeof(DataType));
+    // DataType * oldForceX = (DataType *)calloc(N, sizeof(DataType));
+    // DataType * oldForceY = (DataType *)calloc(N, sizeof(DataType));
+    // IdxType * duplicates = (IdxType *)calloc(N, sizeof(IdxType));
 
     status = maxRowElementsImpl<IdxType, cpu>(row, N, nElements, blockOfRows);
     DAAL_CHECK_STATUS_VAR(status);
@@ -1905,7 +1952,9 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     // }
     // std::cout << "divergence = " << divergence << std::endl;
 
+    // std::cout << "free posX " << posX << std::endl;
     services::internal::service_scalable_free<DataType, cpu>(posX);
+    // std::cout << "free posY " << posY << std::endl;
     services::internal::service_scalable_free<DataType, cpu>(posY);
     // std::cout << "free child " << child << std::endl;
     services::internal::service_scalable_free<IdxType, cpu>(child);
@@ -1935,6 +1984,39 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     services::internal::service_scalable_free<IdxType, cpu>(duplicates);
     // std::cout << "free mass " << mass << std::endl;
     services::internal::service_scalable_free<DataType, cpu>(mass);
+
+    // std::cout << "free posX " << posX << std::endl;
+    // free(posX);
+    // std::cout << "free posY " << posY << std::endl;
+    // free(posY);
+    // std::cout << "free child " << child << std::endl;
+    // free(child);
+    // std::cout << "free count " << count << std::endl;
+    // free(count);
+    // std::cout << "free sort " << sort << std::endl;
+    // free(sort);
+    // std::cout << "free start " << start << std::endl;
+    // free(start);
+    // std::cout << "free repX " << repX << std::endl;
+    // free(repX);
+    // std::cout << "free repY " << repY << std::endl;
+    // free(repY);
+    // std::cout << "free attrX " << attrX << std::endl;
+    // free(attrX);
+    // std::cout << "free attrY " << attrY << std::endl;
+    // free(attrY);
+    // std::cout << "free gainX " << gainX << std::endl;
+    // free(gainX);
+    // std::cout << "free gainY " << gainY << std::endl;
+    // free(gainY);
+    // std::cout << "free oldForceX " << oldForceX << std::endl;
+    // free(oldForceX);
+    // std::cout << "free oldForceY " << oldForceY << std::endl;
+    // free(oldForceY);
+    // std::cout << "free duplicates " << duplicates << std::endl;
+    // free(duplicates);
+    // std::cout << "free mass " << mass << std::endl;
+    // free(mass);
 
     return services::Status();
 }
