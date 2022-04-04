@@ -75,7 +75,7 @@ sycl::event update_xty( sycl::queue& queue,
                         const pr::ndview<Float, 2, ylayout>& y,
                         pr::ndview<Float, 2, pr::ndorder::f>& xty,
                         const be::event_vector& deps) {
-    //constexpr Float one = 1;
+    constexpr Float one = 1;
     constexpr pr::sum<Float> plus;
     constexpr pr::identity<Float> ident;
 
@@ -92,11 +92,11 @@ sycl::event update_xty( sycl::queue& queue,
     ONEDAL_ASSERT(xty.get_dimension(1) == ext_f_count);
     ONEDAL_ASSERT(xty.get_dimension(0) == r_count);
 
-    auto core = xty.get_col_slice(0, f_count);
-    ONEDAL_ASSERT(core.get_dimension(1) == f_count);
-    ONEDAL_ASSERT(core.get_dimension(0) == r_count);
-    //auto gemm_event = pr::gemm(queue, x, y, core, one, one, deps);
-    auto gemm_event = sycl::event{};
+    auto core = xty.get_col_slice(0, f_count).t();
+    ONEDAL_ASSERT(core.get_dimension(0) == f_count);
+    ONEDAL_ASSERT(core.get_dimension(1) == r_count);
+
+    auto gemm_event = pr::gemm(queue, x.t(), y, core, one, one, deps);
 
     if constexpr (beta) {
         auto means_2d = xty.get_col_slice(f_count, ext_f_count);
