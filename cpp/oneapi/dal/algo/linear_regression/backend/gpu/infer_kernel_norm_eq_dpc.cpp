@@ -108,87 +108,54 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    /*const auto& betas = m.get_betas();
-    bool intp = desc.get_compute_intercept();
+    constexpr auto alloc = sycl::usm::alloc::shared;
 
-    const auto sample_count = infer.get_row_count();
-    const auto response_count = betas.get_row_count();
+    constexpr Float zero = 0, one = 1;
 
-    const auto feature_count = infer.get_column_count();
-    [[maybe_unused]] const auto ext_feature_count = feature_count + intp;
-    ONEDAL_ASSERT((feature_count + 1) == betas.get_column_count());
+    const auto& betas = m.get_betas();
 
-    const auto resps_size = check_mul_overflow(sample_count, response_count);
+    const auto s_count = infer.get_row_count();
+    const auto r_count = betas.get_row_count();
+    const auto f_count = infer.get_column_count();
+    const auto beta = desc.get_compute_intercept();
+    ONEDAL_ASSERT((f_count + 1) == betas.get_column_count());
+
+    const auto resps_size = check_mul_overflow(s_count, r_count);
     auto resps_arr = array<Float>::empty(queue, resps_size);
-    auto resps_daal_table =
-        interop::convert_to_daal_homogen_table(resps_arr, sample_count, response_count);
 
-    auto betas_daal_table = interop::convert_to_daal_table<Float>(betas);
-    auto infer_daal_table = interop::convert_to_daal_table<Float>(infer);
+    auto y = pr::ndarray<Float, 2>::wrap_mutable(resps_arr, {s_count, r_count});
 
-    const auto status = daal_lm_kernel_t<Float>().compute_impl(infer_daal_table.get(),
-                                                               betas_daal_table.get(),
-                                                               resps_daal_table.get(),
-                                                               intp);
+    const auto b_count = propose_block_size<Float>(queue, f_count, r_count);
+    const be::uniform_blocking blocking(s_count, b_count);
 
-    interop::status_to_exception(status);*/
+    sycl::event last_event;
 
-    {
-        constexpr auto alloc = sycl::usm::alloc::shared;
+    row_accessor<const Float> x_accessor(infer);
 
-        constexpr Float zero = 0, one = 1;
+    auto betas_ndarr = pr::table2ndarray<Float>(queue, betas, alloc);
+    const auto core = betas_ndarr.get_col_slice(1, f_count + 1);
+    const auto intp = betas_ndarr.get_col_slice(0, 1);
 
-        const auto& betas = m.get_betas();
+    for(std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+        const auto last = blocking.get_block_end_index(b);
+        const auto first = blocking.get_block_start_index(b);
 
-        const auto s_count = infer.get_row_count();
-        const auto r_count = betas.get_row_count();
-        const auto f_count = infer.get_column_count();
-        const auto beta = desc.get_compute_intercept();
+        const auto length = last - first;
+        auto y_sub = y.get_row_slice(first, last);
+        auto x_arr = x_accessor.pull(queue, {first, last}, alloc);
+        auto x_sub = pr::ndarray<Float, 2>::wrap(x_arr, {length, f_count});
 
-        ONEDAL_ASSERT((f_count + 1) == betas.get_column_count());
-
-        const auto resps_size = check_mul_overflow(s_count, r_count);
-        auto resps_arr = array<Float>::empty(queue, resps_size);
-
-        auto y = pr::ndarray<Float, 2>::wrap_mutable(resps_arr, {s_count, r_count});
-
-        const auto b_count = propose_block_size<Float>(queue, f_count, r_count);
-        const be::uniform_blocking blocking(s_count, b_count);
-
-        sycl::event last_event;
-
-        row_accessor<const Float> x_accessor(infer);
-
-        auto betas_ndarr = pr::table2ndarray<Float>(queue, betas, alloc);
-        const auto core = betas_ndarr.get_col_slice(1, f_count + 1);
-        const auto intp = betas_ndarr.get_col_slice(0, 1);
-
-        for(std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
-            const auto last = blocking.get_block_end_index(b);
-            const auto first = blocking.get_block_start_index(b);
-
-            const auto length = last - first;
-            auto y_sub = y.get_row_slice(first, last);
-            auto x_arr = x_accessor.pull(queue, {first, last}, alloc);
-            auto x_sub = pr::ndarray<Float, 2>::wrap(x_arr, {length, f_count});
-
-            auto gemm_event = pr::gemm(queue, x_sub, core.t(), y_sub, one, zero, { last_event });
-
-            last_event = apply_betas(queue, beta, y_sub, intp, { gemm_event });
-        }
-
-        auto responses = homogen_table::wrap(resps_arr, s_count, r_count);
-
-        auto result = infer_result<Task>().set_responses(responses);
-
-        return result;
+        auto gemm_event = pr::gemm(queue, x_sub, core.t(), y_sub, one, zero, { last_event });
+        last_event = apply_betas(queue, beta, y_sub, intp, { gemm_event });
     }
 
-    /*auto responses = homogen_table::wrap(resps_arr, sample_count, response_count);
+    sycl::event::wait({last_event});
+
+    auto responses = homogen_table::wrap(resps_arr, s_count, r_count);
 
     auto result = infer_result<Task>().set_responses(responses);
 
-    return result;*/
+    return result;
 }
 
 template <typename Float, typename Task>
