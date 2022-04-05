@@ -26,9 +26,11 @@ inline sycl::event beta_copy_transform( sycl::queue& queue,
                                         ndview<Float, 2, ylayout>& dst,
                                         const event_vector& dependencies) {
     ONEDAL_ASSERT(src.has_data());
-    const auto shape = src.get_shape();
+    const auto shape = dst.get_shape();
     ONEDAL_ASSERT(dst.has_mutable_data());
-    ONEDAL_ASSERT(shape == dst.get_shape());
+
+    ONEDAL_ASSERT(shape.at(0) == src.get_dimension(0));
+    ONEDAL_ASSERT(shape.at(1) == src.get_dimension(1) + !beta);
 
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(dependencies);
@@ -42,8 +44,12 @@ inline sycl::event beta_copy_transform( sycl::queue& queue,
             const auto r = idx[0];
             const auto c = idx[1];
 
-            if(beta && c == 0) {
-                dst_ndx.at(r, c) = src_ndx.at(r, w - 1);
+            if(c == 0) {
+                if constexpr (beta) {
+                    dst_ndx.at(r, c) = src_ndx.at(r, w - 1);
+                } else {
+                    dst_ndx.at(r, c) = Float(0);
+                }
             } else {
                 dst_ndx.at(r, c) = src_ndx.at(r, c - 1);
             }
@@ -67,6 +73,7 @@ sycl::event solve_system(   sycl::queue& queue,
     auto potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
 
     auto potrs_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
+
 
     return beta_copy_transform<beta>(queue, nxty, final_xty, {potrs_event});
 }

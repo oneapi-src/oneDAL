@@ -28,6 +28,8 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
+#include "oneapi/dal/detail/debug.hpp"
+
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
@@ -47,12 +49,13 @@ public:
     using task_t = std::tuple_element_t<2, TestType>;
 
     void generate_dimensions() {
-        //s_count_ = GENERATE(101, 111, 117);
-        //f_count_ = GENERATE(2, 3, 5);
-        //r_count_ = GENERATE(2, 7, 9);
-        s_count_ = GENERATE(12);
-        f_count_ = GENERATE(7);
-        r_count_ = GENERATE(2);
+        s_count_ = GENERATE(111, 113);
+        f_count_ = GENERATE(2, 3, 5);
+        r_count_ = GENERATE(2, 7, 9);
+
+        std::cout << "S: " << s_count_ << std::endl;
+        std::cout << "F: " << f_count_ << std::endl;
+        std::cout << "R: " << r_count_ << std::endl;
     }
 
     te::table_id get_homogen_table_id() const {
@@ -92,7 +95,7 @@ public:
         if (this->intercept_) {
             const auto bias_dataframe = GENERATE_DATAFRAME(
                 te::dataframe_builder{ std::int64_t(1), this->r_count_ }.fill_uniform(-15.5, 15.5));
-            std::get<1>(result) = betas_dataframe.get_table(this->get_homogen_table_id());
+            std::get<1>(result) = bias_dataframe.get_table(this->get_homogen_table_id());
         }
         else {
             auto bias_arr = array<float_t>::zeros(this->r_count_);
@@ -116,6 +119,11 @@ public:
         this->generate_dimensions();
         auto [beta, bias] = generate_betas();
 
+        using namespace ::oneapi::dal::detail;
+
+        std::cout << "Gtr betas: " << beta << std::endl;
+        std::cout << "Gtr bias: " << bias << std::endl;
+
         const auto train_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5, 3.5));
         this->x_train_ = train_dataframe.get_table(this->get_homogen_table_id());
@@ -131,7 +139,7 @@ public:
     }
 
     auto get_descriptor() const {
-        return linear_regression::descriptor<float_t, method_t, task_t>();
+        return linear_regression::descriptor<float_t, method_t, task_t>(intercept_);
     }
 
     void check_results(const infer_result<>& res, double tol = 1e-5) {
@@ -148,15 +156,22 @@ public:
     }
 
     void run_and_check() {
+        using namespace ::oneapi::dal::detail;
         const auto desc = this->get_descriptor();
         const auto train_res = this->train(desc, this->x_train_, this->y_train_);
+
+        const auto& betas = train_res.get_model().get_betas();
+        std::cout << "Computed betas: " << betas << std::endl;
+
+        //print_table_content(std::cout, betas);
+
         const auto infer_res = this->infer(desc, this->x_test_, train_res.get_model());
 
         check_results(infer_res);
     }
 
 private:
-    bool intercept_ = false;
+    bool intercept_ = true;
     std::int64_t s_count_;
     std::int64_t f_count_;
     std::int64_t r_count_;

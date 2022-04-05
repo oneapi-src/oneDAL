@@ -54,9 +54,8 @@ template<typename Float>
 std::int64_t propose_block_size(const sycl::queue& q,
                                 const std::int64_t f,
                                 const std::int64_t r) {
-    //constexpr std::int64_t fsize = sizeof(Float);
-    //return 0x10000l * (8 / fsize);
-    return 32;
+    constexpr std::int64_t fsize = sizeof(Float);
+    return 0x10000l * (8 / fsize);
 }
 
 template <typename Float, typename Task>
@@ -92,7 +91,9 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     const be::uniform_blocking blocking(s_count, b_count);
 
     const pr::ndshape<2> xty_shape{r_count, ext_f_count};
+    const pr::ndshape<2> betas_shape{r_count, f_count + 1};
     const pr::ndshape<2> xtx_shape{ext_f_count, ext_f_count};
+
     auto [xty, fill_xty_event] = pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
     auto [xtx, fill_xtx_event] = pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
     sycl::event last_xty_event = fill_xty_event, last_xtx_event = fill_xtx_event;
@@ -115,7 +116,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     const be::event_vector solve_deps{last_xty_event, last_xtx_event};
 
-    auto nxty = pr::ndarray<Float, 2>::wrap_mutable(betas_arr, xty.get_shape());
+    auto nxty = pr::ndarray<Float, 2>::wrap_mutable(betas_arr, betas_shape);
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
     auto solve_event = pr::solve_system<uplo>(queue, beta, xtx, xty, nxtx, nxty, solve_deps);
     sycl::event::wait_and_throw({solve_event});
