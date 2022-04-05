@@ -647,8 +647,8 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
 
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             const std::int64_t local_size = item.get_local_range()[0];
-            const std::int64_t id = item.get_local_id(0);
-            const std::int64_t group_id = item.get_group(0);
+            const std::int64_t id = item.get_local_id()[0];
+            const std::int64_t group_id = item.get_group().get_group_id(0);
 
             std::int64_t* lrc_ptr = lrc_buf.get_pointer().get();
             Float* lmin_ptr = lmin_buf.get_pointer().get();
@@ -935,9 +935,9 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
 
     auto last_event = q_.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
-            const std::int64_t tid = item.get_local_id(0);
+            const std::int64_t tid = item.get_local_id()[0];
             const std::int64_t tnum = item.get_local_range()[0];
-            const std::int64_t gid = item.get_group(0);
+            const std::int64_t gid = item.get_group().get_group_id(0);
 
             const std::int64_t row_block_idx = gid / column_block_count;
             const std::int64_t col_block_idx = gid - row_block_idx * column_block_count;
@@ -1039,9 +1039,9 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Floa
         ONEDAL_PROFILER_TASK(process_blocks, q_);
         last_event = q_.submit([&](sycl::handler& cgh) {
             cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
-                const std::int64_t tid = item.get_local_id(0);
+                const std::int64_t tid = item.get_local_id()[0];
                 const std::int64_t tnum = item.get_local_range()[0];
-                const std::int64_t gid = item.get_group(0);
+                const std::int64_t gid = item.get_group().get_group_id(0);
 
                 const std::int64_t row_block_idx = gid / column_block_count;
                 const std::int64_t col_block_idx = gid - row_block_idx * column_block_count;
