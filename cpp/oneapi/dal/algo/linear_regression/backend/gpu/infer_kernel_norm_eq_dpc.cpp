@@ -144,6 +144,8 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
 
         auto gemm_event = pr::gemm(queue, x_sub, core.t(), y_sub, one, zero, { last_event });
         last_event = apply_betas(queue, beta, y_sub, intp, { gemm_event });
+
+        sycl::event::wait_and_throw({last_event});
     }
 
     sycl::event::wait({last_event});

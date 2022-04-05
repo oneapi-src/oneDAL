@@ -20,8 +20,6 @@
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
 
-#include "oneapi/dal/backend/primitives/debug.hpp"
-
 #include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
@@ -63,7 +61,7 @@ sycl::event update_xtx( sycl::queue& queue,
     ONEDAL_ASSERT(ext_f_count == (f_count + std::int64_t(beta)));
 
     auto core = xtx.get_col_slice(0, f_count).get_row_slice(0, f_count);
-    auto syrk_event = pr::syrk<uplo::lower>(queue, x, core, one, one, deps);
+    auto syrk_event = pr::syrk<uplo::upper>(queue, x, core, one, one, deps);
 
     if constexpr (beta) {
         auto means_2d = xtx.get_col_slice(0, f_count).get_row_slice(f_count, ext_f_count);
