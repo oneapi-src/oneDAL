@@ -41,8 +41,10 @@ struct infer_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 
 INSTANTIATE(float, method::cov, task::dim_reduction)
 INSTANTIATE(float, method::svd, task::dim_reduction)
+INSTANTIATE(float, method::precomputed, task::dim_reduction)
 INSTANTIATE(double, method::cov, task::dim_reduction)
 INSTANTIATE(double, method::svd, task::dim_reduction)
+INSTANTIATE(double, method::precomputed, task::dim_reduction)
 
 } // namespace v1
 } // namespace oneapi::dal::pca::detail

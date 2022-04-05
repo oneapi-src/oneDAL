@@ -729,7 +729,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         PRAGMA_VECTOR_ALWAYS
         for (;;)
         {
-            while ((left <= right) && (dx[indexes[left]] <= median))
+            while ((left <= right) && (dx[indexes[left]] < median))
             {
                 ++left;
             }
@@ -737,7 +737,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             {
                 --right;
             }
-            if ((left <= right) && (dx[indexes[right]] > median))
+            if ((left <= right) && (dx[indexes[right]] >= median))
             {
                 DAAL_CHECK_BREAK((right == 0));
                 --right;

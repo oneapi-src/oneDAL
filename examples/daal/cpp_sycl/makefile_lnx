@@ -24,8 +24,8 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file."
 	@echo
-	@echo "compiler_name     - the only supported compiler is clang (default value)"
-	@echo "                    Intel(R) oneAPI DPC++ compiler"
+	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
+	@echo "                    Intel(R) oneAPI DPC++/C++ Compiler"
 	@echo "mode_name         - can be build or run. Default is run"
 
 ##------------------------------------------------------------------------------
@@ -35,15 +35,15 @@ help:
 ##                                 and run pca example for 64-bit
 ##                                 applications, static linking
 ##
-## make sointel64 compiler=clang   - build by Intel(R) oneAPI Compiler and run all examples
+## make sointel64 compiler=dpcpp   - build by Intel(R) oneAPI Compiler and run all examples
 ##                                 of Intel(R) oneDAL for
 ##                                 64-bit applications, dynamic linking
 ##
-## make sointel64                - build by Intel(R) oneAPI Compiler (as default)
+## make sointel64                - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                 and run all examples for Intel(R)64 processor
 ##                                 family  applications, dynamic linking
 ##
-## make sointel64 mode=build     - build only (not run) by Intel(R) oneAPI Compiler
+## make sointel64 mode=build     - build only (not run) by Intel(R) oneAPI DPC++/C++ Compiler
 ##                                 (as default) all examples for Intel(R)64
 ##                                 processor family  applications, dynamic linking
 ##
@@ -57,8 +57,17 @@ ifndef example
     example = $(DAAL)
 endif
 
+ifeq ($(compiler),clang)
+    $(warning warning: clang driver usage has been deprecated. Please user dpcpp)
+    override compiler = dpcpp
+endif
+
 ifndef compiler
-    compiler = clang
+    compiler = dpcpp
+endif
+
+ifneq ($(compiler),dpcpp)
+    override compiler = dpcpp
 endif
 
 ifneq ($(mode),build)
@@ -104,10 +113,10 @@ LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_syc
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
-ifeq ($(compiler),clang)
-    gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-    CC = dpcpp --gcc-toolchain=$(gcc_toolchain)
-endif
+
+gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
+CC = dpcpp --gcc-toolchain=$(gcc_toolchain)
+
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
 
