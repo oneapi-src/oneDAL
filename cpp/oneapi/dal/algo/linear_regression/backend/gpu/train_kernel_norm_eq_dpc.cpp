@@ -73,7 +73,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     interop::execution_context_guard guard(queue);
 
     constexpr auto uplo = pr::mkl::uplo::upper;
-    constexpr auto alloc = sycl::usm::alloc::shared;
+    constexpr auto alloc = sycl::usm::alloc::device;
 
     row_accessor<const Float> x_accessor(data);
     row_accessor<const Float> y_accessor(resp);

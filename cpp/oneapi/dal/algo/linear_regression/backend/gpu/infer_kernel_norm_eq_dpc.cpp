@@ -108,7 +108,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    constexpr auto alloc = sycl::usm::alloc::shared;
+    constexpr auto alloc = sycl::usm::alloc::device;
 
     constexpr Float zero = 0, one = 1;
 
