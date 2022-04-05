@@ -168,8 +168,9 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
             const Index sub_group_local_id = sbg.get_local_id();
             const Index work_group_local_id = item.get_local_id()[0];
 
-            const Index sub_group_id = item.get_group(0) * sub_groups_in_work_group_num +
-                                       work_group_local_id / sub_group_size;
+            const Index sub_group_id =
+                item.get_group().get_group_id(0) * sub_groups_in_work_group_num +
+                work_group_local_id / sub_group_size;
             const Index sub_groups_num =
                 item.get_group_range(0) *
                 sub_groups_in_work_group_num; // num of subgroups for current node processing
@@ -294,8 +295,9 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
             const Index sub_group_local_id = sbg.get_local_id();
             const Index work_group_local_id = item.get_local_id()[0];
 
-            const Index sub_group_id = item.get_group(0) * sub_groups_in_work_group_num +
-                                       work_group_local_id / sub_group_size;
+            const Index sub_group_id =
+                item.get_group().get_group_id(0) * sub_groups_in_work_group_num +
+                work_group_local_id / sub_group_size;
             const Index sub_groups_num =
                 item.get_group_range(0) *
                 sub_groups_in_work_group_num; // num of subgroups for current node processing
@@ -522,7 +524,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
 
             const Index local_id = sbg.get_local_id();
             const Index sub_group_id = sbg.get_group_id();
-            const Index group_id = item.get_group(0) * n_sub_groups + sub_group_id;
+            const Index group_id = item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
             const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, node_row_count);
@@ -574,7 +576,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
 
             const Index local_id = sbg.get_local_id();
             const Index sub_group_id = sbg.get_group_id();
-            const Index group_id = item.get_group(0) * n_sub_groups + sub_group_id;
+            const Index group_id = item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
             const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, block_row_count);
@@ -689,7 +691,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
 
             const Index local_id = sbg.get_local_id();
             const Index sub_group_id = sbg.get_group_id();
-            const Index group_id = item.get_group(0) * n_sub_groups + sub_group_id;
+            const Index group_id = item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
             const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, block_row_count);
