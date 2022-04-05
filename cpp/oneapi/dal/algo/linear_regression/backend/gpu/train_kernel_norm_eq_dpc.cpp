@@ -34,7 +34,6 @@
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
-#include "oneapi/dal/algo/linear_regression/backend/gpu/finalize_kernel.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
 
