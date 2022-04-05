@@ -22,7 +22,12 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/ndindexer.hpp"
+
+#include "oneapi/dal/backend/primitives/debug.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -37,6 +42,7 @@ using daal::services::Status;
 using dal::backend::context_gpu;
 
 namespace be = dal::backend;
+namespace pr = be::primitives;
 namespace daal_lm = daal::algorithms::linear_model;
 namespace interop = dal::backend::interop;
 
@@ -44,6 +50,53 @@ constexpr auto daal_method = daal_lm::prediction::Method::defaultDense;
 
 template <typename Float>
 using daal_lm_kernel_t = daal_lm::prediction::internal::PredictKernelOneAPI<Float, daal_method>;
+
+template<typename Float>
+std::int64_t propose_block_size(const sycl::queue& q,
+                                const std::int64_t f,
+                                const std::int64_t r) {
+    //constexpr std::int64_t fsize = sizeof(Float);
+    //return 0x10000l * (8 / fsize);
+    return 32;
+}
+
+
+template<typename Float, pr::ndorder layout>
+inline sycl::event apply_betas(sycl::queue& q,
+                               bool beta,
+                               pr::ndview<Float, 2, layout>& y,
+                               const pr::ndview<Float, 2>& betas,
+                               const be::event_vector& deps = {}) {
+    if(beta) {
+        ONEDAL_ASSERT(betas.has_data());
+        ONEDAL_ASSERT(y.has_mutable_data());
+
+        const auto shape = y.get_shape();
+        ONEDAL_ASSERT(shape.at(1) == betas.get_dimension(0));
+        ONEDAL_ASSERT(std::int64_t(1) == betas.get_dimension(1));
+
+        return q. submit([&](sycl::handler& h) {
+            h.depends_on(deps);
+
+            auto y_idx = make_ndindexer(y);
+            auto b_idx = make_ndindexer(betas);
+
+            const auto range = shape.to_range();
+
+            h.parallel_for(range, [=](sycl::id<2> idx) {
+                const auto r = idx[0];
+                const auto c = idx[1];
+
+                y_idx.at(r, c) += b_idx.at(r, 0);
+            });
+        });
+    }
+    else {
+        sycl::event::wait_and_throw(deps);
+        return sycl::event{};
+    }
+}
+
 
 template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
@@ -55,7 +108,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const auto& betas = m.get_betas();
+    /*const auto& betas = m.get_betas();
     bool intp = desc.get_compute_intercept();
 
     const auto sample_count = infer.get_row_count();
@@ -78,13 +131,64 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                                resps_daal_table.get(),
                                                                intp);
 
-    interop::status_to_exception(status);
+    interop::status_to_exception(status);*/
 
-    auto responses = homogen_table::wrap(resps_arr, sample_count, response_count);
+    {
+        constexpr auto alloc = sycl::usm::alloc::shared;
+
+        constexpr Float zero = 0, one = 1;
+
+        const auto& betas = m.get_betas();
+
+        const auto s_count = infer.get_row_count();
+        const auto r_count = betas.get_row_count();
+        const auto f_count = infer.get_column_count();
+        const auto beta = desc.get_compute_intercept();
+
+        ONEDAL_ASSERT((f_count + 1) == betas.get_column_count());
+
+        const auto resps_size = check_mul_overflow(s_count, r_count);
+        auto resps_arr = array<Float>::empty(queue, resps_size);
+
+        auto y = pr::ndarray<Float, 2>::wrap_mutable(resps_arr, {s_count, r_count});
+
+        const auto b_count = propose_block_size<Float>(queue, f_count, r_count);
+        const be::uniform_blocking blocking(s_count, b_count);
+
+        sycl::event last_event;
+
+        row_accessor<const Float> x_accessor(infer);
+
+        auto betas_ndarr = pr::table2ndarray<Float>(queue, betas, alloc);
+        const auto core = betas_ndarr.get_col_slice(1, f_count + 1);
+        const auto intp = betas_ndarr.get_col_slice(0, 1);
+
+        for(std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+            const auto last = blocking.get_block_end_index(b);
+            const auto first = blocking.get_block_start_index(b);
+
+            const auto length = last - first;
+            auto y_sub = y.get_row_slice(first, last);
+            auto x_arr = x_accessor.pull(queue, {first, last}, alloc);
+            auto x_sub = pr::ndarray<Float, 2>::wrap(x_arr, {length, f_count});
+
+            auto gemm_event = pr::gemm(queue, x_sub, core.t(), y_sub, one, zero, { last_event });
+
+            last_event = apply_betas(queue, beta, y_sub, intp, { gemm_event });
+        }
+
+        auto responses = homogen_table::wrap(resps_arr, s_count, r_count);
+
+        auto result = infer_result<Task>().set_responses(responses);
+
+        return result;
+    }
+
+    /*auto responses = homogen_table::wrap(resps_arr, sample_count, response_count);
 
     auto result = infer_result<Task>().set_responses(responses);
 
-    return result;
+    return result;*/
 }
 
 template <typename Float, typename Task>
