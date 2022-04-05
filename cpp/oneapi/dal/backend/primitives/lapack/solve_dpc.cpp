@@ -20,11 +20,11 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<bool beta, typename Float, ndorder xlayout, ndorder ylayout>
-inline sycl::event beta_copy_transform( sycl::queue& queue,
-                                        const ndview<Float, 2, xlayout>& src,
-                                        ndview<Float, 2, ylayout>& dst,
-                                        const event_vector& dependencies) {
+template <bool beta, typename Float, ndorder xlayout, ndorder ylayout>
+inline sycl::event beta_copy_transform(sycl::queue& queue,
+                                       const ndview<Float, 2, xlayout>& src,
+                                       ndview<Float, 2, ylayout>& dst,
+                                       const event_vector& dependencies) {
     ONEDAL_ASSERT(src.has_data());
     const auto shape = dst.get_shape();
     ONEDAL_ASSERT(dst.has_mutable_data());
@@ -44,26 +44,28 @@ inline sycl::event beta_copy_transform( sycl::queue& queue,
             const auto r = idx[0];
             const auto c = idx[1];
 
-            if(c == 0) {
+            if (c == 0) {
                 if constexpr (beta) {
                     dst_ndx.at(r, c) = src_ndx.at(r, w - 1);
-                } else {
+                }
+                else {
                     dst_ndx.at(r, c) = Float(0);
                 }
-            } else {
+            }
+            else {
                 dst_ndx.at(r, c) = src_ndx.at(r, c - 1);
             }
         });
     });
 }
 
-template<mkl::uplo uplo, bool beta, typename Float, ndorder xlayout, ndorder ylayout>
-sycl::event solve_system(   sycl::queue& queue,
-                            const ndview<Float, 2, xlayout>& xtx,
-                            const ndview<Float, 2, ylayout>& xty,
-                            ndview<Float, 2, ndorder::c>& final_xtx,
-                            ndview<Float, 2, ndorder::c>& final_xty,
-                            const event_vector& dependencies) {
+template <mkl::uplo uplo, bool beta, typename Float, ndorder xlayout, ndorder ylayout>
+sycl::event solve_system(sycl::queue& queue,
+                         const ndview<Float, 2, xlayout>& xtx,
+                         const ndview<Float, 2, ylayout>& xty,
+                         ndview<Float, 2, ndorder::c>& final_xtx,
+                         ndview<Float, 2, ndorder::c>& final_xty,
+                         const event_vector& dependencies) {
     constexpr auto alloc = sycl::usm::alloc::device;
 
     auto [nxty, xty_event] = copy<ndorder::c, Float, ylayout, alloc>(queue, xty, dependencies);
@@ -73,31 +75,31 @@ sycl::event solve_system(   sycl::queue& queue,
     auto potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
     auto potrs_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
 
-    return beta_copy_transform<beta>(queue, nxty, final_xty, {potrs_event});
+    return beta_copy_transform<beta>(queue, nxty, final_xty, { potrs_event });
 }
 
-#define INSTANTIATE(U, B, F, XL, YL)                                            \
-template sycl::event solve_system<U, B>(sycl::queue&,               \
-                                     const ndview<F, 2, XL>&,           \
-                                     const ndview<F, 2, YL>&,          \
-                                     ndview<F, 2>&,                 \
-                                     ndview<F, 2>&,                 \
-                                     const event_vector&);
+#define INSTANTIATE(U, B, F, XL, YL)                                 \
+    template sycl::event solve_system<U, B>(sycl::queue&,            \
+                                            const ndview<F, 2, XL>&, \
+                                            const ndview<F, 2, YL>&, \
+                                            ndview<F, 2>&,           \
+                                            ndview<F, 2>&,           \
+                                            const event_vector&);
 
-#define INSTANTIATE_YL(U, B, F, XL)        \
-    INSTANTIATE(U, B, F, XL, ndorder::f)   \
+#define INSTANTIATE_YL(U, B, F, XL)      \
+    INSTANTIATE(U, B, F, XL, ndorder::f) \
     INSTANTIATE(U, B, F, XL, ndorder::c)
 
-#define INSTANTIATE_XL(U, B, F)        \
-    INSTANTIATE_YL(U, B, F, ndorder::f)   \
+#define INSTANTIATE_XL(U, B, F)         \
+    INSTANTIATE_YL(U, B, F, ndorder::f) \
     INSTANTIATE_YL(U, B, F, ndorder::c)
 
-#define INSTANTIATE_F(U, B)            \
-    INSTANTIATE_XL(U, B, float)         \
+#define INSTANTIATE_F(U, B)     \
+    INSTANTIATE_XL(U, B, float) \
     INSTANTIATE_XL(U, B, double)
 
-#define INSTANTIATE_B(U)            \
-    INSTANTIATE_F(U, true)         \
+#define INSTANTIATE_B(U)   \
+    INSTANTIATE_F(U, true) \
     INSTANTIATE_F(U, false)
 
 INSTANTIATE_B(mkl::uplo::upper)

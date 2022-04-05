@@ -22,59 +22,67 @@
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template<typename Functor, typename Input1Type, typename Input2Type,  typename OutputType,
-            ndorder input1_layout, ndorder input2_layout, ndorder output_layout>
-    inline sycl::event element_wise(sycl::queue queue,
-                             const Functor& functor,
-                             const ndview<Input1Type, 2, input1_layout>& input1,
-                             const ndview<Input2Type, 2, input2_layout>& input2,
-                             ndview<OutputType, 2, output_layout>& output,
-                             const event_vector& deps = {}) {
-        const auto shape = output.get_shape();
-        ONEDAL_ASSERT(shape == input1.get_shape());
-        ONEDAL_ASSERT(shape == input2.get_shape());
+template <typename Functor,
+          typename Input1Type,
+          typename Input2Type,
+          typename OutputType,
+          ndorder input1_layout,
+          ndorder input2_layout,
+          ndorder output_layout>
+inline sycl::event element_wise(sycl::queue queue,
+                                const Functor& functor,
+                                const ndview<Input1Type, 2, input1_layout>& input1,
+                                const ndview<Input2Type, 2, input2_layout>& input2,
+                                ndview<OutputType, 2, output_layout>& output,
+                                const event_vector& deps = {}) {
+    const auto shape = output.get_shape();
+    ONEDAL_ASSERT(shape == input1.get_shape());
+    ONEDAL_ASSERT(shape == input2.get_shape());
 
-        auto out = make_ndindexer(output);
-        auto inp1 = make_ndindexer(input1);
-        auto inp2 = make_ndindexer(input2);
+    auto out = make_ndindexer(output);
+    auto inp1 = make_ndindexer(input1);
+    auto inp2 = make_ndindexer(input2);
 
-        return queue.submit([&](sycl::handler& h) {
-            h.depends_on(deps);
+    return queue.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
 
-            const auto range = shape.to_range();
-            h.parallel_for(range, [=](sycl::id<2> idx) {
-                const auto& l = inp1.at(idx[0], idx[1]);
-                const auto& r = inp2.at(idx[0], idx[1]);
-                out.at(idx[0], idx[1]) = functor(l, r);
-            });
+        const auto range = shape.to_range();
+        h.parallel_for(range, [=](sycl::id<2> idx) {
+            const auto& l = inp1.at(idx[0], idx[1]);
+            const auto& r = inp2.at(idx[0], idx[1]);
+            out.at(idx[0], idx[1]) = functor(l, r);
         });
-    }
+    });
+}
 
-    template<typename Functor, typename Input1Type, typename Input2Type, typename OutputType,
-            ndorder input_layout, ndorder output_layout>
-    inline sycl::event element_wise(sycl::queue queue,
-                             const Functor& functor,
-                             const ndview<Input1Type, 2, input_layout>& input,
-                             const Input2Type& argument,
-                             ndview<OutputType, 2, output_layout>& output,
-                             const event_vector& deps = {}) {
-        const auto shape = output.get_shape();
-        ONEDAL_ASSERT(shape == input.get_shape());
+template <typename Functor,
+          typename Input1Type,
+          typename Input2Type,
+          typename OutputType,
+          ndorder input_layout,
+          ndorder output_layout>
+inline sycl::event element_wise(sycl::queue queue,
+                                const Functor& functor,
+                                const ndview<Input1Type, 2, input_layout>& input,
+                                const Input2Type& argument,
+                                ndview<OutputType, 2, output_layout>& output,
+                                const event_vector& deps = {}) {
+    const auto shape = output.get_shape();
+    ONEDAL_ASSERT(shape == input.get_shape());
 
-        auto out = make_ndindexer(output);
-        auto inp = make_ndindexer(input);
+    auto out = make_ndindexer(output);
+    auto inp = make_ndindexer(input);
 
-        return queue.submit([&](sycl::handler& h) {
-            h.depends_on(deps);
+    return queue.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
 
-            const auto range = shape.to_range();
-            h.parallel_for(range, [=](sycl::id<2> idx) {
-                const auto& l = inp.at(idx[0], idx[1]);
-                out.at(idx[0], idx[1]) = functor(l, argument);
-            });
+        const auto range = shape.to_range();
+        h.parallel_for(range, [=](sycl::id<2> idx) {
+            const auto& l = inp.at(idx[0], idx[1]);
+            out.at(idx[0], idx[1]) = functor(l, argument);
         });
-    }
+    });
+}
 #endif
-
 
 } // namespace oneapi::dal::backend::primitives

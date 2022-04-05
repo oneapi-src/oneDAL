@@ -32,8 +32,8 @@ inline std::ostream& print_shape(std::ostream& s, const ndview<T, 2, ord>& v) {
     const auto h = v.get_dimension(0);
     const auto w = v.get_dimension(1);
     const auto d = v.get_leading_stride();
-    return s << o << "-like ndview with shape height,width="
-                << h << ',' << w << " (stride=" << d << ")\n";
+    return s << o << "-like ndview with shape height,width=" << h << ',' << w << " (stride=" << d
+             << ")\n";
 }
 
 template <typename T, ndorder ord>

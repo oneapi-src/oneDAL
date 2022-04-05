@@ -29,11 +29,10 @@ inline auto& print_table_shape(std::ostream& s, const table& t) {
     const auto h = t.get_row_count();
     const auto w = t.get_column_count();
 
-    return s << "Table with shape height,width="
-                        << h << ',' << w << "\n";
+    return s << "Table with shape height,width=" << h << ',' << w << "\n";
 }
 
-template<typename Float = float>
+template <typename Float = float>
 inline auto& print_table_content(std::ostream& s, const table& t) {
     const auto h = t.get_row_count();
     const auto w = t.get_column_count();
@@ -44,9 +43,9 @@ inline auto& print_table_content(std::ostream& s, const table& t) {
 #endif
 
     row_accessor<const Float> accessor(t);
-    for(std::int64_t r = 0; r < h; ++r) {
-        auto row = accessor.pull({r, r + 1});
-        for(std::int64_t c = 0; c < w; ++c) {
+    for (std::int64_t r = 0; r < h; ++r) {
+        auto row = accessor.pull({ r, r + 1 });
+        for (std::int64_t c = 0; c < w; ++c) {
             s << "\t " << row[c];
         }
         s << "\t: r" << r << '\n';

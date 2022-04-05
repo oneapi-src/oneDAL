@@ -24,10 +24,10 @@
 
 namespace oneapi::dal::linear_regression::backend {
 
-template<bool beta, typename Float>
-sycl::event symmetrize( sycl::queue& queue,
-                        pr::ndview<Float, 2, pr::ndorder::c>& xtx,
-                        const be::event_vector& deps) {
+template <bool beta, typename Float>
+sycl::event symmetrize(sycl::queue& queue,
+                       pr::ndview<Float, 2, pr::ndorder::c>& xtx,
+                       const be::event_vector& deps) {
     const auto ext_f_count = xtx.get_dimension(0);
     ONEDAL_ASSERT(ext_f_count == xtx.get_dimension(1));
 
@@ -38,16 +38,17 @@ sycl::event symmetrize( sycl::queue& queue,
         const auto shape = be::make_range_2d(ext_f_count, ext_f_count);
         h.parallel_for(shape, [=](sycl::id<2> idx) {
             const auto r = idx[0], c = idx[1];
-            if(r < c) index.at(r, c) = index.at(c, r);
+            if (r < c)
+                index.at(r, c) = index.at(c, r);
         });
     });
 }
 
-template<bool beta, typename Float, pr::ndorder layout>
-sycl::event update_xtx( sycl::queue& queue,
-                        const pr::ndview<Float, 2, layout>& x,
-                        pr::ndview<Float, 2, pr::ndorder::c>& xtx,
-                        const be::event_vector& deps) {
+template <bool beta, typename Float, pr::ndorder layout>
+sycl::event update_xtx(sycl::queue& queue,
+                       const pr::ndview<Float, 2, layout>& x,
+                       pr::ndview<Float, 2, pr::ndorder::c>& xtx,
+                       const be::event_vector& deps) {
     constexpr Float one = 1;
     constexpr pr::sum<Float> plus;
     constexpr pr::identity<Float> ident;
@@ -79,18 +80,18 @@ sycl::event update_xtx( sycl::queue& queue,
         auto means_event = pr::reduce_by_columns(queue, x, means, plus, ident, deps);
         auto count_event = pr::element_wise(queue, plus, count, Float(s_count), count, deps);
 
-        sycl::event::wait_and_throw({means_event, count_event});
+        sycl::event::wait_and_throw({ means_event, count_event });
     }
 
-    return symmetrize<beta>(queue, xtx, {syrk_event});
+    return symmetrize<beta>(queue, xtx, { syrk_event });
 }
 
-template<bool beta, typename Float, pr::ndorder xlayout, pr::ndorder ylayout>
-sycl::event update_xty( sycl::queue& queue,
-                        const pr::ndview<Float, 2, xlayout>& x,
-                        const pr::ndview<Float, 2, ylayout>& y,
-                        pr::ndview<Float, 2, pr::ndorder::f>& xty,
-                        const be::event_vector& deps) {
+template <bool beta, typename Float, pr::ndorder xlayout, pr::ndorder ylayout>
+sycl::event update_xty(sycl::queue& queue,
+                       const pr::ndview<Float, 2, xlayout>& x,
+                       const pr::ndview<Float, 2, ylayout>& y,
+                       pr::ndview<Float, 2, pr::ndorder::f>& xty,
+                       const be::event_vector& deps) {
     constexpr Float one = 1;
     constexpr pr::sum<Float> plus;
     constexpr pr::identity<Float> ident;
@@ -123,37 +124,36 @@ sycl::event update_xty( sycl::queue& queue,
 
         auto means_event = pr::reduce_by_columns(queue, y, means, plus, ident, deps);
 
-        sycl::event::wait_and_throw({means_event});
+        sycl::event::wait_and_throw({ means_event });
     }
 
     return gemm_event;
 }
 
-#define INSTANTIATE(B, F, XL, YL)                                       \
-template sycl::event update_xty<B>( sycl::queue&,                       \
-                                    const pr::ndview<F, 2, XL>&,        \
-                                    const pr::ndview<F, 2, YL>&,        \
-                                    pr::ndview<F, 2, pr::ndorder::f>&,  \
-                                    const be::event_vector&);
+#define INSTANTIATE(B, F, XL, YL)                                         \
+    template sycl::event update_xty<B>(sycl::queue&,                      \
+                                       const pr::ndview<F, 2, XL>&,       \
+                                       const pr::ndview<F, 2, YL>&,       \
+                                       pr::ndview<F, 2, pr::ndorder::f>&, \
+                                       const be::event_vector&);
 
-#define INSTANTIATE_YL(B, F, XL)                                        \
-INSTANTIATE(B, F, XL, pr::ndorder::c)                                   \
-INSTANTIATE(B, F, XL, pr::ndorder::f)                                   \
-template sycl::event update_xtx<B>( sycl::queue&,                       \
-                                    const pr::ndview<F, 2, XL>&,        \
-                                    pr::ndview<F, 2, pr::ndorder::c>&,  \
-                                    const be::event_vector&);
+#define INSTANTIATE_YL(B, F, XL)                                          \
+    INSTANTIATE(B, F, XL, pr::ndorder::c)                                 \
+    INSTANTIATE(B, F, XL, pr::ndorder::f)                                 \
+    template sycl::event update_xtx<B>(sycl::queue&,                      \
+                                       const pr::ndview<F, 2, XL>&,       \
+                                       pr::ndview<F, 2, pr::ndorder::c>&, \
+                                       const be::event_vector&);
 
-#define INSTANTIATE_LAYOUT(B, F)    \
-INSTANTIATE_YL(B, F, pr::ndorder::c)\
-INSTANTIATE_YL(B, F, pr::ndorder::f)
+#define INSTANTIATE_LAYOUT(B, F)         \
+    INSTANTIATE_YL(B, F, pr::ndorder::c) \
+    INSTANTIATE_YL(B, F, pr::ndorder::f)
 
-#define INSTANTIATE_FLOAT(B)    \
-INSTANTIATE_LAYOUT(B, float)    \
-INSTANTIATE_LAYOUT(B, double)
+#define INSTANTIATE_FLOAT(B)     \
+    INSTANTIATE_LAYOUT(B, float) \
+    INSTANTIATE_LAYOUT(B, double)
 
 INSTANTIATE_FLOAT(true);
 INSTANTIATE_FLOAT(false);
-
 
 } // namespace oneapi::dal::linear_regression::backend
