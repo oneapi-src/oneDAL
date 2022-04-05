@@ -102,12 +102,12 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template<std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
     sycl::range<1> to_range() const {
         return make_range_1d(at(0));
     }
 
-    template<std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
     sycl::range<2> to_range() const {
         return make_range_2d(at(0), at(1));
     }

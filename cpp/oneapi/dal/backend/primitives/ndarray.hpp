@@ -799,11 +799,13 @@ private:
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <ndorder yorder, typename Type, ndorder xorder,
-            sycl::usm::alloc alloc = sycl::usm::alloc::device>
-inline auto copy(       sycl::queue& q,
-                        const ndview<Type, 2, xorder>& src,
-                        const event_vector& deps = {}) {
+template <ndorder yorder,
+          typename Type,
+          ndorder xorder,
+          sycl::usm::alloc alloc = sycl::usm::alloc::device>
+inline auto copy(sycl::queue& q,
+                 const ndview<Type, 2, xorder>& src,
+                 const event_vector& deps = {}) {
     ONEDAL_ASSERT(src.has_data());
     const auto shape = src.get_shape();
     auto res_array = ndarray<Type, 2, yorder>::empty(q, shape, alloc);
@@ -811,11 +813,10 @@ inline auto copy(       sycl::queue& q,
     return std::make_pair(res_array, res_event);
 }
 
-template <typename Type, ndorder xorder,
-            sycl::usm::alloc alloc = sycl::usm::alloc::device>
-inline auto copy(       sycl::queue& q,
-                        const ndview<Type, 2, xorder>& src,
-                        const event_vector& deps = {}) {
+template <typename Type, ndorder xorder, sycl::usm::alloc alloc = sycl::usm::alloc::device>
+inline auto copy(sycl::queue& q,
+                 const ndview<Type, 2, xorder>& src,
+                 const event_vector& deps = {}) {
     return copy<xorder, Type, xorder, alloc>(q, src, deps);
 }
 

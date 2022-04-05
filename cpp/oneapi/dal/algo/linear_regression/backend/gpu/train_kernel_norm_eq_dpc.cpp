@@ -50,10 +50,8 @@ constexpr auto daal_method = daal_lr::training::normEqDense;
 template <typename Float>
 using daal_lr_kernel_t = daal_lr::training::internal::OnlineKernelOneAPI<Float, daal_method>;
 
-template<typename Float>
-std::int64_t propose_block_size(const sycl::queue& q,
-                                const std::int64_t f,
-                                const std::int64_t r) {
+template <typename Float>
+std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, const std::int64_t r) {
     constexpr std::int64_t fsize = sizeof(Float);
     return 0x10000l * (8 / fsize);
 }
@@ -90,38 +88,40 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     const auto b_count = propose_block_size<Float>(queue, f_count, r_count);
     const be::uniform_blocking blocking(s_count, b_count);
 
-    const pr::ndshape<2> xty_shape{r_count, ext_f_count};
-    const pr::ndshape<2> betas_shape{r_count, f_count + 1};
-    const pr::ndshape<2> xtx_shape{ext_f_count, ext_f_count};
+    const pr::ndshape<2> xty_shape{ r_count, ext_f_count };
+    const pr::ndshape<2> betas_shape{ r_count, f_count + 1 };
+    const pr::ndshape<2> xtx_shape{ ext_f_count, ext_f_count };
 
-    auto [xty, fill_xty_event] = pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
-    auto [xtx, fill_xtx_event] = pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
+    auto [xty, fill_xty_event] =
+        pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
+    auto [xtx, fill_xtx_event] =
+        pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
     sycl::event last_xty_event = fill_xty_event, last_xtx_event = fill_xtx_event;
 
-    for(std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
         const auto last = blocking.get_block_end_index(b);
         const auto first = blocking.get_block_start_index(b);
 
         const std::int64_t length = last - first;
 
-        auto x_arr = x_accessor.pull(queue, {first, last}, alloc);
-        auto x = pr::ndarray<Float, 2>::wrap(x_arr, {length, f_count});
+        auto x_arr = x_accessor.pull(queue, { first, last }, alloc);
+        auto x = pr::ndarray<Float, 2>::wrap(x_arr, { length, f_count });
 
-        auto y_arr = y_accessor.pull(queue, {first, last}, alloc);
-        auto y = pr::ndarray<Float, 2>::wrap(y_arr, {length, r_count});
+        auto y_arr = y_accessor.pull(queue, { first, last }, alloc);
+        auto y = pr::ndarray<Float, 2>::wrap(y_arr, { length, r_count });
 
-        last_xty_event = update_xty(queue, beta, x, y, xty, {last_xty_event});
-        last_xtx_event = update_xtx(queue, beta, x, xtx, {last_xtx_event});
+        last_xty_event = update_xty(queue, beta, x, y, xty, { last_xty_event });
+        last_xtx_event = update_xtx(queue, beta, x, xtx, { last_xtx_event });
 
-        sycl::event::wait_and_throw({last_xty_event, last_xtx_event});
+        sycl::event::wait_and_throw({ last_xty_event, last_xtx_event });
     }
 
-    const be::event_vector solve_deps{last_xty_event, last_xtx_event};
+    const be::event_vector solve_deps{ last_xty_event, last_xtx_event };
 
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
     auto nxty = pr::ndarray<Float, 2>::wrap_mutable(betas_arr, betas_shape);
     auto solve_event = pr::solve_system<uplo>(queue, beta, xtx, xty, nxtx, nxty, solve_deps);
-    sycl::event::wait_and_throw({solve_event});
+    sycl::event::wait_and_throw({ solve_event });
 
     auto betas = homogen_table::wrap(betas_arr, r_count, f_count + 1);
 
