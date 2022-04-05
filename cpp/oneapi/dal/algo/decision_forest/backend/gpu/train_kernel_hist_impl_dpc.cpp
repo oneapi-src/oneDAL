@@ -1721,12 +1721,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_his
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(fill_event);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
-            const Index node_idx = item.get_global_id(0);
+            const Index node_idx = item.get_global_id()[1];
             const Index node_id = node_indices_ptr[node_ind_ofs + node_idx];
-            const Index ftr_grp_idx = item.get_local_id(0);
+            const Index ftr_grp_idx = item.get_local_id()[0];
             const Index ftr_grp_size = item.get_local_range()[0];
             const Index part_hist_count = item.get_group_range(0);
-            const Index hist_idx = item.get_group(0);
+            const Index hist_idx = item.get_group().get_group_id(0);
 
             const Index row_ofs = node_list_ptr[node_id * node_prop_count + impl_const_t::ind_ofs];
             const Index row_count = node_list_ptr[node_id * node_prop_count +
@@ -1815,12 +1815,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_cou
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(fill_event);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
-            const Index node_idx = item.get_global_id(1);
+            const Index node_idx = item.get_global_id()[1];
             const Index node_id = node_indices_ptr[node_ind_ofs + node_idx];
-            const Index ftr_grp_idx = item.get_local_id(0);
+            const Index ftr_grp_idx = item.get_local_id()[0];
             const Index ftr_grp_size = item.get_local_range()[0];
             const Index part_hist_count = item.get_group_range(0);
-            const Index hist_idx = item.get_group(0);
+            const Index hist_idx = item.get_group().get_group_id(0);
 
             const Index row_ofs = node_list_ptr[node_id * node_prop_count + impl_const_t::ind_ofs];
             const Index row_count = node_list_ptr[node_id * node_prop_count +
@@ -1914,12 +1914,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_sum
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(fill_event);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
-            const Index node_idx = item.get_global_id(1);
+            const Index node_idx = item.get_global_id()[1];
             const Index node_id = node_indices_ptr[node_ind_ofs + node_idx];
-            const Index ftr_grp_idx = item.get_local_id(0);
+            const Index ftr_grp_idx = item.get_local_id()[0];
             const Index ftr_grp_size = item.get_local_range()[0];
             const Index part_hist_count = item.get_group_range(0);
-            const Index hist_idx = item.get_group(0);
+            const Index hist_idx = item.get_group().get_group_id(0);
 
             const Index row_ofs = node_list_ptr[node_id * node_prop_count + impl_const_t::ind_ofs];
             const Index row_count = node_list_ptr[node_id * node_prop_count +
