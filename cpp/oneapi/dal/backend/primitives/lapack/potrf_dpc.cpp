@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/backend/primitives/lapack/solve.hpp"
 
 namespace oneapi::dal::backend::primitives {
@@ -31,22 +30,11 @@ namespace detail {
     auto get_potrf_params(const ndview<Float, 2, layout>& x) {
         potrf_params result;
 
-        if constexpr (layout == ndorder::c) {
-            result.lda = x.get_stride(0);
-            result.n = x.get_dimension(1);
-            //result.uplo = flip_uplo(uplo);
-            result.uplo = ident_uplo(uplo);
-        }
+        ONEDAL_ASSERT(layout == ndorder::c);
 
-        if constexpr (layout == ndorder::f) {
-            ONEDAL_ASSERT(false);
-            //result.lda = x.get_stride(1);
-            //result.n = x.get_dimension(0);
-            //result.uplo = ident_uplo(uplo);
-        }
-
-        std::cout << "N  : " << result.n << std::endl;
-        std::cout << "Lda: " << result.lda << std::endl;
+        result.lda = x.get_stride(0);
+        result.n = x.get_dimension(1);
+        result.uplo = ident_uplo(uplo);
 
         return result;
     }
@@ -68,7 +56,6 @@ namespace detail {
                                     array<Float>& scratchpad,
                                     const event_vector& deps) {
         sycl::event::wait_and_throw(deps);
-        std::cout << "x: " << x << std::endl;
 
         ONEDAL_ASSERT(x.has_mutable_data());
         ONEDAL_ASSERT(scratchpad.has_mutable_data());
@@ -100,7 +87,6 @@ array<Float> potrf_scratchpad(sycl::queue& q,
                               const ndview<Float, 2, layout>& x,
                               const sycl::usm::alloc& alloc) {
     const auto count = detail::potrf_scratchpad_size<uplo>(q, x);
-    std::cout << "Potrf scratchpad size: " << count << std::endl;
     return array<Float>::empty(q, count, alloc);
 }
 

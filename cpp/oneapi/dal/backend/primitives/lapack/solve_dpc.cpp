@@ -18,15 +18,13 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
 
-#include "oneapi/dal/backend/primitives/debug.hpp"
-
 namespace oneapi::dal::backend::primitives {
 
 template<bool beta, typename Float, ndorder xlayout, ndorder ylayout>
-sycl::event x_copy_transform(   sycl::queue& queue,
-                                const ndview<Float, 2, xlayout>& src,
-                                ndview<Float, 2, ylayout>& dst,
-                                const event_vector& dependencies) {
+inline sycl::event beta_copy_transform( sycl::queue& queue,
+                                        const ndview<Float, 2, xlayout>& src,
+                                        ndview<Float, 2, ylayout>& dst,
+                                        const event_vector& dependencies) {
     ONEDAL_ASSERT(src.has_data());
     const auto shape = src.get_shape();
     ONEDAL_ASSERT(dst.has_mutable_data());
@@ -60,23 +58,17 @@ sycl::event solve_system(   sycl::queue& queue,
                             ndview<Float, 2, ndorder::c>& final_xtx,
                             ndview<Float, 2, ndorder::c>& final_xty,
                             const event_vector& dependencies) {
-    [[maybe_unused]] constexpr auto alloc = sycl::usm::alloc::shared;
+    constexpr auto alloc = sycl::usm::alloc::shared;
 
     auto [nxty, xty_event] = copy<ndorder::c, Float, ylayout, alloc>(queue, xty, dependencies);
     auto [nxtx, xtx_event] = copy<ndorder::c, Float, xlayout, alloc>(queue, xtx, dependencies);
 
-    //auto nxtx = ndarray<Float, 2, ndorder::c>::empty(queue, xtx.get_shape(), alloc);
-    //auto xtx_event = x_copy_transform<beta>(queue, xtx, nxtx, dependencies);
-//
-    sycl::event::wait_and_throw({xtx_event});
-
-    std::cout << "Xtx after transform: " << nxtx << std::endl;
-
     opt_array<Float> dummy{};
     auto potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
+
     auto potrs_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
-    return potrs_event;
-    //return xtx_event;
+
+    return beta_copy_transform<beta>(queue, nxty, final_xty, {potrs_event});
 }
 
 #define INSTANTIATE(U, B, F, XL, YL)                                            \

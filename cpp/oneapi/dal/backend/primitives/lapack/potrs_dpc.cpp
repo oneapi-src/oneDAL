@@ -33,22 +33,14 @@ namespace detail {
                           const ndview<Float, 2, ylayout>& y) {
         potrs_params result;
 
-        if constexpr (xlayout == ndorder::c) {
-            result.lda = x.get_stride(1);
-            result.ldb = y.get_stride(1);
-            result.n = x.get_dimension(0);
-            result.uplo = flip_uplo(uplo);
-            result.nrhs = y.get_dimension(1);
-        }
+        ONEDAL_ASSERT(xlayout == ndorder::c);
+        ONEDAL_ASSERT(ylayout == ndorder::c);
 
-        if constexpr (xlayout == ndorder::f) {
-            ONEDAL_ASSERT(false);
-            result.lda = x.get_stride(1);
-            result.ldb = y.get_stride(1);
-            result.n = x.get_dimension(0);
-            result.uplo = ident_uplo(uplo);
-            result.nrhs = y.get_dimension(1);
-        }
+        result.lda = x.get_stride(0);
+        result.ldb = y.get_stride(0);
+        result.n = x.get_dimension(1);
+        result.uplo = ident_uplo(uplo);
+        result.nrhs = y.get_dimension(1);
 
         return result;
     }
