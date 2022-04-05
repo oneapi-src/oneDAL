@@ -27,8 +27,6 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
 
-#include "oneapi/dal/backend/primitives/debug.hpp"
-
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/algo/linear_regression/common.hpp"
@@ -55,9 +53,8 @@ template<typename Float>
 std::int64_t propose_block_size(const sycl::queue& q,
                                 const std::int64_t f,
                                 const std::int64_t r) {
-    //constexpr std::int64_t fsize = sizeof(Float);
-    //return 0x10000l * (8 / fsize);
-    return 32;
+    constexpr std::int64_t fsize = sizeof(Float);
+    return 0x10000l * (8 / fsize);
 }
 
 
