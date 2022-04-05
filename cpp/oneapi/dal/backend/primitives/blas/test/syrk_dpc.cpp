@@ -111,7 +111,7 @@ public:
         constexpr bool is_lower = (ul == mkl::uplo::lower);
 
         for (std::int64_t r = 0; r < n_; ++r) {
-            for (std::int64_t c = r; is_upper && c < n_; ++c) {
+            for (std::int64_t c = r; is_lower && c < n_; ++c) {
                 const auto gtr = float_t(k_);
                 const auto val = mat.at(r, c);
                 const auto err = std::abs(val - gtr) / gtr;
@@ -121,7 +121,7 @@ public:
                     FAIL();
                 }
             }
-            for (std::int64_t c = 0; is_lower && c <= r; ++c) {
+            for (std::int64_t c = 0; is_upper && c <= r; ++c) {
                 const auto gtr = float_t(k_);
                 const auto val = mat.at(r, c);
                 const auto err = std::abs(val - gtr) / gtr;
