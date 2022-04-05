@@ -84,7 +84,7 @@ inline sycl::event apply_betas(sycl::queue& q,
                 const auto r = idx[0];
                 const auto c = idx[1];
 
-                y_idx.at(r, c) += b_idx.at(r, 0);
+                y_idx.at(r, c) += b_idx.at(c, 0);
             });
         });
     }

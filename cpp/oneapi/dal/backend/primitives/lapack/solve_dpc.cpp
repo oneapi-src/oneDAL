@@ -17,7 +17,7 @@
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
-#include "oneapi/dal/backend/primitives/debug.hpp"
+
 namespace oneapi::dal::backend::primitives {
 
 template<bool beta, typename Float, ndorder xlayout, ndorder ylayout>

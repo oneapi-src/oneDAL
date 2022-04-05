@@ -28,8 +28,6 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
-#include "oneapi/dal/detail/debug.hpp"
-
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
@@ -49,9 +47,11 @@ public:
     using task_t = std::tuple_element_t<2, TestType>;
 
     void generate_dimensions() {
-        s_count_ = GENERATE(111, 113);
+        t_count_ = GENERATE(9, 78, 1019);
+        s_count_ = GENERATE(111, 777);
         f_count_ = GENERATE(2, 3, 5);
         r_count_ = GENERATE(2, 7, 9);
+        intercept_ = GENERATE(0, 1);
     }
 
     te::table_id get_homogen_table_id() const {
@@ -59,12 +59,15 @@ public:
     }
 
     table compute_responses(const table& beta, const table& bias, const table& data) const {
-        auto res_arr = array<float_t>::zeros(this->s_count_ * this->r_count_);
+        const auto s_count = data.get_row_count();
+
+        auto res_arr = array<float_t>::zeros(s_count * this->r_count_);
+
         const auto beta_arr = row_accessor<const float_t>(beta).pull({ 0, -1 });
         const auto bias_arr = row_accessor<const float_t>(bias).pull({ 0, -1 });
         const auto data_arr = row_accessor<const float_t>(data).pull({ 0, -1 });
 
-        for (std::int64_t s = 0; s < this->s_count_; ++s) {
+        for (std::int64_t s = 0; s < s_count; ++s) {
             for (std::int64_t r = 0; r < this->r_count_; ++r) {
                 for (std::int64_t f = 0; f < this->f_count_; ++f) {
                     const auto& v = data_arr[s * this->f_count_ + f];
@@ -74,13 +77,13 @@ public:
             }
         }
 
-        for (std::int64_t s = 0; s < this->s_count_; ++s) {
+        for (std::int64_t s = 0; s < s_count; ++s) {
             for (std::int64_t r = 0; r < this->r_count_; ++r) {
                 *(res_arr.get_mutable_data() + s * this->r_count_ + r) += bias_arr[r];
             }
         }
 
-        return homogen_table::wrap(res_arr, this->s_count_, this->r_count_);
+        return homogen_table::wrap(res_arr, s_count, this->r_count_);
     }
 
     std::tuple<table, table> generate_betas() const {
@@ -104,11 +107,11 @@ public:
         REQUIRE(this->x_train_.get_column_count() == this->f_count_);
         REQUIRE(this->x_train_.get_row_count() == this->s_count_);
         REQUIRE(this->x_test_.get_column_count() == this->f_count_);
-        REQUIRE(this->x_test_.get_row_count() == this->s_count_);
+        REQUIRE(this->x_test_.get_row_count() == this->t_count_);
         REQUIRE(this->y_train_.get_column_count() == this->r_count_);
         REQUIRE(this->y_train_.get_row_count() == this->s_count_);
         REQUIRE(this->y_test_.get_column_count() == this->r_count_);
-        REQUIRE(this->y_test_.get_row_count() == this->s_count_);
+        REQUIRE(this->y_test_.get_row_count() == this->t_count_);
     }
 
     void generate() {
@@ -117,21 +120,16 @@ public:
 
         using namespace ::oneapi::dal::detail;
 
-        std::cout << "Gtr betas: " << beta << std::endl;
-        std::cout << "Gtr bias: " << bias << std::endl;
-
         const auto train_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5, 3.5));
         this->x_train_ = train_dataframe.get_table(this->get_homogen_table_id());
 
         const auto test_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-7.5, 5.5));
+            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-7.5, 5.5));
         this->x_test_ = test_dataframe.get_table(this->get_homogen_table_id());
 
         this->y_train_ = compute_responses(beta, bias, this->x_train_);
         this->y_test_ = compute_responses(beta, bias, this->x_test_);
-
-        //std::cout << "Gtr y_test_: " << y_test_ << std::endl;
 
         this->check_table_dimensions();
     }
@@ -158,19 +156,14 @@ public:
         const auto desc = this->get_descriptor();
         const auto train_res = this->train(desc, this->x_train_, this->y_train_);
 
-        const auto& betas = train_res.get_model().get_betas();
-        std::cout << "Computed betas: " << betas << std::endl;
-
         const auto infer_res = this->infer(desc, this->x_test_, train_res.get_model());
-
-        //const auto& resps = infer_res.get_responses();
-        //std::cout << "Computed resps: " << resps << std::endl;
 
         check_results(infer_res);
     }
 
 private:
-    bool intercept_ = false;
+    bool intercept_ = true;
+    std::int64_t t_count_;
     std::int64_t s_count_;
     std::int64_t f_count_;
     std::int64_t r_count_;
