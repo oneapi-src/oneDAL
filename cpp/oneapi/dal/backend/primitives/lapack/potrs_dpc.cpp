@@ -40,7 +40,7 @@ namespace detail {
         result.ldb = y.get_stride(0);
         result.n = x.get_dimension(1);
         result.uplo = ident_uplo(uplo);
-        result.nrhs = y.get_dimension(1);
+        result.nrhs = y.get_dimension(0);
 
         return result;
     }

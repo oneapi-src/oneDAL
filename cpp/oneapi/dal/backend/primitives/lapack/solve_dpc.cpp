@@ -17,7 +17,7 @@
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
-
+#include "oneapi/dal/backend/primitives/debug.hpp"
 namespace oneapi::dal::backend::primitives {
 
 template<bool beta, typename Float, ndorder xlayout, ndorder ylayout>
@@ -64,16 +64,14 @@ sycl::event solve_system(   sycl::queue& queue,
                             ndview<Float, 2, ndorder::c>& final_xtx,
                             ndview<Float, 2, ndorder::c>& final_xty,
                             const event_vector& dependencies) {
-    constexpr auto alloc = sycl::usm::alloc::shared;
+    constexpr auto alloc = sycl::usm::alloc::device;
 
     auto [nxty, xty_event] = copy<ndorder::c, Float, ylayout, alloc>(queue, xty, dependencies);
     auto [nxtx, xtx_event] = copy<ndorder::c, Float, xlayout, alloc>(queue, xtx, dependencies);
 
     opt_array<Float> dummy{};
     auto potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
-
     auto potrs_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
-
 
     return beta_copy_transform<beta>(queue, nxty, final_xty, {potrs_event});
 }

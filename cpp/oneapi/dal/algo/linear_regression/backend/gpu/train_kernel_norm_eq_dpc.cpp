@@ -27,6 +27,8 @@
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 
+#include "oneapi/dal/backend/primitives/debug.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/algo/linear_regression/common.hpp"
@@ -112,12 +114,17 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
         last_xty_event = update_xty(queue, beta, x, y, xty, {last_xty_event});
         last_xtx_event = update_xtx(queue, beta, x, xtx, {last_xtx_event});
+
+        sycl::event::wait_and_throw({last_xty_event, last_xtx_event});
     }
 
     const be::event_vector solve_deps{last_xty_event, last_xtx_event};
 
-    auto nxty = pr::ndarray<Float, 2>::wrap_mutable(betas_arr, betas_shape);
+    //sycl::event::wait_and_throw(solve_deps);
+    //std::cout << "Xtx: " << xtx << std::endl;
+
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
+    auto nxty = pr::ndarray<Float, 2>::wrap_mutable(betas_arr, betas_shape);
     auto solve_event = pr::solve_system<uplo>(queue, beta, xtx, xty, nxtx, nxty, solve_deps);
     sycl::event::wait_and_throw({solve_event});
 

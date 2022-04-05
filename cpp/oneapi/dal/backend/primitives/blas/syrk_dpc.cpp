@@ -34,10 +34,13 @@ static sycl::event syrk_wrapper(sycl::queue& queue,
                                 Float* c,
                                 std::int64_t ldc,
                                 const event_vector& deps) {
-    [[maybe_unused]] const bool is_trans = (trans == mkl::transpose::trans);
+#ifdef ONEDAL_ENABLE_ASSERT
+    const bool is_trans = (trans == mkl::transpose::trans);
     ONEDAL_ASSERT(ldc >= n);
     ONEDAL_ASSERT(is_trans || lda >= n);
     ONEDAL_ASSERT(!is_trans || lda >= k);
+#endif
+
     return mkl::blas::syrk(queue, uplo, trans, n, k, alpha, a, lda, beta, c, ldc, deps);
 }
 
@@ -59,7 +62,7 @@ sycl::event syrk(sycl::queue& queue,
     const auto a_str = a.get_leading_stride();
     const auto c_str = c.get_leading_stride();
     constexpr auto tr = f_order_as_transposed(ao);
-    constexpr auto ul = flip_uplo(uplo);
+    constexpr auto ul = ident_uplo(uplo);
     return syrk_wrapper(queue, ul, tr, nd, kd, alpha, a_ptr, a_str, beta, c_ptr, c_str, deps);
 }
 

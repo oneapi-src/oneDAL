@@ -52,10 +52,6 @@ public:
         s_count_ = GENERATE(111, 113);
         f_count_ = GENERATE(2, 3, 5);
         r_count_ = GENERATE(2, 7, 9);
-
-        std::cout << "S: " << s_count_ << std::endl;
-        std::cout << "F: " << f_count_ << std::endl;
-        std::cout << "R: " << r_count_ << std::endl;
     }
 
     te::table_id get_homogen_table_id() const {
@@ -135,6 +131,8 @@ public:
         this->y_train_ = compute_responses(beta, bias, this->x_train_);
         this->y_test_ = compute_responses(beta, bias, this->x_test_);
 
+        //std::cout << "Gtr y_test_: " << y_test_ << std::endl;
+
         this->check_table_dimensions();
     }
 
@@ -163,15 +161,16 @@ public:
         const auto& betas = train_res.get_model().get_betas();
         std::cout << "Computed betas: " << betas << std::endl;
 
-        //print_table_content(std::cout, betas);
-
         const auto infer_res = this->infer(desc, this->x_test_, train_res.get_model());
+
+        //const auto& resps = infer_res.get_responses();
+        //std::cout << "Computed resps: " << resps << std::endl;
 
         check_results(infer_res);
     }
 
 private:
-    bool intercept_ = true;
+    bool intercept_ = false;
     std::int64_t s_count_;
     std::int64_t f_count_;
     std::int64_t r_count_;
