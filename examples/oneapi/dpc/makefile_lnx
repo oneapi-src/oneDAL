@@ -24,7 +24,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see onedal.lst file"
 	@echo
-	@echo "compiler_name     - currently can be dpcpp only that stands
+	@echo "compiler_name     - currently can be dpcpp only that stands"
 	@echo "                    for Intel(R) oneAPI DPC++/C++ Compiler."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
