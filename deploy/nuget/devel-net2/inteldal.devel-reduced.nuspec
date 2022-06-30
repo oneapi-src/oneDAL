@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>inteldal.devel-reduced.__PLATFORM__</id>
+    <version>__VERSION__</version>
+    <authors>Intel Corporation</authors>
+    <owners>Intel Corporation</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE</license>
+    <projectUrl>https://software.intel.com/en-us/intel-daal</projectUrl>
+    <iconUrl>https://software.intel.com/sites/products/vtune/assets/brand-intel-transparent-64x64.png</iconUrl>
+    <description>Intel(R) oneAPI Data Analytics Library helps speed up big data analysis by providing highly optimized algorithmic building blocks for all stages of data analytics (preprocessing, transformation, analysis, modeling, validation, and decision making) in batch, online, and distributed processing modes of computation.</description>
+    <summary>Package includes __PLATFORM__ headers and dynamic libraries</summary>
+    <releaseNotes>https://software.intel.com/en-us/articles/intel-daal-release-notes-and-new-features</releaseNotes>
+    <copyright>Copyright 2022 Intel Corporation</copyright>
+    <tags>native intel onedal dal daal</tags>
+  </metadata>
+
+    <files>
+      <file src="lib/intel64/libonedal_core.so" target="runtimes/linux-x64/native/libs/libonedal_core.so" />
+      <file src="lib/intel64/libonedal_dpc.so" target="runtimes/linux-x64/native/libs/libonedal_dpc.so" />
+      <file src="lib/intel64/libonedal_sequential.so" target="runtimes/linux-x64/native/libs/libonedal_sequential.so" />
+      <file src="lib/intel64/libonedal_sycl.so" target="runtimes/linux-x64/native/libs/libonedal_sycl.so" />
+      <file src="lib/intel64/libonedal_thread.so" target="runtimes/linux-x64/native/libs/libonedal_thread.so" />
+      <file src="include" target="runtimes/linux-x64/native/headers" />
+  </files>
+</package>
