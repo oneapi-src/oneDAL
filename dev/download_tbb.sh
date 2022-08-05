@@ -39,15 +39,15 @@ DST=$(cd "${DST}" || exit 1;pwd)
 DOWNLOAD_CODE=1
 
 if [ ! -d "${DST}/${OS}/bin" ]; then
-  if [ -x "$(command -v curl)" ]; then
-    echo curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
-    if curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
+  if [ -x "$(command -v wget)" ]; then
+    echo wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
+    if wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
     then
       DOWNLOAD_CODE=0
     fi
-  elif [ -x "$(command -v wget)" ]; then
-    echo wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
-    if wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
+  elif [ -x "$(command -v curl)" ]; then
+    echo curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
+    if curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
     then
       DOWNLOAD_CODE=0
     fi

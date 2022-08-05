@@ -48,15 +48,15 @@ function download_fpk()
   DST=$(cd "${DST}" || exit 1;pwd)
 
   if [ ! -e "${CONDITION}/${MKLFPK_OS}/lib/" ]; then
-    if [ -x "$(command -v curl)" ]; then
-      echo curl -L -o "${DST}/${FILENAME}" "${SRC}"
-      if curl -L -o "${DST}/${FILENAME}" "${SRC}";
+    if [ -x "$(command -v wget)" ]; then
+      echo wget -O "${DST}/${FILENAME}" "${SRC}"
+      if wget -O "${DST}/${FILENAME}" "${SRC}";
       then
         DOWNLOAD_CODE=0
       fi
-    elif [ -x "$(command -v wget)" ]; then
-      echo wget -O "${DST}/${FILENAME}" "${SRC}"
-      if wget -O "${DST}/${FILENAME}" "${SRC}";
+    elif [ -x "$(command -v curl)" ]; then
+      echo curl -L -o "${DST}/${FILENAME}" "${SRC}"
+      if curl -L -o "${DST}/${FILENAME}" "${SRC}";
       then
         DOWNLOAD_CODE=0
       fi
