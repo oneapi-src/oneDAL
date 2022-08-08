@@ -150,11 +150,25 @@ public:
     }
 
     void serialize(detail::output_archive& ar) const override {
-        ar(meta_, data_, column_indices_, row_indices_, row_count_, col_count_, layout_, csr_indexing_);
+        ar(meta_,
+           data_,
+           column_indices_,
+           row_indices_,
+           row_count_,
+           col_count_,
+           layout_,
+           csr_indexing_);
     }
 
     void deserialize(detail::input_archive& ar) override {
-        ar(meta_, data_, column_indices_, row_indices_, row_count_, col_count_, layout_, csr_indexing_);
+        ar(meta_,
+           data_,
+           column_indices_,
+           row_indices_,
+           row_count_,
+           col_count_,
+           layout_,
+           csr_indexing_);
     }
 
 private:
