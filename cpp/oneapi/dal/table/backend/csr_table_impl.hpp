@@ -20,10 +20,12 @@
 #include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/csr_kernels.hpp"
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::backend {
 
-class csr_table_impl : public detail::csr_table_template<csr_table_impl> {
+class csr_table_impl : public detail::csr_table_template<csr_table_impl>,
+                       public ONEDAL_SERIALIZABLE(csr_table_id) {
 public:
     csr_table_impl()
             : col_count_(0),
@@ -145,6 +147,14 @@ public:
                        row_indices_,
                        block,
                        alloc_kind::host);
+    }
+
+    void serialize(detail::output_archive& ar) const override {
+        ar(meta_, data_, column_indices_, row_indices_, row_count_, col_count_, layout_, csr_indexing_);
+    }
+
+    void deserialize(detail::input_archive& ar) override {
+        ar(meta_, data_, column_indices_, row_indices_, row_count_, col_count_, layout_, csr_indexing_);
     }
 
 private:
