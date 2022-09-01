@@ -3,16 +3,16 @@
 *.md           @Vika-F @maria-Petrova @Alexsandruss
 
 samples/       @maria-Petrova @Alexsandruss
-examples/      @maria-Petrova @Alexsandruss
+examples/      @maria-Petrova @Alexsandruss @samir-nasibli
 
-.ci/           @Alexsandruss
-.github/       @Alexsandruss
+.ci/           @Alexsandruss @napetrov
+.github/       @Alexsandruss @napetrov
 
 make*          @Alexsandruss
 cmake/         @Alexsandruss
 deploy/        @Alexsandruss
 dev/           @Alexsandruss
 
-cpp/daal/      @Alexsandruss
-cpp/oneapi/    @Alexsandruss
+cpp/daal/      @Alexsandruss @samir-nasibli
+cpp/oneapi/    @Alexsandruss @samir-nasibli @KulikovNikita
 java/          @Alexsandruss
