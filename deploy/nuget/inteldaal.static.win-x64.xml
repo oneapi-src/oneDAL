@@ -31,7 +31,6 @@
       <EnumValue Name="static" DisplayName="Static"     />
     </EnumProperty>
     <EnumProperty Name="threading-DAAL-static-win-x64" DisplayName="Threading Layer" Description="Select threading layer for the Intel(R) oneDAL" Category="libdaal">
-      <EnumValue Name="sequential" DisplayName="Sequential"   />
       <EnumValue Name="tbb"        DisplayName="Intel(R) TBB" />
     </EnumProperty>
   </Rule>

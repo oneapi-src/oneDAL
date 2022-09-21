@@ -20,14 +20,6 @@ daal_module(
 )
 
 daal_module(
-    name = "micromkl_sequential",
-    override_deps_lib_tag = True,
-    deps = [
-        "@micromkl//:mkl_seq",
-    ],
-)
-
-daal_module(
     name = "micromkl_thread",
     override_deps_lib_tag = True,
     deps = [
@@ -123,18 +115,6 @@ daal_module(
         ":services",
         "@onedal//cpp/daal/src/algorithms/engines:kernel",
         "@micromkl_dpc//:headers",
-    ],
-)
-
-daal_module(
-    name = "threading_seq",
-    srcs = glob(["src/threading/**/*.cpp"]),
-    local_defines = [
-        "__DO_SEQ_LAYER__",
-    ],
-    deps = [
-        ":threading_headers",
-        ":micromkl_sequential",
     ],
 )
 
@@ -238,13 +218,6 @@ daal_static_lib(
     ],
 )
 
-daal_static_lib(
-    name = "sequential_static",
-    lib_name = "onedal_sequential",
-    deps = [
-        ":threading_seq",
-    ],
-)
 
 daal_static_lib(
     name = "thread_static",
@@ -264,15 +237,6 @@ daal_dynamic_lib(
 )
 
 daal_dynamic_lib(
-    name = "sequential_dynamic",
-    lib_name = "onedal_sequential",
-    deps = [
-        ":threading_seq",
-    ],
-    def_file = "src/threading/export_lnx32e.def",
-)
-
-daal_dynamic_lib(
     name = "thread_dynamic",
     lib_name = "onedal_thread",
     deps = [
@@ -286,10 +250,7 @@ daal_module(
     deps = select({
         "@config//:test_thread_mode_par": [
             "@onedal//cpp/daal:thread_static",
-        ],
-        "@config//:test_thread_mode_seq": [
-            "@onedal//cpp/daal:sequential_static",
-        ],
+        ]
     }),
 )
 
@@ -298,10 +259,7 @@ daal_module(
     deps = select({
         "@config//:test_thread_mode_par": [
             "@onedal//cpp/daal:thread_dynamic",
-        ],
-        "@config//:test_thread_mode_seq": [
-            "@onedal//cpp/daal:sequential_dynamic",
-        ],
+        ]
     }),
 )
 
@@ -310,10 +268,7 @@ daal_module(
     deps = select({
         "@config//:test_thread_mode_par": [
             "@onedal_release//:thread_static",
-        ],
-        "@config//:test_thread_mode_seq": [
-            "@onedal_release//:sequential_static",
-        ],
+        ]
     }),
 )
 
@@ -322,10 +277,7 @@ daal_module(
     deps = select({
         "@config//:test_thread_mode_par": [
             "@onedal_release//:thread_dynamic",
-        ],
-        "@config//:test_thread_mode_seq": [
-            "@onedal_release//:sequential_dynamic",
-        ],
+        ]
     }),
 )
 
@@ -333,7 +285,6 @@ filegroup(
     name = "all_static",
     srcs = [
         ":core_static",
-        ":sequential_static",
         ":thread_static",
     ],
 )

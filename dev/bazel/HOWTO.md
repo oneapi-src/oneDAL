@@ -203,11 +203,10 @@ The most used Bazel commands are `build`, `test` and `run`.
 - `--test_thread_mode` Specifies threading mode for tests. \
   Possible values:
   - `par` _default_ Links against `onedal_thread`.
-  - `seq` Links against `onedal_sequential`.
 
    Example:
    ```sh
-   bazel test --test_thread_mode=seq //cpp/oneapi/dal:tests
+   bazel test --test_thread_mode=par //cpp/oneapi/dal:tests
    ```
 
 - `--test_disable_fp64` A switch that disables tests for double precision (`fp64`).

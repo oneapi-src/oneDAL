@@ -21,13 +21,11 @@
 help:
 	@echo "Usage: make {lib|dylib|libintel64|dylibintel64|help}"
 	@echo "lib is alias for libintel64, dylib is alias for dylibintel64"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name. Please see onedal.lst file"
 	@echo
 	@echo "compiler_name     - can be intel or clang. Default value is intel."
-	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
@@ -68,10 +66,6 @@ ifneq ($(mode),build)
     override mode = run
 endif
 
-ifneq ($(threading),sequential)
-    override threading = parallel
-endif
-
 ifndef DAALROOT
     DAALROOT = ./../../..
 endif
@@ -85,21 +79,14 @@ TBB_PATH = $(TBBROOT)/lib
 onedal.dylib := -lonedal
 onedal_core.dylib := -lonedal_core
 onedal_thread.dylib := -lonedal_thread
-onedal_sequential.dylib := -lonedal_sequential
 
 onedal.a := "$(DAAL_PATH)/libonedal.a"
 onedal_core.a := "$(DAAL_PATH)/libonedal_core.a"
 onedal_thread.a := "$(DAAL_PATH)/libonedal_thread.a"
-onedal_sequential.a := "$(DAAL_PATH)/libonedal_sequential.a"
 
 onedal := $(onedal.$(RES_EXT))
 onedal_core := $(onedal_core.$(RES_EXT))
 onedal_thread := $(onedal_thread.$(RES_EXT))
-onedal_sequential := $(onedal_sequential.$(RES_EXT))
-
-onedal_threading.parallel := $(onedal_thread)
-onedal_threading.sequential := $(onedal_sequential)
-onedal_threading := $(onedal_threading.$(threading))
 
 COPTS := -std=c++17 \
          -pedantic \
@@ -113,7 +100,7 @@ COPTS := -std=c++17 \
 
 LIBS := $(onedal) \
         $(onedal_core) \
-        $(onedal_threading) \
+        $(onedal_thread) \
         -ltbb \
         -ltbbmalloc \
         -ldl
@@ -122,7 +109,7 @@ LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
          $(LIBS)
 
-RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),intel)

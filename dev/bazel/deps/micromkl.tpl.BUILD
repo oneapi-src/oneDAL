@@ -17,16 +17,6 @@ cc_library(
 )
 
 cc_library(
-    name = "mkl_seq",
-    srcs = [
-        "%{os}/lib/intel64/libdaal_mkl_sequential.a",
-    ],
-    deps = [
-        ":headers",
-    ],
-)
-
-cc_library(
     name = "mkl_thr",
     srcs = [
         "%{os}/lib/intel64/libdaal_mkl_thread.a",
