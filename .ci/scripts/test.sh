@@ -41,7 +41,6 @@ done
 TESTING_RETURN=0
 OS=${platform::3}
 ARCH=${platform:3:3}
-ALGORITHM="kmeans_dense_batch"
 if [ "${ARCH}" == "32" ]; then
     full_arch=ia32
 else
@@ -85,28 +84,29 @@ for threading in parallel sequential; do
                 l="dylib"
             fi
         fi
-        build_command="make ${l}${full_arch} example=${ALGORITHM} mode=build  compiler=${compiler} threading=${threading}"
-        echo "Building example ${build_command}"
-        (${build_command} >> ${ALGORITHM}.log)
+        build_command="make ${l}${full_arch} mode=build compiler=${compiler} threading=${threading}"
+        echo "Building examples ${build_command}"
+        (${build_command} >> ${threading}-${link_mode}.log 2>&1)
         err=$?
         if [ ${err} -ne 0 ]; then
-            echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${ALGORITHM}"
+            echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${threading}-${link_mode}"
             TESTING_RETURN=${err}
             continue
         else
-            echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${ALGORITHM}"
+            echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${threading}-${link_mode}"
         fi
-        run_command="make ${l}${full_arch} example=${ALGORITHM} mode=run compiler=${compiler} threading=${threading}"
-        echo "Running example ${run_command}"
-        (${run_command} >> ${ALGORITHM}.log)
+        run_command="make ${l}${full_arch} mode=run compiler=${compiler} threading=${threading}"
+        echo "Running examples ${run_command}"
+        (${run_command} >> ${threading}-${link_mode}.log 2>&1)
         err=$?
         if [ ${err} -ne 0 ]; then
-            echo -e "$(date +'%H:%M:%S') FAILED\t\t${ALGORITHM} with errno ${err}"
+            echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${threading}-${link_mode} with errno ${err}"
             TESTING_RETURN=${err}
             continue
         else
-            echo -e "$(date +'%H:%M:%S') PASSED\t\t${ALGORITHM}"
+            echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${threading}-${link_mode}"
         fi
+        cat ${threading}-${link_mode}.log
     done
 done
 

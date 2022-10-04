@@ -266,6 +266,9 @@ jobs:
       .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
     displayName: 'make oneapi_c'
   - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
+    displayName: 'examples'
+  - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
   - task: PublishPipelineArtifact@0
