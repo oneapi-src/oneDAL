@@ -6,12 +6,14 @@
 trigger:
   branches:
     include:
+    - develop
     - master
     - rls/*
 
 pr:
   branches:
     include:
+    - develop
     - master
     - rls/*
 
@@ -260,13 +262,13 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal
+      .ci/scripts/build.sh --platform $(platform.type) --target daal
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c
+      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
     displayName: 'make oneapi_c'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
     displayName: 'examples'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
