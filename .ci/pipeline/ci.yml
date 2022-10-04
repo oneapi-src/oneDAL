@@ -257,16 +257,16 @@ jobs:
     release.dir: '__release_mac_clang'
     platform.type : 'mac32e'
   pool:
-    vmImage:  'macOS-10.15'
+    vmImage:  'macos-12'
   steps:
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c
     displayName: 'make oneapi_c'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu
     displayName: 'examples'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
