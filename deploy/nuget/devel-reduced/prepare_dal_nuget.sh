@@ -101,7 +101,7 @@ create_package() {
     # ###### #
 
     # download package
-    tbb_version=2021.5.0
+    tbb_version=2021.6.0
     tbb_download_prefix=https://github.com/oneapi-src/oneTBB/releases/download/v${tbb_version}
     if [ $1 = "lnx" ]; then
         tbb_package_name=oneapi-tbb-${tbb_version}-lin.tgz
