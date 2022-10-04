@@ -30,10 +30,13 @@
 #endif
 
 #ifndef ONEDAL_ENABLE_ASSERT
-#define __ONEDAL_ASSERT_NO_MESSAGE__(condition) if (!(condition)) {}
+#define __ONEDAL_ASSERT_NO_MESSAGE__(condition) \
+    if (!(condition)) {                         \
+    }
 #define __ONEDAL_ASSERT_MESSAGE__(condition, message) \
     do {                                              \
-        if (!(condition)) {}                          \
+        if (!(condition)) {                           \
+        }                                             \
     } while (0)
 #else
 #include <cassert>
