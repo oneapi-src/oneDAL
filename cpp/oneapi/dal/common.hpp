@@ -30,12 +30,15 @@
 #endif
 
 #ifndef ONEDAL_ENABLE_ASSERT
-#define ONEDAL_ASSERT(...)
+#define __ONEDAL_ASSERT_NO_MESSAGE__(condition) if (!(condition)) {}
+#define __ONEDAL_ASSERT_MESSAGE__(condition, message) \
+    do {                                              \
+        if (!(condition)) {}                          \
+    } while (0)
 #else
 #include <cassert>
 #include <iostream>
 #define __ONEDAL_ASSERT_NO_MESSAGE__(condition) assert(condition)
-
 #define __ONEDAL_ASSERT_MESSAGE__(condition, message) \
     do {                                              \
         if (!(condition)) {                           \
@@ -43,13 +46,13 @@
             assert((condition));                      \
         }                                             \
     } while (0)
+#endif
 
 #define __ONEDAL_ASSERT_GET__(_1, _2, F, ...) F
 
 #define ONEDAL_ASSERT(...)                                                                         \
     __ONEDAL_ASSERT_GET__(__VA_ARGS__, __ONEDAL_ASSERT_MESSAGE__, __ONEDAL_ASSERT_NO_MESSAGE__, 0) \
     (__VA_ARGS__)
-#endif
 
 namespace oneapi::dal {
 namespace v1 {
