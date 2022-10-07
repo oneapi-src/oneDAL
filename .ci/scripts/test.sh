@@ -72,41 +72,40 @@ fi
 
 cd "${BUILD_DIR}/daal/latest/examples/daal/cpp"
 
-for threading in parallel sequential; do
-    for link_mode in static dynamic; do
-        # Release Examples testing
-        if [ "${link_mode}" == "static" ]; then
-            l="lib"
-        elif [ "${link_mode}" == "dynamic" ]; then
-            if [ "${OS}" == "lnx" ]; then
-                l="so"
-            else
-                l="dylib"
-            fi
-        fi
-        build_command="make ${l}${full_arch} mode=build compiler=${compiler} threading=${threading}"
-        echo "Building examples ${build_command}"
-        (${build_command})
-        err=$?
-        if [ ${err} -ne 0 ]; then
-            echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${threading}-${link_mode}"
-            TESTING_RETURN=${err}
-            continue
+threading=thread
+for link_mode in static dynamic; do
+    # Release Examples testing
+    if [ "${link_mode}" == "static" ]; then
+        l="lib"
+    elif [ "${link_mode}" == "dynamic" ]; then
+        if [ "${OS}" == "lnx" ]; then
+            l="so"
         else
-            echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${threading}-${link_mode}"
+            l="dylib"
         fi
-        run_command="make ${l}${full_arch} mode=run compiler=${compiler} threading=${threading}"
-        echo "Running examples ${run_command}"
-        (${run_command})
-        err=$?
-        if [ ${err} -ne 0 ]; then
-            echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${threading}-${link_mode} with errno ${err}"
-            TESTING_RETURN=${err}
-            continue
-        else
-            echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${threading}-${link_mode}"
-        fi
-    done
+    fi
+    build_command="make ${l}${full_arch} mode=build compiler=${compiler} threading=${threading}"
+    echo "Building examples ${build_command}"
+    (${build_command})
+    err=$?
+    if [ ${err} -ne 0 ]; then
+        echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${threading}-${link_mode}"
+        TESTING_RETURN=${err}
+        continue
+    else
+        echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${threading}-${link_mode}"
+    fi
+    run_command="make ${l}${full_arch} mode=run compiler=${compiler} threading=${threading}"
+    echo "Running examples ${run_command}"
+    (${run_command})
+    err=$?
+    if [ ${err} -ne 0 ]; then
+        echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${threading}-${link_mode} with errno ${err}"
+        TESTING_RETURN=${err}
+        continue
+    else
+        echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${threading}-${link_mode}"
+    fi
 done
 
 #exit with overall testing status

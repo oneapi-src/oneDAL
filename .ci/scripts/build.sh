@@ -39,7 +39,6 @@ done
 
 OS=${platform::3}
 ARCH=${platform:3:3}
-CPU_OPTIMIZATIONS="avx2"
 
 if [ "${OS}" == "lnx" ]; then
     compiler=${compiler:-gnu}
@@ -78,7 +77,6 @@ export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
 make ${target:-daal} ${make_op} \
     PLAT=${platform} \
-    COMPILER=${compiler} \
-    REQCPU="${CPU_OPTIMIZATIONS}"
+    COMPILER=${compiler}
 
 exit $?
