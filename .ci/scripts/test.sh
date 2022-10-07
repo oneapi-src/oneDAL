@@ -57,6 +57,12 @@ else
     exit 1
 fi
 
+if [ "$(uname)" == "Linux" ]; then
+    make_op="-j$(grep -c processor /proc/cpuinfo)"
+else
+    make_op="-j$(sysctl -n hw.physicalcpu)"
+fi
+
 #setup env for DAL
 source ${BUILD_DIR}/daal/latest/env/vars.sh
 
@@ -84,7 +90,7 @@ for link_mode in static dynamic; do
             l="dylib"
         fi
     fi
-    build_command="make ${l}${full_arch} mode=build compiler=${compiler} threading=${threading}"
+    build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler} threading=${threading}"
     echo "Building examples ${build_command}"
     (${build_command})
     err=$?
