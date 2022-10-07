@@ -22,7 +22,10 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-    - script: sudo apt-get update && sudo apt-get install -y clang clang-tools
+    - script: |
+        sudo apt-get update && sudo apt-get install -y clang-format-9
+        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-9 100
+        sudo update-alternatives --set clang-format /usr/bin/clang-format-9
       displayName: 'apt-get'
     - script: |
         .ci/scripts/clang-format.sh
