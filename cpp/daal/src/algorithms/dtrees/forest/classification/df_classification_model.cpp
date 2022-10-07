@@ -289,11 +289,13 @@ services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * ar
 {
     auto s = daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
-    arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
-
     if ((INTEL_DAAL_VERSION > COMPUTE_DAAL_VERSION(2020, 0, 0)))
     {
         arch->setSharedPtrObj(_probTbl);
+    }
+    if ((INTEL_DAAL_VERSION >= COMPUTE_DAAL_VERSION(2020, 0, 1)))
+    {
+        arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
     }
 
     return s;
@@ -301,9 +303,13 @@ services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * ar
 
 services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
-    auto s                = daal::algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
     const int daalVersion = COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion());
+    auto s                = daal::algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
     s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch, daalVersion));
+    if ((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
+    {
+        arch->setSharedPtrObj(_probTbl);
+    }
     if ((daalVersion >= COMPUTE_DAAL_VERSION(2020, 0, 1)))
     {
         arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
