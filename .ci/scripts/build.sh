@@ -25,6 +25,9 @@ while [[ $# -gt 0 ]]; do
         --compiler)
         compiler="$2"
         ;;
+        --optimizations)
+        optimizations="$2"
+        ;;
         --target)
         target="$2"
         ;;
@@ -39,6 +42,8 @@ done
 
 OS=${platform::3}
 ARCH=${platform:3:3}
+
+optimizations=${optimizations:-avx2}
 
 if [ "${OS}" == "lnx" ]; then
     compiler=${compiler:-gnu}
@@ -75,8 +80,9 @@ echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
-make ${target:-daal} ${make_op} \
+make ${target:-daal_c} ${make_op} \
     PLAT=${platform} \
-    COMPILER=${compiler}
+    COMPILER=${compiler} \
+    REQCPU=${optimizations}
 
 exit $?

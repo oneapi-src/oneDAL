@@ -39,11 +39,11 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
+  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib
     displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal
-    displayName: 'make daal'
+      .ci/scripts/build.sh --platform $(platform.type) --target daal_c
+    displayName: 'make daal_c'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
     displayName: 'make oneapi_c'
@@ -104,7 +104,8 @@ jobs:
       fi
 
       # Create `.bazelrc` and set cache directory
-      echo "build --disk_cache=$(BAZEL_CACHE_DIR)" > ~/.bazelrc
+      # Minimal CPU instruction set in Azure is AVX2
+      echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
 
       # Display oneDAL build configuration
       $(BAZEL_VERSION) build @config//:dump
@@ -187,7 +188,7 @@ jobs:
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
-  - script: sudo apt-get update && sudo apt-get install gcc-7-multilib g++-7-multilib
+  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib
     displayName: 'apt-get'
   - script: |
       conda update -y -q conda
@@ -263,10 +264,10 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal
-    displayName: 'make daal'
+      .ci/scripts/build.sh --platform $(platform.type) --target daal_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+    displayName: 'make daal_c'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
@@ -275,24 +276,23 @@ jobs:
     inputs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
+# TODO: fix fail of examples on macOS without all optimizations sets
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
     displayName: 'examples'
 
-#- job: Windows
-#  timeoutInMinutes: 0
-#  pool:
-#    vmImage: 'windows-2019'
-#  steps:
-#  - script: |
-#      java -version
-#      set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
-#      echo "call .ci\env\tbb.bat"
-#      call .ci\env\tbb.bat
-#      echo "call .\dev\download_micromkl.bat"
-#      call .\dev\download_micromkl.bat
-#      echo call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-#      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-#      echo make daal COMPILER=vc PLAT="win32e" REQCPU="avx2"
-#      make daal COMPILER=vc PLAT="win32e" REQCPU="avx2"
-#    displayName: 'Build'
+- job: Windows
+ timeoutInMinutes: 0
+ pool:
+   vmImage: 'windows-2022'
+ steps:
+ - script: |
+     echo "call .ci\env\tbb.bat"
+     call .ci\env\tbb.bat
+     echo "call .\dev\download_micromkl.bat"
+     call .\dev\download_micromkl.bat
+     echo call "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+     call "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+     echo make daal_c COMPILER=vc PLAT="win32e" REQCPU="avx2"
+     make daal_c COMPILER=vc PLAT="win32e" REQCPU="avx2"
+   displayName: 'Build'
