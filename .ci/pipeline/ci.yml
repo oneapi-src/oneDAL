@@ -22,8 +22,7 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-    - script: |
-        .ci/env/clang.sh
+    - script: sudo apt-get update && sudo apt-get install -y clang clang-tools
       displayName: 'apt-get'
     - script: |
         .ci/scripts/clang-format.sh
@@ -268,15 +267,15 @@ jobs:
       .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
     displayName: 'make oneapi_c'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
-    displayName: 'examples'
-  - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
+    displayName: 'examples'
 
 #- job: Windows
 #  timeoutInMinutes: 0
