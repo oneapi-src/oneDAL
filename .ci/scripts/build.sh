@@ -83,6 +83,6 @@ echo "Calling make"
 make ${target:-daal_c} ${make_op} \
     PLAT=${platform} \
     COMPILER=${compiler} \
-    REQCPU=${optimizations}
+    REQCPU="${optimizations}"
 
 exit $?
