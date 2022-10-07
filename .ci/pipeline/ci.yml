@@ -104,8 +104,7 @@ jobs:
       fi
 
       # Create `.bazelrc` and set cache directory
-      # Minimal CPU instruction set in Azure is AVX2
-      echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
+      echo "build --disk_cache=$(BAZEL_CACHE_DIR)" > ~/.bazelrc
 
       # Display oneDAL build configuration
       $(BAZEL_VERSION) build @config//:dump
