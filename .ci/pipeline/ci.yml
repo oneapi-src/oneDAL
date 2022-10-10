@@ -173,7 +173,7 @@ jobs:
       fi
     displayName: 'bazel-cache-limit'
 
-- job: daal4py
+- job: LinuxDaal4py
   dependsOn: LinuxMake
   timeoutInMinutes: 0
   variables:
@@ -285,7 +285,7 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
     displayName: 'oneapi examples'
 
-- job: 'Windows'
+- job: 'WindowsMake'
   timeoutInMinutes: 0
   pool:
     vmImage: 'windows-2019'
