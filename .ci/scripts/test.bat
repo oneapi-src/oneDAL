@@ -28,7 +28,13 @@ set PATH=C:\msys64\usr\bin;%PATH%
 echo call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 
-echo "__release_win_%3\daal\latest\examples\%1\cpp"
-cd "__release_win_%3\daal\latest\examples\%1\cpp
+echo call __release_win_%3\daal\latest\env\vars.bat
+call __release_win_%3\daal\latest\env\vars.bat
+
+echo set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
+set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
+
+echo __release_win_%3\daal\latest\examples\%1\cpp
+cd __release_win_%3\daal\latest\examples\%1\cpp
 echo nmake %2 compiler=%3"
 nmake %2 compiler=%3
