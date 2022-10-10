@@ -34,7 +34,7 @@ call __release_win_%3\daal\latest\env\vars.bat
 echo set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
 set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
 
-echo __release_win_%3\daal\latest\examples\%1\cpp
-cd __release_win_%3\daal\latest\examples\%1\cpp
-echo nmake %2 compiler=%3"
+echo __release_win_vc\daal\latest\examples\%1\cpp
+cd __release_win_vc\daal\latest\examples\%1\cpp
+echo nmake %2 compiler=%3
 nmake %2 compiler=%3
