@@ -28,6 +28,9 @@ while [[ $# -gt 0 ]]; do
         --platform)
         platform="$2"
         ;;
+        --interface)
+        interface="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -76,7 +79,8 @@ else
     export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
 fi
 
-cd "${BUILD_DIR}/daal/latest/examples/daal/cpp"
+interface=${interface:-daal}
+cd "${BUILD_DIR}/daal/latest/examples/${interface}/cpp"
 
 threading=thread
 for link_mode in static dynamic; do

@@ -55,8 +55,11 @@ jobs:
       artifactName: '$(platform.type) build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
-    displayName: 'examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface daal
+    displayName: 'daal examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
+    displayName: 'oneapi examples'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
@@ -276,8 +279,11 @@ jobs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
-    displayName: 'examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface daal
+    displayName: 'daal examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
+    displayName: 'oneapi examples'
 
 - job: 'Windows'
   timeoutInMinutes: 0
@@ -286,7 +292,7 @@ jobs:
   steps:
   - script: |
       for /f "tokens=*" %i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%i
-      echo %CPUCOUNT%
+      echo CPUCOUNT=%CPUCOUNT%
       echo "PATH=C:\msys64\usr\bin;%PATH%"
       set PATH=C:\msys64\usr\bin;%PATH%
       echo "pacman -S --noconfirm msys/make msys/dos2unix"
