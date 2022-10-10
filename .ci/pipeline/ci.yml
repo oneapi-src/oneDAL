@@ -297,10 +297,10 @@ jobs:
       .\.ci\scripts\build.bat oneapi_c vc avx2
     displayName: 'make oneapi_c'
   - script: |
-      .\.ci\scripts\test.bat daal lib vc
-      .\.ci\scripts\test.bat daal dll vc
+      .\.ci\scripts\test.bat daal lib msvs
+      .\.ci\scripts\test.bat daal dll msvs
     displayName: 'examples daal_c'
   - script: |
-      .\.ci\scripts\test.bat oneapi lib vc
-      .\.ci\scripts\test.bat oneapi dll vc
+      .\.ci\scripts\test.bat oneapi lib msvs
+      .\.ci\scripts\test.bat oneapi dll msvs
     displayName: 'examples oneapi_c'
