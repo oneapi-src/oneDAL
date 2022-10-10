@@ -291,22 +291,16 @@ jobs:
     vmImage: 'windows-2019'
   steps:
   - script: |
-      for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
-      echo CPUCOUNT=%CPUCOUNT%
-      echo "PATH=C:\msys64\usr\bin;%PATH%"
-      set PATH=C:\msys64\usr\bin;%PATH%
-      echo "pacman -S --noconfirm msys/make msys/dos2unix"
-      pacman -S --noconfirm msys/make msys/dos2unix
-      echo "call .ci\env\tbb.bat"
-      call .ci\env\tbb.bat
-      echo "call .\dev\download_micromkl.bat"
-      call .\dev\download_micromkl.bat
-      echo call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-      echo make daal_c -j%CPUCOUNT% COMPILER=vc PLAT="win32e" REQCPU=avx2
-      make daal_c -j%CPUCOUNT% COMPILER=vc PLAT="win32e" REQCPU=avx2
+      .\.ci\scripts\build.bat daal_c vc avx2
     displayName: 'make daal_c'
   - script: |
-      echo make oneapi_c -j%CPUCOUNT% COMPILER=vc PLAT="win32e" REQCPU=avx2
-      make oneapi_c -j%CPUCOUNT% COMPILER=vc PLAT="win32e" REQCPU=avx2
+      .\.ci\scripts\build.bat oneapi_c vc avx2
     displayName: 'make oneapi_c'
+  - script: |
+      .\.ci\scripts\test.bat daal lib vc
+      .\.ci\scripts\test.bat daal dll vc
+    displayName: 'examples daal_c'
+  - script: |
+      .\.ci\scripts\test.bat oneapi lib vc
+      .\.ci\scripts\test.bat oneapi dll vc
+    displayName: 'examples oneapi_c'
