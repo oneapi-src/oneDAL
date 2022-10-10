@@ -28,8 +28,8 @@ set PATH=C:\msys64\usr\bin;%PATH%
 echo call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 
-echo call __release_win_%3\daal\latest\env\vars.bat
-call __release_win_%3\daal\latest\env\vars.bat
+echo call __release_win_vc\daal\latest\env\vars.bat
+call __release_win_vc\daal\latest\env\vars.bat
 
 echo set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
 set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
