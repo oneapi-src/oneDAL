@@ -291,7 +291,7 @@ jobs:
     vmImage: 'windows-2019'
   steps:
   - script: |
-      for /f "tokens=*" %i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%i
+      for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
       echo CPUCOUNT=%CPUCOUNT%
       echo "PATH=C:\msys64\usr\bin;%PATH%"
       set PATH=C:\msys64\usr\bin;%PATH%
