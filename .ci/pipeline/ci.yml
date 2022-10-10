@@ -288,6 +288,8 @@ jobs:
   - script: |
       echo "PATH=C:\msys64\usr\bin;%PATH%"
       set PATH=C:\msys64\usr\bin;%PATH%
+      echo "pacman -S --noconfirm msys/make msys/dos2unix"
+      pacman -S --noconfirm msys/make msys/dos2unix
       echo "call .ci\env\tbb.bat"
       call .ci\env\tbb.bat
       echo "call .\dev\download_micromkl.bat"
