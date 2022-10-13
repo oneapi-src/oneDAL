@@ -56,10 +56,10 @@ jobs:
       targetPath: '$(release.dir)'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface daal
-    displayName: 'daal examples'
+    displayName: 'daal cpp examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
-    displayName: 'oneapi examples'
+    displayName: 'oneapi cpp examples'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
@@ -280,10 +280,10 @@ jobs:
       targetPath: '$(release.dir)'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface daal
-    displayName: 'daal examples'
+    displayName: 'daal cpp examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
-    displayName: 'oneapi examples'
+    displayName: 'oneapi cpp examples'
 
 - job: 'WindowsMake'
   timeoutInMinutes: 0
@@ -299,8 +299,8 @@ jobs:
   - script: |
       .\.ci\scripts\test.bat daal lib msvs
       .\.ci\scripts\test.bat daal dll msvs
-    displayName: 'examples daal_c'
+    displayName: 'daal cpp examples'
   - script: |
       .\.ci\scripts\test.bat oneapi lib msvs
       .\.ci\scripts\test.bat oneapi dll msvs
-    displayName: 'examples oneapi_c'
+    displayName: 'oneapi cpp examples'
