@@ -18,11 +18,8 @@ rem ============================================================================
 rem req: PowerShell 3.0+
 powershell.exe -command "if ($PSVersionTable.PSVersion.Major -ge 3) {exit 1} else {Write-Host \"The script requires PowerShell 3.0 or above (current version: $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor))\"}" && goto Error_load
 
-set TBBURLROOT=https://github.com/oneapi-src/oneTBB/releases/download/v2020.3/
-set TBBVERSION=tbb-2020.3
-set TBBCONDAVERSION=2020.3.254
-
-set TBBCONDAPACKAGE=inteltbb.redist.win
+set TBBURLROOT=https://github.com/oneapi-src/oneTBB/releases/download/v2021.5.0/
+set TBBVERSION=oneapi-tbb-2021.5.0
 set TBBPACKAGE=%TBBVERSION%-win
 
 set TBBURL=%TBBURLROOT%%TBBPACKAGE%.zip
@@ -36,17 +33,13 @@ if not exist %DST% powershell.exe -command "New-Item -Path \"%DST%\" -ItemType D
 if not exist %DST%\win powershell.exe -command "New-Item -Path \"%DST%\win\" -ItemType Directory"
 if not exist %DST%\win\tbb powershell.exe -command "New-Item -Path \"%DST%\win\tbb\" -ItemType Directory"
 
-
-powershell -command "Install-Package %TBBCONDAPACKAGE% -RequiredVersion %TBBCONDAVERSION% -Force -source https://www.nuget.org/api/v2"
-
 if not exist "%DST%\win\bin" (
     powershell.exe -command "(New-Object System.Net.WebClient).DownloadFile('%TBBURL%', '%DST%\%TBBPACKAGE%.zip')" && goto Unpack || goto Error_load
 
 :Unpack
-    powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%TBBPACKAGE%.zip\", \"%DST%\") ; Copy-Item \"%DST%\tbb\*\" -Destination \"%DST%\win\tbb\" -Recurse }catch{$_.exception ; exit 1}} else {exit 1}" || goto Error_unpack
+    powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%TBBPACKAGE%.zip\", \"%DST%\") ; Copy-Item \"%DST%\%TBBVERSION%\*\" -Destination \"%DST%\win\tbb\" -Recurse }catch{$_.exception ; exit 1}} else {exit 1}" || goto Error_unpack
 
     if not exist %DST%\win\tbb\redist\intel64\vc14 powershell.exe -command "New-Item -Path \"%DST%\win\tbb\redist\intel64\vc14\" -ItemType Directory"
-    copy /Y "C:\Program Files\PackageManagement\NuGet\Packages\%TBBCONDAPACKAGE%.%TBBCONDAVERSION%\runtimes\win-x64\native\" "%DST%\win\tbb\redist\intel64\vc14\" || goto Error_unpack
 
     goto Exit 
 
