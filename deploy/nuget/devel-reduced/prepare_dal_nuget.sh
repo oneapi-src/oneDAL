@@ -60,6 +60,7 @@ create_package() {
     # common part
     cp LICENSE ${pkg_name}
     # cmake
+    cmake -DINSTALL_DIR=__release_${rls_postfix}/lib/cmake/oneDAL -P cmake/scripts/generate_config.cmake
     mkdir -p ${dal_root_prefix}/lib/cmake/oneDAL
     if [ $1 = "mac" ]; then
         # TODO: add cmake configs for Mac
