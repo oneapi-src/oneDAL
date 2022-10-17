@@ -112,14 +112,20 @@ extern "C"
         }
     }
 
-    static void _daal_mkl_threader_sections_sequential(DAAL_INT threads_request, void * a, func_type func) { func(0, 0, 1, a); }
+    static void _daal_mkl_threader_sections_sequential(DAAL_INT threads_request, void * a, func_type func)
+    {
+        func(0, 0, 1, a);
+    }
 
     static void _daal_mkl_threader_ordered_sequential(DAAL_INT i, DAAL_INT th_idx, DAAL_INT th_num, void * a, func_type func)
     {
         func(i, th_idx, th_num, a);
     }
 
-    static DAAL_INT _daal_mkl_threader_get_max_threads_sequential() { return 1; }
+    static DAAL_INT _daal_mkl_threader_get_max_threads_sequential()
+    {
+        return 1;
+    }
 
     static void _daal_mkl_threader_for(DAAL_INT n, DAAL_INT threads_request, void * a, func_type func)
     {
@@ -141,7 +147,10 @@ extern "C"
         //not used. To be implemented if needed.
     }
 
-    static DAAL_INT _daal_mkl_threader_get_max_threads() { return fpk_vsl_serv_threader_get_num_threads_limit(); }
+    static DAAL_INT _daal_mkl_threader_get_max_threads()
+    {
+        return fpk_vsl_serv_threader_get_num_threads_limit();
+    }
 }
 
 namespace daal

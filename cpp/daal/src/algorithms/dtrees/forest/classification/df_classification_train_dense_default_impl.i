@@ -209,7 +209,10 @@ public:
 #endif
 
 private:
-    size_t nClasses() const { return _nClasses; }
+    size_t nClasses() const
+    {
+        return _nClasses;
+    }
     void calcGini(double totalWeights, ImpurityData & imp) const
     {
         const double sqWeights = totalWeights * totalWeights;
@@ -228,8 +231,8 @@ private:
     {
         double delta = (2. * totalWeights - moveWeights) * imp.var + 2. * (imp.hist[iClass] - totalWeights);
         imp.var      = isZero<double, cpu>((totalWeights - moveWeights) * (totalWeights - moveWeights)) ?
-                      1. :
-                      (imp.var + moveWeights * delta / ((totalWeights - moveWeights) * (totalWeights - moveWeights)));
+                           1. :
+                           (imp.var + moveWeights * delta / ((totalWeights - moveWeights) * (totalWeights - moveWeights)));
         imp.hist[iClass] -= moveWeights;
     }
 
