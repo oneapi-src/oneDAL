@@ -43,7 +43,6 @@ void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array,
     ONEDAL_ASSERT(casted_count < casted_top);
     auto indices_ptr = result_array.get_mutable_data();
 
-    std::int64_t k = 0;
     std::size_t value = 0;
     for (std::size_t i = 0; i < casted_count; i++) {
         uniform_dispatcher::uniform_by_cpu(1, &value, engine_impl->getState(), i, casted_top);
@@ -55,7 +54,6 @@ void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array,
         if (value >= casted_top)
             continue;
         indices_ptr[i] = dal::detail::integral_cast<std::int64_t>(value);
-        k++;
     }
     ONEDAL_ASSERT(k == count);
 }

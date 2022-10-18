@@ -129,11 +129,11 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
 
         std::int64_t block_size_in_rows = std::min(
             row_count,
-            kernels_fp<float_t>::get_block_size_in_rows(queue, column_count, cluster_count));
+            kernels_fp<Float>::get_block_size_in_rows(queue, column_count, cluster_count));
 
         dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
         std::int64_t part_count =
-            kernels_fp<float_t>::get_part_count_for_partial_centroids(queue,
+            kernels_fp<Float>::get_part_count_for_partial_centroids(queue,
                                                                       column_count,
                                                                       cluster_count);
 

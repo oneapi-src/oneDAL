@@ -47,7 +47,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
 
         std::int64_t block_size_in_rows = std::min(
             row_count,
-            kernels_fp<float_t>::get_block_size_in_rows(queue, column_count, cluster_count));
+            kernels_fp<Float>::get_block_size_in_rows(queue, column_count, cluster_count));
         dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
         auto arr_distance_block =
             pr::ndarray<Float, 2>::empty(queue,
