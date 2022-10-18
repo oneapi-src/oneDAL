@@ -399,9 +399,11 @@ public:
             const auto oob_err_per_obs_arr =
                 dal::row_accessor<const double>(train_result.get_oob_err_per_observation()).pull();
 
+            std::int64_t oob_err_obs_count = 0;
             double ref_oob_err = 0.0;
             for (std::int64_t i = 0; i < oob_err_per_obs_arr.get_count(); i++) {
                 if (oob_err_per_obs_arr[i] >= 0.0) {
+                    oob_err_obs_count++;
                     ref_oob_err += oob_err_per_obs_arr[i];
                 }
                 else {
