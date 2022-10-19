@@ -31,6 +31,8 @@
 #include "oneapi/dal/backend/primitives/voting.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 
+#include "oneapi/dal/backend/communicator.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
@@ -49,6 +51,7 @@ using voting_t = ::oneapi::dal::knn::voting_mode;
 namespace de = ::oneapi::dal::detail;
 namespace bk = ::oneapi::dal::backend;
 namespace pr = ::oneapi::dal::backend::primitives;
+namespace spmd = oneapi::dal::preview::spmd;
 
 using daal_distance_t = daal::algorithms::internal::PairwiseDistanceType;
 
@@ -101,6 +104,7 @@ class knn_callback {
     using dst_t = Float;
     using idx_t = std::int32_t;
     using res_t = response_t<Task>;
+    using comm_t = bk::communicator<spmd::device_memory_access::usm>;
 
     using uniform_voting_t = std::unique_ptr<pr::uniform_voting<res_t>>;
     using distance_voting_t = std::unique_ptr<pr::distance_voting<dst_t>>;
@@ -109,11 +113,13 @@ class knn_callback {
 
 public:
     knn_callback(sycl::queue& q,
+                 comm_t c,
                  result_option_id results,
                  std::int64_t query_block,
                  std::int64_t query_length,
                  std::int64_t k_neighbors)
             : queue_(q),
+              comm_(c),
               result_options_(results),
               query_block_(query_block),
               query_length_(query_length),
@@ -277,6 +283,7 @@ public:
 
 private:
     sycl::queue& queue_;
+    comm_t comm_;
     const result_option_id result_options_;
     const std::int64_t query_block_, query_length_, k_neighbors_;
     pr::ndview<res_t, 1> inp_responses_;
@@ -351,6 +358,8 @@ static infer_result<Task> kernel(const context_gpu& ctx,
     ONEDAL_ASSERT(train.get_column_count() == infer.get_column_count());
 
     auto& queue = ctx.get_queue();
+    auto& comm = ctx.get_communicator();
+
     bk::interop::execution_context_guard guard(queue);
 
     auto arr_responses = array<res_t>{};
@@ -385,6 +394,7 @@ static infer_result<Task> kernel(const context_gpu& ctx,
     const std::int64_t train_block = pr::propose_train_block<Float>(queue, feature_count);
 
     knn_callback<Float, Task> callback(queue,
+                                       comm,
                                        desc.get_result_options(),
                                        infer_block,
                                        infer_row_count,
