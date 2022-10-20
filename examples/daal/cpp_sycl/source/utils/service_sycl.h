@@ -31,12 +31,11 @@
 
 #include "service.h"
 
-template <typename TSelector>
-std::unique_ptr<cl::sycl::device> makeDevice()
+std::unique_ptr<cl::sycl::device> makeDevice(int (*selector)(const sycl::device&))
 {
     try
     {
-        return std::unique_ptr<cl::sycl::device>(new cl::sycl::device(TSelector()));
+        return std::unique_ptr<cl::sycl::device>(new cl::sycl::device(selector));
     }
     catch (...)
     {
@@ -49,14 +48,11 @@ std::list<std::pair<std::string, cl::sycl::device> > getListOfDevices()
     std::list<std::pair<std::string, cl::sycl::device> > selects;
     std::unique_ptr<cl::sycl::device> device;
 
-    device = makeDevice<cl::sycl::gpu_selector>();
+    device = makeDevice(&cl::sycl::gpu_selector_v);
     if (device) selects.emplace_back("GPU", *device);
 
-    device = makeDevice<cl::sycl::cpu_selector>();
+    device = makeDevice(&cl::sycl::cpu_selector_v);
     if (device) selects.emplace_back("CPU", *device);
-
-    device = makeDevice<cl::sycl::host_selector>();
-    if (device) selects.emplace_back("HOST", *device);
 
     return selects;
 }

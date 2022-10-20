@@ -259,7 +259,7 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
                      $(if $(OS_is_mac),$(if $(wildcard $(TBBDIR.soia)/libtbb.12.dylib),$(wildcard $(TBBDIR.soia)/libtbb.12.dylib))\
                                        $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib),$(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib)))
 
-
+#============================= Micromkl folders =====================================
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
 
 MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
@@ -268,6 +268,16 @@ MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
 
 mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.libia)/$(plib)daal_sycl$d.$(a)
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
+
+#============================= oneAPI folders =====================================
+ifeq ($(if $(or $(OS_is_lnx),$(OS_is_win)),yes,),yes)
+ONEAPIDIR := $(call topf,$$ONEAPI_ROOT)
+ONEAPIDIR := $(if $(wildcard $(ONEAPIDIR)/compiler/latest),$(ONEAPIDIR)/compiler/latest,$(info ONEAPI_ROOT not defined))
+ONEAPIDIR.libia.prefix := $(if $(ONEAPIDIR),$(ONEAPIDIR)/$(if $(OS_is_win),windows,linux)/lib)
+
+libsycl := $(if $(OS_is_win),$(notdir $(wildcard $(ONEAPIDIR.libia.prefix)/sycl$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9]$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9][0-9]$d.lib)))
+libsycl.default = sycl6$d.lib
+endif
 
 #===============================================================================
 # Release library names
@@ -806,7 +816,7 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl$d.lib OpenCL.lib)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(libsycl),$(libsycl.default)) OpenCL.lib)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)

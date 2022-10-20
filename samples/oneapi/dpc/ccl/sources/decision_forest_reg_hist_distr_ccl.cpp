@@ -101,7 +101,7 @@ int main(int argc, char const *argv[]) {
     }
 
     auto device = sycl::gpu_selector{}.select_device();
-    std::cout << "Running on " << device.get_info<sycl::info::device::name>()
+    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>() << ", " << device.get_info<sycl::info::device::name>()
               << std::endl;
     sycl::queue q{device};
     run(q);
