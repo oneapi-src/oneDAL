@@ -107,7 +107,7 @@ RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(
 
 
 gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-CC = dpcpp --gcc-toolchain=$(gcc_toolchain)
+CC = icpx -fsycl --gcc-toolchain=$(gcc_toolchain)
 
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))

@@ -48,10 +48,12 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
                 "-mGLOB_freestanding=TRUE",
                 "-mCG_no_libirc=TRUE",
             ]
-        if compiler_id == "dpcpp" and category == "pedantic":
+        if compiler_id == "icpx":
+            flags = flags + ["-fsycl"]
+        if compiler_id == "icpx" and category == "pedantic":
             # TODO: Consider removing
             flags = flags + ["-Wno-unused-command-line-argument"]
-        if compiler_id == "gcc" or compiler_id == "dpcpp":
+        if compiler_id == "gcc" or compiler_id == "icpx":
             flags = flags + ["-Wno-gnu-zero-variadic-macro-arguments"]
         return flags
     fail("Unsupported OS")
@@ -77,7 +79,7 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         avx = ["-xAVX"]
         avx2 = ["-xCORE-AVX2"]
         avx512 = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
-    elif compiler_id == "dpcpp":
+    elif compiler_id == "icpx":
         sse2 = ["-march=nocona"]
         ssse3 = ["-march=core2"]
         sse42 = ["-march=nehalem"]
