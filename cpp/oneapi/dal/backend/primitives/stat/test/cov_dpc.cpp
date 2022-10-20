@@ -302,6 +302,12 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
 
     INFO("check if diagonal elements are ones");
     this->check_diagonal_is_ones(corr);
+
+    INFO("check if mean is zero")
+    this->check_constant_mean(vars, 1, 0.0);
+
+    INFO("check if variance is zero")
+    this->check_constant_variance(vars, 1, 0.0);
 }
 
 TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
