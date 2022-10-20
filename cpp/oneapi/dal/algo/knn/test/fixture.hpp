@@ -40,6 +40,8 @@ namespace oneapi::dal::knn::test {
 
 namespace te = dal::test::engine;
 namespace la = te::linalg;
+namespace de = dal::detail;
+namespace knn = oneapi::dal::knn;
 
 template <typename TestType>
 class knn_test : public te::crtp_algo_fixture<TestType, Derived> {
