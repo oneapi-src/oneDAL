@@ -44,7 +44,10 @@ namespace la = te::linalg;
 template <typename TestType>
 class knn_test : public te::crtp_algo_fixture<TestType, Derived> {
 public:
+<<<<<<< HEAD
     using base_t = te::crtp_algo_fixture<TestType, Derived>;
+=======
+>>>>>>> 52974a2c0e8ead4166a019b7d7d8299d3ad7c6f0
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
 

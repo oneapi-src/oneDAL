@@ -18,6 +18,12 @@
 
 namespace oneapi::dal::knn::test {
 
+<<<<<<< HEAD
+=======
+namespace te = dal::test::engine;
+namespace la = te::linalg;
+
+>>>>>>> 52974a2c0e8ead4166a019b7d7d8299d3ad7c6f0
 template <typename TestType>
 class knn_batch_test : public knn_test<TestType, knn_batch_test<TestType>> {};
 
