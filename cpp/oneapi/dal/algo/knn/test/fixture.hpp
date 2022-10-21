@@ -43,7 +43,7 @@ namespace la = te::linalg;
 namespace de = dal::detail;
 namespace knn = oneapi::dal::knn;
 
-template <typename TestType>
+template <typename TestType, typename Derived>
 class knn_test : public te::crtp_algo_fixture<TestType, Derived> {
 public:
     using base_t = te::crtp_algo_fixture<TestType, Derived>;
