@@ -33,7 +33,7 @@ import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 import com.intel.daal.data_management.compression.*;
-import com.intel.daal.data_management.compression.zlib.*;
+import com.intel.daal.data_management.compression.Lzo.*;
 import com.intel.daal.services.DaalContext;
 
 class CompressionBatch {
@@ -52,9 +52,8 @@ class CompressionBatch {
         prepareMemory();
 
         /* Create a compressor */
-        ZlibCompressor compressor = new ZlibCompressor(context);
+        LzoCompressor compressor = new LzoCompressor(context);
         compressor.parameter.setCompressionLevel(CompressionLevel.Level9);
-        compressor.parameter.setGzHeader(true);
 
         /* Create a stream for compression */
         CompressionStream compressionStream = new CompressionStream(context, compressor);
@@ -69,8 +68,7 @@ class CompressionBatch {
         compressionStream.copyCompressedArray(compressedData);
 
         /* Create a decompressor */
-        ZlibDecompressor decompressor = new ZlibDecompressor(context);
-        decompressor.parameter.setGzHeader(true);
+        LzoDecompressor decompressor = new LzoDecompressor(context);
 
         /* Create a stream for decompression */
         DecompressionStream decompressionStream = new DecompressionStream(context, decompressor);

@@ -36,8 +36,8 @@ import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 import com.intel.daal.data_management.compression.CompressionLevel;
-import com.intel.daal.data_management.compression.zlib.ZlibCompressor;
-import com.intel.daal.data_management.compression.zlib.ZlibDecompressor;
+import com.intel.daal.data_management.compression.Lzo.LzoCompressor;
+import com.intel.daal.data_management.compression.Lzo.LzoDecompressor;
 import com.intel.daal.services.DaalContext;
 
 class CompressorExample {
@@ -66,9 +66,8 @@ class CompressorExample {
         prepareMemory();
 
         /* Create a compressor */
-        ZlibCompressor compressor = new ZlibCompressor(context);
+        LzoCompressor compressor = new LzoCompressor(context);
         compressor.parameter.setCompressionLevel(CompressionLevel.DefaultLevel);
-        compressor.parameter.setGzHeader(true);
 
         /* Receive the next data block for compression */
         while ((uncompressedDataBlock = getDataBlock()) != null) {
@@ -91,8 +90,7 @@ class CompressorExample {
         }
 
         /* Create a decompressor */
-        ZlibDecompressor decompressor = new ZlibDecompressor(context);
-        decompressor.parameter.setGzHeader(true);
+        LzoDecompressor decompressor = new LzoDecompressor(context);
 
         /* Receive compressed data by blocks */
         while ((compressedDataBlock = receiveDataBlock()) != null) {
