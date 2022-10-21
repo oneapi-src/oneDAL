@@ -31,28 +31,22 @@ namespace data_management
 {
 Compressor<zlib>::Compressor() : data_management::CompressorImpl()
 {
-    _strmp = (void *)new Compressor<lzo>();
+    _strmp                  = (void *)new Compressor<lzo>();
     this->_isOutBlockFull   = ((Compressor<lzo> *)_strmp)->isOutputDataBlockFull();
     this->_usedOutBlockSize = ((Compressor<lzo> *)_strmp)->getUsedOutputDataBlockSize();
     this->_errors           = ((Compressor<lzo> *)_strmp)->getErrors();
 }
 
-void Compressor<zlib>::initialize()
-{
-}
+void Compressor<zlib>::initialize() {}
 
 Compressor<zlib>::~Compressor()
 {
     delete (Compressor<lzo> *)_strmp;
 }
 
-void Compressor<zlib>::finalizeCompression()
-{
-}
+void Compressor<zlib>::finalizeCompression() {}
 
-void Compressor<zlib>::resetCompression()
-{
-}
+void Compressor<zlib>::resetCompression() {}
 
 void Compressor<zlib>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
@@ -72,28 +66,22 @@ void Compressor<zlib>::run(byte * out, size_t outLen, size_t off)
 
 Decompressor<zlib>::Decompressor() : data_management::DecompressorImpl()
 {
-    _strmp = (void *)new Decompressor<lzo>();
+    _strmp                  = (void *)new Decompressor<lzo>();
     this->_isOutBlockFull   = ((Decompressor<lzo> *)_strmp)->isOutputDataBlockFull();
     this->_usedOutBlockSize = ((Decompressor<lzo> *)_strmp)->getUsedOutputDataBlockSize();
     this->_errors           = ((Decompressor<lzo> *)_strmp)->getErrors();
 }
 
-void Decompressor<zlib>::initialize()
-{
-}
+void Decompressor<zlib>::initialize() {}
 
 Decompressor<zlib>::~Decompressor()
 {
     delete (Decompressor<lzo> *)_strmp;
 }
 
-void Decompressor<zlib>::finalizeCompression()
-{
-}
+void Decompressor<zlib>::finalizeCompression() {}
 
-void Decompressor<zlib>::resetCompression()
-{
-}
+void Decompressor<zlib>::resetCompression() {}
 
 void Decompressor<zlib>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
