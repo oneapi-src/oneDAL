@@ -105,7 +105,7 @@ void Decompressor<zlib>::setInputDataBlock(byte * in, size_t len, size_t off)
 
 void Decompressor<zlib>::run(byte * out, size_t outLen, size_t off)
 {
-    ((Decompressor<lzo> *)_strmp)->setInputDataBlock(out, outLen, off);
+    ((Decompressor<lzo> *)_strmp)->run(out, outLen, off);
     this->_isOutBlockFull   = ((Decompressor<lzo> *)_strmp)->isOutputDataBlockFull();
     this->_usedOutBlockSize = ((Decompressor<lzo> *)_strmp)->getUsedOutputDataBlockSize();
     this->_errors           = ((Decompressor<lzo> *)_strmp)->getErrors();
