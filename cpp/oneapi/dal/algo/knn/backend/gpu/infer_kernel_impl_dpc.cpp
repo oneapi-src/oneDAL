@@ -101,7 +101,7 @@ sycl::event copy_with_sqrt(sycl::queue& q,
     });
 }
 
-template <typename Float, typename Task>
+template <typename Float, typename Method, typename Task>
 class knn_callback {
     using dst_t = Float;
     using idx_t = std::int32_t;
@@ -326,7 +326,7 @@ constexpr pr::ndorder get_ndorder(const pr::ndarray<Type, 2, order>&) {
     return order;
 }
 
-template <typename Float, typename Task, bool cm_train, bool cm_query>
+template <typename Float, typename Method, typename Task, bool cm_train, bool cm_query>
 static infer_result<Task> kernel(const descriptor_t<Task>& desc,
                                  const table& infer,
                                  const model<Task>& m,
@@ -396,7 +396,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
     const std::int64_t infer_block = pr::propose_query_block<Float>(queue, feature_count);
     const std::int64_t train_block = pr::propose_train_block<Float>(queue, feature_count);
 
-    knn_callback<Float, Task> callback(queue,
+    knn_callback<Float, Method, Task> callback(queue,
                                        comm,
                                        desc.get_result_options(),
                                        infer_block,
@@ -499,7 +499,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
     return result;
 }
 
-template <typename Float, typename Task>
+template <typename Float, typename Method, typename Task>
 static infer_result<Task> call_kernel(const descriptor_t<Task>& desc,
                                       const table& infer,
                                       const model<Task>& m,
@@ -511,21 +511,21 @@ static infer_result<Task> call_kernel(const descriptor_t<Task>& desc,
     const bool cm_query = is_col_major(infer);
     if (cm_train) {
         if (cm_query)
-            return kernel<Float, Task, true, true>(desc, infer, m, q, c);
+            return kernel<Float, Method, Task, true, true>(desc, infer, m, q, c);
         else
-            return kernel<Float, Task, true, false>(desc, infer, m, q, c);
+            return kernel<Float, Method, Task, true, false>(desc, infer, m, q, c);
     }
     else {
         if (cm_query)
-            return kernel<Float, Task, false, true>(desc, infer, m, q, c);
+            return kernel<Float, Method, Task, false, true>(desc, infer, m, q, c);
         else
-            return kernel<Float, Task, false, false>(desc, infer, m, q, c);
+            return kernel<Float, Method, Task, false, false>(desc, infer, m, q, c);
     }
 }
 
 template <typename Float, typename Method, typename Task>
 infer_result<Task> infer_kernel_knn_bf_impl<Float, method::brute_force, Task>::operator()(const descriptor_t<Task>& desc, const table& infer, const model<Task>& m) {
-    return call_kernel<Float, Task>(desc, infer, m, q_, comm_);
+    return call_kernel<Float, Method, Task>(desc, infer, m, q_, comm_);
 }
 
 template class infer_kernel_knn_bf_impl<float, method::brute_force, task::classification>;
