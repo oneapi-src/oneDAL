@@ -328,7 +328,9 @@ constexpr pr::ndorder get_ndorder(const pr::ndarray<Type, 2, order>&) {
 template <typename Float, typename Task, bool cm_train, bool cm_query>
 static infer_result<Task> kernel(const descriptor_t<Task>& desc,
                                  const table& infer,
-                                 const model<Task>& m) {
+                                 const model<Task>& m,
+                                 sycl::queue& queue,
+                                 comm_t comm) {
     using res_t = response_t<Task>;
 
     auto distance_impl = detail::get_distance_impl(desc);
@@ -499,28 +501,30 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
 template <typename Float, typename Task>
 static infer_result<Task> call_kernel(const descriptor_t<Task>& desc,
                                       const table& infer,
-                                      const model<Task>& m) {
+                                      const model<Task>& m,
+                                      sycl::queue& q,
+                                      comm_t c) {
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
     const auto train = trained_model->get_data();
     const bool cm_train = is_col_major(train);
     const bool cm_query = is_col_major(infer);
     if (cm_train) {
         if (cm_query)
-            return kernel<Float, Task, true, true>(desc, infer, m);
+            return kernel<Float, Task, true, true>(desc, infer, m, q, c);
         else
-            return kernel<Float, Task, true, false>(desc, infer, m);
+            return kernel<Float, Task, true, false>(desc, infer, m, q, c);
     }
     else {
         if (cm_query)
-            return kernel<Float, Task, false, true>(desc, infer, m);
+            return kernel<Float, Task, false, true>(desc, infer, m, q, c);
         else
-            return kernel<Float, Task, false, false>(desc, infer, m);
+            return kernel<Float, Task, false, false>(desc, infer, m, q, c);
     }
 }
 
 template <typename Float, typename Task>
 infer_result<Task> infer_kernel_knn_bf_impl<Float, Task>::operator()(const descriptor_t& desc, const table& infer, const model<Task>& m) {
-    return call_kernel<Float, Task>(desc, infer, m);
+    return call_kernel<Float, Task>(desc, infer, m, q_, comm_);
 }
 
 template struct infer_kernel_gpu<float, method::brute_force, task::classification>;
