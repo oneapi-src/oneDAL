@@ -523,7 +523,7 @@ static infer_result<Task> call_kernel(const descriptor_t<Task>& desc,
     }
 }
 
-template <typename Float, typename Method, typename Task>
+template <typename Float, typename Task>
 infer_result<Task> infer_kernel_knn_bf_impl<Float, Method, Task>::operator()(const descriptor_t<Task>& desc, const table& infer, const model<Task>& m) {
     return call_kernel<Float, Task>(desc, infer, m, q_, comm_);
 }
