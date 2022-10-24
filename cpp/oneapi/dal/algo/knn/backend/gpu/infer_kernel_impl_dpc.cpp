@@ -528,12 +528,12 @@ infer_result<Task> infer_kernel_knn_bf_impl<Float, Method, Task>::operator()(con
     return call_kernel<Float, Task>(desc, infer, m, q_, comm_);
 }
 
-template struct infer_kernel_knn_bf_impl<float, method::brute_force, task::classification>;
-template struct infer_kernel_knn_bf_impl<double, method::brute_force, task::classification>;
-template struct infer_kernel_knn_bf_impl<float, method::brute_force, task::regression>;
-template struct infer_kernel_knn_bf_impl<double, method::brute_force, task::regression>;
-template struct infer_kernel_knn_bf_impl<float, method::brute_force, task::search>;
-template struct infer_kernel_knn_bf_impl<double, method::brute_force, task::search>;
+template class infer_kernel_knn_bf_impl<float, method::brute_force, task::classification>;
+template class infer_kernel_knn_bf_impl<double, method::brute_force, task::classification>;
+template class infer_kernel_knn_bf_impl<float, method::brute_force, task::regression>;
+template class infer_kernel_knn_bf_impl<double, method::brute_force, task::regression>;
+template class infer_kernel_knn_bf_impl<float, method::brute_force, task::search>;
+template class infer_kernel_knn_bf_impl<double, method::brute_force, task::search>;
 
 } // namespace oneapi::dal::knn::backend
 
