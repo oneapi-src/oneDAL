@@ -44,18 +44,18 @@ namespace oneapi::dal::knn::backend {
 
 namespace bk = ::oneapi::dal::backend;
 
-template <typename Float>
+template <typename Float, typename Task>
 class infer_kernel_knn_bf_impl {
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
-    using input_t = train_input<task::dim_reduction>;
-    //using result_t = train_result<task::dim_reduction>;
-    using descriptor_t = detail::descriptor_base<task::dim_reduction>;
+    using input_t = train_input<Task>;
+    using result_t = infer_result<Task>;
+    using descriptor_t = detail::descriptor_base<Task>;
 
 public:
     infer_kernel_knn_bf_impl(const bk::context_gpu& ctx)
             : q_(ctx.get_queue()),
               comm_(ctx.get_communicator()) {}
-    infer_result<Task> operator()(const descriptor_t& desc, const table& infer, const model<Task>& m);
+    result_t operator()(const descriptor_t& desc, const table& infer, const model<Task>& m);
 
 private:
     sycl::queue q_;

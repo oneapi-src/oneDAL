@@ -20,20 +20,19 @@
 
 namespace oneapi::dal::knn::backend {
 
-using idx_t = std::int32_t;
-
 using dal::backend::context_gpu;
 
-namespace de = ::oneapi::dal::detail;
-namespace bk = ::oneapi::dal::backend;
-namespace pr = ::oneapi::dal::backend::primitives;
-namespace spmd = oneapi::dal::preview::spmd;
+template<typename Task>
+using descriptor_t = detail::descriptor_base<Task>;
+template<typename Task>
+using model_t = model<Task>;
 
 template <typename Float, typename Task>
 static infer_result<Task> kernel(const context_gpu& ctx,
-                                 const descriptor_t<Task>& desc,
+                                 const descriptor_t& desc,
                                  const table& infer,
-                                 const model<Task>& m) {
+                                 const model_t& m) {
     return infer_kernel_knn_bf_impl<Float, Task>(ctx)(desc, infer, m);
+                                 }
 
 } // namespace oneapi::dal::knn::backend
