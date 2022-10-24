@@ -330,7 +330,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
                                  const table& infer,
                                  const model<Task>& m,
                                  sycl::queue& queue,
-                                 comm_t comm) {
+                                 bk::communicator<spmd::device_memory_access::usm> comm) {
     using res_t = response_t<Task>;
 
     auto distance_impl = detail::get_distance_impl(desc);
@@ -503,7 +503,7 @@ static infer_result<Task> call_kernel(const descriptor_t<Task>& desc,
                                       const table& infer,
                                       const model<Task>& m,
                                       sycl::queue& q,
-                                      comm_t c) {
+                                      bk::communicator<spmd::device_memory_access::usm> c) {
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
     const auto train = trained_model->get_data();
     const bool cm_train = is_col_major(train);
@@ -522,17 +522,17 @@ static infer_result<Task> call_kernel(const descriptor_t<Task>& desc,
     }
 }
 
-template <typename Float, typename Task>
-infer_result<Task> infer_kernel_knn_bf_impl<Float, Task>::operator()(const descriptor_t& desc, const table& infer, const model<Task>& m) {
+template <typename Float, typename Method, typename Task>
+infer_result<Task> infer_kernel_knn_bf_impl<Float, Method, Task>::operator()(const descriptor_t<Task>& desc, const table& infer, const model<Task>& m) {
     return call_kernel<Float, Task>(desc, infer, m, q_, comm_);
 }
 
-template struct infer_kernel_gpu<float, method::brute_force, task::classification>;
-template struct infer_kernel_gpu<double, method::brute_force, task::classification>;
-template struct infer_kernel_gpu<float, method::brute_force, task::regression>;
-template struct infer_kernel_gpu<double, method::brute_force, task::regression>;
-template struct infer_kernel_gpu<float, method::brute_force, task::search>;
-template struct infer_kernel_gpu<double, method::brute_force, task::search>;
+template struct infer_kernel_knn_bf_impl<float, method::brute_force, task::classification>;
+template struct infer_kernel_knn_bf_impl<double, method::brute_force, task::classification>;
+template struct infer_kernel_knn_bf_impl<float, method::brute_force, task::regression>;
+template struct infer_kernel_knn_bf_impl<double, method::brute_force, task::regression>;
+template struct infer_kernel_knn_bf_impl<float, method::brute_force, task::search>;
+template struct infer_kernel_knn_bf_impl<double, method::brute_force, task::search>;
 
 } // namespace oneapi::dal::knn::backend
 

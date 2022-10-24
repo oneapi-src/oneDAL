@@ -44,7 +44,7 @@ namespace oneapi::dal::knn::backend {
 
 namespace bk = ::oneapi::dal::backend;
 
-template <typename Float, typename Task>
+template <typename Float, typename Method, typename Task>
 class infer_kernel_knn_bf_impl {
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
     using result_t = infer_result<Task>;
