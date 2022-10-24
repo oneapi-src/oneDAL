@@ -30,7 +30,6 @@
 #include "oneapi/dal/backend/primitives/selection.hpp"
 #include "oneapi/dal/backend/primitives/voting.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-
 #include "oneapi/dal/backend/communicator.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
