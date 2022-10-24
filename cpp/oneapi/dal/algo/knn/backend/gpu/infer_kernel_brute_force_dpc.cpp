@@ -27,12 +27,12 @@ using descriptor_t = detail::descriptor_base<Task>;
 template<typename Task>
 using model_t = model<Task>;
 
-template <typename Float, typename Method, typename Task>
+template <typename Float, typename Task, typename Method>
 static infer_result<Task> kernel(const context_gpu& ctx,
                                  const descriptor_t<Task>& desc,
                                  const table& infer,
                                  const model_t<Task>& m) {
-    return infer_kernel_knn_bf_impl<Float, Method, Task>(ctx)(desc, infer, m);
+    return infer_kernel_knn_bf_impl<Float, Task, Method>(ctx)(desc, infer, m);
                                  }
 
 } // namespace oneapi::dal::knn::backend
