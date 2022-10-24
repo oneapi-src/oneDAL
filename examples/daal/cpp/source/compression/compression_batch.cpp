@@ -51,7 +51,7 @@ int main(int argc, char * argv[])
     prepareMemory();
 
     /* Create a compressor */
-    Compressor<lzo> compressor;
+    Compressor<zlib> compressor;
     compressor.parameter.level = level9;
 
     /* Create a stream for compression */
@@ -70,7 +70,7 @@ int main(int argc, char * argv[])
     comprStream.copyCompressedArray(compressedData);
 
     /* Create a decompressor */
-    Decompressor<lzo> decompressor;
+    Decompressor<zlib> decompressor;
 
     /* Create a stream for decompression */
     DecompressionStream deComprStream(&decompressor);

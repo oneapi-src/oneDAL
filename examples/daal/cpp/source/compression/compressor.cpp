@@ -59,7 +59,7 @@ int main(int argc, char * argv[])
     prepareMemory();
 
     /* Create a compressor */
-    Compressor<lzo> compressor;
+    Compressor<zlib> compressor;
 
     /* Receive the next data block for compression */
     while (getUncompressedDataBlock(uncompressedDataBlock))
@@ -84,7 +84,7 @@ int main(int argc, char * argv[])
     }
 
     /* Create a decompressor */
-    Decompressor<lzo> decompressor;
+    Decompressor<zlib> decompressor;
 
     /* Receive compressed data by blocks */
     while (receiveCompressedDataBlock(compressedDataBlock))
