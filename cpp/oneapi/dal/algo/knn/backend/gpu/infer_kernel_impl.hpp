@@ -44,9 +44,10 @@ namespace oneapi::dal::knn::backend {
 
 namespace bk = ::oneapi::dal::backend;
 
-template <typename Float, typename Method, typename Task>
+template <typename Float, typename Method = method::brute_force, typename Task>
 class infer_kernel_knn_bf_impl {
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
+    using model_t = model<Task>;
     using result_t = infer_result<Task>;
     using descriptor_t = detail::descriptor_base<Task>;
 
@@ -54,7 +55,7 @@ public:
     infer_kernel_knn_bf_impl(const bk::context_gpu& ctx)
             : q_(ctx.get_queue()),
               comm_(ctx.get_communicator()) {}
-    result_t operator()(const descriptor_t& desc, const table& infer, const model<Task>& m);
+    result_t operator()(const descriptor_t& desc, const table& infer, const model_t& m);
 
 private:
     sycl::queue q_;
