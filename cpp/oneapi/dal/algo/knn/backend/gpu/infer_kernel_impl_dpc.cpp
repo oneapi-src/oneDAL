@@ -524,16 +524,16 @@ static infer_result<Task> call_kernel(const descriptor_t<Task>& desc,
 }
 
 template <typename Float, typename Task>
-infer_result<Task> infer_kernel_knn_bf_impl<Float, Task>::operator()(const descriptor_t<Task>& desc, const table& infer, const model<Task>& m) {
+infer_result<Task> infer_kernel_knn_bf_impl<Float, method::brute_force, Task>::operator()(const descriptor_t<Task>& desc, const table& infer, const model<Task>& m) {
     return call_kernel<Float, Task>(desc, infer, m, q_, comm_);
 }
 
-template class infer_kernel_knn_bf_impl<float, task::classification, method::brute_force>;
-template class infer_kernel_knn_bf_impl<double, task::classification, method::brute_force>;
-template class infer_kernel_knn_bf_impl<float, task::regression, method::brute_force>;
-template class infer_kernel_knn_bf_impl<double, task::regression, method::brute_force>;
-template class infer_kernel_knn_bf_impl<float, task::search, method::brute_force>;
-template class infer_kernel_knn_bf_impl<double, task::search, method::brute_force>;
+template class infer_kernel_knn_bf_impl<float, method::brute_force, task::classification>;
+template class infer_kernel_knn_bf_impl<double, method::brute_force, task::classification>;
+template class infer_kernel_knn_bf_impl<float, method::brute_force, task::regression>;
+template class infer_kernel_knn_bf_impl<double, method::brute_force, task::regression>;
+template class infer_kernel_knn_bf_impl<float, method::brute_force, task::search>;
+template class infer_kernel_knn_bf_impl<double, method::brute_force, task::search>;
 
 } // namespace oneapi::dal::knn::backend
 
