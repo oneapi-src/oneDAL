@@ -36,7 +36,7 @@ import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 import com.intel.daal.data_management.compression.*;
-import com.intel.daal.data_management.compression.Lzo.*;
+import com.intel.daal.data_management.compression.zlib.*;
 import com.intel.daal.services.DaalContext;
 
 class CompressionOnline {
@@ -65,7 +65,7 @@ class CompressionOnline {
         prepareMemory();
 
         /* Create a compressor */
-        LzoCompressor compressor = new LzoCompressor(context);
+        ZlibCompressor compressor = new ZlibCompressor(context);
         compressor.parameter.setCompressionLevel(CompressionLevel.DefaultLevel);
 
         /* Create a stream for compression */
@@ -87,7 +87,7 @@ class CompressionOnline {
         }
 
         /* Create a decompressor */
-        LzoDecompressor decompressor = new LzoDecompressor(context);
+        ZlibDecompressor decompressor = new ZlibDecompressor(context);
 
         /* Create a stream for decompression */
         DecompressionStream decompressionStream = new DecompressionStream(context, decompressor);
