@@ -61,8 +61,7 @@ int main(int argc, char * argv[])
 
     /* Create a compressor */
     Compressor<zlib> compressor;
-    compressor.parameter.gzHeader = true;
-    compressor.parameter.level    = level9;
+    compressor.parameter.level = level9;
 
     /* Create a stream for compression */
     CompressionStream compressionStream(&compressor);
@@ -86,7 +85,6 @@ int main(int argc, char * argv[])
 
     /* Create a decompressor */
     Decompressor<zlib> decompressor;
-    decompressor.parameter.gzHeader = true;
 
     /* Create a stream for decompression */
     DecompressionStream decompressionStream(&decompressor);
