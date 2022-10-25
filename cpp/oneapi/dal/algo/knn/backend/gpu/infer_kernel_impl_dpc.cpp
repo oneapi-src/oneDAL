@@ -19,7 +19,7 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
-// #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
@@ -500,11 +500,12 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
 }
 
 template <typename Float, typename Task>
-static infer_result<Task> call_kernel(const descriptor_t<Task>& desc,
+static infer_result<Task> call_kernel(const context_gpu& ctx,
+                                      const descriptor_t<Task>& desc,
                                       const table& infer,
-                                      const model<Task>& m,
-                                      sycl::queue& q,
-                                      bk::communicator<spmd::device_memory_access::usm> c) {
+                                      const model<Task>& m) {
+    auto& c = ctx.get_communicator();
+    auto& q = ctx.get_queue();
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
     const auto train = trained_model->get_data();
     const bool cm_train = is_col_major(train);
@@ -524,16 +525,27 @@ static infer_result<Task> call_kernel(const descriptor_t<Task>& desc,
 }
 
 template <typename Float, typename Task>
-infer_result<Task> infer_kernel_knn_bf_impl<Float, method::brute_force, Task>::operator()(const descriptor_t<Task>& desc, const table& infer, const model<Task>& m) {
-    return call_kernel<Float, Task>(desc, infer, m, q_, comm_);
+static infer_result<Task> infer(const context_gpu& ctx,
+                                const descriptor_t<Task>& desc,
+                                const infer_input<Task>& input) {
+    return call_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_model());
 }
 
-template class infer_kernel_knn_bf_impl<float, method::brute_force, task::classification>;
-template class infer_kernel_knn_bf_impl<double, method::brute_force, task::classification>;
-template class infer_kernel_knn_bf_impl<float, method::brute_force, task::regression>;
-template class infer_kernel_knn_bf_impl<double, method::brute_force, task::regression>;
-template class infer_kernel_knn_bf_impl<float, method::brute_force, task::search>;
-template class infer_kernel_knn_bf_impl<double, method::brute_force, task::search>;
+template <typename Float, typename Task>
+struct infer_kernel_gpu<Float, method::brute_force, Task> {
+    infer_result<Task> operator()(const context_gpu& ctx,
+                                  const descriptor_t<Task>& desc,
+                                  const infer_input<Task>& input) const {
+        return infer<Float, Task>(ctx, desc, input);
+    }
+};
+
+template struct infer_kernel_gpu<float, method::brute_force, task::classification>;
+template struct infer_kernel_gpu<double, method::brute_force, task::classification>;
+template struct infer_kernel_gpu<float, method::brute_force, task::regression>;
+template struct infer_kernel_gpu<double, method::brute_force, task::regression>;
+template struct infer_kernel_gpu<float, method::brute_force, task::search>;
+template struct infer_kernel_gpu<double, method::brute_force, task::search>;
 
 } // namespace oneapi::dal::knn::backend
 

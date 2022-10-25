@@ -32,7 +32,7 @@ static infer_result<Task> kernel(const context_gpu& ctx,
                                  const descriptor_t<Task>& desc,
                                  const table& infer,
                                  const model_t<Task>& m) {
-    return infer_kernel_knn_bf_impl<Float, Method, Task>(ctx)(desc, infer, m);
+    return infer_kernel_impl<Float, Method, Task>(ctx)(desc, infer, m);
                                  }
 
 } // namespace oneapi::dal::knn::backend
