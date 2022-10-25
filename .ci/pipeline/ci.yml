@@ -64,6 +64,9 @@ jobs:
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
     displayName: 'oneapi cpp examples'
+  - script: |
+      deploy/nuget/devel-reduced/prepare_dal_nuget.sh lnx
+    displayName: 'nuget reduced pkg'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
