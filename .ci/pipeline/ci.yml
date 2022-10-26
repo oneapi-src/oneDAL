@@ -27,7 +27,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
     - script: |
-        sudo apt-get update && sudo apt-get install -y clang-format-14
+        sudo apt-get update && sudo apt-get install -y clang-format-14 dos2unix
         sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 100
         sudo update-alternatives --set clang-format /usr/bin/clang-format-14
       displayName: 'apt-get'
@@ -292,6 +292,7 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
     displayName: 'oneapi cpp examples'
   - script: |
+      brew install dos2unix
       deploy/nuget/devel-reduced/prepare_dal_nuget.sh mac clang
     displayName: 'nuget reduced pkg'
 
@@ -317,5 +318,5 @@ jobs:
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pacman -S -y --noconfirm zip dos2unix
-      deploy/nuget/devel-reduced/prepare_dal_nuget.sh win vc
+      bash deploy/nuget/devel-reduced/prepare_dal_nuget.sh win vc
     displayName: 'nuget reduced pkg'
