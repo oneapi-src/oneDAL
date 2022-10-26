@@ -108,7 +108,7 @@ COPTS := -pedantic -Wall -Wextra -Werror \
          -fsycl-device-code-split=per_kernel \
          -I./source/utils 
 
-LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a -Wl,--end-group
+LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a $(DAAL_PATH)/libonedal_core.a -Wl,--end-group
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
