@@ -301,9 +301,6 @@ jobs:
     vmImage: 'windows-2019'
   steps:
   - script: |
-      pacman -S -y --noconfirm zip dos2unix
-    displayName: 'pacman update'
-  - script: |
       .\.ci\scripts\build.bat daal_c vc avx2
     displayName: 'make daal_c'
   - script: |
@@ -318,5 +315,7 @@ jobs:
       .\.ci\scripts\test.bat oneapi dll msvs
     displayName: 'oneapi cpp examples'
   - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      pacman -S -y --noconfirm zip dos2unix
       deploy/nuget/devel-reduced/prepare_dal_nuget.sh win vc
     displayName: 'nuget reduced pkg'
