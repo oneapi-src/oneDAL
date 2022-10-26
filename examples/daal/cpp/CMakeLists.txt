@@ -43,11 +43,7 @@ function (set_link_and_threading_types)
         set(LINK_TYPE "so" PARENT_SCOPE)
     endif()
 
-    if ("${USE_PARALLEL}" STREQUAL "yes")
-        set(THREADING_TYPE "parallel" PARENT_SCOPE)
-    else()
-        set(THREADING_TYPE "sequential" PARENT_SCOPE)
-    endif()
+    set(THREADING_TYPE "parallel" PARENT_SCOPE)
 endfunction()
 
 function (change_md_to_mdd)

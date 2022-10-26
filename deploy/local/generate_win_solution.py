@@ -29,16 +29,10 @@ EndProject
 '''
 
 _sln_project_platform_decl = '''
-        {example_guid}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
-        {example_guid}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
         {example_guid}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
         {example_guid}.Debug.dynamic.threaded|x64.Build.0 = Debug.dynamic.threaded|x64
-        {example_guid}.Release.dynamic.sequential|x64.ActiveCfg = Release.dynamic.sequential|x64
-        {example_guid}.Release.dynamic.sequential|x64.Build.0 = Release.dynamic.sequential|x64
         {example_guid}.Release.dynamic.threaded|x64.ActiveCfg = Release.dynamic.threaded|x64
         {example_guid}.Release.dynamic.threaded|x64.Build.0 = Release.dynamic.threaded|x64
-        {example_guid}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
-        {example_guid}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
         {example_guid}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
         {example_guid}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
 '''

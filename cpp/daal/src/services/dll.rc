@@ -23,10 +23,6 @@
   #define FILE_COMMENT "Analitics algorithms for Java*.\0"
   #define ORIG_FILE_NAME "JavaAPI.1.dll\0"
   #define INTERNAL_FILE_NAME "JavaAPI.\0"
-#elif defined(_DAAL_THR_SEQ)
-  #define FILE_COMMENT "Sequential version.\0"
-  #define ORIG_FILE_NAME "onedal_sequential.1.dll\0"
-  #define INTERNAL_FILE_NAME "onedal_sequential\0"
 #elif defined(_DAAL_THR_TBB)
   #define FILE_COMMENT "Parallel version.\0"
   #define ORIG_FILE_NAME "onedal_thread.1.dll \0"

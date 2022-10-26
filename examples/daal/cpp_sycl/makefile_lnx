@@ -84,7 +84,7 @@ ifndef TBBROOT
 endif
 TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
 
-EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL
+EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 
 ifeq ($(RES_EXT),so)
     DAAL_LIB_EXT := -Bdynamic
@@ -92,15 +92,7 @@ else
     DAAL_LIB_EXT := -Bstatic
 endif
 
-ifeq ($(threading),sequential)
-    $(error Sequential version is not supported. To run sequential version please refer to 'examples/daal/cpp')
-else
-    override threading = parallel
-    DAAL_LIB_T := $(DAAL_LIB_EXT),-lonedal_thread
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
-endif
-
-DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
+DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,$(DAAL_LIB_EXT),-lonedal_thread
 
 COPTS := -pedantic -Wall -Wextra -Werror \
          -Wno-deprecated-declarations \
@@ -110,7 +102,7 @@ COPTS := -pedantic -Wall -Wextra -Werror \
 
 LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a -Wl,--end-group
 
-RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_$(_IA)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 

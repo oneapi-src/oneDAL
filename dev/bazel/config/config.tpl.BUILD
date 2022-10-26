@@ -38,7 +38,6 @@ config_flag(
     build_setting_default = "par",
     allowed_build_setting_values = [
         "par",
-        "seq",
     ],
 )
 
