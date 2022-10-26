@@ -65,7 +65,7 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
     displayName: 'oneapi cpp examples'
   - script: |
-      deploy/nuget/devel-reduced/prepare_dal_nuget.sh lnx
+      deploy/nuget/devel-reduced/prepare_dal_nuget.sh lnx gnu
     displayName: 'nuget reduced pkg'
 
 - job: 'LinuxBazel'
@@ -291,12 +291,18 @@ jobs:
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
     displayName: 'oneapi cpp examples'
+  - script: |
+      deploy/nuget/devel-reduced/prepare_dal_nuget.sh mac clang
+    displayName: 'nuget reduced pkg'
 
 - job: 'WindowsMake'
   timeoutInMinutes: 0
   pool:
     vmImage: 'windows-2019'
   steps:
+  - script: |
+      pacman -S -y --noconfirm zip dos2unix
+    displayName: 'pacman update'
   - script: |
       .\.ci\scripts\build.bat daal_c vc avx2
     displayName: 'make daal_c'
@@ -311,3 +317,6 @@ jobs:
       .\.ci\scripts\test.bat oneapi lib msvs
       .\.ci\scripts\test.bat oneapi dll msvs
     displayName: 'oneapi cpp examples'
+  - script: |
+      deploy/nuget/devel-reduced/prepare_dal_nuget.sh win vc
+    displayName: 'nuget reduced pkg'
