@@ -20,7 +20,7 @@
 
 help:
 	@echo "Usage: make {libintel64|dylibintel64|help}"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "compiler_name       - intel, gnu or clang"
 	@echo "                      Intel(R) C++ Compiler as default"

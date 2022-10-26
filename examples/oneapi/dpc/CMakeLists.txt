@@ -27,6 +27,7 @@ set(CUSTOM_OPTIONS "-fsycl-device-code-split=per_kernel")
 
 if (WIN32)
     set(TARGET_LINK dynamic)
+    set(THREADING_TYPE parallel)
     set(CMAKE_CXX_COMPILE_OBJECT "<CMAKE_CXX_COMPILER> <DEFINES> <INCLUDES> <FLAGS> /Fo<OBJECT> -c <SOURCE>")
     set(CMAKE_CXX_CREATE_STATIC_LIBRARY "lib <OBJECTS> /out:<TARGET>")
     set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> ${CUSTOM_OPTIONS} <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
@@ -47,17 +48,11 @@ function (add_examples examples)
     endforeach()
 endfunction()
 
-function (set_link_and_threading_types)
+function (set_link_type)
     if ("${TARGET_LINK}" STREQUAL "static")
         set(LINK_TYPE "a" PARENT_SCOPE)
     else()
         set(LINK_TYPE "so" PARENT_SCOPE)
-    endif()
-
-    if ("${USE_PARALLEL}" STREQUAL "yes")
-        set(THREADING_TYPE "parallel" PARENT_SCOPE)
-    else()
-        set(THREADING_TYPE "sequential" PARENT_SCOPE)
     endif()
 endfunction()
 
@@ -81,7 +76,7 @@ function (change_md_to_mdd)
     set(CMAKE_C_FLAGS_RELEASE ${cr_flag} PARENT_SCOPE)
 endfunction()
 
-set_link_and_threading_types()
+set_link_type()
 
 find_package(oneDAL REQUIRED)
 

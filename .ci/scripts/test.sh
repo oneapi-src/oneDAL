@@ -82,7 +82,6 @@ fi
 interface=${interface:-daal}
 cd "${BUILD_DIR}/daal/latest/examples/${interface}/cpp"
 
-threading=thread
 for link_mode in static dynamic; do
     # Release Examples testing
     if [ "${link_mode}" == "static" ]; then
@@ -94,27 +93,27 @@ for link_mode in static dynamic; do
             l="dylib"
         fi
     fi
-    build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler} threading=${threading}"
+    build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
     echo "Building examples ${build_command}"
     (${build_command})
     err=$?
     if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${threading}-${link_mode}"
+        echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${link_mode}"
         TESTING_RETURN=${err}
         continue
     else
-        echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${threading}-${link_mode}"
+        echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${link_mode}"
     fi
-    run_command="make ${l}${full_arch} mode=run compiler=${compiler} threading=${threading}"
+    run_command="make ${l}${full_arch} mode=run compiler=${compiler}"
     echo "Running examples ${run_command}"
     (${run_command})
     err=$?
     if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${threading}-${link_mode} with errno ${err}"
+        echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${link_mode} with errno ${err}"
         TESTING_RETURN=${err}
         continue
     else
-        echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${threading}-${link_mode}"
+        echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${link_mode}"
     fi
 done
 

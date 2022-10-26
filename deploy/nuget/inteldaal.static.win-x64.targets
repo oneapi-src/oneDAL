@@ -33,11 +33,6 @@
   </ItemDefinitionGroup>
 
   <!-- static libraries -->
-  <ItemDefinitionGroup Condition="'$(Platform)' == 'x64' And '$(linkage-DAAL-static-win-x64)' == 'static' And '$(threading-DAAL-static-win-x64)' == 'sequential'">
-    <Link>
-      <AdditionalDependencies>onedal_core.lib;onedal_sequential.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)' == 'x64' And '$(linkage-DAAL-static-win-x64)' == 'static' And '$(threading-DAAL-static-win-x64)' == 'tbb'">
     <Link>
       <AdditionalDependencies>onedal_core.lib;onedal_thread.lib;%(AdditionalDependencies)</AdditionalDependencies>
