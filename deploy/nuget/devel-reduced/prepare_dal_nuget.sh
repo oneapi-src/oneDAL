@@ -1,24 +1,45 @@
 #!/bin/bash
+#===============================================================================
+# Copyright 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
 
 create_package() {
     # Args:
     # 1 - system
+    # 2 - compiler type
+    compiler_suffix=${2:-""}
+    if [ "${compiler_suffix}" != "" ]; then
+        compiler_suffix=_${compiler_suffix}
+    fi
+
     if [ $1 = "lnx" ]; then
         platform=linux-x64
         tbb_platform=linux
-        rls_postfix=lnx/daal/latest
+        rls_postfix=lnx${compiler_suffix}/daal/latest
         lib_path=lib/intel64
         dl_prefix=lib
     elif [ $1 = "mac" ]; then
         platform=osx-x64
         tbb_platform=osx
-        rls_postfix=mac/daal/latest
+        rls_postfix=mac${compiler_suffix}/daal/latest
         lib_path=lib
         dl_prefix=lib
     elif [ $1 = "win" ]; then
         platform=win-x64
         tbb_platform=win
-        rls_postfix=win/daal/latest
+        rls_postfix=win${compiler_suffix}/daal/latest
         lib_path=lib/intel64
         dl_prefix=""
     else
@@ -62,12 +83,7 @@ create_package() {
     # cmake
     cmake -DINSTALL_DIR=__release_${rls_postfix}/lib/cmake/oneDAL -P cmake/scripts/generate_config.cmake
     mkdir -p ${dal_root_prefix}/lib/cmake/oneDAL
-    if [ $1 = "mac" ]; then
-        # TODO: add cmake configs for Mac
-        cp __release_lnx/daal/latest/lib/cmake/oneDAL/* ${dal_root_prefix}/lib/cmake/oneDAL
-    else
-        cp __release_${rls_postfix}/lib/cmake/oneDAL/* ${dal_root_prefix}/lib/cmake/oneDAL
-    fi
+    cp __release_${rls_postfix}/lib/cmake/oneDAL/* ${dal_root_prefix}/lib/cmake/oneDAL
     # env script
     cp -r __release_${rls_postfix}/env ${dal_root_prefix}
     # interfaces
@@ -139,13 +155,17 @@ create_package() {
 }
 
 create_all_packages() {
-    create_package lnx
-    create_package mac
-    create_package win
+    # Args:
+    # 1 - compiler type
+    create_package lnx $1
+    create_package mac $1
+    create_package win $1
 }
 
+set -eE
+
 if [[ $# -eq 0 ]]; then
-    create_all_packages
+    create_all_packages $2
 else
-    create_package $1
+    create_package $1 $2
 fi
