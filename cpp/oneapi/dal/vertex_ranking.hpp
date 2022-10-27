@@ -26,7 +26,7 @@ namespace oneapi::dal::preview {
 
 /// The main processing function for vertex ranking family of the algorithms
 template <typename... Args>
-auto vertex_ranking(Args &&... args) {
+auto vertex_ranking(Args &&...args) {
     return detail::vertex_ranking_dispatch(std::forward<Args>(args)...);
 }
 
