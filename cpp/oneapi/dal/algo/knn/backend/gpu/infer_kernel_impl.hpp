@@ -63,4 +63,5 @@ private:
 };
 
 } // namespace oneapi::dal::knn::backend
+
 #endif // ONEDAL_DATA_PARALLEL
