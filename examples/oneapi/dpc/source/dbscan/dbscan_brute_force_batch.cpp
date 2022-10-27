@@ -18,7 +18,10 @@
 #include <iomanip>
 #include <iostream>
 
+#ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/algo/dbscan.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
