@@ -14,8 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/kmeans/test/data.hpp"
-#include "oneapi/dal/algo/kmeans/test/fixture.hpp"
+#include "oneapi/dal/algo/knn/test/fixture.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
 
