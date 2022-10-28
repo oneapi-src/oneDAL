@@ -18,6 +18,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/math.hpp"
+#include <iostream>
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 
@@ -31,7 +32,7 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-void compute_exponents(sycl::queue& queue,
+sycl::event compute_exponents(sycl::queue& queue,
                        const pr::ndview<Float, 1>& sqr_x_nd,
                        const pr::ndview<Float, 1>& sqr_y_nd,
                        pr::ndview<Float, 2>& res_nd,
@@ -54,8 +55,7 @@ void compute_exponents(sycl::queue& queue,
     const auto range =
         dal::backend::make_multiple_nd_range_2d({ x_row_count, y_row_count }, { wg_size, 1 });
 
-    queue
-        .submit([&](sycl::handler& cgh) {
+    return queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             const std::size_t ld = y_row_count;
 
@@ -69,12 +69,11 @@ void compute_exponents(sycl::queue& queue,
 
                 res_ptr[i * ld + j] = sycl::exp(arg);
             });
-        })
-        .wait_and_throw();
+        });
 }
 
 template <typename Float>
-void compute_rbf(sycl::queue& queue,
+auto compute_rbf(sycl::queue& queue,
                  const pr::ndview<Float, 2>& x_nd,
                  const pr::ndview<Float, 2>& y_nd,
                  pr::ndview<Float, 2>& res_nd,
@@ -112,7 +111,7 @@ void compute_rbf(sycl::queue& queue,
         gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta, { reduce_y_event });
     }
 
-    compute_exponents(queue, sqr_x_nd, sqr_y_nd, res_nd, sigma, { gemm_event });
+    return compute_exponents(queue, sqr_x_nd, sqr_y_nd, res_nd, sigma, { gemm_event });
 }
 
 template <typename Float>
@@ -133,9 +132,9 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     auto res_nd =
         pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
 
-    compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
+    auto compute_rbf_event = compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
 
-    const auto res_array = res_nd.flatten(queue);
+    const auto res_array = res_nd.flatten(queue, { compute_rbf_event });
     auto res_table = homogen_table::wrap(res_array, x_row_count, y_row_count);
 
     return result_t{}.set_values(res_table);
@@ -146,6 +145,7 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
+        std::cout<<"this!"<<std::endl;
         return compute<Float>(ctx, desc, input);
     }
 

@@ -26,7 +26,7 @@ namespace oneapi::dal::rbf_kernel::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class rbf_kernel_badarg_test : public te::algo_fixture {
 public:
     static constexpr std::int64_t row_count_x = 5;
@@ -36,7 +36,7 @@ public:
     static constexpr std::int64_t element_count_y = row_count_y * column_count;
 
     auto get_descriptor() const {
-        return rbf_kernel::descriptor<float, Method, rbf_kernel::task::compute>{};
+        return rbf_kernel::descriptor<float, rbf_kernel::method::dense, rbf_kernel::task::compute>{};
     }
 
     table get_x_data(std::int64_t override_row_count = row_count_x,
