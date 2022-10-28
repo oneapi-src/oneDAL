@@ -43,7 +43,7 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib
+  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib dos2unix
     displayName: 'apt-get'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --target daal_c
