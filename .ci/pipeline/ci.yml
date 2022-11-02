@@ -66,7 +66,7 @@ jobs:
     displayName: 'oneapi cpp examples'
   - script: |
       deploy/nuget/prepare_dal_nuget.sh lnx gnu
-      tree -h inteldal*
+      tree -h inteldal*/
     displayName: 'nuget reduced pkg'
 
 - job: 'LinuxBazel'
@@ -295,7 +295,7 @@ jobs:
   - script: |
       brew install dos2unix tree
       deploy/nuget/prepare_dal_nuget.sh mac clang
-      tree -h inteldal*
+      tree -h inteldal*/
     displayName: 'nuget reduced pkg'
 
 - job: 'WindowsMake'
@@ -321,5 +321,5 @@ jobs:
       set PATH=C:\msys64\usr\bin;%PATH%
       pacman -S -y --noconfirm zip dos2unix tree
       bash deploy/nuget/prepare_dal_nuget.sh win vc
-      tree -h inteldal*
+      tree -h inteldal*/
     displayName: 'nuget reduced pkg'
