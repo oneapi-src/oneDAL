@@ -17,37 +17,55 @@
 
 create_package() {
     # Args:
-    # 1 - system
-    # 2 - compiler type
-    compiler_suffix=${2:-""}
+    # 1 - system [lnx, mac, win]
+    # 2 - distribution type [redist, devel, static]
+    # 3 - compiler type
+
+    # paths to release dirs
+    compiler_suffix=${3:-""}
     if [ "${compiler_suffix}" != "" ]; then
         compiler_suffix=_${compiler_suffix}
     fi
 
     if [ $1 = "lnx" ]; then
         platform=linux-x64
-        tbb_platform=linux
         rls_postfix=lnx${compiler_suffix}/daal/latest
-        lib_path=lib/intel64
-        dl_prefix=lib
+        dynamic_lib_path=lib/intel64
+        static_lib_path=lib/intel64
+        lib_prefix=libonedal
     elif [ $1 = "mac" ]; then
         platform=osx-x64
-        tbb_platform=osx
         rls_postfix=mac${compiler_suffix}/daal/latest
-        lib_path=lib
-        dl_prefix=lib
+        dynamic_lib_path=lib
+        static_lib_path=lib
+        lib_prefix=libonedal
     elif [ $1 = "win" ]; then
         platform=win-x64
-        tbb_platform=win
         rls_postfix=win${compiler_suffix}/daal/latest
-        lib_path=lib/intel64
-        dl_prefix=""
+        dynamic_lib_path=redist/intel64
+        static_lib_path=lib/intel64
+        lib_prefix=onedal
     else
-        echo "unknown platform"
+        echo "Unknown platform $1"
         exit 1
     fi
 
-    # version getting
+    # distribution type
+    if [ $2 = "redist" ] || [ $2 = "devel" ] || [ $2 = "static" ]; then
+    	distr_type=$2
+    	if [ $2 = "redist" ]; then
+    		content="dynamic libraries and headers"
+    	elif [ $2 = "devel" ]; then
+    		content="dynamic and static libraries and headers"
+    	elif [ $2 = "static" ]; then
+    		content="static libraries and headers"
+    	fi
+    else
+    	echo "Unknown distribution type $2"
+        exit 1
+    fi
+
+    # library version
     major_binary_version=$(cat __release_${rls_postfix}/include/services/library_version_info.h | grep __INTEL_DAAL_MAJOR_BINARY__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
     minor_binary_version=$(cat __release_${rls_postfix}/include/services/library_version_info.h | grep __INTEL_DAAL_MINOR_BINARY__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
     major_version=$(cat __release_${rls_postfix}/include/services/library_version_info.h | grep __INTEL_DAAL__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
@@ -55,24 +73,30 @@ create_package() {
     update_version=$(cat __release_${rls_postfix}/include/services/library_version_info.h | grep __INTEL_DAAL_UPDATE__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
     dal_version=${major_version}.${minor_version}.${update_version}
 
+    # get extension of libraries
     if [ $1 = "lnx" ]; then
         dl_postfix=.so.${major_binary_version}.${minor_binary_version}
+        sl_postfix=.a
     elif [ $1 = "mac" ]; then
         dl_postfix=.${major_binary_version}.${minor_binary_version}.dylib
+        sl_postfix=.a
     elif [ $1 = "win" ]; then
-        dl_postfix=_dll.${major_binary_version}.lib
+        dl_postfix=.${major_binary_version}.dll
+        sl_postfix=.lib
     fi
 
-    pkg_name=inteldal.devel-reduced.${platform}.${dal_version}
+    pkg_name=inteldal.${distr_type}.${platform}.${dal_version}
     dal_root_prefix=${pkg_name}/build/native/daal
     tbb_root_prefix=${pkg_name}/build/native/tbb
     echo "Versions:"
-    echo "MAJOR: ${major_version}, MINOR: ${minor_version}, UPDATE: ${update_version}, MAJOR BINARY: ${major_binary_version}"
+    echo "MAJOR: ${major_version}, MINOR: ${minor_version}, UPDATE: ${update_version}"
+    echo "MAJOR BINARY: ${major_binary_version}, MINOR BINARY: ${minor_binary_version}"
     echo Creating $pkg_name
     mkdir -p ${dal_root_prefix}
     mkdir -p ${tbb_root_prefix}
     # nuspec generation
-    sed "s/__VERSION__/${dal_version}/; s/__PLATFORM__/${platform}/; s/__TBB_PLATFORM__/${tbb_platform}/" deploy/nuget/devel-reduced/inteldal.devel-reduced.nuspec.tmpl > ${pkg_name}/inteldal.devel-reduced.${platform}.nuspec
+    sed_template="s/__DISTRTYPE__/${distr_type}/; s/__PLATFORM__/${platform}/; s/__VERSION__/${dal_version}/; s/__CONTENT__/${content}/; s/__YEAR__/$(date +%Y)/"
+    sed "${sed_template}" deploy/nuget/inteldal.nuspec.template.txt > ${pkg_name}/inteldal.${distr_type}.${platform}.nuspec
 
     # ###### #
     # oneDAL #
@@ -80,35 +104,29 @@ create_package() {
 
     # common part
     cp LICENSE ${pkg_name}
-    # cmake
+    # -- cmake configs
     cmake -DINSTALL_DIR=__release_${rls_postfix}/lib/cmake/oneDAL -P cmake/scripts/generate_config.cmake
     mkdir -p ${dal_root_prefix}/lib/cmake/oneDAL
     cp __release_${rls_postfix}/lib/cmake/oneDAL/* ${dal_root_prefix}/lib/cmake/oneDAL
-    # env script
+    # -- env script
     cp -r __release_${rls_postfix}/env ${dal_root_prefix}
-    # interfaces
+    # -- interfaces
     cp -r __release_${rls_postfix}/include ${dal_root_prefix}
+
     # dynamic libraries
-    mkdir -p ${dal_root_prefix}/lib/intel64
-    if [ $1 = "win" ]; then
-        declare -a needed_libraries=(onedal_core)
-    else
-        declare -a needed_libraries=(onedal_core onedal_thread)
+    if [ ${distr_type} = "redist" ] || [ ${distr_type} = "devel" ]; then
+        mkdir -p ${dal_root_prefix}/${dynamic_lib_path}
+        cp __release_${rls_postfix}/${dynamic_lib_path}/${lib_prefix}*${dl_postfix} ${dal_root_prefix}/${dynamic_lib_path}
+        # win-x64 special part
+        if [ $1 = "win" ]; then
+            mkdir -p ${dal_root_prefix}/${static_lib_path}
+            cp __release_${rls_postfix}/${static_lib_path}/*_dll.${major_binary_version}.lib ${dal_root_prefix}/${static_lib_path}
+        fi
     fi
-    for needed_library in "${needed_libraries[@]}"; do
-        cp __release_${rls_postfix}/${lib_path}/${dl_prefix}${needed_library}${dl_postfix} ${dal_root_prefix}/lib/intel64
-    done
-
-    # win-x64 special part
-    if [ $1 = "win" ]; then
-        sed "s/__MAJOR_BINARY_VERSION__/${major_binary_version}/" deploy/nuget/devel-reduced/inteldal.devel-reduced.win-x64.targets > ${dal_root_prefix}/inteldal.devel-reduced.win-x64.targets
-        cp deploy/nuget/devel-reduced/inteldal.devel-reduced.win-x64.xml ${dal_root_prefix}
-
-        mkdir -p ${dal_root_prefix}/redist/intel64
-        cp __release_${rls_postfix}/redist/intel64/onedal_core.${major_binary_version}.dll ${dal_root_prefix}/redist/intel64
-        cp __release_${rls_postfix}/redist/intel64/onedal_thread.${major_binary_version}.dll ${dal_root_prefix}/redist/intel64
-
-        cp __release_${rls_postfix}/lib/intel64/onedal_core_dll.${major_binary_version}.lib ${dal_root_prefix}/lib/intel64
+    # static libraries
+    if [ ${distr_type} = "static" ] || [ ${distr_type} = "devel" ]; then
+        mkdir -p ${dal_root_prefix}/${static_lib_path}
+        cp __release_${rls_postfix}/${static_lib_path}/${lib_prefix}*${sl_postfix} ${dal_root_prefix}/${static_lib_path}
     fi
 
     echo "oneDAL ${dal_version} is packed"
@@ -118,7 +136,7 @@ create_package() {
     # ###### #
 
     # download package
-    tbb_version=2021.6.0
+    tbb_version=2021.7.0
     tbb_download_prefix=https://github.com/oneapi-src/oneTBB/releases/download/v${tbb_version}
     if [ $1 = "lnx" ]; then
         tbb_package_name=oneapi-tbb-${tbb_version}-lin.tgz
@@ -156,16 +174,35 @@ create_package() {
 
 create_all_packages() {
     # Args:
-    # 1 - compiler type
-    create_package lnx $1
-    create_package mac $1
-    create_package win $1
+    # 1 - system
+    # 2 - compiler type
+    create_package $1 $2 redist
+    create_package $1 $2 static
+    create_package $1 $2 devel
 }
 
 set -eE
 
-if [[ $# -eq 0 ]]; then
-    create_all_packages $2
+# bash file arguments:
+# 1 - system
+# 2 - compiler (optional)
+# 3 - distribution type (optional)
+if [[ $# -eq 1 ]]; then
+    system=$(uname)
+    if [ ${system} = "Linux" ]; then
+        create_all_packages lnx ""
+    elif [ ${system} = "Darwin" ]; then
+        create_all_packages mac ""
+    else
+        create_all_packages win ""
+    fi
+elif [[ $# -eq 1 ]]; then
+    create_all_packages $1 ""
+elif [[ $# -eq 2 ]]; then
+    create_all_packages $1 $2
+elif [[ $# -eq 3 ]]; then
+    create_package $1 $2 $3
 else
-    create_package $1 $2
+    echo "Wrong arguments"
+    exit 1
 fi
