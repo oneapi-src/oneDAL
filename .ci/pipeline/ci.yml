@@ -27,7 +27,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
     - script: |
-        sudo apt-get update && sudo apt-get install -y clang-format-14 dos2unix
+        sudo apt-get update && sudo apt-get install -y clang-format-14 dos2unix tree
         sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 100
         sudo update-alternatives --set clang-format /usr/bin/clang-format-14
       displayName: 'apt-get'
@@ -66,6 +66,7 @@ jobs:
     displayName: 'oneapi cpp examples'
   - script: |
       deploy/nuget/devel-reduced/prepare_dal_nuget.sh lnx gnu
+      tree -h inteldal*
     displayName: 'nuget reduced pkg'
 
 - job: 'LinuxBazel'
@@ -292,8 +293,9 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
     displayName: 'oneapi cpp examples'
   - script: |
-      brew install dos2unix
+      brew install dos2unix tree
       deploy/nuget/devel-reduced/prepare_dal_nuget.sh mac clang
+      tree -h inteldal*
     displayName: 'nuget reduced pkg'
 
 - job: 'WindowsMake'
@@ -317,6 +319,7 @@ jobs:
     displayName: 'oneapi cpp examples'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
-      pacman -S -y --noconfirm zip dos2unix
+      pacman -S -y --noconfirm zip dos2unix tree
       bash deploy/nuget/devel-reduced/prepare_dal_nuget.sh win vc
+      tree -h inteldal*
     displayName: 'nuget reduced pkg'
