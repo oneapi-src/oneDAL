@@ -65,7 +65,7 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
     displayName: 'oneapi cpp examples'
   - script: |
-      deploy/nuget/devel-reduced/prepare_dal_nuget.sh lnx gnu
+      deploy/nuget/prepare_dal_nuget.sh lnx gnu
       tree -h inteldal*
     displayName: 'nuget reduced pkg'
 
@@ -294,7 +294,7 @@ jobs:
     displayName: 'oneapi cpp examples'
   - script: |
       brew install dos2unix tree
-      deploy/nuget/devel-reduced/prepare_dal_nuget.sh mac clang
+      deploy/nuget/prepare_dal_nuget.sh mac clang
       tree -h inteldal*
     displayName: 'nuget reduced pkg'
 
@@ -320,6 +320,6 @@ jobs:
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pacman -S -y --noconfirm zip dos2unix tree
-      bash deploy/nuget/devel-reduced/prepare_dal_nuget.sh win vc
+      bash deploy/nuget/prepare_dal_nuget.sh win vc
       tree -h inteldal*
     displayName: 'nuget reduced pkg'
