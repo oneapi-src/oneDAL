@@ -176,9 +176,9 @@ create_all_packages() {
     # Args:
     # 1 - system
     # 2 - compiler type
-    create_package $1 $2 redist
-    create_package $1 $2 static
-    create_package $1 $2 devel
+    create_package $1 redist $2
+    create_package $1 static $2
+    create_package $1 devel $2
 }
 
 set -eE
