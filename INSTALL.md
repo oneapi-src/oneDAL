@@ -41,7 +41,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
     - **Microsoft Visual Studio\* 2022**:
 
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvarsall.bat" x64
+            call "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvarsall.bat" x64
 
     - **Intel(R) C++ Compiler 19.1 (Windows\*)**:
 
