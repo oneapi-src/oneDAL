@@ -22,7 +22,7 @@ Required Software:
 * [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html)
 * Java\* JDK
 * Microsoft Visual Studio\* (Windows\* only)
-* [MSYS2 installer](http://msys2.github.io) with the msys/make and msys/dos2unix packages (Windows\* only); install packages as follows:
+* [MSYS2 installer](http://msys2.github.io) with the `msys/make` and `msys/dos2unix` packages (Windows\* only); install packages as follows:
 
         pacman -S msys/make msys/dos2unix
 
@@ -33,16 +33,15 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
         git clone -b develop https://github.com/oneapi-src/oneDAL.git
 
-
 2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only). For example:
 
         set PATH=C:\msys64\usr\bin;%PATH%
 
 3. Set the environment variables for one of the supported C/C++ compilers. For example:
 
-    - **Microsoft Visual Studio\* 2019**:
+    - **Microsoft Visual Studio\* 2022**:
 
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat" x64
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvarsall.bat" x64
 
     - **Intel(R) C++ Compiler 19.1 (Windows\*)**:
 
@@ -52,13 +51,13 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
             source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
 
+    - **Intel(R) oneAPI DPC++/C++ Compiler 2022.2 (Linux\*)**:
+
+            source /opt/intel/oneapi/compiler/latest/env/vars.sh
+
     - **Intel(R) oneAPI DPC++/C++ Compiler 2022.2 (Windows\*)**:
 
-            call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat" intel64
-
-    or
-
-            call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+            call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
 
 4. Set the environment variables for one of the supported Java\* compilers. For example:
 
