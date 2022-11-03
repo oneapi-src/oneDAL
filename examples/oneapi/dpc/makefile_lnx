@@ -24,7 +24,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see onedal.lst file"
 	@echo
-	@echo "compiler_name     - currently can be dpcpp only that stands
+	@echo "compiler_name     - currently can be dpcpp only that stands"
 	@echo "                    for Intel(R) oneAPI DPC++/C++ Compiler."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
@@ -69,23 +69,16 @@ ifndef TBBROOT
 endif
 TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
 
-ifeq ($(threading),sequential)
-    $(error Sequential version is not supported. To run sequential version please refer to 'examples/oneapi/cpp')
-else
-    override threading = parallel
-    THREADING_LIB := onedal_thread
-endif
-
 ifeq ($(RES_EXT),so)
     ONEDAL_LIBS := -lonedal_dpc \
                    -lonedal_core \
-                   -l$(THREADING_LIB) \
+                   -lonedal_thread \
                    "$(DAAL_PATH)"/libonedal_sycl.a
 else
     ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a \
-	           "$(DAAL_PATH)"/libonedal_sycl.a \
+	               "$(DAAL_PATH)"/libonedal_sycl.a \
                    "$(DAAL_PATH)"/libonedal_core.a \
-                   "$(DAAL_PATH)"/lib$(THREADING_LIB).a
+                   "$(DAAL_PATH)"/libonedal_thread.a
 endif
 
 COPTS := -std=c++17 \
@@ -109,7 +102,7 @@ LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
          $(LIBS)
 
-RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run,$(mode)), $(addsuffix .res,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),dpcpp)
