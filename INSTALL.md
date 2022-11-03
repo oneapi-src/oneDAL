@@ -19,19 +19,19 @@
 
 Required Software:
 * C/C++ Compiler
-* DPC++ Compiler
+* [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html)
 * Java\* JDK
 * Microsoft Visual Studio\* (Windows\* only)
-* [MSYS2 installer](http://msys2.github.io) with the msys/make package (Windows\* only); install the package as follows:
+* [MSYS2 installer](http://msys2.github.io) with the msys/make and msys/dos2unix packages (Windows\* only); install packages as follows:
 
-        pacman -S msys/make
+        pacman -S msys/make msys/dos2unix
 
 For details, see [System Requirements for oneDAL](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html).
 
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:
 
-        git clone https://github.com/oneapi-src/oneDAL.git
+        git clone -b develop https://github.com/oneapi-src/oneDAL.git
 
 
 2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only). For example:
@@ -42,7 +42,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
     - **Microsoft Visual Studio\* 2019**:
 
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat" amd64
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat" x64
 
     - **Intel(R) C++ Compiler 19.1 (Windows\*)**:
 
@@ -52,9 +52,13 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
             source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
 
-    - **Intel(R) oneAPI DPC++/C++ Compiler 2021.1 (Windows\*)**:
+    - **Intel(R) oneAPI DPC++/C++ Compiler 2022.2 (Windows\*)**:
 
             call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat" intel64
+
+    or
+
+            call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
 
 4. Set the environment variables for one of the supported Java\* compilers. For example:
 
@@ -97,7 +101,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
             ./dev/download_tbb.sh
 
-7. Download and install Python 3.7 (Windows\* only).
+7. Download and install Python>=3.7 (Windows\* only).
 
 8. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform, and the compiler you use. Below you can find the set of examples for building oneDAL. You may use a combination of them to get the desired build configuration:
 
@@ -140,6 +144,6 @@ It is possible to build oneDAL libraries with selected set of algorithms and/or 
 
 
 ---
-**NOTE:** Built libraries are located in the `__release_{os_name}/daal` directory.
+**NOTE:** Built libraries are located in the `__release_{os_name}_{compiler_name}/daal` directory.
 
 ---
