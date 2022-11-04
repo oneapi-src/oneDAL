@@ -43,18 +43,16 @@ function (add_examples examples)
         endif()
         target_compile_options(${example} PRIVATE ${CUSTOM_OPTIONS})
         target_link_options(${example} PRIVATE ${CUSTOM_OPTIONS})
-        set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/intel_intel64_${THREADING_TYPE}_${LINK_TYPE}")
+        set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/intel_intel64_${LINK_TYPE}")
     endforeach()
 endfunction()
 
-function (set_link_and_threading_types)
+function (set_link_type)
     if ("${TARGET_LINK}" STREQUAL "static")
         set(LINK_TYPE "a" PARENT_SCOPE)
     else()
         set(LINK_TYPE "so" PARENT_SCOPE)
     endif()
-
-    set(THREADING_TYPE "parallel" PARENT_SCOPE)
 endfunction()
 
 function (change_md_to_mdd)
@@ -77,7 +75,7 @@ function (change_md_to_mdd)
     set(CMAKE_C_FLAGS_RELEASE ${cr_flag} PARENT_SCOPE)
 endfunction()
 
-set_link_and_threading_types()
+set_link_type()
 
 find_package(oneDAL REQUIRED)
 
