@@ -76,9 +76,9 @@ ifeq ($(RES_EXT),so)
                    "$(DAAL_PATH)"/libonedal_sycl.a
 else
     ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a \
+                   "$(DAAL_PATH)"/libonedal_sycl.a \
                    "$(DAAL_PATH)"/libonedal_core.a \
-                   "$(DAAL_PATH)"/libonedal_thread.a \
-                   "$(DAAL_PATH)"/libonedal_sycl.a
+                   "$(DAAL_PATH)"/libonedal_thread.a
 endif
 
 COPTS := -std=c++17 \

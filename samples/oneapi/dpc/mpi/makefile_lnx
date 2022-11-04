@@ -130,7 +130,7 @@ _make_ex: $(RES)
 
 %/.:; mkdir -p $*
 
-libintel64:
+lib libintel64:
 	$(MAKE) _make_ex RES_EXT=a
-sointel64:
+so sointel64:
 	$(MAKE) _make_ex RES_EXT=so
