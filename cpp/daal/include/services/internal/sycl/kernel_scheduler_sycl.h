@@ -405,7 +405,7 @@ public:
         using namespace cl::sycl;
         kernel_bundle<bundle_state::executable> _kernelBundle =
             make_kernel_bundle<backend::ext_oneapi_level_zero, bundle_state::executable>({ getProgramRef().getModuleLevelZeroPtr()->get() }, ctx);
-        return make_kernel<backend::level_zero>({ _kernelBundle, _zeKernelRef.getKernelLevelZeroPtr()->get() }, ctx);
+        return make_kernel<backend::ext_oneapi_level_zero>({ _kernelBundle, _zeKernelRef.getKernelLevelZeroPtr()->get() }, ctx);
     }
 
 private:

@@ -132,7 +132,7 @@ endif
 
 ifeq ($(compiler),dpcpp)
     gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-    CC = dpcpp --gcc-toolchain=$(gcc_toolchain)
+    CC = icpx -fsycl --gcc-toolchain=$(gcc_toolchain)
 endif
 
 ifeq ($(compiler),icx)

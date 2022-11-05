@@ -58,7 +58,9 @@ void run(sycl::queue &q) {
 
 int main(int argc, char const *argv[]) {
     for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
+                  << std::endl;
         auto q = sycl::queue{ d };
         run(q);
     }

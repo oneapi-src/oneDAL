@@ -112,7 +112,7 @@ override proc = 4
 
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
 
-CC = dpcpp 
+CC = icpx -fsycl 
 CRUN = mpirun
 RUNOPTS = -n $(proc) -ppn $(proc)
 

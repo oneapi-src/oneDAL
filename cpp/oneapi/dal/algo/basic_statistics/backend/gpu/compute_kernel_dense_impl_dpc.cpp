@@ -50,8 +50,7 @@ namespace pr = dal::backend::primitives;
 using alloc = sycl::usm::alloc;
 
 template <typename Data>
-using local_accessor_rw_t =
-    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+using local_accessor_rw_t = sycl::local_accessor<Data, 1>;
 
 using comm_t = bk::communicator<spmd::device_memory_access::usm>;
 using dal::backend::context_gpu;

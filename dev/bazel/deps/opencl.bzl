@@ -18,7 +18,7 @@ load("@onedal//dev/bazel:repos.bzl", "repos")
 load("@onedal//dev/bazel:utils.bzl", "paths")
 
 def _get_dpcpp_compiler_root(repo_ctx):
-    dpcpp_path = repo_ctx.which("dpcpp")
+    dpcpp_path = repo_ctx.which("icpx")
     return dpcpp_path and str(dpcpp_path.dirname.dirname.realpath)
 
 def _opencl_repo_impl(repo_ctx):
