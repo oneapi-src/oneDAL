@@ -19,10 +19,9 @@
 #include <vector>
 #include <CL/sycl.hpp>
 
-template <typename Selector>
-void try_add_device(std::vector<sycl::device>& devices) {
+void try_add_device(std::vector<sycl::device>& devices, int (*selector)(const sycl::device&)) {
     try {
-        devices.push_back(Selector{}.select_device());
+        devices.push_back(sycl::ext::oneapi::detail::select_device(selector));
     }
     catch (...) {
     }
@@ -30,8 +29,7 @@ void try_add_device(std::vector<sycl::device>& devices) {
 
 std::vector<sycl::device> list_devices() {
     std::vector<sycl::device> devices;
-    try_add_device<sycl::host_selector>(devices);
-    try_add_device<sycl::cpu_selector>(devices);
-    try_add_device<sycl::gpu_selector>(devices);
+    try_add_device(devices, &sycl::cpu_selector_v);
+    try_add_device(devices, &sycl::gpu_selector_v);
     return devices;
 }

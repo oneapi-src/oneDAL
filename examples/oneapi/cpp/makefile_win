@@ -100,7 +100,7 @@ COPTS=$(COMMON_COPTS) -Qstd:c++17 $(ARCH_OPT)
 !ENDIF
 
 !IF ("$(compiler)"=="dpcpp" || "$(compiler)"=="clang")
-CC=dpcpp-cl
+CC=icx -fsycl
 COPTS=$(COMMON_COPTS) -Qstd:c++17 $(ARCH_OPT)
 !ENDIF
 

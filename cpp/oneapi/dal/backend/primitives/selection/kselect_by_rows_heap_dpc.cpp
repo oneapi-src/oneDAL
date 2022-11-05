@@ -158,8 +158,7 @@ class kernel_select_heap {
 
     constexpr static inline sycl::ext::oneapi::maximum<std::int32_t> max_func{};
 
-    using acc_t =
-        sycl::accessor<sel_t, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+    using acc_t = sycl::local_accessor<sel_t, 1>;
 
     using dimension_keeper_t = dimension_keeper<Float, dst_out, ids_out>;
 
@@ -328,8 +327,7 @@ sycl::event select_impl(sycl::queue& queue,
                         const event_vector& deps) {
     using kernel_t = kernel_select_heap<DataProvider, Float, dst_out, ids_out, sg_size>;
     using sel_t = selection_pair<Float, std::int32_t>;
-    using acc_t =
-        sycl::accessor<sel_t, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+    using acc_t = sycl::local_accessor<sel_t, 1>;
 
     const auto pref_sbg = get_preferred_sub_group(queue);
     if (pref_sbg == sg_size) {

@@ -24,7 +24,7 @@
 
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
-#include <CL/sycl/backend/opencl.hpp>
+#include <backend/opencl.hpp>
 
 #include "services/daal_string.h"
 #include "services/internal/hash_table.h"
@@ -73,8 +73,8 @@ public:
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
                 // OpenCl branch
-                auto programPtr = OpenClProgramRef::create(_deviceQueue.get_context().template get_native<cl::sycl::backend::opencl>(),
-                                                           _deviceQueue.get_device().template get_native<cl::sycl::backend::opencl>(), name, program,
+                auto programPtr = OpenClProgramRef::create(cl::sycl::get_native<cl::sycl::backend::opencl>(_deviceQueue.get_context()),
+                                                           cl::sycl::get_native<cl::sycl::backend::opencl>(_deviceQueue.get_device()), name, program,
                                                            options, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 

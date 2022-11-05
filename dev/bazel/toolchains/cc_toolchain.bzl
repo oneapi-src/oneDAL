@@ -20,7 +20,7 @@ load("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.bzl", "configure_cc_toolcha
 def _detect_requirements(repo_ctx):
     os_id = detect_os(repo_ctx)
     compiler_id = detect_compiler(repo_ctx, os_id)
-    dpc_compiler_id = "dpcpp"
+    dpc_compiler_id = "icpx"
     dpcc_path, dpcpp_found = find_tool(repo_ctx, dpc_compiler_id, mandatory = False)
     dpc_compiler_version = _detect_compiler_version(repo_ctx, dpcc_path) if dpcpp_found else "local"
     return struct(
