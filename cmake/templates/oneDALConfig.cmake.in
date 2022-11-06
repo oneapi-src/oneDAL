@@ -22,18 +22,12 @@
 
 # Handle arguments:
 # TARGET_LINK: static | dynamic. Default is dynamic
-# USE_PARALLEL: yes | no. Default is yes
 # USE_DPCPP: yes | no. Default is yes
 # USE_NEW_IFACES: yes | no. Default is no
 if ("${TARGET_LINK}" STREQUAL "")
     set(TARGET_LINK "dynamic")
 elseif (NOT "${TARGET_LINK}" STREQUAL "static" AND NOT "${TARGET_LINK}" STREQUAL "dynamic")
     message(FATAL_ERROR "TARGET_LINK must be 'static' or 'dynamic'")
-endif()
-if ("${USE_PARALLEL}" STREQUAL "")
-    set(USE_PARALLEL "yes")
-elseif (NOT "${USE_PARALLEL}" STREQUAL "yes" AND NOT "${USE_PARALLEL}" STREQUAL "no")
-    message(FATAL_ERROR "USE_PARALLEL must be 'yes' or 'no'")
 endif()
 if ("${USE_DPCPP}" STREQUAL "")
     set(USE_DPCPP "yes")
@@ -47,7 +41,6 @@ elseif (NOT "${USE_NEW_IFACES}" STREQUAL "yes" AND NOT "${USE_NEW_IFACES}" STREQ
 endif()
 
 message(STATUS "TARGET_LINK:    ${TARGET_LINK}")
-message(STATUS "USE_PARALLEL:   ${USE_PARALLEL}")
 message(STATUS "USE_DPCPP:      ${USE_DPCPP}")
 message(STATUS "USE_NEW_IFACES: ${USE_NEW_IFACES}")
 
@@ -78,20 +71,17 @@ endif()
 
 list(APPEND DAL_LIBS onedal_core)
 
-if(USE_PARALLEL STREQUAL "yes")
-    set(DAL_THREAD_LIBRARY_NAME onedal_thread)
-    find_package(TBB REQUIRED tbb tbbmalloc)
-    list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
+set(THREADING_TYPE "parallel")
+set(DAL_THREAD_LIBRARY_NAME onedal_thread)
+find_package(TBB REQUIRED tbb tbbmalloc)
+list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
 
-    if(UNIX)
-        if(APPLE)
-            list(APPEND oneDAL_IMPORTED_TARGETS -lc++)
-        else()
-            list(APPEND oneDAL_IMPORTED_TARGETS -lstdc++)
-        endif()
+if(UNIX)
+    if(APPLE)
+        list(APPEND oneDAL_IMPORTED_TARGETS -lc++)
+    else()
+        list(APPEND oneDAL_IMPORTED_TARGETS -lstdc++)
     endif()
-else()
-    set(DAL_THREAD_LIBRARY_NAME onedal_sequential)
 endif()
 
 if (UNIX OR TARGET_LINK STREQUAL "static")
