@@ -22,7 +22,8 @@ Required Software:
 * [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html)
 * Java\* JDK
 * Microsoft Visual Studio\* (Windows\* only)
-* [MSYS2 installer](http://msys2.github.io) with the `msys/make` and `msys/dos2unix` packages (Windows\* only); install packages as follows:
+* [MSYS2](http://msys2.github.io) (Windows\* only)
+* `make` and `dos2unix` tools; install these packages using MSYS2 on Windows\* as follows:
 
         pacman -S msys/make msys/dos2unix
 
@@ -100,7 +101,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
             ./dev/download_tbb.sh
 
-7. Download and install Python>=3.7 (Windows\* only).
+7. Download and install Python (version 3.7 or higher).
 
 8. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform, and the compiler you use. Interface and platform are required arguments of makefile while others are optional. Below you can find the set of examples for building oneDAL. You may use a combination of them to get the desired build configuration:
 
@@ -143,6 +144,6 @@ It is possible to build oneDAL libraries with selected set of algorithms and/or 
 
 
 ---
-**NOTE:** Built libraries are located in the `__release_{os_name}_{compiler_name}/daal` directory.
+**NOTE:** Built libraries are located in the `__release_{os_name}[_{compiler_name}]/daal` directory.
 
 ---
