@@ -1159,7 +1159,7 @@ $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.li
 _release_common: $(RELEASEDIR.nuspec)
 $(RELEASEDIR.nuspec):
 	mkdir -p $(RELEASEDIR.nuspec)
-	bash ./deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(RELEASEDIR.nuspec) $(RELEASEDIR) $(PLAT) $(MAJOR).$(MINOR).$(UPDATE) $(MAJOR_BINARY) $(MINOR_BINARY) nuspec
+	bash ./deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(RELEASEDIR.nuspec) $(RELEASEDIR) $(PLAT) $(MAJOR).$(MINOR).$(UPDATE) $(MAJORBINARY) $(MINORBINARY) nuspec
 	cp -r $(TBBDIR.libia.prefix)/cmake $(RELEASEDIR.tbb)/lib
 
 #===============================================================================

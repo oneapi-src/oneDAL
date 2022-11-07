@@ -57,7 +57,7 @@ create_package() {
     fi
 
     # distribution type
-    if [ $9 = "redist" ] || [ $9 = "devel" ] || [ $9 = "static" ]; then
+    if [ "$9" = "redist" ] || [ "$9" = "devel" ] || [ "$9" = "static" ]; then
         distr_type=$9
         if [ ${distr_type} = "redist" ]; then
             content="dynamic libraries and headers"
@@ -75,15 +75,15 @@ create_package() {
     sed_template="s/__DISTRTYPE__/${distr_type}/; s/__PLATFORM__/${platform}/; s/__VERSION__/${dal_version}/; s/__CONTENT__/${content}/; s/__YEAR__/$(date +%Y)/"
     sed "${sed_template}" $1 > $2/inteldal.${distr_type}.${platform}.nuspec
 
-    if [ $8 = "full" ]; then
+    if [ "$8" = "full" ]; then
         # extension of libraries
-        if [ $4 = "lnx32e" ]; then
+        if [ "$4" = "lnx32e" ]; then
             dl_postfix=.so.${major_binary_version}.${minor_binary_version}
             sl_postfix=.a
-        elif [ $4 = "mac32e" ]; then
+        elif [ "$4" = "mac32e" ]; then
             dl_postfix=.${major_binary_version}.${minor_binary_version}.dylib
             sl_postfix=.a
-        elif [ $4 = "win32e" ]; then
+        elif [ "$4" = "win32e" ]; then
             dl_postfix=.${major_binary_version}.dll
             sl_postfix=.lib
         fi
