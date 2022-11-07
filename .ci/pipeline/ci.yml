@@ -65,8 +65,9 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
     displayName: 'oneapi cpp examples'
   - script: |
-      deploy/nuget/prepare_dal_nuget.sh lnx gnu
-      tree -h inteldal*/
+      deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(release.dir)/daal/latest/nuget $(release.dir) $(platform.type) 0.0.0 1 1 full
+      tree -h __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget reduced pkg'
 
 - job: 'LinuxBazel'
@@ -294,12 +295,16 @@ jobs:
     displayName: 'oneapi cpp examples'
   - script: |
       brew install dos2unix tree
-      deploy/nuget/prepare_dal_nuget.sh mac clang
-      tree -h inteldal*/
+      deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(release.dir)/daal/latest/nuget $(release.dir) $(platform.type) 0.0.0 1 1 full
+      tree -h __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget reduced pkg'
 
 - job: 'WindowsMake'
   timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_win_vc'
+    platform.type : 'win32e'
   pool:
     vmImage: 'windows-2019'
   steps:
@@ -320,6 +325,7 @@ jobs:
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pacman -S -y --noconfirm zip dos2unix tree
-      bash deploy/nuget/prepare_dal_nuget.sh win vc
-      tree -h inteldal*/
+      bash deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(release.dir)/daal/latest/nuget $(release.dir) $(platform.type) 0.0.0 1 1 full
+      tree -h __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget reduced pkg'

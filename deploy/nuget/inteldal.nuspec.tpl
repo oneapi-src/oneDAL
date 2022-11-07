@@ -12,7 +12,7 @@
     <description>Intel(R) oneAPI Data Analytics Library helps speed up big data analysis by providing highly optimized algorithmic building blocks for all stages of data analytics (preprocessing, transformation, analysis, modeling, validation, and decision making) in batch, online, and distributed processing modes of computation.</description>
     <summary>Package includes __PLATFORM__ __CONTENT__</summary>
     <releaseNotes>https://www.intel.com/content/www/us/en/developer/articles/release-notes/oneapi-dal-release-notes.html</releaseNotes>
-    <copyright>Copyright __YEAR__ Intel Corporation</copyright>
+    <copyright>Copyright 2022 Intel Corporation</copyright>
     <tags>native, intel, onedal, dal, daal, machine learning, data analytics</tags>
   </metadata>
 </package>

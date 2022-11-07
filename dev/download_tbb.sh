@@ -15,23 +15,29 @@
 # limitations under the License.
 #===============================================================================
 
-TBB_URL_ROOT="https://github.com/oneapi-src/oneTBB/releases/download/v2021.1.1/"
-TBB_VERSION="oneapi-tbb-2021.1.1"
+TBB_VERSION="2021.7.0"
+TBB_URL_ROOT="https://github.com/oneapi-src/oneTBB/releases/download/v${TBB_VERSION}"
 
 os=$(uname)
 if [ "${os}" = "Linux" ]; then
   TBB_OS=lin
   OS=lnx
+  ARCH_EXT=tgz
 elif [ "${os}" = "Darwin" ]; then
   TBB_OS=mac
   OS=mac
+  ARCH_EXT=tgz
+elif [[ "${os}" =~ "MSYS" ]]; then
+  TBB_OS=win
+  OS=win
+  ARCH_EXT=zip
 else
   echo "Cannot identify operating system. Try downloading package manually."
   exit 1
 fi
 
-TBB_PACKAGE="${TBB_VERSION}-${TBB_OS}"
-TBB_URL=${TBB_URL_ROOT}${TBB_PACKAGE}.tgz
+TBB_PACKAGE="oneapi-tbb-${TBB_VERSION}-${TBB_OS}.${ARCH_EXT}"
+TBB_URL="${TBB_URL_ROOT}/${TBB_PACKAGE}"
 DST=$(dirname "$0")/../__deps/tbb
 mkdir -p "${DST}/${OS}"
 DST=$(cd "${DST}" || exit 1;pwd)
@@ -40,14 +46,14 @@ DOWNLOAD_CODE=1
 
 if [ ! -d "${DST}/${OS}/bin" ]; then
   if [ -x "$(command -v curl)" ]; then
-    echo curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
-    if curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
+    echo curl -L -o "${DST}/${TBB_PACKAGE}" "${TBB_URL}"
+    if curl -L -o "${DST}/${TBB_PACKAGE}" "${TBB_URL}";
     then
       DOWNLOAD_CODE=0
     fi
   elif [ -x "$(command -v wget)" ]; then
-    echo wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
-    if wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
+    echo wget -O "${DST}/${TBB_PACKAGE}" "${TBB_URL}"
+    if wget -O "${DST}/${TBB_PACKAGE}" "${TBB_URL}";
     then
       DOWNLOAD_CODE=0
     fi
@@ -56,13 +62,18 @@ if [ ! -d "${DST}/${OS}/bin" ]; then
     exit 1
   fi
 
-  if [ ${DOWNLOAD_CODE} -ne 0 ] || [ ! -e "${DST}/${TBB_PACKAGE}.tgz" ]; then
+  if [ ${DOWNLOAD_CODE} -ne 0 ] || [ ! -e "${DST}/${TBB_PACKAGE}" ]; then
     echo "Download from ${TBB_URL} to ${DST} failed"
     exit 1
   fi
 
-  echo tar -xvf "${DST}/${TBB_PACKAGE}.tgz" -C "${DST}"
-  tar -C "${DST}/${OS}" --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}.tgz"
+  if [ "${OS}" = "win" ]; then
+    echo unzip -d "${DST}/${OS}"
+    unzip -d "${DST}/${OS}" "${DST}/${TBB_PACKAGE}"
+  else
+    echo tar -xvf "${DST}/${TBB_PACKAGE}" -C "${DST}"
+    tar -C "${DST}/${OS}" --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}"
+  fi
   ls -al "${DST}/${OS}/"
   echo "Downloaded and unpacked oneTBB to ${DST}/${OS}"
 else
