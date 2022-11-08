@@ -133,10 +133,9 @@ The most used Bazel commands are `build`, `test` and `run`.
   a queue and run tests. \
   Possible values:
   - `auto` _(default)_ Automatically detects available device. Tries to detect
-    GPU first, if no GPUs available tries to use CPU. If no device runtimes
-    found, uses `host_selector`.
-  - `cpu` Creates queue using `cpu_selector`.
-  - `gpu` Creates queue using `gpu_selector`.
+    GPU first, if no GPUs available tries to use CPU.
+  - `cpu` Creates queue using `cpu_selector_v`.
+  - `gpu` Creates queue using `gpu_selector_v`.
 
    Example:
    ```sh
@@ -233,8 +232,8 @@ The most used Bazel commands are `build`, `test` and `run`.
 
   This will run all tests including HOST and DPC++ interfaces. In case of DPC++
   tests, queue will be created depending machine configuration. If there is a
-  GPU, `sycl::gpu_selector` is used, otherwise queue is created with
-  `sycl::cpu_selector`.
+  GPU, `sycl::gpu_selector_v` is used, otherwise queue is created with
+  `sycl::cpu_selector_v`.
 
 - To run all HOST tests use the following commands:
   ```sh
