@@ -95,25 +95,18 @@ create_package() {
         echo "Creating ${pkg_name} at ${pkg_path}"
         mkdir -p ${dal_root_prefix}
 
-        # nuspec
-        cp $2/inteldal.${distr_type}.${platform}.nuspec ${pkg_path}
-
-        # ###### #
-        # oneDAL #
-        # ###### #
-
-        # common part
+        # oneDAL
+        # -- license
         cp LICENSE ${pkg_path}
+        # -- nuspec
+        cp $2/inteldal.${distr_type}.${platform}.nuspec ${pkg_path}
         # -- cmake configs
         cmake -DINSTALL_DIR=${rls_prefix}/lib/cmake/oneDAL -P cmake/scripts/generate_config.cmake
         mkdir -p ${dal_root_prefix}/lib/cmake/oneDAL
         cp ${rls_prefix}/lib/cmake/oneDAL/* ${dal_root_prefix}/lib/cmake/oneDAL
-        # -- env script
-        cp -r ${rls_prefix}/env ${dal_root_prefix}
         # -- interfaces
         cp -r ${rls_prefix}/include ${dal_root_prefix}
-
-        # dynamic libraries
+        # -- dynamic libraries
         if [ ${distr_type} = "redist" ] || [ ${distr_type} = "devel" ]; then
             mkdir -p ${dal_root_prefix}/${dynamic_lib_path}
             cp ${rls_prefix}/${dynamic_lib_path}/${lib_prefix}*${dl_postfix} ${dal_root_prefix}/${dynamic_lib_path}
@@ -123,7 +116,7 @@ create_package() {
                 cp ${rls_prefix}/${static_lib_path}/*_dll.${major_binary_version}.lib ${dal_root_prefix}/${static_lib_path}
             fi
         fi
-        # static libraries
+        # -- static libraries
         if [ ${distr_type} = "static" ] || [ ${distr_type} = "devel" ]; then
             mkdir -p ${dal_root_prefix}/${static_lib_path}
             cp ${rls_prefix}/${static_lib_path}/${lib_prefix}*${sl_postfix} ${dal_root_prefix}/${static_lib_path}
@@ -131,13 +124,12 @@ create_package() {
 
         echo "oneDAL ${dal_version} is packed"
 
-        # ###### #
-        # oneTBB #
-        # ###### #
+        # oneTBB
         cp -r ${rls_dir}/tbb ${pkg_path}/build/native/
 
         echo "oneTBB (dependency) is packed"
 
+        # packaging
         cd ${pkg_path}; zip -q -9 -r ../${pkg_name}.nupkg *; cd $OLDPWD
     fi
 }
