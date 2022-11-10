@@ -308,7 +308,7 @@ jobs:
     release.dir: '__release_win_vc'
     platform.type : 'win32e'
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-2022'
   steps:
   - script: |
       .\.ci\scripts\build.bat daal_c vc avx2
