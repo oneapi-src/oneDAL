@@ -66,7 +66,7 @@ jobs:
     displayName: 'oneapi cpp examples'
   - script: |
       deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(release.dir)/daal/latest/nuspec $(release.dir) $(platform.type) 1.0 1 1 full
-      tree -h __nuget/inteldal*/
+      tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget reduced pkg'
 
@@ -296,7 +296,7 @@ jobs:
   - script: |
       brew install dos2unix tree
       deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(release.dir)/daal/latest/nuspec $(release.dir) $(platform.type) 1.0 1 1 full
-      tree -h __nuget/inteldal*/
+      tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget reduced pkg'
 
@@ -326,6 +326,6 @@ jobs:
       set PATH=C:\msys64\usr\bin;%PATH%
       pacman -S -y --noconfirm zip dos2unix tree
       bash deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(release.dir)/daal/latest/nuspec $(release.dir) $(platform.type) 1.0 1 1 full
-      tree -h __nuget/inteldal*/
+      tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget reduced pkg'
