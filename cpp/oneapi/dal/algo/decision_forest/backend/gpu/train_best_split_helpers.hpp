@@ -54,8 +54,7 @@ struct float_accuracy<double> {
 bool device_has_enough_local_mem(const sycl::queue& queue, std::int64_t required_byte_size) {
     auto device = queue.get_device();
     auto has_local_mem =
-        device.is_host() ||
-        (device.get_info<sycl::info::device::local_mem_type>() != sycl::info::local_mem_type::none);
+        device.get_info<sycl::info::device::local_mem_type>() != sycl::info::local_mem_type::none;
     std::int64_t local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
     return has_local_mem && (local_mem_size / 2 >= required_byte_size);
 }
