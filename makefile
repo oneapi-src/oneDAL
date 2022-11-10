@@ -1160,7 +1160,7 @@ _release_common: $(RELEASEDIR.nuspec)
 $(RELEASEDIR.nuspec):
 	mkdir -p $(RELEASEDIR.nuspec)
 	bash ./deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(RELEASEDIR.nuspec) $(RELEASEDIR) $(PLAT) $(MAJOR).$(MINOR).$(UPDATE) $(MAJORBINARY) $(MINORBINARY) nuspec
-	cp -r $(TBBDIR.libia.prefix)/cmake $(RELEASEDIR.tbb)/lib
+	cp -r "$(TBBDIR.libia.prefix)/cmake" $(RELEASEDIR.tbb)/lib
 
 #===============================================================================
 # Miscellaneous stuff

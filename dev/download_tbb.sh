@@ -68,8 +68,9 @@ if [ ! -d "${DST}/${OS}/bin" ]; then
   fi
 
   if [ "${OS}" = "win" ]; then
-    echo unzip -d "${DST}/${OS}"
+    echo unzip -d "${DST}/${OS}" "${DST}/${TBB_PACKAGE}"
     unzip -d "${DST}/${OS}" "${DST}/${TBB_PACKAGE}"
+    mv "${DST}/${OS}/oneapi-tbb-${TBB_VERSION}" "${DST}/${OS}/tbb"
   else
     echo tar -xvf "${DST}/${TBB_PACKAGE}" -C "${DST}"
     tar -C "${DST}/${OS}" --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}"
