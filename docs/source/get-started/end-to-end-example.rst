@@ -41,7 +41,7 @@ The following steps depict how to:
 
    .. code-block:: cpp
 
-      const auto queue = sycl::queue{ sycl::gpu_selector{} };
+      const auto queue = sycl::queue{ sycl::gpu_selector_v };
 
 #. Since all |short_name| declarations are in the ``oneapi::dal`` namespace,
    import all declarations from the ``oneapi`` namespace to use ``dal``

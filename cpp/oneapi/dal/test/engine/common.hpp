@@ -233,7 +233,7 @@ public:
     }
 
     bool is_cpu() const {
-        return queue_.get_device().is_cpu() || queue_.get_device().is_host();
+        return queue_.get_device().is_cpu();
     }
 
     bool is_gpu() const {

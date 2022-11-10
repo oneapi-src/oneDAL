@@ -116,10 +116,10 @@ public:
 private:
     static sycl::queue get_default_queue() {
         try {
-            return sycl::queue{ sycl::gpu_selector{} };
+            return sycl::queue{ sycl::gpu_selector_v };
         }
         catch (const std::exception& ex) {
-            return sycl::queue{ sycl::cpu_selector{} };
+            return sycl::queue{ sycl::cpu_selector_v };
         }
     }
 
@@ -129,15 +129,11 @@ private:
         }
 
         if (device_selector == "cpu") {
-            return sycl::queue{ sycl::cpu_selector{} };
+            return sycl::queue{ sycl::cpu_selector_v };
         }
 
         if (device_selector == "gpu") {
-            return sycl::queue{ sycl::gpu_selector{} };
-        }
-
-        if (device_selector == "host") {
-            return sycl::queue{ sycl::host_selector{} };
+            return sycl::queue{ sycl::gpu_selector_v };
         }
 
         throw std::invalid_argument{ "Unknown device selector" };

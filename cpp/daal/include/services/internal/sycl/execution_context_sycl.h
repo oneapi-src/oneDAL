@@ -202,7 +202,7 @@ public:
         : _deviceQueue(deviceQueue), _kernelFactory(_deviceQueue), _kernelScheduler(_deviceQueue)
     {
         const auto & device          = _deviceQueue.get_device();
-        _infoDevice.isCpu            = device.is_cpu() || device.is_host();
+        _infoDevice.isCpu            = device.is_cpu();
         _infoDevice.maxWorkGroupSize = device.get_info<cl::sycl::info::device::max_work_group_size>();
         _infoDevice.maxMemAllocSize  = device.get_info<cl::sycl::info::device::max_mem_alloc_size>();
         _infoDevice.globalMemSize    = device.get_info<cl::sycl::info::device::global_mem_size>();
