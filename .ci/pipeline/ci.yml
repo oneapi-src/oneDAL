@@ -35,7 +35,7 @@ jobs:
         .ci/scripts/clang-format.sh
       displayName: 'clang-format check'
       failOnStderr: true
-- job: 'LinuxMake'
+- job: 'LinuxMakeGNU'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -46,10 +46,10 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib dos2unix
     displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal_c
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal_c
     displayName: 'make daal_c'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c
     displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
@@ -59,16 +59,17 @@ jobs:
       artifactName: '$(platform.type) build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface daal
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal
     displayName: 'daal cpp examples'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi
     displayName: 'oneapi cpp examples'
   - script: |
-      deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(release.dir)/daal/latest/nuspec $(release.dir) $(platform.type) 1.0 1 1 full
+      deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) \
+        --ver 1.0 --major-binary-ver 1 --minor-binary-ver 1 --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
-    displayName: 'nuget reduced pkg'
+    displayName: 'nuget pkg'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
@@ -183,7 +184,7 @@ jobs:
     displayName: 'bazel-cache-limit'
 
 - job: LinuxDaal4py
-  dependsOn: LinuxMake
+  dependsOn: LinuxMakeGNU
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -266,7 +267,7 @@ jobs:
       artifactName: '$(platform.type) conformance tests report'
       targetPath: '$(Build.ArtifactStagingDirectory)/'
 
-- job: 'macOSMake'
+- job: 'macOSMakeClang'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_mac_clang'
@@ -275,10 +276,10 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make daal_c'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
@@ -288,19 +289,20 @@ jobs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface daal
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal
     displayName: 'daal cpp examples'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi
     displayName: 'oneapi cpp examples'
   - script: |
       brew install dos2unix tree
-      deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(release.dir)/daal/latest/nuspec $(release.dir) $(platform.type) 1.0 1 1 full
+      deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) \
+        --ver 1.0 --major-binary-ver 1 --minor-binary-ver 1 --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
-    displayName: 'nuget reduced pkg'
+    displayName: 'nuget pkg'
 
-- job: 'WindowsMake'
+- job: 'WindowsMakeVC'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_win_vc'
@@ -325,7 +327,8 @@ jobs:
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pacman -S -y --noconfirm zip dos2unix tree
-      bash deploy/nuget/prepare_dal_nuget.sh ./deploy/nuget/inteldal.nuspec.tpl $(release.dir)/daal/latest/nuspec $(release.dir) $(platform.type) 1.0 1 1 full
+      bash deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) \
+        --ver 1.0 --major-binary-ver 1 --minor-binary-ver 1 --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
-    displayName: 'nuget reduced pkg'
+    displayName: 'nuget pkg'
