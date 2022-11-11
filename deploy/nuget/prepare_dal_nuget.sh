@@ -159,8 +159,9 @@ create_package() {
         elif [ ${platform} = "osx-x64" ]; then
             cp ${rls_dir}/tbb/latest/lib/* ${tbb_root_prefix}/lib
         elif [ ${platform} = "win-x64" ]; then
+            cp -r ${rls_dir}/tbb/latest/lib/intel64 ${tbb_root_prefix}/lib
             mkdir -p ${tbb_root_prefix}/redist
-            cp -r ${rls_dir}/tbb/latest/lib/intel64 ${tbb_root_prefix}/redist
+            cp -r ${rls_dir}/tbb/latest/redist/intel64 ${tbb_root_prefix}/redist
         fi
 
         echo "oneTBB (dependency) is packed"
