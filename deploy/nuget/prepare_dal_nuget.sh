@@ -112,8 +112,10 @@ create_package() {
         nuget_pkgs_path=__nuget
         pkg_path=${nuget_pkgs_path}/${pkg_name}
         dal_root_prefix=${pkg_path}/build/native/daal
+        tbb_root_prefix=${pkg_path}/build/native/tbb
         echo "Creating ${pkg_name} at ${pkg_path}"
         mkdir -p ${dal_root_prefix}
+        mkdir -p ${tbb_root_prefix}
 
         # oneDAL
         # -- license
@@ -145,7 +147,20 @@ create_package() {
         echo "oneDAL ${dal_version} is packed"
 
         # oneTBB
-        cp -r ${rls_dir}/tbb ${pkg_path}/build/native/
+        # -- interfaces
+        cp -r ${rls_dir}/tbb/latest/include ${tbb_root_prefix}
+        # -- cmake configs
+        mkdir -p ${tbb_root_prefix}/lib
+        cp -r ${rls_dir}/tbb/latest/lib/cmake ${pkg_path}/build/native/tbb/lib
+        # -- libraries
+        if [ ${platform} = "linux-x64" ]; then
+            mkdir -p ${tbb_root_prefix}/lib/intel64/gcc4.8
+            cp ${rls_dir}/tbb/latest/lib/intel64/* ${pkg_path}/build/native/tbb/lib/intel64/gcc4.8
+        elif [ ${platform} = "osx-x64" ]; then
+            cp ${rls_dir}/tbb/latest/lib/* ${pkg_path}/build/native/tbb/lib
+        elif [ ${platform} = "win-x64" ]; then
+            cp ${rls_dir}/tbb/latest/lib/intel64 ${pkg_path}/build/native/tbb/lib
+        fi
 
         echo "oneTBB (dependency) is packed"
 
