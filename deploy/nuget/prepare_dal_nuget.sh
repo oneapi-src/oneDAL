@@ -151,15 +151,16 @@ create_package() {
         cp -r ${rls_dir}/tbb/latest/include ${tbb_root_prefix}
         # -- cmake configs
         mkdir -p ${tbb_root_prefix}/lib
-        cp -r ${rls_dir}/tbb/latest/lib/cmake ${pkg_path}/build/native/tbb/lib
+        cp -r ${rls_dir}/tbb/latest/lib/cmake ${tbb_root_prefix}/lib
         # -- libraries
         if [ ${platform} = "linux-x64" ]; then
             mkdir -p ${tbb_root_prefix}/lib/intel64/gcc4.8
-            cp ${rls_dir}/tbb/latest/lib/intel64/* ${pkg_path}/build/native/tbb/lib/intel64/gcc4.8
+            cp ${rls_dir}/tbb/latest/lib/intel64/* ${tbb_root_prefix}/lib/intel64/gcc4.8
         elif [ ${platform} = "osx-x64" ]; then
-            cp ${rls_dir}/tbb/latest/lib/* ${pkg_path}/build/native/tbb/lib
+            cp ${rls_dir}/tbb/latest/lib/* ${tbb_root_prefix}/lib
         elif [ ${platform} = "win-x64" ]; then
-            cp -r ${rls_dir}/tbb/latest/lib/intel64 ${pkg_path}/build/native/tbb/lib
+            mkdir -p ${tbb_root_prefix}/redist
+            cp -r ${rls_dir}/tbb/latest/lib/intel64 ${tbb_root_prefix}/redist
         fi
 
         echo "oneTBB (dependency) is packed"
