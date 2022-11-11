@@ -98,6 +98,7 @@ if (USE_DPCPP STREQUAL "yes")
     else()
         list(APPEND oneDAL_IMPORTED_TARGETS OpenCL.lib)
     endif()
+    set(CMAKE_CXX_FLAGS "-fsycl ${CMAKE_CXX_FLAGS}")
 endif()
 
 if (USE_NEW_IFACES STREQUAL "yes")
