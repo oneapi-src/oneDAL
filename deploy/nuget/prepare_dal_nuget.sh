@@ -159,7 +159,7 @@ create_package() {
         elif [ ${platform} = "osx-x64" ]; then
             cp ${rls_dir}/tbb/latest/lib/* ${pkg_path}/build/native/tbb/lib
         elif [ ${platform} = "win-x64" ]; then
-            cp ${rls_dir}/tbb/latest/lib/intel64 ${pkg_path}/build/native/tbb/lib
+            cp -r ${rls_dir}/tbb/latest/lib/intel64 ${pkg_path}/build/native/tbb/lib
         fi
 
         echo "oneTBB (dependency) is packed"
