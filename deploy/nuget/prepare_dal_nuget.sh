@@ -162,6 +162,8 @@ create_package() {
             cp -r ${rls_dir}/tbb/latest/lib/intel64 ${tbb_root_prefix}/lib
             mkdir -p ${tbb_root_prefix}/redist
             cp -r ${rls_dir}/tbb/latest/redist/intel64 ${tbb_root_prefix}/redist
+            mv ${tbb_root_prefix}/lib/vc_mt ${tbb_root_prefix}/lib/vc14
+            mv ${tbb_root_prefix}/redist/vc_mt ${tbb_root_prefix}/redist/vc14
         fi
 
         echo "oneTBB (dependency) is packed"
