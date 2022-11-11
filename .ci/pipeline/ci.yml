@@ -9,8 +9,6 @@ trigger:
     - develop
     - master
     - rls/*
-  paths:
-    exclude: *.md docs/*
 
 pr:
   branches:
@@ -18,8 +16,6 @@ pr:
     - develop
     - master
     - rls/*
-  paths:
-    exclude: *.md docs/*
 
 jobs:
 - job: 'ClangFormat'
