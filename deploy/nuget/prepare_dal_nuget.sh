@@ -162,8 +162,8 @@ create_package() {
             cp -r ${rls_dir}/tbb/latest/lib/intel64 ${tbb_root_prefix}/lib
             mkdir -p ${tbb_root_prefix}/redist
             cp -r ${rls_dir}/tbb/latest/redist/intel64 ${tbb_root_prefix}/redist
-            mv ${tbb_root_prefix}/lib/vc_mt ${tbb_root_prefix}/lib/vc14
-            mv ${tbb_root_prefix}/redist/vc_mt ${tbb_root_prefix}/redist/vc14
+            mv ${tbb_root_prefix}/lib/intel64/vc_mt ${tbb_root_prefix}/lib/intel64/vc14
+            mv ${tbb_root_prefix}/redist/intel64/vc_mt ${tbb_root_prefix}/redist/intel64/vc14
         fi
 
         echo "oneTBB (dependency) is packed"
@@ -172,6 +172,8 @@ create_package() {
         cd ${pkg_path}; zip -q -9 -r ../${pkg_name}.nupkg *; cd $OLDPWD
     fi
 }
+
+set -eE
 
 create_package $@ --distribution-type redist
 create_package $@ --distribution-type static
