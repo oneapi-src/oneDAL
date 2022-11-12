@@ -15,40 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-// #include "src/algorithms/tsne/tsne_gradient_descent_impl.i"
-
-// namespace daal
-// {
-// namespace algorithms
-// {
-// namespace internal
-// {
-// template <typename algorithmIdxType, typename algorithmFPType>
-// void tsneGradientDescentDispImpl(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
-//                                  const NumericTablePtr paramTable, const NumericTablePtr resultTable)
-// {
-// //#define DAAL_TSNE_GRADIENT_DESCENT_IMPL(cpuId, ...) tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, cpuId>(__VA_ARGS__);
-// //    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_TSNE_GRADIENT_DESCENT_IMPL, initTable, pTable, sizeIterTable, paramTable, resultTable);
-// //#undef DAAL_TSNE_GRADIENT_DESCENT_IMPL
-//     tsneGradientDescentImpl<algorithmIdxType, algorithmFPType, daal::CpuType::sse2>(initTable, pTable, sizeIterTable, paramTable, resultTable);
-// }
-
-// template <typename algorithmIdxType, typename algorithmFPType>
-// DAAL_EXPORT void tsneGradientDescent(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
-//                                      const NumericTablePtr paramTable, const NumericTablePtr resultTable)
-// {
-//     tsneGradientDescentDispImpl<algorithmIdxType, algorithmFPType>(initTable, pTable, sizeIterTable, paramTable, resultTable);
-// }
-
-// template DAAL_EXPORT void tsneGradientDescent<int, DAAL_FPTYPE>(const NumericTablePtr initTable, const CSRNumericTablePtr pTable,
-//                                                                 const NumericTablePtr sizeIterTable, const NumericTablePtr paramTable,
-//                                                                 const NumericTablePtr resultTable);
-
-// } // namespace internal
-// } // namespace algorithms
-// } // namespace daal
-
-
 #ifndef __INTERNAL_TSNE_GRADIENT_DESCENT_FPT_CPP__
 #define __INTERNAL_TSNE_GRADIENT_DESCENT_FPT_CPP__
 
@@ -65,21 +31,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
-#include <iostream>
-#include <ctime>
-#include <chrono>
-
-// #include<malloc.h>
 #include <immintrin.h>
-// #define _MM_HINT_T0 1
-// #define _MM_HINT_T1 2
-// #define _MM_HINT_T2 3
-
-
-#ifdef VTUNE_ANALYSIS
-#include <ittnotify.h>
-#endif 
-
 
 using namespace daal::data_management;
 using namespace daal::internal;
@@ -140,7 +92,7 @@ struct MemoryCtxType
 struct qTreeNode
 {
     int fpos; // sign (1 bit), nonempty children (2 bits), offset to first child (29 bit)
-    int cnt;  // count of point in subspace
+    int cnt;  // count of points in subspace
 };
 
 template <typename IdxType, typename xyType>
@@ -181,7 +133,6 @@ template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, DataType & radius, DataType & centerx, DataType & centery)
 {
     DAAL_CHECK_MALLOC(pos);
-    // DAAL_CHECK_MALLOC(posy);
 
     DataType box[4] = { pos[0].x, pos[0].x, pos[0].y, pos[0].y };
 
@@ -288,14 +239,14 @@ inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType>> & qTree, int le
                         int cnt = !!hist[h_ofst[l + 1] + (c << 2) + 0] + !!hist[h_ofst[l + 1] + (c << 2) + 1] + !!hist[h_ofst[l + 1] + (c << 2) + 2]
                                   + !!hist[h_ofst[l + 1] + (c << 2) + 3];
 
-                        //                        std::cout << "Adding internal node with " << cnt << " non-empty children; ";
-                        //                        std::cout << "their offset is " << childOffs << std::endl;
+                        // Adding internal node with 'cnt'  non-empty children
+                        // Ttheir offset is 'childOffs'
                         qTree.tree[nodeOffs].fpos = 0x80000000 | ((cnt - 1) << 29) | childOffs;
                         childOffs += cnt;
                     }
                     else
                     {
-                        //                        std::cout << "Adding internal leaf with size = " << nodeSize << std::endl;
+                        // Adding internal leaf with size 'nodeSize'
                         qTree.tree[nodeOffs].fpos = posOffs;
 
                         hist[h_ofst[l + 1] + (c << 2) + 0] = -hist[h_ofst[l + 1] + (c << 2) + 0];
@@ -306,14 +257,14 @@ inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType>> & qTree, int le
                 }
                 else
                 {
-                    //                    std::cout << "Adding terminal leaf with size = " << nodeSize << std::endl;
+                    // Adding terminal leaf with size 'nodeSize'
                     qTree.tree[nodeOffs].fpos = posOffs;
                 }
                 nodeOffs++;
             }
             else
             {
-                //                std::cout << "Skipping non-empty node" << std::endl;
+                // Skipping non-empty node
                 if (l < 5)
                 {
                     hist[h_ofst[l + 1] + (c << 2) + 0] = -hist[h_ofst[l + 1] + (c << 2) + 0];
@@ -434,7 +385,6 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 
             for (int c = bLayerBeg; c < bLayerEnd; c++)
                 if (qTree.tree[c].cnt > bLevel + 1) bNodes++;
-            // std::cout << "Bottom nodes to split: " << bNodes << std::endl;
 
             // Terminate subtrees creation if there are not enough bottom nodes to split
             if (bNodes < 1) break;
@@ -463,19 +413,12 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
                 }
 
             // Build bottom subtrees in parallel
-            // daal::static_tls<int *> tlsHist3072([=]() { return services::internal::service_malloc<int, cpu>(1024 + 1024 + 1024); });
-            // daal::tls<int *> tlsHist3072([=]() { return services::internal::service_malloc<int, cpu>(1024 + 1024 + 1024); });
-
-            const IdxType nThreads    = threader_get_threads_number();       //tlsHist3072.nthreads();        
+            const IdxType nThreads    = threader_get_threads_number();
             const IdxType sizeOfBlock = 1;
             const IdxType nBlocks     = bNodes;
 
-            // auto begin = std::chrono::high_resolution_clock::now();
 
-            // daal::static_threader_for(nBlocks, [&](IdxType iSubTree, IdxType tid) {
             daal::threader_for(nBlocks, nBlocks, [&](IdxType iSubTree) {
-                // int * hist = tlsHist3072.local(tid);
-                // int * hist = tlsHist3072.local();
                 int * hist = services::internal::service_calloc<int, cpu>(3072);
 
                 const int sft  = 54 - (bLevel << 1);
@@ -489,13 +432,6 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 
                 services::internal::service_free<int, cpu>(hist);
             });
-            // tlsHist3072.reduce([&](int * ptr) -> void {
-            //     if (!ptr) return;
-            //     services::internal::service_free<int, cpu>(ptr);
-            // });
-
-            // auto init = std::chrono::high_resolution_clock::now();
-            // std::cout << "parallel tree time = " << std::chrono::duration<double, std::milli>(init - begin).count() << std::endl;
 
             // Reallocate the tree if needed
             int newTreeSize = qTree.size;
@@ -511,10 +447,8 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
                 services::internal::tmemcpy<qTreeNode, cpu>(nodes, qTree.tree, qTree.size);
                 services::internal::service_free<qTreeNode, cpu>(qTree.tree);
                 services::internal::service_free<xyType<DataType>, cpu>(qTree.cent);
-                // services::internal::service_free<DataType, cpu>(qTree.centy);
 
                 qTree.cent    = services::internal::service_malloc<xyType<DataType>, cpu>(capacity);
-                // qTree.centy    = services::internal::service_malloc<DataType, cpu>(capacity);
                 qTree.tree     = nodes;
                 qTree.capacity = capacity;
             }
@@ -568,10 +502,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
             services::internal::service_free<TreeCtxType<IdxType, xyType<DataType>>, cpu>(subTrees);
         }
     }
-    /*
-    for (int i = 0; i < 32; i++)
-        std::cout << "Layer " << i << " offs: " << qTree.layerOffs[i] << " size: " << qTree.layerSize[i] << std::endl;
-*/
+
     services::internal::service_free<int, cpu>(mHist);
     return services::Status();
 }
@@ -579,7 +510,6 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & mem, TreeCtxType<IdxType, xyType<DataType>> & qTree)
 {
-    // const IdxType nThreads = threader_get_threads_number();
     IdxType nThreads = threader_get_threads_number();
     IdxType nBlocks, lOffset, sizeOfBlock = 1;
 
@@ -589,14 +519,13 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
         lOffset = qTree.layerOffs[MAX_LEVEL - l];
         if (nBlocks == 0) continue;
         daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
-        // for(IdxType iBlock = 0; iBlock < nBlocks; iBlock++) {
             IdxType iPos = lOffset + iBlock;
             DataType cx, cy;
             if (qTree.tree[iPos].fpos < 0)
             {
                 int pos = qTree.tree[iPos].fpos & ~0xE0000000;
                 int cnt = 1 + ((qTree.tree[iPos].fpos >> 29) & 0x3);
-                //std::cout << "Processing node with size = " << cnt << std::endl;
+
                 cx = qTree.cent[pos].x;
                 cy = qTree.cent[pos].y;
                 for (int c = 1; c < cnt; c++)
@@ -607,20 +536,17 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
             }
             else
             {
-                //std::cout << "Processing leaf with size = " << qTree.tree[iBlock].cnt << std::endl;
                 cx = mem.pos[mem.z_order_idx[qTree.tree[iPos].fpos]].x;
                 cy = mem.pos[mem.z_order_idx[qTree.tree[iPos].fpos]].y;
-                //std::cout << std::setfill('0') << std::setw(7) << mem.z_order_idx[qTree.tree[iPos].fpos] << std::endl;
+
                 for (int c = 1; c < qTree.tree[iPos].cnt; c++)
                 {
                     cx += mem.pos[mem.z_order_idx[qTree.tree[iPos].fpos + c]].x;
                     cy += mem.pos[mem.z_order_idx[qTree.tree[iPos].fpos + c]].y;
-                    //std::cout << std::setfill('0') << std::setw(7) << mem.z_order_idx[qTree.tree[iPos].fpos+c] << std::endl;
                 }
             }
             qTree.cent[iPos].x = cx;
             qTree.cent[iPos].y = cy;
-        // };
         });
     }
 
@@ -657,17 +583,12 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & 
 
     daal::StaticTlsSum<DataType, cpu> sumTlsData(1);
 
-    //const IdxType nThreads    = threader_get_threads_number();
     const IdxType nThreads = sumTlsData.nthreads();
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (mem.capacity + nThreads - 1) / nThreads);
     const IdxType nBlocks     = (mem.capacity + sizeOfBlock - 1) / sizeOfBlock;
 
     IdxType * nStack = services::internal::service_malloc<IdxType, cpu>(nThreads * MAX_LEVEL * 4);
     int * nLevel     = services::internal::service_malloc<int, cpu>(nThreads * MAX_LEVEL * 4);
-
-// #ifdef VTUNE_ANALYSIS
-//         __itt_resume();
-// #endif
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
@@ -759,29 +680,16 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & 
         }
     });
 
-// #ifdef VTUNE_ANALYSIS
-//         __itt_pause();
-// #endif
-
     zNorm = 0.;
     sumTlsData.reduceTo(&zNorm, 1);
 
-    /*
-    for(auto cc=0; cc<mem.capacity; cc++) {
-        std::cout << mem.z_order_idx[cc] << ";";
-        std::cout << mem.posx[cc] << ";";
-        std::cout << mem.posy[cc] << ";";
-        std::cout << mem.repx[cc] << ";";
-        std::cout << mem.repy[cc] << std::endl;
-    }
-*/
     services::internal::service_free<int, cpu>(nLevel);
     services::internal::service_free<IdxType, cpu>(nStack);
 
     return services::Status();
 }
 
-
+/* Generic template implementation of attractive kernel for all data types and various instruction set architectures */
 template<bool DivComp, typename IdxType, typename DataType, daal::CpuType cpu>
 struct AttractiveKernel {
     static services::Status impl(const DataType* val, const IdxType* col, const size_t* row, MemoryCtxType<IdxType, xyType<DataType>>& mem,
@@ -804,7 +712,6 @@ struct AttractiveKernel {
         const IdxType sizeOfBlock = services::internal::min<cpu, size_t>(256, N / nThreads + 1);
         const IdxType nBlocks = N / sizeOfBlock + !!(N % sizeOfBlock);
 
-        // daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
             const IdxType iEnd = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
@@ -871,6 +778,7 @@ struct AttractiveKernel {
     }
 };
 
+/* Partial template specialization of attractive kernel for single precision data and AVX512_MIC ISA */
 template <bool DivComp, typename IdxType>
 struct AttractiveKernel<DivComp, IdxType, float, avx512_mic> {
     static services::Status impl(const float* val, const IdxType* col, const size_t* row, MemoryCtxType<IdxType, xyType<float>>& mem,
@@ -893,11 +801,6 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512_mic> {
         const IdxType sizeOfBlock = services::internal::min<avx512, size_t>(256, N / nThreads + 1);
         const IdxType nBlocks = N / sizeOfBlock + !!(N % sizeOfBlock);
 
-        // #ifdef VTUNE_ANALYSIS
-        //         __itt_resume();
-        // #endif
-
-            // daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
             const IdxType iEnd = services::internal::min<avx512, IdxType>(N, iStart + sizeOfBlock);
@@ -921,7 +824,6 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512_mic> {
 
                     __m512 vec_1 = _mm512_set1_ps(1.0);
                     __m512i vec_1i = _mm512_set1_epi32(1);
-                    // __m512i vec_15i = _mm512_set1_epi32(15);
 
                     __m512 vec_point_x = _mm512_set1_ps(row_point.x);
                     __m512 vec_point_y = _mm512_set1_ps(row_point.y);
@@ -994,25 +896,20 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512_mic> {
                     }
                 }
             }
-
-            });
-
-        // #ifdef VTUNE_ANALYSIS
-        //         __itt_pause();
-        // #endif
+        });
 
         divTlsData.reduceTo(&divergence, 1);
         divergence *= exaggeration;
         logTlsData.reduce([&](float* buf) { services::internal::service_scalable_free<float, avx512>(buf); });
 
-        //Find_Normalization
+        // Find_Normalization
         zNorm = float(1) / zNorm;
 
         return services::Status();
     }
 };
 
-
+/* Partial template specialization of attractive kernel for double precision data and AVX512_MIC ISA */
 template <bool DivComp, typename IdxType>
 struct AttractiveKernel<DivComp, IdxType, double, avx512_mic> {
     static services::Status impl(const double* val, const IdxType* col, const size_t* row, MemoryCtxType<IdxType, xyType<double>>& mem,
@@ -1196,11 +1093,6 @@ template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
                                          const NumericTablePtr paramTable, const NumericTablePtr resultTable)
 {
-#ifdef VTUNE_ANALYSIS
-    __itt_pause();
-#endif 
-    auto begin = std::chrono::high_resolution_clock::now();
-
     // sizes and number of iterations
     daal::internal::ReadColumns<IdxType, cpu> sizeIterDataBlock(*sizeIterTable, 0, 0, sizeIterTable->getNumberOfRows());
     const IdxType * sizeIter = sizeIterDataBlock.get();
@@ -1311,9 +1203,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     qTree.cent = services::internal::service_malloc<xyType<DataType>, cpu>(qTree.capacity);
     DAAL_CHECK_MALLOC(qTree.cent);
 
-    auto init = std::chrono::high_resolution_clock::now();
-    std::cout << "Alloc and init gradient time = " << std::chrono::duration<double, std::milli>(init - begin).count() << std::endl;
-
     double boundingBox   = 0.;
     double treeBuild     = 0.;
     double summarization = 0.;
@@ -1329,31 +1218,17 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     //start iterations
     for (IdxType i = 0; i < explorationIter; ++i)
     {
-        auto kernel0 = std::chrono::high_resolution_clock::now();
         status = boundingBoxKernelImpl<IdxType, DataType, cpu>(mem.pos, N, radius, centerx, centery);
         DAAL_CHECK_STATUS_VAR(status);
-
-        auto kernel1 = std::chrono::high_resolution_clock::now();
-        boundingBox += std::chrono::duration<double, std::milli>(kernel1 - kernel0).count();
 
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(mem, qTree, radius, centerx, centery);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel2 = std::chrono::high_resolution_clock::now();
-        treeBuild += std::chrono::duration<double, std::milli>(kernel2 - kernel1).count();
-
         status = summarizationKernelImpl<IdxType, DataType, cpu>(mem, qTree);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel3 = std::chrono::high_resolution_clock::now();
-        summarization += std::chrono::duration<double, std::milli>(kernel3 - kernel2).count();
-
         status = repulsionKernelImpl<IdxType, DataType, cpu>(mem, qTree, theta, eps, zNorm, radius);
         DAAL_CHECK_STATUS_VAR(status);
-
-        auto kernel4 = std::chrono::high_resolution_clock::now();
-        repulsion += std::chrono::duration<double, std::milli>(kernel4 - kernel3).count();
-
 
         if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
         {
@@ -1368,18 +1243,11 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel5 = std::chrono::high_resolution_clock::now();
-        attractive += std::chrono::duration<double, std::milli>(kernel5 - kernel4).count();
-
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, mem, gradNorm, zNorm, N, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
-
-        auto kernel6 = std::chrono::high_resolution_clock::now();
-        integration += std::chrono::duration<double, std::milli>(kernel6 - kernel5).count();
  
         if ((i + 1) % nIterCheck == 0)
         {
-            // printf("     Divergence = %f, radius = %lf \n", divergence, radius);
             if (divergence < bestDivergence)
             {
                 bestDivergence = divergence;
@@ -1396,38 +1264,23 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         }
     }
 
-    printf("     exploration iteration = %f \n", curIter);
-
     momentum     = 0.8;
     exaggeration = 1.;
 
     for (IdxType i = explorationIter; i < maxIter; ++i)
     {
-        auto kernel0 = std::chrono::high_resolution_clock::now();
         status = boundingBoxKernelImpl<IdxType, DataType, cpu>(mem.pos, N, radius, centerx, centery);
         DAAL_CHECK_STATUS_VAR(status);
-
-        auto kernel1 = std::chrono::high_resolution_clock::now();
-        boundingBox += std::chrono::duration<double, std::milli>(kernel1 - kernel0).count();
 
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(mem, qTree, radius, centerx, centery);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel2 = std::chrono::high_resolution_clock::now();
-        treeBuild += std::chrono::duration<double, std::milli>(kernel2 - kernel1).count();
-
         status = summarizationKernelImpl<IdxType, DataType, cpu>(mem, qTree);
         DAAL_CHECK_STATUS_VAR(status);
-
-        auto kernel3 = std::chrono::high_resolution_clock::now();
-        summarization += std::chrono::duration<double, std::milli>(kernel3 - kernel2).count();
 
         status = repulsionKernelImpl<IdxType, DataType, cpu>(mem, qTree, theta, eps, zNorm, radius);
 
         DAAL_CHECK_STATUS_VAR(status);
-
-        auto kernel4 = std::chrono::high_resolution_clock::now();
-        repulsion += std::chrono::duration<double, std::milli>(kernel4 - kernel3).count();
 
         if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
         {
@@ -1442,18 +1295,11 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel5 = std::chrono::high_resolution_clock::now();
-        attractive += std::chrono::duration<double, std::milli>(kernel5 - kernel4).count();
-
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, mem, gradNorm, zNorm, N, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel6 = std::chrono::high_resolution_clock::now();
-        integration += std::chrono::duration<double, std::milli>(kernel6 - kernel5).count();
-
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
-            // printf("     Divergence = %f, radius = %lf \n", divergence, radius);
             if (divergence < bestDivergence)
             {
                 bestDivergence = divergence;
@@ -1476,26 +1322,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         }
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
-
-    std::cout << "Full gradient time = " << std::chrono::duration<double, std::milli>(end - begin).count() << std::endl;
-    std::cout << "     BoundingBox time = " << boundingBox << std::endl;
-    std::cout << "     TreeBuilding time = " << treeBuild << std::endl;
-    std::cout << "     Summarization time = " << summarization << std::endl;
-    std::cout << "     Repulsion time = " << repulsion << std::endl;
-    std::cout << "     Attractive time = " << attractive << std::endl;
-    std::cout << "     Integration time = " << integration << std::endl;
-    std::cout << "     Divergence = " << divergence << std::endl;
-    std::cout << "     Gradient norm = " << gradNorm << std::endl;
-    std::cout << "     Last iteration = " << curIter << std::endl;
-    
-    // printf("     bestDivergence = %f \n", bestDivergence);
-    // printf("     Divergence = %f \n", divergence);
-    // printf("     Gradient norm = %f \n", gradNorm);
-    // printf("     Last iteration = %f \n", curIter);
-
     //save results
-
     for(size_t i = 0; i < N; i++){
         xInit[i] = mem.pos[i].x;
         yInit[i] = mem.pos[i].y;
@@ -1507,14 +1334,11 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
     services::internal::service_free<qTreeNode, cpu>(qTree.tree);
     services::internal::service_free<xyType<DataType>, cpu>(qTree.cent);
-    // services::internal::service_free<DataType, cpu>(qTree.centy);
     services::internal::service_free<int, cpu>(mem.t_order_idx);
     services::internal::service_free<int, cpu>(mem.z_order_idx);
     services::internal::service_free<uint64_t, cpu>(mem.morton_codes);
     services::internal::service_free<xyType<DataType>, cpu>(mem.pos);
-    // services::internal::service_free<DataType, cpu>(mem.posx);
     services::internal::service_free<xyType<DataType>, cpu>(mem.rep);
-    // services::internal::service_free<DataType, cpu>(mem.repy);
 
     services::internal::service_free<IdxType, cpu>(col_i32);
     return services::Status();
