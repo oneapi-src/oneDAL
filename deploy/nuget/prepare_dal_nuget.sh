@@ -173,7 +173,7 @@ create_package() {
     fi
 }
 
-set -eE
+set -E
 
 create_package $@ --distribution-type redist
 create_package $@ --distribution-type static
