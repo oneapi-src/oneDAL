@@ -263,7 +263,6 @@ public:
 
     template <std::int64_t new_axis_count, ndorder new_order = order>
     auto reshape(const ndshape<new_axis_count>& new_shape) const {
-        //if (new_order == order) check_reshape_conditions(new_shape);
         using reshaped_ndview_t = ndview<T, new_axis_count, new_order>;
         return reshaped_ndview_t{ data_, new_shape, data_is_mutable_ };
     }

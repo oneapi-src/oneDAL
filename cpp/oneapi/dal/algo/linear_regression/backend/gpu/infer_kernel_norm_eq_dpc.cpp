@@ -50,7 +50,7 @@ template <typename Float>
 using daal_lm_kernel_t = daal_lm::prediction::internal::PredictKernelOneAPI<Float, daal_method>;
 
 template <typename Float>
-std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, const std::int64_t r) {
+std::int64_t propose_block_size(const sycl::queue& q, std::int64_t f, std::int64_t r) {
     constexpr std::int64_t fsize = sizeof(Float);
     return 0x10000l * (8 / fsize);
 }
