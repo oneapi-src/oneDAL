@@ -188,6 +188,7 @@ RELEASEDIR.lib         := $(RELEASEDIR.daal)/lib
 RELEASEDIR.env         := $(RELEASEDIR.daal)/env
 RELEASEDIR.modulefiles := $(RELEASEDIR.daal)/modulefiles
 RELEASEDIR.conf        := $(RELEASEDIR.daal)/config
+RELEASEDIR.nuspec      := $(RELEASEDIR.daal)/nuspec
 RELEASEDIR.doc         := $(RELEASEDIR.daal)/documentation
 RELEASEDIR.samples     := $(RELEASEDIR.daal)/samples
 RELEASEDIR.jardir      := $(RELEASEDIR.daal)/lib
@@ -1153,6 +1154,15 @@ $2/$(notdir $1): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
+
+#----- nuspecs generation and tbb cmake configs copying
+_release_common: _release_nuspec
+_release_nuspec: _release_tbb_cmake_include
+	mkdir -p $(RELEASEDIR.nuspec)
+	bash ./deploy/nuget/prepare_dal_nuget.sh --template ./deploy/nuget/inteldal.nuspec.tpl  --release-dir $(RELEASEDIR) --platform $(PLAT) --ver $(MAJOR).$(MINOR).$(UPDATE) --major-binary-ver $(MAJORBINARY) --minor-binary-ver $(MINORBINARY)
+_release_tbb_cmake_include:
+	cp -r "$(TBBDIR.libia.prefix)/cmake" "$(RELEASEDIR.tbb)/lib"
+	cp -r "$(if $(TBBDIR),$(TBBDIR),$(TBBDIR.2))/include" "$(RELEASEDIR.tbb)"
 
 #===============================================================================
 # Miscellaneous stuff
