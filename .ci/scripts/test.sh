@@ -28,6 +28,9 @@ while [[ $# -gt 0 ]]; do
         --platform)
         platform="$2"
         ;;
+        --compiler)
+        compiler="$2"
+        ;;
         --interface)
         interface="$2"
         ;;
