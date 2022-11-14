@@ -23,7 +23,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
     - script: |
-        sudo apt-get update && sudo apt-get install -y clang-format-14 dos2unix tree
+        sudo apt-get update && sudo apt-get install -y clang-format-14
         sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 100
         sudo update-alternatives --set clang-format /usr/bin/clang-format-14
       displayName: 'apt-get'
@@ -31,6 +31,7 @@ jobs:
         .ci/scripts/clang-format.sh
       displayName: 'clang-format check'
       failOnStderr: true
+
 - job: 'LinuxMakeGNU'
   timeoutInMinutes: 0
   variables:
@@ -39,7 +40,7 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib dos2unix
+  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
     displayName: 'apt-get'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal_c
@@ -55,17 +56,50 @@ jobs:
       artifactName: '$(platform.type) build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal
-    displayName: 'daal cpp examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp
+    displayName: 'daal/cpp examples'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi
-    displayName: 'oneapi cpp examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi/cpp
+    displayName: 'oneapi/cpp examples'
   - script: |
       deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) \
         --ver 1.0 --major-binary-ver 1 --minor-binary-ver 1 --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget pkg'
+
+- job: 'LinuxMakeDPCPP'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_clang'
+    platform.type : 'lnx32e'
+  pool:
+    vmImage: 'ubuntu-22.04'
+  steps:
+  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix wget
+    displayName: 'apt-get'
+  - script: |
+      wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20221111/dpcpp-compiler.tar.gz"
+      tar -xzf dpcpp-compiler.tar.gz
+      ln -s clang++ dpcpp_compiler/bin/icpx
+      source dpcpp_compiler/startup.sh
+      echo "source ${PWD}/dpcpp_compiler/startup.sh" >> $HOME/.bashrc
+    displayName: 'download dpcpp daily build'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+    displayName: 'make onedal_dpc'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp_sycl
+    displayName: 'daal/cpp_sycl examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
+    displayName: 'oneapi/dpc examples'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
@@ -78,7 +112,7 @@ jobs:
   steps:
   - script: |
       # Add bazel repository
-      sudo apt install curl gnupg
+      sudo apt install -y curl gnupg
       curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
       sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
       echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
@@ -285,11 +319,11 @@ jobs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal
-    displayName: 'daal cpp examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
+    displayName: 'daal/cpp examples'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi
-    displayName: 'oneapi cpp examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
+    displayName: 'oneapi/cpp examples'
   - script: |
       brew install dos2unix tree
       deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) \
@@ -315,11 +349,11 @@ jobs:
   - script: |
       .\.ci\scripts\test.bat daal lib msvs
       .\.ci\scripts\test.bat daal dll msvs
-    displayName: 'daal cpp examples'
+    displayName: 'daal/cpp examples'
   - script: |
       .\.ci\scripts\test.bat oneapi lib msvs
       .\.ci\scripts\test.bat oneapi dll msvs
-    displayName: 'oneapi cpp examples'
+    displayName: 'oneapi/cpp examples'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pacman -S -y --noconfirm zip dos2unix tree

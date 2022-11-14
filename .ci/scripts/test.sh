@@ -82,8 +82,8 @@ else
     export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
 fi
 
-interface=${interface:-daal}
-cd "${BUILD_DIR}/daal/latest/examples/${interface}/cpp"
+interface=${interface:-daal/cpp}
+cd "${BUILD_DIR}/daal/latest/examples/${interface}"
 
 for link_mode in static dynamic; do
     # Release Examples testing
