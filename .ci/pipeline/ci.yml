@@ -82,22 +82,25 @@ jobs:
       wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20221111/dpcpp-compiler.tar.gz"
       tar -xzf dpcpp-compiler.tar.gz
       ln -s clang++ dpcpp_compiler/bin/icpx
-      source dpcpp_compiler/startup.sh
-      echo "source ${PWD}/dpcpp_compiler/startup.sh" >> $HOME/.bashrc
     displayName: 'download dpcpp daily build'
   - script: |
+      source dpcpp_compiler/startup.sh
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make onedal_dpc'
   - script: |
+      source dpcpp_compiler/startup.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
     displayName: 'daal/cpp examples'
   - script: |
+      source dpcpp_compiler/startup.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp_sycl
     displayName: 'daal/cpp_sycl examples'
   - script: |
+      source dpcpp_compiler/startup.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
   - script: |
+      source dpcpp_compiler/startup.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
     displayName: 'oneapi/dpc examples'
 
