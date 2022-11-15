@@ -40,8 +40,8 @@ std::unique_ptr<cl::sycl::device> makeDevice(int (*selector)(const sycl::device&
     }
 }
 
-std::list<std::pair<std::string, cl::sycl::device>> getListOfDevices() {
-    std::list<std::pair<std::string, cl::sycl::device>> selects;
+std::list<std::pair<std::string, cl::sycl::device> > getListOfDevices() {
+    std::list<std::pair<std::string, cl::sycl::device> > selects;
     std::unique_ptr<cl::sycl::device> device;
 
     device = makeDevice(&cl::sycl::gpu_selector_v);

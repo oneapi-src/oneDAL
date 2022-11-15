@@ -172,7 +172,7 @@ void printAprioriItemsets(daal::data_management::NumericTablePtr largeItemsetsTa
     largeItemsetsSupportTable->getBlockOfRows(0, largeItemsetCount, readOnly, block2);
     int *largeItemsetsSupportData = block2.getBlockPtr();
 
-    std::vector<std::vector<size_t>> largeItemsetsVector;
+    std::vector<std::vector<size_t> > largeItemsetsVector;
     largeItemsetsVector.resize(largeItemsetCount);
 
     for (size_t i = 0; i < nItemsInLargeItemsets; i++) {
@@ -232,7 +232,7 @@ void printAprioriRules(daal::data_management::NumericTablePtr leftItemsTable,
     confidenceTable->getBlockOfRows(0, nRules, readOnly, block3);
     DAAL_DATA_TYPE *confidence = block3.getBlockPtr();
 
-    std::vector<std::vector<size_t>> leftItemsVector;
+    std::vector<std::vector<size_t> > leftItemsVector;
     leftItemsVector.resize(nRules);
 
     if (nRules == 0) {
@@ -244,7 +244,7 @@ void printAprioriRules(daal::data_management::NumericTablePtr leftItemsTable,
         leftItemsVector[leftItems[2 * i]].push_back(leftItems[2 * i + 1]);
     }
 
-    std::vector<std::vector<size_t>> rightItemsVector;
+    std::vector<std::vector<size_t> > rightItemsVector;
     rightItemsVector.resize(nRules);
 
     for (size_t i = 0; i < nRightItems; i++) {

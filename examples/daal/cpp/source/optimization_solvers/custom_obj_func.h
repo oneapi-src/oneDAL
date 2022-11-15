@@ -209,8 +209,8 @@ public:
      * of this the Mean squared error objective function algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    daal::services::SharedPtr<Batch<algorithmFPType>> clone() const {
-        return daal::services::SharedPtr<Batch<algorithmFPType>>(cloneImpl());
+    daal::services::SharedPtr<Batch<algorithmFPType> > clone() const {
+        return daal::services::SharedPtr<Batch<algorithmFPType> >(cloneImpl());
     }
 
     /**

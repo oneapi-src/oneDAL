@@ -118,11 +118,11 @@ void geometricPartitioning() {
             step1.getPartialResult()->get(dbscan::partialOrder));
     }
 
-    std::vector<std::pair<size_t, size_t>> coms;
+    std::vector<std::pair<size_t, size_t> > coms;
     coms.push_back(std::make_pair(0, nBlocks));
 
     while (!coms.empty()) {
-        std::vector<std::pair<size_t, size_t>> newComs;
+        std::vector<std::pair<size_t, size_t> > newComs;
 
         for (size_t comId = 0; comId < coms.size(); comId++) {
             const size_t beginBlock = coms[comId].first;

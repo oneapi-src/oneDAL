@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 
         /* Create an algorithm for principal component analysis using the correlation method on the local node */
         localAlgorithm.parameter.covariance = services::SharedPtr<
-            covariance::Distributed<step1Local, algorithmFPType, covariance::fastCSR>>(
+            covariance::Distributed<step1Local, algorithmFPType, covariance::fastCSR> >(
             new covariance::Distributed<step1Local, algorithmFPType, covariance::fastCSR>());
 
         /* Set input objects for the algorithm */
@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 
     /* Use covariance algorithm for sparse data inside the PCA algorithm */
     masterAlgorithm.parameter.covariance = services::SharedPtr<
-        covariance::Distributed<step2Master, algorithmFPType, covariance::fastCSR>>(
+        covariance::Distributed<step2Master, algorithmFPType, covariance::fastCSR> >(
         new covariance::Distributed<step2Master, algorithmFPType, covariance::fastCSR>());
 
     /* Merge and finalize PCA decomposition on the master node */

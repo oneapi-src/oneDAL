@@ -42,8 +42,8 @@ std::string testDatasetFileName = "../data/batch/svm_multi_class_test_dense.csv"
 const size_t nFeatures = 20;
 const size_t nClasses = 5;
 
-services::SharedPtr<svm::training::Batch<>> training(new svm::training::Batch<>());
-services::SharedPtr<svm::prediction::Batch<>> prediction(new svm::prediction::Batch<>());
+services::SharedPtr<svm::training::Batch<> > training(new svm::training::Batch<>());
+services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
 /* Model object for the multi-class classifier algorithm */
 multi_class_classifier::training::ResultPtr trainingResult;

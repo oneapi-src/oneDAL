@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 
     /* Use covariance algorithm for sparse data inside the PCA algorithm */
     algorithm.parameter.covariance =
-        services::SharedPtr<covariance::Batch<algorithmFPType, covariance::fastCSR>>(
+        services::SharedPtr<covariance::Batch<algorithmFPType, covariance::fastCSR> >(
             new covariance::Batch<algorithmFPType, covariance::fastCSR>());
 
     /* Set the algorithm input data */

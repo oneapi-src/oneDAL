@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
     /* Retrieve the data from input file */
     dataSource.loadDataBlock(mergedData.get());
 
-    services::SharedPtr<optimization_solver::mse::Batch<>> mseObjectiveFunction(
+    services::SharedPtr<optimization_solver::mse::Batch<> > mseObjectiveFunction(
         new optimization_solver::mse::Batch<>(data->getNumberOfRows()));
     mseObjectiveFunction->input.set(optimization_solver::mse::data, data);
     mseObjectiveFunction->input.set(optimization_solver::mse::dependentVariables,

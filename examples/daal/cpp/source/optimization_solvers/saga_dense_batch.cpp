@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     /* Retrieve the data from input file */
     dataSource.loadDataBlock(mergedData.get());
 
-    services::SharedPtr<optimization_solver::mse::Batch<>> mseObjectiveFunction(
+    services::SharedPtr<optimization_solver::mse::Batch<> > mseObjectiveFunction(
         new optimization_solver::mse::Batch<float>(data->getNumberOfRows()));
     mseObjectiveFunction->input.set(optimization_solver::mse::data, data);
     mseObjectiveFunction->input.set(optimization_solver::mse::dependentVariables,
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
         sagaAlgorithm.getResult()->get(optimization_solver::iterative_solver::nIterations),
         "nIterations:");
 
-    services::SharedPtr<optimization_solver::mse::Batch<>> func_check(
+    services::SharedPtr<optimization_solver::mse::Batch<> > func_check(
         new optimization_solver::mse::Batch<>(data->getNumberOfRows()));
     func_check->input.set(optimization_solver::mse::dependentVariables, dependentVariables);
     func_check->input.set(optimization_solver::mse::data, data);

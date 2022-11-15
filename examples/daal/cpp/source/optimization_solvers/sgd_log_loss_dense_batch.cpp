@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock(mergedData.get());
     size_t nVectors = data.get() ? data->getNumberOfRows() : 1;
-    services::SharedPtr<logistic_loss::Batch<>> batch(new logistic_loss::Batch<>(nVectors));
+    services::SharedPtr<logistic_loss::Batch<> > batch(new logistic_loss::Batch<>(nVectors));
     batch->input.set(logistic_loss::data, data);
     batch->input.set(logistic_loss::dependentVariables, dependentVariables);
 

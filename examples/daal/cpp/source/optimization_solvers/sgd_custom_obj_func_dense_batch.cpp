@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 
     size_t nVectors = data->getNumberOfRows();
 
-    services::SharedPtr<new_objective_function::Batch<>> customObjectiveFunction(
+    services::SharedPtr<new_objective_function::Batch<> > customObjectiveFunction(
         new new_objective_function::Batch<>(nVectors));
     customObjectiveFunction->input.set(new_objective_function::data, data);
     customObjectiveFunction->input.set(new_objective_function::dependentVariables,

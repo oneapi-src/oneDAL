@@ -52,7 +52,7 @@ int main() {
         4,    9.0f, 9.1f, 9.2f, 9.3f, 9.4f, 9.5f, 9.6f, 9.7f, 9.8f, 9.9f, 5
     };
 
-    services::SharedPtr<HomogenNumericTable<>> dataTable =
+    services::SharedPtr<HomogenNumericTable<> > dataTable =
         HomogenNumericTable<>::create(data, nFeatures, nObservations);
     checkPtr(dataTable.get());
 

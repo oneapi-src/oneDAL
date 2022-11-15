@@ -62,7 +62,7 @@ int main() {
     printNumericTable(sumSquares.get(), "SumSquares:");
 
     /* Create NumericTable with the same data. But in this case basic statistics are not calculated. */
-    SharedPtr<HomogenNumericTable<>> dataTable =
+    SharedPtr<HomogenNumericTable<> > dataTable =
         HomogenNumericTable<>::create(data, nFeatures, nObservations);
     checkPtr(dataTable.get());
 

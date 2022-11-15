@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
     /* Retrieve the data from input file */
     dataSource.loadDataBlock(mergedData.get());
 
-    services::SharedPtr<optimization_solver::logistic_loss::Batch<float>> func(
+    services::SharedPtr<optimization_solver::logistic_loss::Batch<float> > func(
         new optimization_solver::logistic_loss::Batch<float>(data->getNumberOfRows()));
     func->input.set(optimization_solver::logistic_loss::data, data);
     func->input.set(optimization_solver::logistic_loss::dependentVariables, dependentVariables);
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
         "nIterations:");
 
     ///* Check the value of objective function */
-    services::SharedPtr<optimization_solver::logistic_loss::Batch<float>> func_check(
+    services::SharedPtr<optimization_solver::logistic_loss::Batch<float> > func_check(
         new optimization_solver::logistic_loss::Batch<float>(data->getNumberOfRows()));
     func_check->input.set(optimization_solver::logistic_loss::data, data);
     func_check->input.set(optimization_solver::logistic_loss::dependentVariables,

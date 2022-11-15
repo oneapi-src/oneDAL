@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
         dataSource.loadDataBlock(mergedData.get());
 
         size_t nVectors = data.get() ? data->getNumberOfRows() : 1;
-        services::SharedPtr<logistic_loss::Batch<float>> logLoss(
+        services::SharedPtr<logistic_loss::Batch<float> > logLoss(
             new logistic_loss::Batch<float>(nVectors));
         logLoss->input.set(logistic_loss::data, data);
         logLoss->input.set(logistic_loss::dependentVariables, dependentVariables);

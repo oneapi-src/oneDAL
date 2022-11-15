@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     /* Retrieve the data from input file */
     dataSource.loadDataBlock(mergedData.get());
 
-    services::SharedPtr<optimization_solver::cross_entropy_loss::Batch<>> func =
+    services::SharedPtr<optimization_solver::cross_entropy_loss::Batch<> > func =
         optimization_solver::cross_entropy_loss::Batch<>::create(nClasses, data->getNumberOfRows());
     func->input.set(optimization_solver::cross_entropy_loss::data, data);
     func->input.set(optimization_solver::cross_entropy_loss::dependentVariables,

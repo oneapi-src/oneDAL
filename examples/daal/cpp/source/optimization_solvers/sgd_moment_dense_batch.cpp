@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
 
     size_t nVectors = data->getNumberOfRows();
 
-    services::SharedPtr<optimization_solver::mse::Batch<>> mseObjectiveFunction(
+    services::SharedPtr<optimization_solver::mse::Batch<> > mseObjectiveFunction(
         new optimization_solver::mse::Batch<>(nVectors));
     mseObjectiveFunction->input.set(optimization_solver::mse::data, data);
     mseObjectiveFunction->input.set(optimization_solver::mse::dependentVariables,
