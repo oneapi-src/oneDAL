@@ -31,7 +31,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -39,8 +39,8 @@ using namespace daal::data_management;
 using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
-string trainDatasetFileName = "../data/batch/svm_two_class_train_dense.csv";
-string testDatasetFileName  = "../data/batch/svm_two_class_test_dense.csv";
+std::string trainDatasetFileName = "../data/batch/svm_two_class_train_dense.csv";
+std::string testDatasetFileName  = "../data/batch/svm_two_class_test_dense.csv";
 
 const size_t nFeatures = 20;
 

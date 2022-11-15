@@ -30,7 +30,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -38,7 +38,7 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/covcormoments_dense.csv";
+std::string datasetFileName = "../data/batch/covcormoments_dense.csv";
 
 void printResults(const low_order_moments::ResultPtr & res);
 

@@ -33,7 +33,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms::linear_regression;
 
@@ -41,8 +41,8 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/online/linear_regression_train.csv";
-string testDatasetFileName  = "../data/online/linear_regression_test.csv";
+std::string trainDatasetFileName = "../data/online/linear_regression_train.csv";
+std::string testDatasetFileName  = "../data/online/linear_regression_test.csv";
 
 const size_t nVectorsInBlock = 250;
 

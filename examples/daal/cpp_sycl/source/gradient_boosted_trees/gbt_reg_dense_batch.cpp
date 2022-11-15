@@ -33,7 +33,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms::gbt::regression;
 
@@ -41,8 +41,8 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-const string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
-const string testDatasetFileName          = "../data/batch/df_regression_test.csv";
+const std::string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
+const std::string testDatasetFileName          = "../data/batch/df_regression_test.csv";
 const size_t categoricalFeaturesIndices[] = { 3 };
 const size_t nFeatures                    = 13; /* Number of features in training and testing data sets */
 

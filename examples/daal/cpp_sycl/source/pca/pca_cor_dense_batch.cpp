@@ -31,7 +31,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -39,7 +39,7 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-const string dataFileName = "../data/batch/pca_normalized.csv";
+const std::string dataFileName = "../data/batch/pca_normalized.csv";
 
 int main(int argc, char * argv[])
 {

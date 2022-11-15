@@ -33,7 +33,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::algorithms::logistic_regression;
@@ -42,8 +42,8 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-const string trainDatasetFileName = "../data/batch/binary_cls_train.csv";
-const string testDatasetFileName  = "../data/batch/binary_cls_test.csv";
+const std::string trainDatasetFileName = "../data/batch/binary_cls_train.csv";
+const std::string testDatasetFileName  = "../data/batch/binary_cls_test.csv";
 const size_t nFeatures            = 20; /* Number of features in training and testing data sets */
 
 /* Logistic regression training parameters */

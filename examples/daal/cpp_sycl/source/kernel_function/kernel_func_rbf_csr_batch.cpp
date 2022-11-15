@@ -30,7 +30,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -39,8 +39,8 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-string leftDatasetFileName  = "../data/batch/kernel_function_csr.csv";
-string rightDatasetFileName = "../data/batch/kernel_function_csr.csv";
+std::string leftDatasetFileName  = "../data/batch/kernel_function_csr.csv";
+std::string rightDatasetFileName = "../data/batch/kernel_function_csr.csv";
 
 /* Kernel algorithm parameters */
 const double sigma = 1.0; /* RBF kernel coefficient */

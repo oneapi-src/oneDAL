@@ -29,14 +29,14 @@
 #include "daal_sycl.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string leftDatasetFileName  = "../data/batch/kernel_function_csr.csv";
-string rightDatasetFileName = "../data/batch/kernel_function_csr.csv";
+std::string leftDatasetFileName  = "../data/batch/kernel_function_csr.csv";
+std::string rightDatasetFileName = "../data/batch/kernel_function_csr.csv";
 
 /* Kernel algorithm parameters */
 const double k = 1.0; /* Linear kernel coefficient in the k(X,Y) + b model */

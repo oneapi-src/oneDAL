@@ -34,12 +34,12 @@
 using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/covcormoments_dense.csv";
+const std::string datasetFileName = "../data/batch/covcormoments_dense.csv";
 const size_t nObservations   = 50;
 
 int main(int argc, char * argv[])

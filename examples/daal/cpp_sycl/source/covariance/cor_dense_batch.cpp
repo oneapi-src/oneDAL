@@ -31,7 +31,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -39,7 +39,7 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/covcormoments_dense.csv";
+const std::string datasetFileName = "../data/batch/covcormoments_dense.csv";
 
 int main(int argc, char * argv[])
 {

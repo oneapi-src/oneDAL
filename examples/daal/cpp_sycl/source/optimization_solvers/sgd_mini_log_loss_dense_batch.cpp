@@ -30,7 +30,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::algorithms::optimization_solver;
@@ -39,7 +39,7 @@ using namespace daal::data_management;
 using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
-string datasetFileName = "../data/batch/custom.csv";
+std::string datasetFileName = "../data/batch/custom.csv";
 
 const size_t nIterations       = 1000;
 const size_t nFeatures         = 4;

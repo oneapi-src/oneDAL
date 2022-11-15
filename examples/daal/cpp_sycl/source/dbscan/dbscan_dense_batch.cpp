@@ -29,7 +29,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -37,7 +37,7 @@ using namespace daal::data_management;
 using daal::services::internal::SyclExecutionContext;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/dbscan_dense.csv";
+std::string datasetFileName = "../data/batch/dbscan_dense.csv";
 
 /* DBSCAN algorithm parameters */
 const float epsilon          = 0.04f;

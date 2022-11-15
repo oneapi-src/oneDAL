@@ -30,7 +30,7 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -38,7 +38,7 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/kmeans_init_dense.csv";
+const std::string datasetFileName = "../data/batch/kmeans_init_dense.csv";
 
 /* K-Means algorithm parameters */
 const size_t nFeatures          = 20; /* Number of features in input data sets */

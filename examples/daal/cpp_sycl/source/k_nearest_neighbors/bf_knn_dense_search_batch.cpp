@@ -30,7 +30,7 @@
 #include "service_sycl.h"
 #include <cstdio>
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -38,10 +38,10 @@ using daal::data_management::internal::SyclHomogenNumericTable;
 using daal::services::internal::SyclExecutionContext;
 
 /* Input data set parameters */
-const string trainDatasetFileName         = "../data/batch/k_nearest_neighbors_train.csv";
-const string testDatasetFileName          = "../data/batch/k_nearest_neighbors_test.csv";
-const string groundTruthDistancesFileName = "../data/batch/k_nearest_neighbors_distances_ground_truth.csv";
-const string groundTruthIndicesFileName   = "../data/batch/k_nearest_neighbors_indices_ground_truth.csv";
+const std::string trainDatasetFileName         = "../data/batch/k_nearest_neighbors_train.csv";
+const std::string testDatasetFileName          = "../data/batch/k_nearest_neighbors_test.csv";
+const std::string groundTruthDistancesFileName = "../data/batch/k_nearest_neighbors_distances_ground_truth.csv";
+const std::string groundTruthIndicesFileName   = "../data/batch/k_nearest_neighbors_indices_ground_truth.csv";
 
 const size_t nFeatures  = 5;
 const size_t nClasses   = 5;

@@ -30,7 +30,7 @@
 #include "service_sycl.h"
 #include <cstdio>
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -38,14 +38,14 @@ using daal::data_management::internal::SyclHomogenNumericTable;
 using daal::services::internal::SyclExecutionContext;
 
 /* Input data set parameters */
-const string trainDatasetFileName = "../data/batch/knn_regression_train.csv";
-const string testDatasetFileName  = "../data/batch/knn_regression_test.csv";
+const std::string trainDatasetFileName = "../data/batch/knn_regression_train.csv";
+const std::string testDatasetFileName  = "../data/batch/knn_regression_test.csv";
 
 const size_t nFeatures  = 3; /* Number of features in training and testing data sets */
 const size_t nResponses = 4; /* Number of dependent variables that correspond to each observation */
 const size_t kNeighbors = 4; /* The best number of neighbors defined by hyperparameter search */
 
-void loadData(const string & fileName, NumericTablePtr & dataSamples, NumericTablePtr & dataResponses);
+void loadData(const std::string & fileName, NumericTablePtr & dataSamples, NumericTablePtr & dataResponses);
 void trainModel(NumericTablePtr & trainSamples, bf_knn_classification::training::ResultPtr & trainingResult);
 void testModel(bf_knn_classification::training::ResultPtr & trainingResult, NumericTablePtr & testSamples,
                bf_knn_classification::prediction::ResultPtr & searchResult);
@@ -87,7 +87,7 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void loadData(const string & fileName, NumericTablePtr & dataSamples, NumericTablePtr & dataResponses)
+void loadData(const std::string & fileName, NumericTablePtr & dataSamples, NumericTablePtr & dataResponses)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data
    * from a .csv file */
