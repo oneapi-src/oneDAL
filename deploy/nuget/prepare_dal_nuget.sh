@@ -56,18 +56,21 @@ create_package() {
     # platform specific
     if [ ${platform} = "lnx32e" ]; then
         platform=linux-x64
+        tbb_platform=linux
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=lib/intel64
         static_lib_path=lib/intel64
         lib_prefix=libonedal
     elif [ ${platform} = "mac32e" ]; then
         platform=osx-x64
+        tbb_platform=osx
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=lib
         static_lib_path=lib
         lib_prefix=libonedal
     elif [ ${platform} = "win32e" ]; then
         platform=win-x64
+        tbb_platform=win
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=redist/intel64
         static_lib_path=lib/intel64
@@ -92,7 +95,7 @@ create_package() {
     fi
 
     # nuspec generation
-    sed_template="s/__DISTRTYPE__/${distr_type}/; s/__PLATFORM__/${platform}/; s/__VERSION__/${dal_version}/; s/__CONTENT__/${content}/; s/__YEAR__/$(date +%Y)/"
+    sed_template="s/__DISTRTYPE__/${distr_type}/; s/__PLATFORM__/${platform}/; s/__TBB_PLATFORM__/${tbb_platform}/; s/__VERSION__/${dal_version}/; s/__CONTENT__/${content}/; s/__YEAR__/$(date +%Y)/"
     sed "${sed_template}" ${template_path} > ${rls_dir}/daal/latest/nuspec/inteldal.${distr_type}.${platform}.nuspec
 
     if [ "${build_nupkg}" = "yes" ]; then
