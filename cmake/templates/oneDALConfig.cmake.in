@@ -24,6 +24,7 @@
 # TARGET_LINK: static | dynamic. Default is dynamic
 # USE_DPCPP: yes | no. Default is yes
 # USE_NEW_IFACES: yes | no. Default is no
+# SET_TBB_MANUALLY: yes | no. Default is no
 if ("${TARGET_LINK}" STREQUAL "")
     set(TARGET_LINK "dynamic")
 elseif (NOT "${TARGET_LINK}" STREQUAL "static" AND NOT "${TARGET_LINK}" STREQUAL "dynamic")
@@ -39,10 +40,16 @@ if ("${USE_NEW_IFACES}" STREQUAL "")
 elseif (NOT "${USE_NEW_IFACES}" STREQUAL "yes" AND NOT "${USE_NEW_IFACES}" STREQUAL "no")
     message(FATAL_ERROR "USE_NEW_IFACES must be 'yes' or 'no'")
 endif()
+if ("${SET_TBB_MANUALLY}" STREQUAL "")
+    set(SET_TBB_MANUALLY "no")
+elseif (NOT "${SET_TBB_MANUALLY}" STREQUAL "yes" AND NOT "${SET_TBB_MANUALLY}" STREQUAL "no")
+    message(FATAL_ERROR "SET_TBB_MANUALLY must be 'yes' or 'no'")
+endif()
 
-message(STATUS "TARGET_LINK:    ${TARGET_LINK}")
-message(STATUS "USE_DPCPP:      ${USE_DPCPP}")
-message(STATUS "USE_NEW_IFACES: ${USE_NEW_IFACES}")
+message(STATUS "TARGET_LINK:      ${TARGET_LINK}")
+message(STATUS "USE_DPCPP:        ${USE_DPCPP}")
+message(STATUS "USE_NEW_IFACES:   ${USE_NEW_IFACES}")
+message(STATUS "SET_TBB_MANUALLY: ${SET_TBB_MANUALLY}")
 
 if (NOT DAL_LIBRARIES)
     set(DAL_LIBRARIES "")
@@ -73,8 +80,11 @@ list(APPEND DAL_LIBS onedal_core)
 
 set(THREADING_TYPE "parallel")
 set(DAL_THREAD_LIBRARY_NAME onedal_thread)
-find_package(TBB REQUIRED tbb tbbmalloc)
-list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
+
+if (SET_TBB_MANUALLY STREQUAL "no")
+    find_package(TBB REQUIRED tbb tbbmalloc)
+    list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
+endif()
 
 if(UNIX)
     if(APPLE)

@@ -56,18 +56,21 @@ create_package() {
     # platform specific
     if [ ${platform} = "lnx32e" ]; then
         platform=linux-x64
+        tbb_platform=linux
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=lib/intel64
         static_lib_path=lib/intel64
         lib_prefix=libonedal
     elif [ ${platform} = "mac32e" ]; then
         platform=osx-x64
+        tbb_platform=osx
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=lib
         static_lib_path=lib
         lib_prefix=libonedal
     elif [ ${platform} = "win32e" ]; then
         platform=win-x64
+        tbb_platform=win
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=redist/intel64
         static_lib_path=lib/intel64
@@ -92,7 +95,7 @@ create_package() {
     fi
 
     # nuspec generation
-    sed_template="s/__DISTRTYPE__/${distr_type}/; s/__PLATFORM__/${platform}/; s/__VERSION__/${dal_version}/; s/__CONTENT__/${content}/; s/__YEAR__/$(date +%Y)/"
+    sed_template="s/__DISTRTYPE__/${distr_type}/; s/__PLATFORM__/${platform}/; s/__TBB_PLATFORM__/${tbb_platform}/; s/__VERSION__/${dal_version}/; s/__CONTENT__/${content}/; s/__YEAR__/$(date +%Y)/"
     sed "${sed_template}" ${template_path} > ${rls_dir}/daal/latest/nuspec/inteldal.${distr_type}.${platform}.nuspec
 
     if [ "${build_nupkg}" = "yes" ]; then
@@ -145,28 +148,6 @@ create_package() {
         fi
 
         echo "oneDAL ${dal_version} is packed"
-
-        # oneTBB
-        # -- interfaces
-        cp -r ${rls_dir}/tbb/latest/include ${tbb_root_prefix}
-        # -- cmake configs
-        mkdir -p ${tbb_root_prefix}/lib
-        cp -r ${rls_dir}/tbb/latest/lib/cmake ${tbb_root_prefix}/lib
-        # -- libraries
-        if [ ${platform} = "linux-x64" ]; then
-            mkdir -p ${tbb_root_prefix}/lib/intel64/gcc4.8
-            cp ${rls_dir}/tbb/latest/lib/intel64/* ${tbb_root_prefix}/lib/intel64/gcc4.8
-        elif [ ${platform} = "osx-x64" ]; then
-            cp ${rls_dir}/tbb/latest/lib/* ${tbb_root_prefix}/lib
-        elif [ ${platform} = "win-x64" ]; then
-            cp -r ${rls_dir}/tbb/latest/lib/intel64 ${tbb_root_prefix}/lib
-            mkdir -p ${tbb_root_prefix}/redist
-            cp -r ${rls_dir}/tbb/latest/redist/intel64 ${tbb_root_prefix}/redist
-            mv ${tbb_root_prefix}/lib/intel64/vc_mt ${tbb_root_prefix}/lib/intel64/vc14
-            mv ${tbb_root_prefix}/redist/intel64/vc_mt ${tbb_root_prefix}/redist/intel64/vc14
-        fi
-
-        echo "oneTBB (dependency) is packed"
 
         # packaging
         cd ${pkg_path}; zip -q -9 -r ../${pkg_name}.nupkg *; cd $OLDPWD

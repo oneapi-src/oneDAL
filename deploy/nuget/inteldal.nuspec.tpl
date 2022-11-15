@@ -14,5 +14,8 @@
     <releaseNotes>https://www.intel.com/content/www/us/en/developer/articles/release-notes/oneapi-dal-release-notes.html</releaseNotes>
     <copyright>Copyright 2022 Intel Corporation</copyright>
     <tags>native, intel, onedal, dal, daal, machine learning, data analytics</tags>
+    <dependencies>
+      <dependency id="inteltbb.devel.__TBB_PLATFORM__" version="2021.7.1" />
+    </dependencies>
   </metadata>
 </package>

@@ -1155,14 +1155,11 @@ endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
 
-#----- nuspecs generation and tbb cmake configs copying
+#----- nuspecs generation
 _release_common: _release_nuspec
-_release_nuspec: _release_tbb_cmake_include
+_release_nuspec:
 	mkdir -p $(RELEASEDIR.nuspec)
 	bash ./deploy/nuget/prepare_dal_nuget.sh --template ./deploy/nuget/inteldal.nuspec.tpl  --release-dir $(RELEASEDIR) --platform $(PLAT) --ver $(MAJOR).$(MINOR).$(UPDATE) --major-binary-ver $(MAJORBINARY) --minor-binary-ver $(MINORBINARY)
-_release_tbb_cmake_include:
-	cp -r "$(TBBDIR.libia.prefix)/cmake" "$(RELEASEDIR.tbb)/lib"
-	cp -r "$(if $(TBBDIR),$(TBBDIR),$(TBBDIR.2))/include" "$(RELEASEDIR.tbb)"
 
 #===============================================================================
 # Miscellaneous stuff
