@@ -76,11 +76,11 @@ template <typename IdxType, typename xyType>
 struct MemoryCtxType
 {
     int capacity            = 0;
-    xyType * pos         = nullptr;
+    xyType * pos            = nullptr;
     uint64_t * morton_codes = nullptr;
     IdxType * z_order_idx   = nullptr;
     IdxType * t_order_idx   = nullptr;
-    xyType * rep         = nullptr;
+    xyType * rep            = nullptr;
 
     xyType * attr = nullptr;
     xyType * gain = nullptr;
@@ -101,9 +101,8 @@ struct TreeCtxType
     int layerSize[MAX_LEVEL] = {};
     int layerOffs[MAX_LEVEL] = {};
     qTreeNode * tree         = nullptr;
-    xyType * cent         = nullptr;
+    xyType * cent            = nullptr;
 };
-
 
 template <typename IdxType, daal::CpuType cpu>
 services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType & nElements, const IdxType & blockOfRows)
@@ -145,7 +144,7 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
         return localBox;
     });
 
-    const IdxType nThreads    = tlsBox.nthreads();
+    const IdxType nThreads = tlsBox.nthreads();
     // const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (N + nThreads - 1) / nThreads);
     // const IdxType nBlocks     = (N + sizeOfBlock - 1) / sizeOfBlock;
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, N / nThreads + 1);
@@ -184,9 +183,8 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     return services::Status();
 }
 
-
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType>> & qTree, int level, IdxType * zOrder, IdxType * tOrder, uint64_t * mc, int * hist)
+inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType> > & qTree, int level, IdxType * zOrder, IdxType * tOrder, uint64_t * mc, int * hist)
 {
     const int sh   = 54 - (level << 1);
     const int bcnt = qTree.tree[0].cnt;
@@ -281,8 +279,8 @@ inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType>> & qTree, int le
 }
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & mem, TreeCtxType<IdxType, xyType<DataType>> & qTree, const DataType & radius,
-                                         const DataType & centerx, const DataType & centery)
+services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
+                                         const DataType & radius, const DataType & centerx, const DataType & centery)
 {
     DAAL_CHECK_MALLOC(mem.pos);
     DAAL_CHECK_MALLOC(mem.morton_codes);
@@ -370,9 +368,9 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 
         buildSubtree5<IdxType, DataType, cpu>(qTree, 0, mem.z_order_idx, mem.t_order_idx, mem.morton_codes, mHist);
 
-        qTreeNode * subNodes                      = nullptr;
-        TreeCtxType<IdxType, xyType<DataType>> * subTrees = nullptr;
-        int subTreeCnt                            = 0;
+        qTreeNode * subNodes                               = nullptr;
+        TreeCtxType<IdxType, xyType<DataType> > * subTrees = nullptr;
+        int subTreeCnt                                     = 0;
 
         for (int pass = 0; pass < 5; pass++)
         {
@@ -392,11 +390,11 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
             {
                 if (subTrees)
                 {
-                    services::internal::service_free<TreeCtxType<IdxType, xyType<DataType>>, cpu>(subTrees);
+                    services::internal::service_free<TreeCtxType<IdxType, xyType<DataType> >, cpu>(subTrees);
                     services::internal::service_free<qTreeNode, cpu>(subNodes);
                 }
                 subNodes   = services::internal::service_malloc<qTreeNode, cpu>(bNodes * 2048);
-                subTrees   = services::internal::service_malloc<TreeCtxType<IdxType, xyType<DataType>>, cpu>(bNodes);
+                subTrees   = services::internal::service_malloc<TreeCtxType<IdxType, xyType<DataType> >, cpu>(bNodes);
                 subTreeCnt = bNodes;
             }
 
@@ -414,7 +412,6 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
             const IdxType nThreads    = threader_get_threads_number();
             const IdxType sizeOfBlock = 1;
             const IdxType nBlocks     = bNodes;
-
 
             daal::threader_for(nBlocks, nBlocks, [&](IdxType iSubTree) {
                 int * hist = services::internal::service_calloc<int, cpu>(3072);
@@ -446,7 +443,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
                 services::internal::service_free<qTreeNode, cpu>(qTree.tree);
                 services::internal::service_free<xyType<DataType>, cpu>(qTree.cent);
 
-                qTree.cent    = services::internal::service_malloc<xyType<DataType>, cpu>(capacity);
+                qTree.cent     = services::internal::service_malloc<xyType<DataType>, cpu>(capacity);
                 qTree.tree     = nodes;
                 qTree.capacity = capacity;
             }
@@ -493,11 +490,11 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
                 for (int i = 0; i < 6; i++) qTree.layerSize[bLevel + i] = qTree.layerOffs[bLevel + i + 1] - qTree.layerOffs[bLevel + i];
             }
         }
-        
+
         if (subTreeCnt)
         {
             services::internal::service_free<qTreeNode, cpu>(subTrees[0].tree);
-            services::internal::service_free<TreeCtxType<IdxType, xyType<DataType>>, cpu>(subTrees);
+            services::internal::service_free<TreeCtxType<IdxType, xyType<DataType> >, cpu>(subTrees);
         }
     }
 
@@ -506,7 +503,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 }
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & mem, TreeCtxType<IdxType, xyType<DataType>> & qTree)
+services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree)
 {
     IdxType nThreads = threader_get_threads_number();
     IdxType nBlocks, lOffset, sizeOfBlock = 1;
@@ -548,7 +545,7 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
         });
     }
 
-    nThreads = threader_get_threads_number();
+    nThreads    = threader_get_threads_number();
     sizeOfBlock = services::internal::min<cpu, IdxType>(256, (qTree.size + nThreads - 1) / nThreads);
     nBlocks     = (qTree.size + sizeOfBlock - 1) / sizeOfBlock;
 
@@ -567,8 +564,8 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 }
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & mem, TreeCtxType<IdxType, xyType<DataType>> & qTree, const DataType theta,
-                                     const DataType eps, DataType & zNorm, const DataType & radius)
+services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
+                                     const DataType theta, const DataType eps, DataType & zNorm, const DataType & radius)
 {
     const DataType epsInc = eps + DataType(1);
 
@@ -581,7 +578,7 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & 
 
     daal::StaticTlsSum<DataType, cpu> sumTlsData(1);
 
-    const IdxType nThreads = sumTlsData.nthreads();
+    const IdxType nThreads    = sumTlsData.nthreads();
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (mem.capacity + nThreads - 1) / nThreads);
     const IdxType nBlocks     = (mem.capacity + sizeOfBlock - 1) / sizeOfBlock;
 
@@ -591,28 +588,28 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(mem.capacity, iStart + sizeOfBlock);
-        DataType * lSum = sumTlsData.local(tid);
-        
+        DataType * lSum      = sumTlsData.local(tid);
+
         for (IdxType k = iStart; k < iEnd; ++k)
         {
-            const IdxType i   = mem.z_order_idx[k];     // 4*N
-            const DataType px = mem.pos[i].x;            // 4*N
-            const DataType py = mem.pos[i].y;            // 4*N
+            const IdxType i   = mem.z_order_idx[k]; // 4*N
+            const DataType px = mem.pos[i].x;       // 4*N
+            const DataType py = mem.pos[i].y;       // 4*N
 
             // DataType * lSum = sumTlsData.local(tid);
-            DataType vx     = 0.;
-            DataType vy     = 0.;
+            DataType vx = 0.;
+            DataType vy = 0.;
 
-            IdxType * lStack = nStack + tid * MAX_LEVEL * 4;  // 3*N Flops
-            int * lLevel     = nLevel + tid * MAX_LEVEL * 4;  // 3*N Flops
+            IdxType * lStack = nStack + tid * MAX_LEVEL * 4; // 3*N Flops
+            int * lLevel     = nLevel + tid * MAX_LEVEL * 4; // 3*N Flops
 
-            int cnt = 1 + ((qTree.tree[0].fpos >> 29) & 0x3);  // 3*N Flops
-            int pos = qTree.tree[0].fpos & ~0xE0000000;        // 2*N Flops
+            int cnt = 1 + ((qTree.tree[0].fpos >> 29) & 0x3); // 3*N Flops
+            int pos = qTree.tree[0].fpos & ~0xE0000000;       // 2*N Flops
             int idx = 0;
 
             switch (cnt)
             {
-            case 4: lStack[idx] = pos + 3; lLevel[idx++] = 1;   // 2*N Flops
+            case 4: lStack[idx] = pos + 3; lLevel[idx++] = 1; // 2*N Flops
             case 3: lStack[idx] = pos + 2; lLevel[idx++] = 1;
             case 2: lStack[idx] = pos + 1; lLevel[idx++] = 1;
             default:
@@ -621,32 +618,32 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & 
 
             while (idx > 0)
             {
-                idx--;                                             // 1*N*TS Flops
-                DataType dx   = px - qTree.cent[lStack[idx]].x;    // 1*N*TS Flops, 4*N*TS Bytes
-                DataType dy   = py - qTree.cent[lStack[idx]].y;    // 1*N*TS Flops, 4*N*TS Bytes
-                DataType dxy1 = dx * dx + dy * dy + epsInc;       // 4*N*TS Flops
-                int mass      = qTree.tree[lStack[idx]].cnt;      // 8*N*TS Bytes
+                idx--;                                          // 1*N*TS Flops
+                DataType dx   = px - qTree.cent[lStack[idx]].x; // 1*N*TS Flops, 4*N*TS Bytes
+                DataType dy   = py - qTree.cent[lStack[idx]].y; // 1*N*TS Flops, 4*N*TS Bytes
+                DataType dxy1 = dx * dx + dy * dy + epsInc;     // 4*N*TS Flops
+                int mass      = qTree.tree[lStack[idx]].cnt;    // 8*N*TS Bytes
                 int fpos      = qTree.tree[lStack[idx]].fpos;
                 int level     = lLevel[idx];
                 DataType tdist_2;
 
-                if ((mass == 1) || (dxy1 >= dq[level]))           // 3*N*TS Flops
+                if ((mass == 1) || (dxy1 >= dq[level])) // 3*N*TS Flops
                 {
                     // Distant node, use centroid to calculate force vectors
-                    tdist_2 = mass / (dxy1 * dxy1);               // 1*N*TS DIV, 1*N*TS
-                    lSum[0] += tdist_2 * dxy1;                    // 2*N*TS
-                    vx += dx * tdist_2;                           // 2*N*TS
-                    vy += dy * tdist_2;                           // 2*N*TS
+                    tdist_2 = mass / (dxy1 * dxy1); // 1*N*TS DIV, 1*N*TS
+                    lSum[0] += tdist_2 * dxy1;      // 2*N*TS
+                    vx += dx * tdist_2;             // 2*N*TS
+                    vy += dy * tdist_2;             // 2*N*TS
                 }
                 else if (fpos < 0)
                 {
                     // Intermediate node, add children to stack
-                    cnt = 1 + ((fpos >> 29) & 0x3);              // 3*N*TS
-                    pos = fpos & ~0xE0000000;                    // 2*N*TS
+                    cnt = 1 + ((fpos >> 29) & 0x3); // 3*N*TS
+                    pos = fpos & ~0xE0000000;       // 2*N*TS
 
                     switch (cnt)
                     {
-                    case 4: lStack[idx] = pos + 3; lLevel[idx++] = level + 1;        // 1*N*TS
+                    case 4: lStack[idx] = pos + 3; lLevel[idx++] = level + 1; // 1*N*TS
                     case 3: lStack[idx] = pos + 2; lLevel[idx++] = level + 1;
                     case 2: lStack[idx] = pos + 1; lLevel[idx++] = level + 1;
                     default:
@@ -688,33 +685,35 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>> & 
 }
 
 /* Generic template implementation of attractive kernel for all data types and various instruction set architectures */
-template<bool DivComp, typename IdxType, typename DataType, daal::CpuType cpu>
-struct AttractiveKernel {
-    static services::Status impl(const DataType* val, const IdxType* col, const size_t* row, MemoryCtxType<IdxType, xyType<DataType>>& mem,
-        DataType& zNorm, DataType& divergence, const IdxType N, const IdxType nnz,
-        const IdxType nElements, const DataType exaggeration) 
+template <bool DivComp, typename IdxType, typename DataType, daal::CpuType cpu>
+struct AttractiveKernel
+{
+    static services::Status impl(const DataType * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<DataType> > & mem,
+                                 DataType & zNorm, DataType & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
+                                 const DataType exaggeration)
     {
+        printf("Not in AVX512 code path\n");
         DAAL_CHECK_MALLOC(val);
         DAAL_CHECK_MALLOC(col);
         DAAL_CHECK_MALLOC(row);
 
         const DataType multiplier = exaggeration * DataType(zNorm);
-        divergence = 0.;
+        divergence                = 0.;
 
         const IdxType prefetch_dist = 32;
 
         daal::TlsSum<DataType, cpu> divTlsData(1);
-        daal::tls<DataType*> logTlsData([=]() { return services::internal::service_scalable_calloc<DataType, cpu>(nElements); });
+        daal::tls<DataType *> logTlsData([=]() { return services::internal::service_scalable_calloc<DataType, cpu>(nElements); });
 
-        const IdxType nThreads = threader_get_threads_number();
+        const IdxType nThreads    = threader_get_threads_number();
         const IdxType sizeOfBlock = services::internal::min<cpu, size_t>(256, N / nThreads + 1);
-        const IdxType nBlocks = N / sizeOfBlock + !!(N % sizeOfBlock);
+        const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
         daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
-            const IdxType iEnd = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
-            DataType* logLocal = logTlsData.local();
-            DataType* divLocal = divTlsData.local();
+            const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
+            DataType * logLocal  = logTlsData.local();
+            DataType * divLocal  = divTlsData.local();
 
             xyType<DataType> row_point;
             IdxType iCol, prefetch_index;
@@ -722,25 +721,24 @@ struct AttractiveKernel {
 
             for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
             {
-                size_t iSize = 0;
+                size_t iSize     = 0;
                 mem.attr[iRow].x = 0.0;
                 mem.attr[iRow].y = 0.0;
-                row_point = mem.pos[iRow];
+                row_point        = mem.pos[iRow];
 
-                for (IdxType index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index)    // 4*N
+                for (IdxType index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index) // 4*N
                 {
                     prefetch_index = index + prefetch_dist;
-                    if (prefetch_index < nnz)
-                        DAAL_PREFETCH_READ_T0(&mem.pos[col[prefetch_index] - 1]);
+                    if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem.pos[col[prefetch_index] - 1]);
 
-                    iCol = col[index] - 1;                            // 4*NNZ byte
+                    iCol = col[index] - 1; // 4*NNZ byte
 
-                    y1d = row_point.x - mem.pos[iCol].x;     // 1*NNZ Flop, 4*N + 4*NNZ byte
-                    y2d = row_point.y - mem.pos[iCol].y;     // 1*NNZ Flop, 4*N + 4*NNZ byte
+                    y1d = row_point.x - mem.pos[iCol].x; // 1*NNZ Flop, 4*N + 4*NNZ byte
+                    y2d = row_point.y - mem.pos[iCol].y; // 1*NNZ Flop, 4*N + 4*NNZ byte
                     // const DataType sqDist = services::internal::max<cpu, DataType>(DataType(0), y1d * y1d + y2d * y2d); // To deal with NaNs     // 4*NNZ Flop
                     // const DataType PQ     = val[index] / (sqDist + 1.);            // 1*NNZ div, 1*NNZ flop, 4*NNZ byte
                     sqDist = 1.0 + y1d * y1d + y2d * y2d;
-                    PQ = val[index] / sqDist;
+                    PQ     = val[index] / sqDist;
 
                     // Apply forces
                     mem.attr[iRow].x += PQ * y1d;
@@ -758,16 +756,15 @@ struct AttractiveKernel {
                     IdxType start = row[iRow] - 1;
                     for (IdxType index = 0; index < iSize; ++index)
                     {
-                        divLocal[0] += val[start + index] * logLocal[index];               // 2*NNZ Flop
+                        divLocal[0] += val[start + index] * logLocal[index]; // 2*NNZ Flop
                     }
                 }
             }
-
-            });
+        });
 
         divTlsData.reduceTo(&divergence, 1);
         divergence *= exaggeration;
-        logTlsData.reduce([&](DataType* buf) { services::internal::service_scalable_free<DataType, cpu>(buf); });
+        logTlsData.reduce([&](DataType * buf) { services::internal::service_scalable_free<DataType, cpu>(buf); });
 
         //Find_Normalization
         zNorm = DataType(1) / zNorm;
@@ -777,9 +774,9 @@ struct AttractiveKernel {
 };
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status integrationKernelImpl(const DataType eta, const DataType momentum, const DataType exaggeration, 
-                                        MemoryCtxType<IdxType, xyType<DataType>> & mem, DataType & gradNorm, const DataType & zNorm,
-                                       const IdxType N, const IdxType & blockOfRows)
+services::Status integrationKernelImpl(const DataType eta, const DataType momentum, const DataType exaggeration,
+                                       MemoryCtxType<IdxType, xyType<DataType> > & mem, DataType & gradNorm, const DataType & zNorm, const IdxType N,
+                                       const IdxType & blockOfRows)
 {
     const IdxType nThreads    = threader_get_threads_number();
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, N / nThreads + 1);
@@ -794,8 +791,8 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
         DataType * localSum = sumTlsData.local(tid);
         for (IdxType i = iStart; i < iEnd; ++i)
         {
-            const DataType dx = 4*(exaggeration * mem.attr[i].x - zNorm * mem.rep[i].x);
-            const DataType dy = 4*(exaggeration * mem.attr[i].y - zNorm * mem.rep[i].y);
+            const DataType dx = 4 * (exaggeration * mem.attr[i].x - zNorm * mem.rep[i].x);
+            const DataType dy = 4 * (exaggeration * mem.attr[i].y - zNorm * mem.rep[i].y);
             localSum[0] += dx * dx + dy * dy;
 
             gx = (dx * (ux = mem.ofor[i].x) < DataType(0)) ? mem.gain[i].x + 0.2 : mem.gain[i].x * 0.8;
@@ -820,10 +817,15 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
     return services::Status();
 }
 
+#include <cstdio>
+
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
                                          const NumericTablePtr paramTable, const NumericTablePtr resultTable)
 {
+    printf(" ============================== \n");
+    printf("  In IntelLabs' version of tSNE\n");
+    printf(" ============================== \n");
     // sizes and number of iterations
     daal::internal::ReadColumns<IdxType, cpu> sizeIterDataBlock(*sizeIterTable, 0, 0, sizeIterTable->getNumberOfRows());
     const IdxType * sizeIter = sizeIterDataBlock.get();
@@ -895,11 +897,12 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
     IdxType * col_i32 = services::internal::service_malloc<IdxType, cpu>(nnz);
 
-    for(int i = 0; i < nnz; i++){
+    for (int i = 0; i < nnz; i++)
+    {
         col_i32[i] = (IdxType)col[i];
     }
 
-    MemoryCtxType<IdxType, xyType<DataType>> mem;
+    MemoryCtxType<IdxType, xyType<DataType> > mem;
 
     // allocate and init memory for auxiliary arrays: posx & posy, morton codes and indices
     mem.capacity = N;
@@ -921,12 +924,13 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     mem.ofor = services::internal::service_calloc<xyType<DataType>, cpu>(mem.capacity);
     DAAL_CHECK_MALLOC(mem.ofor);
 
-    for(size_t i = 0; i < N; i++){
+    for (size_t i = 0; i < N; i++)
+    {
         mem.pos[i].x = xInit[i];
         mem.pos[i].y = yInit[i];
     }
 
-    TreeCtxType<IdxType, xyType<DataType>> qTree;
+    TreeCtxType<IdxType, xyType<DataType> > qTree;
     // allocate enough memory to store top 5 levels of qTree
     qTree.capacity = 1024;
     qTree.tree     = services::internal::service_malloc<qTreeNode, cpu>(qTree.capacity);
@@ -963,20 +967,19 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
         if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
         {
-            status = AttractiveKernel<true, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N,
-                nnz, nElements, exaggeration);
+            status = AttractiveKernel<true, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N, nnz, nElements, exaggeration);
         }
         else
         {
-            status = AttractiveKernel<false, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N, 
-                nnz, nElements, exaggeration);
+            status =
+                AttractiveKernel<false, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N, nnz, nElements, exaggeration);
         }
 
         DAAL_CHECK_STATUS_VAR(status);
 
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, mem, gradNorm, zNorm, N, blockOfRows);
         DAAL_CHECK_STATUS_VAR(status);
- 
+
         if ((i + 1) % nIterCheck == 0)
         {
             if (divergence < bestDivergence)
@@ -1015,13 +1018,12 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
         if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
         {
-            status = AttractiveKernel<true, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N,
-                nnz, nElements, exaggeration);
+            status = AttractiveKernel<true, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N, nnz, nElements, exaggeration);
         }
         else
         {
-            status = AttractiveKernel<false, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N,
-                nnz, nElements, exaggeration);
+            status =
+                AttractiveKernel<false, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N, nnz, nElements, exaggeration);
         }
 
         DAAL_CHECK_STATUS_VAR(status);
@@ -1054,7 +1056,8 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     }
 
     //save results
-    for(size_t i = 0; i < N; i++){
+    for (size_t i = 0; i < N; i++)
+    {
         xInit[i] = mem.pos[i].x;
         yInit[i] = mem.pos[i].y;
     }
@@ -1079,13 +1082,12 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 } // namespace algorithms
 } // namespace daal
 
-
 #if defined(__INTEL_COMPILER)
     #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
         #if (__CPUID__(DAAL_CPU) == __avx512__)
 
-        #include <immintrin.h>
-        #include "tsne_gradient_descent_avx512_impl.i"
+            #include <immintrin.h>
+            #include "tsne_gradient_descent_avx512_impl.i"
 
         #endif // __CPUID__(DAAL_CPU) == __avx512__
     #endif     // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)
