@@ -30,7 +30,6 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -40,8 +39,7 @@ using namespace daal::data_management;
  */
 const std::string datasetFileName = "../data/batch/covcormoments_csr.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Read datasetFileName from a file and create a numeric table to store input data */
@@ -57,7 +55,10 @@ int main(int argc, char * argv[])
     /* Get the computed variance-covariance matrix */
     covariance::ResultPtr res = algorithm.getResult();
 
-    printNumericTable(res->get(covariance::covariance), "Covariance matrix (upper left square 10*10) :", 10, 10);
+    printNumericTable(res->get(covariance::covariance),
+                      "Covariance matrix (upper left square 10*10) :",
+                      10,
+                      10);
     printNumericTable(res->get(covariance::mean), "Mean vector:", 1, 10);
 
     return 0;

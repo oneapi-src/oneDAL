@@ -28,7 +28,6 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -37,10 +36,11 @@ using namespace daal::algorithms::normalization;
 /* Input data set parameters */
 std::string datasetName = "../data/batch/normalization.csv";
 
-int main()
-{
+int main() {
     /* Retrieve the input data */
-    FileDataSource<CSVFeatureManager> dataSource(datasetName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
     dataSource.loadDataBlock();
 
     NumericTablePtr data = dataSource.getNumericTable();
@@ -58,7 +58,9 @@ int main()
     zscore::ResultPtr res = algorithm.getResult();
 
     printNumericTable(data, "First 10 rows of the input data:", 10);
-    printNumericTable(res->get(zscore::normalizedData), "First 10 rows of the z-score normalization result:", 10);
+    printNumericTable(res->get(zscore::normalizedData),
+                      "First 10 rows of the z-score normalization result:",
+                      10);
 
     return 0;
 }

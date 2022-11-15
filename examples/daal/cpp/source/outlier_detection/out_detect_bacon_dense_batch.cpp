@@ -28,7 +28,6 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -38,18 +37,20 @@ typedef double algorithmFPType; /* Algorithm floating-point type */
 /* Input data set parameters */
 std::string datasetFileName = "../data/batch/outlierdetection.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
 
     /* Create an algorithm to detect outliers using the BACON method */
-    bacon_outlier_detection::Batch<algorithmFPType, bacon_outlier_detection::defaultDense> algorithm;
+    bacon_outlier_detection::Batch<algorithmFPType, bacon_outlier_detection::defaultDense>
+        algorithm;
 
     algorithm.input.set(bacon_outlier_detection::data, dataSource.getNumericTable());
 
@@ -59,7 +60,10 @@ int main(int argc, char * argv[])
     /* Get the computed results */
     bacon_outlier_detection::ResultPtr res = algorithm.getResult();
 
-    printNumericTables(dataSource.getNumericTable().get(), res->get(bacon_outlier_detection::weights).get(), "Input data", "Weights",
+    printNumericTables(dataSource.getNumericTable().get(),
+                       res->get(bacon_outlier_detection::weights).get(),
+                       "Input data",
+                       "Weights",
                        "Outlier detection result (Bacon method)");
 
     return 0;

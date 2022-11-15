@@ -28,7 +28,6 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -37,15 +36,16 @@ using namespace daal::data_management;
 std::string datasetFileName = "../data/batch/dbscan_dense.csv";
 
 /* DBSCAN algorithm parameters */
-const float epsilon          = 0.04f;
+const float epsilon = 0.04f;
 const size_t minObservations = 45;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -59,7 +59,9 @@ int main(int argc, char * argv[])
 
     /* Print the clusterization results */
     printNumericTable(algorithm.getResult()->get(dbscan::nClusters), "Number of clusters:");
-    printNumericTable(algorithm.getResult()->get(dbscan::assignments), "Assignments of first 20 observations:", 20);
+    printNumericTable(algorithm.getResult()->get(dbscan::assignments),
+                      "Assignments of first 20 observations:",
+                      20);
 
     return 0;
 }

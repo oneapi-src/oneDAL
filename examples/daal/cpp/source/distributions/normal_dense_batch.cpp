@@ -28,15 +28,13 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::engines;
 using namespace daal::algorithms::distributions;
 
-int main()
-{
+int main() {
     /* Create input table to fill with random numbers */
     NumericTablePtr dataTable(new HomogenNumericTable<>(1, 10, NumericTable::doAllocate));
 

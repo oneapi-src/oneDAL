@@ -31,7 +31,6 @@
 #include "service.h"
 #include "service_sycl.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -40,7 +39,7 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 std::string trainDatasetFileName = "../data/batch/svm_two_class_train_dense.csv";
-std::string testDatasetFileName  = "../data/batch/svm_two_class_test_dense.csv";
+std::string testDatasetFileName = "../data/batch/svm_two_class_test_dense.csv";
 
 const size_t nFeatures = 20;
 
@@ -56,14 +55,12 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
 
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
@@ -79,11 +76,12 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void trainModel()
-{
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+void trainModel() {
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
-    auto trainData        = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    auto trainData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
     auto trainGroundTruth = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
 
     NumericTablePtr mergedData(new MergedNumericTable(trainData, trainGroundTruth));
@@ -91,11 +89,11 @@ void trainModel()
     trainDataSource.loadDataBlock(mergedData.get());
 
     svm::training::Batch<float, svm::training::thunder> algorithm;
-    algorithm.parameter.kernel            = kernel;
-    algorithm.parameter.C                 = 1.0;
+    algorithm.parameter.kernel = kernel;
+    algorithm.parameter.C = 1.0;
     algorithm.parameter.accuracyThreshold = 0.001;
-    algorithm.parameter.tau               = 1e-6;
-    algorithm.parameter.maxIterations     = 100;
+    algorithm.parameter.tau = 1e-6;
+    algorithm.parameter.maxIterations = 100;
 
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
@@ -107,15 +105,17 @@ void trainModel()
     trainingResult = algorithm.getResult();
 }
 
-void testModel()
-{
+void testModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from
    * a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
-    NumericTablePtr testData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
-    testGroundTruth          = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr testData =
+        SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    testGroundTruth = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
     NumericTablePtr mergedData(new MergedNumericTable(testData, testGroundTruth));
 
     /* Retrieve the data from input file */
@@ -128,7 +128,8 @@ void testModel()
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
-    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.input.set(classifier::prediction::model,
+                        trainingResult->get(classifier::training::model));
 
     /* Predict SVM values */
     algorithm.compute();
@@ -137,8 +138,11 @@ void testModel()
     predictionResult = algorithm.getResult();
 }
 
-void printResults()
-{
-    printNumericTables<int, float>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth\t",
-                                   "Classification results", "SVM classification results (first 20 observations):", 20);
+void printResults() {
+    printNumericTables<int, float>(testGroundTruth,
+                                   predictionResult->get(classifier::prediction::prediction),
+                                   "Ground truth\t",
+                                   "Classification results",
+                                   "SVM classification results (first 20 observations):",
+                                   20);
 }

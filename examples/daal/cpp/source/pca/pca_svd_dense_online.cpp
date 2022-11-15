@@ -30,27 +30,26 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
 const size_t nVectorsInBlock = 250;
-const std::string dataFileName    = "../data/online/pca_normalized.csv";
+const std::string dataFileName = "../data/online/pca_normalized.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &dataFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(dataFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Create an algorithm for principal component analysis using the SVD method */
     pca::Online<float, pca::svdDense> algorithm;
 
-    while (dataSource.loadDataBlock(nVectorsInBlock) == nVectorsInBlock)
-    {
+    while (dataSource.loadDataBlock(nVectorsInBlock) == nVectorsInBlock) {
         /* Set the input data to the algorithm */
         algorithm.input.set(pca::data, dataSource.getNumericTable());
 

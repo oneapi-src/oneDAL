@@ -29,7 +29,6 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -40,12 +39,13 @@ std::string datasetFileName = "../data/batch/kmeans_dense.csv";
 /* K-Means algorithm parameters */
 const size_t nClusters = 20;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -69,7 +69,9 @@ int main(int argc, char * argv[])
     algorithm.compute();
 
     /* Print the clusterization results */
-    printNumericTable(algorithm.getResult()->get(kmeans::assignments), "First 10 cluster assignments:", 10);
+    printNumericTable(algorithm.getResult()->get(kmeans::assignments),
+                      "First 10 cluster assignments:",
+                      10);
 
     return 0;
 }

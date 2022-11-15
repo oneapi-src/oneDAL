@@ -29,27 +29,26 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
 const std::string datasetFileName = "../data/online/svd.csv";
-const size_t nRowsInBlock    = 4000;
+const size_t nRowsInBlock = 4000;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Create an algorithm to compute SVD in the online processing mode */
     svd::Online<> algorithm;
 
-    while (dataSource.loadDataBlock(nRowsInBlock) == nRowsInBlock)
-    {
+    while (dataSource.loadDataBlock(nRowsInBlock) == nRowsInBlock) {
         algorithm.input.set(svd::data, dataSource.getNumericTable());
 
         /* Compute SVD */

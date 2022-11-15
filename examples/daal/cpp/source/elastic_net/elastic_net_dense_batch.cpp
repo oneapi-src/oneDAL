@@ -32,17 +32,17 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::elastic_net;
 
 /* Input data set parameters */
 std::string trainDatasetFileName = "../data/batch/linear_regression_train.csv";
-std::string testDatasetFileName  = "../data/batch/linear_regression_test.csv";
+std::string testDatasetFileName = "../data/batch/linear_regression_test.csv";
 
-const size_t nFeatures           = 10; /* Number of features in training and testing data sets */
-const size_t nDependentVariables = 2;  /* Number of dependent variables that correspond to each observation */
+const size_t nFeatures = 10; /* Number of features in training and testing data sets */
+const size_t nDependentVariables =
+    2; /* Number of dependent variables that correspond to each observation */
 
 void trainModel();
 void testModel();
@@ -50,8 +50,7 @@ void testModel();
 training::ResultPtr trainingResult;
 prediction::ResultPtr predictionResult;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
     trainModel();
@@ -60,14 +59,17 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void trainModel()
-{
+void trainModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
-    NumericTablePtr trainData(HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate));
-    NumericTablePtr trainDependentVariables(HomogenNumericTable<>::create(nDependentVariables, 0, NumericTable::doNotAllocate));
+    NumericTablePtr trainData(
+        HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate));
+    NumericTablePtr trainDependentVariables(
+        HomogenNumericTable<>::create(nDependentVariables, 0, NumericTable::doNotAllocate));
     NumericTablePtr mergedData(MergedNumericTable::create(trainData, trainDependentVariables));
 
     /* Retrieve the data from input file */
@@ -79,8 +81,10 @@ void trainModel()
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(training::data, trainData);
     algorithm.input.set(training::dependentVariables, trainDependentVariables);
-    algorithm.parameter().penaltyL1 = NumericTablePtr(HomogenNumericTable<>::create(nDependentVariables, 1, NumericTable::doAllocate, 0.5f));
-    algorithm.parameter().penaltyL2 = NumericTablePtr(HomogenNumericTable<>::create(nDependentVariables, 1, NumericTable::doAllocate, 0.5f));
+    algorithm.parameter().penaltyL1 = NumericTablePtr(
+        HomogenNumericTable<>::create(nDependentVariables, 1, NumericTable::doAllocate, 0.5f));
+    algorithm.parameter().penaltyL2 = NumericTablePtr(
+        HomogenNumericTable<>::create(nDependentVariables, 1, NumericTable::doAllocate, 0.5f));
     /* Build the multiple elastic net model */
     algorithm.compute();
 
@@ -89,14 +93,17 @@ void trainModel()
     printNumericTable(trainingResult->get(training::model)->getBeta(), "Elastic Net coefficients:");
 }
 
-void testModel()
-{
+void testModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
+                                                     DataSource::doAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and ground truth values */
-    NumericTablePtr testData(HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate));
-    NumericTablePtr testGroundTruth(HomogenNumericTable<>::create(nDependentVariables, 0, NumericTable::doNotAllocate));
+    NumericTablePtr testData(
+        HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate));
+    NumericTablePtr testGroundTruth(
+        HomogenNumericTable<>::create(nDependentVariables, 0, NumericTable::doNotAllocate));
     NumericTablePtr mergedData(MergedNumericTable::create(testData, testGroundTruth));
 
     /* Load the data from the data file */
@@ -114,6 +121,8 @@ void testModel()
 
     /* Retrieve the algorithm results */
     predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(prediction::prediction), "Elastic Net prediction results: (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(prediction::prediction),
+                      "Elastic Net prediction results: (first 10 rows):",
+                      10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }

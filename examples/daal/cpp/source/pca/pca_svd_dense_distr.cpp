@@ -30,7 +30,6 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -38,24 +37,32 @@ using namespace daal::data_management;
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-const size_t nBlocks         = 4;
+const size_t nBlocks = 4;
 const size_t nVectorsInBlock = 250;
 size_t nFeatures;
 
-const std::string dataFileNames[] = { "../data/distributed/pca_normalized_1.csv", "../data/distributed/pca_normalized_2.csv",
-                                 "../data/distributed/pca_normalized_3.csv", "../data/distributed/pca_normalized_4.csv" };
+const std::string dataFileNames[] = { "../data/distributed/pca_normalized_1.csv",
+                                      "../data/distributed/pca_normalized_2.csv",
+                                      "../data/distributed/pca_normalized_3.csv",
+                                      "../data/distributed/pca_normalized_4.csv" };
 
-int main(int argc, char * argv[])
-{
-    checkArguments(argc, argv, 4, &dataFileNames[0], &dataFileNames[1], &dataFileNames[2], &dataFileNames[3]);
+int main(int argc, char* argv[]) {
+    checkArguments(argc,
+                   argv,
+                   4,
+                   &dataFileNames[0],
+                   &dataFileNames[1],
+                   &dataFileNames[2],
+                   &dataFileNames[3]);
 
     /* Create an algorithm for principal component analysis using the SVD method on the master node */
     pca::Distributed<step2Master, algorithmFPType, pca::svdDense> masterAlgorithm;
 
-    for (size_t i = 0; i < nBlocks; i++)
-    {
+    for (size_t i = 0; i < nBlocks; i++) {
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(dataFileNames[i], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(dataFileNames[i],
+                                                     DataSource::doAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
         /* Retrieve the input data */
         dataSource.loadDataBlock(nVectorsInBlock);

@@ -32,7 +32,6 @@
 #include "service.h"
 #include "service_sycl.h"
 
-
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::regression;
@@ -41,26 +40,24 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-const std::string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
-const std::string testDatasetFileName          = "../data/batch/df_regression_test.csv";
-const size_t nFeatures                    = 13; /* Number of features in training and testing data sets */
+const std::string trainDatasetFileName = "../data/batch/df_regression_train.csv";
+const std::string testDatasetFileName = "../data/batch/df_regression_test.csv";
+const size_t nFeatures = 13; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
 const size_t nTrees = 100;
 
 template <typename algorithmType>
-training::ResultPtr trainModel(algorithmType && algorithm);
-void testModel(const training::ResultPtr & res);
-void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
+training::ResultPtr trainModel(algorithmType&& algorithm);
+void testModel(const training::ResultPtr& res);
+void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -76,8 +73,7 @@ int main(int argc, char * argv[])
 }
 
 template <typename algorithmType>
-training::ResultPtr trainModel(algorithmType && algorithm)
-{
+training::ResultPtr trainModel(algorithmType&& algorithm) {
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData;
     NumericTablePtr trainDependentVariable;
@@ -88,24 +84,27 @@ training::ResultPtr trainModel(algorithmType && algorithm)
     algorithm.input.set(training::data, trainData);
     algorithm.input.set(training::dependentVariable, trainDependentVariable);
 
-    algorithm.parameter().nTrees           = nTrees;
-    algorithm.parameter().varImportance    = daal::algorithms::decision_forest::training::MDA_Raw;
-    algorithm.parameter().resultsToCompute = daal::algorithms::decision_forest::training::computeOutOfBagError
-                                             | daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
+    algorithm.parameter().nTrees = nTrees;
+    algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDA_Raw;
+    algorithm.parameter().resultsToCompute =
+        daal::algorithms::decision_forest::training::computeOutOfBagError |
+        daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
 
     /* Build the decision forest regression model */
     algorithm.compute();
 
     /* Retrieve the algorithm results */
     training::ResultPtr trainingResult = algorithm.getResult();
-    printNumericTable(trainingResult->get(training::variableImportance), "Variable importance results: ");
+    printNumericTable(trainingResult->get(training::variableImportance),
+                      "Variable importance results: ");
     printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
-    printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation), "OOB error per observation (first 10 rows):", 10);
+    printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation),
+                      "OOB error per observation (first 10 rows):",
+                      10);
     return trainingResult;
 }
 
-void testModel(const training::ResultPtr & trainingResult)
-{
+void testModel(const training::ResultPtr& trainingResult) {
     /* Create Numeric Tables for testing data and ground truth values */
     NumericTablePtr testData;
     NumericTablePtr testGroundTruth;
@@ -124,17 +123,20 @@ void testModel(const training::ResultPtr & trainingResult)
 
     /* Retrieve the algorithm results */
     prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(prediction::prediction), "Decision forest prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(prediction::prediction),
+                      "Decision forest prediction results (first 10 rows):",
+                      10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 
-void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
-{
+void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar) {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
-    pData         = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
+    pData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
     pDependentVar = SyclHomogenNumericTable<>::create(1, 0, NumericTable::notAllocate);
     NumericTablePtr mergedData(new MergedNumericTable(pData, pDependentVar));
 

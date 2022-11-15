@@ -31,7 +31,6 @@
 #include "service.h"
 #include "service_sycl.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -40,24 +39,24 @@ using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
 const std::string dataFileName = "../data/batch/pca_transform.csv";
-const size_t nVectors     = 4;
-const size_t nComponents  = 2;
+const size_t nVectors = 4;
+const size_t nComponents = 2;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &dataFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
         SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
-        FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(dataFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
         auto data = SyclHomogenNumericTable<>::create(nVectors, 0, NumericTable::notAllocate);
         dataSource.loadDataBlock(data.get());
 
@@ -81,13 +80,15 @@ int main(int argc, char * argv[])
         pcaTransform.input.set(pca::transform::data, data);
         pcaTransform.input.set(pca::transform::eigenvectors, pcaResult->get(pca::eigenvectors));
 
-        pcaTransform.input.set(pca::transform::dataForTransform, pcaResult->get(pca::dataForTransform));
+        pcaTransform.input.set(pca::transform::dataForTransform,
+                               pcaResult->get(pca::dataForTransform));
 
         pcaTransform.compute();
 
         /* Output transformed data */
         pca::transform::ResultPtr pcaTransformResult = pcaTransform.getResult();
-        printNumericTable(pcaTransformResult->get(pca::transform::transformedData), "Transformed data:");
+        printNumericTable(pcaTransformResult->get(pca::transform::transformedData),
+                          "Transformed data:");
     }
 
     return 0;

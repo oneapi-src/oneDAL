@@ -31,7 +31,6 @@
 #include "service.h"
 #include "service_sycl.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -41,14 +40,12 @@ using daal::data_management::internal::SyclHomogenNumericTable;
 /* Input data set parameters */
 const std::string dataFileName = "../data/batch/pca_normalized.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &dataFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -56,7 +53,9 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(dataFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
         auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
         /* Retrieve the data from the input file */
@@ -68,7 +67,7 @@ int main(int argc, char * argv[])
         /* Set the algorithm input data */
         algorithm.input.set(pca::data, data);
         algorithm.parameter.resultsToCompute = pca::mean | pca::variance | pca::eigenvalue;
-        algorithm.parameter.isDeterministic  = true;
+        algorithm.parameter.isDeterministic = true;
 
         /* Compute results of the PCA algorithm */
         algorithm.compute();

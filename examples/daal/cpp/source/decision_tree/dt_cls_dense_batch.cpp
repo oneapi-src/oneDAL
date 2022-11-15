@@ -29,7 +29,6 @@
 #include "service.h"
 #include <cstdio>
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -37,10 +36,10 @@ using namespace daal::data_management;
 /* Input data set parameters */
 std::string trainDatasetFileName = "../data/batch/decision_tree_train.csv";
 std::string pruneDatasetFileName = "../data/batch/decision_tree_prune.csv";
-std::string testDatasetFileName  = "../data/batch/decision_tree_test.csv";
+std::string testDatasetFileName = "../data/batch/decision_tree_test.csv";
 
 const size_t nFeatures = 5; /* Number of features in training and testing data sets */
-const size_t nClasses  = 5; /* Number of classes */
+const size_t nClasses = 5; /* Number of classes */
 
 decision_tree::classification::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
@@ -50,8 +49,7 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
     trainModel();
@@ -61,10 +59,11 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void trainModel()
-{
+void trainModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -75,7 +74,9 @@ void trainModel()
     trainDataSource.loadDataBlock(mergedData.get());
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the pruning input data from a .csv file */
-    FileDataSource<CSVFeatureManager> pruneDataSource(pruneDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> pruneDataSource(pruneDatasetFileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for pruning data and labels */
     NumericTablePtr pruneData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -92,7 +93,8 @@ void trainModel()
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
     algorithm.input.set(decision_tree::classification::training::dataForPruning, pruneData);
-    algorithm.input.set(decision_tree::classification::training::labelsForPruning, pruneGroundTruth);
+    algorithm.input.set(decision_tree::classification::training::labelsForPruning,
+                        pruneGroundTruth);
 
     /* Train the Decision tree model */
     algorithm.compute();
@@ -101,10 +103,11 @@ void trainModel()
     trainingResult = algorithm.getResult();
 }
 
-void testModel()
-{
+void testModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -119,7 +122,8 @@ void testModel()
 
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
-    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.input.set(classifier::prediction::model,
+                        trainingResult->get(classifier::training::model));
 
     /* Compute prediction results */
     algorithm.compute();
@@ -128,8 +132,11 @@ void testModel()
     predictionResult = algorithm.getResult();
 }
 
-void printResults()
-{
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
-                                 "Decision tree classification results (first 20 observations):", 20);
+void printResults() {
+    printNumericTables<int, int>(testGroundTruth,
+                                 predictionResult->get(classifier::prediction::prediction),
+                                 "Ground truth",
+                                 "Classification results",
+                                 "Decision tree classification results (first 20 observations):",
+                                 20);
 }

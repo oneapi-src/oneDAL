@@ -29,31 +29,29 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace data_management;
 
 std::string datasetFileName = "../data/online/logitboost_train.csv";
 
-DataBlock sentDataStream;        /* Data stream to compress and send */
+DataBlock sentDataStream; /* Data stream to compress and send */
 DataBlock uncompressedDataBlock; /* Current block of the data stream to compress */
-DataBlock compressedDataBlock;   /* Current compressed block of data */
-DataBlock receivedDataStream;    /* Received uncompressed data stream */
+DataBlock compressedDataBlock; /* Current compressed block of data */
+DataBlock receivedDataStream; /* Received uncompressed data stream */
 
 std::queue<DataBlock> sendReceiveQueue; /* Queue for sending and receiving compressed data blocks */
 
-const size_t maxDataBlockSize     = 16384; /* Maximum size of a data block */
-const size_t userDefinedBlockSize = 7000;  /* Size for read data from a decompression stream */
+const size_t maxDataBlockSize = 16384; /* Maximum size of a data block */
+const size_t userDefinedBlockSize = 7000; /* Size for read data from a decompression stream */
 
-bool getDataBlock(DataBlock & block);
-void sendDataBlock(DataBlock * block);
-bool receiveDataBlock(DataBlock & block);
+bool getDataBlock(DataBlock &block);
+void sendDataBlock(DataBlock *block);
+bool receiveDataBlock(DataBlock &block);
 void prepareMemory();
 void releaseMemory();
 void printCRC32();
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Read data from a file and allocate memory */
@@ -67,8 +65,7 @@ int main(int argc, char * argv[])
     CompressionStream compressionStream(&compressor);
 
     /* Receive data by blocks from sentDataStream for further compression and send it */
-    while (getDataBlock(uncompressedDataBlock))
-    {
+    while (getDataBlock(uncompressedDataBlock)) {
         /* Put a data block to compressionStream and compress if needed */
         compressionStream << uncompressedDataBlock;
 
@@ -76,8 +73,7 @@ int main(int argc, char * argv[])
         DataBlockCollectionPtr compressedBlocks = compressionStream.getCompressedBlocksCollection();
 
         /* Send compressed blocks stored in compressionStream */
-        for (size_t i = 0; i < compressedBlocks->size(); i++)
-        {
+        for (size_t i = 0; i < compressedBlocks->size(); i++) {
             /* Send the current compressed block from compressionStream */
             sendDataBlock((*compressedBlocks)[i].get());
         }
@@ -93,16 +89,16 @@ int main(int argc, char * argv[])
     size_t readSize = 0;
 
     /* Receive compressed data by blocks */
-    while (receiveDataBlock(compressedDataBlock))
-    {
+    while (receiveDataBlock(compressedDataBlock)) {
         /* Write a received block to decompressionStream */
         decompressionStream << compressedDataBlock;
 
         /* Asynchronous read from decompressionStream */
-        do
-        {
+        do {
             /* Read userDefinedBlockSize bytes from decompressionStream to the end of receivedDataStream */
-            readSize = decompressionStream.copyDecompressedArray(receivedDataStream.getPtr() + receivedDataStream.getSize(), userDefinedBlockSize);
+            readSize = decompressionStream.copyDecompressedArray(
+                receivedDataStream.getPtr() + receivedDataStream.getSize(),
+                userDefinedBlockSize);
 
             /* Update the actual data size in receivedDataStream */
             receivedDataStream.setSize(receivedDataStream.getSize() + readSize);
@@ -117,50 +113,44 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void prepareMemory()
-{
+void prepareMemory() {
     /* Allocate sentDataStream and read an input file */
-    byte * data;
+    byte *data;
     sentDataStream.setSize(readTextFile(datasetFileName, &data));
     sentDataStream.setPtr(data);
 
     /* Allocate memory for receivedDataStream */
-    byte * receivedData = (byte *)daal::services::daal_malloc(sentDataStream.getSize());
+    byte *receivedData = (byte *)daal::services::daal_malloc(sentDataStream.getSize());
     checkAllocation(receivedData);
     receivedDataStream.setPtr(receivedData);
 }
 
-bool getDataBlock(DataBlock & block)
-{
+bool getDataBlock(DataBlock &block) {
     static size_t availableDataSize = sentDataStream.getSize();
 
     /* Calculate the current block size and ptr */
-    if (availableDataSize >= maxDataBlockSize)
-    {
+    if (availableDataSize >= maxDataBlockSize) {
         block.setSize(maxDataBlockSize);
         block.setPtr(sentDataStream.getPtr() + sentDataStream.getSize() - availableDataSize);
         availableDataSize -= maxDataBlockSize;
     }
-    else if ((availableDataSize < maxDataBlockSize) && (availableDataSize > 0))
-    {
+    else if ((availableDataSize < maxDataBlockSize) && (availableDataSize > 0)) {
         block.setSize(availableDataSize);
         block.setPtr(sentDataStream.getPtr() + sentDataStream.getSize() - availableDataSize);
         availableDataSize = 0;
     }
-    else
-    {
+    else {
         return false;
     }
 
     return true;
 }
 
-void sendDataBlock(DataBlock * block)
-{
+void sendDataBlock(DataBlock *block) {
     DataBlock currentBlock;
 
     /* Allocate memory for the current compressed block in the queue */
-    byte * tmp = (byte *)daal::services::daal_malloc(block->getSize());
+    byte *tmp = (byte *)daal::services::daal_malloc(block->getSize());
     checkAllocation(tmp);
     currentBlock.setPtr(tmp);
 
@@ -174,13 +164,11 @@ void sendDataBlock(DataBlock * block)
     return;
 }
 
-bool receiveDataBlock(DataBlock & block)
-{
+bool receiveDataBlock(DataBlock &block) {
     DataBlock currentBlock;
 
     /* Stop at the end of the queue */
-    if (sendReceiveQueue.empty())
-    {
+    if (sendReceiveQueue.empty()) {
         return false;
     }
 
@@ -188,8 +176,7 @@ bool receiveDataBlock(DataBlock & block)
     currentBlock = sendReceiveQueue.front();
     block.setSize(currentBlock.getSize());
 
-    if (block.getPtr())
-    {
+    if (block.getPtr()) {
         delete[] block.getPtr();
     }
     block.setPtr(new byte[block.getSize()]);
@@ -204,46 +191,40 @@ bool receiveDataBlock(DataBlock & block)
     return true;
 }
 
-void printCRC32()
-{
-    unsigned int crcSentDataStream     = 0;
+void printCRC32() {
+    unsigned int crcSentDataStream = 0;
     unsigned int crcReceivedDataStream = 0;
 
     /* Compute checksums for full input data and full received data */
-    crcSentDataStream     = getCRC32(sentDataStream.getPtr(), crcSentDataStream, sentDataStream.getSize());
-    crcReceivedDataStream = getCRC32(receivedDataStream.getPtr(), crcReceivedDataStream, receivedDataStream.getSize());
+    crcSentDataStream =
+        getCRC32(sentDataStream.getPtr(), crcSentDataStream, sentDataStream.getSize());
+    crcReceivedDataStream =
+        getCRC32(receivedDataStream.getPtr(), crcReceivedDataStream, receivedDataStream.getSize());
 
     std::cout << std::endl << "Compression example program results:" << std::endl << std::endl;
 
     std::cout << "Input data checksum:    0x" << std::hex << crcSentDataStream << std::endl;
     std::cout << "Received data checksum: 0x" << std::hex << crcReceivedDataStream << std::endl;
 
-    if (sentDataStream.getSize() != receivedDataStream.getSize())
-    {
+    if (sentDataStream.getSize() != receivedDataStream.getSize()) {
         std::cout << "ERROR: Received data size mismatches with the sent data size" << std::endl;
     }
-    else if (crcSentDataStream != crcReceivedDataStream)
-    {
+    else if (crcSentDataStream != crcReceivedDataStream) {
         std::cout << "ERROR: Received data CRC mismatches with the sent data CRC" << std::endl;
     }
-    else
-    {
+    else {
         std::cout << "OK: Received data CRC matches with the sent data CRC" << std::endl;
     }
 }
 
-void releaseMemory()
-{
-    if (compressedDataBlock.getPtr())
-    {
+void releaseMemory() {
+    if (compressedDataBlock.getPtr()) {
         delete[] compressedDataBlock.getPtr();
     }
-    if (receivedDataStream.getPtr())
-    {
+    if (receivedDataStream.getPtr()) {
         daal::services::daal_free(receivedDataStream.getPtr());
     }
-    if (sentDataStream.getPtr())
-    {
+    if (sentDataStream.getPtr()) {
         delete[] sentDataStream.getPtr();
     }
 }

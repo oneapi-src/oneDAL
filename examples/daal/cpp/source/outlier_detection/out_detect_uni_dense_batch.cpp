@@ -28,7 +28,6 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -36,12 +35,13 @@ using namespace daal::data_management;
 /* Input data set parameters */
 std::string datasetFileName = "../data/batch/outlierdetection.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -57,7 +57,8 @@ int main(int argc, char * argv[])
     univariate_outlier_detection::ResultPtr res = algorithm.getResult();
 
     printNumericTable(dataSource.getNumericTable(), "Input data");
-    printNumericTable(res->get(univariate_outlier_detection::weights), "Outlier detection result (univariate)");
+    printNumericTable(res->get(univariate_outlier_detection::weights),
+                      "Outlier detection result (univariate)");
 
     return 0;
 }

@@ -30,7 +30,6 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -40,8 +39,7 @@ const std::string dataFileName = "../data/batch/covcormoments_csr.csv";
 
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &dataFileName);
 
     /* Read data from a file and create a numeric table to store input data */
@@ -52,13 +50,14 @@ int main(int argc, char * argv[])
 
     /* Use covariance algorithm for sparse data inside the PCA algorithm */
     algorithm.parameter.covariance =
-        services::SharedPtr<covariance::Batch<algorithmFPType, covariance::fastCSR> >(new covariance::Batch<algorithmFPType, covariance::fastCSR>());
+        services::SharedPtr<covariance::Batch<algorithmFPType, covariance::fastCSR>>(
+            new covariance::Batch<algorithmFPType, covariance::fastCSR>());
 
     /* Set the algorithm input data */
     algorithm.input.set(pca::data, dataTable);
 
     algorithm.parameter.resultsToCompute = pca::mean | pca::variance | pca::eigenvalue;
-    algorithm.parameter.isDeterministic  = true;
+    algorithm.parameter.isDeterministic = true;
     /* Compute results of the PCA algorithm */
     algorithm.compute();
 

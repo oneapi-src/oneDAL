@@ -31,7 +31,6 @@
 #include "daal.h"
 #include "service.h"
 
-
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::implicit_als;
@@ -50,8 +49,7 @@ void initializeModel();
 void trainModel();
 void testModel();
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &trainDatasetFileName);
 
     initializeModel();
@@ -63,10 +61,11 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void initializeModel()
-{
+void initializeModel() {
     /* Read trainDatasetFileName from a file and create a numeric table to store the input data */
-    FileDataSource<CSVFeatureManager> dataSource(trainDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(trainDatasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the input data */
     dataSource.loadDataBlock();
@@ -86,8 +85,7 @@ void initializeModel()
     initialModel = initAlgorithm.getResult()->get(training::init::model);
 }
 
-void trainModel()
-{
+void trainModel() {
     /* Create an algorithm object to train the implicit ALS model with the default method */
     training::Batch<> algorithm;
 
@@ -104,8 +102,7 @@ void trainModel()
     trainingResult = algorithm.getResult();
 }
 
-void testModel()
-{
+void testModel() {
     /* Create an algorithm object to predict recommendations of the implicit ALS model */
     prediction::ratings::Batch<> algorithm;
     algorithm.parameter.nFactors = nFactors;
