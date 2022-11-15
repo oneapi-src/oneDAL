@@ -93,16 +93,8 @@ jobs:
     displayName: 'daal/cpp examples'
   - script: |
       source dpcpp_compiler/startup.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp_sycl
-    displayName: 'daal/cpp_sycl examples'
-  - script: |
-      source dpcpp_compiler/startup.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
-  - script: |
-      source dpcpp_compiler/startup.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
-    displayName: 'oneapi/dpc examples'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
