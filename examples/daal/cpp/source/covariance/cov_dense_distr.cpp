@@ -29,7 +29,7 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -37,7 +37,7 @@ using namespace daal::data_management;
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string datasetFileNames[] = { "../data/distributed/covcormoments_dense_1.csv", "../data/distributed/covcormoments_dense_2.csv",
+const std::string datasetFileNames[] = { "../data/distributed/covcormoments_dense_1.csv", "../data/distributed/covcormoments_dense_2.csv",
                                     "../data/distributed/covcormoments_dense_3.csv", "../data/distributed/covcormoments_dense_4.csv" };
 
 covariance::PartialResultPtr partialResult[nBlocks];

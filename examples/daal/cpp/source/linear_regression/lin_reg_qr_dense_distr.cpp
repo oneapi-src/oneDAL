@@ -33,7 +33,7 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::linear_regression;
@@ -41,9 +41,9 @@ using namespace daal::algorithms::linear_regression;
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-const string trainDatasetFileNames[] = { "../data/distributed/linear_regression_train_1.csv", "../data/distributed/linear_regression_train_2.csv",
+const std::string trainDatasetFileNames[] = { "../data/distributed/linear_regression_train_1.csv", "../data/distributed/linear_regression_train_2.csv",
                                          "../data/distributed/linear_regression_train_3.csv", "../data/distributed/linear_regression_train_4.csv" };
-string testDatasetFileName           = "../data/distributed/linear_regression_test.csv";
+std::string testDatasetFileName           = "../data/distributed/linear_regression_test.csv";
 
 const size_t nBlocks = 4;
 

@@ -29,12 +29,12 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-string datasetFileName = "../data/batch/lbfgs.csv";
+std::string datasetFileName = "../data/batch/lbfgs.csv";
 
 const size_t nFeatures   = 10;
 const size_t nIterations = 1000;

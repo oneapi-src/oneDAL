@@ -31,7 +31,7 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -40,7 +40,7 @@ using namespace daal::data_management;
  * Input data set parameters
  * Input matrix is stored in the CSR format with one-based indexing
  */
-const string datasetFileName = "../data/batch/covcormoments_csr.csv";
+const std::string datasetFileName = "../data/batch/covcormoments_csr.csv";
 
 void printResults(const low_order_moments::ResultPtr & res);
 

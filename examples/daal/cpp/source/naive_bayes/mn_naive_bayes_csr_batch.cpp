@@ -32,7 +32,7 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -41,11 +41,11 @@ using namespace daal::algorithms::multinomial_naive_bayes;
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-string trainDatasetFileName     = "../data/batch/naivebayes_train_csr.csv";
-string trainGroundTruthFileName = "../data/batch/naivebayes_train_labels.csv";
+std::string trainDatasetFileName     = "../data/batch/naivebayes_train_csr.csv";
+std::string trainGroundTruthFileName = "../data/batch/naivebayes_train_labels.csv";
 
-string testDatasetFileName     = "../data/batch/naivebayes_test_csr.csv";
-string testGroundTruthFileName = "../data/batch/naivebayes_test_labels.csv";
+std::string testDatasetFileName     = "../data/batch/naivebayes_test_csr.csv";
+std::string testGroundTruthFileName = "../data/batch/naivebayes_test_labels.csv";
 
 const size_t nTrainObservations = 8000;
 const size_t nTestObservations  = 2000;

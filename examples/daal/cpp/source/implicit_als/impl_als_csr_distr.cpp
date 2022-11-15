@@ -31,7 +31,7 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::implicit_als;
@@ -39,7 +39,7 @@ using namespace daal::algorithms::implicit_als;
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string trainDatasetFileNames[nBlocks] = { "../data/distributed/implicit_als_trans_csr_1.csv",
+const std::string trainDatasetFileNames[nBlocks] = { "../data/distributed/implicit_als_trans_csr_1.csv",
                                                 "../data/distributed/implicit_als_trans_csr_2.csv",
                                                 "../data/distributed/implicit_als_trans_csr_3.csv",
                                                 "../data/distributed/implicit_als_trans_csr_4.csv" };
@@ -338,7 +338,7 @@ void printResults()
     {
         for (size_t j = 0; j < nBlocks; j++)
         {
-            cout << "Ratings for users block " << i << ", items block " << j << " :" << endl;
+            std::cout << "Ratings for users block " << i << ", items block " << j << " :" << std::endl;
             printALSRatings(userOffsets[i], itemOffsets[j], predictedRatings[i][j]);
         }
     }

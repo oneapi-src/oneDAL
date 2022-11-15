@@ -28,13 +28,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/online/qr.csv";
+const std::string datasetFileName = "../data/online/qr.csv";
 const size_t nRowsInBlock    = 4000;
 
 int main(int argc, char * argv[])

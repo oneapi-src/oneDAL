@@ -31,13 +31,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::regression;
 
 /* Input data set parameters */
-const string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
+const std::string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
 const size_t categoricalFeaturesIndices[] = { 3 };
 const size_t nFeatures                    = 13; /* Number of features in training and testing data sets */
 

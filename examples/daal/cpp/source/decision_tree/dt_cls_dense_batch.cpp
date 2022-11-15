@@ -29,15 +29,15 @@
 #include "service.h"
 #include <cstdio>
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/decision_tree_train.csv";
-string pruneDatasetFileName = "../data/batch/decision_tree_prune.csv";
-string testDatasetFileName  = "../data/batch/decision_tree_test.csv";
+std::string trainDatasetFileName = "../data/batch/decision_tree_train.csv";
+std::string pruneDatasetFileName = "../data/batch/decision_tree_prune.csv";
+std::string testDatasetFileName  = "../data/batch/decision_tree_test.csv";
 
 const size_t nFeatures = 5; /* Number of features in training and testing data sets */
 const size_t nClasses  = 5; /* Number of classes */

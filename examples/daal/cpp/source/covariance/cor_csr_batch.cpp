@@ -30,7 +30,7 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -38,7 +38,7 @@ using namespace daal::data_management;
 /* Input data set parameters
    Input matrix is stored in the compressed sparse row format with one-based indexing
  */
-const string datasetFileName = "../data/batch/covcormoments_csr.csv";
+const std::string datasetFileName = "../data/batch/covcormoments_csr.csv";
 
 int main(int argc, char * argv[])
 {

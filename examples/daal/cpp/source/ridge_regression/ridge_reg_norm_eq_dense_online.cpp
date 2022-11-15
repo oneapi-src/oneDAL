@@ -31,14 +31,14 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::ridge_regression;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/online/linear_regression_train.csv";
-string testDatasetFileName  = "../data/online/linear_regression_test.csv";
+std::string trainDatasetFileName = "../data/online/linear_regression_train.csv";
+std::string testDatasetFileName  = "../data/online/linear_regression_test.csv";
 
 const size_t nTrainVectorsInBlock = 250;
 

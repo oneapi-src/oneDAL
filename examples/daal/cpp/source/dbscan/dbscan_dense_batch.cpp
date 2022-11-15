@@ -28,13 +28,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/dbscan_dense.csv";
+std::string datasetFileName = "../data/batch/dbscan_dense.csv";
 
 /* DBSCAN algorithm parameters */
 const float epsilon          = 0.04f;

@@ -28,13 +28,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/kmeans_dense.csv";
+std::string datasetFileName = "../data/batch/kmeans_dense.csv";
 
 /* K-Means algorithm parameters */
 const size_t nClusters   = 20;

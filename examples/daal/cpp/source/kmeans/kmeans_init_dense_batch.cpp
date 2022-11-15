@@ -29,13 +29,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/kmeans_init_dense.csv";
+const std::string datasetFileName = "../data/batch/kmeans_init_dense.csv";
 
 /* K-Means algorithm parameters */
 const size_t nMaxIterations     = 1000;

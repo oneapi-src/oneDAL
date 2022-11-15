@@ -28,13 +28,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/distance.csv";
+const std::string datasetFileName = "../data/batch/distance.csv";
 
 int main(int argc, char * argv[])
 {

@@ -30,14 +30,14 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
 const size_t nVectorsInBlock = 250;
-const string dataFileName    = "../data/online/pca_normalized.csv";
+const std::string dataFileName    = "../data/online/pca_normalized.csv";
 
 int main(int argc, char * argv[])
 {

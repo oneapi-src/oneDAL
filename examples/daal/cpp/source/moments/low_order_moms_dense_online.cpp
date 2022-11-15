@@ -28,13 +28,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/online/covcormoments_dense.csv";
+const std::string datasetFileName = "../data/online/covcormoments_dense.csv";
 const size_t nVectorsInBlock = 50;
 
 void printResults(const low_order_moments::ResultPtr & res);

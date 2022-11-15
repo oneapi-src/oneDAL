@@ -29,12 +29,12 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-const string datasetFileName = "../data/batch/logreg_train.csv";
+const std::string datasetFileName = "../data/batch/logreg_train.csv";
 const size_t nFeatures       = 6; /* Number of features in training and testing data sets */
 const size_t nClasses        = 5; /* Number of classes */
 const size_t nIterations     = 1000;

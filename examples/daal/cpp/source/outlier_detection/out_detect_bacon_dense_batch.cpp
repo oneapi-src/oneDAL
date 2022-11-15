@@ -28,7 +28,7 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -36,7 +36,7 @@ using namespace daal::data_management;
 typedef double algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/outlierdetection.csv";
+std::string datasetFileName = "../data/batch/outlierdetection.csv";
 
 int main(int argc, char * argv[])
 {

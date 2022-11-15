@@ -28,14 +28,14 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::normalization;
 
 /* Input data set parameters */
-string datasetName = "../data/batch/normalization.csv";
+std::string datasetName = "../data/batch/normalization.csv";
 
 int main()
 {

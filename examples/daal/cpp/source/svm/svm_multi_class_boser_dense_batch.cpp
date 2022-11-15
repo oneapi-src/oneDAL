@@ -30,14 +30,14 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/svm_multi_class_train_dense.csv";
-string testDatasetFileName  = "../data/batch/svm_multi_class_test_dense.csv";
+std::string trainDatasetFileName = "../data/batch/svm_multi_class_train_dense.csv";
+std::string testDatasetFileName  = "../data/batch/svm_multi_class_test_dense.csv";
 
 const size_t nFeatures = 20;
 const size_t nClasses  = 5;

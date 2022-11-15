@@ -31,10 +31,10 @@
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
-using namespace std;
+
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/sorting.csv";
+std::string datasetFileName = "../data/batch/sorting.csv";
 
 int main(int argc, char * argv[])
 {

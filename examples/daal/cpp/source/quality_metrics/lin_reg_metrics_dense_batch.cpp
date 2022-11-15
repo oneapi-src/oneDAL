@@ -38,7 +38,7 @@
 #include "algorithms/linear_regression/linear_regression_group_of_betas_types.h"
 #include "algorithms/linear_regression/linear_regression_group_of_betas_batch.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::services;
 using namespace daal::data_management;
@@ -46,8 +46,8 @@ using namespace daal::algorithms::linear_regression;
 using namespace daal::algorithms::linear_regression::quality_metric;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/linear_regression_train.csv";
-string testDatasetFileName  = "../data/batch/linear_regression_test.csv";
+std::string trainDatasetFileName = "../data/batch/linear_regression_train.csv";
+std::string testDatasetFileName  = "../data/batch/linear_regression_test.csv";
 
 const size_t nFeatures           = 10;
 const size_t nDependentVariables = 2;

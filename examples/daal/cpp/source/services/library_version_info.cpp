@@ -29,7 +29,7 @@
 #include "daal.h"
 #include <iostream>
 
-using namespace std;
+
 using namespace daal::services;
 
 int main()

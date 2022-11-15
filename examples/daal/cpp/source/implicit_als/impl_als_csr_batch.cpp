@@ -31,13 +31,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::implicit_als;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/implicit_als_csr.csv";
+std::string trainDatasetFileName = "../data/batch/implicit_als_csr.csv";
 
 typedef float algorithmFPType; /* Algorithm floating-point type */
 

@@ -31,16 +31,16 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::multinomial_naive_bayes;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/online/naivebayes_train_dense.csv";
+std::string trainDatasetFileName = "../data/online/naivebayes_train_dense.csv";
 
-string testDatasetFileName = "../data/online/naivebayes_test_dense.csv";
+std::string testDatasetFileName = "../data/online/naivebayes_test_dense.csv";
 
 const size_t nFeatures            = 20;
 const size_t nTrainVectorsInBlock = 2000;

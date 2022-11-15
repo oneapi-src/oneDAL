@@ -28,13 +28,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/kmeans_dense.csv";
+std::string datasetFileName = "../data/batch/kmeans_dense.csv";
 
 /* K-Means algorithm parameters */
 const size_t nClusters   = 20;
@@ -79,9 +79,9 @@ int main(int argc, char * argv[])
     /* Run computations */
     algorithm.compute();
 
-    cout << "Initial number of threads:        " << nThreadsInit << endl;
-    cout << "Number of threads to set:         " << nThreads << endl;
-    cout << "Number of threads after setting:  " << nThreadsNew << endl;
+    std::cout << "Initial number of threads:        " << nThreadsInit << std::endl;
+    std::cout << "Number of threads to set:         " << nThreads << std::endl;
+    std::cout << "Number of threads after setting:  " << nThreadsNew << std::endl;
 
     return 0;
 }

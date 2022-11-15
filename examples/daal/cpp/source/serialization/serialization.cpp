@@ -29,12 +29,12 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/serialization.csv";
+const std::string datasetFileName = "../data/batch/serialization.csv";
 
 void serializeNumericTable(NumericTablePtr dataTable, byte ** buffer, size_t * length);
 NumericTablePtr deserializeNumericTable(byte * buffer, size_t size);

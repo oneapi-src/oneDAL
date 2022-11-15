@@ -32,14 +32,14 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::linear_regression;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/linear_regression_train.csv";
-string testDatasetFileName  = "../data/batch/linear_regression_test.csv";
+std::string trainDatasetFileName = "../data/batch/linear_regression_train.csv";
+std::string testDatasetFileName  = "../data/batch/linear_regression_test.csv";
 
 const size_t nFeatures           = 10; /* Number of features in training and testing data sets */
 const size_t nDependentVariables = 2;  /* Number of dependent variables that correspond to each observation */

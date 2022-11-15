@@ -31,15 +31,15 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/logitboost_train.csv";
+std::string trainDatasetFileName = "../data/batch/logitboost_train.csv";
 
-string testDatasetFileName = "../data/batch/logitboost_test.csv";
+std::string testDatasetFileName = "../data/batch/logitboost_test.csv";
 
 const size_t nFeatures = 20;
 const size_t nClasses  = 5;

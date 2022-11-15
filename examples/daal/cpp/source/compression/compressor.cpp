@@ -29,18 +29,18 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace data_management;
 
-string datasetFileName = "../data/batch/logitboost_train.csv";
+std::string datasetFileName = "../data/batch/logitboost_train.csv";
 
 DataBlock sentDataStream;        /* Data stream to compress and send */
 DataBlock uncompressedDataBlock; /* Current block of data stream to compress */
 DataBlock compressedDataBlock;   /* Current compressed block of data */
 DataBlock receivedDataStream;    /* Received uncompressed data stream */
 
-queue<DataBlock> sendReceiveQueue; /* Queue for sending and receiving compressed data blocks */
+std::queue<DataBlock> sendReceiveQueue; /* Queue for sending and receiving compressed data blocks */
 
 const size_t maxDataBlockSize = 16384; /* Maximum size of a data block */
 
@@ -200,22 +200,22 @@ void printCRC32()
     crcSentDataStream     = getCRC32(sentDataStream.getPtr(), crcSentDataStream, sentDataStream.getSize());
     crcReceivedDataStream = getCRC32(receivedDataStream.getPtr(), crcReceivedDataStream, receivedDataStream.getSize());
 
-    cout << endl << "Compression example program results:" << endl << endl;
+    std::cout << std::endl << "Compression example program results:" << std::endl << std::endl;
 
-    cout << "Input data checksum:    0x" << hex << crcSentDataStream << endl;
-    cout << "Received data checksum: 0x" << hex << crcReceivedDataStream << endl;
+    std::cout << "Input data checksum:    0x" << std::hex << crcSentDataStream << std::endl;
+    std::cout << "Received data checksum: 0x" << std::hex << crcReceivedDataStream << std::endl;
 
     if (sentDataStream.getSize() != receivedDataStream.getSize())
     {
-        cout << "ERROR: Received data size mismatches with the sent data size" << endl;
+        std::cout << "ERROR: Received data size mismatches with the sent data size" << std::endl;
     }
     else if (crcSentDataStream != crcReceivedDataStream)
     {
-        cout << "ERROR: Received data CRC mismatches with the sent data CRC" << endl;
+        std::cout << "ERROR: Received data CRC mismatches with the sent data CRC" << std::endl;
     }
     else
     {
-        cout << "OK: Received data CRC matches with the sent data CRC" << endl;
+        std::cout << "OK: Received data CRC matches with the sent data CRC" << std::endl;
     }
 }
 

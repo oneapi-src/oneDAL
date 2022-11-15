@@ -30,7 +30,7 @@
 #include "daal.h"
 #include "service.h"
 #include <iostream>
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -38,7 +38,7 @@ using namespace daal::algorithms::pca::quality_metric;
 using namespace daal::algorithms::pca::quality_metric_set;
 
 /* Input data set parameters */
-const string dataFileName = "../data/batch/pca_normalized.csv";
+const std::string dataFileName = "../data/batch/pca_normalized.csv";
 const size_t nVectors     = 1000;
 const size_t nComponents  = 5;
 

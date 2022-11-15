@@ -28,12 +28,12 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-string datasetFileName = "../data/batch/mse.csv";
+std::string datasetFileName = "../data/batch/mse.csv";
 
 const size_t nFeatures         = 3;
 const double accuracyThreshold = 0.0000001;

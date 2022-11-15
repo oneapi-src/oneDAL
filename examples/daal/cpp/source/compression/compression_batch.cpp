@@ -29,11 +29,11 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace data_management;
 
-string datasetFileName = "../data/batch/logitboost_train.csv";
+std::string datasetFileName = "../data/batch/logitboost_train.csv";
 
 DataBlock rawData;          /* Data to compress */
 DataBlock compressedData;   /* Result of compression */
@@ -112,22 +112,22 @@ void printCRC32()
     crcRawData          = getCRC32(rawData.getPtr(), crcRawData, rawData.getSize());
     crcDecompressedData = getCRC32(deCompressedData.getPtr(), crcDecompressedData, deCompressedData.getSize());
 
-    cout << endl << "Compression example program results:" << endl << endl;
+    std::cout << std::endl << "Compression example program results:" << std::endl << std::endl;
 
-    cout << "Raw data checksum:    0x" << hex << crcRawData << endl;
-    cout << "Decompressed data checksum: 0x" << hex << crcDecompressedData << endl;
+    std::cout << "Raw data checksum:    0x" << std::hex << crcRawData << std::endl;
+    std::cout << "Decompressed data checksum: 0x" << std::hex << crcDecompressedData << std::endl;
 
     if (rawData.getSize() != deCompressedData.getSize())
     {
-        cout << "ERROR: Decompressed data size mismatches with the raw data size" << endl;
+        std::cout << "ERROR: Decompressed data size mismatches with the raw data size" << std::endl;
     }
     else if (crcRawData != crcDecompressedData)
     {
-        cout << "ERROR: Decompressed data CRC mismatches with the raw data CRC" << endl;
+        std::cout << "ERROR: Decompressed data CRC mismatches with the raw data CRC" << std::endl;
     }
     else
     {
-        cout << "OK: Decompressed data CRC matches with the raw data CRC" << endl;
+        std::cout << "OK: Decompressed data CRC matches with the raw data CRC" << std::endl;
     }
 }
 

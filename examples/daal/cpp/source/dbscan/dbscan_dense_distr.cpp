@@ -28,7 +28,7 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -36,7 +36,7 @@ using namespace daal::data_management;
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string dataFileNames[nBlocks] = { "../data/distributed/dbscan_dense_1.csv", "../data/distributed/dbscan_dense_2.csv",
+const std::string dataFileNames[nBlocks] = { "../data/distributed/dbscan_dense_1.csv", "../data/distributed/dbscan_dense_2.csv",
                                         "../data/distributed/dbscan_dense_3.csv", "../data/distributed/dbscan_dense_4.csv" };
 
 typedef float algorithmFPType; /* Algorithm floating-point type */
@@ -113,12 +113,12 @@ void geometricPartitioning()
         partitionedPartialOrders[block]->push_back(step1.getPartialResult()->get(dbscan::partialOrder));
     }
 
-    vector<pair<size_t, size_t> > coms;
-    coms.push_back(make_pair(0, nBlocks));
+    std::vector<std::pair<size_t, size_t> > coms;
+    coms.push_back(std::make_pair(0, nBlocks));
 
     while (!coms.empty())
     {
-        vector<pair<size_t, size_t> > newComs;
+        std::vector<std::pair<size_t, size_t> > newComs;
 
         for (size_t comId = 0; comId < coms.size(); comId++)
         {
@@ -193,8 +193,8 @@ void geometricPartitioning()
                 partitionedPartialOrders[block + beginBlock] = newPartitionedPartialOrders[block + beginBlock];
             }
 
-            newComs.push_back(make_pair(beginBlock, beginBlock + leftBlocks));
-            newComs.push_back(make_pair(beginBlock + leftBlocks, endBlock));
+            newComs.push_back(std::make_pair(beginBlock, beginBlock + leftBlocks));
+            newComs.push_back(std::make_pair(beginBlock + leftBlocks, endBlock));
         }
 
         coms = newComs;
