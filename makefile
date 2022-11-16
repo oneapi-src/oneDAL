@@ -174,7 +174,7 @@ USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -
 
 # List of needed threadings layers can be specified in DAALTHRS.
 # if DAALTHRS is empty, threading will be incapsulated to core
-DAALTHRS ?= tbb seq
+DAALTHRS ?= tbb
 DAALAY   ?= a y
 
 DIR:=.
@@ -188,6 +188,7 @@ RELEASEDIR.lib         := $(RELEASEDIR.daal)/lib
 RELEASEDIR.env         := $(RELEASEDIR.daal)/env
 RELEASEDIR.modulefiles := $(RELEASEDIR.daal)/modulefiles
 RELEASEDIR.conf        := $(RELEASEDIR.daal)/config
+RELEASEDIR.nuspec      := $(RELEASEDIR.daal)/nuspec
 RELEASEDIR.doc         := $(RELEASEDIR.daal)/documentation
 RELEASEDIR.samples     := $(RELEASEDIR.daal)/samples
 RELEASEDIR.jardir      := $(RELEASEDIR.daal)/lib
@@ -259,7 +260,7 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
                      $(if $(OS_is_mac),$(if $(wildcard $(TBBDIR.soia)/libtbb.12.dylib),$(wildcard $(TBBDIR.soia)/libtbb.12.dylib))\
                                        $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib),$(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib)))
 
-
+#============================= Micromkl folders =====================================
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
 
 MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
@@ -268,6 +269,16 @@ MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
 
 mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.libia)/$(plib)daal_sycl$d.$(a)
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
+
+#============================= oneAPI folders =====================================
+ifeq ($(if $(or $(OS_is_lnx),$(OS_is_win)),yes,),yes)
+ONEAPIDIR := $(call topf,$$ONEAPI_ROOT)
+ONEAPIDIR := $(if $(wildcard $(ONEAPIDIR)/compiler/latest),$(ONEAPIDIR)/compiler/latest,$(info ONEAPI_ROOT not defined))
+ONEAPIDIR.libia.prefix := $(if $(ONEAPIDIR),$(ONEAPIDIR)/$(if $(OS_is_win),windows,linux)/lib)
+
+libsycl := $(if $(OS_is_win),$(notdir $(wildcard $(ONEAPIDIR.libia.prefix)/sycl$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9]$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9][0-9]$d.lib)))
+libsycl.default = sycl6$d.lib
+endif
 
 #===============================================================================
 # Release library names
@@ -288,9 +299,7 @@ oneapi_a.dpc := $(plib)onedal_dpc$d.$a
 oneapi_y.dpc := $(plib)onedal_dpc$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
 thr_tbb_a := $(plib)onedal_thread$d.$a
-thr_seq_a := $(plib)onedal_sequential$d.$a
 thr_tbb_y := $(plib)onedal_thread$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
-thr_seq_y := $(plib)onedal_sequential$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
 daal_jar  := onedal.jar
 
@@ -587,7 +596,7 @@ ONEAPI.tmpdir_a.dpc := $(WORKDIR)/oneapi_dpc_static
 ONEAPI.tmpdir_y.dpc := $(WORKDIR)/oneapi_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
-ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
+ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(MKLGPUFPKDIR.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
 
 ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
@@ -808,7 +817,7 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl$d.lib OpenCL.lib)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(libsycl),$(libsycl.default)) OpenCL.lib)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
@@ -831,15 +840,11 @@ THR.tmpdir_a := $(WORKDIR)/threading_static
 THR.tmpdir_y := $(WORKDIR)/threading_dynamic
 THR_TBB.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_tbb.$o))
 THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
-THR_SEQ.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_seq.$o))
-THR_SEQ.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_seq.$o))
 -include $(THR.tmpdir_a)/*.d
 -include $(THR.tmpdir_y)/*.d
 
 $(WORKDIR.lib)/$(thr_tbb_a): LOPT:=
 $(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.mkl.thr) ; $(LINK.STATIC)
-$(WORKDIR.lib)/$(thr_seq_a): LOPT:=
-$(WORKDIR.lib)/$(thr_seq_a): $(THR_SEQ.objs_a) $(daaldep.mkl.seq) ; $(LINK.STATIC)
 
 $(THR.tmpdir_y)/%_link.def: $(THR.srcdir)/$(daaldep.$(PLAT).threxport) | $(THR.tmpdir_y)/.
 	$(daaldep.$(_OS).threxport.create) > $@
@@ -848,19 +853,13 @@ $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(daaldep.rt.thr)
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
 $(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(daaldep.mkl.thr) $(daaldep.mkl) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
-$(WORKDIR.lib)/$(thr_seq_y): LOPT += $(-fPIC) $(daaldep.rt.seq)
-$(WORKDIR.lib)/$(thr_seq_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(thr_seq_y): $(THR_SEQ.objs_y) $(daaldep.mkl.seq) $(daaldep.mkl) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_seq.res,) $(THR.tmpdir_y)/$(thr_seq_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
-
-THR.objs_a := $(THR_TBB.objs_a) $(THR_SEQ.objs_a)
-THR.objs_y := $(THR_TBB.objs_y) $(THR_SEQ.objs_y)
+THR.objs_a := $(THR_TBB.objs_a)
+THR.objs_y := $(THR_TBB.objs_y)
 THR_TBB.objs := $(THR_TBB.objs_a) $(THR_TBB.objs_y)
-THR_SEQ.objs := $(THR_SEQ.objs_a) $(THR_SEQ.objs_y)
 THR.objs := $(THR.objs_a) $(THR.objs_y)
 
 $(THR.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX
 $(THR_TBB.objs): COPT += -D__DO_TBB_LAYER__
-$(THR_SEQ.objs): COPT += -D__DO_SEQ_LAYER__
 
 $(THR.objs_a): $(THR.tmpdir_a)/thr_inc_a_folders.txt
 $(THR.objs_a): COPT += @$(THR.tmpdir_a)/thr_inc_a_folders.txt
@@ -874,16 +873,11 @@ $(THR.tmpdir_y)/thr_inc_y_folders.txt: makefile.lst | $(THR.tmpdir_y)/. $(CORE.i
 
 $(THR_TBB.objs_a): $(THR.tmpdir_a)/%_tbb.$o: $(THR.srcdir)/%.cpp | $(THR.tmpdir_a)/. ; $(C.COMPILE)
 $(THR_TBB.objs_y): $(THR.tmpdir_y)/%_tbb.$o: $(THR.srcdir)/%.cpp | $(THR.tmpdir_y)/. ; $(C.COMPILE)
-$(THR_SEQ.objs_a): $(THR.tmpdir_a)/%_seq.$o: $(THR.srcdir)/%.cpp | $(THR.tmpdir_a)/. ; $(C.COMPILE)
-$(THR_SEQ.objs_y): $(THR.tmpdir_y)/%_seq.$o: $(THR.srcdir)/%.cpp | $(THR.tmpdir_y)/. ; $(C.COMPILE)
 
 $(THR.tmpdir_y)/dll_tbb.res: $(VERSION_DATA_FILE)
-$(THR.tmpdir_y)/dll_seq.res: $(VERSION_DATA_FILE)
 $(THR.tmpdir_y)/dll_tbb.res: RCOPT += -D_DAAL_THR_TBB $(addprefix -I, $(CORE.incdirs.common))
-$(THR.tmpdir_y)/dll_seq.res: RCOPT += -D_DAAL_THR_SEQ $(addprefix -I, $(CORE.incdirs.common))
 
 $(THR.tmpdir_y)/%_tbb.res: %.rc | $(THR.tmpdir_y)/. ; $(RC.COMPILE)
-$(THR.tmpdir_y)/%_seq.res: %.rc | $(THR.tmpdir_y)/. ; $(RC.COMPILE)
 
 #===============================================================================
 # Java/JNI part
@@ -970,7 +964,6 @@ _daal_core:  $(WORKDIR.lib)/$(core_a) $(WORKDIR.lib)/$(core_y) ## TODO: move lis
 _daal_thr:   info.building.threading
 _daal_thr:   $(if $(DAALTHRS),$(foreach ithr,$(DAALTHRS),_daal_thr_$(ithr)),)
 _daal_thr_tbb:   $(WORKDIR.lib)/$(thr_tbb_a) $(WORKDIR.lib)/$(thr_tbb_y)
-_daal_thr_seq:   $(WORKDIR.lib)/$(thr_seq_a) $(WORKDIR.lib)/$(thr_seq_y)
 _daal_jar _daal_jni: info.building.java
 _daal_jar: $(WORKDIR.lib)/$(daal_jar)
 _daal_jni: $(WORKDIR.lib)/$(jni_so)
@@ -1161,6 +1154,12 @@ $2/$(notdir $1): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
+
+#----- nuspecs generation
+_release_common: _release_nuspec
+_release_nuspec:
+	mkdir -p $(RELEASEDIR.nuspec)
+	bash ./deploy/nuget/prepare_dal_nuget.sh --template ./deploy/nuget/inteldal.nuspec.tpl  --release-dir $(RELEASEDIR) --platform $(PLAT) --ver $(MAJOR).$(MINOR).$(UPDATE) --major-binary-ver $(MAJORBINARY) --minor-binary-ver $(MINORBINARY)
 
 #===============================================================================
 # Miscellaneous stuff

@@ -35,16 +35,6 @@ cc_library(
 )
 
 cc_library(
-    name = "sequential_static",
-    srcs = [
-        "lib/intel64/libonedal_sequential.a",
-    ],
-    deps = [
-        ":headers",
-    ],
-)
-
-cc_library(
     name = "onedal_sycl",
     srcs = [
         "lib/intel64/libonedal_sycl.a",
@@ -97,16 +87,6 @@ cc_library(
         ":headers",
         "@tbb//:tbb_binary",
         "@tbb//:tbbmalloc_binary",
-    ],
-)
-
-cc_library(
-    name = "sequential_dynamic",
-    srcs = [
-        "lib/intel64/libonedal_sequential.so",
-    ],
-    deps = [
-        ":headers",
     ],
 )
 

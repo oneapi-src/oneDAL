@@ -42,8 +42,7 @@ constexpr inline std::int32_t bin_block_count =
 constexpr inline std::int32_t bin_in_block_count = sizeof(bin_map_t) * 8;
 
 template <typename Data>
-using local_accessor_rw_t =
-    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+using local_accessor_rw_t = sycl::local_accessor<Data, 1>;
 
 template <typename T>
 using enable_if_float_t = std::enable_if_t<detail::is_valid_float_v<T>>;

@@ -28,8 +28,7 @@ using sycl::ext::oneapi::minimum;
 using sycl::ext::oneapi::maximum;
 
 template <typename Data>
-using local_accessor_rw_t =
-    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+using local_accessor_rw_t = sycl::local_accessor<Data, 1>;
 
 template <typename Float>
 inline void merge_stat(Float& dst_count,

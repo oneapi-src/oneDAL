@@ -105,8 +105,8 @@ int main(int argc, char const *argv[]) {
         throw std::runtime_error{"Problem occurred during MPI init"};
     }
 
-    auto device = sycl::gpu_selector{}.select_device();
-    std::cout << "Running on " << device.get_info<sycl::info::device::name>()
+    auto device = sycl::device(sycl::gpu_selector_v);
+    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>() << ", " << device.get_info<sycl::info::device::name>()
               << std::endl;
     sycl::queue q{device};
     run(q);

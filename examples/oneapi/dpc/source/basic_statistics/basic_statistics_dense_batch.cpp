@@ -28,9 +28,6 @@
 namespace dal = oneapi::dal;
 
 void run(sycl::queue &q) {
-    std::cout << "Running on " << q.get_device().get_info<sycl::info::device::name>() << "\n"
-              << std::endl;
-
     const auto data_file_name = get_data_path("covcormoments_dense.csv");
 
     const auto data = dal::read<dal::table>(q, dal::csv::data_source{ data_file_name });
@@ -54,7 +51,9 @@ void run(sycl::queue &q) {
 
 int main(int argc, char const *argv[]) {
     for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
+                  << std::endl;
         auto q = sycl::queue{ d };
         run(q);
     }

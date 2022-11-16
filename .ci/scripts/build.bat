@@ -34,8 +34,8 @@ call .ci\env\tbb.bat
 echo call .\dev\download_micromkl.bat
 call .\dev\download_micromkl.bat
 
-echo call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 
 echo make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
 make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3

@@ -20,14 +20,12 @@
 
 help:
 	@echo "Usage: nmake {{lib|dll|help}}"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name."
 	@echo
 	@echo "compiler_name     - can be intel, msvs, clang or icx. Default value is intel."
 	@echo "                    Intel(R) C++ Compiler as default."
-	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run."
 
@@ -69,10 +67,6 @@ compiler = intel
 
 !IFNDEF mode
 mode = run
-!ENDIF
-
-!IFNDEF threading
-threading = parallel
 !ENDIF
 
 !IFNDEF DAALROOT
@@ -123,26 +117,16 @@ COPTS=-Wall -w -m64 $(COPTS)
 COPTS=-W3 -EHsc $(COPTS)
 !ENDIF
 
-!IF ("$(RES_EXT)"=="lib")
-!IF ("$(threading)"=="sequential")
-DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.lib"
-!ELSE
-threading = parallel
-DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.lib"
-EXT_LIB = tbb12.lib tbbmalloc.lib
-!ENDIF
-!ENDIF
-
-DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" $(DAAL_LIB_T)
+DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_PATH)\onedal_thread.lib"
 
 COPTS = -MD -Isource\utils $(COPTS) $(OUT_OPTS)
-LOPTS = $(DAAL_LIB) $(EXT_LIB)
-RES_DIR  =_results\$(compiler)_intel64_$(threading)_$(RES_EXT)
+LOPTS = $(DAAL_LIB) tbb12.lib tbbmalloc.lib
+RES_DIR  =_results\$(compiler)_intel64_$(RES_EXT)
 
 lib libintel64:
-	nmake comm_func $(RES) $(CLEAN) EXT=.lib RES_EXT=lib compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) $(CLEAN) EXT=.lib RES_EXT=lib compiler=$(compiler)
 dll dllintel64:
-	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib RES_EXT=dll compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib RES_EXT=dll compiler=$(compiler)
 
 comm_func:
 	if not exist _results md _results

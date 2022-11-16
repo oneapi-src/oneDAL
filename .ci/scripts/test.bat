@@ -25,8 +25,8 @@ echo CPUCOUNT=%CPUCOUNT%
 echo PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
 
-echo call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 
 echo call __release_win_vc\daal\latest\env\vars.bat
 call __release_win_vc\daal\latest\env\vars.bat

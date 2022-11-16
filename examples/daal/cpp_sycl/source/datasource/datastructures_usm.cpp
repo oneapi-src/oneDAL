@@ -91,11 +91,6 @@ int main(int argc, char * argv[])
     for (const auto & deviceDescriptor : getListOfDevices())
     {
         const auto & device = deviceDescriptor.second;
-        if (device.is_host())
-        {
-            /* Shared memory allocations do not work on host by design */
-            continue;
-        }
 
         const auto & deviceName = deviceDescriptor.first;
         std::cout << "Running on " << deviceName << std::endl << std::endl;

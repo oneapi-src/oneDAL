@@ -68,22 +68,15 @@ TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
 MPI_PATH = $(I_MPI_ROOT)
 CCL_PATH = $(CCL_ROOT)
 
-ifeq ($(threading),sequential)
-    $(error Sequential version is not supported. To run sequential version please refer to 'samples/oneapi/cpp')
-else
-    override threading = parallel
-    THREADING_LIB := onedal_thread
-endif
-
 ifeq ($(RES_EXT),so)
     ONEDAL_LIBS := -lonedal_dpc \
                    -lonedal_core \
-                   -l$(THREADING_LIB) \
+                   -lonedal_thread \
                    "$(DAAL_PATH)"/libonedal_sycl.a
 else
     ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a \
                    "$(DAAL_PATH)"/libonedal_core.a \
-                   "$(DAAL_PATH)"/lib$(THREADING_LIB).a \
+                   "$(DAAL_PATH)"/libonedal_thread.a \
                    "$(DAAL_PATH)"/libonedal_sycl.a
 endif
 
@@ -122,7 +115,7 @@ override proc = 4
 
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
 
-CC = dpcpp 
+CC = icpx -fsycl 
 CRUN = mpirun
 RUNOPTS = -n $(proc) -ppn $(proc)
 

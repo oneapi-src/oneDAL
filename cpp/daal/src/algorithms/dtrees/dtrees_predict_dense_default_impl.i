@@ -122,7 +122,7 @@ struct TileDimensions
         : nTreesTotal(nTrees), nRowsTotal(data.getNumberOfRows()), nCols(data.getNumberOfColumns())
     {
         nRowsInBlock  = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
-                                                                     (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
+                                                                      (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
         nTreesInBlock = services::internal::getNumElementsFitInMemory(services::internal::getLLCacheSize() * 0.8, treeSize, nTrees);
         nDataBlocks   = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
         nTreeBlocks   = nTreesTotal / nTreesInBlock + !!(nTreesTotal % nTreesInBlock);
