@@ -102,7 +102,7 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix wget libtinfo5
     displayName: 'apt-get'
   - script: |
-      wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20221111/dpcpp-compiler.tar.gz"
+      wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20220802/dpcpp-compiler.tar.gz"
       tar -xzf dpcpp-compiler.tar.gz
       ln -s clang++ dpcpp_compiler/bin/icpx
     displayName: 'download dpcpp daily build'
@@ -116,8 +116,16 @@ jobs:
     displayName: 'daal/cpp examples'
   - script: |
       source dpcpp_compiler/startup.sh
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp_sycl
+    displayName: 'daal/cpp_sycl examples'
+  - script: |
+      source dpcpp_compiler/startup.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
+  - script: |
+      source dpcpp_compiler/startup.sh
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/dpc
+    displayName: 'oneapi/dpc examples'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
