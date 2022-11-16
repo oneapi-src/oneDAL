@@ -112,8 +112,6 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
         last_xty_event = update_xty(queue, beta, x, y, xty, { last_xty_event });
         last_xtx_event = update_xtx(queue, beta, x, xtx, { last_xtx_event });
-
-        sycl::event::wait_and_throw({ last_xty_event, last_xtx_event });
     }
 
     const be::event_vector solve_deps{ last_xty_event, last_xtx_event };

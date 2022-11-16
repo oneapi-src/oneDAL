@@ -92,10 +92,10 @@ inline sycl::event apply_betas(sycl::queue& q,
 }
 
 template <typename Float, typename Task>
-static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
-                                           const detail::descriptor_base<Task>& desc,
-                                           const table& infer,
-                                           const model<Task>& m) {
+static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
+                                          const detail::descriptor_base<Task>& desc,
+                                          const table& infer,
+                                          const model<Task>& m) {
     using dal::detail::check_mul_overflow;
 
     auto& queue = ctx.get_queue();
@@ -140,8 +140,6 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
 
         auto gemm_event = pr::gemm(queue, x_sub, core.t(), y_sub, one, zero, { last_event });
         last_event = apply_betas(queue, beta, y_sub, intp, { gemm_event });
-
-        sycl::event::wait_and_throw({ last_event });
     }
 
     sycl::event::wait({ last_event });
@@ -157,7 +155,7 @@ template <typename Float, typename Task>
 static infer_result<Task> infer(const context_gpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
                                 const infer_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_model());
+    return call_dal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float, typename Task>

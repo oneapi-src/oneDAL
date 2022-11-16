@@ -171,8 +171,8 @@ void Compressor<lzo>::run(byte * out, size_t outLen, size_t off)
 
     tmp_avail_out = _avail_out - (BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
     int errCode   = ippsEncodeLZO_8u((const Ipp8u *)(_next_in), tmp_avail_in,
-                                     (Ipp8u *)((byte *)(_next_out) + (BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)), &tmp_avail_out,
-                                     (IppLZOState_8u *)_p_lzo_state);
+                                   (Ipp8u *)((byte *)(_next_out) + (BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)), &tmp_avail_out,
+                                   (IppLZOState_8u *)_p_lzo_state);
     if (errCode != ippStsNoErr)
     {
         finalizeCompression();
@@ -360,7 +360,7 @@ void Decompressor<lzo>::run(byte * out, size_t outLen, size_t off)
             _internalBuffOff = 0;
             tmp_avail_out    = uncompressedBlockSize;
             int errCode      = ippsDecodeLZO_8u((const Ipp8u *)((byte *)_next_in + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes),
-                                                compressedBlockSize, (Ipp8u *)((byte *)_internalBuff), &tmp_avail_out);
+                                           compressedBlockSize, (Ipp8u *)((byte *)_internalBuff), &tmp_avail_out);
             if (EXPECT(errCode != ippStsNoErr, 0))
             {
                 finalizeCompression();
@@ -392,7 +392,7 @@ void Decompressor<lzo>::run(byte * out, size_t outLen, size_t off)
         }
         tmp_avail_out = _avail_out;
         int errCode   = ippsDecodeLZO_8u((const Ipp8u *)((byte *)_next_in + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes), compressedBlockSize,
-                                         (Ipp8u *)((byte *)_next_out), &tmp_avail_out);
+                                       (Ipp8u *)((byte *)_next_out), &tmp_avail_out);
         if (EXPECT(errCode != ippStsNoErr, 0))
         {
             finalizeCompression();

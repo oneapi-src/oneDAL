@@ -86,7 +86,7 @@ struct TileDimensions
     TileDimensions(const NumericTablePtr & data, size_t nYPerRow = 1) : nRowsTotal(data->getNumberOfRows()), nCols(data->getNumberOfColumns())
     {
         nRowsInBlock     = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
-                                                                         (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
+                                                                     (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
         nDataBlocks      = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
         nRowsInLastBlock = nRowsTotal - (nDataBlocks - 1) * nRowsInBlock;
     }

@@ -177,10 +177,7 @@ public:
     }
 
 #ifdef DEBUG_CHECK_IMPURITY
-    void checkImpurity(const IndexType * ptrIdx, size_t n, const ImpurityData & expected) const
-    {
-        checkImpurityInternal(ptrIdx, n, expected, false);
-    }
+    void checkImpurity(const IndexType * ptrIdx, size_t n, const ImpurityData & expected) const { checkImpurityInternal(ptrIdx, n, expected, false); }
     void checkImpurityInternal(const IndexType * ptrIdx, size_t n, const ImpurityData & expected, bool bInternal = true) const;
 #endif
 

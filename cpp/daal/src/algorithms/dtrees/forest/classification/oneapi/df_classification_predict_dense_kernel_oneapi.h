@@ -51,7 +51,7 @@ class PredictKernelOneAPI : public algorithms::Kernel
 {
 public:
     PredictKernelOneAPI() : _nClasses(0), _nTreeGroups(0), _votingMethod(VotingMethod::unweighted) {};
-    PredictKernelOneAPI(const PredictKernelOneAPI &)             = delete;
+    PredictKernelOneAPI(const PredictKernelOneAPI &) = delete;
     PredictKernelOneAPI & operator=(const PredictKernelOneAPI &) = delete;
     ~PredictKernelOneAPI() {};
 

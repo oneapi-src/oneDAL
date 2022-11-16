@@ -584,7 +584,7 @@ public:
 
     Tree() : _nodes(nullptr), _nodeCount(0), _nodeCapacity(0) {}
 
-    Tree(const Tree &)             = delete;
+    Tree(const Tree &) = delete;
     Tree & operator=(const Tree &) = delete;
 
     ~Tree()
@@ -2088,7 +2088,7 @@ public:
         reset();
     }
 
-    PruningData(const PruningData &)             = delete;
+    PruningData(const PruningData &) = delete;
     PruningData & operator=(const PruningData &) = delete;
 
     virtual ~PruningData()

@@ -62,7 +62,7 @@ public:
         return _data;
     }
 
-    DynamicArray(const DynamicArray &)             = delete;
+    DynamicArray(const DynamicArray &) = delete;
     DynamicArray & operator=(const DynamicArray &) = delete;
 
 private:
@@ -126,7 +126,7 @@ public:
 
     ~StaticallyBufferedDynamicArray() { destroy(); }
 
-    StaticallyBufferedDynamicArray(const StaticallyBufferedDynamicArray &)             = delete;
+    StaticallyBufferedDynamicArray(const StaticallyBufferedDynamicArray &) = delete;
     StaticallyBufferedDynamicArray & operator=(const StaticallyBufferedDynamicArray &) = delete;
 
     inline T * get() { return _data; }

@@ -180,26 +180,17 @@ public:
     /**
      *  Returns true if Buffer points to any data
      */
-    operator bool() const
-    {
-        return _impl;
-    }
+    operator bool() const { return _impl; }
 
     /**
      *  Returns true if Buffer is equal to \p other
      */
-    bool operator==(const Buffer & other) const
-    {
-        return _impl.get() == other._impl.get();
-    }
+    bool operator==(const Buffer & other) const { return _impl.get() == other._impl.get(); }
 
     /**
      *  Returns true if Buffer is not equal to \p other
      */
-    bool operator!=(const Buffer & other) const
-    {
-        return _impl.get() != other._impl.get();
-    }
+    bool operator!=(const Buffer & other) const { return _impl.get() != other._impl.get(); }
 
     /**
      *  Converts data inside the buffer to the host side
@@ -300,10 +291,7 @@ public:
 #endif // DAAL_SYCL_INTERFACE_USM
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    inline bool isUSMBacked() const
-    {
-        return dynamic_cast<internal::UsmBuffer<T> *>(_impl.get()) != nullptr;
-    }
+    inline bool isUSMBacked() const { return dynamic_cast<internal::UsmBuffer<T> *>(_impl.get()) != nullptr; }
 #endif // DAAL_SYCL_INTERFACE_USM
 
     /**
@@ -321,10 +309,7 @@ public:
     /**
      *   Drops underlying reference to the data from the buffer and makes it empty
      */
-    void reset()
-    {
-        _impl.reset();
-    }
+    void reset() { _impl.reset(); }
 
     /**
      *  Creates Buffer object that points to the same memory as a parent but with offset

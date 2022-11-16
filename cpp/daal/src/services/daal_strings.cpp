@@ -31,11 +31,8 @@ const char * s_stringConsts[] = {
 };
 #undef DECLARE_DAAL_STRING_CONST
 
-#define DECLARE_DAAL_STRING_CONST(arg1)    \
-    const char * arg1##Str()               \
-    {                                      \
-        return s_stringConsts[arg1##EStr]; \
-    }
+#define DECLARE_DAAL_STRING_CONST(arg1) \
+    const char * arg1##Str() { return s_stringConsts[arg1##EStr]; }
 DAAL_STRINGS_LIST()
 #undef DECLARE_DAAL_STRING_CONST
 

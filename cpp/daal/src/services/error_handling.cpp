@@ -352,7 +352,7 @@ KernelErrorCollection & KernelErrorCollection::operator=(const KernelErrorCollec
     if (&other != this)
     {
         super::operator=(other);
-        _description = nullptr;
+        _description   = nullptr;
     }
 
     return *this;

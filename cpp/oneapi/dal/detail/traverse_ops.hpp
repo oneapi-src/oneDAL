@@ -25,7 +25,7 @@ template <typename Descriptor, typename Graph, typename Tag>
 struct traverse_ops;
 
 template <typename Descriptor, typename Head, typename... Tail>
-auto traverse_dispatch_by_input(const Descriptor &desc, Head &&head, Tail &&...tail) {
+auto traverse_dispatch_by_input(const Descriptor &desc, Head &&head, Tail &&... tail) {
     using tag_t = typename Descriptor::tag_t;
     using ops_t = traverse_ops<Descriptor, std::decay_t<Head>, tag_t>;
     using input_t = typename ops_t::input_t;
@@ -35,7 +35,7 @@ auto traverse_dispatch_by_input(const Descriptor &desc, Head &&head, Tail &&...t
 }
 
 template <typename Head, typename... Tail>
-auto traverse_dispatch(Head &&head, Tail &&...tail) {
+auto traverse_dispatch(Head &&head, Tail &&... tail) {
     return traverse_dispatch_by_input(std::forward<Head>(head), std::forward<Tail>(tail)...);
 }
 

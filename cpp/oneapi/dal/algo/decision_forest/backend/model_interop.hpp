@@ -36,10 +36,12 @@ inline auto convert_to_daal_voting_mode(voting_mode vm) {
 
 inline auto convert_to_daal_variable_importance_mode(variable_importance_mode vimp) {
     namespace daal_df = daal::algorithms::decision_forest;
-    return variable_importance_mode::mdi == vimp          ? daal_df::training::MDI
-           : variable_importance_mode::mda_raw == vimp    ? daal_df::training::MDA_Raw
-           : variable_importance_mode::mda_scaled == vimp ? daal_df::training::MDA_Scaled
-                                                          : daal_df::training::none;
+    return variable_importance_mode::mdi == vimp
+               ? daal_df::training::MDI
+               : variable_importance_mode::mda_raw == vimp
+                     ? daal_df::training::MDA_Raw
+                     : variable_importance_mode::mda_scaled == vimp ? daal_df::training::MDA_Scaled
+                                                                    : daal_df::training::none;
 }
 
 class model_interop : public base {

@@ -88,7 +88,7 @@ public:
 #else
     ClassifierResponse() : value(0) {}
 #endif
-    ClassifierResponse(const ClassifierResponse &)               = delete;
+    ClassifierResponse(const ClassifierResponse &) = delete;
     ClassifierResponse & operator=(const ClassifierResponse & o) = delete;
 };
 

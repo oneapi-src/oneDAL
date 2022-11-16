@@ -948,7 +948,7 @@ public:
     explicit BlockDescriptorArray(size_t nBlocks);
     ~BlockDescriptorArray();
 
-    BlockDescriptorArray(const BlockDescriptorArray &)             = delete;
+    BlockDescriptorArray(const BlockDescriptorArray &) = delete;
     BlockDescriptorArray & operator=(const BlockDescriptorArray &) = delete;
 
     DAAL_FORCEINLINE BlockDescriptor<algorithmFPType> * get() const { return _blocks; }

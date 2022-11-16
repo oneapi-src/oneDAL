@@ -419,31 +419,13 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
 } // namespace daal
 
-#define DAAL_NEW_DELETE()                                          \
-    static void * operator new(std::size_t sz)                     \
-    {                                                              \
-        return daal::services::daal_calloc(sz);                    \
-    }                                                              \
-    static void * operator new[](std::size_t sz)                   \
-    {                                                              \
-        return daal::services::daal_calloc(sz);                    \
-    }                                                              \
-    static void * operator new(std::size_t /*sz*/, void * where)   \
-    {                                                              \
-        return where;                                              \
-    }                                                              \
-    static void * operator new[](std::size_t /*sz*/, void * where) \
-    {                                                              \
-        return where;                                              \
-    }                                                              \
-    static void operator delete(void * ptr, std::size_t /*sz*/)    \
-    {                                                              \
-        daal::services::daal_free(ptr);                            \
-    }                                                              \
-    static void operator delete[](void * ptr, std::size_t /*sz*/)  \
-    {                                                              \
-        daal::services::daal_free(ptr);                            \
-    }
+#define DAAL_NEW_DELETE()                                                                           \
+    static void * operator new(std::size_t sz) { return daal::services::daal_calloc(sz); }          \
+    static void * operator new[](std::size_t sz) { return daal::services::daal_calloc(sz); }        \
+    static void * operator new(std::size_t /*sz*/, void * where) { return where; }                  \
+    static void * operator new[](std::size_t /*sz*/, void * where) { return where; }                \
+    static void operator delete(void * ptr, std::size_t /*sz*/) { daal::services::daal_free(ptr); } \
+    static void operator delete[](void * ptr, std::size_t /*sz*/) { daal::services::daal_free(ptr); }
 
 #define DAAL_CAST_OPERATOR(ClassName)                                            \
     template <class U>                                                           \

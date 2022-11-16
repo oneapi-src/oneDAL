@@ -127,7 +127,7 @@ public:
     LowOrderMomentsDistributedTaskOneAPI(services::internal::sycl::ExecutionContextIface & context,
                                          data_management::DataCollection * partialResultsCollection, PartialResult * partialResult,
                                          services::Status & status);
-    LowOrderMomentsDistributedTaskOneAPI(const LowOrderMomentsDistributedTaskOneAPI &)             = delete;
+    LowOrderMomentsDistributedTaskOneAPI(const LowOrderMomentsDistributedTaskOneAPI &) = delete;
     LowOrderMomentsDistributedTaskOneAPI & operator=(const LowOrderMomentsDistributedTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsDistributedTaskOneAPI();
     Status compute();
@@ -163,7 +163,7 @@ class LowOrderMomentsDistributedFinalizeTaskOneAPI : public TaskInfoDistributed<
 public:
     LowOrderMomentsDistributedFinalizeTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, PartialResult * partialResult,
                                                  Result * result, services::Status & status);
-    LowOrderMomentsDistributedFinalizeTaskOneAPI(const LowOrderMomentsDistributedFinalizeTaskOneAPI &)             = delete;
+    LowOrderMomentsDistributedFinalizeTaskOneAPI(const LowOrderMomentsDistributedFinalizeTaskOneAPI &) = delete;
     LowOrderMomentsDistributedFinalizeTaskOneAPI & operator=(const LowOrderMomentsDistributedFinalizeTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsDistributedFinalizeTaskOneAPI();
     Status compute();

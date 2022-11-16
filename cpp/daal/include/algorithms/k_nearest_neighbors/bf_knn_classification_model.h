@@ -131,12 +131,12 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
         if (this != &other)
         {
             daal::algorithms::classifier::Parameter::operator=(other);
-            k                       = other.k;
-            dataUseInModel          = other.dataUseInModel;
-            engine                  = other.engine->clone();
-            voteWeights             = other.voteWeights;
-            resultsToCompute        = other.resultsToCompute;
-            this->resultsToEvaluate = other.resultsToEvaluate;
+            k                                                = other.k;
+            dataUseInModel                                   = other.dataUseInModel;
+            engine                                           = other.engine->clone();
+            voteWeights                                      = other.voteWeights;
+            resultsToCompute                                 = other.resultsToCompute;
+            this->resultsToEvaluate                          = other.resultsToEvaluate;
         }
         return *this;
     }

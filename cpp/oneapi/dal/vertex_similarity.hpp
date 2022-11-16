@@ -26,7 +26,7 @@ namespace oneapi::dal::preview {
 
 /// The main processing function for vertex similarity family of the algorithms
 template <typename... Args>
-auto vertex_similarity(Args &&...args) {
+auto vertex_similarity(Args &&... args) {
     return detail::vertex_similarity_dispatch(std::forward<Args>(args)...);
 }
 

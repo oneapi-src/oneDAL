@@ -25,7 +25,7 @@ template <typename Descriptor, typename Graph, typename Tag>
 struct graph_matching_ops;
 
 template <typename Descriptor, typename Head, typename... Tail>
-auto graph_matching_dispatch_by_input(const Descriptor &desc, Head &&head, Tail &&...tail) {
+auto graph_matching_dispatch_by_input(const Descriptor &desc, Head &&head, Tail &&... tail) {
     using tag_t = typename Descriptor::tag_t;
     using ops_t = graph_matching_ops<Descriptor, std::decay_t<Head>, tag_t>;
     using input_t = typename ops_t::input_t;
@@ -35,7 +35,7 @@ auto graph_matching_dispatch_by_input(const Descriptor &desc, Head &&head, Tail 
 }
 
 template <typename Head, typename... Tail>
-auto graph_matching_dispatch(Head &&head, Tail &&...tail) {
+auto graph_matching_dispatch(Head &&head, Tail &&... tail) {
     return graph_matching_dispatch_by_input(std::forward<Head>(head), std::forward<Tail>(tail)...);
 }
 

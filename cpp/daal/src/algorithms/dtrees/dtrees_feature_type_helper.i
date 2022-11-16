@@ -229,7 +229,8 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
             size_t r = iRight + binSize;
             //at first, roughly locate the value bigger than iRight, jumping by binSize to the right
             for (; (r < nRows) && (index[r].key == ri.key); r += binSize)
-            {}
+            {
+            }
             if (r > nRows) r = nRows;
             //then locate a new border as the upper_bound between this rough value and iRight
             iRight = upper_bound<typename super::FeatureIdx>(index + iRight + 1, index + r, ri) - index;
