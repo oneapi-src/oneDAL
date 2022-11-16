@@ -234,10 +234,16 @@ public:
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    ZeModulePtr getModuleLevelZeroPtr() const { return _moduleLevelZeroPtr; }
+    ZeModulePtr getModuleLevelZeroPtr() const
+    {
+        return _moduleLevelZeroPtr;
+    }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
-    const String & getName() const { return _programName; }
+    const String & getName() const
+    {
+        return _programName;
+    }
 
 private:
     OpenClProgramRef() = default;
@@ -414,8 +420,8 @@ private:
 class UsmPointerStorage
 {
 public:
-    UsmPointerStorage()                          = default;
-    UsmPointerStorage(const UsmPointerStorage &) = delete;
+    UsmPointerStorage()                                      = default;
+    UsmPointerStorage(const UsmPointerStorage &)             = delete;
     UsmPointerStorage & operator=(const UsmPointerStorage &) = delete;
 
     template <typename T>

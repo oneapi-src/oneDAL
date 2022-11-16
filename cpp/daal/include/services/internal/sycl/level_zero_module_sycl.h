@@ -76,7 +76,7 @@ class ZeKernel : public Base
     friend ZeModule;
 
 public:
-    ZeKernel(const ZeModule &) = delete;
+    ZeKernel(const ZeModule &)             = delete;
     ZeKernel & operator=(const ZeModule &) = delete;
 
     ze_kernel_handle_t get() const { return _kernelLevelZero; }
@@ -124,7 +124,7 @@ public:
         return SharedPtr<ZeModule>(ptr);
     }
 
-    ZeModule(const ZeModule &) = delete;
+    ZeModule(const ZeModule &)             = delete;
     ZeModule & operator=(const ZeModule &) = delete;
 
     ZeKernelPtr createKernel(const char * kernelName, Status & status)

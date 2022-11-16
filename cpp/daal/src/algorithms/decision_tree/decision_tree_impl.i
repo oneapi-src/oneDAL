@@ -87,7 +87,7 @@ public:
         _types = nullptr;
     }
 
-    FeatureTypesCache(const FeatureTypesCache &) = delete;
+    FeatureTypesCache(const FeatureTypesCache &)             = delete;
     FeatureTypesCache & operator=(const FeatureTypesCache &) = delete;
 
     data_management::features::FeatureType operator[](FeatureIndex index) const

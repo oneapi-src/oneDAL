@@ -175,9 +175,9 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
                                                                : std::sqrt(ctx.column_count_);
     }
     else {
-        ctx.selected_ftr_count_ = desc.get_features_per_node()
-                                      ? desc.get_features_per_node()
-                                      : ctx.column_count_ / 3 ? ctx.column_count_ / 3 : 1;
+        ctx.selected_ftr_count_ = desc.get_features_per_node() ? desc.get_features_per_node()
+                                  : ctx.column_count_ / 3      ? ctx.column_count_ / 3
+                                                               : 1;
     }
     ctx.min_observations_in_leaf_node_ = desc.get_min_observations_in_leaf_node();
     ctx.impurity_threshold_ = desc.get_impurity_threshold();
