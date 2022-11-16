@@ -55,9 +55,15 @@ fi
 
 if [ "${OS}" == "lnx" ]; then
     compiler=${compiler:-gnu}
+    link_modes="static dynamic"
 elif [ "${OS}" == "mac" ]; then
     compiler=${compiler:-clang}
-
+    if [ "${compiler}" == "gnu" ]; then
+        # TODO: fix static linking with gnu on mac
+        link_modes="dynamic"
+    else
+        link_modes="static dynamic"
+    fi
 else
     echo "Error not supported OS: ${OS}"
     exit 1
@@ -85,7 +91,7 @@ fi
 interface=${interface:-daal/cpp}
 cd "${BUILD_DIR}/daal/latest/examples/${interface}"
 
-for link_mode in static dynamic; do
+for link_mode in ${link_modes}; do
     # Release Examples testing
     if [ "${link_mode}" == "static" ]; then
         l="lib"
