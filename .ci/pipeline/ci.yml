@@ -359,13 +359,16 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      mkdir -p ${PWD}/aliases
+      brew install gcc@12
+    displayName: 'install gcc@12'
+  - script: |
       which gcc
-      which gcc-11
-      ln -s /usr/local/bin/gcc-11 ${PWD}/aliases/gcc
-      ln -s /usr/local/bin/g++-11 ${PWD}/aliases/g++
-      ln -s /usr/local/bin/c++-11 ${PWD}/aliases/c++
-      ln -s /usr/local/bin/cpp-11 ${PWD}/aliases/cpp
+      which gcc-12
+      mkdir -p ${PWD}/aliases
+      ln -s /usr/local/bin/gcc-12 ${PWD}/aliases/gcc
+      ln -s /usr/local/bin/g++-12 ${PWD}/aliases/g++
+      ln -s /usr/local/bin/c++-12 ${PWD}/aliases/c++
+      ln -s /usr/local/bin/cpp-12 ${PWD}/aliases/cpp
       export PATH=${PWD}/aliases:${PATH}
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make daal_c'
