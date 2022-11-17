@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h>
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
@@ -41,13 +41,7 @@ using dal::backend::context_gpu;
 
 namespace be = dal::backend;
 namespace pr = be::primitives;
-namespace daal_lm = daal::algorithms::linear_model;
 namespace interop = dal::backend::interop;
-
-constexpr auto daal_method = daal_lm::prediction::Method::defaultDense;
-
-template <typename Float>
-using daal_lm_kernel_t = daal_lm::prediction::internal::PredictKernelOneAPI<Float, daal_method>;
 
 template <typename Float>
 std::int64_t propose_block_size(const sycl::queue& q, std::int64_t f, std::int64_t r) {
@@ -100,6 +94,7 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
+    ONEDAL_PROFILER_TASK(linreg_infer_kernel, queue);
 
     constexpr auto alloc = sycl::usm::alloc::device;
 

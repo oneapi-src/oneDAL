@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h>
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -43,12 +43,6 @@ using dal::backend::context_gpu;
 namespace be = dal::backend;
 namespace pr = be::primitives;
 namespace interop = dal::backend::interop;
-namespace daal_lr = daal::algorithms::linear_regression;
-
-constexpr auto daal_method = daal_lr::training::normEqDense;
-
-template <typename Float>
-using daal_lr_kernel_t = daal_lr::training::internal::OnlineKernelOneAPI<Float, daal_method>;
 
 template <typename Float>
 std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, const std::int64_t r) {
@@ -57,10 +51,10 @@ std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, cons
 }
 
 template <typename Float, typename Task>
-static train_result<Task> call_daal_kernel(const context_gpu& ctx,
-                                           const detail::descriptor_base<Task>& desc,
-                                           const table& data,
-                                           const table& resp) {
+static train_result<Task> call_dal_kernel(const context_gpu& ctx,
+                                          const detail::descriptor_base<Task>& desc,
+                                          const table& data,
+                                          const table& resp) {
     using dal::detail::check_mul_overflow;
 
     using model_t = model<Task>;
@@ -68,6 +62,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
+    ONEDAL_PROFILER_TASK(linreg_train_kernel, queue);
 
     constexpr auto uplo = pr::mkl::uplo::upper;
     constexpr auto alloc = sycl::usm::alloc::device;
@@ -134,7 +129,7 @@ template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
                                 const train_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
+    return call_dal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>

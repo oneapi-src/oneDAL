@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
@@ -28,6 +30,8 @@ template <bool beta, typename Float>
 sycl::event symmetrize(sycl::queue& queue,
                        pr::ndview<Float, 2, pr::ndorder::c>& xtx,
                        const be::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(symmetrize_kernel, queue);
+
     const auto ext_f_count = xtx.get_dimension(0);
     ONEDAL_ASSERT(ext_f_count == xtx.get_dimension(1));
 
@@ -49,6 +53,8 @@ sycl::event update_xtx(sycl::queue& queue,
                        const pr::ndview<Float, 2, layout>& x,
                        pr::ndview<Float, 2, pr::ndorder::c>& xtx,
                        const be::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(update_xtx_kernel, queue);
+
     constexpr Float one = 1;
     constexpr pr::sum<Float> plus;
     constexpr pr::identity<Float> ident;
@@ -92,6 +98,8 @@ sycl::event update_xty(sycl::queue& queue,
                        const pr::ndview<Float, 2, ylayout>& y,
                        pr::ndview<Float, 2, pr::ndorder::f>& xty,
                        const be::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(update_xty_kernel, queue);
+
     constexpr Float one = 1;
     constexpr pr::sum<Float> plus;
     constexpr pr::identity<Float> ident;

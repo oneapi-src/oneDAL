@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/lapack/solve.hpp"
 
 namespace oneapi::dal::backend::primitives {
@@ -51,7 +53,7 @@ sycl::event potrf_factorization(sycl::queue& queue,
                                 ndview<Float, 2, layout>& x,
                                 array<Float>& scratchpad,
                                 const event_vector& deps) {
-    sycl::event::wait_and_throw(deps);
+    ONEDAL_PROFILER_TASK(potrf_kernel, queue);
 
     ONEDAL_ASSERT(x.has_mutable_data());
     ONEDAL_ASSERT(scratchpad.has_mutable_data());
