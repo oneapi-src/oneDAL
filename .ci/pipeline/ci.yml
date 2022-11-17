@@ -102,7 +102,7 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix wget libtinfo5
     displayName: 'apt-get'
   - script: |
-      wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20221111/dpcpp-compiler.tar.gz"
+      wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20221117/dpcpp-compiler.tar.gz"
       tar -xzf dpcpp-compiler.tar.gz
       ln -s clang++ dpcpp_compiler/bin/icpx
     displayName: 'download dpcpp daily build'
