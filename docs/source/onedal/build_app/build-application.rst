@@ -31,7 +31,7 @@ Applications on Linux* OS
 
 #. Set environment variables by calling ``<install dir>/setvars.sh``.
 
-#. Use the C++ driver with the -fsycl option to build the application:
+#. Build the application using ``icpx`` (Linux* OS) and ``icx-cl`` (Windows* OS) commands:
 
    - Add |short_name| ``includes`` folder:
 
