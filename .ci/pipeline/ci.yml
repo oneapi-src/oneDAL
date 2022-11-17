@@ -362,7 +362,6 @@ jobs:
       brew install gcc@12
     displayName: 'install gcc@12'
   - script: |
-      which gcc
       which gcc-12
       mkdir -p ${PWD}/aliases
       ln -s /usr/local/bin/gcc-12 ${PWD}/aliases/gcc
