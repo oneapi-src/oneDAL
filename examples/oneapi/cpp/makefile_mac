@@ -123,6 +123,10 @@ ifeq ($(compiler),clang)
     CC = clang++
 endif
 
+ifeq ($(compiler),gnu)
+    CC = g++
+endif
+
 RPATH=-Wl,-rpath,$(DAAL_PATH) -Wl,-rpath,$(TBB_PATH)
 
 lib libintel64:

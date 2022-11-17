@@ -365,7 +365,6 @@ jobs:
       ln -s /usr/local/bin/g++-12 ${PWD}/aliases/g++
       ln -s /usr/local/bin/c++-12 ${PWD}/aliases/c++
       ln -s /usr/local/bin/cpp-12 ${PWD}/aliases/cpp
-      ln -s /usr/local/bin/cpp-12 ${PWD}/aliases/cc
     displayName: 'install gcc@12'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
