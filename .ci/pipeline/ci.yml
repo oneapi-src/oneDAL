@@ -359,27 +359,24 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      alias gcc=gcc-11
-      alias c++=g++-11
-      alias g++=g++-11
+      mkdir -p ${PWD}/aliases
+      ln -s /usr/local/bin/gcc-11 ${PWD}/aliases/gcc
+      ln -s /usr/local/bin/g++-11 ${PWD}/aliases/g++
+      ln -s /usr/local/bin/c++-11 ${PWD}/aliases/c++
+      ln -s /usr/local/bin/cpp-11 ${PWD}/aliases/cpp
+      export PATH=${PWD}/aliases:${PATH}
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make daal_c'
   - script: |
-      alias gcc=gcc-11
-      alias c++=g++-11
-      alias g++=g++-11
+      export PATH=${PWD}/aliases:${PATH}
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make oneapi_c'
   - script: |
-      alias gcc=gcc-11
-      alias c++=g++-11
-      alias g++=g++-11
+      export PATH=${PWD}/aliases:${PATH}
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp
     displayName: 'daal/cpp examples'
   - script: |
-      alias gcc=gcc-11
-      alias c++=g++-11
-      alias g++=g++-11
+      export PATH=${PWD}/aliases:${PATH}
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
 
