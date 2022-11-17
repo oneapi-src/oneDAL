@@ -360,6 +360,8 @@ jobs:
   steps:
   - script: |
       mkdir -p ${PWD}/aliases
+      which gcc
+      which gcc-11
       ln -s /usr/local/bin/gcc-11 ${PWD}/aliases/gcc
       ln -s /usr/local/bin/g++-11 ${PWD}/aliases/g++
       ln -s /usr/local/bin/c++-11 ${PWD}/aliases/c++
