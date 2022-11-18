@@ -29,7 +29,6 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -39,12 +38,19 @@ typedef float algorithmFPType; /* Algorithm floating-point type */
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string datasetFileNames[] = { "../data/online/covcormoments_csr_1.csv", "../data/online/covcormoments_csr_2.csv",
-                                    "../data/online/covcormoments_csr_3.csv", "../data/online/covcormoments_csr_4.csv" };
+const std::string datasetFileNames[] = { "../data/online/covcormoments_csr_1.csv",
+                                         "../data/online/covcormoments_csr_2.csv",
+                                         "../data/online/covcormoments_csr_3.csv",
+                                         "../data/online/covcormoments_csr_4.csv" };
 
-int main(int argc, char * argv[])
-{
-    checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
+int main(int argc, char* argv[]) {
+    checkArguments(argc,
+                   argv,
+                   4,
+                   &datasetFileNames[0],
+                   &datasetFileNames[1],
+                   &datasetFileNames[2],
+                   &datasetFileNames[3]);
 
     /* Create an algorithm to compute a correlation matrix in the online processing mode using the default method */
     covariance::Online<algorithmFPType, covariance::fastCSR> algorithm;
@@ -52,9 +58,8 @@ int main(int argc, char * argv[])
     /* Set the parameter to choose the type of the output matrix */
     algorithm.parameter.outputMatrixType = covariance::correlationMatrix;
 
-    for (size_t i = 0; i < nBlocks; i++)
-    {
-        CSRNumericTable * dataTable = createSparseTable<float>(datasetFileNames[i]);
+    for (size_t i = 0; i < nBlocks; i++) {
+        CSRNumericTable* dataTable = createSparseTable<float>(datasetFileNames[i]);
 
         /* Set input objects for the algorithm */
         algorithm.input.set(covariance::data, CSRNumericTablePtr(dataTable));
@@ -69,7 +74,10 @@ int main(int argc, char * argv[])
     /* Get the computed correlation matrix */
     covariance::ResultPtr res = algorithm.getResult();
 
-    printNumericTable(res->get(covariance::correlation), "Correlation matrix (upper left square 10*10) :", 10, 10);
+    printNumericTable(res->get(covariance::correlation),
+                      "Correlation matrix (upper left square 10*10) :",
+                      10,
+                      10);
     printNumericTable(res->get(covariance::mean), "Mean vector:", 1, 10);
 
     return 0;

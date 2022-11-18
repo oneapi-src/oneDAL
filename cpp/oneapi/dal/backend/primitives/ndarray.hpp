@@ -263,6 +263,7 @@ public:
 
     template <std::int64_t new_axis_count, ndorder new_order = order>
     auto reshape(const ndshape<new_axis_count>& new_shape) const {
+        check_reshape_conditions(new_shape);
         using reshaped_ndview_t = ndview<T, new_axis_count, new_order>;
         return reshaped_ndview_t{ data_, new_shape, data_is_mutable_ };
     }
@@ -332,7 +333,6 @@ protected:
     void check_reshape_conditions(const ndshape<new_axis_count>& new_shape) const {
         ONEDAL_ASSERT(new_shape.get_count() == this->get_count(),
                       "Total element count must remain unchanged");
-        base::check_if_strides_are_default();
     }
 
     ndview& set_mutability(bool data_is_mutable) {

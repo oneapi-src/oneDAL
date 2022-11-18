@@ -36,12 +36,10 @@ static sycl::event syrk_wrapper(sycl::queue& queue,
                                 Float* c,
                                 std::int64_t ldc,
                                 const event_vector& deps) {
-#ifdef ONEDAL_ENABLE_ASSERT
-    const bool is_trans = (trans == mkl::transpose::trans);
+    [[maybe_unused]] const bool is_trans = (trans == mkl::transpose::trans);
     ONEDAL_ASSERT(ldc >= n);
     ONEDAL_ASSERT(is_trans || lda >= n);
     ONEDAL_ASSERT(!is_trans || lda >= k);
-#endif
 
     return mkl::blas::syrk(queue, uplo, trans, n, k, alpha, a, lda, beta, c, ldc, deps);
 }

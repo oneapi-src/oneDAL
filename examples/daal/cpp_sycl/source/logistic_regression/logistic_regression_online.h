@@ -30,8 +30,7 @@ namespace daal_solver = daal::algorithms::optimization_solver;
 namespace daal_sgd = daal::algorithms::optimization_solver::sgd;
 
 template <typename Fptype = float>
-class LogisticRegressionOnline
-{
+class LogisticRegressionOnline {
     using LogLoss = daal_solver::logistic_loss::Batch<Fptype>;
     using LogLossPtr = daal::services::SharedPtr<LogLoss>;
 
@@ -43,7 +42,11 @@ class LogisticRegressionOnline
 
 public:
     LogisticRegressionOnline()
-        : _nFeatures(0), _nClasses(0), _nBetas(0), _nBetaCols(0), _isIntercept(false) {}
+            : _nFeatures(0),
+              _nClasses(0),
+              _nBetas(0),
+              _nBetaCols(0),
+              _isIntercept(false) {}
 
     // Sets the algorithm parameters
     void setParams(size_t nClasses,
@@ -51,17 +54,15 @@ public:
                    bool isIntercept,
                    Fptype l2Penalty,
                    size_t batchRowCount,
-                   size_t batchIterationCount = 1)
-    {
+                   size_t batchIterationCount = 1) {
         checkParameterDomains(nClasses, nFeatures, l2Penalty, batchRowCount);
 
         _nClasses = nClasses;
         _nFeatures = nFeatures;
         _isIntercept = isIntercept;
 
-        if(nClasses == 2)
-        {
-            LogLossPtr loss (new LogLoss(batchRowCount));
+        if (nClasses == 2) {
+            LogLossPtr loss(new LogLoss(batchRowCount));
             if (!loss)
                 throw std::runtime_error("Failed to create LogLoss function");
 
@@ -75,9 +76,8 @@ public:
             _logLoss->parameter().penaltyL2 = l2Penalty;
             _logLoss->parameter().interceptFlag = isIntercept;
         }
-        else
-        {
-            CrossEntropyLossPtr loss (new CrossEntropyLoss(nClasses, batchRowCount));
+        else {
+            CrossEntropyLossPtr loss(new CrossEntropyLoss(nClasses, batchRowCount));
             if (!loss)
                 throw std::runtime_error("Failed to create LogLoss function");
 
@@ -86,7 +86,8 @@ public:
                 throw std::runtime_error("Failed to create SGD solver");
 
             // solver clones LogLoss so we need to retrieve an object it holds
-            _crossEntropyLoss = daal::services::staticPointerCast<CrossEntropyLoss>(_solver->parameter.function);
+            _crossEntropyLoss =
+                daal::services::staticPointerCast<CrossEntropyLoss>(_solver->parameter.function);
             _crossEntropyLoss->parameter().penaltyL1 = 0.0;
             _crossEntropyLoss->parameter().penaltyL2 = l2Penalty;
             _crossEntropyLoss->parameter().interceptFlag = isIntercept;
@@ -96,16 +97,19 @@ public:
         _nBetaCols = nFeatures + 1;
 
         setDefaultState(_nClasses, _nBetas, _nBetaCols);
-        _solver->parameter.accuracyThreshold    = 0.0;
-        _solver->parameter.nIterations          = batchIterationCount;
-        _solver->parameter.innerNIterations     = batchIterationCount;
-        _solver->parameter.batchSize            = batchRowCount;
-        _solver->parameter.conservativeSequence = daal_dm::SyclHomogenNumericTable<Fptype>::create(1, 1, daal_dm::NumericTable::doAllocate, 0.0);
+        _solver->parameter.accuracyThreshold = 0.0;
+        _solver->parameter.nIterations = batchIterationCount;
+        _solver->parameter.innerNIterations = batchIterationCount;
+        _solver->parameter.batchSize = batchRowCount;
+        _solver->parameter.conservativeSequence =
+            daal_dm::SyclHomogenNumericTable<Fptype>::create(1,
+                                                             1,
+                                                             daal_dm::NumericTable::doAllocate,
+                                                             0.0);
     }
 
     // Sets the parameters of current iteration of learning process
-    void setIterationParams(Fptype learningRate)
-    {
+    void setIterationParams(Fptype learningRate) {
         checkParametersInitialized();
 
         {
@@ -119,25 +123,21 @@ public:
     }
 
     // Sets the input for current iteration
-    void setInput(const daal_dm::NumericTablePtr& x, const daal_dm::NumericTablePtr& y)
-    {
+    void setInput(const daal_dm::NumericTablePtr& x, const daal_dm::NumericTablePtr& y) {
         checkParametersInitialized();
 
-        if (_nClasses == 2)
-        {
+        if (_nClasses == 2) {
             _logLoss->input.set(daal_solver::logistic_loss::data, x);
             _logLoss->input.set(daal_solver::logistic_loss::dependentVariables, y);
         }
-        else
-        {
+        else {
             _crossEntropyLoss->input.set(daal_solver::cross_entropy_loss::data, x);
             _crossEntropyLoss->input.set(daal_solver::cross_entropy_loss::dependentVariables, y);
         }
     }
 
     // Performs the single iteration of training on the data provided by setInput() method
-    void compute()
-    {
+    void compute() {
         namespace solver = daal::algorithms::optimization_solver::iterative_solver;
 
         checkParametersInitialized();
@@ -150,30 +150,30 @@ public:
     }
 
     // Creates final beta parameter values and resets internal algorithm state to default values
-    void finalizeCompute()
-    {
+    void finalizeCompute() {
         checkParametersInitialized();
 
         daal_dm::BlockDescriptor<Fptype> bBetas;
-        _workPoint->getBlockOfRows(0, _nBetas*_nBetaCols, daal_dm::readOnly, bBetas);
-        if (_isIntercept)
-        {
-            _finalBetas = daal_dm::SyclHomogenNumericTable<Fptype>::create(bBetas.getBuffer(), _nBetaCols, _nBetas);
+        _workPoint->getBlockOfRows(0, _nBetas * _nBetaCols, daal_dm::readOnly, bBetas);
+        if (_isIntercept) {
+            _finalBetas = daal_dm::SyclHomogenNumericTable<Fptype>::create(bBetas.getBuffer(),
+                                                                           _nBetaCols,
+                                                                           _nBetas);
         }
-        else
-        {
-            _finalBetas = daal_dm::SyclHomogenNumericTable<Fptype>::create(_nFeatures, _nBetas, daal_dm::NumericTableIface::doAllocate);
+        else {
+            _finalBetas = daal_dm::SyclHomogenNumericTable<Fptype>::create(
+                _nFeatures,
+                _nBetas,
+                daal_dm::NumericTableIface::doAllocate);
             daal_dm::BlockDescriptor<Fptype> bFinalBetas;
             _finalBetas->getBlockOfRows(0, _nBetas, daal_dm::writeOnly, bFinalBetas);
 
             auto src = bBetas.getBlockPtr();
             auto dst = bFinalBetas.getBlockPtr();
 
-            for (size_t i = 0; i < _nBetas; i++)
-            {
-                for (size_t j = 0; j < _nFeatures; j++)
-                {
-                    dst[i*_nFeatures + j] = src[i*_nBetaCols + j + 1];
+            for (size_t i = 0; i < _nBetas; i++) {
+                for (size_t j = 0; j < _nFeatures; j++) {
+                    dst[i * _nFeatures + j] = src[i * _nBetaCols + j + 1];
                 }
             }
 
@@ -185,36 +185,39 @@ public:
     }
 
     // Provides beta coefficients from the last iteration
-    auto getPartialModel() const
-    {
+    auto getPartialModel() const {
         return _workPoint;
     }
 
     // Provides final model
-    auto getModel() const
-    {
+    auto getModel() const {
         if (!_finalBetas)
             throw std::runtime_error("Final parameters are not calculated: call finalizeCompute()");
 
-        daal::algorithms::logistic_regression::ModelBuilder<Fptype> mBuilder (_nFeatures, _nClasses);
+        daal::algorithms::logistic_regression::ModelBuilder<Fptype> mBuilder(_nFeatures, _nClasses);
         mBuilder.setBeta(_finalBetas);
         return mBuilder.getModel();
     }
 
 private:
-    void setDefaultState(size_t nClasses, size_t nBetas, size_t nBetaCols)
-    {
-        _learningRateTable = daal_dm::SyclHomogenNumericTable<Fptype>::create(1, 1, daal_dm::NumericTable::doAllocate, 1.0);
-        _workPoint  = daal_dm::SyclHomogenNumericTable<Fptype>::create(1, nBetas*nBetaCols, daal_dm::NumericTable::doAllocate, 0.0);
+    void setDefaultState(size_t nClasses, size_t nBetas, size_t nBetaCols) {
+        _learningRateTable =
+            daal_dm::SyclHomogenNumericTable<Fptype>::create(1,
+                                                             1,
+                                                             daal_dm::NumericTable::doAllocate,
+                                                             1.0);
+        _workPoint =
+            daal_dm::SyclHomogenNumericTable<Fptype>::create(1,
+                                                             nBetas * nBetaCols,
+                                                             daal_dm::NumericTable::doAllocate,
+                                                             0.0);
 
-        if (nClasses != 2)
-        {
+        if (nClasses != 2) {
             daal_dm::BlockDescriptor<Fptype> bd;
-            _workPoint->getBlockOfRows(0, nBetas*nBetaCols, daal_dm::readWrite, bd);
+            _workPoint->getBlockOfRows(0, nBetas * nBetaCols, daal_dm::readWrite, bd);
             auto ptr = bd.getBlockPtr();
 
-            for (size_t i = 0; i < bd.getNumberOfRows(); i += nBetaCols)
-            {
+            for (size_t i = 0; i < bd.getNumberOfRows(); i += nBetaCols) {
                 ptr[i] = Fptype(1e-3);
             }
 
@@ -225,8 +228,7 @@ private:
     void checkParameterDomains(size_t nClasses,
                                size_t nFeatures,
                                Fptype l2Penalty,
-                               size_t batchRowCount)
-    {
+                               size_t batchRowCount) {
         if (nClasses < 2)
             throw std::domain_error("Number of classes must be >= 2");
 
@@ -240,8 +242,7 @@ private:
             throw std::domain_error("Row count in a batch must be greater than zero");
     }
 
-    void checkParametersInitialized()
-    {
+    void checkParametersInitialized() {
         // Its enought to check the solver since all parameters are initialized in one place
         if (!_solver)
             throw std::runtime_error("Algorithm parameters are not initialized: call setParams()");
