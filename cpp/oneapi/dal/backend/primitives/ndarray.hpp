@@ -261,10 +261,10 @@ public:
         return tranposed_ndview_t{ data_, shape.t(), strides.t(), data_is_mutable_ };
     }
 
-    template <std::int64_t new_axis_count>
+    template <std::int64_t new_axis_count, ndorder new_order = order>
     auto reshape(const ndshape<new_axis_count>& new_shape) const {
-        using reshaped_ndview_t = ndview<T, new_axis_count, order>;
         check_reshape_conditions(new_shape);
+        using reshaped_ndview_t = ndview<T, new_axis_count, new_order>;
         return reshaped_ndview_t{ data_, new_shape, data_is_mutable_ };
     }
 
@@ -333,7 +333,6 @@ protected:
     void check_reshape_conditions(const ndshape<new_axis_count>& new_shape) const {
         ONEDAL_ASSERT(new_shape.get_count() == this->get_count(),
                       "Total element count must remain unchanged");
-        base::check_if_strides_are_default();
     }
 
     ndview& set_mutability(bool data_is_mutable) {
@@ -796,5 +795,30 @@ private:
 
     shared_t data_;
 };
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+template <ndorder yorder,
+          typename Type,
+          ndorder xorder,
+          sycl::usm::alloc alloc = sycl::usm::alloc::device>
+inline auto copy(sycl::queue& q,
+                 const ndview<Type, 2, xorder>& src,
+                 const event_vector& deps = {}) {
+    ONEDAL_ASSERT(src.has_data());
+    const auto shape = src.get_shape();
+    auto res_array = ndarray<Type, 2, yorder>::empty(q, shape, alloc);
+    auto res_event = copy(q, res_array, src, deps);
+    return std::make_pair(res_array, res_event);
+}
+
+template <typename Type, ndorder xorder, sycl::usm::alloc alloc = sycl::usm::alloc::device>
+inline auto copy(sycl::queue& q,
+                 const ndview<Type, 2, xorder>& src,
+                 const event_vector& deps = {}) {
+    return copy<xorder, Type, xorder, alloc>(q, src, deps);
+}
+
+#endif
 
 } // namespace oneapi::dal::backend::primitives

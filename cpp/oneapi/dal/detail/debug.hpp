@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,35 +18,35 @@
 
 #include <iostream>
 
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::detail {
 
 #ifdef _GLIBCXX_OSTREAM
 
-// Available only if (i)ostream header is included
+inline auto& print_table_shape(std::ostream& s, const table& t) {
+    const auto h = t.get_row_count();
+    const auto w = t.get_column_count();
 
-template <typename T, ndorder ord>
-inline std::ostream& print_shape(std::ostream& s, const ndview<T, 2, ord>& v) {
-    constexpr char o = (ord == ndorder::c) ? 'C' : 'F';
-    const auto h = v.get_dimension(0);
-    const auto w = v.get_dimension(1);
-    const auto d = v.get_leading_stride();
-    return s << o << "-like ndview with shape height,width=" << h << ',' << w << " (stride=" << d
-             << ")\n";
+    return s << "Table with shape height,width=" << h << ',' << w << "\n";
 }
 
-template <typename T, ndorder ord>
-inline std::ostream& print_content(std::ostream& s, const ndview<T, 2, ord>& v) {
-    const auto h = v.get_dimension(0);
-    const auto w = v.get_dimension(1);
+template <typename Float = float>
+inline auto& print_table_content(std::ostream& s, const table& t) {
+    const auto h = t.get_row_count();
+    const auto w = t.get_column_count();
+
 #ifdef _GLIBCXX_IOMANIP
     const auto init_flags = s.flags();
     s << std::scientific << std::setprecision(4);
 #endif
+
+    row_accessor<const Float> accessor(t);
     for (std::int64_t r = 0; r < h; ++r) {
+        auto row = accessor.pull({ r, r + 1 });
         for (std::int64_t c = 0; c < w; ++c) {
-            s << "\t " << v.at(r, c);
+            s << "\t " << row[c];
         }
         s << "\t: r" << r << '\n';
     }
@@ -56,13 +56,13 @@ inline std::ostream& print_content(std::ostream& s, const ndview<T, 2, ord>& v) 
     return s;
 }
 
-template <typename T, ndorder ord>
-inline std::ostream& operator<<(std::ostream& s, const ndview<T, 2, ord>& v) {
-    print_shape(s, v);
-    print_content(s, v);
+template <typename Float = float>
+inline std::ostream& operator<<(std::ostream& s, const table& t) {
+    print_table_shape(s, t);
+    print_table_content<Float>(s, t);
     return s << std::endl;
 }
 
 #endif
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::detail

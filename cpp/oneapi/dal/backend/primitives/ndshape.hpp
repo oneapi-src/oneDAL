@@ -60,6 +60,10 @@ public:
     }
 
     std::int64_t operator[](std::int64_t i) const {
+        return this->at(i);
+    }
+
+    std::int64_t at(std::int64_t i) const {
         ONEDAL_ASSERT(i < axis_count, "Index is out of range");
         return dimensions_[i];
     }
@@ -96,6 +100,18 @@ public:
     const ndindex<axis_count>& get_index() const {
         return dimensions_;
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    sycl::range<1> to_range() const {
+        return make_range_1d(at(0));
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    sycl::range<2> to_range() const {
+        return make_range_2d(at(0), at(1));
+    }
+#endif
 
 private:
     ndindex<axis_count> dimensions_;
