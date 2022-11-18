@@ -94,13 +94,17 @@ public:
 
         const std::int64_t betas_seed = meta_gen();
         const auto betas_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->f_count_, this->r_count_ }.fill_uniform(-10.1, 10.1, betas_seed));
+            te::dataframe_builder{ this->f_count_, this->r_count_ }.fill_uniform(-10.1,
+                                                                                 10.1,
+                                                                                 betas_seed));
         std::get<0>(result) = betas_dataframe.get_table(this->get_homogen_table_id());
 
         if (this->intercept_) {
             const std::int64_t bias_seed = meta_gen();
             const auto bias_dataframe = GENERATE_DATAFRAME(
-                te::dataframe_builder{ std::int64_t(1), this->r_count_ }.fill_uniform(-15.5, 15.5, bias_seed));
+                te::dataframe_builder{ std::int64_t(1), this->r_count_ }.fill_uniform(-15.5,
+                                                                                      15.5,
+                                                                                      bias_seed));
             std::get<1>(result) = bias_dataframe.get_table(this->get_homogen_table_id());
         }
         else {
@@ -111,8 +115,10 @@ public:
         return result;
     }
 
-    void check_table_dimensions(const table& x_train, const table& y_train,
-                                const table& x_test, const table& y_test) {
+    void check_table_dimensions(const table& x_train,
+                                const table& y_train,
+                                const table& x_test,
+                                const table& y_test) {
         REQUIRE(x_train.get_column_count() == this->f_count_);
         REQUIRE(x_train.get_row_count() == this->s_count_);
         REQUIRE(x_test.get_column_count() == this->f_count_);
@@ -136,7 +142,7 @@ public:
         return linear_regression::descriptor<float_t, method_t, task_t>(intercept_);
     }
 
-    void check_results(const table& gtr_table, const infer_result<>& res, double tol = 1e-5) {
+    void check_results(const table& gtr_table, const infer_result<>& res, double tol) {
         const table& res_table = res.get_responses();
 
         const table scr_table = te::mse_score<float_t>(res_table, gtr_table);
@@ -148,19 +154,23 @@ public:
         }
     }
 
-    void run_and_check(std::int64_t seed = 888) {
+    void run_and_check(std::int64_t seed = 888, double tol = 1.e-3) {
         using namespace ::oneapi::dal::detail;
-        
-        std::mt19937 meta_gen(seed); 
+
+        std::mt19937 meta_gen(seed);
 
         const std::int64_t train_seed = meta_gen();
         const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5, 3.5, train_seed));
+            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,
+                                                                                 3.5,
+                                                                                 train_seed));
         auto x_train = train_dataframe.get_table(this->get_homogen_table_id());
 
         const std::int64_t test_seed = meta_gen();
         const auto test_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-7.5, 5.5, test_seed));
+            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-3.5,
+                                                                                 5.5,
+                                                                                 test_seed));
         auto x_test = test_dataframe.get_table(this->get_homogen_table_id());
 
         auto y_train = compute_responses(this->beta_, this->bias_, x_train);
@@ -173,7 +183,7 @@ public:
 
         const auto infer_res = this->infer(desc, x_test, train_res.get_model());
 
-        check_results(y_test, infer_res);
+        check_results(y_test, infer_res, tol);
     }
 
 protected:

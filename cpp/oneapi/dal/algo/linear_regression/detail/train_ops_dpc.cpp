@@ -24,9 +24,9 @@ namespace v1 {
 
 using dal::detail::data_parallel_policy;
 
-template <typename Float, typename Method, typename Task>
-struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
-    train_result<Task> operator()(const data_parallel_policy& ctx,
+template <typename Policy, typename Float, typename Method, typename Task>
+struct train_ops_dispatcher<Policy, Float, Method, Task> {
+    train_result<Task> operator()(const Policy& ctx,
                                   const descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<

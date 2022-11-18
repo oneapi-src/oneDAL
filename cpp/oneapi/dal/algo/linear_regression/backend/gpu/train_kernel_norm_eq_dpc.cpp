@@ -116,12 +116,12 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
         sycl::event::wait_and_throw(solve_deps);
         {
             ONEDAL_PROFILER_TASK(xtx_allreduce);
-            auto xtx_arr = dal::array<Float>::wrap(xtx.get_mutable_data(), xtx.get_count());
+            auto xtx_arr = dal::array<Float>::wrap(queue, xtx.get_mutable_data(), xtx.get_count());
             comm.allreduce(xtx_arr).wait();
         }
         {
             ONEDAL_PROFILER_TASK(xty_allreduce);
-            auto xty_arr = dal::array<Float>::wrap(xty.get_mutable_data(), xty.get_count());
+            auto xty_arr = dal::array<Float>::wrap(queue, xty.get_mutable_data(), xty.get_count());
             comm.allreduce(xty_arr).wait();
         }
     }

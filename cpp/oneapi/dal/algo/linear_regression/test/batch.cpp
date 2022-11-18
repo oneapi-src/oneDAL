@@ -93,13 +93,17 @@ public:
 
         const std::int64_t betas_seed = meta_gen();
         const auto betas_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->f_count_, this->r_count_ }.fill_uniform(-10.1, 10.1, betas_seed));
+            te::dataframe_builder{ this->f_count_, this->r_count_ }.fill_uniform(-10.1,
+                                                                                 10.1,
+                                                                                 betas_seed));
         std::get<0>(result) = betas_dataframe.get_table(this->get_homogen_table_id());
 
         if (this->intercept_) {
             const std::int64_t bias_seed = meta_gen();
             const auto bias_dataframe = GENERATE_DATAFRAME(
-                te::dataframe_builder{ std::int64_t(1), this->r_count_ }.fill_uniform(-15.5, 15.5, bias_seed));
+                te::dataframe_builder{ std::int64_t(1), this->r_count_ }.fill_uniform(-15.5,
+                                                                                      15.5,
+                                                                                      bias_seed));
             std::get<1>(result) = bias_dataframe.get_table(this->get_homogen_table_id());
         }
         else {
@@ -122,7 +126,7 @@ public:
     }
 
     void generate(std::int64_t seed = 777) {
-        std::mt19937 meta_gen(seed); 
+        std::mt19937 meta_gen(seed);
         this->generate_dimensions();
         const auto betas_seed = meta_gen();
         auto [beta, bias] = generate_betas(betas_seed);
@@ -131,12 +135,16 @@ public:
 
         const std::int64_t train_seed = meta_gen();
         const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5, 3.5, train_seed));
+            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,
+                                                                                 3.5,
+                                                                                 train_seed));
         this->x_train_ = train_dataframe.get_table(this->get_homogen_table_id());
 
         const std::int64_t test_seed = meta_gen();
         const auto test_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-7.5, 5.5, test_seed));
+            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-7.5,
+                                                                                 5.5,
+                                                                                 test_seed));
         this->x_test_ = test_dataframe.get_table(this->get_homogen_table_id());
 
         this->y_train_ = compute_responses(beta, bias, this->x_train_);
