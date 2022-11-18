@@ -18,7 +18,7 @@
 #  g++ defenitions for makefile
 #--
 
-PLATs.gnu = lnx32e
+PLATs.gnu = lnx32e mac32e
 
 CMPLRDIRSUFF.gnu = _gnu
 
@@ -27,15 +27,23 @@ CORE.SERV.COMPILER.gnu = generic
 -Zl.gnu =
 -DEBC.gnu = -g
 
-COMPILER.lnx.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
+COMPILER.all.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
                     -Werror -Wreturn-type
 
-link.dynamic.lnx.gnu = ${CXX} $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.all.gnu = ${CXX} $(if $(IA_is_ia32),-m32,-m64)
 
-pedantic.opts.lnx.gnu = -pedantic \
+pedantic.opts.all.gnu = -pedantic \
                         -Wall \
                         -Wextra \
                         -Wno-unused-parameter
+
+COMPILER.lnx.gnu = $(COMPILER.all.gnu)
+link.dynamic.lnx.gnu = $(link.dynamic.all.gnu)
+pedantic.opts.lnx.gnu = $(pedantic.opts.all.gnu)
+
+COMPILER.mac.gnu = $(COMPILER.all.gnu)
+link.dynamic.mac.gnu = $(link.dynamic.all.gnu)
+pedantic.opts.mac.gnu = $(pedantic.opts.all.gnu)
 
 p4_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)
 mc_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)

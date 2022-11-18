@@ -30,7 +30,6 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -39,23 +38,21 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-string leftDatasetFileName  = "../data/batch/kernel_function.csv";
-string rightDatasetFileName = "../data/batch/kernel_function.csv";
-const size_t nFeatures      = 4;
+std::string leftDatasetFileName = "../data/batch/kernel_function.csv";
+std::string rightDatasetFileName = "../data/batch/kernel_function.csv";
+const size_t nFeatures = 4;
 
 /* Kernel algorithm parameters */
 const double k = 1.0; /* Linear kernel coefficient in the k(X,Y) + b model */
 const double b = 0.0; /* Linear kernel coefficient in the k(X,Y) + b model */
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &leftDatasetFileName);
     checkArguments(argc, argv, 1, &rightDatasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -63,10 +60,12 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> leftDataSource(leftDatasetFileName, DataSource::doAllocateNumericTable,
+        FileDataSource<CSVFeatureManager> leftDataSource(leftDatasetFileName,
+                                                         DataSource::doAllocateNumericTable,
                                                          DataSource::doDictionaryFromContext);
 
-        FileDataSource<CSVFeatureManager> rightDataSource(rightDatasetFileName, DataSource::doAllocateNumericTable,
+        FileDataSource<CSVFeatureManager> rightDataSource(rightDatasetFileName,
+                                                          DataSource::doAllocateNumericTable,
                                                           DataSource::doDictionaryFromContext);
 
         auto leftData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
@@ -81,8 +80,8 @@ int main(int argc, char * argv[])
         kernel_function::linear::Batch<> algorithm;
 
         /* Set the kernel algorithm parameter */
-        algorithm.parameter.k               = k;
-        algorithm.parameter.b               = b;
+        algorithm.parameter.k = k;
+        algorithm.parameter.b = b;
         algorithm.parameter.computationMode = kernel_function::matrixMatrix;
 
         /* Set an input data table for the algorithm */
