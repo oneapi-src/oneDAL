@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,23 +40,24 @@ namespace te = dal::test::engine;
 namespace de = dal::detail;
 namespace la = te::linalg;
 
-template <typename TestType>
-class lr_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
+template <typename TestType, typename Derived>
+class lr_test : public te::crtp_algo_fixture<TestType, Derived> {
 public:
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using task_t = std::tuple_element_t<2, TestType>;
 
-    void generate_dimensions() {
-        t_count_ = GENERATE(9, 78, 32777);
-        s_count_ = GENERATE(111, 777);
-        f_count_ = GENERATE(2, 3, 5);
-        r_count_ = GENERATE(2, 7, 9);
-        intercept_ = GENERATE(0, 1);
-    }
+    using train_input_t = train_input<task_t>;
+    using train_result_t = train_result<task_t>;
+    using test_input_t = infer_input<task_t>;
+    using test_result_t = infer_result<task_t>;
 
     te::table_id get_homogen_table_id() const {
         return te::table_id::homogen<float_t>();
+    }
+
+    Derived* get_impl() {
+        return static_cast<Derived*>(this);
     }
 
     table compute_responses(const table& beta, const table& bias, const table& data) const {
@@ -110,51 +111,35 @@ public:
         return result;
     }
 
-    void check_table_dimensions() {
-        REQUIRE(this->x_train_.get_column_count() == this->f_count_);
-        REQUIRE(this->x_train_.get_row_count() == this->s_count_);
-        REQUIRE(this->x_test_.get_column_count() == this->f_count_);
-        REQUIRE(this->x_test_.get_row_count() == this->t_count_);
-        REQUIRE(this->y_train_.get_column_count() == this->r_count_);
-        REQUIRE(this->y_train_.get_row_count() == this->s_count_);
-        REQUIRE(this->y_test_.get_column_count() == this->r_count_);
-        REQUIRE(this->y_test_.get_row_count() == this->t_count_);
+    void check_table_dimensions(const table& x_train, const table& y_train,
+                                const table& x_test, const table& y_test) {
+        REQUIRE(x_train.get_column_count() == this->f_count_);
+        REQUIRE(x_train.get_row_count() == this->s_count_);
+        REQUIRE(x_test.get_column_count() == this->f_count_);
+        REQUIRE(x_test.get_row_count() == this->t_count_);
+        REQUIRE(y_train.get_column_count() == this->r_count_);
+        REQUIRE(y_train.get_row_count() == this->s_count_);
+        REQUIRE(y_test.get_column_count() == this->r_count_);
+        REQUIRE(y_test.get_row_count() == this->t_count_);
     }
 
     void generate(std::int64_t seed = 777) {
-        std::mt19937 meta_gen(seed); 
-        this->generate_dimensions();
-        const auto betas_seed = meta_gen();
-        auto [beta, bias] = generate_betas(betas_seed);
+        this->get_impl()->generate_dimensions();
 
-        using namespace ::oneapi::dal::detail;
+        auto [beta, bias] = generate_betas(seed);
 
-        const std::int64_t train_seed = meta_gen();
-        const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5, 3.5, train_seed));
-        this->x_train_ = train_dataframe.get_table(this->get_homogen_table_id());
-
-        const std::int64_t test_seed = meta_gen();
-        const auto test_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-7.5, 5.5, test_seed));
-        this->x_test_ = test_dataframe.get_table(this->get_homogen_table_id());
-
-        this->y_train_ = compute_responses(beta, bias, this->x_train_);
-        this->y_test_ = compute_responses(beta, bias, this->x_test_);
-
-        this->check_table_dimensions();
+        this->bias_ = std::move(bias);
+        this->beta_ = std::move(beta);
     }
 
     auto get_descriptor() const {
         return linear_regression::descriptor<float_t, method_t, task_t>(intercept_);
     }
 
-    void check_results(const infer_result<>& res, double tol = 1e-5) {
-        const table& gtr_table = this->y_test_;
+    void check_results(const table& gtr_table, const infer_result<>& res, double tol = 1e-5) {
         const table& res_table = res.get_responses();
 
         const table scr_table = te::mse_score<float_t>(res_table, gtr_table);
-
         const auto score = row_accessor<const float_t>(scr_table).pull({ 0, -1 });
 
         for (std::int64_t r = 0; r < this->r_count_; ++r) {
@@ -163,39 +148,47 @@ public:
         }
     }
 
-    void run_and_check() {
+    void run_and_check(std::int64_t seed = 888) {
         using namespace ::oneapi::dal::detail;
+        
+        std::mt19937 meta_gen(seed); 
+
+        const std::int64_t train_seed = meta_gen();
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5, 3.5, train_seed));
+        auto x_train = train_dataframe.get_table(this->get_homogen_table_id());
+
+        const std::int64_t test_seed = meta_gen();
+        const auto test_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-7.5, 5.5, test_seed));
+        auto x_test = test_dataframe.get_table(this->get_homogen_table_id());
+
+        auto y_train = compute_responses(this->beta_, this->bias_, x_train);
+        auto y_test = compute_responses(this->beta_, this->bias_, x_test);
+
+        check_table_dimensions(x_train, y_train, x_test, y_test);
+
         const auto desc = this->get_descriptor();
-        const auto train_res = this->train(desc, this->x_train_, this->y_train_);
+        const auto train_res = this->train(desc, x_train, y_train);
 
-        const auto infer_res = this->infer(desc, this->x_test_, train_res.get_model());
+        const auto infer_res = this->infer(desc, x_test, train_res.get_model());
 
-        check_results(infer_res);
+        check_results(y_test, infer_res);
     }
 
-private:
+protected:
     bool intercept_ = true;
     std::int64_t t_count_;
     std::int64_t s_count_;
     std::int64_t f_count_;
     std::int64_t r_count_;
 
-    table x_test_;
-    table y_test_;
-    table x_train_;
-    table y_train_;
+    table bias_;
+    table beta_;
 };
 
 using lr_types = COMBINE_TYPES((float, double),
                                (linear_regression::method::norm_eq),
                                (linear_regression::task::regression));
-
-TEMPLATE_LIST_TEST_M(lr_batch_test, "LR common flow", "[lr][batch]", lr_types) {
-    SKIP_IF(this->not_float64_friendly());
-
-    this->generate(777);
-
-    this->run_and_check();
-}
 
 } // namespace oneapi::dal::linear_regression::test

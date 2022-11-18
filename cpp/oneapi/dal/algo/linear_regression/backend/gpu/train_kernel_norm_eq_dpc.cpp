@@ -111,6 +111,21 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     const be::event_vector solve_deps{ last_xty_event, last_xtx_event };
 
+    auto& comm = ctx.get_communicator();
+    if (comm.get_rank_count() > 1) {
+        sycl::event::wait_and_throw(solve_deps);
+        {
+            ONEDAL_PROFILER_TASK(xtx_allreduce);
+            auto xtx_arr = dal::array<Float>::wrap(xtx.get_mutable_data(), xtx.get_count());
+            comm.allreduce(xtx_arr).wait();
+        }
+        {
+            ONEDAL_PROFILER_TASK(xty_allreduce);
+            auto xty_arr = dal::array<Float>::wrap(xty.get_mutable_data(), xty.get_count());
+            comm.allreduce(xty_arr).wait();
+        }
+    }
+
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
     auto nxty = pr::ndarray<Float, 2>::wrap_mutable(betas_arr, betas_shape);
     auto solve_event = pr::solve_system<uplo>(queue, beta, xtx, xty, nxtx, nxty, solve_deps);
