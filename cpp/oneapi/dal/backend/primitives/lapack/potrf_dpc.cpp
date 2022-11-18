@@ -59,11 +59,9 @@ sycl::event potrf_factorization(sycl::queue& queue,
     ONEDAL_ASSERT(scratchpad.has_mutable_data());
     const auto [ncount, nlda, nuplo] = get_potrf_params<uplo>(x);
 
-#ifdef ONEDAL_ENABLE_ASSERT
-    const auto scratchpad_real_count = scratchpad.get_count();
-    const auto scratchpad_want_count = potrf_scratchpad_size<uplo>(queue, x);
+    [[maybe_unused]] const auto scratchpad_real_count = scratchpad.get_count();
+    [[maybe_unused]] const auto scratchpad_want_count = potrf_scratchpad_size<uplo>(queue, x);
     ONEDAL_ASSERT(scratchpad_real_count >= scratchpad_want_count);
-#endif
 
     auto* x_ptr = x.get_mutable_data();
     const auto scount = scratchpad.get_count();
