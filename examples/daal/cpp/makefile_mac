@@ -85,7 +85,7 @@ TBB_PATH = "$(TBBROOT)/lib"
 
 DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
 
-COPTS := -Wall -w -Wl,-w -stdlib=libc++ -I./source/utils
+COPTS := -Wall -w -Wl,-w -I./source/utils
 LOPTS := $(DAAL_LIB) -ldl -ltbb -ltbbmalloc
 
 RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
@@ -93,6 +93,7 @@ RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(
 
 ifeq ($(compiler),intel)
     CC = icc
+    COPTS += -stdlib=libc++
 endif
 
 ifeq ($(compiler),gnu)
@@ -102,7 +103,7 @@ endif
 
 ifeq ($(compiler),clang)
     CC = clang++
-    COPTS += -m64
+    COPTS += -m64 -stdlib=libc++
 endif
 
 RPATH=-Wl,-rpath,$(DAAL_PATH) -Wl,-rpath,$(TBB_PATH)

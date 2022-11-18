@@ -33,16 +33,13 @@ using namespace daal::data_management;
 
 std::string wrongDatasetFileName = "../data/batch/wrong.csv";
 
-int main()
-{
-    try
-    {
+int main() {
+    try {
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
         FileDataSource<CSVFeatureManager> wrongDataSource(wrongDatasetFileName);
         /* An exception was generated due to absense DAAL_NOTHROW_EXCEPTIONS define by default */
     }
-    catch (daal::services::Exception & e)
-    {
+    catch (daal::services::Exception& e) {
         /* Retrieve the description of the generated exception. */
         std::cout << "FileDataSource expected error: " << e.what() << std::endl;
     }

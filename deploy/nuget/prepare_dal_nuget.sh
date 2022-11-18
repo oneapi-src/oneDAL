@@ -115,10 +115,8 @@ create_package() {
         nuget_pkgs_path=__nuget
         pkg_path=${nuget_pkgs_path}/${pkg_name}
         dal_root_prefix=${pkg_path}/build/native/daal
-        tbb_root_prefix=${pkg_path}/build/native/tbb
         echo "Creating ${pkg_name} at ${pkg_path}"
         mkdir -p ${dal_root_prefix}
-        mkdir -p ${tbb_root_prefix}
 
         # oneDAL
         # -- license

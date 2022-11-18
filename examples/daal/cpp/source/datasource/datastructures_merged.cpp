@@ -31,15 +31,14 @@
 using namespace daal;
 using namespace daal::data_management;
 
-int main()
-{
+int main() {
     std::cout << "Merged numeric table example" << std::endl << std::endl;
 
     const size_t nObservations = 5;
-    const size_t nFeatures1    = 5;
-    const size_t nFeatures2    = 6;
-    const size_t firstReadRow  = 3;
-    const size_t nRead         = 1;
+    const size_t nFeatures1 = 5;
+    const size_t nFeatures2 = 6;
+    const size_t firstReadRow = 3;
+    const size_t nRead = 1;
 
     /*Example of using homogeneous numeric table*/
     float data1[nFeatures1 * nObservations] = {
@@ -67,20 +66,30 @@ int main()
 
     /* Read one row from merged numeric table */
     dataTable->getBlockOfRows(firstReadRow, nRead, readWrite, block);
-    printArray<float>(block.getBlockPtr(), nFeatures1 + nFeatures2, block.getNumberOfRows(), "Print 1 row from merged numeric table as float:");
+    printArray<float>(block.getBlockPtr(),
+                      nFeatures1 + nFeatures2,
+                      block.getNumberOfRows(),
+                      "Print 1 row from merged numeric table as float:");
 
     /* Modify row of the merged numeric table */
-    float * row = block.getBlockPtr();
-    for (size_t i = 0; i < nFeatures1 + nFeatures2; i++) row[i] *= row[i];
+    float* row = block.getBlockPtr();
+    for (size_t i = 0; i < nFeatures1 + nFeatures2; i++)
+        row[i] *= row[i];
     dataTable->releaseBlockOfRows(block);
 
     /* Read the same row from homogen numeric tables */
     dataTable1->getBlockOfRows(firstReadRow, nRead, readOnly, block);
-    printArray<float>(block.getBlockPtr(), nFeatures1, block.getNumberOfRows(), "Print 1 row from first homogen numeric table as float:");
+    printArray<float>(block.getBlockPtr(),
+                      nFeatures1,
+                      block.getNumberOfRows(),
+                      "Print 1 row from first homogen numeric table as float:");
     dataTable1->releaseBlockOfRows(block);
 
     dataTable2->getBlockOfRows(firstReadRow, nRead, readOnly, block);
-    printArray<float>(block.getBlockPtr(), nFeatures2, block.getNumberOfRows(), "Print 1 row from second homogen numeric table as float:");
+    printArray<float>(block.getBlockPtr(),
+                      nFeatures2,
+                      block.getNumberOfRows(),
+                      "Print 1 row from second homogen numeric table as float:");
     dataTable2->releaseBlockOfRows(block);
 
     return 0;

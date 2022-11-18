@@ -29,20 +29,20 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainedModelsFileNames[] = { "../data/batch/svm_multi_class_trained_model_01.csv", "../data/batch/svm_multi_class_trained_model_02.csv",
-                                    "../data/batch/svm_multi_class_trained_model_12.csv" };
-float biases[]                  = { -0.774F, -1.507F, -7.559F };
+std::string trainedModelsFileNames[] = { "../data/batch/svm_multi_class_trained_model_01.csv",
+                                         "../data/batch/svm_multi_class_trained_model_02.csv",
+                                         "../data/batch/svm_multi_class_trained_model_12.csv" };
+float biases[] = { -0.774F, -1.507F, -7.559F };
 
-string testDatasetFileName = "../data/batch/multiclass_iris_train.csv";
+std::string testDatasetFileName = "../data/batch/multiclass_iris_train.csv";
 
 const size_t nFeatures = 4;
-const size_t nClasses  = 3;
+const size_t nClasses = 3;
 
 services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
@@ -51,35 +51,35 @@ kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
 NumericTablePtr testGroundTruth;
 
 multi_class_classifier::ModelPtr buildModelFromTraining();
-void testModel(multi_class_classifier::ModelPtr & inputModel);
+void testModel(multi_class_classifier::ModelPtr& inputModel);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &testDatasetFileName);
 
     multi_class_classifier::ModelPtr builtModel = buildModelFromTraining();
-    prediction->parameter.kernel                = kernel;
+    prediction->parameter.kernel = kernel;
     testModel(builtModel);
     return 0;
 }
 
-multi_class_classifier::ModelPtr buildModelFromTraining()
-{
+multi_class_classifier::ModelPtr buildModelFromTraining() {
     multi_class_classifier::ModelBuilder<> multiBuilder(nFeatures, nClasses);
 
     size_t imodel = 0;
-    for (size_t iClass = 1; iClass < nClasses; iClass++)
-    {
-        for (size_t jClass = 0; jClass < iClass; jClass++, imodel++)
-        {
+    for (size_t iClass = 1; iClass < nClasses; iClass++) {
+        for (size_t jClass = 0; jClass < iClass; jClass++, imodel++) {
             /* Initialize FileDataSource<CSVFeatureManager> to retrieve the binary classifications models */
-            FileDataSource<CSVFeatureManager> modelSource(trainedModelsFileNames[imodel], DataSource::doAllocateNumericTable,
+            FileDataSource<CSVFeatureManager> modelSource(trainedModelsFileNames[imodel],
+                                                          DataSource::doAllocateNumericTable,
                                                           DataSource::doDictionaryFromContext);
 
             /* Create Numeric Tables for support vectors and classification coeffes */
-            NumericTablePtr supportVectors(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-            NumericTablePtr classificationCoefficients(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
-            NumericTablePtr mergedModel(new MergedNumericTable(supportVectors, classificationCoefficients));
+            NumericTablePtr supportVectors(
+                new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
+            NumericTablePtr classificationCoefficients(
+                new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
+            NumericTablePtr mergedModel(
+                new MergedNumericTable(supportVectors, classificationCoefficients));
 
             /* Retrieve the data from input file */
             modelSource.loadDataBlock(mergedModel.get());
@@ -90,8 +90,8 @@ multi_class_classifier::ModelPtr buildModelFromTraining()
             /* write numbers in model */
             BlockDescriptor<> blockResult;
             supportVectors->getBlockOfRows(0, nSV, readOnly, blockResult);
-            float * first = blockResult.getBlockPtr();
-            float * last  = first + nSV * nFeatures;
+            float* first = blockResult.getBlockPtr();
+            float* last = first + nSV * nFeatures;
 
             svm::ModelBuilder<> modelBuilder(nFeatures, nSV);
             /* set support vectors */
@@ -101,7 +101,7 @@ multi_class_classifier::ModelPtr buildModelFromTraining()
             /* set Classification Coefficients */
             classificationCoefficients->getBlockOfRows(0, nSV, readOnly, blockResult);
             first = blockResult.getBlockPtr();
-            last  = first + nSV;
+            last = first + nSV;
 
             modelBuilder.setClassificationCoefficients(first, last);
 
@@ -116,10 +116,11 @@ multi_class_classifier::ModelPtr buildModelFromTraining()
     return multiBuilder.getModel();
 }
 
-void testModel(multi_class_classifier::ModelPtr & inputModel)
-{
+void testModel(multi_class_classifier::ModelPtr& inputModel) {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
+                                                     DataSource::doAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -145,6 +146,11 @@ void testModel(multi_class_classifier::ModelPtr & inputModel)
     /* Retrieve the algorithm results */
     predictionResult = algorithm.getResult();
 
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
-                                 "Multi-class SVM classification sample program results (first 20 observations):", 20);
+    printNumericTables<int, int>(
+        testGroundTruth,
+        predictionResult->get(classifier::prediction::prediction),
+        "Ground truth",
+        "Classification results",
+        "Multi-class SVM classification sample program results (first 20 observations):",
+        20);
 }
