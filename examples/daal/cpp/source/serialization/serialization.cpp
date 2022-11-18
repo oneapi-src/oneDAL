@@ -29,22 +29,22 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/serialization.csv";
+const std::string datasetFileName = "../data/batch/serialization.csv";
 
-void serializeNumericTable(NumericTablePtr dataTable, byte ** buffer, size_t * length);
-NumericTablePtr deserializeNumericTable(byte * buffer, size_t size);
+void serializeNumericTable(NumericTablePtr dataTable, byte** buffer, size_t* length);
+NumericTablePtr deserializeNumericTable(byte* buffer, size_t size);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -56,7 +56,7 @@ int main(int argc, char * argv[])
     printNumericTable(dataTable, "Data before serialization:");
 
     /* Serialize the numeric table into the memory buffer */
-    byte * buffer;
+    byte* buffer;
     size_t length;
     serializeNumericTable(dataTable, &buffer, &length);
 
@@ -70,8 +70,7 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void serializeNumericTable(NumericTablePtr dataTable, byte ** buffer, size_t * length)
-{
+void serializeNumericTable(NumericTablePtr dataTable, byte** buffer, size_t* length) {
     /* Create a data archive to serialize the numeric table */
     InputDataArchive dataArch;
 
@@ -86,8 +85,7 @@ void serializeNumericTable(NumericTablePtr dataTable, byte ** buffer, size_t * l
     dataArch.copyArchiveToArray(*buffer, *length);
 }
 
-NumericTablePtr deserializeNumericTable(byte * buffer, size_t length)
-{
+NumericTablePtr deserializeNumericTable(byte* buffer, size_t length) {
     /* Create a data archive to deserialize the numeric table */
     OutputDataArchive dataArch(buffer, length);
 

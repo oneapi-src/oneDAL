@@ -28,23 +28,21 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/kmeans_dense.csv";
+std::string datasetFileName = "../data/batch/kmeans_dense.csv";
 
 /* K-Means algorithm parameters */
-const size_t nClusters   = 20;
+const size_t nClusters = 20;
 const size_t nIterations = 5;
-const size_t nThreads    = 2;
+const size_t nThreads = 2;
 size_t nThreadsInit;
 size_t nThreadsNew;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Get the number of threads that is used by the library by default */
@@ -57,7 +55,9 @@ int main(int argc, char * argv[])
     nThreadsNew = services::Environment::getInstance()->getNumberOfThreads();
 
     /* Initialize FileDataSource to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -79,9 +79,9 @@ int main(int argc, char * argv[])
     /* Run computations */
     algorithm.compute();
 
-    cout << "Initial number of threads:        " << nThreadsInit << endl;
-    cout << "Number of threads to set:         " << nThreads << endl;
-    cout << "Number of threads after setting:  " << nThreadsNew << endl;
+    std::cout << "Initial number of threads:        " << nThreadsInit << std::endl;
+    std::cout << "Number of threads to set:         " << nThreads << std::endl;
+    std::cout << "Number of threads after setting:  " << nThreadsNew << std::endl;
 
     return 0;
 }

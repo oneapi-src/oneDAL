@@ -29,18 +29,17 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainedModelsFileName = "../data/batch/svm_two_class_trained_model.csv";
+std::string trainedModelsFileName = "../data/batch/svm_two_class_trained_model.csv";
 
-string testDatasetFileName = "../data/batch/svm_two_class_test_dense.csv";
+std::string testDatasetFileName = "../data/batch/svm_two_class_test_dense.csv";
 
 const size_t nFeatures = 20;
-const float bias       = -0.562F;
+const float bias = -0.562F;
 
 /* Parameters for the SVM kernel function */
 kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
@@ -50,8 +49,7 @@ NumericTablePtr testGroundTruth;
 void testModel(svm::ModelPtr &);
 svm::ModelPtr buildModelFromTraining();
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
     checkArguments(argc, argv, 2, &trainedModelsFileName, &testDatasetFileName);
 
     svm::ModelPtr builtModel = buildModelFromTraining();
@@ -60,15 +58,19 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-svm::ModelPtr buildModelFromTraining()
-{
+svm::ModelPtr buildModelFromTraining() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve trained model .csv file */
-    FileDataSource<CSVFeatureManager> modelSource(trainedModelsFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> modelSource(trainedModelsFileName,
+                                                  DataSource::notAllocateNumericTable,
+                                                  DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for supportVectors and classification coefficients */
-    NumericTablePtr supportVectors             = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
-    NumericTablePtr classificationCoefficients = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
-    NumericTablePtr mergedModel                = MergedNumericTable::create(supportVectors, classificationCoefficients);
+    NumericTablePtr supportVectors =
+        HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    NumericTablePtr classificationCoefficients =
+        HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr mergedModel =
+        MergedNumericTable::create(supportVectors, classificationCoefficients);
 
     checkPtr(supportVectors.get());
     checkPtr(classificationCoefficients.get());
@@ -82,8 +84,8 @@ svm::ModelPtr buildModelFromTraining()
     /* write numbers in model */
     BlockDescriptor<> blockResult;
     supportVectors->getBlockOfRows(0, nSV, readOnly, blockResult);
-    float * first = blockResult.getBlockPtr();
-    float * last  = first + nSV * nFeatures;
+    float *first = blockResult.getBlockPtr();
+    float *last = first + nSV * nFeatures;
 
     modelBuilder.setSupportVectors(first, last);
 
@@ -92,7 +94,7 @@ svm::ModelPtr buildModelFromTraining()
     /* set Classification Coefficients */
     classificationCoefficients->getBlockOfRows(0, nSV, readOnly, blockResult);
     first = blockResult.getBlockPtr();
-    last  = first + nSV;
+    last = first + nSV;
 
     modelBuilder.setClassificationCoefficients(first, last);
 
@@ -103,14 +105,16 @@ svm::ModelPtr buildModelFromTraining()
     return modelBuilder.getModel();
 }
 
-void testModel(svm::ModelPtr & inputModel)
-{
+void testModel(svm::ModelPtr &inputModel) {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
-    NumericTablePtr testData   = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
-    testGroundTruth            = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr testData =
+        HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    testGroundTruth = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
     NumericTablePtr mergedData = MergedNumericTable::create(testData, testGroundTruth);
 
     /* Retrieve the data from input file */
@@ -130,6 +134,11 @@ void testModel(svm::ModelPtr & inputModel)
     /* Predict SVM values */
     algorithm.compute();
 
-    printNumericTables<int, float>(testGroundTruth, algorithm.getResult()->get(classifier::prediction::prediction), "Ground truth",
-                                   "Classification results", "SVM classification sample program results (first 20 observations):", 20);
+    printNumericTables<int, float>(
+        testGroundTruth,
+        algorithm.getResult()->get(classifier::prediction::prediction),
+        "Ground truth",
+        "Classification results",
+        "SVM classification sample program results (first 20 observations):",
+        20);
 }

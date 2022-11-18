@@ -43,7 +43,7 @@ class PrimitiveCollection : public Base
 public:
     PrimitiveCollection() : _buffer(NULL), _size(0) {}
 
-    explicit PrimitiveCollection(size_t size, services::Status * status = NULL)
+    explicit PrimitiveCollection(size_t size, services::Status * status = NULL) : _buffer(NULL), _size(0)
     {
         services::Status localStatus = reallocate(size);
         services::internal::tryAssignStatusAndThrow(status, localStatus);

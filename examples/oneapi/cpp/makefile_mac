@@ -58,8 +58,8 @@ ifndef example
     example = $(ONEDAL)
 endif
 
-ifneq ($(compiler),clang)
-	override compiler = intel
+ifeq (,$(filter gnu clang,$(compiler)))
+    override compiler = intel
 endif
 
 ifneq ($(mode),build)
@@ -94,9 +94,12 @@ COPTS := -std=c++17 \
          -Wextra \
          -Werror \
          -Wno-unused-parameter \
-         -stdlib=libc++ \
          -I./source \
          -I"$(DAALROOT)/include"
+
+ifneq ($(compiler),gnu)
+    COPTS += -stdlib=libc++
+endif
 
 LIBS := $(onedal) \
         $(onedal_core) \
@@ -118,6 +121,10 @@ endif
 
 ifeq ($(compiler),clang)
     CC = clang++
+endif
+
+ifeq ($(compiler),gnu)
+    CC = g++
 endif
 
 RPATH=-Wl,-rpath,$(DAAL_PATH) -Wl,-rpath,$(TBB_PATH)
