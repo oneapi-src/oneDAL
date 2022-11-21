@@ -320,7 +320,7 @@ daaldep.lnx32e.vml :=
 daaldep.lnx32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.seq := -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.lnx32e.rt.dpc := -lpthread $(if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.lnx32e.rt.dpc := -lpthread -lOpenCL $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.threxport := export_lnx32e.def
 
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
@@ -809,7 +809,6 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl$d.lib OpenCL.lib)
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_lnx), OpenCL.so)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
