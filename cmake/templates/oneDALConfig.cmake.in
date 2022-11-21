@@ -104,9 +104,9 @@ endif()
 
 if (USE_DPCPP STREQUAL "yes")
     if (UNIX)
-	list(APPEND oneDAL_IMPORTED_TARGETS -lOpenCL)
+        list(APPEND oneDAL_IMPORTED_TARGETS -lOpenCL)
     else()
-	list(APPEND oneDAL_IMPORTED_TARGETS OpenCL.lib)
+        list(APPEND oneDAL_IMPORTED_TARGETS OpenCL.lib)
     endif()
 endif()
 
