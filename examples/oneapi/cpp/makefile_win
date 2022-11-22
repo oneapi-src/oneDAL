@@ -115,7 +115,11 @@ EXT_LIB = tbb12.lib tbbmalloc.lib
 EXT_LIB = /link /DEFAULTLIB:tbb12.lib /DEFAULTLIB:tbbmalloc.lib
 !ENDIF
 
+!IF ("$(RES_EXT)"=="lib")
 DAAL_LIB = "$(DAAL_PATH)\onedal$(EXT)" "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_PATH)\onedal_thread.lib"
+!ELSE
+DAAL_LIB = "$(DAAL_PATH)\onedal$(EXT)" "$(DAAL_PATH)\onedal_core$(EXT)"
+!ENDIF
 
 RES_DIR = _results\$(compiler)_$(_IA)_$(RES_EXT)
 COPTS = -MD /Isource /I"$(DAALROOT)\include" $(COPTS) /Fe$(RES_DIR)\\

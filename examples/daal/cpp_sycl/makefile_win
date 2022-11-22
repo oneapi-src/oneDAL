@@ -103,10 +103,13 @@ COPTS=-Wall -w $(COPTS)
 COPTS=-m64 $(COPTS)
 !ENDIF
 
-DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_PATH)\onedal_thread.lib"
+!IF ("$(RES_EXT)"=="lib")
+LOPTS = "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_PATH)\onedal_thread.lib" tbb12.lib tbbmalloc.lib $(RT_LIB)
+!ELSE
+LOPTS = "$(DAAL_PATH)\onedal_core$(EXT)" $(RT_LIB)
+!ENDIF
 
 COPTS = -MD -Isource\utils $(COPTS) $(OUT_OPTS)
-LOPTS = $(DAAL_LIB) tbb12.lib tbbmalloc.lib $(RT_LIB)
 RES_DIR  =_results\$(compiler)_$(_IA)_$(RES_EXT)
 
 lib libintel64:
