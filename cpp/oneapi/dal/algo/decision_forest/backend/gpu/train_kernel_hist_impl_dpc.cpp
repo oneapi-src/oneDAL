@@ -1085,7 +1085,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                          deps);
             {
                 ONEDAL_PROFILER_TASK(allreduce_class_hist_list, queue_);
-                comm_.allreduce(imp_data_list.class_hist_list_.flatten(queue_, { last_event })).wait();
+                comm_.allreduce(imp_data_list.class_hist_list_.flatten(queue_, { last_event }))
+                    .wait();
             }
             last_event = compute_initial_imp_for_node_list(ctx,
                                                            imp_data_list,
