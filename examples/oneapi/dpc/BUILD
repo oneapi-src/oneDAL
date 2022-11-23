@@ -30,12 +30,21 @@ dal_example_suite(
 )
 
 dal_algo_example_suite(
+    algos = [ "kmeans_init", ],
+    compile_as = [ "dpc++" ],
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo:algo",
+    ],
+    data = _DATA_DEPS,
+    extra_deps = _TEST_DEPS,
+)
+
+dal_algo_example_suite(
     algos = [
         "basic_statistics",
         "covariance",
         "decision_forest",
         "kmeans",
-        "kmeans_init",
         "knn",
         "linear_kernel",
         "linear_regression",
