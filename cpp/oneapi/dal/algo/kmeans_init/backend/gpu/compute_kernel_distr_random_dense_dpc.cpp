@@ -22,6 +22,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
