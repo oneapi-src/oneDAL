@@ -103,18 +103,8 @@ class reduction_rm_cw_atomic {
 public:
     constexpr static inline int max_folding = 32;
     constexpr static inline int block_size = 32;
-    constexpr static inline int ret_base = 8;
 
     reduction_rm_cw_atomic(sycl::queue& q);
-    sycl::event operator()(const Float* input,
-                           Float* output,
-                           std::int64_t width,
-                           std::int64_t stride,
-                           std::int64_t height,
-                           Float* bins,
-                           const BinaryOp& binary = BinaryOp{},
-                           const UnaryOp& unary = UnaryOp{},
-                           const event_vector& deps = {}) const;
     sycl::event operator()(const Float* input,
                            Float* output,
                            std::int64_t width,
