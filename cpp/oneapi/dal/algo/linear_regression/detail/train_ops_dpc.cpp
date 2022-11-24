@@ -22,8 +22,6 @@
 namespace oneapi::dal::linear_regression::detail {
 namespace v1 {
 
-using dal::detail::data_parallel_policy;
-
 template <typename Policy, typename Float, typename Method, typename Task>
 struct train_ops_dispatcher<Policy, Float, Method, Task> {
     train_result<Task> operator()(const Policy& ctx,
