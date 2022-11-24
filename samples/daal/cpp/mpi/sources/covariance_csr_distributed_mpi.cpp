@@ -43,19 +43,26 @@ const size_t nBlocks = 4;
 int rankId, comm_size;
 #define mpi_root 0
 
-const string datasetFileNames[] = { "./data/distributed/covcormoments_csr_1.csv", "./data/distributed/covcormoments_csr_2.csv",
-                                    "./data/distributed/covcormoments_csr_3.csv", "./data/distributed/covcormoments_csr_4.csv" };
+const string datasetFileNames[] = { "./data/distributed/covcormoments_csr_1.csv",
+                                    "./data/distributed/covcormoments_csr_2.csv",
+                                    "./data/distributed/covcormoments_csr_3.csv",
+                                    "./data/distributed/covcormoments_csr_4.csv" };
 
-int main(int argc, char * argv[])
-{
-    checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
+int main(int argc, char* argv[]) {
+    checkArguments(argc,
+                   argv,
+                   4,
+                   &datasetFileNames[0],
+                   &datasetFileNames[1],
+                   &datasetFileNames[2],
+                   &datasetFileNames[3]);
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rankId);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    CSRNumericTable * dataTable = createSparseTable<float>(datasetFileNames[rankId]);
+    CSRNumericTable* dataTable = createSparseTable<float>(datasetFileNames[rankId]);
 
     /* Create an algorithm to compute a sparse variance-covariance matrix on local nodes */
     covariance::Distributed<step1Local, algorithmFPType, covariance::fastCSR> localAlgorithm;
@@ -73,30 +80,36 @@ int main(int argc, char * argv[])
     size_t perNodeArchLength = dataArch.getSizeOfArchive();
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
-    if (rankId == mpi_root)
-    {
+    if (rankId == mpi_root) {
         serializedData = services::SharedPtr<byte>(new byte[perNodeArchLength * nBlocks]);
     }
 
-    byte * nodeResults = new byte[perNodeArchLength];
+    byte* nodeResults = new byte[perNodeArchLength];
     dataArch.copyArchiveToArray(nodeResults, perNodeArchLength);
 
     /* Transfer partial results to step 2 on the root node */
-    MPI_Gather(nodeResults, perNodeArchLength, MPI_CHAR, serializedData.get(), perNodeArchLength, MPI_CHAR, mpi_root, MPI_COMM_WORLD);
+    MPI_Gather(nodeResults,
+               perNodeArchLength,
+               MPI_CHAR,
+               serializedData.get(),
+               perNodeArchLength,
+               MPI_CHAR,
+               mpi_root,
+               MPI_COMM_WORLD);
 
     delete[] nodeResults;
 
-    if (rankId == mpi_root)
-    {
+    if (rankId == mpi_root) {
         /* Create an algorithm to compute a sparse variance-covariance matrix on the master node */
         covariance::Distributed<step2Master, algorithmFPType, covariance::fastCSR> masterAlgorithm;
 
-        for (size_t i = 0; i < nBlocks; i++)
-        {
+        for (size_t i = 0; i < nBlocks; i++) {
             /* Deserialize partial results from step 1 */
-            OutputDataArchive dataArch(serializedData.get() + perNodeArchLength * i, perNodeArchLength);
+            OutputDataArchive dataArch(serializedData.get() + perNodeArchLength * i,
+                                       perNodeArchLength);
 
-            covariance::PartialResultPtr dataForStep2FromStep1 = covariance::PartialResultPtr(new covariance::PartialResult());
+            covariance::PartialResultPtr dataForStep2FromStep1 =
+                covariance::PartialResultPtr(new covariance::PartialResult());
 
             dataForStep2FromStep1->deserialize(dataArch);
 
@@ -112,7 +125,10 @@ int main(int argc, char * argv[])
         covariance::ResultPtr result = masterAlgorithm.getResult();
 
         /* Print the results */
-        printNumericTable(result->get(covariance::covariance), "Covariance matrix (upper left square 10*10) :", 10, 10);
+        printNumericTable(result->get(covariance::covariance),
+                          "Covariance matrix (upper left square 10*10) :",
+                          10,
+                          10);
         printNumericTable(result->get(covariance::mean), "Mean vector:", 1, 10);
     }
 
