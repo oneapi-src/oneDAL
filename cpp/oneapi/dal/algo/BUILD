@@ -10,6 +10,7 @@ ALGOS = [
     "connected_components",
     "cosine_distance",
     "covariance",
+    "dbscan",
     "decision_forest",
     "decision_tree",
     "jaccard",
