@@ -89,8 +89,9 @@ sycl::event reduction_impl(sycl::queue& queue,
                            const BinaryOp& binary,
                            const UnaryOp& unary,
                            const event_vector& deps) {
+    constexpr auto max_folding = reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::max_folding;
     using kernel_t = reduction_kernel<Float, BinaryOp, UnaryOp, folding, block_size>;
-    constexpr int bl = kernel_t::block;
+    constexpr auto bl = kernel_t::block;
     const auto n_blocks = height / bl + bool(height % bl);
     const auto wg = std::min<std::int64_t>(device_max_wg_size(queue), width);
     const auto cfolding = width / wg + bool(width % wg);
@@ -110,7 +111,7 @@ sycl::event reduction_impl(sycl::queue& queue,
         });
     }
 
-    if constexpr (folding > 1) {
+    if constexpr ((max_folding >= folding) && (folding > 1)) {
         return reduction_impl<Float, BinaryOp, UnaryOp, folding - 1, block_size>(queue,
                                                                                  input,
                                                                                  output,
