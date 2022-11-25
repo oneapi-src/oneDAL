@@ -29,6 +29,8 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 namespace oneapi::dal::kmeans::backend {
 
 using dal::backend::context_gpu;
@@ -213,7 +215,11 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
 
         Float final_objective_function =
             arr_objective_function.to_host(queue, { objective_event }).get_data()[0];
-        comm.allreduce(final_objective_function).wait();
+
+        {
+            ONEDAL_PROFILER_TASK(allreduce_final_objective);
+            comm.allreduce(final_objective_function).wait();
+        }
 
         model<task::clustering> model;
         model.set_centroids(

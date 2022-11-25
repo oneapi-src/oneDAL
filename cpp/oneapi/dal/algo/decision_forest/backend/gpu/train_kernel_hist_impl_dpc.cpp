@@ -113,6 +113,7 @@ Index train_kernel_hist_impl<Float, Bin, Index, Task>::get_row_total_count(bool 
     Index row_total_count = row_count;
 
     if (distr_mode) {
+        ONEDAL_PROFILER_TASK(allreduce_row_total_count);
         comm_.allreduce(row_total_count).wait();
     }
 
@@ -127,7 +128,10 @@ Index train_kernel_hist_impl<Float, Bin, Index, Task>::get_global_row_offset(boo
     if (distr_mode) {
         auto row_count_list_host = pr::ndarray<Index, 1>::empty({ comm_.get_rank_count() });
         Index* row_count_list_host_ptr = row_count_list_host.get_mutable_data();
-        comm_.allgather(row_count, row_count_list_host.flatten()).wait();
+        {
+            ONEDAL_PROFILER_TASK(allgather_row_count);
+            comm_.allgather(row_count, row_count_list_host.flatten()).wait();
+        }
 
         for (std::int64_t i = 0; i < comm_.get_rank(); ++i) {
             global_row_offset += row_count_list_host_ptr[i];
@@ -1079,7 +1083,11 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                          imp_data_list,
                                                          node_count,
                                                          deps);
-            comm_.allreduce(imp_data_list.class_hist_list_.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_class_hist_list, queue_);
+                comm_.allreduce(imp_data_list.class_hist_list_.flatten(queue_, { last_event }))
+                    .wait();
+            }
             last_event = compute_initial_imp_for_node_list(ctx,
                                                            imp_data_list,
                                                            node_list,
@@ -1096,7 +1104,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                    sum_list,
                                                    node_count,
                                                    deps);
-            comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(sum_list, queue_);
+                comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            }
             last_event = compute_initial_sum2cent_local(ctx,
                                                         response,
                                                         tree_order,
@@ -1105,7 +1116,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                         sum2cent_list,
                                                         node_count,
                                                         { last_event });
-            comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum2cent_list, queue_);
+                comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            }
             last_event = fin_initial_imp(ctx,
                                          node_list,
                                          sum_list,
@@ -1480,7 +1494,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                                  node_count,
                                                                  deps);
 
-        comm_.allreduce(node_hist_list.flatten(queue_, { last_event })).wait();
+        {
+            ONEDAL_PROFILER_TASK(allreduce_node_hist_list, queue_);
+            comm_.allreduce(node_hist_list.flatten(queue_, { last_event })).wait();
+        }
         last_event.wait_and_throw();
     }
     else {
@@ -1527,7 +1544,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        node_count,
                                                        { last_event });
 
-            comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum_list, queue_);
+                comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            }
 
             last_event = compute_partial_sum2cent(ctx,
                                                   data,
@@ -1544,7 +1564,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                   node_count,
                                                   { last_event });
 
-            comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum2cent_list, queue_);
+                comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            }
 
             last_event = fin_histogram_distr(ctx,
                                              sum_list,
@@ -1604,7 +1627,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        impl_const_t::hist_prop_sum_count_,
                                                        { last_event });
 
-            comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum_list, queue_);
+                comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            }
 
             last_event = compute_partial_sum2cent(ctx,
                                                   data,
@@ -1629,7 +1655,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        impl_const_t::hist_prop_sum2cent_count_,
                                                        { last_event });
 
-            comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum2cent_list, queue_);
+                comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            }
 
             last_event = fin_histogram_distr(ctx,
                                              sum_list,
@@ -2669,8 +2698,14 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_oob_error(
 
     if (ctx.oob_err_required_) {
         if (ctx.distr_mode_) {
-            comm_.allreduce(predicted_count).wait();
-            comm_.allreduce(oob_err).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_predicted_count);
+                comm_.allreduce(predicted_count).wait();
+            }
+            {
+                ONEDAL_PROFILER_TASK(allreduce_oob_err);
+                comm_.allreduce(oob_err).wait();
+            }
         }
 
         *res_oob_err_host_ptr = (0 < predicted_count) ? oob_err / Float(predicted_count) : 0;
