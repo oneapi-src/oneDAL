@@ -42,10 +42,10 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree openjdk-17-jdk
-      conda install -q -y -c intel impi-devel
+      conda create -n ci-env -q -y -c intel impi-devel
     displayName: 'apt-get and conda install'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c
@@ -67,7 +67,7 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
   - script: |
-      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi
+      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env
     displayName: 'daal/cpp/mpi samples'
   - script: |
       deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) \
@@ -86,10 +86,10 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix openjdk-17-jdk
-      conda install -q -y -c intel impi-devel
+      onda create -n ci-env -q -y -c intel impi-devel
     displayName: 'apt-get and conda install'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c
@@ -103,6 +103,9 @@ jobs:
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env
+    displayName: 'daal/cpp/mpi samples'
 
 - job: 'LinuxMakeDPCPP'
   timeoutInMinutes: 0
@@ -337,10 +340,10 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      conda install -y -q -c conda-forge openjdk=17.0.3
+      conda create -n ci-env -y -q -c conda-forge openjdk=17.0.3
     displayName: 'install openjdk-17'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx" --conda-env ci-env
     displayName: 'make daal'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
@@ -353,7 +356,7 @@ jobs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/java_test.sh --release-dir $(release.dir) --platform $(platform.type)
+      .ci/scripts/java_test.sh --release-dir $(release.dir) --platform $(platform.type) --conda-env ci-env
     displayName: 'daal/java examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp

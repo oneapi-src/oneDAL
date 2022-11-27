@@ -31,6 +31,9 @@ while [[ $# -gt 0 ]]; do
         --target)
         target="$2"
         ;;
+        --conda-env)
+        conda_env="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -47,6 +50,10 @@ optimizations=${optimizations:-avx2}
 
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" -ne "" ]; then
+        echo "conda activate ${conda_env}"
+        conda activate ${conda_env}
+    fi
     compiler=${compiler:-gnu}
     export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
     java_os_name="linux"
@@ -58,6 +65,10 @@ if [ "${OS}" == "lnx" ]; then
     fi
 elif [ "${OS}" == "mac" ]; then
     source /usr/local/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" -ne "" ]; then
+        echo "conda activate ${conda_env}"
+        conda activate ${conda_env}
+    fi
     compiler=${compiler:-clang}
     export JAVA_HOME=$CONDA_PREFIX
     java_os_name="darwin"

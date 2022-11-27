@@ -34,6 +34,9 @@ while [[ $# -gt 0 ]]; do
         --interface)
         interface="$2"
         ;;
+        --conda-env)
+        conda_env="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -55,10 +58,18 @@ fi
 
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" -ne "" ]; then
+        echo "conda activate ${conda_env}"
+        conda activate ${conda_env}
+    fi
     compiler=${compiler:-gnu}
     link_modes="static dynamic"
 elif [ "${OS}" == "mac" ]; then
     source /usr/local/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" -ne "" ]; then
+        echo "conda activate ${conda_env}"
+        conda activate ${conda_env}
+    fi
     compiler=${compiler:-clang}
     if [ "${compiler}" == "gnu" ]; then
         # TODO: fix static linking with gnu on mac
