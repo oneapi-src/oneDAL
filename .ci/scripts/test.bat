@@ -41,7 +41,18 @@ set LIB=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
 echo set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 
-echo __release_win_vc\daal\latest\examples\%1\cpp
-cd __release_win_vc\daal\latest\examples\%1\cpp
-echo nmake %2 compiler=%3
-nmake %2 compiler=%3
+echo __release_win_vc\daal\latest\examples\%1
+cd __release_win_vc\daal\latest\examples\%1
+if not "%1"=="daal\java" (
+    echo nmake %2 compiler=%3
+    nmake %2 compiler=%3
+) else (
+    echo Java installation
+    echo JAVA_HOME=%JAVA_HOME_17_X64%
+    set JAVA_HOME=%JAVA_HOME_17_X64%
+    echo PATH=%JAVA_HOME%\bin;%PATH%
+    set PATH=%JAVA_HOME%\bin;%PATH%
+    echo set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
+    set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
+    call launcher.bat
+)

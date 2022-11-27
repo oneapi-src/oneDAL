@@ -412,18 +412,21 @@ jobs:
     vmImage: 'windows-2022'
   steps:
   - script: |
-      .\.ci\scripts\build.bat daal_c vc avx2
+      .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal_c'
   - script: |
       .\.ci\scripts\build.bat oneapi_c vc avx2
     displayName: 'make oneapi_c'
   - script: |
-      .\.ci\scripts\test.bat daal lib msvs
-      .\.ci\scripts\test.bat daal dll msvs
+      .\.ci\scripts\test.bat daal\java dll msvs
+    displayName: 'daal/java examples'
+  - script: |
+      .\.ci\scripts\test.bat daal\cpp lib msvs
+      .\.ci\scripts\test.bat daal\cpp dll msvs
     displayName: 'daal/cpp examples'
   - script: |
-      .\.ci\scripts\test.bat oneapi lib msvs
-      .\.ci\scripts\test.bat oneapi dll msvs
+      .\.ci\scripts\test.bat oneapi\cpp lib msvs
+      .\.ci\scripts\test.bat oneapi\cpp dll msvs
     displayName: 'oneapi/cpp examples'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
