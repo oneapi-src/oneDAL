@@ -19,17 +19,11 @@ while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-        --run-examples)
-        run_examples="$2"
+        --platform)
+        platform="$2"
         ;;
         --release-dir)
         release_dir="$2"
-        ;;
-        --java-dir)
-        java_dir="$2"
-        ;;
-        --platform)
-        platform="$2"
         ;;
         *)
         echo "Unknown option: $1"
@@ -40,21 +34,26 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-export JAVA_HOME=${java_dir}
-export PATH=$JAVA_HOME/bin:$PATH
-if [ "${platform}" == "mac32e" ]; then
-    export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
-elif [ "${platform}" == "lnx32e" ]; then
-    export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
+OS=${platform::3}
+ARCH=${platform:3:3}
+
+if [ "${OS}" == "lnx" ]; then
+    export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    java_os_name="linux"
+elif [ "${OS}" == "mac" ]; then
+    export JAVA_HOME=$CONDA_PREFIX
+    java_os_name="darwin"
 else
-    echo "Unknown platform: ${platform}"
+    echo "Error not supported OS: ${OS}"
     exit 1
 fi
 
+echo "Set Java PATH and CPATH"
+export PATH=$JAVA_HOME/bin:$PATH
+export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
+
 TESTING_RETURN=0
 if [ "${run_examples}" == "yes" ]; then
-    OS=${platform::3}
-    ARCH=${platform:3:3}
     if [ "${ARCH}" == "32" ]; then
         full_arch=ia32
     else

@@ -47,7 +47,7 @@ optimizations=${optimizations:-avx2}
 
 if [ "${OS}" == "lnx" ]; then
     compiler=${compiler:-gnu}
-    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+    export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
     java_os_name="linux"
     #gpu support is only for Linux 64 bit
     if [ "${ARCH}" == "32e" ]; then
@@ -57,7 +57,7 @@ if [ "${OS}" == "lnx" ]; then
     fi
 elif [ "${OS}" == "mac" ]; then
     compiler=${compiler:-clang}
-    export JAVA_HOME=$(/usr/libexec/java_home -v 12)
+    export JAVA_HOME=$CONDA_PREFIX
     java_os_name="darwin"
     with_gpu="false"
 else
