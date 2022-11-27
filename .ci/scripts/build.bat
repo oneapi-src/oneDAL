@@ -33,8 +33,8 @@ echo JAVA_HOME=%JAVA_HOME_17_X64%
 set JAVA_HOME=%JAVA_HOME_17_X64%
 echo PATH=%JAVA_HOME%\bin;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
-echo set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
-set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
+echo set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
 
 echo call .ci\env\tbb.bat
 call .ci\env\tbb.bat
