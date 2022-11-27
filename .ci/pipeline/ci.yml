@@ -42,7 +42,7 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree openjdk-17-jdk
-      conda create -n ci-env -q -y -c intel impi-devel
+      conda create -n ci-env -q -y -c intel impi-devel=2021.7.1
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --conda-env ci-env
@@ -86,7 +86,7 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix openjdk-17-jdk
-      onda create -n ci-env -q -y -c intel impi-devel
+      conda create -n ci-env -q -y -c intel impi-devel=2021.7.1
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
