@@ -54,9 +54,11 @@ else
 fi
 
 if [ "${OS}" == "lnx" ]; then
+    source /usr/share/miniconda/etc/profile.d/conda.sh
     compiler=${compiler:-gnu}
     link_modes="static dynamic"
 elif [ "${OS}" == "mac" ]; then
+    source /usr/local/miniconda/etc/profile.d/conda.sh
     compiler=${compiler:-clang}
     if [ "${compiler}" == "gnu" ]; then
         # TODO: fix static linking with gnu on mac
@@ -89,7 +91,7 @@ else
 fi
 
 interface=${interface:-daal/cpp}
-cd "${BUILD_DIR}/daal/latest/examples/${interface}"
+cd "${BUILD_DIR}/daal/latest/${TEST_KIND}/${interface}"
 
 for link_mode in ${link_modes}; do
     # Release Examples testing
@@ -103,7 +105,7 @@ for link_mode in ${link_modes}; do
         fi
     fi
     build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
-    echo "Building examples ${build_command}"
+    echo "Building ${TEST_KIND} ${build_command}"
     (${build_command})
     err=$?
     if [ ${err} -ne 0 ]; then
@@ -114,7 +116,7 @@ for link_mode in ${link_modes}; do
         echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${link_mode}"
     fi
     run_command="make ${l}${full_arch} mode=run compiler=${compiler}"
-    echo "Running examples ${run_command}"
+    echo "Running ${TEST_KIND} ${run_command}"
     (${run_command})
     err=$?
     if [ ${err} -ne 0 ]; then

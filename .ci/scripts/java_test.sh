@@ -38,9 +38,11 @@ OS=${platform::3}
 ARCH=${platform:3:3}
 
 if [ "${OS}" == "lnx" ]; then
+    source /usr/share/miniconda/etc/profile.d/conda.sh
     export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
     java_os_name="linux"
 elif [ "${OS}" == "mac" ]; then
+    source /usr/local/miniconda/etc/profile.d/conda.sh
     export JAVA_HOME=$CONDA_PREFIX
     java_os_name="darwin"
 else
@@ -53,35 +55,34 @@ export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 
 TESTING_RETURN=0
-if [ "${run_examples}" == "yes" ]; then
-    if [ "${ARCH}" == "32" ]; then
-        full_arch=ia32
-    else
-        full_arch=intel64
-    fi
-
-    #setup env for DAL
-    source ${release_dir}/daal/latest/env/vars.sh
-
-    #setup env for TBB
-    export TBBROOT=$(pwd)/__deps/tbb/${OS}
-    export CPATH=${TBBROOT}/include:$CPATH
-    export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${TBBROOT}/lib:${LIBRARY_PATH}
-    if [ "${OS}" == "mac" ]; then
-        export DYLD_LIBRARY_PATH=${TBBROOT}/lib:${DYLD_LIBRARY_PATH}
-    else
-        export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
-    fi
-
-    cd ${release_dir}/daal/latest/examples/daal/java
-    bash launcher.sh
-    err=$?
-    if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') EXAMPLES FAILED\t\t with errno ${err}"
-        TESTING_RETURN=${err}
-        continue
-    else
-        echo -e "$(date +'%H:%M:%S') EXAMPLES PASSED\t\t"
-    fi
+if [ "${ARCH}" == "32" ]; then
+    full_arch=ia32
+else
+    full_arch=intel64
 fi
+
+#setup env for DAL
+source ${release_dir}/daal/latest/env/vars.sh
+
+#setup env for TBB
+export TBBROOT=$(pwd)/__deps/tbb/${OS}
+export CPATH=${TBBROOT}/include:$CPATH
+export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${TBBROOT}/lib:${LIBRARY_PATH}
+if [ "${OS}" == "mac" ]; then
+    export DYLD_LIBRARY_PATH=${TBBROOT}/lib:${DYLD_LIBRARY_PATH}
+else
+    export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
+fi
+
+cd ${release_dir}/daal/latest/examples/daal/java
+bash launcher.sh
+err=$?
+if [ ${err} -ne 0 ]; then
+    echo -e "$(date +'%H:%M:%S') EXAMPLES FAILED\t\t with errno ${err}"
+    TESTING_RETURN=${err}
+    continue
+else
+    echo -e "$(date +'%H:%M:%S') EXAMPLES PASSED\t\t"
+fi
+
 exit ${TESTING_RETURN}

@@ -40,8 +40,10 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree openjdk-17-jdk
-    displayName: 'apt-get'
+  - script: |
+      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree openjdk-17-jdk
+      conda install -q -y -c intel impi-devel
+    displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal
     displayName: 'make daal'
@@ -65,6 +67,9 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
   - script: |
+      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi
+    displayName: 'daal/cpp/mpi samples'
+  - script: |
       deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) \
         --ver 1.0 --major-binary-ver 1 --minor-binary-ver 1 --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
@@ -79,8 +84,10 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix openjdk-17-jdk
-    displayName: 'apt-get'
+  - script: |
+      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix openjdk-17-jdk
+      conda install -q -y -c intel impi-devel
+    displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal
     displayName: 'make daal'
@@ -413,7 +420,7 @@ jobs:
   steps:
   - script: |
       .\.ci\scripts\build.bat daal vc avx2
-    displayName: 'make daal_c'
+    displayName: 'make daal'
   - script: |
       .\.ci\scripts\build.bat oneapi_c vc avx2
     displayName: 'make oneapi_c'
