@@ -40,11 +40,12 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
+  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree openjdk-17-jdk
     displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal_c
-    displayName: 'make daal_c'
+      source .ci/scripts/java_env.sh --platform $(platform.type) --java-dir /usr/lib/jvm/java-17-openjdk-amd64
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal
+    displayName: 'make daal'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c
     displayName: 'make oneapi_c'
@@ -55,6 +56,9 @@ jobs:
     inputs:
       artifactName: '$(platform.type) build'
       targetPath: '$(release.dir)'
+  - script: |
+      .ci/scripts/java_env.sh --java-dir /usr/lib/jvm/java-17-openjdk-amd64 --release-dir $(release.dir) --platform $(platform.type) --run-examples yes
+    displayName: 'daal/java examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp
     displayName: 'daal/cpp examples'
@@ -76,14 +80,18 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
+  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix openjdk-17-jdk
     displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal_c
-    displayName: 'make daal_c'
+      source .ci/scripts/java_env.sh --platform $(platform.type) --java-dir /usr/lib/jvm/java-17-openjdk-amd64
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal
+    displayName: 'make daal'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c
     displayName: 'make oneapi_c'
+  - script: |
+      .ci/scripts/java_env.sh --java-dir /usr/lib/jvm/java-17-openjdk-amd64 --release-dir $(release.dir) --platform $(platform.type) --run-examples yes
+    displayName: 'daal/java examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
     displayName: 'daal/cpp examples'
@@ -324,8 +332,12 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
-    displayName: 'make daal_c'
+      conda install -y -q -c conda-forge openjdk=17.0.3
+    displayName: 'install openjdk-17'
+  - script: |
+      source .ci/scripts/java_env.sh --platform $(platform.type) --java-dir $CONDA_PREFIX
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+    displayName: 'make daal'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make oneapi_c'
@@ -336,6 +348,9 @@ jobs:
     inputs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
+  - script: |
+      .ci/scripts/java_env.sh --java-dir $CONDA_PREFIX --release-dir $(release.dir) --platform $(platform.type) --run-examples yes
+    displayName: 'daal/java examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
     displayName: 'daal/cpp examples'
@@ -359,6 +374,9 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
+      conda install -y -q -c conda-forge openjdk=17.0.3
+    displayName: 'install openjdk-17'
+  - script: |
       brew install gcc@12
       mkdir -p ${PWD}/aliases
       ln -s /usr/local/bin/gcc-12 ${PWD}/aliases/gcc
@@ -368,12 +386,16 @@ jobs:
     displayName: 'install gcc@12'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
-    displayName: 'make daal_c'
+      source .ci/scripts/java_env.sh --platform $(platform.type) --java-dir $CONDA_PREFIX
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+    displayName: 'make daal'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make oneapi_c'
+  - script: |
+      .ci/scripts/java_env.sh --java-dir $CONDA_PREFIX --release-dir $(release.dir) --platform $(platform.type) --run-examples yes
+    displayName: 'daal/java examples'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
       # TODO: error_handling_throw example throws exception out of try-catch block, and it's not reproducable locally
