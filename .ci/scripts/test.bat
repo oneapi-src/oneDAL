@@ -57,5 +57,5 @@ if not "%examples%"=="daal\java" (
     set PATH=%JAVA_HOME%\bin;%PATH%
     echo set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
     set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
-    call launcher.bat
+    call launcher.bat intel64
 )

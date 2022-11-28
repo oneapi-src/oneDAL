@@ -59,16 +59,16 @@ fi
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
-        echo "conda activate ${conda_env}"
         conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-gnu}
     link_modes="static dynamic"
 elif [ "${OS}" == "mac" ]; then
     source /usr/local/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
-        echo "conda activate ${conda_env}"
         conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-clang}
     if [ "${compiler}" == "gnu" ]; then

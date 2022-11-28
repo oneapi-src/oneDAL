@@ -51,8 +51,8 @@ optimizations=${optimizations:-avx2}
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
-        echo "conda activate ${conda_env}"
         conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-gnu}
     export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
@@ -66,8 +66,8 @@ if [ "${OS}" == "lnx" ]; then
 elif [ "${OS}" == "mac" ]; then
     source /usr/local/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
-        echo "conda activate ${conda_env}"
         conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-clang}
     export JAVA_HOME=$CONDA_PREFIX
@@ -92,6 +92,10 @@ $(pwd)/dev/download_tbb.sh
 echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
+echo "   PATH: ${PATH}"
+echo "  CPATH: ${PATH}"
+ls -lh $JAVA_HOME/include
+ls -lh $JAVA_HOME/include/${java_os_name}
 echo "Calling make"
 make ${target:-daal_c} ${make_op} \
     PLAT=${platform} \

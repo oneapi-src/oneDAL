@@ -64,6 +64,10 @@ fi
 echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
+echo "   PATH: ${PATH}"
+echo "  CPATH: ${PATH}"
+ls -lh $JAVA_HOME/include
+ls -lh $JAVA_HOME/include/${java_os_name}
 
 TESTING_RETURN=0
 if [ "${ARCH}" == "32" ]; then
