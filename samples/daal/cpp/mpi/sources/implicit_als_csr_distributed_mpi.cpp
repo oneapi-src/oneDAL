@@ -32,7 +32,6 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms::implicit_als;
 
@@ -43,10 +42,12 @@ int rankId, comm_size;
 #define mpi_root 0
 
 /* Number of observations in transposed training data set blocks */
-const string trainDatasetFileNames[nBlocks] = { "./data/distributed/implicit_als_trans_csr_1.csv",
-                                                "./data/distributed/implicit_als_trans_csr_2.csv",
-                                                "./data/distributed/implicit_als_trans_csr_3.csv",
-                                                "./data/distributed/implicit_als_trans_csr_4.csv" };
+const std::string trainDatasetFileNames[nBlocks] = {
+    "./data/distributed/implicit_als_trans_csr_1.csv",
+    "./data/distributed/implicit_als_trans_csr_2.csv",
+    "./data/distributed/implicit_als_trans_csr_3.csv",
+    "./data/distributed/implicit_als_trans_csr_4.csv"
+};
 
 static int usersPartition[1] = { nBlocks };
 
@@ -68,7 +69,7 @@ int displs[nBlocks];
 int sdispls[nBlocks];
 int rdispls[nBlocks];
 
-string colFileName;
+std::string colFileName;
 
 CSRNumericTablePtr dataTable;
 CSRNumericTablePtr transposedDataTable;
@@ -115,7 +116,8 @@ int main(int argc, char *argv[]) {
     if (rankId == mpi_root) {
         for (size_t i = 0; i < nBlocks; i++) {
             for (size_t j = 0; j < nBlocks; j++) {
-                cout << "Ratings for users block " << i << ", items block " << j << " :" << endl;
+                std::cout << "Ratings for users block " << i << ", items block " << j << " :"
+                          << std::endl;
                 printALSRatings(NumericTable::cast((*userOffsetsOnMaster)[i]),
                                 NumericTable::cast((*itemOffsetsOnMaster)[j]),
                                 predictedRatingsMaster[i][j]);

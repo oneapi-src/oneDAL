@@ -30,7 +30,6 @@
 #include "service.h"
 #include "stdio.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -44,10 +43,10 @@ const size_t nIterations = 5;
 const size_t nBlocks = 4;
 
 /* Input data set parameters */
-const string dataFileNames[4] = { "./data/distributed/kmeans_csr.csv",
-                                  "./data/distributed/kmeans_csr.csv",
-                                  "./data/distributed/kmeans_csr.csv",
-                                  "./data/distributed/kmeans_csr.csv" };
+const std::string dataFileNames[4] = { "./data/distributed/kmeans_csr.csv",
+                                       "./data/distributed/kmeans_csr.csv",
+                                       "./data/distributed/kmeans_csr.csv",
+                                       "./data/distributed/kmeans_csr.csv" };
 
 int rankId, comm_size;
 #define mpi_root 0

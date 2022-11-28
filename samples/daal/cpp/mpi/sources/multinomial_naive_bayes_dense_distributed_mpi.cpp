@@ -33,23 +33,24 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::algorithms::multinomial_naive_bayes;
 
 /* Input data set parameters */
-const string trainDatasetFileNames[4] = { "./data/distributed/naivebayes_train_dense.csv",
-                                          "./data/distributed/naivebayes_train_dense.csv",
-                                          "./data/distributed/naivebayes_train_dense.csv",
-                                          "./data/distributed/naivebayes_train_dense.csv" };
-const string trainGroundTruthFileNames[4] = { "./data/distributed/naivebayes_train_labels.csv",
-                                              "./data/distributed/naivebayes_train_labels.csv",
-                                              "./data/distributed/naivebayes_train_labels.csv",
-                                              "./data/distributed/naivebayes_train_labels.csv" };
+const std::string trainDatasetFileNames[4] = { "./data/distributed/naivebayes_train_dense.csv",
+                                               "./data/distributed/naivebayes_train_dense.csv",
+                                               "./data/distributed/naivebayes_train_dense.csv",
+                                               "./data/distributed/naivebayes_train_dense.csv" };
+const std::string trainGroundTruthFileNames[4] = {
+    "./data/distributed/naivebayes_train_labels.csv",
+    "./data/distributed/naivebayes_train_labels.csv",
+    "./data/distributed/naivebayes_train_labels.csv",
+    "./data/distributed/naivebayes_train_labels.csv"
+};
 
-string testDatasetFileName = "./data/distributed/naivebayes_test_dense.csv";
-string testGroundTruthFileName = "./data/distributed/naivebayes_test_labels.csv";
+std::string testDatasetFileName = "./data/distributed/naivebayes_test_dense.csv";
+std::string testGroundTruthFileName = "./data/distributed/naivebayes_test_labels.csv";
 
 const size_t nClasses = 20;
 const size_t nBlocks = 4;
