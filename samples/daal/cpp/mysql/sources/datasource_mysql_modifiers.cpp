@@ -41,13 +41,11 @@
 using namespace daal::data_management;
 
 /** User-defined feature modifier that computes a square for every feature */
-class MySquaringModifier : public modifiers::sql::FeatureModifier
-{
+class MySquaringModifier : public modifiers::sql::FeatureModifier {
 public:
     /* This method is called for every row in CSV file */
-    virtual void apply(modifiers::sql::Context & context)
-    {
-        const size_t numberOfColumns                            = context.getNumberOfColumns();
+    virtual void apply(modifiers::sql::Context& context) {
+        const size_t numberOfColumns = context.getNumberOfColumns();
         daal::services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
 
         /* By default buffer size is equal to the number of columns.
@@ -55,21 +53,18 @@ public:
          * initialization stage of the modifier (see 'MyMaxFeatureModifier') */
         assert(numberOfColumns == outputBuffer.size());
 
-        for (size_t i = 0; i < numberOfColumns; i++)
-        {
-            const float x   = context.getValue<float>(i);
+        for (size_t i = 0; i < numberOfColumns; i++) {
+            const float x = context.getValue<float>(i);
             outputBuffer[i] = x * x;
         }
     }
 };
 
 /** User-defined feature modifier that selects max element among all features  */
-class MyMaxFeatureModifier : public modifiers::sql::FeatureModifier
-{
+class MyMaxFeatureModifier : public modifiers::sql::FeatureModifier {
 public:
     /* This method is called once before CSV parsing */
-    virtual void initialize(modifiers::sql::Config & config)
-    {
+    virtual void initialize(modifiers::sql::Config& config) {
         /* Set number of output features for the modifier. We assume modifier
          * computes function y = max { x_1, ..., x_n }, where x_i is input
          * features and y is output feature, so there is single output feature  */
@@ -77,14 +72,12 @@ public:
     }
 
     /* This method is called for every row in CSV file */
-    virtual void apply(modifiers::sql::Context & context)
-    {
+    virtual void apply(modifiers::sql::Context& context) {
         const size_t numberOfColumns = context.getNumberOfColumns();
 
         /* Iterate throughout tokens, parse every token as float and compute max value  */
         float maxFeature = context.getValue<float>(0);
-        for (size_t i = 1; i < numberOfColumns; i++)
-        {
+        for (size_t i = 1; i < numberOfColumns; i++) {
             maxFeature = (std::max)(maxFeature, context.getValue<float>(i));
         }
 
@@ -94,8 +87,7 @@ public:
     }
 };
 
-int main(int argc, char const * argv[])
-{
+int main(int argc, char const* argv[]) {
     /*
      * This sample demonstrates how to connect to MySQL server using connection string and
      * perform basic data selection and loading with ODBCDataSource component.
@@ -103,13 +95,11 @@ int main(int argc, char const * argv[])
 
     std::string connectionString;
 
-    if (argc > 1)
-    {
+    if (argc > 1) {
         connectionString = argv[1];
     }
 
-    if (utils::trim(connectionString).empty())
-    {
+    if (utils::trim(connectionString).empty()) {
         utils::printHelp();
         return 0;
     }
@@ -130,7 +120,8 @@ int main(int argc, char const * argv[])
     connection.execute("INSERT INTO ? VALUES (2.71, 3.90), (1.11, 0.538), (3.44, 1.41)", tableName);
 
     /* Crate ODBC Data Source via connection string */
-    const ODBCDataSourceOptions options = ODBCDataSourceOptions::allocateNumericTable | ODBCDataSourceOptions::createDictionaryFromContext;
+    const ODBCDataSourceOptions options = ODBCDataSourceOptions::allocateNumericTable |
+                                          ODBCDataSourceOptions::createDictionaryFromContext;
     ODBCDataSource<SQLFeatureManager> ds(connectionString, options);
 
     /* Execute SQL query, you can execute arbitrary query supported by your DB */

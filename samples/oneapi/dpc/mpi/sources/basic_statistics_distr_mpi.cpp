@@ -33,14 +33,11 @@ namespace dal = oneapi::dal;
 void run(sycl::queue &queue) {
     const auto data_file_name = get_data_path("data/covcormoments_dense.csv");
 
-    const auto data =
-        dal::read<dal::table>(queue, dal::csv::data_source{data_file_name});
+    const auto data = dal::read<dal::table>(queue, dal::csv::data_source{ data_file_name });
 
     const auto bs_desc = dal::basic_statistics::descriptor{};
 
-    auto comm =
-        dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(
-            queue);
+    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(queue);
     auto rank_id = comm.get_rank();
     auto rank_count = comm.get_rank_count();
 
@@ -58,8 +55,7 @@ void run(sycl::queue &queue) {
         std::cout << "Second order raw moment:\n"
                   << result.get_second_order_raw_moment() << std::endl;
         std::cout << "Variance:\n" << result.get_variance() << std::endl;
-        std::cout << "Standard deviation:\n"
-                  << result.get_standard_deviation() << std::endl;
+        std::cout << "Standard deviation:\n" << result.get_standard_deviation() << std::endl;
         std::cout << "Variation:\n" << result.get_variation() << std::endl;
     }
 }
@@ -67,18 +63,18 @@ void run(sycl::queue &queue) {
 int main(int argc, char const *argv[]) {
     int status = MPI_Init(nullptr, nullptr);
     if (status != MPI_SUCCESS) {
-        throw std::runtime_error{"Problem occurred during MPI init"};
+        throw std::runtime_error{ "Problem occurred during MPI init" };
     }
 
     auto device = sycl::device(sycl::gpu_selector_v);
-    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>() << ", " << device.get_info<sycl::info::device::name>()
-              << std::endl;
-    sycl::queue q{device};
+    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>()
+              << ", " << device.get_info<sycl::info::device::name>() << std::endl;
+    sycl::queue q{ device };
     run(q);
 
     status = MPI_Finalize();
     if (status != MPI_SUCCESS) {
-        throw std::runtime_error{"Problem occurred during MPI finalize"};
+        throw std::runtime_error{ "Problem occurred during MPI finalize" };
     }
     return 0;
 }

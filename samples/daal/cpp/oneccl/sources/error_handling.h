@@ -23,42 +23,35 @@
 #ifndef _ERROR_HANDLING_H
 #define _ERROR_HANDLING_H
 
-const int fileError    = -1001;
+const int fileError = -1001;
 const int nullPtrError = -2;
-const int allocError   = -1;
+const int allocError = -1;
 
-void checkAllocation(void * ptr)
-{
-    if (!ptr)
-    {
+void checkAllocation(void* ptr) {
+    if (!ptr) {
         std::cout << "Error: Memory allocation failed" << std::endl;
         exit(allocError);
     }
 }
 
-void checkPtr(void * ptr)
-{
-    if (!ptr)
-    {
+void checkPtr(void* ptr) {
+    if (!ptr) {
         std::cout << "Error: NULL pointer" << std::endl;
         exit(nullPtrError);
     }
 }
 
-void fileOpenError(const char * filename)
-{
+void fileOpenError(const char* filename) {
     std::cout << "Unable to open file '" << filename << "'" << std::endl;
     exit(fileError);
 }
 
-void fileReadError()
-{
+void fileReadError() {
     std::cout << "Unable to read next line" << std::endl;
     exit(fileError);
 }
 
-void sparceFileReadError()
-{
+void sparceFileReadError() {
     std::cout << "Incorrect format of file" << std::endl;
     exit(fileError);
 }
