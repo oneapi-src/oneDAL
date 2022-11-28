@@ -34,8 +34,7 @@ namespace dal = oneapi::dal;
 void run(sycl::queue& queue) {
     const auto data_file_name = get_data_path("data/covcormoments_dense.csv");
 
-    const auto data = dal::read<dal::table>(
-        queue, dal::csv::data_source{data_file_name});
+    const auto data = dal::read<dal::table>(queue, dal::csv::data_source{ data_file_name });
 
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
@@ -44,8 +43,7 @@ void run(sycl::queue& queue) {
     auto rank_id = comm.get_rank();
     auto rank_count = comm.get_rank_count();
 
-    auto input_vec =
-      split_table_by_rows<float>(queue, data, rank_count);
+    auto input_vec = split_table_by_rows<float>(queue, data, rank_count);
 
     const auto result = dal::preview::compute(comm, cov_desc, input_vec[rank_id]);
     if (comm.get_rank() == 0) {
@@ -54,21 +52,21 @@ void run(sycl::queue& queue) {
     }
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* argv[]) {
     int status = MPI_Init(nullptr, nullptr);
     if (status != MPI_SUCCESS) {
-        throw std::runtime_error{"Problem occurred during MPI init"};
+        throw std::runtime_error{ "Problem occurred during MPI init" };
     }
 
     auto device = sycl::device(sycl::gpu_selector_v);
-    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>() << ", " << device.get_info<sycl::info::device::name>()
-            << std::endl;
-    sycl::queue q{device};
+    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>()
+              << ", " << device.get_info<sycl::info::device::name>() << std::endl;
+    sycl::queue q{ device };
     run(q);
 
     status = MPI_Finalize();
     if (status != MPI_SUCCESS) {
-        throw std::runtime_error{"Problem occurred during MPI finalize"};
+        throw std::runtime_error{ "Problem occurred during MPI finalize" };
     }
     return 0;
 }

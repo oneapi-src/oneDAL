@@ -43,8 +43,7 @@
 
 using namespace daal::data_management;
 
-int main(int argc, char const * argv[])
-{
+int main(int argc, char const* argv[]) {
     /*
      * This sample demonstrates how to connect to MySQL server using connection string and
      * perform basic data selection and loading with ODBCDataSource component.
@@ -52,13 +51,11 @@ int main(int argc, char const * argv[])
 
     std::string connectionString;
 
-    if (argc > 1)
-    {
+    if (argc > 1) {
         connectionString = argv[1];
     }
 
-    if (utils::trim(connectionString).empty())
-    {
+    if (utils::trim(connectionString).empty()) {
         utils::printHelp();
         return 0;
     }
@@ -79,7 +76,8 @@ int main(int argc, char const * argv[])
     connection.execute("INSERT INTO ? VALUES (1.23, 4.56), (7.89, 1.56), (2.62, 9.35)", tableName);
 
     /* Crate ODBC Data Source via connection string */
-    const ODBCDataSourceOptions options = ODBCDataSourceOptions::allocateNumericTable | ODBCDataSourceOptions::createDictionaryFromContext;
+    const ODBCDataSourceOptions options = ODBCDataSourceOptions::allocateNumericTable |
+                                          ODBCDataSourceOptions::createDictionaryFromContext;
     ODBCDataSource<SQLFeatureManager> ds(connectionString, options);
 
     /* Execute SQL query, you can execute arbitrary query supported by your DB */

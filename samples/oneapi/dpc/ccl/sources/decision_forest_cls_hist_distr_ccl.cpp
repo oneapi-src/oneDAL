@@ -32,27 +32,20 @@ namespace dal = oneapi::dal;
 namespace df = dal::decision_forest;
 
 void run(sycl::queue &queue) {
-    const auto train_data_file_name =
-        get_data_path("df_classification_train_data.csv");
-    const auto train_response_file_name =
-        get_data_path("df_classification_train_label.csv");
-    const auto test_data_file_name =
-        get_data_path("df_classification_test_data.csv");
-    const auto test_response_file_name =
-        get_data_path("df_classification_test_label.csv");
+    const auto train_data_file_name = get_data_path("df_classification_train_data.csv");
+    const auto train_response_file_name = get_data_path("df_classification_train_label.csv");
+    const auto test_data_file_name = get_data_path("df_classification_test_data.csv");
+    const auto test_response_file_name = get_data_path("df_classification_test_label.csv");
 
     const auto x_train =
-        dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
-    const auto y_train = dal::read<dal::table>(
-        queue, dal::csv::data_source{train_response_file_name});
-    const auto x_test =
-        dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
-    const auto y_test = dal::read<dal::table>(
-        queue, dal::csv::data_source{test_response_file_name});
+        dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
+    const auto y_train =
+        dal::read<dal::table>(queue, dal::csv::data_source{ train_response_file_name });
+    const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{ test_data_file_name });
+    const auto y_test =
+        dal::read<dal::table>(queue, dal::csv::data_source{ test_response_file_name });
 
-    auto comm =
-        dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(
-            queue);
+    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(queue);
     auto rank_id = comm.get_rank();
     auto rank_count = comm.get_rank_count();
 
@@ -72,12 +65,11 @@ void run(sycl::queue &queue) {
             .set_min_impurity_decrease_in_split_node(0.0)
             .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
             .set_variable_importance_mode(df::variable_importance_mode::mdi)
-            .set_infer_mode(df::infer_mode::class_responses |
-                            df::infer_mode::class_probabilities)
+            .set_infer_mode(df::infer_mode::class_responses | df::infer_mode::class_probabilities)
             .set_voting_mode(df::voting_mode::weighted);
 
-    const auto result_train = dal::preview::train(
-        comm, df_desc, x_train_vec[rank_id], y_train_vec[rank_id]);
+    const auto result_train =
+        dal::preview::train(comm, df_desc, x_train_vec[rank_id], y_train_vec[rank_id]);
 
     if (comm.get_rank() == 0) {
         std::cout << "Variable importance results:\n"
@@ -86,14 +78,12 @@ void run(sycl::queue &queue) {
         std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
     }
 
-    const auto result_infer = dal::preview::infer(
-        comm, df_desc, result_train.get_model(), x_test_vec[rank_id]);
+    const auto result_infer =
+        dal::preview::infer(comm, df_desc, result_train.get_model(), x_test_vec[rank_id]);
 
     if (comm.get_rank() == 0) {
-        std::cout << "Prediction results:\n"
-                  << result_infer.get_responses() << std::endl;
-        std::cout << "Probabilities results:\n"
-                  << result_infer.get_probabilities() << std::endl;
+        std::cout << "Prediction results:\n" << result_infer.get_responses() << std::endl;
+        std::cout << "Probabilities results:\n" << result_infer.get_probabilities() << std::endl;
 
         std::cout << "Ground truth:\n" << y_test_vec[rank_id] << std::endl;
     }
@@ -103,18 +93,18 @@ int main(int argc, char const *argv[]) {
     ccl::init();
     int status = MPI_Init(nullptr, nullptr);
     if (status != MPI_SUCCESS) {
-        throw std::runtime_error{"Problem occurred during MPI init"};
+        throw std::runtime_error{ "Problem occurred during MPI init" };
     }
 
     auto device = sycl::device(sycl::gpu_selector_v);
-    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>() << ", " << device.get_info<sycl::info::device::name>()
-              << std::endl;
-    sycl::queue q{device};
+    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>()
+              << ", " << device.get_info<sycl::info::device::name>() << std::endl;
+    sycl::queue q{ device };
     run(q);
 
     status = MPI_Finalize();
     if (status != MPI_SUCCESS) {
-        throw std::runtime_error{"Problem occurred during MPI finalize"};
+        throw std::runtime_error{ "Problem occurred during MPI finalize" };
     }
     return 0;
 }
