@@ -31,8 +31,8 @@ public:
     using base_t = knn_test<TestType, knn_spmd_test<TestType>>;
     using float_t = typename base_t::float_t;
     using method_t = typename base_t::method_t;
-    using result_t = typename base_t::result_t;
-    using input_t = typename base_t::input_t;
+    // using result_t = typename base_t::result_t;
+    // using input_t = typename base_t::input_t;
 
     using default_distance_t = oneapi::dal::minkowski_distance::descriptor<>;
 
@@ -43,51 +43,51 @@ public:
         rank_count_ = rank_count;
     }
 
-    template <typename... Args>
-    result_t infer_override(Args&&... args) {
-        return this->infer_via_spmd_threads_and_merge(rank_count_, std::forward<Args>(args)...);
-    }
+    // template <typename... Args>
+    // result_t infer_override(Args&&... args) {
+    //     return this->infer_via_spmd_threads_and_merge(rank_count_, std::forward<Args>(args)...);
+    // }
 
-    template <typename... Args>
-    std::vector<input_t> split_infer_input_override(std::int64_t split_count, Args&&... args) {
-        const input_t input{ std::forward<Args>(args)... };
+    // template <typename... Args>
+    // std::vector<input_t> split_infer_input_override(std::int64_t split_count, Args&&... args) {
+    //     const input_t input{ std::forward<Args>(args)... };
 
-        const auto split_data =
-            te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
+    //     const auto split_data =
+    //         te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
 
-        std::vector<input_t> split_input;
-        split_input.reserve(split_count);
+    //     std::vector<input_t> split_input;
+    //     split_input.reserve(split_count);
 
-        for (std::int64_t i = 0; i < split_count; i++) {
-            split_input.push_back( //
-                input_t{ split_data[i] });
-        }
+    //     for (std::int64_t i = 0; i < split_count; i++) {
+    //         split_input.push_back( //
+    //             input_t{ split_data[i] });
+    //     }
 
-        return split_input;
-    }
+    //     return split_input;
+    // }
 
-    result_t merge_infer_result_override(const std::vector<result_t>& results) {
-        // Responses are distributed accross the ranks, we combine them into one table;
-        // Model, iteration_count, objective_function_value are the same for all ranks
+    // result_t merge_infer_result_override(const std::vector<result_t>& results) {
+    //     // Responses are distributed accross the ranks, we combine them into one table;
+    //     // Model, iteration_count, objective_function_value are the same for all ranks
 
-        std::vector<table> responses;
-        for (const auto& r : results) {
-            responses.push_back(r.get_responses());
-        }
-        const auto full_responses = te::stack_tables_by_rows<float_t>(responses);
+    //     std::vector<table> responses;
+    //     for (const auto& r : results) {
+    //         responses.push_back(r.get_responses());
+    //     }
+    //     const auto full_responses = te::stack_tables_by_rows<float_t>(responses);
 
-        return result_t{} //TODO
-            .set_responses(full_responses) //
-            .set_model(results[0].get_model()) //
-            .set_iteration_count(results[0].get_iteration_count()) //
-            .set_objective_function_value(results[0].get_objective_function_value());
-            /*
-                callback.set_inp_responses(resps_data);
-    callback.set_responses(arr_responses);
-    callback.set_distances(arr_distances);
-    callback.set_indices(arr_indices);
-            */
-    }
+    //     return result_t{} //TODO
+    //         .set_responses(full_responses) //
+    //         .set_model(results[0].get_model()) //
+    //         .set_iteration_count(results[0].get_iteration_count()) //
+    //         .set_objective_function_value(results[0].get_objective_function_value());
+    //         /*
+    //             callback.set_inp_responses(resps_data);
+    // callback.set_responses(arr_responses);
+    // callback.set_distances(arr_distances);
+    // callback.set_indices(arr_indices);
+    //         */
+    // }
 
 
 
