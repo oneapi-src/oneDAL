@@ -548,3 +548,5 @@ KNN_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k with Chebys
     CAPTURE(score);
     REQUIRE(score >= target_score);
 }
+
+} // namespace oneapi::dal::knn::test
