@@ -1,6 +1,6 @@
 /* file: tsne_gradient_descent_avx512_impl.i */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright 2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,8 +16,13 @@
 *******************************************************************************/
 
 /*
- * Contains optimizations for AVX512.
+//++
+//  Parts of tSNE algorithm oprtimized for AVX512.
+//--
 */
+
+#ifndef __TSNE_GRADIENT_DESCENT_AVX512_IMPL_I__
+#define __TSNE_GRADIENT_DESCENT_AVX512_IMPL_I__
 
 namespace daal
 {
@@ -299,3 +304,5 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
 } // namespace internal
 } // namespace algorithms
 } // namespace daal
+
+#endif // __TSNE_GRADIENT_DESCENT_AVX512_IMPL_I__
