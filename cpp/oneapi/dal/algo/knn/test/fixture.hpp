@@ -49,8 +49,9 @@ public:
     using base_t = te::crtp_algo_fixture<TestType, Derived>;
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
-    using result_t = infer_result<knn::task::by_default>; //not sure about this
-    using input_t = infer_input<knn::task::by_default>; //not sure about this
+    using task_t = std::tuple_element_t<2, TestType>;
+    using result_t = infer_result<task_t>; //not sure about this
+    using input_t = infer_input<task_t>; //not sure about this
 
     using default_distance_t = oneapi::dal::minkowski_distance::descriptor<>;
 
