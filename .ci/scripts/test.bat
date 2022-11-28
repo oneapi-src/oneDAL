@@ -18,6 +18,9 @@ rem ============================================================================
 rem %1 - Examples target
 rem %2 - Examples linking
 rem %3 - Compiler
+set examples=%1
+set linking=%2
+set compiler=%3
 
 for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
 echo CPUCOUNT=%CPUCOUNT%
@@ -41,11 +44,11 @@ set LIB=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
 echo set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 
-echo __release_win_vc\daal\latest\examples\%1
-cd __release_win_vc\daal\latest\examples\%1
-if not "%1"=="daal\java" (
-    echo nmake %2 compiler=%3
-    nmake %2 compiler=%3
+echo __release_win_vc\daal\latest\examples\%examples%
+cd __release_win_vc\daal\latest\examples\%examples%
+if not "%examples%"=="daal\java" (
+    echo nmake %linking% compiler=%compiler%
+    nmake %linking% compiler=%compiler%
 ) else (
     echo Java installation
     echo JAVA_HOME=%JAVA_HOME_17_X64%
