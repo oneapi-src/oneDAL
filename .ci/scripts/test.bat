@@ -34,28 +34,23 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Buil
 echo call __release_win_vc\daal\latest\env\vars.bat
 call __release_win_vc\daal\latest\env\vars.bat
 
-echo set LIB=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
-set LIB=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
-echo set PATH=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%PATH%
-set PATH=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%PATH%
+echo set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
+set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
 
-echo set LIB=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
-set LIB=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
-echo set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
-set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
+echo set PATH=%~dp0__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
+set PATH=%~dp0__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
+
+echo Java installation
+echo JAVA_HOME=%JAVA_HOME_17_X64%
+set JAVA_HOME=%JAVA_HOME_17_X64%
+echo PATH=%JAVA_HOME%\bin;%PATH%
+set PATH=%JAVA_HOME%\bin;%PATH%
+echo set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
 
 echo __release_win_vc\daal\latest\examples\%examples%
 cd __release_win_vc\daal\latest\examples\%examples%
-if not "%examples%"=="daal\java" (
-    echo nmake %linking% compiler=%compiler%
-    nmake %linking% compiler=%compiler%
-) else (
-    echo Java installation
-    echo JAVA_HOME=%JAVA_HOME_17_X64%
-    set JAVA_HOME=%JAVA_HOME_17_X64%
-    echo PATH=%JAVA_HOME%\bin;%PATH%
-    set PATH=%JAVA_HOME%\bin;%PATH%
-    echo set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
-    set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
-    call launcher.bat intel64
-)
+
+if "%examples%"=="daal\java" call launcher.bat intel64
+if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
+if "%examples%"=="oneapi\cpp" nmake %linking% compiler=%compiler%
