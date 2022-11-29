@@ -340,7 +340,7 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      conda create -n ci-env -y -q -c conda-forge openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
     displayName: 'install openjdk-17'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx" --conda-env ci-env
@@ -381,7 +381,7 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      conda install -y -q -c conda-forge openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
     displayName: 'install openjdk-17'
   - script: |
       brew install gcc@12
@@ -393,7 +393,7 @@ jobs:
     displayName: 'install gcc@12'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx" --conda-env ci-env
     displayName: 'make daal'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
