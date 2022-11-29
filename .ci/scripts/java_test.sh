@@ -65,7 +65,7 @@ echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "   PATH: ${PATH}"
-echo "  CPATH: ${PATH}"
+echo "  CPATH: ${СPATH}"
 ls -lh $JAVA_HOME/include
 ls -lh $JAVA_HOME/include/${java_os_name}
 
