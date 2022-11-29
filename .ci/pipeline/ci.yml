@@ -400,7 +400,7 @@ jobs:
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
     displayName: 'make oneapi_c'
   - script: |
-      .ci/scripts/java_test.sh --release-dir $(release.dir) --platform $(platform.type)
+      .ci/scripts/java_test.sh --release-dir $(release.dir) --platform $(platform.type) --conda-env ci-env
     displayName: 'daal/java examples'
   - script: |
       export PATH=${PWD}/aliases:${PATH}

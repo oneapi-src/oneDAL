@@ -70,7 +70,6 @@ elif [ "${OS}" == "mac" ]; then
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-clang}
-    export JAVA_HOME=$CONDA_PREFIX
     java_os_name="darwin"
     with_gpu="false"
 else
@@ -89,13 +88,9 @@ fi
 echo "Call mkl and tbb scripts"
 $(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
 $(pwd)/dev/download_tbb.sh
-echo "Set Java PATH and CPATH"
+echo "Set Java PATH and CPATH from JAVA_HOME=${JAVA_HOME}"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
-echo "   PATH: ${PATH}"
-echo "  CPATH: ${СPATH}"
-ls -lh $JAVA_HOME/include
-ls -lh $JAVA_HOME/include/${java_os_name}
 echo "Calling make"
 make ${target:-daal_c} ${make_op} \
     PLAT=${platform} \
