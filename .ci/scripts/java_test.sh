@@ -46,7 +46,6 @@ if [ "${OS}" == "lnx" ]; then
         echo "conda activate ${conda_env}"
         conda activate ${conda_env}
     fi
-    export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
     java_os_name="linux"
 elif [ "${OS}" == "mac" ]; then
     source /usr/local/miniconda/etc/profile.d/conda.sh

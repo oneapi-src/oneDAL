@@ -41,8 +41,8 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree openjdk-17-jdk
-      conda create -n ci-env -q -y -c intel impi-devel=2021.7.1
+      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --conda-env ci-env
@@ -58,7 +58,7 @@ jobs:
       artifactName: '$(platform.type) build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/java_test.sh --release-dir $(release.dir) --platform $(platform.type)
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/java --conda-env ci-env
     displayName: 'daal/java examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp
@@ -85,8 +85,8 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix openjdk-17-jdk
-      conda create -n ci-env -q -y -c intel impi-devel=2021.7.1
+      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
@@ -95,7 +95,7 @@ jobs:
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c
     displayName: 'make oneapi_c'
   - script: |
-      .ci/scripts/java_test.sh --release-dir $(release.dir) --platform $(platform.type)
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/java --conda-env ci-env
     displayName: 'daal/java examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
@@ -343,10 +343,10 @@ jobs:
       conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
     displayName: 'install openjdk-17'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx" --conda-env ci-env
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 ssse3 sse42 avx avx2 avx512"
     displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
@@ -356,7 +356,7 @@ jobs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/java_test.sh --release-dir $(release.dir) --platform $(platform.type) --conda-env ci-env
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/java --conda-env ci-env
     displayName: 'daal/java examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
@@ -393,14 +393,14 @@ jobs:
     displayName: 'install gcc@12'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx" --conda-env ci-env
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
     displayName: 'make daal'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c --optimizations "sse2 ssse3 sse42 avx avx2 avx512"
     displayName: 'make oneapi_c'
   - script: |
-      .ci/scripts/java_test.sh --release-dir $(release.dir) --platform $(platform.type) --conda-env ci-env
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/java --conda-env ci-env
     displayName: 'daal/java examples'
   - script: |
       export PATH=${PWD}/aliases:${PATH}

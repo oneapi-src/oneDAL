@@ -55,7 +55,6 @@ if [ "${OS}" == "lnx" ]; then
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-gnu}
-    export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
     java_os_name="linux"
     #gpu support is only for Linux 64 bit
     if [ "${ARCH}" == "32e" ]; then
