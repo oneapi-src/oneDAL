@@ -70,8 +70,7 @@ jobs:
       .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env
     displayName: 'daal/cpp/mpi samples'
   - script: |
-      deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) \
-        --ver 1.0 --major-binary-ver 1 --minor-binary-ver 1 --build-nupkg yes
+      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget pkg'
@@ -366,8 +365,7 @@ jobs:
     displayName: 'oneapi/cpp examples'
   - script: |
       brew install dos2unix tree
-      deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) \
-        --ver 1.0 --major-binary-ver 1 --minor-binary-ver 1 --build-nupkg yes
+      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget pkg'
@@ -441,7 +439,7 @@ jobs:
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pacman -S -y --noconfirm zip dos2unix tree
-      bash deploy/nuget/prepare_dal_nuget.sh --template deploy/nuget/inteldal.nuspec.tpl --release-dir $(release.dir) --platform $(platform.type) --ver 1.0 --major-binary-ver 1 --minor-binary-ver 1 --build-nupkg yes
+      bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget pkg'

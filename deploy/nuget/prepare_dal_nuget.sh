@@ -32,12 +32,6 @@ create_package() {
             --ver)
             dal_version="$2"
             ;;
-            --major-binary-ver)
-            major_binary_version="$2"
-            ;;
-            --minor-binary-ver)
-            minor_binary_version="$2"
-            ;;
             --build-nupkg)
             build_nupkg="$2"
             ;;
@@ -52,6 +46,12 @@ create_package() {
         shift
         shift
     done
+
+    template_path=${template_path:-deploy/nuget/inteldal.nuspec.tpl}
+    dal_version=${dal_version:-1.0}
+    version_header=${rls_dir}/daal/latest/include/services/library_version_info.h
+    major_binary_version=$(cat ${version_header} | grep __INTEL_DAAL_MAJOR_BINARY__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
+    minor_binary_version=$(cat ${version_header} | grep __INTEL_DAAL_MINOR_BINARY__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
 
     # platform specific
     if [ ${platform} = "lnx32e" ]; then
