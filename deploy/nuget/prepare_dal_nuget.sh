@@ -46,11 +46,11 @@ create_package() {
 
     template_path=${template_path:-deploy/nuget/inteldal.nuspec.tpl}
     version_header=${rls_dir}/daal/latest/include/services/library_version_info.h
-    major_binary_version=$(cat ${version_header} | grep __INTEL_DAAL_MAJOR_BINARY__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
-    minor_binary_version=$(cat ${version_header} | grep __INTEL_DAAL_MINOR_BINARY__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
-    major_version=$(cat ${version_header} | grep __INTEL_DAAL__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
-    minor_version=$(cat ${version_header} | grep __INTEL_DAAL_MINOR__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
-    patch_version=$(cat ${version_header} | grep __INTEL_DAAL_UPDATE__ | head -n 1 | dos2unix | awk -F ' ' '{ print $3 }')
+    major_binary_version=$(cat ${version_header} | grep __INTEL_DAAL_MAJOR_BINARY__ | head -n 1 | awk -F ' ' '{ print $3 }')
+    minor_binary_version=$(cat ${version_header} | grep __INTEL_DAAL_MINOR_BINARY__ | head -n 1 | awk -F ' ' '{ print $3 }')
+    major_version=$(cat ${version_header} | grep __INTEL_DAAL__ | head -n 1 | awk -F ' ' '{ print $3 }')
+    minor_version=$(cat ${version_header} | grep __INTEL_DAAL_MINOR__ | head -n 1 | awk -F ' ' '{ print $3 }')
+    patch_version=$(cat ${version_header} | grep __INTEL_DAAL_UPDATE__ | head -n 1 | awk -F ' ' '{ print $3 }')
     dal_version=${major_version}.${minor_version}.${patch_version}
 
     # platform specific
