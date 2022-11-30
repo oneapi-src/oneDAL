@@ -34,15 +34,15 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Buil
 echo call __release_win_vc\daal\latest\env\vars.bat
 call __release_win_vc\daal\latest\env\vars.bat
 
-echo set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
-set LIB=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
-echo set PATH=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%PATH%
-set PATH=%~dp0__release_win_vc\tbb\latest\lib\intel64\vc_mt;%PATH%
+echo set LIB=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
+set LIB=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
+echo set PATH=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%PATH%
+set PATH=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%PATH%
 
-echo set LIB=%~dp0__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
-set LIB=%~dp0__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
-echo set PATH=%~dp0__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
-set PATH=%~dp0__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
+echo set LIB=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
+set LIB=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
+echo set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
+set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 
 echo Java installation
 echo JAVA_HOME=%JAVA_HOME_17_X64%
