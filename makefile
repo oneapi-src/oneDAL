@@ -1157,7 +1157,7 @@ $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.li
 
 #----- nuspecs generation
 _release_common: _release_nuspec
-_release_nuspec:
+_release_nuspec: update_headers_version
 	mkdir -p $(RELEASEDIR.nuspec)
 	bash ./deploy/nuget/prepare_dal_nuget.sh --release-dir $(RELEASEDIR) --platform $(PLAT)
 
