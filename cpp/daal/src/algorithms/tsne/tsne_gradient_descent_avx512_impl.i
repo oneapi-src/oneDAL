@@ -35,7 +35,7 @@ namespace internal
 template <bool DivComp, typename IdxType>
 struct AttractiveKernel<DivComp, IdxType, float, avx512>
 {
-    static services::Status impl(const float * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<float> > & mem,
+    static services::Status impl(const float * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<float>, avx512> & mem,
                                  float & zNorm, float & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
                                  const float exaggeration)
     {
@@ -68,9 +68,9 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
             for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
             {
                 size_t iSize     = 0;
-                mem.attr[iRow].x = 0.0;
-                mem.attr[iRow].y = 0.0;
-                row_point        = mem.pos[iRow];
+                mem._attr[iRow].x = 0.0;
+                mem._attr[iRow].y = 0.0;
+                row_point        = mem._pos[iRow];
 
                 if (!DivComp)
                 {
@@ -89,12 +89,12 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                     for (IdxType i = 0; i < (range / 16) * 16; i += 16)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem.pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
 
                         __m512i vec_iCol = _mm512_sub_epi32(_mm512_loadu_epi32((__m512i *)&col[start_index + i]), vec_1i);
 
-                        __m512 vec_point_xd = _mm512_sub_ps(vec_point_x, _mm512_i32gather_ps(vec_iCol, &mem.pos[0].x, 8));
-                        __m512 vec_point_yd = _mm512_sub_ps(vec_point_y, _mm512_i32gather_ps(vec_iCol, &mem.pos[0].y, 8));
+                        __m512 vec_point_xd = _mm512_sub_ps(vec_point_x, _mm512_i32gather_ps(vec_iCol, &mem._pos[0].x, 8));
+                        __m512 vec_point_yd = _mm512_sub_ps(vec_point_y, _mm512_i32gather_ps(vec_iCol, &mem._pos[0].y, 8));
 
                         __m512 vec_pq = _mm512_div_ps(
                             _mm512_loadu_ps((__m512 *)&val[start_index + i]),
@@ -104,24 +104,24 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                         vec_point_ys = _mm512_fmadd_ps(vec_point_yd, vec_pq, vec_point_ys);
                     }
 
-                    mem.attr[iRow].x += _mm512_reduce_add_ps(vec_point_xs);
-                    mem.attr[iRow].y += _mm512_reduce_add_ps(vec_point_ys);
+                    mem._attr[iRow].x += _mm512_reduce_add_ps(vec_point_xs);
+                    mem._attr[iRow].y += _mm512_reduce_add_ps(vec_point_ys);
 
                     for (IdxType i = (range / 16) * 16; i < range; ++i)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem.pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
 
                         iCol = col[start_index + i] - 1;
 
-                        y1d = row_point.x - mem.pos[iCol].x;
-                        y2d = row_point.y - mem.pos[iCol].y;
+                        y1d = row_point.x - mem._pos[iCol].x;
+                        y2d = row_point.y - mem._pos[iCol].y;
 
                         sqDist = 1.0 + y1d * y1d + y2d * y2d;
                         PQ     = val[start_index + i] / sqDist;
 
-                        mem.attr[iRow].x += PQ * y1d;
-                        mem.attr[iRow].y += PQ * y2d;
+                        mem._attr[iRow].x += PQ * y1d;
+                        mem._attr[iRow].y += PQ * y2d;
                     }
                 }
                 else
@@ -129,17 +129,17 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                     for (size_t index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index)
                     {
                         prefetch_index = index + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem.pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
                         iCol = col[index] - 1;
 
-                        y1d    = row_point.x - mem.pos[iCol].x;
-                        y2d    = row_point.y - mem.pos[iCol].y;
+                        y1d    = row_point.x - mem._pos[iCol].x;
+                        y2d    = row_point.y - mem._pos[iCol].y;
                         sqDist = services::internal::max<avx512, float>(float(0), y1d * y1d + y2d * y2d);
                         PQ     = val[index] / (sqDist + 1.);
 
                         // Apply forces
-                        mem.attr[iRow].x += PQ * y1d;
-                        mem.attr[iRow].y += PQ * y2d;
+                        mem._attr[iRow].x += PQ * y1d;
+                        mem._attr[iRow].y += PQ * y2d;
 
                         logLocal[iSize++] = val[index] * multiplier * (1. + sqDist);
                     }
@@ -169,7 +169,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
 template <bool DivComp, typename IdxType>
 struct AttractiveKernel<DivComp, IdxType, double, avx512>
 {
-    static services::Status impl(const double * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<double> > & mem,
+    static services::Status impl(const double * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<double>, avx512> & mem,
                                  double & zNorm, double & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
                                  const double exaggeration)
     {
@@ -202,9 +202,9 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
             for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
             {
                 size_t iSize     = 0;
-                mem.attr[iRow].x = 0.0;
-                mem.attr[iRow].y = 0.0;
-                row_point        = mem.pos[iRow];
+                mem._attr[iRow].x = 0.0;
+                mem._attr[iRow].y = 0.0;
+                row_point        = mem._pos[iRow];
 
                 if (!DivComp)
                 {
@@ -223,12 +223,12 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                     for (IdxType i = 0; i < (range / 8) * 8; i += 8)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem.pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
 
                         __m256i vec_iCol = _mm256_slli_epi32(_mm256_sub_epi32(_mm256_loadu_epi32((__m256i *)&col[start_index + i]), vec_1i), 4);
 
-                        __m512d vec_point_xd = _mm512_sub_pd(vec_point_x, _mm512_i32gather_pd(vec_iCol, &mem.pos[0].x, 1));
-                        __m512d vec_point_yd = _mm512_sub_pd(vec_point_y, _mm512_i32gather_pd(vec_iCol, &mem.pos[0].y, 1));
+                        __m512d vec_point_xd = _mm512_sub_pd(vec_point_x, _mm512_i32gather_pd(vec_iCol, &mem._pos[0].x, 1));
+                        __m512d vec_point_yd = _mm512_sub_pd(vec_point_y, _mm512_i32gather_pd(vec_iCol, &mem._pos[0].y, 1));
 
                         __m512d vec_pq = _mm512_div_pd(
                             _mm512_loadu_pd((__m512d *)&val[start_index + i]),
@@ -238,24 +238,24 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                         vec_point_ys = _mm512_fmadd_pd(vec_point_yd, vec_pq, vec_point_ys);
                     }
 
-                    mem.attr[iRow].x += _mm512_reduce_add_pd(vec_point_xs);
-                    mem.attr[iRow].y += _mm512_reduce_add_pd(vec_point_ys);
+                    mem._attr[iRow].x += _mm512_reduce_add_pd(vec_point_xs);
+                    mem._attr[iRow].y += _mm512_reduce_add_pd(vec_point_ys);
 
                     for (IdxType i = (range / 8) * 8; i < range; ++i)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem.pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
 
                         iCol = col[start_index + i] - 1;
 
-                        y1d = row_point.x - mem.pos[iCol].x;
-                        y2d = row_point.y - mem.pos[iCol].y;
+                        y1d = row_point.x - mem._pos[iCol].x;
+                        y2d = row_point.y - mem._pos[iCol].y;
 
                         sqDist = 1.0 + y1d * y1d + y2d * y2d;
                         PQ     = val[start_index + i] / sqDist;
 
-                        mem.attr[iRow].x += PQ * y1d;
-                        mem.attr[iRow].y += PQ * y2d;
+                        mem._attr[iRow].x += PQ * y1d;
+                        mem._attr[iRow].y += PQ * y2d;
                     }
                 }
                 else
@@ -263,18 +263,18 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                     for (size_t index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index)
                     {
                         prefetch_index = index + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem.pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
 
                         iCol = col[index] - 1;
 
-                        y1d    = row_point.x - mem.pos[iCol].x;
-                        y2d    = row_point.y - mem.pos[iCol].y;
+                        y1d    = row_point.x - mem._pos[iCol].x;
+                        y2d    = row_point.y - mem._pos[iCol].y;
                         sqDist = services::internal::max<avx512, double>(double(0), y1d * y1d + y2d * y2d);
                         PQ     = val[index] / (sqDist + 1.);
 
                         // Apply forces
-                        mem.attr[iRow].x += PQ * y1d;
-                        mem.attr[iRow].y += PQ * y2d;
+                        mem._attr[iRow].x += PQ * y1d;
+                        mem._attr[iRow].y += PQ * y2d;
 
                         logLocal[iSize++] = val[index] * multiplier * (1. + sqDist);
                     }
