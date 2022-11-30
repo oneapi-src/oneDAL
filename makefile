@@ -1159,7 +1159,7 @@ $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.li
 _release_common: _release_nuspec
 _release_nuspec:
 	mkdir -p $(RELEASEDIR.nuspec)
-	bash ./deploy/nuget/prepare_dal_nuget.sh --template ./deploy/nuget/inteldal.nuspec.tpl  --release-dir $(RELEASEDIR) --platform $(PLAT) --ver $(MAJOR).$(MINOR).$(UPDATE) --major-binary-ver $(MAJORBINARY) --minor-binary-ver $(MINORBINARY)
+	bash ./deploy/nuget/prepare_dal_nuget.sh --release-dir $(RELEASEDIR) --platform $(PLAT)
 
 #===============================================================================
 # Miscellaneous stuff
