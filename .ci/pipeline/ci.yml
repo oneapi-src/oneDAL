@@ -340,8 +340,9 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
+      brew install dos2unix tree
       conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
-    displayName: 'install openjdk-17'
+    displayName: 'brew and conda install'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
     displayName: 'make daal'
@@ -365,7 +366,6 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
   - script: |
-      brew install dos2unix tree
       deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
@@ -380,8 +380,9 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
+      brew install dos2unix tree
       conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
-    displayName: 'install openjdk-17'
+    displayName: 'brew and conda install'
   - script: |
       brew install gcc@12
       mkdir -p ${PWD}/aliases
@@ -421,6 +422,10 @@ jobs:
     vmImage: 'windows-2022'
   steps:
   - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      pacman -S -y --noconfirm zip dos2unix tree
+    displayName: 'pacman'
+  - script: |
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
   - script: |
@@ -439,7 +444,6 @@ jobs:
     displayName: 'oneapi/cpp examples'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
-      pacman -S -y --noconfirm zip dos2unix tree
       bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
