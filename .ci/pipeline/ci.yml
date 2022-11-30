@@ -117,13 +117,14 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix wget libtinfo5
     displayName: 'apt-get'
   - script: |
-      wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20221117/dpcpp-compiler.tar.gz"
+      wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20221129/dpcpp-compiler.tar.gz"
       tar -xzf dpcpp-compiler.tar.gz
       ln -s clang++ dpcpp_compiler/bin/icpx
+      ln -s clang dpcpp_compiler/bin/icx
     displayName: 'download dpcpp daily build'
   - script: |
       source dpcpp_compiler/startup.sh
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc --optimizations avx2
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc
     displayName: 'make onedal_dpc'
   - script: |
       source dpcpp_compiler/startup.sh
