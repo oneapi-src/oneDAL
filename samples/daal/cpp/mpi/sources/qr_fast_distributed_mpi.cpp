@@ -30,17 +30,16 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string datasetFileNames[] = { "./data/distributed/qr_1.csv",
-                                    "./data/distributed/qr_2.csv",
-                                    "./data/distributed/qr_3.csv",
-                                    "./data/distributed/qr_4.csv" };
+const std::string datasetFileNames[] = { "./data/distributed/qr_1.csv",
+                                         "./data/distributed/qr_2.csv",
+                                         "./data/distributed/qr_3.csv",
+                                         "./data/distributed/qr_4.csv" };
 
 void computestep1Local();
 void computeOnMasterNode();
