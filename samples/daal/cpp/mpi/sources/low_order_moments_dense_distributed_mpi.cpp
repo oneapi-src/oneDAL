@@ -31,7 +31,6 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -41,10 +40,10 @@ const size_t nBlocks = 4;
 int rankId, comm_size;
 #define mpi_root 0
 
-const string datasetFileNames[] = { "./data/distributed/covcormoments_dense_1.csv",
-                                    "./data/distributed/covcormoments_dense_2.csv",
-                                    "./data/distributed/covcormoments_dense_3.csv",
-                                    "./data/distributed/covcormoments_dense_4.csv" };
+const std::string datasetFileNames[] = { "./data/distributed/covcormoments_dense_1.csv",
+                                         "./data/distributed/covcormoments_dense_2.csv",
+                                         "./data/distributed/covcormoments_dense_3.csv",
+                                         "./data/distributed/covcormoments_dense_4.csv" };
 
 int main(int argc, char* argv[]) {
     checkArguments(argc,

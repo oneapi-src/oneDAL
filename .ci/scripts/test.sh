@@ -34,6 +34,9 @@ while [[ $# -gt 0 ]]; do
         --interface)
         interface="$2"
         ;;
+        --conda-env)
+        conda_env="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -54,9 +57,19 @@ else
 fi
 
 if [ "${OS}" == "lnx" ]; then
+    source /usr/share/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" != "" ]; then
+        conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+    fi
     compiler=${compiler:-gnu}
     link_modes="static dynamic"
 elif [ "${OS}" == "mac" ]; then
+    source /usr/local/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" != "" ]; then
+        conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+    fi
     compiler=${compiler:-clang}
     if [ "${compiler}" == "gnu" ]; then
         # TODO: fix static linking with gnu on mac
@@ -89,7 +102,21 @@ else
 fi
 
 interface=${interface:-daal/cpp}
-cd "${BUILD_DIR}/daal/latest/examples/${interface}"
+cd "${BUILD_DIR}/daal/latest/${TEST_KIND}/${interface}"
+
+if [ "${interface}" == "daal/java" ]; then
+    bash launcher.sh
+    err=$?
+    if [ ${err} -ne 0 ]; then
+        echo -e "$(date +'%H:%M:%S') EXAMPLES FAILED\t\t with errno ${err}"
+        TESTING_RETURN=${err}
+        continue
+    else
+        echo -e "$(date +'%H:%M:%S') EXAMPLES PASSED\t\t"
+    fi
+
+    exit ${TESTING_RETURN}
+fi
 
 for link_mode in ${link_modes}; do
     # Release Examples testing
@@ -103,7 +130,7 @@ for link_mode in ${link_modes}; do
         fi
     fi
     build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
-    echo "Building examples ${build_command}"
+    echo "Building ${TEST_KIND} ${build_command}"
     (${build_command})
     err=$?
     if [ ${err} -ne 0 ]; then
@@ -114,7 +141,7 @@ for link_mode in ${link_modes}; do
         echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${link_mode}"
     fi
     run_command="make ${l}${full_arch} mode=run compiler=${compiler}"
-    echo "Running examples ${run_command}"
+    echo "Running ${TEST_KIND} ${run_command}"
     (${run_command})
     err=$?
     if [ ${err} -ne 0 ]; then
