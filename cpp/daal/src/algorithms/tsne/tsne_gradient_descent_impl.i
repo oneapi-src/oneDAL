@@ -833,15 +833,15 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     daal::internal::ReadColumns<IdxType, cpu> sizeIterDataBlock(*sizeIterTable, 0, 0, sizeIterTable->getNumberOfRows());
     const IdxType * sizeIter = sizeIterDataBlock.get();
     DAAL_CHECK_BLOCK_STATUS(sizeIterDataBlock);
-    DAAL_CHECK(sizeIterTable->getNumberOfRows() == 4, daal::services::ErrorIncorrectSizeOfInputNumericTable);
+    DAAL_CHECK(sizeIterTable->getNumberOfRows() == 6, daal::services::ErrorIncorrectSizeOfInputNumericTable);
     const IdxType N                    = sizeIter[0]; // Number of points
     const IdxType nnz                  = sizeIter[1]; // Number of elements in sparce matrix P
     const IdxType nIterWithoutProgress = sizeIter[2]; // Number of iterations without introducing changes
     const IdxType maxIter              = sizeIter[3]; // Number of iterations
+    const IdxType explorationIter      = sizeIter[4]; // Aligned with scikit-learn
+    const IdxType nIterCheck           = sizeIter[5]; // Aligned with scikit-learn
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, 2, N);
     const IdxType nNodes          = N <= 50 ? 4 * N : 2 * N; // A small number of points may require more memory to store tree nodes
-    const IdxType nIterCheck      = 50;
-    const IdxType explorationIter = 250; // Aligned with scikit-learn
     const IdxType blockOfRows     = 256;
 
     // parameters
@@ -1019,7 +1019,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
         DAAL_CHECK_STATUS_VAR(status);
 
-        if (((i + 1) % nIterCheck == 0) || (i == explorationIter - 1))
+        if ((i + 1) % nIterCheck == 0)
         {
             status = AttractiveKernel<true, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N, nnz, nElements, exaggeration);
         }
@@ -1036,7 +1036,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
-            if (divergence < bestDivergence)
+           if (divergence < bestDivergence)
             {
                 bestDivergence = divergence;
                 bestIter       = i;
