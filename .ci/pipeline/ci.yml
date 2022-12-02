@@ -45,6 +45,11 @@ jobs:
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
+      lscpu
+      uname -a
+      gcc --version
+    displayName: 'System info'
+  - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
@@ -88,6 +93,11 @@ jobs:
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
+      lscpu
+      uname -a
+      clang --version
+    displayName: 'System info'
+  - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
@@ -122,6 +132,12 @@ jobs:
       ln -s clang++ dpcpp_compiler/bin/icpx
       ln -s clang dpcpp_compiler/bin/icx
     displayName: 'download dpcpp daily build'
+  - script: |
+      source dpcpp_compiler/startup.sh
+      lscpu
+      uname -a
+      clang --version
+    displayName: 'System info'
   - script: |
       source dpcpp_compiler/startup.sh
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc
@@ -160,6 +176,10 @@ jobs:
                            $(BAZEL_VERSION)
 
     displayName: 'install-deps'
+  - script: |
+      lscpu
+      uname -a
+    displayName: 'System info'
 
   - task: Cache@2
     inputs:
@@ -268,6 +288,11 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install -y git gcc-multilib g++-multilib
     displayName: 'apt-get'
   - script: |
+      lscpu
+      uname -a
+      gcc --version
+    displayName: 'System info'
+  - script: |
       conda update -y -q conda
       conda create -q -y -n CB -c intel python=$(python.version) tbb
     displayName: 'Conda create'
@@ -344,6 +369,11 @@ jobs:
       conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
     displayName: 'brew and conda install'
   - script: |
+      sysctl -a
+      uname -a
+      clang --version
+    displayName: 'System info'
+  - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
     displayName: 'make daal'
   - script: |
@@ -393,6 +423,12 @@ jobs:
     displayName: 'install gcc@12'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
+      sysctl -a
+      uname -a
+      gcc --version
+    displayName: 'System info'
+  - script: |
+      export PATH=${PWD}/aliases:${PATH}
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
     displayName: 'make daal'
   - script: |
@@ -425,6 +461,11 @@ jobs:
       set PATH=C:\msys64\usr\bin;%PATH%
       pacman -S -y --noconfirm zip dos2unix tree
     displayName: 'pacman'
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      uname -a
+      python -c "import platform; print(platform.platform())"
+    displayName: 'System info'
   - script: |
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
