@@ -27,11 +27,11 @@
 #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
     #if (__CPUID__(DAAL_CPU) == __avx512__)
 
-            #include <immintrin.h>
-            #include "tsne_gradient_descent_avx512_impl.i"
+        #include <immintrin.h>
+        #include "tsne_gradient_descent_avx512_impl.i"
 
     #endif // __CPUID__(DAAL_CPU) == __avx512__
-#endif         // __INTEL_COMPILER
+#endif // __INTEL_COMPILER
 
 namespace daal
 {

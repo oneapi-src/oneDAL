@@ -79,19 +79,50 @@ struct xyType
     DataType y;
 };
 
-template <typename IdxType, typename xyType>
+template <typename IdxType, typename xyType, daal::CpuType cpu>
 struct MemoryCtxType
 {
-    int capacity            = 0;
-    xyType * pos            = nullptr;
-    uint64_t * morton_codes = nullptr;
-    IdxType * z_order_idx   = nullptr;
-    IdxType * t_order_idx   = nullptr;
-    xyType * rep            = nullptr;
+    MemoryCtxType(const int capacity, services::Status & st) :
+        _capacity(capacity)
+    {
+        _pos = services::internal::service_malloc<xyType, cpu>(capacity);
+        _morton_codes = services::internal::service_malloc<uint64_t, cpu>(capacity);
+        _z_order_idx = services::internal::service_malloc<int, cpu>(capacity);
+        _t_order_idx = services::internal::service_malloc<int, cpu>(capacity);
+        _rep = services::internal::service_malloc<xyType, cpu>(capacity);
+        _attr = services::internal::service_malloc<xyType, cpu>(capacity);
+        _gain = services::internal::service_calloc<xyType, cpu>(capacity);
+        _ofor = services::internal::service_calloc<xyType, cpu>(capacity);
+        if (!_pos || !_morton_codes || !_z_order_idx || !_t_order_idx || !_rep ||
+            !_attr || !_gain || !_ofor)
+        {
+            st.add(services::ErrorMemoryAllocationFailed);
+        }
+    }
 
-    xyType * attr = nullptr;
-    xyType * gain = nullptr;
-    xyType * ofor = nullptr;
+    ~MemoryCtxType()
+    {
+        services::internal::service_free<xyType, cpu>(_ofor);
+        services::internal::service_free<xyType, cpu>(_gain);
+        services::internal::service_free<xyType, cpu>(_attr);
+        services::internal::service_free<xyType, cpu>(_rep);
+        services::internal::service_free<int, cpu>(_t_order_idx);
+        services::internal::service_free<int, cpu>(_z_order_idx);
+        services::internal::service_free<uint64_t, cpu>(_morton_codes);
+        services::internal::service_free<xyType, cpu>(_pos);
+    }
+
+    int _capacity;
+
+    xyType * _pos;
+    uint64_t * _morton_codes;
+    IdxType * _z_order_idx;
+    IdxType * _t_order_idx;
+    xyType * _rep;
+
+    xyType * _attr;
+    xyType * _gain;
+    xyType * _ofor;
 };
 
 struct qTreeNode
@@ -286,12 +317,9 @@ inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType> > & qTree, int l
 }
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
+services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>, cpu > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
                                          const DataType & radius, const DataType & centerx, const DataType & centery)
 {
-    DAAL_CHECK_MALLOC(mem.pos);
-    DAAL_CHECK_MALLOC(mem.morton_codes);
-
     int * mHist = services::internal::service_calloc<int, cpu>(1024 + 1024 + 1024);
     DAAL_CHECK_MALLOC(mHist);
 
@@ -301,12 +329,13 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
     });
 
     const IdxType nThreads    = tlsHist1024.nthreads();
-    const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (mem.capacity + nThreads - 1) / nThreads);
-    const IdxType nBlocks     = (mem.capacity + sizeOfBlock - 1) / sizeOfBlock;
+    const int capacity = mem._capacity;
+    const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (capacity + nThreads - 1) / nThreads);
+    const IdxType nBlocks     = (capacity + sizeOfBlock - 1) / sizeOfBlock;
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::min<cpu, IdxType>(mem.capacity, iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(capacity, iStart + sizeOfBlock);
         const DataType rootx = centerx - radius;
         const DataType rooty = centery - radius;
 
@@ -318,8 +347,8 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 
         for (IdxType i = iStart; i < iEnd; i++)
         {
-            x = (uint64_t)((mem.pos[i].x - rootx) * scale);
-            y = (uint64_t)((mem.pos[i].y - rooty) * scale);
+            x = (uint64_t)((mem._pos[i].x - rootx) * scale);
+            y = (uint64_t)((mem._pos[i].y - rooty) * scale);
 
             x &=
                 0x00000000ffffffff; // x = -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  -,-,-,-  31,30,29,28  27,26,25,24 23,22,21,20  19,18,17,16  15,14,13,12  11,10,9,8  7,6,5,4  3,2,1,0
@@ -349,7 +378,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 
             x |= (y << 1);
 
-            mem.morton_codes[i] = x;
+            mem._morton_codes[i] = x;
 
             hist[x >> 54]++;
         }
@@ -369,11 +398,11 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
     {
         qTree.size         = 0;
         qTree.tree[0].fpos = 0;
-        qTree.tree[0].cnt  = mem.capacity;
+        qTree.tree[0].cnt  = capacity;
         for (int i = 0; i < 32; i++) qTree.layerSize[i] = 0;
         for (int i = 0; i < 32; i++) qTree.layerOffs[i] = 0;
 
-        buildSubtree5<IdxType, DataType, cpu>(qTree, 0, mem.z_order_idx, mem.t_order_idx, mem.morton_codes, mHist);
+        buildSubtree5<IdxType, DataType, cpu>(qTree, 0, mem._z_order_idx, mem._t_order_idx, mem._morton_codes, mHist);
 
         qTreeNode * subNodes                               = nullptr;
         TreeCtxType<IdxType, xyType<DataType> > * subTrees = nullptr;
@@ -428,9 +457,9 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
                 const int bpos = subTrees[iSubTree].tree[0].fpos;
 
                 // services::internal::service_memset<int, cpu>(hist, 0, 1024);
-                for (int i = bpos; i < bpos + bcnt; i++) hist[(mem.morton_codes[mem.z_order_idx[i]] >> sft) & 0x3FF]++;
+                for (int i = bpos; i < bpos + bcnt; i++) hist[(mem._morton_codes[mem._z_order_idx[i]] >> sft) & 0x3FF]++;
 
-                buildSubtree5<IdxType, DataType, cpu>(subTrees[iSubTree], bLevel, mem.z_order_idx, mem.t_order_idx, mem.morton_codes, hist);
+                buildSubtree5<IdxType, DataType, cpu>(subTrees[iSubTree], bLevel, mem._z_order_idx, mem._t_order_idx, mem._morton_codes, hist);
 
                 services::internal::service_free<int, cpu>(hist);
             });
@@ -510,7 +539,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 }
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree)
+services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>, cpu > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree)
 {
     IdxType nThreads = threader_get_threads_number();
     IdxType nBlocks, lOffset, sizeOfBlock = 1;
@@ -538,13 +567,13 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
             }
             else
             {
-                cx = mem.pos[mem.z_order_idx[qTree.tree[iPos].fpos]].x;
-                cy = mem.pos[mem.z_order_idx[qTree.tree[iPos].fpos]].y;
+                cx = mem._pos[mem._z_order_idx[qTree.tree[iPos].fpos]].x;
+                cy = mem._pos[mem._z_order_idx[qTree.tree[iPos].fpos]].y;
 
                 for (int c = 1; c < qTree.tree[iPos].cnt; c++)
                 {
-                    cx += mem.pos[mem.z_order_idx[qTree.tree[iPos].fpos + c]].x;
-                    cy += mem.pos[mem.z_order_idx[qTree.tree[iPos].fpos + c]].y;
+                    cx += mem._pos[mem._z_order_idx[qTree.tree[iPos].fpos + c]].x;
+                    cy += mem._pos[mem._z_order_idx[qTree.tree[iPos].fpos + c]].y;
                 }
             }
             qTree.cent[iPos].x = cx;
@@ -571,7 +600,7 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 }
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
+services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>, cpu> & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
                                      const DataType theta, const DataType eps, DataType & zNorm, const DataType & radius)
 {
     const DataType epsInc = eps + DataType(1);
@@ -585,23 +614,24 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > &
 
     daal::StaticTlsSum<DataType, cpu> sumTlsData(1);
 
+    const int capacity = mem._capacity;
     const IdxType nThreads    = sumTlsData.nthreads();
-    const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (mem.capacity + nThreads - 1) / nThreads);
-    const IdxType nBlocks     = (mem.capacity + sizeOfBlock - 1) / sizeOfBlock;
+    const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (capacity + nThreads - 1) / nThreads);
+    const IdxType nBlocks     = (capacity + sizeOfBlock - 1) / sizeOfBlock;
 
     IdxType * nStack = services::internal::service_malloc<IdxType, cpu>(nThreads * MAX_LEVEL * 4);
     int * nLevel     = services::internal::service_malloc<int, cpu>(nThreads * MAX_LEVEL * 4);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::min<cpu, IdxType>(mem.capacity, iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(capacity, iStart + sizeOfBlock);
         DataType * lSum      = sumTlsData.local(tid);
 
         for (IdxType k = iStart; k < iEnd; ++k)
         {
-            const IdxType i   = mem.z_order_idx[k]; // 4*N
-            const DataType px = mem.pos[i].x;       // 4*N
-            const DataType py = mem.pos[i].y;       // 4*N
+            const IdxType i   = mem._z_order_idx[k]; // 4*N
+            const DataType px = mem._pos[i].x;       // 4*N
+            const DataType py = mem._pos[i].y;       // 4*N
 
             // DataType * lSum = sumTlsData.local(tid);
             DataType vx = 0.;
@@ -663,8 +693,8 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > &
                     for (int c = 0; c < mass; c++)
                     {
                         // _mm_prefetch(&mem.pos[mem.z_order_idx[fpos + c + 8]], _MM_HINT_T0);
-                        dx   = px - mem.pos[mem.z_order_idx[fpos + c]].x;
-                        dy   = py - mem.pos[mem.z_order_idx[fpos + c]].y;
+                        dx   = px - mem._pos[mem._z_order_idx[fpos + c]].x;
+                        dy   = py - mem._pos[mem._z_order_idx[fpos + c]].y;
                         dxy1 = dx * dx + dy * dy + epsInc;
 
                         tdist_2 = 1.0 / dxy1;
@@ -677,8 +707,8 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > &
                 }
             }
 
-            mem.rep[i].x = vx;
-            mem.rep[i].y = vy;
+            mem._rep[i].x = vx;
+            mem._rep[i].y = vy;
         }
     });
 
@@ -691,13 +721,11 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType> > &
     return services::Status();
 }
 
-#include <cstdio>
-
 /* Generic template implementation of attractive kernel for all data types and various instruction set architectures */
 template <bool DivComp, typename IdxType, typename DataType, daal::CpuType cpu>
 struct AttractiveKernel
 {
-    static services::Status impl(const DataType * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<DataType> > & mem,
+    static services::Status impl(const DataType * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<DataType>, cpu> & mem,
                                  DataType & zNorm, DataType & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
                                  const DataType exaggeration)
     {
@@ -729,28 +757,28 @@ struct AttractiveKernel
 
             for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
             {
-                size_t iSize     = 0;
-                mem.attr[iRow].x = 0.0;
-                mem.attr[iRow].y = 0.0;
-                row_point        = mem.pos[iRow];
+                size_t iSize = 0;
+                mem._attr[iRow].x = 0.0;
+                mem._attr[iRow].y = 0.0;
+                row_point = mem._pos[iRow];
 
                 for (IdxType index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index) // 4*N
                 {
                     prefetch_index = index + prefetch_dist;
-                    if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem.pos[col[prefetch_index] - 1]);
+                    if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                     iCol = col[index] - 1; // 4*NNZ byte
 
-                    y1d = row_point.x - mem.pos[iCol].x; // 1*NNZ Flop, 4*N + 4*NNZ byte
-                    y2d = row_point.y - mem.pos[iCol].y; // 1*NNZ Flop, 4*N + 4*NNZ byte
+                    y1d = row_point.x - mem._pos[iCol].x; // 1*NNZ Flop, 4*N + 4*NNZ byte
+                    y2d = row_point.y - mem._pos[iCol].y; // 1*NNZ Flop, 4*N + 4*NNZ byte
                     // const DataType sqDist = services::internal::max<cpu, DataType>(DataType(0), y1d * y1d + y2d * y2d); // To deal with NaNs     // 4*NNZ Flop
                     // const DataType PQ     = val[index] / (sqDist + 1.);            // 1*NNZ div, 1*NNZ flop, 4*NNZ byte
                     sqDist = 1.0 + y1d * y1d + y2d * y2d;
                     PQ     = val[index] / sqDist;
 
                     // Apply forces
-                    mem.attr[iRow].x += PQ * y1d;
-                    mem.attr[iRow].y += PQ * y2d;
+                    mem._attr[iRow].x += PQ * y1d;
+                    mem._attr[iRow].y += PQ * y2d;
                     if (DivComp)
                     {
                         // logLocal[iSize++] = val[index] * multiplier * (1. + sqDist);       // 3*NNZ Flop
@@ -783,7 +811,7 @@ struct AttractiveKernel
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status integrationKernelImpl(const DataType eta, const DataType momentum, const DataType exaggeration,
-                                       MemoryCtxType<IdxType, xyType<DataType> > & mem, DataType & gradNorm, const DataType & zNorm, const IdxType N,
+                                       MemoryCtxType<IdxType, xyType<DataType>, cpu> & mem, DataType & gradNorm, const DataType & zNorm, const IdxType N,
                                        const IdxType & blockOfRows)
 {
     const IdxType nThreads    = threader_get_threads_number();
@@ -799,24 +827,24 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
         DataType * localSum = sumTlsData.local(tid);
         for (IdxType i = iStart; i < iEnd; ++i)
         {
-            const DataType dx = 4 * (exaggeration * mem.attr[i].x - zNorm * mem.rep[i].x);
-            const DataType dy = 4 * (exaggeration * mem.attr[i].y - zNorm * mem.rep[i].y);
+            const DataType dx = 4 * (exaggeration * mem._attr[i].x - zNorm * mem._rep[i].x);
+            const DataType dy = 4 * (exaggeration * mem._attr[i].y - zNorm * mem._rep[i].y);
             localSum[0] += dx * dx + dy * dy;
 
-            gx = (dx * (ux = mem.ofor[i].x) < DataType(0)) ? mem.gain[i].x + 0.2 : mem.gain[i].x * 0.8;
+            gx = (dx * (ux = mem._ofor[i].x) < DataType(0)) ? mem._gain[i].x + 0.2 : mem._gain[i].x * 0.8;
             if (gx < 0.01) gx = 0.01;
 
-            gy = (dy * (uy = mem.ofor[i].y) < DataType(0)) ? mem.gain[i].y + 0.2 : mem.gain[i].y * 0.8;
+            gy = (dy * (uy = mem._ofor[i].y) < DataType(0)) ? mem._gain[i].y + 0.2 : mem._gain[i].y * 0.8;
             if (gy < 0.01) gy = 0.01;
 
-            mem.gain[i].x = gx;
-            mem.gain[i].y = gy;
+            mem._gain[i].x = gx;
+            mem._gain[i].y = gy;
 
-            mem.ofor[i].x = ux = momentum * ux - eta * gx * dx;
-            mem.ofor[i].y = uy = momentum * uy - eta * gy * dy;
+            mem._ofor[i].x = ux = momentum * ux - eta * gx * dx;
+            mem._ofor[i].y = uy = momentum * uy - eta * gy * dy;
 
-            mem.pos[i].x += ux;
-            mem.pos[i].y += uy;
+            mem._pos[i].x += ux;
+            mem._pos[i].y += uy;
         }
     });
     sumTlsData.reduceTo(&gradNorm, 1);
@@ -898,39 +926,23 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     size_t * col   = CSRBlock.getBlockColumnIndicesPtr();
     size_t * row   = CSRBlock.getBlockRowIndicesPtr();
 
-    IdxType * col_i32 = services::internal::service_malloc<IdxType, cpu>(nnz);
+    TArray<IdxType, cpu> colI32Arr(nnz);
+    IdxType * col_i32 = colI32Arr.get();
+    DAAL_CHECK_MALLOC(col_i32);
 
     for (int i = 0; i < nnz; i++)
     {
         col_i32[i] = (IdxType)col[i];
     }
 
-    MemoryCtxType<IdxType, xyType<DataType> > mem;
-
     // allocate and init memory for auxiliary arrays: posx & posy, morton codes and indices
-    mem.capacity = N;
-
-    mem.pos = services::internal::service_malloc<xyType<DataType>, cpu>(mem.capacity);
-    DAAL_CHECK_MALLOC(mem.pos);
-    mem.morton_codes = services::internal::service_malloc<uint64_t, cpu>(mem.capacity);
-    DAAL_CHECK_MALLOC(mem.morton_codes);
-    mem.z_order_idx = services::internal::service_malloc<int, cpu>(mem.capacity);
-    DAAL_CHECK_MALLOC(mem.z_order_idx);
-    mem.t_order_idx = services::internal::service_malloc<int, cpu>(mem.capacity);
-    DAAL_CHECK_MALLOC(mem.t_order_idx);
-    mem.rep = services::internal::service_malloc<xyType<DataType>, cpu>(mem.capacity);
-    DAAL_CHECK_MALLOC(mem.rep);
-    mem.attr = services::internal::service_malloc<xyType<DataType>, cpu>(mem.capacity);
-    DAAL_CHECK_MALLOC(mem.attr);
-    mem.gain = services::internal::service_calloc<xyType<DataType>, cpu>(mem.capacity);
-    DAAL_CHECK_MALLOC(mem.gain);
-    mem.ofor = services::internal::service_calloc<xyType<DataType>, cpu>(mem.capacity);
-    DAAL_CHECK_MALLOC(mem.ofor);
+    MemoryCtxType<IdxType, xyType<DataType>, cpu> mem(N, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     for (size_t i = 0; i < N; i++)
     {
-        mem.pos[i].x = xInit[i];
-        mem.pos[i].y = yInit[i];
+        mem._pos[i].x = xInit[i];
+        mem._pos[i].y = yInit[i];
     }
 
     TreeCtxType<IdxType, xyType<DataType> > qTree;
@@ -956,7 +968,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     //start iterations
     for (IdxType i = 0; i < explorationIter; ++i)
     {
-        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(mem.pos, N, radius, centerx, centery);
+        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(mem._pos, N, radius, centerx, centery);
         DAAL_CHECK_STATUS_VAR(status);
 
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(mem, qTree, radius, centerx, centery);
@@ -1006,7 +1018,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
     for (IdxType i = explorationIter; i < maxIter; ++i)
     {
-        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(mem.pos, N, radius, centerx, centery);
+        status = boundingBoxKernelImpl<IdxType, DataType, cpu>(mem._pos, N, radius, centerx, centery);
         DAAL_CHECK_STATUS_VAR(status);
 
         status = qTreeBuildingKernelImpl<IdxType, DataType, cpu>(mem, qTree, radius, centerx, centery);
@@ -1058,11 +1070,11 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         }
     }
 
-    //save results
+    // save results
     for (size_t i = 0; i < N; i++)
     {
-        xInit[i] = mem.pos[i].x;
-        yInit[i] = mem.pos[i].y;
+        xInit[i] = mem._pos[i].x;
+        yInit[i] = mem._pos[i].y;
     }
 
     //release block
@@ -1071,13 +1083,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
     services::internal::service_free<qTreeNode, cpu>(qTree.tree);
     services::internal::service_free<xyType<DataType>, cpu>(qTree.cent);
-    services::internal::service_free<int, cpu>(mem.t_order_idx);
-    services::internal::service_free<int, cpu>(mem.z_order_idx);
-    services::internal::service_free<uint64_t, cpu>(mem.morton_codes);
-    services::internal::service_free<xyType<DataType>, cpu>(mem.pos);
-    services::internal::service_free<xyType<DataType>, cpu>(mem.rep);
 
-    services::internal::service_free<IdxType, cpu>(col_i32);
     return services::Status();
 }
 
