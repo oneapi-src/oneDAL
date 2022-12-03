@@ -136,7 +136,7 @@ jobs:
       source dpcpp_compiler/startup.sh
       lscpu
       uname -a
-      clang --version
+      icpx --version
     displayName: 'System info'
   - script: |
       source dpcpp_compiler/startup.sh
@@ -366,11 +366,12 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
-      pip3 install cpufeature
-      conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
     displayName: 'brew and conda install'
   - script: |
-      python3 -c "import cpufeature; cpufeature.print_features()"
+      source activate ci-env
+      pip install -q cpufeature
+      python -c "import cpufeature; cpufeature.print_features()"
       uname -a
       clang --version
     displayName: 'System info'
@@ -412,8 +413,7 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
-      pip3 install cpufeature
-      conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
     displayName: 'brew and conda install'
   - script: |
       brew install gcc@12
@@ -425,7 +425,9 @@ jobs:
     displayName: 'install gcc@12'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
-      python3 -c "import cpufeature; cpufeature.print_features()"
+      source activate ci-env
+      pip install -q cpufeature
+      python -c "import cpufeature; cpufeature.print_features()"
       uname -a
       gcc --version
     displayName: 'System info'
