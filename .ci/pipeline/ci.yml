@@ -366,11 +366,11 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
-      pip install cpufeature
+      pip3 install cpufeature
       conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
     displayName: 'brew and conda install'
   - script: |
-      python -c "import cpufeature; cpufeature.print_features()"
+      python3 -c "import cpufeature; cpufeature.print_features()"
       uname -a
       clang --version
     displayName: 'System info'
@@ -412,7 +412,7 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
-      pip install cpufeature
+      pip3 install cpufeature
       conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
     displayName: 'brew and conda install'
   - script: |
@@ -425,7 +425,7 @@ jobs:
     displayName: 'install gcc@12'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
-      python -c "import cpufeature; cpufeature.print_features()"
+      python3 -c "import cpufeature; cpufeature.print_features()"
       uname -a
       gcc --version
     displayName: 'System info'
