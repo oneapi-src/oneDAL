@@ -366,10 +366,11 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
+      pip install cpufeature
       conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
     displayName: 'brew and conda install'
   - script: |
-      sysctl -a
+      python -c "import cpufeature; cpufeature.print_features()"
       uname -a
       clang --version
     displayName: 'System info'
@@ -411,6 +412,7 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
+      pip install cpufeature
       conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
     displayName: 'brew and conda install'
   - script: |
@@ -423,7 +425,7 @@ jobs:
     displayName: 'install gcc@12'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
-      sysctl -a
+      python -c "import cpufeature; cpufeature.print_features()"
       uname -a
       gcc --version
     displayName: 'System info'
@@ -459,12 +461,13 @@ jobs:
   steps:
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
+      pip install cpufeature
       pacman -S -y --noconfirm zip dos2unix tree
     displayName: 'pacman'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
+      python -c "import cpufeature; cpufeature.print_features()"
       uname -a
-      python -c "import platform; print(platform.platform())"
     displayName: 'System info'
   - script: |
       .\.ci\scripts\build.bat daal vc avx2
