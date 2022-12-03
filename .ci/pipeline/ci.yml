@@ -369,7 +369,8 @@ jobs:
       conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
     displayName: 'brew and conda install'
   - script: |
-      source activate ci-env
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
       pip install -q cpufeature
       python -c "import cpufeature; cpufeature.print_features()"
       uname -a
@@ -425,7 +426,8 @@ jobs:
     displayName: 'install gcc@12'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
-      source activate ci-env
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
       pip install -q cpufeature
       python -c "import cpufeature; cpufeature.print_features()"
       uname -a
