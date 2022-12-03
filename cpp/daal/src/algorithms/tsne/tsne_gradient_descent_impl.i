@@ -79,10 +79,12 @@ struct xyType
     DataType y;
 };
 
-template <typename IdxType, typename xyType, daal::CpuType cpu>
+template <typename IdxType, typename DataType, daal::CpuType cpu>
 struct MemoryCtxType
 {
-    MemoryCtxType(const int capacity, services::Status & st) :
+    typedef xyType<DataType> xyType;
+
+    MemoryCtxType(const int capacity, const NumericTablePtr initTable, services::Status & st) :
         _capacity(capacity)
     {
         _pos = services::internal::service_malloc<xyType, cpu>(capacity);
@@ -97,7 +99,49 @@ struct MemoryCtxType
             !_attr || !_gain || !_ofor)
         {
             st.add(services::ErrorMemoryAllocationFailed);
+            return;
         }
+        daal::internal::ReadColumns<DataType, cpu> xInitDataBlock(*initTable, 0, 0, capacity);
+        if (!xInitDataBlock.status())
+        {
+            st.add(xInitDataBlock.status());
+            return;
+        }
+        daal::internal::ReadColumns<DataType, cpu> yInitDataBlock(*initTable, 1, 0, capacity);
+        if (!yInitDataBlock.status())
+        {
+            st.add(yInitDataBlock.status());
+            return;
+        }
+        const DataType * xInit = xInitDataBlock.get();
+        const DataType * yInit = yInitDataBlock.get();
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < capacity; i++)
+        {
+            _pos[i].x = xInit[i];
+            _pos[i].y = yInit[i];
+        }
+    }
+
+    services::Status saveResults(const NumericTablePtr initTable)
+    {
+        daal::internal::WriteOnlyColumns<DataType, cpu> xInitDataBlock(*initTable, 0, 0, _capacity);
+        daal::internal::WriteOnlyColumns<DataType, cpu> yInitDataBlock(*initTable, 1, 0, _capacity);
+        DAAL_CHECK_BLOCK_STATUS(xInitDataBlock);
+        DAAL_CHECK_BLOCK_STATUS(yInitDataBlock);
+        DataType * xInit = xInitDataBlock.get();
+        DataType * yInit = yInitDataBlock.get();
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < _capacity; i++)
+        {
+            xInit[i] = _pos[i].x;
+            yInit[i] = _pos[i].y;
+        }
+        return services::Status();
     }
 
     ~MemoryCtxType()
@@ -317,7 +361,7 @@ inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType> > & qTree, int l
 }
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>, cpu > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
+services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
                                          const DataType & radius, const DataType & centerx, const DataType & centery)
 {
     int * mHist = services::internal::service_calloc<int, cpu>(1024 + 1024 + 1024);
@@ -539,7 +583,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 }
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>, cpu > & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree)
+services::Status summarizationKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree)
 {
     IdxType nThreads = threader_get_threads_number();
     IdxType nBlocks, lOffset, sizeOfBlock = 1;
@@ -600,7 +644,7 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, xyType<DataType>
 }
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
-services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>, cpu> & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
+services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
                                      const DataType theta, const DataType eps, DataType & zNorm, const DataType & radius)
 {
     const DataType epsInc = eps + DataType(1);
@@ -725,7 +769,7 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, xyType<DataType>, cp
 template <bool DivComp, typename IdxType, typename DataType, daal::CpuType cpu>
 struct AttractiveKernel
 {
-    static services::Status impl(const DataType * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<DataType>, cpu> & mem,
+    static services::Status impl(const DataType * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, DataType, cpu> & mem,
                                  DataType & zNorm, DataType & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
                                  const DataType exaggeration)
     {
@@ -811,7 +855,7 @@ struct AttractiveKernel
 
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status integrationKernelImpl(const DataType eta, const DataType momentum, const DataType exaggeration,
-                                       MemoryCtxType<IdxType, xyType<DataType>, cpu> & mem, DataType & gradNorm, const DataType & zNorm, const IdxType N,
+                                       MemoryCtxType<IdxType, DataType, cpu> & mem, DataType & gradNorm, const DataType & zNorm, const IdxType N,
                                        const IdxType & blockOfRows)
 {
     const IdxType nThreads    = threader_get_threads_number();
@@ -912,13 +956,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     DAAL_CHECK(initTable->getNumberOfRows() == N, daal::services::ErrorInconsistentNumberOfRows);
     DAAL_CHECK(initTable->getNumberOfColumns() == 2, daal::services::ErrorInconsistentNumberOfColumns);
 
-    daal::internal::WriteColumns<DataType, cpu> xInitDataBlock(*initTable, 0, 0, N);
-    daal::internal::WriteColumns<DataType, cpu> yInitDataBlock(*initTable, 1, 0, N);
-    DataType * xInit = xInitDataBlock.get();
-    DataType * yInit = yInitDataBlock.get();
-    DAAL_CHECK_MALLOC(xInit);
-    DAAL_CHECK_MALLOC(yInit);
-
     CSRBlockDescriptor<DataType> CSRBlock;
     status = pTable->getSparseBlock(0, N, readOnly, CSRBlock);
     DAAL_CHECK_STATUS_VAR(status);
@@ -936,14 +973,8 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     }
 
     // allocate and init memory for auxiliary arrays: posx & posy, morton codes and indices
-    MemoryCtxType<IdxType, xyType<DataType>, cpu> mem(N, status);
+    MemoryCtxType<IdxType, DataType, cpu> mem(N, initTable, status);
     DAAL_CHECK_STATUS_VAR(status);
-
-    for (size_t i = 0; i < N; i++)
-    {
-        mem._pos[i].x = xInit[i];
-        mem._pos[i].y = yInit[i];
-    }
 
     TreeCtxType<IdxType, xyType<DataType> > qTree;
     // allocate enough memory to store top 5 levels of qTree
@@ -1070,12 +1101,8 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         }
     }
 
-    // save results
-    for (size_t i = 0; i < N; i++)
-    {
-        xInit[i] = mem._pos[i].x;
-        yInit[i] = mem._pos[i].y;
-    }
+    status = mem.saveResults(initTable);
+    DAAL_CHECK_STATUS_VAR(status);
 
     //release block
     status = pTable->releaseSparseBlock(CSRBlock);

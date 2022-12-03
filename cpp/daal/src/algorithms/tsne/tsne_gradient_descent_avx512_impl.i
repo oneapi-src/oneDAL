@@ -35,7 +35,7 @@ namespace internal
 template <bool DivComp, typename IdxType>
 struct AttractiveKernel<DivComp, IdxType, float, avx512>
 {
-    static services::Status impl(const float * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<float>, avx512> & mem,
+    static services::Status impl(const float * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, float, avx512> & mem,
                                  float & zNorm, float & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
                                  const float exaggeration)
     {
@@ -169,7 +169,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
 template <bool DivComp, typename IdxType>
 struct AttractiveKernel<DivComp, IdxType, double, avx512>
 {
-    static services::Status impl(const double * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, xyType<double>, avx512> & mem,
+    static services::Status impl(const double * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, double, avx512> & mem,
                                  double & zNorm, double & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
                                  const double exaggeration)
     {
