@@ -419,6 +419,7 @@ jobs:
   - script: |
       export PATH=${PWD}/aliases:${PATH}
       source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
