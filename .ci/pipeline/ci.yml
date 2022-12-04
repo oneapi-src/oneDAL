@@ -171,8 +171,7 @@ jobs:
 
     displayName: 'install-deps'
   - script: |
-      lscpu
-      uname -a
+      .ci/scripts/describe_system.sh
     displayName: 'System info'
 
   - task: Cache@2
