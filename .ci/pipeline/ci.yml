@@ -358,11 +358,13 @@ jobs:
   - script: |
       brew install dos2unix tree
       conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      pip install -q cpufeature
     displayName: 'brew and conda install'
   - script: |
       source /usr/local/miniconda/etc/profile.d/conda.sh
       conda activate ci-env
-      pip install -q cpufeature
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
