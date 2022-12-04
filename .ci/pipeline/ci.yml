@@ -45,9 +45,7 @@ jobs:
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
-      lscpu
-      uname -a
-      gcc --version
+      .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --conda-env ci-env
@@ -93,9 +91,7 @@ jobs:
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
-      lscpu
-      uname -a
-      clang --version
+      .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
@@ -134,9 +130,7 @@ jobs:
     displayName: 'download dpcpp daily build'
   - script: |
       source dpcpp_compiler/startup.sh
-      lscpu
-      uname -a
-      icpx --version
+      .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
       source dpcpp_compiler/startup.sh
@@ -288,9 +282,7 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install -y git gcc-multilib g++-multilib
     displayName: 'apt-get'
   - script: |
-      lscpu
-      uname -a
-      gcc --version
+      .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
       conda update -y -q conda
@@ -372,9 +364,7 @@ jobs:
       source /usr/local/miniconda/etc/profile.d/conda.sh
       conda activate ci-env
       pip install -q cpufeature
-      python -c "import cpufeature; cpufeature.print_features()"
-      uname -a
-      clang --version
+      .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
@@ -415,6 +405,9 @@ jobs:
   - script: |
       brew install dos2unix tree
       conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      pip install -q cpufeature
     displayName: 'brew and conda install'
   - script: |
       brew install gcc@12
@@ -427,11 +420,7 @@ jobs:
   - script: |
       export PATH=${PWD}/aliases:${PATH}
       source /usr/local/miniconda/etc/profile.d/conda.sh
-      conda activate ci-env
-      pip install -q cpufeature
-      python -c "import cpufeature; cpufeature.print_features()"
-      uname -a
-      gcc --version
+      .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
@@ -470,8 +459,7 @@ jobs:
     displayName: 'pacman'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
-      python -c "import cpufeature; cpufeature.print_features()"
-      uname -a
+      bash .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
       .\.ci\scripts\build.bat daal vc avx2
