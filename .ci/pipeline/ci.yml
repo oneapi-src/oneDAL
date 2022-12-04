@@ -45,6 +45,9 @@ jobs:
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
@@ -88,6 +91,9 @@ jobs:
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
@@ -122,6 +128,10 @@ jobs:
       ln -s clang++ dpcpp_compiler/bin/icpx
       ln -s clang dpcpp_compiler/bin/icx
     displayName: 'download dpcpp daily build'
+  - script: |
+      source dpcpp_compiler/startup.sh
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
   - script: |
       source dpcpp_compiler/startup.sh
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc
@@ -160,6 +170,9 @@ jobs:
                            $(BAZEL_VERSION)
 
     displayName: 'install-deps'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
 
   - task: Cache@2
     inputs:
@@ -268,6 +281,9 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install -y git gcc-multilib g++-multilib
     displayName: 'apt-get'
   - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
       conda update -y -q conda
       conda create -q -y -n CB -c intel python=$(python.version) tbb
     displayName: 'Conda create'
@@ -341,8 +357,16 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
-      conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      pip install -q cpufeature
     displayName: 'brew and conda install'
+  - script: |
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
     displayName: 'make daal'
@@ -381,7 +405,10 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
-      conda create -n ci-env -q -y -c conda-forge openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      pip install -q cpufeature
     displayName: 'brew and conda install'
   - script: |
       brew install gcc@12
@@ -391,6 +418,12 @@ jobs:
       ln -s /usr/local/bin/c++-12 ${PWD}/aliases/c++
       ln -s /usr/local/bin/cpp-12 ${PWD}/aliases/cpp
     displayName: 'install gcc@12'
+  - script: |
+      export PATH=${PWD}/aliases:${PATH}
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
   - script: |
       export PATH=${PWD}/aliases:${PATH}
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
@@ -423,8 +456,13 @@ jobs:
   steps:
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
+      pip install cpufeature
       pacman -S -y --noconfirm zip dos2unix tree
     displayName: 'pacman'
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      bash .ci/scripts/describe_system.sh
+    displayName: 'System info'
   - script: |
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
