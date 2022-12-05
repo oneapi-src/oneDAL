@@ -456,9 +456,11 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
 
         buildSubtree5<IdxType, DataType, cpu>(qTree, 0, mem._z_order_idx, mem._t_order_idx, mem._morton_codes, mHist);
 
-        qTreeNode * subNodes                               = nullptr;
-        TreeCtxType<IdxType, xyType<DataType> > * subTrees = nullptr;
-        int subTreeCnt                                     = 0;
+        TArray<qTreeNode, cpu> subNodesArr(0);
+        TArray<TreeCtxType<IdxType, xyType<DataType> >, cpu> subTreesArr(0);
+        qTreeNode * subNodes = subNodesArr.get();
+        TreeCtxType<IdxType, xyType<DataType> > * subTrees = subTreesArr.get();
+        int subTreeCnt = 0;
 
         for (int pass = 0; pass < 5; pass++)
         {
@@ -468,7 +470,9 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
             int bNodes    = 0;
 
             for (int c = bLayerBeg; c < bLayerEnd; c++)
+            {
                 if (qTree.tree[c].cnt > bLevel + 1) bNodes++;
+            }
 
             // Terminate subtrees creation if there are not enough bottom nodes to split
             if (bNodes < 1) break;
@@ -476,17 +480,15 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
             // Re/allocate worker space for bottom subtrees if needed
             if (bNodes > subTreeCnt)
             {
-                if (subTrees)
-                {
-                    services::internal::service_free<TreeCtxType<IdxType, xyType<DataType> >, cpu>(subTrees);
-                    services::internal::service_free<qTreeNode, cpu>(subNodes);
-                }
-                subNodes   = services::internal::service_malloc<qTreeNode, cpu>(bNodes * 2048);
-                subTrees   = services::internal::service_malloc<TreeCtxType<IdxType, xyType<DataType> >, cpu>(bNodes);
+                subNodes = subNodesArr.reset(bNodes * 2048);
+                subTrees = subTreesArr.reset(bNodes);
+                DAAL_CHECK_MALLOC(subNodes);
+                DAAL_CHECK_MALLOC(subTrees);
                 subTreeCnt = bNodes;
             }
 
             for (int c = bLayerBeg, bNodes = 0; c < bLayerEnd; c++)
+            {
                 if (qTree.tree[c].cnt > bLevel + 1)
                 {
                     subTrees[bNodes].size     = 0;
@@ -495,6 +497,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
                     subTrees[bNodes].tree[0]  = qTree.tree[c];
                     bNodes++;
                 }
+            }
 
             // Build bottom subtrees in parallel
             const IdxType nThreads    = threader_get_threads_number();
@@ -503,6 +506,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
 
             daal::threader_for(nBlocks, nBlocks, [&](IdxType iSubTree) {
                 int * hist = services::internal::service_calloc<int, cpu>(3072);
+                DAAL_CHECK_MALLOC_THR(hist);
 
                 const int sft  = 54 - (bLevel << 1);
                 const int bcnt = subTrees[iSubTree].tree[0].cnt;
@@ -577,12 +581,6 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
                 qTree.layerOffs[bLevel + 6] = qTree.size = nodeOffs;
                 for (int i = 0; i < 6; i++) qTree.layerSize[bLevel + i] = qTree.layerOffs[bLevel + i + 1] - qTree.layerOffs[bLevel + i];
             }
-        }
-
-        if (subTreeCnt)
-        {
-            services::internal::service_free<qTreeNode, cpu>(subTrees[0].tree);
-            services::internal::service_free<TreeCtxType<IdxType, xyType<DataType> >, cpu>(subTrees);
         }
     }
 
