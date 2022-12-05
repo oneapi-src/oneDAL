@@ -364,11 +364,18 @@ template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
                                          const DataType & radius, const DataType & centerx, const DataType & centery)
 {
-    int * mHist = services::internal::service_calloc<int, cpu>(1024 + 1024 + 1024);
+    TArrayCalloc<int, cpu> mHistArr(1024 + 1024 + 1024);
+    int * mHist = mHistArr.get();
     DAAL_CHECK_MALLOC(mHist);
 
-    daal::static_tls<int *> tlsHist1024([=]() {
+    /* Thread local storage initialization */
+    SafeStatus safeStat;
+    daal::static_tls<int *> tlsHist1024([=, &safeStat]() {
         auto localHist = services::internal::service_calloc<int, cpu>(1024);
+        if (!localHist)
+        {
+            safeStat.add(services::ErrorMemoryAllocationFailed);
+        }
         return localHist;
     });
 
@@ -378,14 +385,15 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
     const IdxType nBlocks     = (capacity + sizeOfBlock - 1) / sizeOfBlock;
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+        int * hist = tlsHist1024.local(tid);
+        if (!hist) return;
+    
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(capacity, iStart + sizeOfBlock);
         const DataType rootx = centerx - radius;
         const DataType rooty = centery - radius;
 
         const double scale = 2147483648.0 / radius;
-
-        int * hist = tlsHist1024.local(tid);
 
         uint64_t x, y;
 
@@ -578,7 +586,6 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
         }
     }
 
-    services::internal::service_free<int, cpu>(mHist);
     return services::Status();
 }
 
