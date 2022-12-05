@@ -39,17 +39,22 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                                  float & zNorm, float & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
                                  const float exaggeration)
     {
-        DAAL_CHECK_MALLOC(val);
-        DAAL_CHECK_MALLOC(col);
-        DAAL_CHECK_MALLOC(row);
-
         const float multiplier = exaggeration * float(zNorm);
         divergence             = 0.;
 
         const IdxType prefetch_dist = 32;
 
         daal::TlsSum<float, avx512> divTlsData(1);
-        daal::tls<float *> logTlsData([=]() { return services::internal::service_scalable_calloc<float, avx512>(nElements); });
+
+        SafeStatus safeStat;
+        daal::tls<float *> logTlsData([=, &safeStat]() {
+            auto logData = services::internal::service_scalable_calloc<float, avx512>(nElements);
+            if (!logData)
+            {
+                safeStat.add(services::ErrorMemoryAllocationFailed);
+            }
+            return logData;
+        });
 
         const IdxType nThreads    = threader_get_threads_number();
         const IdxType sizeOfBlock = services::internal::min<avx512, size_t>(256, N / nThreads + 1);
@@ -59,7 +64,10 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
             const IdxType iStart = iBlock * sizeOfBlock;
             const IdxType iEnd   = services::internal::min<avx512, IdxType>(N, iStart + sizeOfBlock);
             float * logLocal     = logTlsData.local();
+            if (!logLocal) return;
+
             float * divLocal     = divTlsData.local();
+            DAAL_CHECK_MALLOC_THR(divLocal);
 
             xyType<float> row_point;
             IdxType iCol, prefetch_index;
@@ -153,6 +161,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                 }
             }
         });
+        DAAL_CHECK_SAFE_STATUS();
 
         divTlsData.reduceTo(&divergence, 1);
         divergence *= exaggeration;
@@ -173,17 +182,22 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                                  double & zNorm, double & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
                                  const double exaggeration)
     {
-        DAAL_CHECK_MALLOC(val);
-        DAAL_CHECK_MALLOC(col);
-        DAAL_CHECK_MALLOC(row);
-
         const double multiplier = exaggeration * double(zNorm);
         divergence              = 0.;
 
         const IdxType prefetch_dist = 32;
 
         daal::TlsSum<double, avx512> divTlsData(1);
-        daal::tls<double *> logTlsData([=]() { return services::internal::service_scalable_calloc<double, avx512>(nElements); });
+
+        SafeStatus safeStat;
+        daal::tls<double *> logTlsData([=, &safeStat]() {
+            auto logData = services::internal::service_scalable_calloc<double, avx512>(nElements);
+            if (!logData)
+            {
+                safeStat.add(services::ErrorMemoryAllocationFailed);
+            }
+            return logData;
+        });
 
         const IdxType nThreads    = threader_get_threads_number();
         const IdxType sizeOfBlock = services::internal::min<avx512, size_t>(256, N / nThreads + 1);
@@ -193,7 +207,10 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
             const IdxType iStart = iBlock * sizeOfBlock;
             const IdxType iEnd   = services::internal::min<avx512, IdxType>(N, iStart + sizeOfBlock);
             double * logLocal    = logTlsData.local();
+            if (!logLocal) return;
+
             double * divLocal    = divTlsData.local();
+            DAAL_CHECK_MALLOC_THR(divLocal);
 
             xyType<double> row_point;
             IdxType iCol, prefetch_index;
@@ -288,6 +305,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                 }
             }
         });
+        DAAL_CHECK_SAFE_STATUS();
 
         divTlsData.reduceTo(&divergence, 1);
         divergence *= exaggeration;

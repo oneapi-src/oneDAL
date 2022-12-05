@@ -71,7 +71,7 @@ public:
     }
 };
 
-#define MAX_LEVEL 32
+#define TSNE_Q_TREE_MAX_LEVEL 32
 template <typename DataType>
 struct xyType
 {
@@ -180,8 +180,8 @@ struct TreeCtxType
 {
     int capacity             = 0;
     int size                 = 0;
-    int layerSize[MAX_LEVEL] = {};
-    int layerOffs[MAX_LEVEL] = {};
+    int layerSize[TSNE_Q_TREE_MAX_LEVEL] = {};
+    int layerOffs[TSNE_Q_TREE_MAX_LEVEL] = {};
     qTreeNode * tree         = nullptr;
     xyType * cent            = nullptr;
 };
@@ -194,15 +194,19 @@ services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
+    SafeStatus safeStat;
     daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
         IdxType * localMax   = maxTlsData.local();
+        DAAL_CHECK_MALLOC_THR(localMax);
         for (IdxType i = iStart; i < iEnd; ++i)
         {
             localMax[0] = services::internal::max<cpu, IdxType>(localMax[0], IdxType((row[i + 1] - row[i])));
         }
     });
+    DAAL_CHECK_SAFE_STATUS();
+
     maxTlsData.reduceTo(&nElements, 1);
 
     return services::Status();
@@ -215,8 +219,14 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
 
     DataType box[4] = { pos[0].x, pos[0].x, pos[0].y, pos[0].y };
 
-    daal::static_tls<DataType *> tlsBox([=]() {
+    SafeStatus safeStat;
+    daal::static_tls<DataType *> tlsBox([=, &safeStat]() {
         auto localBox = services::internal::service_malloc<DataType, cpu>(4);
+        if (!localBox)
+        {
+            safeStat.add(services::ErrorMemoryAllocationFailed);
+            return localBox;
+        }
 
         localBox[0] = daal::services::internal::MaxVal<DataType>::get();
         localBox[1] = -daal::services::internal::MaxVal<DataType>::get();
@@ -233,9 +243,10 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
+        DataType * localBox  = tlsBox.local(tid);
+        if (!localBox) return;
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
-        DataType * localBox  = tlsBox.local(tid);
 
         for (IdxType i = iStart; i < iEnd; ++i)
         {
@@ -245,6 +256,7 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
             localBox[3] = services::internal::max<cpu, DataType>(localBox[3], pos[i].y);
         }
     });
+    DAAL_CHECK_SAFE_STATUS();
 
     tlsBox.reduce([&](DataType * ptr) -> void {
         if (!ptr) return;
@@ -435,6 +447,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
             hist[x >> 54]++;
         }
     });
+    DAAL_CHECK_SAFE_STATUS();
 
     tlsHist1024.reduce([&](int * ptr) -> void {
         if (!ptr) return;
@@ -500,12 +513,12 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
             }
 
             // Build bottom subtrees in parallel
-            const IdxType nThreads    = threader_get_threads_number();
             const IdxType sizeOfBlock = 1;
             const IdxType nBlocks     = bNodes;
 
             daal::threader_for(nBlocks, nBlocks, [&](IdxType iSubTree) {
-                int * hist = services::internal::service_calloc<int, cpu>(3072);
+                TArrayCalloc<int, cpu> histArr(3072);
+                int * hist = histArr.get();
                 DAAL_CHECK_MALLOC_THR(hist);
 
                 const int sft  = 54 - (bLevel << 1);
@@ -516,9 +529,8 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
                 for (int i = bpos; i < bpos + bcnt; i++) hist[(mem._morton_codes[mem._z_order_idx[i]] >> sft) & 0x3FF]++;
 
                 buildSubtree5<IdxType, DataType, cpu>(subTrees[iSubTree], bLevel, mem._z_order_idx, mem._t_order_idx, mem._morton_codes, hist);
-
-                services::internal::service_free<int, cpu>(hist);
             });
+            DAAL_CHECK_SAFE_STATUS();
 
             // Reallocate the tree if needed
             int newTreeSize = qTree.size;
@@ -593,10 +605,10 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
     IdxType nThreads = threader_get_threads_number();
     IdxType nBlocks, lOffset, sizeOfBlock = 1;
 
-    for (int l = 1; l < MAX_LEVEL + 1; l++)
+    for (int l = 1; l < TSNE_Q_TREE_MAX_LEVEL + 1; l++)
     {
-        nBlocks = qTree.layerSize[MAX_LEVEL - l];
-        lOffset = qTree.layerOffs[MAX_LEVEL - l];
+        nBlocks = qTree.layerSize[TSNE_Q_TREE_MAX_LEVEL - l];
+        lOffset = qTree.layerOffs[TSNE_Q_TREE_MAX_LEVEL - l];
         if (nBlocks == 0) continue;
         daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
             IdxType iPos = lOffset + iBlock;
@@ -655,11 +667,11 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem
     const DataType epsInc = eps + DataType(1);
 
     SafeStatus safeStat;
-    DataType dq[MAX_LEVEL];
+    DataType dq[TSNE_Q_TREE_MAX_LEVEL];
 
     dq[0] = (radius * radius) / (theta * theta);
-    for (auto i = 1; i < MAX_LEVEL; i++) dq[i] = dq[i - 1] * 0.25;
-    for (auto i = 0; i < MAX_LEVEL; i++) dq[i] += epsInc;
+    for (auto i = 1; i < TSNE_Q_TREE_MAX_LEVEL; i++) dq[i] = dq[i - 1] * 0.25;
+    for (auto i = 0; i < TSNE_Q_TREE_MAX_LEVEL; i++) dq[i] += epsInc;
 
     daal::StaticTlsSum<DataType, cpu> sumTlsData(1);
 
@@ -668,13 +680,19 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (capacity + nThreads - 1) / nThreads);
     const IdxType nBlocks     = (capacity + sizeOfBlock - 1) / sizeOfBlock;
 
-    IdxType * nStack = services::internal::service_malloc<IdxType, cpu>(nThreads * MAX_LEVEL * 4);
-    int * nLevel     = services::internal::service_malloc<int, cpu>(nThreads * MAX_LEVEL * 4);
+    TArray<IdxType, cpu> nStackArr(nThreads * TSNE_Q_TREE_MAX_LEVEL * 4);
+    IdxType * nStack = nStackArr.get();
+    DAAL_CHECK_MALLOC(nStack);
+
+    TArray<int, cpu> nLevelArr(nThreads * TSNE_Q_TREE_MAX_LEVEL * 4);
+    int * nLevel = nLevelArr.get();
+    DAAL_CHECK_MALLOC(nLevel);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(capacity, iStart + sizeOfBlock);
         DataType * lSum      = sumTlsData.local(tid);
+        DAAL_CHECK_MALLOC_THR(lSum);
 
         for (IdxType k = iStart; k < iEnd; ++k)
         {
@@ -686,8 +704,8 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem
             DataType vx = 0.;
             DataType vy = 0.;
 
-            IdxType * lStack = nStack + tid * MAX_LEVEL * 4; // 3*N Flops
-            int * lLevel     = nLevel + tid * MAX_LEVEL * 4; // 3*N Flops
+            IdxType * lStack = nStack + tid * TSNE_Q_TREE_MAX_LEVEL * 4; // 3*N Flops
+            int * lLevel     = nLevel + tid * TSNE_Q_TREE_MAX_LEVEL * 4; // 3*N Flops
 
             int cnt = 1 + ((qTree.tree[0].fpos >> 29) & 0x3); // 3*N Flops
             int pos = qTree.tree[0].fpos & ~0xE0000000;       // 2*N Flops
@@ -760,12 +778,10 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem
             mem._rep[i].y = vy;
         }
     });
+    DAAL_CHECK_SAFE_STATUS();
 
     zNorm = 0.;
     sumTlsData.reduceTo(&zNorm, 1);
-
-    services::internal::service_free<int, cpu>(nLevel);
-    services::internal::service_free<IdxType, cpu>(nStack);
 
     return services::Status();
 }
@@ -778,17 +794,22 @@ struct AttractiveKernel
                                  DataType & zNorm, DataType & divergence, const IdxType N, const IdxType nnz, const IdxType nElements,
                                  const DataType exaggeration)
     {
-        DAAL_CHECK_MALLOC(val);
-        DAAL_CHECK_MALLOC(col);
-        DAAL_CHECK_MALLOC(row);
-
         const DataType multiplier = exaggeration * DataType(zNorm);
         divergence                = 0.;
 
         const IdxType prefetch_dist = 32;
 
         daal::TlsSum<DataType, cpu> divTlsData(1);
-        daal::tls<DataType *> logTlsData([=]() { return services::internal::service_scalable_calloc<DataType, cpu>(nElements); });
+
+        SafeStatus safeStat;
+        daal::tls<DataType *> logTlsData([=, &safeStat]() {
+            auto logData = services::internal::service_scalable_calloc<DataType, cpu>(nElements);
+            if (!logData)
+            {
+                safeStat.add(services::ErrorMemoryAllocationFailed);
+            }
+            return logData;
+        });
 
         const IdxType nThreads    = threader_get_threads_number();
         const IdxType sizeOfBlock = services::internal::min<cpu, size_t>(256, N / nThreads + 1);
@@ -798,7 +819,9 @@ struct AttractiveKernel
             const IdxType iStart = iBlock * sizeOfBlock;
             const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
             DataType * logLocal  = logTlsData.local();
+            if (!logLocal) return;
             DataType * divLocal  = divTlsData.local();
+            DAAL_CHECK_MALLOC_THR(divLocal);
 
             xyType<DataType> row_point;
             IdxType iCol, prefetch_index;
@@ -846,6 +869,7 @@ struct AttractiveKernel
                 }
             }
         });
+        DAAL_CHECK_SAFE_STATUS();
 
         divTlsData.reduceTo(&divergence, 1);
         divergence *= exaggeration;
@@ -869,11 +893,13 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
     daal::StaticTlsSum<DataType, cpu> sumTlsData(1);
     gradNorm = 0.;
 
+    SafeStatus safeStat;
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
         DataType ux, uy, gx, gy;
         DataType * localSum = sumTlsData.local(tid);
+        DAAL_CHECK_MALLOC_THR(localSum);
         for (IdxType i = iStart; i < iEnd; ++i)
         {
             const DataType dx = 4 * (exaggeration * mem._attr[i].x - zNorm * mem._rep[i].x);
@@ -896,6 +922,8 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
             mem._pos[i].y += uy;
         }
     });
+    DAAL_CHECK_SAFE_STATUS();
+
     sumTlsData.reduceTo(&gradNorm, 1);
     gradNorm = Math<DataType, cpu>::sSqrt(gradNorm);
 
