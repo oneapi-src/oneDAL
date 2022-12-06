@@ -97,7 +97,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                     for (IdxType i = 0; i < (range / 16) * 16; i += 16)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         __m512i vec_iCol = _mm512_sub_epi32(_mm512_loadu_epi32((__m512i *)&col[start_index + i]), vec_1i);
 
@@ -118,7 +118,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                     for (IdxType i = (range / 16) * 16; i < range; ++i)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         iCol = col[start_index + i] - 1;
 
@@ -137,7 +137,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                     for (size_t index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index)
                     {
                         prefetch_index = index + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
                         iCol = col[index] - 1;
 
                         y1d    = row_point.x - mem._pos[iCol].x;
@@ -240,7 +240,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                     for (IdxType i = 0; i < (range / 8) * 8; i += 8)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         __m256i vec_iCol = _mm256_slli_epi32(_mm256_sub_epi32(_mm256_loadu_epi32((__m256i *)&col[start_index + i]), vec_1i), 4);
 
@@ -261,7 +261,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                     for (IdxType i = (range / 8) * 8; i < range; ++i)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         iCol = col[start_index + i] - 1;
 
@@ -280,7 +280,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                     for (size_t index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index)
                     {
                         prefetch_index = index + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         iCol = col[index] - 1;
 
