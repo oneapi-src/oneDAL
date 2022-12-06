@@ -66,7 +66,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
             float * logLocal     = logTlsData.local();
             if (!logLocal) return;
 
-            float * divLocal     = divTlsData.local();
+            float * divLocal = divTlsData.local();
             DAAL_CHECK_MALLOC_THR(divLocal);
 
             xyType<float> row_point;
@@ -75,10 +75,10 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
 
             for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
             {
-                size_t iSize     = 0;
+                size_t iSize      = 0;
                 mem._attr[iRow].x = 0.0;
                 mem._attr[iRow].y = 0.0;
-                row_point        = mem._pos[iRow];
+                row_point         = mem._pos[iRow];
 
                 if (!DivComp)
                 {
@@ -209,7 +209,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
             double * logLocal    = logTlsData.local();
             if (!logLocal) return;
 
-            double * divLocal    = divTlsData.local();
+            double * divLocal = divTlsData.local();
             DAAL_CHECK_MALLOC_THR(divLocal);
 
             xyType<double> row_point;
@@ -218,10 +218,10 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
 
             for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
             {
-                size_t iSize     = 0;
+                size_t iSize      = 0;
                 mem._attr[iRow].x = 0.0;
                 mem._attr[iRow].y = 0.0;
-                row_point        = mem._pos[iRow];
+                row_point         = mem._pos[iRow];
 
                 if (!DivComp)
                 {

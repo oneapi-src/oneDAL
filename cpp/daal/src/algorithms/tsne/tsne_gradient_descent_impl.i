@@ -84,19 +84,17 @@ struct MemoryCtxType
 {
     typedef xyType<DataType> xyType;
 
-    MemoryCtxType(const int capacity, const NumericTablePtr initTable, services::Status & st) :
-        _capacity(capacity)
+    MemoryCtxType(const int capacity, const NumericTablePtr initTable, services::Status & st) : _capacity(capacity)
     {
-        _pos = services::internal::service_malloc<xyType, cpu>(capacity);
+        _pos          = services::internal::service_malloc<xyType, cpu>(capacity);
         _morton_codes = services::internal::service_malloc<uint64_t, cpu>(capacity);
-        _z_order_idx = services::internal::service_malloc<int, cpu>(capacity);
-        _t_order_idx = services::internal::service_malloc<int, cpu>(capacity);
-        _rep = services::internal::service_malloc<xyType, cpu>(capacity);
-        _attr = services::internal::service_malloc<xyType, cpu>(capacity);
-        _gain = services::internal::service_calloc<xyType, cpu>(capacity);
-        _ofor = services::internal::service_calloc<xyType, cpu>(capacity);
-        if (!_pos || !_morton_codes || !_z_order_idx || !_t_order_idx || !_rep ||
-            !_attr || !_gain || !_ofor)
+        _z_order_idx  = services::internal::service_malloc<int, cpu>(capacity);
+        _t_order_idx  = services::internal::service_malloc<int, cpu>(capacity);
+        _rep          = services::internal::service_malloc<xyType, cpu>(capacity);
+        _attr         = services::internal::service_malloc<xyType, cpu>(capacity);
+        _gain         = services::internal::service_calloc<xyType, cpu>(capacity);
+        _ofor         = services::internal::service_calloc<xyType, cpu>(capacity);
+        if (!_pos || !_morton_codes || !_z_order_idx || !_t_order_idx || !_rep || !_attr || !_gain || !_ofor)
         {
             st.add(services::ErrorMemoryAllocationFailed);
             return;
@@ -178,12 +176,12 @@ struct qTreeNode
 template <typename IdxType, typename xyType>
 struct TreeCtxType
 {
-    int capacity             = 0;
-    int size                 = 0;
+    int capacity                         = 0;
+    int size                             = 0;
     int layerSize[TSNE_Q_TREE_MAX_LEVEL] = {};
     int layerOffs[TSNE_Q_TREE_MAX_LEVEL] = {};
-    qTreeNode * tree         = nullptr;
-    xyType * cent            = nullptr;
+    qTreeNode * tree                     = nullptr;
+    xyType * cent                        = nullptr;
 };
 
 template <typename IdxType, daal::CpuType cpu>
@@ -243,7 +241,7 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
-        DataType * localBox  = tlsBox.local(tid);
+        DataType * localBox = tlsBox.local(tid);
         if (!localBox) return;
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
@@ -392,14 +390,14 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
     });
 
     const IdxType nThreads    = tlsHist1024.nthreads();
-    const int capacity = mem._capacity;
+    const int capacity        = mem._capacity;
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (capacity + nThreads - 1) / nThreads);
     const IdxType nBlocks     = (capacity + sizeOfBlock - 1) / sizeOfBlock;
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         int * hist = tlsHist1024.local(tid);
         if (!hist) return;
-    
+
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(capacity, iStart + sizeOfBlock);
         const DataType rootx = centerx - radius;
@@ -471,9 +469,9 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
 
         TArray<qTreeNode, cpu> subNodesArr(0);
         TArray<TreeCtxType<IdxType, xyType<DataType> >, cpu> subTreesArr(0);
-        qTreeNode * subNodes = subNodesArr.get();
+        qTreeNode * subNodes                               = subNodesArr.get();
         TreeCtxType<IdxType, xyType<DataType> > * subTrees = subTreesArr.get();
-        int subTreeCnt = 0;
+        int subTreeCnt                                     = 0;
 
         for (int pass = 0; pass < 5; pass++)
         {
@@ -675,7 +673,7 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem
 
     daal::StaticTlsSum<DataType, cpu> sumTlsData(1);
 
-    const int capacity = mem._capacity;
+    const int capacity        = mem._capacity;
     const IdxType nThreads    = sumTlsData.nthreads();
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (capacity + nThreads - 1) / nThreads);
     const IdxType nBlocks     = (capacity + sizeOfBlock - 1) / sizeOfBlock;
@@ -820,7 +818,7 @@ struct AttractiveKernel
             const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
             DataType * logLocal  = logTlsData.local();
             if (!logLocal) return;
-            DataType * divLocal  = divTlsData.local();
+            DataType * divLocal = divTlsData.local();
             DAAL_CHECK_MALLOC_THR(divLocal);
 
             xyType<DataType> row_point;
@@ -829,10 +827,10 @@ struct AttractiveKernel
 
             for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
             {
-                size_t iSize = 0;
+                size_t iSize      = 0;
                 mem._attr[iRow].x = 0.0;
                 mem._attr[iRow].y = 0.0;
-                row_point = mem._pos[iRow];
+                row_point         = mem._pos[iRow];
 
                 for (IdxType index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index) // 4*N
                 {
@@ -946,8 +944,8 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const IdxType explorationIter      = sizeIter[4]; // Aligned with scikit-learn
     const IdxType nIterCheck           = sizeIter[5]; // Aligned with scikit-learn
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, 2, N);
-    const IdxType nNodes          = N <= 50 ? 4 * N : 2 * N; // A small number of points may require more memory to store tree nodes
-    const IdxType blockOfRows     = 256;
+    const IdxType nNodes      = N <= 50 ? 4 * N : 2 * N; // A small number of points may require more memory to store tree nodes
+    const IdxType blockOfRows = 256;
 
     // parameters
     daal::internal::ReadColumns<DataType, cpu> paramDataBlock(*paramTable, 0, 0, paramTable->getNumberOfRows());
@@ -978,7 +976,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
     // results
     DAAL_CHECK(resultTable->getNumberOfRows() == 3, daal::services::ErrorIncorrectSizeOfInputNumericTable);
-    IdxType curIter = 0;
+    IdxType curIter     = 0;
     DataType divergence = bestDivergence;
     DataType gradNorm   = 0.0;
 
@@ -1096,7 +1094,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 
         if (((i + 1) % nIterCheck == 0) || (i == maxIter - 1))
         {
-           if (divergence < bestDivergence)
+            if (divergence < bestDivergence)
             {
                 bestDivergence = divergence;
                 bestIter       = i;

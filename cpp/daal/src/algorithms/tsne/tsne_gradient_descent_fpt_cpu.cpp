@@ -31,7 +31,7 @@
         #include "tsne_gradient_descent_avx512_impl.i"
 
     #endif // __CPUID__(DAAL_CPU) == __avx512__
-#endif // __INTEL_COMPILER
+#endif     // __INTEL_COMPILER
 
 namespace daal
 {
@@ -39,8 +39,11 @@ namespace algorithms
 {
 namespace internal
 {
-template DAAL_EXPORT services::Status tsneGradientDescentImpl<int, DAAL_FPTYPE, DAAL_CPU>(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
-                                         const NumericTablePtr paramTable, const NumericTablePtr resultTable);
+template DAAL_EXPORT services::Status tsneGradientDescentImpl<int, DAAL_FPTYPE, DAAL_CPU>(const NumericTablePtr initTable,
+                                                                                          const CSRNumericTablePtr pTable,
+                                                                                          const NumericTablePtr sizeIterTable,
+                                                                                          const NumericTablePtr paramTable,
+                                                                                          const NumericTablePtr resultTable);
 
 } // namespace internal
 } // namespace algorithms

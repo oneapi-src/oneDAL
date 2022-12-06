@@ -51,4 +51,4 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
 } // namespace algorithms
 } // namespace daal
 
-#endif  // __TSNE_GRADIENT_DESCENT_KERNEL_H__
+#endif // __TSNE_GRADIENT_DESCENT_KERNEL_H__
