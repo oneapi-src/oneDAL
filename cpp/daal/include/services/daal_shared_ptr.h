@@ -166,7 +166,7 @@ public:
      * \param[in] ptr   Pointer to manage
      */
     template <class U>
-    explicit SharedPtr(U * ptr) : _ownedPtr(ptr), _ptr(ptr), _refCount(NULL)
+    explicit SharedPtr(U * ptr) : _ownedPtr((T *)ptr), _ptr((T *)ptr), _refCount(NULL)
     {
         if (_ownedPtr) _refCount = new RefCounterImp<ObjectDeleter<U> >();
     }
@@ -179,7 +179,7 @@ public:
      * \param[in] deleter   Object used to delete the pointer when the reference count becomes equal to zero
      */
     template <class U, class D>
-    explicit SharedPtr(U * ptr, const D & deleter) : _ownedPtr(ptr), _ptr(ptr), _refCount(NULL)
+    explicit SharedPtr(U * ptr, const D & deleter) : _ownedPtr((T *)ptr), _ptr((T *)ptr), _refCount(NULL)
     {
         if (_ownedPtr) _refCount = new RefCounterImp<D>(deleter);
     }
