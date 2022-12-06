@@ -383,6 +383,9 @@ jobs:
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 ssse3 sse42 avx avx2 avx512"
     displayName: 'make oneapi_c'
   - script: |
+      otool -L $(release.dir)/daal/latest/lib/*dylib | grep -E "onedal|JavaAPI"
+    displayName: 'Release check'
+  - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
   - task: PublishPipelineArtifact@0
@@ -441,6 +444,9 @@ jobs:
       export PATH=${PWD}/aliases:${PATH}
       .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c --optimizations "sse2 ssse3 sse42 avx avx2 avx512"
     displayName: 'make oneapi_c'
+  - script: |
+      otool -L $(release.dir)/daal/latest/lib/*dylib | grep -E "onedal|JavaAPI"
+    displayName: 'Release check'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/java --conda-env ci-env
     displayName: 'daal/java examples'
