@@ -82,18 +82,18 @@ struct xyType
 template <typename IdxType, typename DataType, daal::CpuType cpu>
 struct MemoryCtxType
 {
-    typedef xyType<DataType> xyType;
+    typedef xyType<DataType> xyDataType;
 
     MemoryCtxType(const int capacity, const NumericTablePtr initTable, services::Status & st) : _capacity(capacity)
     {
-        _pos          = services::internal::service_malloc<xyType, cpu>(capacity);
+        _pos          = services::internal::service_malloc<xyDataType, cpu>(capacity);
         _morton_codes = services::internal::service_malloc<uint64_t, cpu>(capacity);
         _z_order_idx  = services::internal::service_malloc<int, cpu>(capacity);
         _t_order_idx  = services::internal::service_malloc<int, cpu>(capacity);
-        _rep          = services::internal::service_malloc<xyType, cpu>(capacity);
-        _attr         = services::internal::service_malloc<xyType, cpu>(capacity);
-        _gain         = services::internal::service_calloc<xyType, cpu>(capacity);
-        _ofor         = services::internal::service_calloc<xyType, cpu>(capacity);
+        _rep          = services::internal::service_malloc<xyDataType, cpu>(capacity);
+        _attr         = services::internal::service_malloc<xyDataType, cpu>(capacity);
+        _gain         = services::internal::service_calloc<xyDataType, cpu>(capacity);
+        _ofor         = services::internal::service_calloc<xyDataType, cpu>(capacity);
         if (!_pos || !_morton_codes || !_z_order_idx || !_t_order_idx || !_rep || !_attr || !_gain || !_ofor)
         {
             st.add(services::ErrorMemoryAllocationFailed);
@@ -144,27 +144,27 @@ struct MemoryCtxType
 
     ~MemoryCtxType()
     {
-        services::internal::service_free<xyType, cpu>(_ofor);
-        services::internal::service_free<xyType, cpu>(_gain);
-        services::internal::service_free<xyType, cpu>(_attr);
-        services::internal::service_free<xyType, cpu>(_rep);
+        services::internal::service_free<xyDataType, cpu>(_ofor);
+        services::internal::service_free<xyDataType, cpu>(_gain);
+        services::internal::service_free<xyDataType, cpu>(_attr);
+        services::internal::service_free<xyDataType, cpu>(_rep);
         services::internal::service_free<int, cpu>(_t_order_idx);
         services::internal::service_free<int, cpu>(_z_order_idx);
         services::internal::service_free<uint64_t, cpu>(_morton_codes);
-        services::internal::service_free<xyType, cpu>(_pos);
+        services::internal::service_free<xyDataType, cpu>(_pos);
     }
 
     int _capacity;
 
-    xyType * _pos;
+    xyDataType * _pos;
     uint64_t * _morton_codes;
     IdxType * _z_order_idx;
     IdxType * _t_order_idx;
-    xyType * _rep;
+    xyDataType * _rep;
 
-    xyType * _attr;
-    xyType * _gain;
-    xyType * _ofor;
+    xyDataType * _attr;
+    xyDataType * _gain;
+    xyDataType * _ofor;
 };
 
 struct qTreeNode
