@@ -962,15 +962,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const DataType minGradNorm = params[2]; // The smallest gradient norm TSNE should terminate on
     const DataType theta       = params[3]; // is the angular size of a distant node as measured from a point. Tradeoff for speed (0) vs accuracy (1)
 
-    // results
-    daal::internal::WriteColumns<DataType, cpu> resultDataBlock(*resultTable, 0, 0, resultTable->getNumberOfRows());
-    DataType * results = resultDataBlock.get();
-    DAAL_CHECK_BLOCK_STATUS(resultDataBlock);
-    DAAL_CHECK(resultTable->getNumberOfRows() == 3, daal::services::ErrorIncorrectSizeOfInputNumericTable);
-    DataType & curIter    = results[0];
-    DataType & divergence = results[1];
-    DataType & gradNorm   = results[2];
-
     // internal values
     services::Status status;
     IdxType maxDepth  = 1;
@@ -985,16 +976,21 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     DataType zNorm          = 0.;
     DataType bestDivergence = daal::services::internal::MaxVal<DataType>::get();
 
+    // results
+    DAAL_CHECK(resultTable->getNumberOfRows() == 3, daal::services::ErrorIncorrectSizeOfInputNumericTable);
+    IdxType curIter = 0;
+    DataType divergence = bestDivergence;
+    DataType gradNorm   = 0.0;
+
     // daal checks
     DAAL_CHECK(initTable->getNumberOfRows() == N, daal::services::ErrorInconsistentNumberOfRows);
     DAAL_CHECK(initTable->getNumberOfColumns() == 2, daal::services::ErrorInconsistentNumberOfColumns);
 
-    CSRBlockDescriptor<DataType> CSRBlock;
-    status = pTable->getSparseBlock(0, N, readOnly, CSRBlock);
-    DAAL_CHECK_STATUS_VAR(status);
-    DataType * val = CSRBlock.getBlockValuesPtr();
-    size_t * col   = CSRBlock.getBlockColumnIndicesPtr();
-    size_t * row   = CSRBlock.getBlockRowIndicesPtr();
+    daal::internal::ReadRowsCSR<DataType, cpu> pTableRows(pTable.get(), 0, N);
+    DAAL_CHECK_BLOCK_STATUS(pTableRows);
+    const DataType * val = pTableRows.values();
+    const size_t * col   = pTableRows.cols();
+    const size_t * row   = pTableRows.rows();
 
     TArray<IdxType, cpu> colI32Arr(nnz);
     IdxType * col_i32 = colI32Arr.get();
@@ -1017,17 +1013,8 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     qTree.cent = services::internal::service_malloc<xyType<DataType>, cpu>(qTree.capacity);
     DAAL_CHECK_MALLOC(qTree.cent);
 
-    double boundingBox   = 0.;
-    double treeBuild     = 0.;
-    double summarization = 0.;
-    double repulsion     = 0.;
-    double attractive    = 0.;
-    double integration   = 0.;
-
     status = maxRowElementsImpl<IdxType, cpu>(row, N, nElements, blockOfRows);
     DAAL_CHECK_STATUS_VAR(status);
-
-    gradNorm = 0.0;
 
     //start iterations
     for (IdxType i = 0; i < explorationIter; ++i)
@@ -1053,7 +1040,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
             status =
                 AttractiveKernel<false, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N, nnz, nElements, exaggeration);
         }
-
         DAAL_CHECK_STATUS_VAR(status);
 
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, mem, gradNorm, zNorm, N, blockOfRows);
@@ -1092,7 +1078,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
         DAAL_CHECK_STATUS_VAR(status);
 
         status = repulsionKernelImpl<IdxType, DataType, cpu>(mem, qTree, theta, eps, zNorm, radius);
-
         DAAL_CHECK_STATUS_VAR(status);
 
         if ((i + 1) % nIterCheck == 0)
@@ -1104,7 +1089,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
             status =
                 AttractiveKernel<false, IdxType, DataType, cpu>::impl(val, col_i32, row, mem, zNorm, divergence, N, nnz, nElements, exaggeration);
         }
-
         DAAL_CHECK_STATUS_VAR(status);
 
         status = integrationKernelImpl<IdxType, DataType, cpu>(eta, momentum, exaggeration, mem, gradNorm, zNorm, N, blockOfRows);
@@ -1137,12 +1121,16 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     status = mem.saveResults(initTable);
     DAAL_CHECK_STATUS_VAR(status);
 
-    //release block
-    status = pTable->releaseSparseBlock(CSRBlock);
-    DAAL_CHECK_STATUS_VAR(status);
-
     services::internal::service_free<qTreeNode, cpu>(qTree.tree);
     services::internal::service_free<xyType<DataType>, cpu>(qTree.cent);
+
+    // results
+    daal::internal::WriteOnlyColumns<DataType, cpu> resultDataBlock(*resultTable, 0, 0, resultTable->getNumberOfRows());
+    DataType * results = resultDataBlock.get();
+    DAAL_CHECK_BLOCK_STATUS(resultDataBlock);
+    results[0] = DataType(curIter);
+    results[1] = divergence;
+    results[2] = gradNorm;
 
     return services::Status();
 }
