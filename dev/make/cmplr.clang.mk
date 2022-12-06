@@ -38,7 +38,7 @@ COMPILER.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) \
 
 link.dynamic.mac.clang = clang++ -m64
 link.dynamic.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
-link.dynamic.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) -Wl,-soname,libLIB_SUFFIX.so.LIB_MAJOR_VER
+link.dynamic.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
 
 pedantic.opts.clang = -pedantic \
                       -Wall \
