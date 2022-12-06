@@ -38,7 +38,7 @@ pedantic.opts.all.gnu = -pedantic \
                         -Wno-unused-parameter
 
 COMPILER.lnx.gnu = $(COMPILER.all.gnu)
-link.dynamic.lnx.gnu = $(link.dynamic.all.gnu)
+link.dynamic.lnx.gnu = $(link.dynamic.all.gnu) -Wl,-soname,libLIB_SUFFIX.so.LIB_MAJOR_VER
 pedantic.opts.lnx.gnu = $(pedantic.opts.all.gnu)
 
 COMPILER.mac.gnu = $(COMPILER.all.gnu)

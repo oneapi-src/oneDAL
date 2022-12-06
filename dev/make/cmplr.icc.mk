@@ -40,7 +40,7 @@ ifeq ($(if $(OS_is_mac),$(shell icc --version | grep "icc (ICC) 16"),),)
     COMPILER.mac.icc += -qopenmp-simd
 endif
 
-link.dynamic.lnx.icc = icc -no-cilk
+link.dynamic.lnx.icc = icc -no-cilk -Wl,-soname,libLIB_SUFFIX.so.LIB_MAJOR_VER
 link.dynamic.mac.icc = icc
 
 pedantic.opts.lnx.icc = -pedantic \

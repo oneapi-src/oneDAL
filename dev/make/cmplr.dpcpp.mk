@@ -33,7 +33,7 @@ COMPILER.lnx.dpcpp = icpx -fsycl $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++
 COMPILER.win.dpcpp = icx -fsycl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX \
                      -Wno-deprecated-declarations -fsycl-device-code-split=per_kernel
 
-link.dynamic.lnx.dpcpp = icpx -fsycl $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
+link.dynamic.lnx.dpcpp = icpx -fsycl $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel -Wl,-soname,libLIB_SUFFIX.so.LIB_MAJOR_VER
 link.dynamic.win.dpcpp = icx -fsycl $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
 
 pedantic.opts.lnx.dpcpp = -pedantic \

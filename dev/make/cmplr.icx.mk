@@ -31,7 +31,7 @@ COMPILER.lnx.icx = icpx $(if $(IA_is_ia32),-m32,-m64) \
                      -Werror -Wreturn-type
 
 
-link.dynamic.lnx.icx = icpx $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.lnx.icx = icpx $(if $(IA_is_ia32),-m32,-m64) -Wl,-soname,libLIB_SUFFIX.so.LIB_MAJOR_VER
 
 pedantic.opts.icx = -pedantic \
                       -Wall \
