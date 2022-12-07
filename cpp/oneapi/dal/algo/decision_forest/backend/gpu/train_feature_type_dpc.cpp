@@ -239,10 +239,16 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     auto com_bin_offset_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
 
     std::int64_t lbc_64 = static_cast<std::int64_t>(local_bin_count);
-    comm_.allgather(lbc_64, com_bin_count_arr.flatten()).wait();
+    {
+        ONEDAL_PROFILER_TASK(allgather_lbc_64);
+        comm_.allgather(lbc_64, com_bin_count_arr.flatten()).wait();
+    }
 
     com_bin_count = local_bin_count;
-    comm_.allreduce(com_bin_count).wait();
+    {
+        ONEDAL_PROFILER_TASK(allreduce_com_bin_count);
+        comm_.allreduce(com_bin_count).wait();
+    }
 
     pr::ndarray<Float, 1> com_bin_brd;
     com_bin_brd = pr::ndarray<Float, 1>::empty(queue_, { com_bin_count }, sycl::usm::alloc::device);
@@ -256,12 +262,15 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
         offset += com_bin_count_ptr[i];
     }
 
-    comm_
-        .allgatherv(local_bin_borders_nd_device.flatten(queue_),
-                    com_bin_brd.flatten(queue_),
-                    com_bin_count_arr.get_data(),
-                    com_bin_offset_arr.get_data())
-        .wait();
+    {
+        ONEDAL_PROFILER_TASK(allgather_com_bin_borders, queue_);
+        comm_
+            .allgatherv(local_bin_borders_nd_device.flatten(queue_),
+                        com_bin_brd.flatten(queue_),
+                        com_bin_count_arr.get_data(),
+                        com_bin_offset_arr.get_data())
+            .wait();
+    }
 
     if (comm_.is_root_rank()) {
         last_event = sort_inplace<Float, Index>(queue_, com_bin_brd, { last_event });
@@ -275,14 +284,20 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
         bin_count = fin_bin_count_temp;
     }
 
-    comm_.bcast(bin_count).wait();
+    {
+        ONEDAL_PROFILER_TASK(bcast_bin_count);
+        comm_.bcast(bin_count).wait();
+    }
 
     if (!comm_.is_root_rank()) {
         bin_borders_nd_device =
             pr::ndarray<Float, 1>::empty(queue_, { bin_count }, sycl::usm::alloc::device);
     }
 
-    comm_.bcast(queue_, bin_borders_nd_device.get_mutable_data(), bin_count).wait();
+    {
+        ONEDAL_PROFILER_TASK(bcast_bin_borders, queue_);
+        comm_.bcast(queue_, bin_borders_nd_device.get_mutable_data(), bin_count).wait();
+    }
 
     return std::make_tuple(bin_borders_nd_device, bin_count, last_event);
 }

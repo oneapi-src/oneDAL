@@ -25,29 +25,24 @@
 
 const int fileError = -1001;
 
-void checkAllocation(void * ptr)
-{
-    if (!ptr)
-    {
+void checkAllocation(void* ptr) {
+    if (!ptr) {
         std::cout << "Error: Memory allocation failed" << std::endl;
         exit(-1);
     }
 }
 
-void fileOpenError(const char * filename)
-{
+void fileOpenError(const char* filename) {
     std::cout << "Unable to open file '" << filename << "'" << std::endl;
     exit(fileError);
 }
 
-void fileReadError()
-{
+void fileReadError() {
     std::cout << "Unable to read next line" << std::endl;
     exit(fileError);
 }
 
-void sparceFileReadError()
-{
+void sparceFileReadError() {
     std::cout << "Incorrect format of file" << std::endl;
     exit(fileError);
 }

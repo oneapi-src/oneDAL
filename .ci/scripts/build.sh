@@ -31,6 +31,9 @@ while [[ $# -gt 0 ]]; do
         --target)
         target="$2"
         ;;
+        --conda-env)
+        conda_env="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -46,8 +49,12 @@ ARCH=${platform:3:3}
 optimizations=${optimizations:-avx2}
 
 if [ "${OS}" == "lnx" ]; then
+    source /usr/share/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" != "" ]; then
+        conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+    fi
     compiler=${compiler:-gnu}
-    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
     java_os_name="linux"
     #gpu support is only for Linux 64 bit
     if [ "${ARCH}" == "32e" ]; then
@@ -56,8 +63,12 @@ if [ "${OS}" == "lnx" ]; then
             with_gpu="false"
     fi
 elif [ "${OS}" == "mac" ]; then
+    source /usr/local/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" != "" ]; then
+        conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+    fi
     compiler=${compiler:-clang}
-    export JAVA_HOME=$(/usr/libexec/java_home -v 12)
     java_os_name="darwin"
     with_gpu="false"
 else
@@ -76,7 +87,7 @@ fi
 echo "Call mkl and tbb scripts"
 $(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
 $(pwd)/dev/download_tbb.sh
-echo "Set Java PATH and CPATH"
+echo "Set Java PATH and CPATH from JAVA_HOME=${JAVA_HOME}"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"

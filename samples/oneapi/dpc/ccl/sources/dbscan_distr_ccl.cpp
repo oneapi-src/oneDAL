@@ -43,12 +43,12 @@ void run(sycl::queue &queue) {
     auto rank_count = comm.get_rank_count();
 
     auto input_vec = split_table_by_rows<float>(queue, x_data, rank_count);
-    dal::dbscan::compute_input local_input { input_vec[rank_id], dal::table() };
+    dal::dbscan::compute_input local_input{ input_vec[rank_id], dal::table() };
     const auto result_compute = dal::preview::compute(comm, dbscan_desc, local_input);
 
     auto final_responces = combine_tables(comm, result_compute.get_responses());
 
-    if(comm.get_rank() == 0) {
+    if (comm.get_rank() == 0) {
         std::cout << "Cluster count: " << result_compute.get_cluster_count() << std::endl;
         std::cout << "Responses:\n" << final_responces << std::endl;
     }
@@ -62,7 +62,8 @@ int main(int argc, char const *argv[]) {
     }
 
     auto device = sycl::device(sycl::gpu_selector_v);
-    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>() << ", " << device.get_info<sycl::info::device::name>() << std::endl;
+    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>()
+              << ", " << device.get_info<sycl::info::device::name>() << std::endl;
     sycl::queue q{ device };
     run(q);
 

@@ -27,8 +27,8 @@
 !******************************************************************************/
 
 #if defined(_WIN32) || defined(_WIN64)
-    #define NOMINMAX
-    #include <windows.h>
+#define NOMINMAX
+#include <windows.h>
 #endif
 
 #include <iostream>
@@ -51,23 +51,24 @@ using namespace arrow::csv;
 
 const string csvFileName = "./data/datastructures_arrow.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     /* Open CSV file */
     shared_ptr<ReadableFile> file;
     const arrow::Status openStatus = ReadableFile::Open(csvFileName, &file);
-    if (!openStatus.ok())
-    {
+    if (!openStatus.ok()) {
         cout << "Cannot open CSV file: " << openStatus.message() << endl;
         exit(-1);
     }
 
     /* Make the table reader */
     shared_ptr<TableReader> tableReader;
-    const arrow::Status makeReaderStatus =
-        TableReader::Make(default_memory_pool(), file, ReadOptions::Defaults(), ParseOptions::Defaults(), ConvertOptions::Defaults(), &tableReader);
-    if (!makeReaderStatus.ok())
-    {
+    const arrow::Status makeReaderStatus = TableReader::Make(default_memory_pool(),
+                                                             file,
+                                                             ReadOptions::Defaults(),
+                                                             ParseOptions::Defaults(),
+                                                             ConvertOptions::Defaults(),
+                                                             &tableReader);
+    if (!makeReaderStatus.ok()) {
         cout << "Cannot make table reader: " << makeReaderStatus.message() << endl;
         exit(-1);
     }
@@ -75,8 +76,7 @@ int main(int argc, char * argv[])
     /* Read the table */
     shared_ptr<Table> table;
     const arrow::Status readTableStatus = tableReader->Read(&table);
-    if (!readTableStatus.ok())
-    {
+    if (!readTableStatus.ok()) {
         cout << "Cannot read table: " << readTableStatus.message() << endl;
         exit(-1);
     }

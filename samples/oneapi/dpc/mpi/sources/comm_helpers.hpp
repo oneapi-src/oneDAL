@@ -37,12 +37,13 @@ dal::table combine_tables(const Comm& comm, const dal::table& t) {
 
     auto displs = dal::array<std::int64_t>::empty(comm.get_rank_count());
     std::int64_t offset = 0;
-    for(std::int64_t i = 0; i < comm.get_rank_count(); i++) {
+    for (std::int64_t i = 0; i < comm.get_rank_count(); i++) {
         displs.get_mutable_data()[i] = offset;
         offset += recv_counts[i];
     }
 
-    auto send_buffer = dal::row_accessor<const D>{ t }.pull(queue, dal::range{0, -1}, sycl::usm::alloc::device);
+    auto send_buffer =
+        dal::row_accessor<const D>{ t }.pull(queue, dal::range{ 0, -1 }, sycl::usm::alloc::device);
     comm.allgatherv(send_buffer, recv_buffer, recv_counts.get_data(), displs.get_data()).wait();
     return dal::homogen_table::wrap(recv_buffer, total_count, column_count);
 }
