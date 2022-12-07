@@ -40,17 +40,17 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                                  const float exaggeration)
     {
         const float multiplier = exaggeration * float(zNorm);
-        divergence             = 0.;
+        divergence             = 0.f;
         const float zNormEps   = 0.00000001;
 
-        const IdxType prefetch_dist = 32;
+        constexpr IdxType prefetch_dist = 32;
 
-        daal::TlsSum<float, avx512> divTlsData(1);
+        daal::TlsSum<float, avx512> divTlsData(1.f);
 
         SafeStatus safeStat;
         daal::tls<float *> logTlsData([=, &safeStat]() {
             auto logData = services::internal::service_scalable_calloc<float, avx512>(nElements);
-            if (!logData)
+            if (logData == nullptr)
             {
                 safeStat.add(services::ErrorMemoryAllocationFailed);
             }
@@ -59,13 +59,13 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
 
         const IdxType nThreads    = threader_get_threads_number();
         const IdxType sizeOfBlock = services::internal::min<avx512, size_t>(256, N / nThreads + 1);
-        const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
+        const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
         daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
             const IdxType iEnd   = services::internal::min<avx512, IdxType>(N, iStart + sizeOfBlock);
             float * logLocal     = logTlsData.local();
-            if (!logLocal) return;
+            if (logLocal == nullptr) return;
 
             float * divLocal = divTlsData.local();
             DAAL_CHECK_MALLOC_THR(divLocal);
@@ -77,16 +77,16 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
             for (IdxType iRow = iStart; iRow < iEnd; ++iRow)
             {
                 size_t iSize      = 0;
-                mem._attr[iRow].x = 0.0;
-                mem._attr[iRow].y = 0.0;
+                mem._attr[iRow].x = 0.f;
+                mem._attr[iRow].y = 0.f;
                 row_point         = mem._pos[iRow];
 
-                if (!DivComp)
+                if (DivComp == false)
                 {
                     IdxType start_index = row[iRow] - 1;
                     IdxType range       = row[iRow + 1] - row[iRow];
 
-                    __m512 vec_1   = _mm512_set1_ps(1.0);
+                    __m512 vec_1   = _mm512_set1_ps(1.f);
                     __m512i vec_1i = _mm512_set1_epi32(1);
 
                     __m512 vec_point_x = _mm512_set1_ps(row_point.x);
@@ -98,7 +98,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                     for (IdxType i = 0; i < (range / 16) * 16; i += 16)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         __m512i vec_iCol = _mm512_sub_epi32(_mm512_loadu_epi32((__m512i *)&col[start_index + i]), vec_1i);
 
@@ -119,38 +119,38 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                     for (IdxType i = (range / 16) * 16; i < range; ++i)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         iCol = col[start_index + i] - 1;
 
                         y1d = row_point.x - mem._pos[iCol].x;
                         y2d = row_point.y - mem._pos[iCol].y;
 
-                        sqDist = 1.0 + y1d * y1d + y2d * y2d;
+                        sqDist = 1.f + y1d * y1d + y2d * y2d;
                         PQ     = val[start_index + i] / sqDist;
 
                         mem._attr[iRow].x += PQ * y1d;
                         mem._attr[iRow].y += PQ * y2d;
                     }
                 }
-                else
+                else // DivComp == true
                 {
                     for (size_t index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index)
                     {
                         prefetch_index = index + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
                         iCol = col[index] - 1;
 
                         y1d    = row_point.x - mem._pos[iCol].x;
                         y2d    = row_point.y - mem._pos[iCol].y;
-                        sqDist = services::internal::max<avx512, float>(float(0), y1d * y1d + y2d * y2d);
-                        PQ     = val[index] / (sqDist + 1.);
+                        sqDist = services::internal::max<avx512, float>(0.f, y1d * y1d + y2d * y2d);
+                        PQ     = val[index] / (sqDist + 1.f);
 
                         // Apply forces
                         mem._attr[iRow].x += PQ * y1d;
                         mem._attr[iRow].y += PQ * y2d;
 
-                        logLocal[iSize++] = val[index] * multiplier * (1. + sqDist);
+                        logLocal[iSize++] = val[index] * multiplier * (1.f + sqDist);
                     }
 
                     Math<float, avx512>::vLog(iSize, logLocal, logLocal);
@@ -192,14 +192,14 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
         divergence              = 0.;
         const double zNormEps   = 0.00000001;
 
-        const IdxType prefetch_dist = 32;
+        constexpr IdxType prefetch_dist = 32;
 
         daal::TlsSum<double, avx512> divTlsData(1);
 
         SafeStatus safeStat;
         daal::tls<double *> logTlsData([=, &safeStat]() {
             auto logData = services::internal::service_scalable_calloc<double, avx512>(nElements);
-            if (!logData)
+            if (logData == nullptr)
             {
                 safeStat.add(services::ErrorMemoryAllocationFailed);
             }
@@ -208,13 +208,13 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
 
         const IdxType nThreads    = threader_get_threads_number();
         const IdxType sizeOfBlock = services::internal::min<avx512, size_t>(256, N / nThreads + 1);
-        const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
+        const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
         daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
             const IdxType iEnd   = services::internal::min<avx512, IdxType>(N, iStart + sizeOfBlock);
             double * logLocal    = logTlsData.local();
-            if (!logLocal) return;
+            if (logLocal == nullptr) return;
 
             double * divLocal = divTlsData.local();
             DAAL_CHECK_MALLOC_THR(divLocal);
@@ -230,7 +230,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                 mem._attr[iRow].y = 0.0;
                 row_point         = mem._pos[iRow];
 
-                if (!DivComp)
+                if (DivComp == false)
                 {
                     IdxType start_index = row[iRow] - 1;
                     IdxType range       = row[iRow + 1] - row[iRow];
@@ -247,7 +247,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                     for (IdxType i = 0; i < (range / 8) * 8; i += 8)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         __m256i vec_iCol = _mm256_slli_epi32(_mm256_sub_epi32(_mm256_loadu_epi32((__m256i *)&col[start_index + i]), vec_1i), 4);
 
@@ -268,7 +268,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                     for (IdxType i = (range / 8) * 8; i < range; ++i)
                     {
                         prefetch_index = start_index + i + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         iCol = col[start_index + i] - 1;
 
@@ -282,12 +282,12 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                         mem._attr[iRow].y += PQ * y2d;
                     }
                 }
-                else
+                else // DivComp == true
                 {
                     for (size_t index = row[iRow] - 1; index < row[iRow + 1] - 1; ++index)
                     {
                         prefetch_index = index + prefetch_dist;
-                        if (prefetch_index < nnz) _mm_prefetch(&mem._pos[col[prefetch_index] - 1], _MM_HINT_T0);
+                        if (prefetch_index < nnz) DAAL_PREFETCH_READ_T0(&mem._pos[col[prefetch_index] - 1]);
 
                         iCol = col[index] - 1;
 
