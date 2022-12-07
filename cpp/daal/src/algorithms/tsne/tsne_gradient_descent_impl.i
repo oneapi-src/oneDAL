@@ -794,6 +794,7 @@ struct AttractiveKernel
     {
         const DataType multiplier = exaggeration * DataType(zNorm);
         divergence                = 0.;
+        const DataType zNormEps   = 0.00000001;
 
         const IdxType prefetch_dist = 32;
 
@@ -872,6 +873,12 @@ struct AttractiveKernel
         divTlsData.reduceTo(&divergence, 1);
         divergence *= exaggeration;
         logTlsData.reduce([&](DataType * buf) { services::internal::service_scalable_free<DataType, cpu>(buf); });
+
+        // Check if zNorm equals to zero
+        if (zNorm == 0.0)
+        {
+                zNorm = zNormEps;
+        }
 
         //Find_Normalization
         zNorm = DataType(1) / zNorm;

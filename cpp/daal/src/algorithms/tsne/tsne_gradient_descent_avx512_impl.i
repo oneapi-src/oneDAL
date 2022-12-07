@@ -41,6 +41,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
     {
         const float multiplier = exaggeration * float(zNorm);
         divergence             = 0.;
+        const float zNormEps   = 0.00000001;
 
         const IdxType prefetch_dist = 32;
 
@@ -167,6 +168,11 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
         divergence *= exaggeration;
         logTlsData.reduce([&](float * buf) { services::internal::service_scalable_free<float, avx512>(buf); });
 
+        // Check if zNorm equals to zero
+        if (zNorm == 0.0) {
+                zNorm = zNormEps;
+        }
+
         // Find_Normalization
         zNorm = float(1) / zNorm;
 
@@ -184,6 +190,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
     {
         const double multiplier = exaggeration * double(zNorm);
         divergence              = 0.;
+        const double zNormEps   = 0.00000001;
 
         const IdxType prefetch_dist = 32;
 
@@ -311,9 +318,14 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
         divergence *= exaggeration;
         logTlsData.reduce([&](double * buf) { services::internal::service_scalable_free<double, avx512>(buf); });
 
+        // Check if zNorm equals to zero
+        if (zNorm == 0.0)
+        {
+                zNorm = zNormEps;
+        }
+
         //Find_Normalization
         zNorm = double(1) / zNorm;
-        // zNorm = double(1) / (zNorm - double(N));  // old code
 
         return services::Status();
     }
