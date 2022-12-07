@@ -308,6 +308,10 @@ services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArc
     {
         arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
     }
+    if ((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
+    {
+        arch->setSharedPtrObj(_probTbl);
+    }
 
     return s;
 }
