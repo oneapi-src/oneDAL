@@ -57,7 +57,7 @@ public:
     {
         bool bFirst = true;
         this->reduce([=, &bFirst](DataType * ptr) -> void {
-            if (!ptr) return;
+            if (ptr == nullptr) return;
             if (bFirst)
             {
                 for (size_t i = 0; i < n; ++i) res[i] = ptr[i];
@@ -94,7 +94,8 @@ struct MemoryCtxType
         _attr         = services::internal::service_malloc<xyDataType, cpu>(capacity);
         _gain         = services::internal::service_calloc<xyDataType, cpu>(capacity);
         _ofor         = services::internal::service_calloc<xyDataType, cpu>(capacity);
-        if (!_pos || !_morton_codes || !_z_order_idx || !_t_order_idx || !_rep || !_attr || !_gain || !_ofor)
+        if (_pos == nullptr || _morton_codes == nullptr || _z_order_idx == nullptr || _t_order_idx == nullptr || _rep == nullptr || _attr == nullptr
+            || _gain == nullptr || _ofor == nullptr)
         {
             st.add(services::ErrorMemoryAllocationFailed);
             return;
@@ -190,7 +191,7 @@ services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType
     TlsMax<IdxType, cpu> maxTlsData(1);
     const IdxType nThreads    = threader_get_threads_number();
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
-    const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
+    const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
     SafeStatus safeStat;
     daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
@@ -220,7 +221,7 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     SafeStatus safeStat;
     daal::static_tls<DataType *> tlsBox([=, &safeStat]() {
         auto localBox = services::internal::service_malloc<DataType, cpu>(4);
-        if (!localBox)
+        if (localBox == nullptr)
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);
             return localBox;
@@ -238,11 +239,11 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     // const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (N + nThreads - 1) / nThreads);
     // const IdxType nBlocks     = (N + sizeOfBlock - 1) / sizeOfBlock;
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, N / nThreads + 1);
-    const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
+    const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         DataType * localBox = tlsBox.local(tid);
-        if (!localBox) return;
+        if (localBox == nullptr) return;
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
 
@@ -257,7 +258,7 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     DAAL_CHECK_SAFE_STATUS();
 
     tlsBox.reduce([&](DataType * ptr) -> void {
-        if (!ptr) return;
+        if (ptr == nullptr) return;
 
         box[0] = services::internal::min<cpu, DataType>(box[0], ptr[0]);
         box[1] = services::internal::max<cpu, DataType>(box[1], ptr[1]);
@@ -324,8 +325,8 @@ inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType> > & qTree, int l
                 {
                     if (nodeSize > level + l + 1)
                     {
-                        int cnt = !!hist[h_ofst[l + 1] + (c << 2) + 0] + !!hist[h_ofst[l + 1] + (c << 2) + 1] + !!hist[h_ofst[l + 1] + (c << 2) + 2]
-                                  + !!hist[h_ofst[l + 1] + (c << 2) + 3];
+                        int cnt = bool(hist[h_ofst[l + 1] + (c << 2) + 0]) + bool(hist[h_ofst[l + 1] + (c << 2) + 1])
+                                  + bool(hist[h_ofst[l + 1] + (c << 2) + 2]) + bool(hist[h_ofst[l + 1] + (c << 2) + 3]);
 
                         // Adding internal node with 'cnt'  non-empty children
                         // Ttheir offset is 'childOffs'
@@ -382,7 +383,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
     SafeStatus safeStat;
     daal::static_tls<int *> tlsHist1024([=, &safeStat]() {
         auto localHist = services::internal::service_calloc<int, cpu>(1024);
-        if (!localHist)
+        if (localHist == nullptr)
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);
         }
@@ -396,7 +397,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         int * hist = tlsHist1024.local(tid);
-        if (!hist) return;
+        if (hist == nullptr) return;
 
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(capacity, iStart + sizeOfBlock);
@@ -448,7 +449,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
     DAAL_CHECK_SAFE_STATUS();
 
     tlsHist1024.reduce([&](int * ptr) -> void {
-        if (!ptr) return;
+        if (ptr == nullptr) return;
 
         PRAGMA_VECTOR_ALWAYS
         PRAGMA_VECTOR_ALIGNED
@@ -511,8 +512,8 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
             }
 
             // Build bottom subtrees in parallel
-            const IdxType sizeOfBlock = 1;
-            const IdxType nBlocks     = bNodes;
+            constexpr IdxType sizeOfBlock = 1;
+            const IdxType nBlocks         = bNodes;
 
             daal::threader_for(nBlocks, nBlocks, [&](IdxType iSubTree) {
                 TArrayCalloc<int, cpu> histArr(3072);
@@ -795,14 +796,14 @@ struct AttractiveKernel
         const DataType multiplier = exaggeration * DataType(zNorm);
         divergence                = 0.;
 
-        const IdxType prefetch_dist = 32;
+        constexpr IdxType prefetch_dist = 32;
 
         daal::TlsSum<DataType, cpu> divTlsData(1);
 
         SafeStatus safeStat;
         daal::tls<DataType *> logTlsData([=, &safeStat]() {
             auto logData = services::internal::service_scalable_calloc<DataType, cpu>(nElements);
-            if (!logData)
+            if (logData == nullptr)
             {
                 safeStat.add(services::ErrorMemoryAllocationFailed);
             }
@@ -811,13 +812,13 @@ struct AttractiveKernel
 
         const IdxType nThreads    = threader_get_threads_number();
         const IdxType sizeOfBlock = services::internal::min<cpu, size_t>(256, N / nThreads + 1);
-        const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
+        const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
         daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
             const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
             DataType * logLocal  = logTlsData.local();
-            if (!logLocal) return;
+            if (logLocal == nullptr) return;
             DataType * divLocal = divTlsData.local();
             DAAL_CHECK_MALLOC_THR(divLocal);
 
@@ -887,7 +888,8 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
 {
     const IdxType nThreads    = threader_get_threads_number();
     const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, N / nThreads + 1);
-    const IdxType nBlocks     = N / sizeOfBlock + !!(N % sizeOfBlock);
+    const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
+
     daal::StaticTlsSum<DataType, cpu> sumTlsData(1);
     gradNorm = 0.;
 
@@ -932,28 +934,38 @@ template <typename IdxType, typename DataType, daal::CpuType cpu>
 services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
                                          const NumericTablePtr paramTable, const NumericTablePtr resultTable)
 {
+    services::Status status;
     // sizes and number of iterations
     daal::internal::ReadColumns<IdxType, cpu> sizeIterDataBlock(*sizeIterTable, 0, 0, sizeIterTable->getNumberOfRows());
     const IdxType * sizeIter = sizeIterDataBlock.get();
     DAAL_CHECK_BLOCK_STATUS(sizeIterDataBlock);
-    DAAL_CHECK(sizeIterTable->getNumberOfRows() == 6, daal::services::ErrorIncorrectSizeOfInputNumericTable);
+    const size_t sizeIterTableNumRows = sizeIterTable->getNumberOfRows();
+    DAAL_CHECK(sizeIterTableNumRows >= 4, daal::services::ErrorIncorrectSizeOfInputNumericTable);
     const IdxType N                    = sizeIter[0]; // Number of points
     const IdxType nnz                  = sizeIter[1]; // Number of elements in sparce matrix P
     const IdxType nIterWithoutProgress = sizeIter[2]; // Number of iterations without introducing changes
     const IdxType maxIter              = sizeIter[3]; // Number of iterations
-    const IdxType explorationIter      = sizeIter[4]; // Aligned with scikit-learn
-    const IdxType nIterCheck           = sizeIter[5]; // Aligned with scikit-learn
+    IdxType explorationIter            = 250;         // Aligned with scikit-learn
+    IdxType nIterCheck                 = 50;          // Aligned with scikit-learn
+    if (sizeIterTableNumRows >= 5)
+    {
+        explorationIter = sizeIter[4];
+    }
+    if (sizeIterTableNumRows >= 6)
+    {
+        explorationIter = sizeIter[5];
+    }
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, 2, N);
-    const IdxType nNodes      = N <= 50 ? 4 * N : 2 * N; // A small number of points may require more memory to store tree nodes
-    const IdxType blockOfRows = 256;
+    const IdxType nNodes          = N <= 50 ? 4 * N : 2 * N; // A small number of points may require more memory to store tree nodes
+    constexpr IdxType blockOfRows = 256;
 
     // parameters
     daal::internal::ReadColumns<DataType, cpu> paramDataBlock(*paramTable, 0, 0, paramTable->getNumberOfRows());
     const DataType * params = paramDataBlock.get();
     DAAL_CHECK_BLOCK_STATUS(paramDataBlock);
     DAAL_CHECK(paramTable->getNumberOfRows() == 4, daal::services::ErrorIncorrectSizeOfInputNumericTable);
-    const DataType eps = 0.000001; // A tiny jitter to promote numerical stability
-    DataType momentum  = 0.5;      // The momentum used during the exaggeration phase. Aligned with scikit-learn
+    constexpr DataType eps = 0.000001; // A tiny jitter to promote numerical stability
+    DataType momentum      = 0.5;      // The momentum used during the exaggeration phase. Aligned with scikit-learn
     DataType exaggeration =
         params[0]; // How much pressure to apply to clusters to spread out during the exaggeration phase. Aligned with scikit-learn
     const DataType eta         = params[1]; // Learning rate. Aligned with scikit-learn
@@ -961,7 +973,6 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     const DataType theta       = params[3]; // is the angular size of a distant node as measured from a point. Tradeoff for speed (0) vs accuracy (1)
 
     // internal values
-    services::Status status;
     IdxType maxDepth  = 1;
     IdxType bottom    = nNodes;
     IdxType nElements = 0;
