@@ -30,7 +30,6 @@ namespace algorithms
 {
 namespace internal
 {
-
 template <typename algorithmIdxType, typename algorithmFPType>
 DAAL_EXPORT void tsneGradientDescent(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
                                      const NumericTablePtr paramTable, const NumericTablePtr resultTable)
