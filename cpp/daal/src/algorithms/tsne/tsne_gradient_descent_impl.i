@@ -960,7 +960,7 @@ services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const 
     }
     if (sizeIterTableNumRows >= 6)
     {
-        explorationIter = sizeIter[5];
+        nIterCheck = sizeIter[5];
     }
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(IdxType, 2, N);
     const IdxType nNodes          = N <= 50 ? 4 * N : 2 * N; // A small number of points may require more memory to store tree nodes
