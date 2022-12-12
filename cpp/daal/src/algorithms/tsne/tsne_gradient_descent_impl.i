@@ -29,7 +29,7 @@
 //     An Efficient CUDA Implementation of the Tree-Based Barnes Hut n-Body
 //     Algorithm.
 //     GPU Computing Gems Emerald Edition.
-//     DOI: 10.1016/B978-0-12-384988-5.00006-1. 
+//     DOI: 10.1016/B978-0-12-384988-5.00006-1.
 //--
 */
 
