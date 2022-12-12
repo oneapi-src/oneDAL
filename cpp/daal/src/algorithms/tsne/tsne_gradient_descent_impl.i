@@ -878,7 +878,7 @@ struct AttractiveKernel
         // Check if zNorm equals to zero
         if (zNorm == 0.0)
         {
-                zNorm = zNormEps;
+            zNorm = zNormEps;
         }
 
         //Find_Normalization

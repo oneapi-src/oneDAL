@@ -30,7 +30,6 @@ namespace algorithms
 {
 namespace internal
 {
-
 /* Partial template specialization of attractive kernel for single precision data and AVX512 ISA */
 template <bool DivComp, typename IdxType>
 struct AttractiveKernel<DivComp, IdxType, float, avx512>
@@ -169,8 +168,9 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
         logTlsData.reduce([&](float * buf) { services::internal::service_scalable_free<float, avx512>(buf); });
 
         // Check if zNorm equals to zero
-        if (zNorm == 0.0) {
-                zNorm = zNormEps;
+        if (zNorm == 0.0)
+        {
+            zNorm = zNormEps;
         }
 
         // Find_Normalization
@@ -321,7 +321,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
         // Check if zNorm equals to zero
         if (zNorm == 0.0)
         {
-                zNorm = zNormEps;
+            zNorm = zNormEps;
         }
 
         //Find_Normalization
