@@ -28,6 +28,9 @@ while [[ $# -gt 0 ]]; do
         --platform)
         platform="$2"
         ;;
+        --interface)
+        interface="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -41,7 +44,6 @@ done
 TESTING_RETURN=0
 OS=${platform::3}
 ARCH=${platform:3:3}
-ALGORITHM="kmeans_dense_batch"
 if [ "${ARCH}" == "32" ]; then
     full_arch=ia32
 else
@@ -58,6 +60,12 @@ else
     exit 1
 fi
 
+if [ "$(uname)" == "Linux" ]; then
+    make_op="-j$(grep -c processor /proc/cpuinfo)"
+else
+    make_op="-j$(sysctl -n hw.physicalcpu)"
+fi
+
 #setup env for DAL
 source ${BUILD_DIR}/daal/latest/env/vars.sh
 
@@ -71,43 +79,43 @@ else
     export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
 fi
 
-cd "${BUILD_DIR}/daal/latest/examples/daal/cpp"
+interface=${interface:-daal}
+cd "${BUILD_DIR}/daal/latest/examples/${interface}/cpp"
 
-for threading in parallel sequential; do
-    for link_mode in static dynamic; do
-        # Release Examples testing
-        if [ "${link_mode}" == "static" ]; then
-            l="lib"
-        elif [ "${link_mode}" == "dynamic" ]; then
-            if [ "${OS}" == "lnx" ]; then
-                l="so"
-            else
-                l="dylib"
-            fi
-        fi
-        build_command="make ${l}${full_arch} example=${ALGORITHM} mode=build  compiler=${compiler} threading=${threading}"
-        echo "Building example ${build_command}"
-        (${build_command} >> ${ALGORITHM}.log)
-        err=$?
-        if [ ${err} -ne 0 ]; then
-            echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${ALGORITHM}"
-            TESTING_RETURN=${err}
-            continue
+threading=thread
+for link_mode in static dynamic; do
+    # Release Examples testing
+    if [ "${link_mode}" == "static" ]; then
+        l="lib"
+    elif [ "${link_mode}" == "dynamic" ]; then
+        if [ "${OS}" == "lnx" ]; then
+            l="so"
         else
-            echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${ALGORITHM}"
+            l="dylib"
         fi
-        run_command="make ${l}${full_arch} example=${ALGORITHM} mode=run compiler=${compiler} threading=${threading}"
-        echo "Running example ${run_command}"
-        (${run_command} >> ${ALGORITHM}.log)
-        err=$?
-        if [ ${err} -ne 0 ]; then
-            echo -e "$(date +'%H:%M:%S') FAILED\t\t${ALGORITHM} with errno ${err}"
-            TESTING_RETURN=${err}
-            continue
-        else
-            echo -e "$(date +'%H:%M:%S') PASSED\t\t${ALGORITHM}"
-        fi
-    done
+    fi
+    build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler} threading=${threading}"
+    echo "Building examples ${build_command}"
+    (${build_command})
+    err=$?
+    if [ ${err} -ne 0 ]; then
+        echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${threading}-${link_mode}"
+        TESTING_RETURN=${err}
+        continue
+    else
+        echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${threading}-${link_mode}"
+    fi
+    run_command="make ${l}${full_arch} mode=run compiler=${compiler} threading=${threading}"
+    echo "Running examples ${run_command}"
+    (${run_command})
+    err=$?
+    if [ ${err} -ne 0 ]; then
+        echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${threading}-${link_mode} with errno ${err}"
+        TESTING_RETURN=${err}
+        continue
+    else
+        echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${threading}-${link_mode}"
+    fi
 done
 
 #exit with overall testing status
