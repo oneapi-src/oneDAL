@@ -75,20 +75,20 @@ public:
 
         rows[0] = 0;
         rows[1] = 300;
-        for (int64_t index = 2; index < rows_count; ++index) {
+        for (std::int64_t index = 2; index < rows_count; ++index) {
             rows[index] = rows[index - 1] + 1;
         }
-        for (int64_t index = 0; index < vertex_count - 1; ++index) {
+        for (std::int64_t index = 0; index < vertex_count - 1; ++index) {
             cols[index] = index + 1;
         }
         for (int index = 1; index < vertex_count - 1; ++index) {
             cols[vertex_count + index - 2] = index + 1;
         }
         cols.back() = 1;
-        for (int64_t index = 0; index < vertex_count - 1; ++index) {
+        for (std::int64_t index = 0; index < vertex_count - 1; ++index) {
             edge_weights[index] = (index + 1) * 10;
         }
-        for (int64_t index = vertex_count - 1; index < cols_count; ++index) {
+        for (std::int64_t index = vertex_count - 1; index < cols_count; ++index) {
             edge_weights[index] = 10000;
         }
         for (int index = 0; index < vertex_count; ++index) {
@@ -118,7 +118,7 @@ public:
             rows[index] = rows[index - 1] + 1;
         }
         rows[152] = rows[151];
-        for (int64_t index = 153; index < rows_count; ++index) {
+        for (std::int64_t index = 153; index < rows_count; ++index) {
             rows[index] = rows[index - 1] + 1;
         }
         for (int index = 1; index < vertex_count; ++index) {
@@ -133,13 +133,13 @@ public:
         for (int index = 151; index <= 299; ++index, ++current_index) {
             cols[current_index] = index;
         }
-        for (int64_t index = 0; index < 151; ++index) {
+        for (std::int64_t index = 0; index < 151; ++index) {
             edge_weights[index] = index * 2 + 1;
         }
         for (int index = 300; index >= 151; --index) {
             edge_weights[index] = (300 - index) * 2 + 1;
         }
-        for (int64_t index = vertex_count; index < cols_count; ++index) {
+        for (std::int64_t index = vertex_count; index < cols_count; ++index) {
             edge_weights[index] = 1;
         }
         for (int index = 0; index <= 151; ++index) {
@@ -172,7 +172,7 @@ public:
             rows[index] = rows[index - 1] + 1;
         }
         rows[1502] = rows[1501];
-        for (int64_t index = 1503; index < rows_count; ++index) {
+        for (std::int64_t index = 1503; index < rows_count; ++index) {
             rows[index] = rows[index - 1] + 1;
         }
         for (int index = 1; index < vertex_count; ++index) {
@@ -187,13 +187,13 @@ public:
         for (int index = 1501; index <= 2999; ++index, ++current_index) {
             cols[current_index] = index;
         }
-        for (int64_t index = 0; index < 1501; ++index) {
+        for (std::int64_t index = 0; index < 1501; ++index) {
             edge_weights[index] = index * 2 + 1;
         }
         for (int index = 3000; index >= 1501; --index) {
             edge_weights[index] = (3000 - index) * 2 + 1;
         }
-        for (int64_t index = vertex_count; index < cols_count; ++index) {
+        for (std::int64_t index = vertex_count; index < cols_count; ++index) {
             edge_weights[index] = 1;
         }
         for (int index = 0; index <= 1501; ++index) {
@@ -247,15 +247,15 @@ public:
     std::array<std::int32_t, 0> cols = {};
     std::array<std::int32_t, 0> edge_weights = {};
     std::array<std::int32_t, 10> distances = { 0,
-                                          unreachable_int32_t_distance,
-                                          unreachable_int32_t_distance,
-                                          unreachable_int32_t_distance,
-                                          unreachable_int32_t_distance,
-                                          unreachable_int32_t_distance,
-                                          unreachable_int32_t_distance,
-                                          unreachable_int32_t_distance,
-                                          unreachable_int32_t_distance,
-                                          unreachable_int32_t_distance };
+                                               unreachable_int32_t_distance,
+                                               unreachable_int32_t_distance,
+                                               unreachable_int32_t_distance,
+                                               unreachable_int32_t_distance,
+                                               unreachable_int32_t_distance,
+                                               unreachable_int32_t_distance,
+                                               unreachable_int32_t_distance,
+                                               unreachable_int32_t_distance,
+                                               unreachable_int32_t_distance };
 };
 
 class d_graph_3_graph_type : public graph_base_data {
@@ -644,7 +644,7 @@ struct LimitedAllocator {
         if (n == 0 || (is_limited && max_allocation_size < n)) {
             return nullptr;
         }
-        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+        if (n > static_cast<std::size_t>(-1) / sizeof(T)) {
             throw std::bad_array_new_length();
         }
         void* const pv = malloc(n * sizeof(T));
@@ -680,7 +680,7 @@ public:
         return optional_results::distances & optional_results::predecessors;
     }
 
-    inline bool compare_distances(int32_t lhs, std::int32_t rhs) {
+    inline bool compare_distances(std::int32_t lhs, std::int32_t rhs) {
         return lhs == rhs;
     }
     inline bool compare_distances(double lhs, double rhs) {
@@ -694,7 +694,7 @@ public:
         if (true_distances.size() != distances.size()) {
             return false;
         }
-        for (size_t index = 0; index < true_distances.size(); ++index) {
+        for (std::size_t index = 0; index < true_distances.size(); ++index) {
             if (!compare_distances(true_distances[index], distances[index])) {
                 return false;
             }
@@ -714,7 +714,7 @@ public:
         if (distances[source] != 0) {
             return false;
         }
-        for (size_t index = 0; index < predecessors.size(); ++index) {
+        for (std::size_t index = 0; index < predecessors.size(); ++index) {
             std::int32_t predecessor = predecessors[index];
             if (predecessor != -1) {
                 oneapi::dal::preview::vertex_outward_edge_size_type<DirectedGraphType> from =
@@ -726,7 +726,7 @@ public:
                     return false;
                 }
             }
-            else if (index != static_cast<size_t>(source)) {
+            else if (index != static_cast<std::size_t>(source)) {
                 if (!compare_distances(unreachable_distance, distances[index])) {
                     return false;
                 }
@@ -873,7 +873,8 @@ SHORTEST_PATHS_TEST("All vertexes are isolated, double edge weights, predecessor
     this->shortest_paths_check<d_isolated_vertexes_graph_type, double>(15, false, true);
 }
 
-SHORTEST_PATHS_TEST("All vertexes are isolated, std::int32_t edge weights, distances + predecessors") {
+SHORTEST_PATHS_TEST(
+    "All vertexes are isolated, std::int32_t edge weights, distances + predecessors") {
     this->shortest_paths_check<d_isolated_vertexes_int_graph_type, std::int32_t>(15, true, true);
 }
 

@@ -76,7 +76,7 @@ template <typename T, typename Alloc>
 struct construct {
     template <typename T_ = T, std::enable_if_t<!is_trivial<T_>::value, bool> = true>
     void operator()(T* data_ptr, std::int64_t capacity, const Alloc& a) {
-        for (int64_t i = 0; i < capacity; ++i) {
+        for (std::int64_t i = 0; i < capacity; ++i) {
             new (data_ptr + i) T();
         }
     }
@@ -92,7 +92,7 @@ struct construct<vector_container<T, InnerAlloc>, OuterAlloc> {
                     const OuterAlloc& a) {
         using data_t = vector_container<T, InnerAlloc>;
         InnerAlloc inner_a(a);
-        for (int64_t i = 0; i < capacity; ++i) {
+        for (std::int64_t i = 0; i < capacity; ++i) {
             new (data_ptr + i) data_t(inner_a);
         }
     }
@@ -113,11 +113,11 @@ public:
                      destroy_delete<data_t, allocator_type>(capacity_, allocator_));
     }
 
-    vector_container(int64_t count, const allocator_type& a) : vector_container(a) {
+    vector_container(std::int64_t count, const allocator_type& a) : vector_container(a) {
         this->resize(count);
     }
 
-    vector_container(int64_t count) : vector_container(count, allocator_type()) {
+    vector_container(std::int64_t count) : vector_container(count, allocator_type()) {
         this->resize(count);
     }
 
@@ -129,7 +129,7 @@ public:
                      destroy_delete<data_t, allocator_type>(capacity_, allocator_));
     }
 
-    vector_container(int64_t count, const T& value, const allocator_type& a)
+    vector_container(std::int64_t count, const T& value, const allocator_type& a)
             : vector_container(count, a) {
         fill(impl_->get_mutable_data(), impl_->get_mutable_data() + capacity_, value);
     }

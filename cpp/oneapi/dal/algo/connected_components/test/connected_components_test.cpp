@@ -92,15 +92,15 @@ public:
             : graph_base_data(vertex_count, vertex_count * (vertex_count - 1) / 2, 1) {
         assert(vertex_count >= 1);
         std::fill(degrees.begin(), degrees.end(), vertex_count - 1);
-        for (int64_t vertex_index = 0, cols_index = 0; vertex_index < vertex_count;
+        for (std::int64_t vertex_index = 0, cols_index = 0; vertex_index < vertex_count;
              ++vertex_index) {
-            for (int64_t neighbour = 0; neighbour < vertex_count; ++neighbour) {
+            for (std::int64_t neighbour = 0; neighbour < vertex_count; ++neighbour) {
                 if (neighbour != vertex_index) {
                     cols[cols_index++] = neighbour;
                 }
             }
         }
-        for (int64_t index = 1; index < vertex_count; ++index) {
+        for (std::int64_t index = 1; index < vertex_count; ++index) {
             rows[index] = rows[index - 1] + vertex_count - 1;
         }
     }
@@ -119,20 +119,20 @@ public:
         degrees[head_vertex_count - 1] = head_vertex_count;
         degrees.back() = 1;
         std::int64_t cols_index = 0;
-        for (int64_t vertex_index = 0; vertex_index < head_vertex_count; ++vertex_index) {
-            for (int64_t neighbour = 0; neighbour < head_vertex_count; ++neighbour) {
+        for (std::int64_t vertex_index = 0; vertex_index < head_vertex_count; ++vertex_index) {
+            for (std::int64_t neighbour = 0; neighbour < head_vertex_count; ++neighbour) {
                 if (neighbour != vertex_index) {
                     cols[cols_index++] = neighbour;
                 }
             }
         }
         cols[cols_index++] = head_vertex_count;
-        for (int64_t vertex_index = 0; vertex_index < tail_vertex_count - 1; ++vertex_index) {
+        for (std::int64_t vertex_index = 0; vertex_index < tail_vertex_count - 1; ++vertex_index) {
             cols[cols_index++] = head_vertex_count + vertex_index - 1;
             cols[cols_index++] = head_vertex_count + vertex_index + 1;
         }
         cols[cols_index] = head_vertex_count + tail_vertex_count - 2;
-        for (int64_t index = 0; index < head_vertex_count + tail_vertex_count; ++index) {
+        for (std::int64_t index = 0; index < head_vertex_count + tail_vertex_count; ++index) {
             rows[index + 1] = rows[index] + degrees[index];
         }
     }
@@ -299,7 +299,7 @@ struct CountingAllocator {
 
     T* allocate(const std::size_t n) {
         allocated_bytes_count += n * sizeof(T);
-        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+        if (n > static_cast<std::size_t>(-1) / sizeof(T)) {
             throw std::bad_array_new_length();
         }
         void* const pv = malloc(n * sizeof(T));

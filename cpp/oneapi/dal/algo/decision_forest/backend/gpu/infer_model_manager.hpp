@@ -68,7 +68,7 @@ public:
               ctx_(ctx) {
         const daal_model_impl_t* const daal_model_ptr = get_daal_model(model);
 
-        ONEDAL_ASSERT(dal::detail::integral_cast<size_t>(ctx_.tree_count) ==
+        ONEDAL_ASSERT(dal::detail::integral_cast<std::size_t>(ctx_.tree_count) ==
                       daal_model_ptr->size());
 
         const auto tree_count = ctx_.tree_count;

@@ -188,7 +188,7 @@ struct CountingAllocator {
         allocated_bytes_count += n * sizeof(T);
         if (!was_custom_alloc_used)
             was_custom_alloc_used = true;
-        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+        if (n > static_cast<std::size_t>(-1) / sizeof(T)) {
             throw std::bad_array_new_length();
         }
         void* const pv = malloc(n * sizeof(T));

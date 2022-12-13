@@ -34,7 +34,7 @@ void sort_ids_by_degree(const std::int32_t* degrees,
                         std::pair<std::int32_t, std::size_t>* degree_id_pairs, //Why std::size_t
                         std::int64_t vertex_count) {
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t n) {
-        degree_id_pairs[n] = std::make_pair(degrees[n], (size_t)n);
+        degree_id_pairs[n] = std::make_pair(degrees[n], (std::size_t)n);
     });
     dal::detail::parallel_sort(degree_id_pairs, degree_id_pairs + vertex_count);
     dal::detail::threader_for(vertex_count / 2, vertex_count / 2, [&](std::int64_t i) {

@@ -59,12 +59,12 @@ private:
         auto count = this->seq_.get_count();
         const auto count_as_size_t = dal::detail::integral_cast<std::size_t>(count);
 
-        auto number_array = array<size_t>::empty(queue, count);
-        daal::internal::RNGs<size_t, daal::sse2> rng;
+        auto number_array = array<std::size_t>::empty(queue, count);
+        daal::internal::RNGs<std::size_t, daal::sse2> rng;
         auto* number_ptr = number_array.get_mutable_data();
 
         rng.uniform(count_as_size_t, number_ptr, engine_impl->getState(), 0, count_as_size_t);
-        std::transform(number_ptr, number_ptr + count, values, [=](size_t number) {
+        std::transform(number_ptr, number_ptr + count, values, [=](std::size_t number) {
             return a + (b - a) * static_cast<Float>(number) / static_cast<Float>(count);
         });
     }

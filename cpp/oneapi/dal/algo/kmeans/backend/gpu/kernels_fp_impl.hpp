@@ -247,7 +247,7 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
         }
         auto response_block =
             pr::ndview<std::int32_t, 2>::wrap(responses.get_mutable_data() + row_offset,
-                                         { cur_rows, 1 });
+                                              { cur_rows, 1 });
         auto closest_distance_block =
             pr::ndview<Float, 2>::wrap(closest_distances.get_mutable_data() + row_offset,
                                        { cur_rows, 1 });

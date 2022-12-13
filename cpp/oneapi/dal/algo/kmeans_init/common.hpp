@@ -143,7 +143,7 @@ public:
         return base_t::get_cluster_count();
     }
 
-    auto& set_cluster_count(int64_t value) {
+    auto& set_cluster_count(std::int64_t value) {
         base_t::set_cluster_count_impl(value);
         return *this;
     }
