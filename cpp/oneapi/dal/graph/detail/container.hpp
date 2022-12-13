@@ -28,7 +28,7 @@ class vector_container;
 
 template <typename T>
 inline void copy(const T* old_begin, const T* old_end, T* new_begin) {
-    const int64_t count = std::distance(old_begin, old_end);
+    const std::int64_t count = std::distance(old_begin, old_end);
     for (std::int64_t i = 0; i < count; i++) {
         new_begin[i] = old_begin[i];
     }
@@ -36,7 +36,7 @@ inline void copy(const T* old_begin, const T* old_end, T* new_begin) {
 
 template <typename T>
 inline void fill(T* begin, T* end, const T& value) {
-    const int64_t count = std::distance(begin, end);
+    const std::int64_t count = std::distance(begin, end);
     for (std::int64_t i = 0; i < count; i++) {
         begin[i] = value;
     }
@@ -51,7 +51,7 @@ template <typename First, typename Second, typename Third>
 inline void copy(const std::tuple<First, Second, Third>* old_begin,
                  const std::tuple<First, Second, Third>* old_end,
                  std::tuple<First, Second, Third>* new_begin) {
-    const int64_t count = std::distance(old_begin, old_end);
+    const std::int64_t count = std::distance(old_begin, old_end);
     for (std::int64_t i = 0; i < count; i++) {
         const auto& b = old_begin[i];
         auto& a = new_begin[i];

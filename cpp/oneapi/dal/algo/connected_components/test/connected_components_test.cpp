@@ -118,7 +118,7 @@ public:
         std::fill(degrees.begin() + head_vertex_count, degrees.end(), 2);
         degrees[head_vertex_count - 1] = head_vertex_count;
         degrees.back() = 1;
-        int64_t cols_index = 0;
+        std::int64_t cols_index = 0;
         for (int64_t vertex_index = 0; vertex_index < head_vertex_count; ++vertex_index) {
             for (int64_t neighbour = 0; neighbour < head_vertex_count; ++neighbour) {
                 if (neighbour != vertex_index) {
@@ -297,7 +297,7 @@ struct CountingAllocator {
         return false;
     }
 
-    T* allocate(const size_t n) {
+    T* allocate(const std::size_t n) {
         allocated_bytes_count += n * sizeof(T);
         if (n > static_cast<size_t>(-1) / sizeof(T)) {
             throw std::bad_array_new_length();
@@ -309,7 +309,7 @@ struct CountingAllocator {
         return static_cast<T*>(pv);
     }
 
-    void deallocate(T* const p, size_t n) noexcept {
+    void deallocate(T* const p, std::size_t n) noexcept {
         allocated_bytes_count -= n * sizeof(T);
         free(p);
     }

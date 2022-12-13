@@ -25,7 +25,7 @@ namespace v1 {
 class table_metadata_impl {
 public:
     virtual ~table_metadata_impl() = default;
-    virtual int64_t get_feature_count() const = 0;
+    virtual std::int64_t get_feature_count() const = 0;
     virtual const feature_type& get_feature_type(int64_t index) const = 0;
     virtual const data_type& get_data_type(int64_t index) const = 0;
 };
@@ -40,7 +40,7 @@ using detail::v1::table_metadata_impl;
 class empty_metadata_impl : public table_metadata_impl,
                             public ONEDAL_SERIALIZABLE(empty_table_metadata_id) {
 public:
-    int64_t get_feature_count() const override {
+    std::int64_t get_feature_count() const override {
         return 0;
     }
 
@@ -80,7 +80,7 @@ public:
         }
     }
 
-    int64_t get_feature_count() const override {
+    std::int64_t get_feature_count() const override {
         return dtypes_.get_count();
     }
 

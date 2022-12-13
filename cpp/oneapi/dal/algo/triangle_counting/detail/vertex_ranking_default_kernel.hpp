@@ -107,7 +107,7 @@ struct triangle_counting_local {
 
         int64_allocator_type int64_allocator(alloc);
 
-        int64_t* triangles_local =
+        std::int64_t* triangles_local =
             oneapi::dal::preview::detail::allocate(int64_allocator,
                                                    (int64_t)thread_cnt * (int64_t)vertex_count);
 

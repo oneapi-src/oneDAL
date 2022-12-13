@@ -46,7 +46,7 @@ typedef std::int64_t (*reduction_functype_int64)(std::int64_t a,
                                                  std::int64_t b,
                                                  const void *reduction);
 
-typedef std::pair<std::int32_t, size_t> pair_int32_t_size_t;
+typedef std::pair<std::int32_t, std::size_t> pair_int32_t_size_t;
 } // namespace oneapi::dal::preview
 
 extern "C" {
@@ -376,7 +376,7 @@ template <typename T, typename Allocator = std::allocator<char>>
 class tls_mem : public oneapi::dal::detail::tls<T *> {
 public:
     typedef oneapi::dal::detail::tls<T *> super;
-    // tls_mem(Allocator allocator, size_t count = 1)
+    // tls_mem(Allocator allocator, std::size_t count = 1)
     tls_mem(size_t count = 1)
             : super([=]() -> T * {
                   using t_allocator_type =
@@ -415,7 +415,7 @@ public:
 
 private:
     Allocator alloc_;
-    size_t _count;
+    std::size_t _count;
 };
 
 class mutex {

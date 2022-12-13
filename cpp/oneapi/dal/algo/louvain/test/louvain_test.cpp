@@ -188,7 +188,7 @@ struct CountingAllocator {
         return false;
     }
 
-    T* allocate(const size_t n) {
+    T* allocate(const std::size_t n) {
         allocated_bytes_count += n * sizeof(T);
 
         if (n > static_cast<size_t>(-1) / sizeof(T)) {
@@ -201,7 +201,7 @@ struct CountingAllocator {
         return static_cast<T*>(pv);
     }
 
-    void deallocate(T* const p, size_t n) noexcept {
+    void deallocate(T* const p, std::size_t n) noexcept {
         allocated_bytes_count -= n * sizeof(T);
         free(p);
     }

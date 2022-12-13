@@ -62,8 +62,8 @@ public:
             throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
-        const int64_t element_count = row_indices_[row_count] - 1;
-        const int64_t dtype_size = detail::get_data_type_size(dtype);
+        const std::int64_t element_count = row_indices_[row_count] - 1;
+        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
         if (data.get_count() != element_count * dtype_size) {

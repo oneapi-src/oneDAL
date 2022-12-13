@@ -105,8 +105,8 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
     const pr::ndarray<Float, 1>& bin_borders_nd,
     const pr::ndarray<Bin, 1>& bins_nd,
     Index bin_count,
-    size_t local_size,
-    size_t local_blocks_count,
+    std::size_t local_size,
+    std::size_t local_blocks_count,
     const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(indexed_features.fill_bin_map, queue_);
 
@@ -234,7 +234,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     last_event = event;
 
     Index com_bin_count = 0;
-    // using int64_t instead of Index because of it is used as displ in gatherv
+    // using std::int64_t instead of Index because of it is used as displ in gatherv
     auto com_bin_count_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
     auto com_bin_offset_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
 

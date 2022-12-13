@@ -1636,9 +1636,9 @@ struct LimitedAllocator {
     typedef T *pointer;
 
     bool is_limited;
-    size_t max_allocation_size;
+    std::size_t max_allocation_size;
 
-    LimitedAllocator(bool is_limited = false, size_t max_allocation_size = 0)
+    LimitedAllocator(bool is_limited = false, std::size_t max_allocation_size = 0)
             : is_limited(is_limited),
               max_allocation_size(max_allocation_size) {}
 
@@ -1658,7 +1658,7 @@ struct LimitedAllocator {
         return false;
     }
 
-    T *allocate(const size_t n) const {
+    T *allocate(const std::size_t n) const {
         if (n == 0 || (is_limited && max_allocation_size < n)) {
             return nullptr;
         }
@@ -1672,7 +1672,7 @@ struct LimitedAllocator {
         return static_cast<T *>(pv);
     }
 
-    void deallocate(T *const p, size_t n) const noexcept {
+    void deallocate(T *const p, std::size_t n) const noexcept {
         free(p);
     }
 };
