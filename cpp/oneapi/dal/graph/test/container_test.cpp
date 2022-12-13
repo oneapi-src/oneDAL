@@ -636,9 +636,9 @@ TEST("check begin() + end() iterators in range-based for") {
 TEST("check begin() + end() iterators for random access") {
     allocated_bytes_count = 0;
     {
-        CountingAllocator<int32_t> alloc;
+        CountingAllocator<std::int32_t> alloc;
         std::int64_t n = 5;
-        vector_container<int32_t, CountingAllocator<int32_t>> vec(n, alloc);
+        vector_container<std::int32_t, CountingAllocator<std::int32_t>> vec(n, alloc);
         REQUIRE(std::distance(vec.begin(), vec.end()) == n);
         REQUIRE(vec[3] == 0);
         *(vec.begin() + 3) = 3;
@@ -653,11 +653,11 @@ TEST("check begin() + end() iterators for random access") {
 TEST("can return allocator") {
     allocated_bytes_count = 0;
     {
-        CountingAllocator<int32_t> alloc;
+        CountingAllocator<std::int32_t> alloc;
         std::int64_t n = 5;
-        vector_container<int32_t, CountingAllocator<int32_t>> vec(n, alloc);
+        vector_container<std::int32_t, CountingAllocator<std::int32_t>> vec(n, alloc);
         REQUIRE(typeid(alloc) == typeid(vec.get_allocator()));
-        vector_container<int32_t, CountingAllocator<int32_t>> vec_alloc(n, vec.get_allocator());
+        vector_container<std::int32_t, CountingAllocator<std::int32_t>> vec_alloc(n, vec.get_allocator());
         REQUIRE(typeid(vec.get_allocator()) == typeid(vec_alloc.get_allocator()));
     }
     REQUIRE(allocated_bytes_count == 0);

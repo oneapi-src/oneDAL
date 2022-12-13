@@ -30,7 +30,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 constexpr double unreachable_double_distance = std::numeric_limits<double>::max();
-constexpr std::int32_t unreachable_int32_t_distance = std::numeric_limits<int32_t>::max();
+constexpr std::int32_t unreachable_int32_t_distance = std::numeric_limits<std::int32_t>::max();
 
 class graph_base_data {
 public:
@@ -245,8 +245,8 @@ public:
     }
     std::array<std::int64_t, 11> rows = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     std::array<std::int32_t, 0> cols = {};
-    std::array<int32_t, 0> edge_weights = {};
-    std::array<int32_t, 10> distances = { 0,
+    std::array<std::int32_t, 0> edge_weights = {};
+    std::array<std::int32_t, 10> distances = { 0,
                                           unreachable_int32_t_distance,
                                           unreachable_int32_t_distance,
                                           unreachable_int32_t_distance,
@@ -511,7 +511,7 @@ public:
         2,  82, 91, 93, 3,  83, 92, 94, 4,  84, 93, 95, 5,  85, 94, 96, 6,  86, 95, 97, 7,  87, 96,
         98, 8,  88, 97, 99, 9,  89, 90, 98
     };
-    std::array<int32_t, 400> edge_weights = {
+    std::array<std::int32_t, 400> edge_weights = {
         84, 32,  13, 16, 13, 85, 78, 73, 73, 55, 56, 54, 36, 11, 62, 17, 25, 98, 89, 68, 22, 93,
         24, 91,  82, 27, 12, 76, 13, 41, 65, 77, 70, 60, 73, 99, 41, 31, 37, 13, 53, 63, 52, 30,
         65, 85,  80, 99, 26, 40, 23, 25, 87, 18, 94, 64, 10, 57, 13, 12, 97, 62, 41, 73, 45, 59,
@@ -532,7 +532,7 @@ public:
         76, 67,  21, 81, 81, 92, 29, 76, 64, 85, 26, 24, 21, 84, 24, 68, 78, 14, 95, 38, 67, 99,
         47, 66,  96, 29
     };
-    std::array<int32_t, 100> distances = {
+    std::array<std::int32_t, 100> distances = {
         0,   84,  163, 199, 210, 228, 146, 133, 63,  32,  13,  76,  156, 179, 273, 217, 158,
         132, 110, 65,  43,  128, 154, 220, 268, 211, 182, 194, 121, 86,  85,  101, 133, 160,
         227, 223, 249, 255, 169, 148, 140, 138, 204, 192, 203, 271, 307, 240, 215, 185, 168,
@@ -704,7 +704,7 @@ public:
 
     template <typename DirectedGraphType, typename EdgeValueType, std::size_t Size>
     bool check_predecessors(const DirectedGraphType& graph,
-                            const std::vector<int32_t>& predecessors,
+                            const std::vector<std::int32_t>& predecessors,
                             const std::array<EdgeValueType, Size>& distances,
                             std::int64_t source) {
         EdgeValueType unreachable_distance = std::numeric_limits<EdgeValueType>::max();
@@ -776,8 +776,8 @@ public:
             REQUIRE_THROWS_AS(result_shortest_paths.get_distances(), uninitialized_optional_result);
         }
         if (result_type & optional_results::predecessors) {
-            const std::vector<int32_t> predecessors =
-                get_data_from_table<int32_t>(result_shortest_paths.get_predecessors());
+            const std::vector<std::int32_t> predecessors =
+                get_data_from_table<std::int32_t>(result_shortest_paths.get_predecessors());
             REQUIRE(check_predecessors(graph, predecessors, true_distances, source));
         }
         else {
