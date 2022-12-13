@@ -18,3 +18,4 @@
 
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
 #include "oneapi/dal/backend/primitives/selection/select_indexed.hpp"
+#include "oneapi/dal/backend/primitives/selection/select_indexed_rows.hpp"
