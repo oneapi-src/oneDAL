@@ -57,8 +57,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
     ONEDAL_ASSERT(tree_order.get_count() == tree_count * stride);
 
     Index* tree_order_ptr = tree_order.get_mutable_data();
-    const sycl::range<2> range{ de::integral_cast<size_t>(row_count),
-                                de::integral_cast<size_t>(tree_count) };
+    const sycl::range<2> range{ de::integral_cast<std::size_t>(row_count),
+                                de::integral_cast<std::size_t>(tree_count) };
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);

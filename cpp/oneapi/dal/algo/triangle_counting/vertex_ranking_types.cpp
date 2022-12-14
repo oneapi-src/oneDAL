@@ -45,7 +45,7 @@ void vertex_ranking_result<Task>::set_ranks_impl(const table& value) {
 }
 
 template <typename Task>
-void vertex_ranking_result<Task>::set_global_rank_impl(int64_t value) {
+void vertex_ranking_result<Task>::set_global_rank_impl(std::int64_t value) {
     impl_->global_rank = value;
 }
 

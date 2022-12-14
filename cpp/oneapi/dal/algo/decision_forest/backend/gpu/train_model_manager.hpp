@@ -200,7 +200,7 @@ public:
             df_tree_level_node_list_prev = df_tree_level_node_list;
         } while (level > 0);
 
-        ONEDAL_ASSERT(static_cast<size_t>(last_tree_pos_ + tree_count) <= tree_list_.size());
+        ONEDAL_ASSERT(static_cast<std::size_t>(last_tree_pos_ + tree_count) <= tree_list_.size());
 
         for (Index tree_idx = 0; tree_idx < tree_count; tree_idx++) {
             tree_list_[last_tree_pos_ + tree_idx].reset((*df_tree_level_node_list_prev)[tree_idx],
@@ -218,7 +218,7 @@ public:
     }
 
     Float get_tree_response(Index tree_idx, const Float* x) const {
-        ONEDAL_ASSERT(static_cast<size_t>(tree_idx) < tree_list_.size());
+        ONEDAL_ASSERT(static_cast<std::size_t>(tree_idx) < tree_list_.size());
         const typename NodeType::Base* node_ptr =
             daal::algorithms::dtrees::prediction::internal::findNode<Float, TreeType, daal::sse2>(
                 tree_list_[tree_idx],

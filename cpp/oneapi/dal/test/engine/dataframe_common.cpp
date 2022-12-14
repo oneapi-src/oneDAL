@@ -157,7 +157,7 @@ private:
     void check_cache_invariants() const {
         ONEDAL_ASSERT(size_stack.size() == map_.size());
 
-        std::vector<size_t> size_stack_vec;
+        std::vector<std::size_t> size_stack_vec;
         size_stack_vec.reserve(size_stack.size());
         for (std::size_t size : size_stack) {
             size_stack_vec.push_back(size);
@@ -179,7 +179,7 @@ private:
 #endif
 
     std::size_t cache_size_ = 0;
-    std::list<size_t> size_stack;
+    std::list<std::size_t> size_stack;
     std::unordered_map<std::string, cache_entry> map_;
 
     // Default max cache size is 500Mb

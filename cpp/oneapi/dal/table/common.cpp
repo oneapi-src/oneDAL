@@ -25,9 +25,9 @@ namespace v1 {
 class table_metadata_impl {
 public:
     virtual ~table_metadata_impl() = default;
-    virtual int64_t get_feature_count() const = 0;
-    virtual const feature_type& get_feature_type(int64_t index) const = 0;
-    virtual const data_type& get_data_type(int64_t index) const = 0;
+    virtual std::int64_t get_feature_count() const = 0;
+    virtual const feature_type& get_feature_type(std::int64_t index) const = 0;
+    virtual const data_type& get_data_type(std::int64_t index) const = 0;
 };
 
 } // namespace v1
@@ -40,16 +40,16 @@ using detail::v1::table_metadata_impl;
 class empty_metadata_impl : public table_metadata_impl,
                             public ONEDAL_SERIALIZABLE(empty_table_metadata_id) {
 public:
-    int64_t get_feature_count() const override {
+    std::int64_t get_feature_count() const override {
         return 0;
     }
 
-    const feature_type& get_feature_type(int64_t) const override {
+    const feature_type& get_feature_type(std::int64_t) const override {
         throw domain_error(
             dal::detail::error_messages::cannot_get_feature_type_from_empty_metadata());
     }
 
-    const data_type& get_data_type(int64_t) const override {
+    const data_type& get_data_type(std::int64_t) const override {
         throw domain_error(dal::detail::error_messages::cannot_get_data_type_from_empty_metadata());
     }
 
@@ -80,18 +80,18 @@ public:
         }
     }
 
-    int64_t get_feature_count() const override {
+    std::int64_t get_feature_count() const override {
         return dtypes_.get_count();
     }
 
-    const feature_type& get_feature_type(int64_t i) const override {
+    const feature_type& get_feature_type(std::int64_t i) const override {
         if (!is_in_range(i)) {
             throw out_of_range(dal::detail::error_messages::feature_index_is_out_of_range());
         }
         return ftypes_[i];
     }
 
-    const data_type& get_data_type(int64_t i) const override {
+    const data_type& get_data_type(std::int64_t i) const override {
         if (!is_in_range(i)) {
             throw out_of_range(dal::detail::error_messages::feature_index_is_out_of_range());
         }
@@ -107,7 +107,7 @@ public:
     }
 
 private:
-    bool is_in_range(int64_t i) const {
+    bool is_in_range(std::int64_t i) const {
         return i >= 0 && i < dtypes_.get_count();
     }
 
@@ -132,11 +132,11 @@ int64_t table_metadata::get_feature_count() const {
     return impl_->get_feature_count();
 }
 
-const feature_type& table_metadata::get_feature_type(int64_t feature_index) const {
+const feature_type& table_metadata::get_feature_type(std::int64_t feature_index) const {
     return impl_->get_feature_type(feature_index);
 }
 
-const data_type& table_metadata::get_data_type(int64_t feature_index) const {
+const data_type& table_metadata::get_data_type(std::int64_t feature_index) const {
     return impl_->get_data_type(feature_index);
 }
 

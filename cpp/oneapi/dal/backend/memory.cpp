@@ -23,7 +23,7 @@ void memcpy(void* dest, const void* src, std::int64_t size) {
     ONEDAL_ASSERT(dest != nullptr);
     ONEDAL_ASSERT(src != nullptr);
 
-    const size_t converted_size = detail::integral_cast<std::size_t>(size);
+    const std::size_t converted_size = detail::integral_cast<std::size_t>(size);
     std::int32_t status =
         daal::services::internal::daal_memcpy_s(dest, converted_size, src, converted_size);
     if (status) {

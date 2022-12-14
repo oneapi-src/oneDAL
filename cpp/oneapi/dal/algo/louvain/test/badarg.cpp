@@ -54,15 +54,15 @@ public:
             : graph_base_data(vertex_count, vertex_count * (vertex_count - 1) / 2) {
         assert(vertex_count >= 1);
         std::fill(degrees.begin(), degrees.end(), vertex_count - 1);
-        for (int64_t vertex_index = 0, cols_index = 0; vertex_index < vertex_count;
+        for (std::int64_t vertex_index = 0, cols_index = 0; vertex_index < vertex_count;
              ++vertex_index) {
-            for (int64_t neighbour = 0; neighbour < vertex_count; ++neighbour) {
+            for (std::int64_t neighbour = 0; neighbour < vertex_count; ++neighbour) {
                 if (neighbour != vertex_index) {
                     cols[cols_index++] = neighbour;
                 }
             }
         }
-        for (int64_t index = 1; index < vertex_count; ++index) {
+        for (std::int64_t index = 1; index < vertex_count; ++index) {
             rows[index] = rows[index - 1] + vertex_count - 1;
         }
     }

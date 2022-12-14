@@ -32,7 +32,7 @@ TEST("can construct array of zeros") {
     REQUIRE(arr.get_count() == 5);
     REQUIRE(arr.has_mutable_data());
 
-    for (int32_t i = 0; i < arr.get_count(); i++) {
+    for (std::int32_t i = 0; i < arr.get_count(); i++) {
         REQUIRE(arr[i] == Approx(0.0f));
     }
 }
@@ -43,15 +43,15 @@ TEST("can_construct_array_of_ones") {
     REQUIRE(arr.get_count() == 5);
     REQUIRE(arr.has_mutable_data());
 
-    for (int32_t i = 0; i < arr.get_count(); i++) {
+    for (std::int32_t i = 0; i < arr.get_count(); i++) {
         REQUIRE(arr[i] == Approx(1.0f));
     }
 }
 
 TEST("can_construct_array_from_raw_pointer") {
-    constexpr int64_t size = 10;
+    constexpr std::int64_t size = 10;
     auto ptr = new float[size];
-    for (int64_t i = 0; i < size; i++) {
+    for (std::int64_t i = 0; i < size; i++) {
         ptr[i] = float(i);
     }
 
@@ -62,7 +62,7 @@ TEST("can_construct_array_from_raw_pointer") {
     REQUIRE(arr.get_count() == size);
     REQUIRE(arr.has_mutable_data());
 
-    for (int32_t i = 0; i < arr.get_count(); i++) {
+    for (std::int32_t i = 0; i < arr.get_count(); i++) {
         REQUIRE(arr[i] == Approx(ptr[i]));
     }
 }
@@ -76,7 +76,7 @@ TEST("can_construct_array_reference") {
     REQUIRE(arr.has_mutable_data() == arr2.has_mutable_data());
     REQUIRE(arr.get_mutable_data() == arr2.get_mutable_data());
 
-    for (int32_t i = 0; i < arr.get_count(); i++) {
+    for (std::int32_t i = 0; i < arr.get_count(); i++) {
         REQUIRE(arr[i] == Approx(arr2[i]));
     }
 }
@@ -108,7 +108,7 @@ TEST("can reset array with smaller size") {
 TEST("can reset array with raw pointer") {
     auto arr = array<float>::zeros(5);
 
-    constexpr int64_t size = 10;
+    constexpr std::int64_t size = 10;
     auto ptr = new float[size];
     arr.reset(ptr, size, [](auto ptr) {
         delete[] ptr;
@@ -123,7 +123,7 @@ TEST("can reset array with raw pointer") {
 TEST("can reset array with non owning raw pointer") {
     auto arr = array<float>::zeros(5);
 
-    constexpr int64_t size = 10;
+    constexpr std::int64_t size = 10;
     const float* ptr = new float[size];
     arr.reset(array<float>(), ptr, size);
 
@@ -153,7 +153,7 @@ TEST("can make owning array from non owning readonly") {
     REQUIRE(arr.get_mutable_data() != data);
     REQUIRE(arr.has_mutable_data());
 
-    for (int64_t i = 0; i < arr.get_count(); i++) {
+    for (std::int64_t i = 0; i < arr.get_count(); i++) {
         REQUIRE(arr[i] == Approx(data[i]));
     }
 }
@@ -243,7 +243,7 @@ TEST("can construct array of zeros with queue") {
     REQUIRE(arr.get_count() == 5);
     REQUIRE(arr.has_mutable_data());
 
-    for (int32_t i = 0; i < arr.get_count(); i++) {
+    for (std::int32_t i = 0; i < arr.get_count(); i++) {
         REQUIRE(arr[i] == Approx(0.0f));
     }
 }
@@ -256,7 +256,7 @@ TEST("can construct array of ones with queue") {
     REQUIRE(arr.get_count() == 5);
     REQUIRE(arr.has_mutable_data());
 
-    for (int32_t i = 0; i < arr.get_count(); i++) {
+    for (std::int32_t i = 0; i < arr.get_count(); i++) {
         REQUIRE(arr[i] == Approx(1.0f));
     }
 }
@@ -291,7 +291,7 @@ TEST("can construct array with queue and events") {
     REQUIRE(arr.get_count() == 10);
     REQUIRE(arr.has_mutable_data());
 
-    for (int32_t i = 0; i < arr.get_count(); i++) {
+    for (std::int32_t i = 0; i < arr.get_count(); i++) {
         REQUIRE(arr[i] == Approx(float(i)));
     }
 }
@@ -324,7 +324,7 @@ TEST("can reset array with queue and raw pointer") {
 
     auto arr = array<float>::zeros(q, 5);
 
-    constexpr int64_t count = 10;
+    constexpr std::int64_t count = 10;
     auto* data = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
          cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
@@ -344,7 +344,7 @@ TEST("can reset array with queue and raw pointer") {
 TEST("can wrap const data with queue, offset and deleter") {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
-    constexpr int64_t count = 3;
+    constexpr std::int64_t count = 3;
 
     auto data = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
