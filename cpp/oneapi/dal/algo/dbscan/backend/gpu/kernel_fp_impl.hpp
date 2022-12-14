@@ -227,53 +227,51 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
                                                    const pr::ndview<std::int32_t, 1>& cores,
                                                    pr::ndview<std::int32_t, 1>& responses,
                                                    const bk::event_vector& deps) {
+    using oneapi::dal::backend::operator+;
     ONEDAL_PROFILER_TASK(start_next_cluster, queue);
     ONEDAL_ASSERT(cores.get_dimension(0) > 0);
     ONEDAL_ASSERT(cores.get_dimension(0) == responses.get_dimension(0));
     std::int64_t block_size = cores.get_dimension(0);
 
     auto [start_index, start_index_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, 1, block_size);
-    start_index_event.wait_and_throw();
+        pr::ndarray<std::int32_t, 1>::full(queue, { 1 }, block_size, sycl::usm::alloc::device);
     auto start_index_ptr = start_index.get_mutable_data();
-    start_index_ptr[0] = block_size;
 
     const std::int32_t* cores_ptr = cores.get_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
     std::int64_t wg_size = get_recommended_sg_size(queue);
-    queue
-        .submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.parallel_for(
-                bk::make_multiple_nd_range_2d({ wg_size, 1 }, { wg_size, 1 }),
-                [=](sycl::nd_item<2> item) {
-                    auto sg = item.get_sub_group();
-                    const std::uint32_t sg_id = sg.get_group_id()[0];
-                    if (sg_id > 0)
-                        return;
-                    const std::uint32_t local_id = sg.get_local_id();
-                    const std::uint32_t local_size = sg.get_local_range()[0];
-                    std::int32_t adjusted_block_size =
-                        local_size * (block_size / local_size + bool(block_size % local_size));
+    auto full_deps = deps + bk::event_vector{ start_index_event };
+    auto index_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(full_deps);
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, 1 }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::int32_t local_id = sg.get_local_id();
+                const std::int32_t local_size = sg.get_local_range()[0];
+                std::int32_t adjusted_block_size =
+                    local_size * (block_size / local_size + bool(block_size % local_size));
 
-                    for (int32_t i = local_id; i < adjusted_block_size; i += local_size) {
-                        const bool found =
-                            i < block_size ? cores_ptr[i] == 1 && responses_ptr[i] < 0 : false;
-                        const std::int32_t index =
-                            sycl::reduce_over_group(sg,
-                                                    (std::int32_t)(found ? i : block_size),
-                                                    sycl::ext::oneapi::minimum<std::int32_t>());
-                        if (index < block_size) {
-                            if (local_id == 0) {
-                                start_index_ptr[0] = index;
-                            }
-                            break;
+                for (std::int32_t i = local_id; i < adjusted_block_size; i += local_size) {
+                    const bool found =
+                        i < block_size ? cores_ptr[i] == 1 && responses_ptr[i] < 0 : false;
+                    const std::int32_t index =
+                        sycl::reduce_over_group(sg,
+                                                (std::int32_t)(found ? i : block_size),
+                                                sycl::ext::oneapi::minimum<std::int32_t>());
+                    if (index < block_size) {
+                        if (local_id == 0) {
+                            *start_index_ptr = index;
                         }
+                        break;
                     }
-                });
-        })
-        .wait_and_throw();
-    return *start_index_ptr;
+                }
+            });
+    });
+    return start_index.to_host(queue, { index_event }).at(0);
 }
 
 sycl::event set_queue_ptr(sycl::queue& queue,
