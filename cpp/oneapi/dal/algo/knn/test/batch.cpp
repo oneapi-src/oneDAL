@@ -25,25 +25,43 @@ class knn_batch_test : public knn_test<TestType, knn_batch_test<TestType>> {};
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                   \
                          name,                                             \
                          "[small-dataset][knn][integration][batch][test]", \
-                         knn_types)
+                         knn_cls_types)
 
-#define KNN_SYNTHETIC_TEST(name)                                               \
+#define KNN_CLS_SYNTHETIC_TEST(name)                                               \
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                       \
                          name,                                                 \
                          "[synthetic-dataset][knn][integration][batch][test]", \
-                         knn_types)
+                         knn_cls_types)
 
-#define KNN_EXTERNAL_TEST(name)                                               \
+#define KNN_CLS_EXTERNAL_TEST(name)                                               \
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                      \
                          name,                                                \
                          "[external-dataset][knn][integration][batch][test]", \
-                         knn_types)
+                         knn_cls_types)
 
-#define KNN_BF_EXTERNAL_TEST(name)                                            \
+#define KNN_CLS_BF_EXTERNAL_TEST(name)                                            \
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                      \
                          name,                                                \
                          "[external-dataset][knn][integration][batch][test]", \
-                         knn_bf_types)
+                         knn_cls_bf_types)
+
+#define KNN_REG_SYNTHETIC_TEST(name)                                               \
+    TEMPLATE_LIST_TEST_M(knn_batch_test,                                       \
+                         name,                                                 \
+                         "[synthetic-dataset][knn][integration][batch][test]", \
+                         knn_reg_types)
+
+#define KNN_REG_EXTERNAL_TEST(name)                                               \
+    TEMPLATE_LIST_TEST_M(knn_batch_test,                                      \
+                         name,                                                \
+                         "[external-dataset][knn][integration][batch][test]", \
+                         knn_reg_types)
+
+#define KNN_REG_BF_EXTERNAL_TEST(name)                                            \
+    TEMPLATE_LIST_TEST_M(knn_batch_test,                                      \
+                         name,                                                \
+                         "[external-dataset][knn][integration][batch][test]", \
+                         knn_reg_bf_types)
 
 KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     SKIP_IF(this->not_available_on_device());
@@ -77,7 +95,7 @@ KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_SYNTHETIC_TEST("knn nearest points test random uniform 513x301x17") {
+KNN_CLS_SYNTHETIC_TEST("knn nearest points test random uniform 513x301x17") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->is_kd_tree);
@@ -105,7 +123,7 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 513x301x17") {
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_SYNTHETIC_TEST("knn nearest points test random uniform using regression 513x301x17") {
+KNN_REG_SYNTHETIC_TEST("knn nearest points test random uniform using regression 513x301x17") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
@@ -139,7 +157,7 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform using regression 513x
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
+KNN_CLS_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->is_kd_tree);
@@ -167,7 +185,7 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
+KNN_CLS_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
@@ -203,7 +221,7 @@ KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
     REQUIRE(score >= target_score);
 }
 
-KNN_EXTERNAL_TEST("knn distance regression hepmass 50kx10k") {
+KNN_REG_EXTERNAL_TEST("knn distance regression hepmass 50kx10k") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
@@ -246,7 +264,7 @@ KNN_EXTERNAL_TEST("knn distance regression hepmass 50kx10k") {
     REQUIRE(score < target_score);
 }
 
-KNN_EXTERNAL_TEST("knn uniform regression hepmass 50kx10k") {
+KNN_REG_EXTERNAL_TEST("knn uniform regression hepmass 50kx10k") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
@@ -279,7 +297,7 @@ KNN_EXTERNAL_TEST("knn uniform regression hepmass 50kx10k") {
     REQUIRE(score < target_score);
 }
 
-KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with distance voting)") {
+KNN_CLS_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with distance voting)") {
     SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -323,7 +341,7 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with distance voting)")
     REQUIRE(score >= target_score);
 }
 
-KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance (p = 2.5)") {
+KNN_CLS_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance (p = 2.5)") {
     SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -364,7 +382,7 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance
     REQUIRE(score >= target_score);
 }
 
-KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Cosine distance") {
+KNN_CLS_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Cosine distance") {
     SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -404,7 +422,7 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Cosine distance") 
     REQUIRE(score >= target_score);
 }
 
-KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Chebyshev distance") {
+KNN_CLS_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Chebyshev distance") {
     SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->not_available_on_device());

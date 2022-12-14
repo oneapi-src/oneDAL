@@ -248,7 +248,11 @@ public:
     }
 };
 
-using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree));
-using knn_bf_types = COMBINE_TYPES((float, double), (knn::method::brute_force));
+// using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree));
+// using knn_bf_types = COMBINE_TYPES((float, double), (knn::method::brute_force));
+using knn_cls_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree), (knn::task::classification));
+using knn_cls_bf_types = COMBINE_TYPES((float, double), (knn::method::brute_force), (knn::task::classification));
+using knn_reg_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree), (knn::task::regression));
+using knn_reg_bf_types = COMBINE_TYPES((float, double), (knn::method::brute_force), (knn::task::regression));
 
 } // namespace oneapi::dal::knn::test
