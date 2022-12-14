@@ -129,7 +129,7 @@ struct get_core_narrow_kernel {
         std::int32_t* cores_ptr = cores.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            cgh.parallel_for(sycl::range<1>{ size_t(block_size) }, [=](sycl::id<1> idx) {
+            cgh.parallel_for(sycl::range<1>{ std::size_t(block_size) }, [=](sycl::id<1> idx) {
                 count_type count = 0;
                 for (std::int64_t j = 0; j < row_count; j++) {
                     Float sum = 0.0;
@@ -367,7 +367,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                     return;
 
                 for (std::int32_t j = 0; j < algo_queue_size; j++) {
-                    const int32_t index = queue_ptr[j + queue_begin];
+                    const std::int32_t index = queue_ptr[j + queue_begin];
                     Float sum = Float(0);
                     for (std::int64_t i = local_id; i < column_count; i += local_size) {
                         Float val =

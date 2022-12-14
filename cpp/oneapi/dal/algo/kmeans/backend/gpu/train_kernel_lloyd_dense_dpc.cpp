@@ -55,8 +55,8 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
 
     const auto data = input.get_data();
 
-    const int64_t column_count = data.get_column_count();
-    const int64_t cluster_count = params.get_cluster_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t cluster_count = params.get_cluster_count();
 
     daal::data_management::NumericTablePtr daal_initial_centroids;
 
@@ -66,12 +66,12 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
         const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
         daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
-        const size_t init_len_input = 1;
+        const std::size_t init_len_input = 1;
         daal::data_management::NumericTable* init_input[init_len_input] = { daal_data.get() };
 
         daal_initial_centroids =
             interop::allocate_daal_homogen_table<Float>(cluster_count, column_count);
-        const size_t init_len_output = 1;
+        const std::size_t init_len_output = 1;
         daal::data_management::NumericTable* init_output[init_len_output] = {
             daal_initial_centroids.get()
         };
@@ -110,10 +110,10 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         auto& comm = ctx.get_communicator();
 
         const auto data = input.get_data();
-        const int64_t row_count = data.get_row_count();
-        const int64_t column_count = data.get_column_count();
-        const int64_t cluster_count = params.get_cluster_count();
-        const int64_t max_iteration_count = params.get_max_iteration_count();
+        const std::int64_t row_count = data.get_row_count();
+        const std::int64_t column_count = data.get_column_count();
+        const std::int64_t cluster_count = params.get_cluster_count();
+        const std::int64_t max_iteration_count = params.get_max_iteration_count();
         const double accuracy_threshold = params.get_accuracy_threshold();
         dal::detail::check_mul_overflow(cluster_count, column_count);
 

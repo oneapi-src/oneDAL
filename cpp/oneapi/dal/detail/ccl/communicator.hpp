@@ -180,9 +180,9 @@ public:
 
         sycl::event::wait(deps);
 
-        std::vector<size_t> internal_recv_counts(this->get_rank_count());
+        std::vector<std::size_t> internal_recv_counts(this->get_rank_count());
         for (std::int64_t i = 0; i < this->get_rank_count(); ++i) {
-            internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
+            internal_recv_counts[i] = integral_cast<std::size_t>(recv_counts[i]);
         }
 
         auto event = ccl::allgatherv(send_buf,
@@ -245,10 +245,10 @@ public:
 
         sycl::event::wait(deps);
 
-        std::vector<size_t> send_counts(rank_count_, size_t(0));
-        send_counts.at(destination_rank) = dal::detail::integral_cast<size_t>(count);
-        std::vector<size_t> recv_counts(rank_count_, size_t(0));
-        recv_counts.at(source_rank) = dal::detail::integral_cast<size_t>(count);
+        std::vector<std::size_t> send_counts(rank_count_, std::size_t(0));
+        send_counts.at(destination_rank) = dal::detail::integral_cast<std::size_t>(count);
+        std::vector<std::size_t> recv_counts(rank_count_, std::size_t(0));
+        recv_counts.at(source_rank) = dal::detail::integral_cast<std::size_t>(count);
 
         auto event = ccl::alltoallv(buf,
                                     send_counts,
@@ -356,15 +356,15 @@ public:
                                     const std::int64_t* recv_counts,
                                     const std::int64_t* displs,
                                     const data_type& dtype) override {
-        std::vector<size_t> internal_recv_counts(rank_count_);
+        std::vector<std::size_t> internal_recv_counts(rank_count_);
         for (std::int64_t i = 0; i < rank_count_; i++) {
-            internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
+            internal_recv_counts[i] = integral_cast<std::size_t>(recv_counts[i]);
         }
 
         ONEDAL_ASSERT(recv_buf);
 
         auto event = ccl::allgatherv(send_buf,
-                                     integral_cast<size_t>(send_count),
+                                     integral_cast<std::size_t>(send_count),
                                      recv_buf,
                                      internal_recv_counts,
                                      make_ccl_data_type(dtype),
@@ -409,10 +409,10 @@ public:
         ONEDAL_ASSERT(buf);
         ONEDAL_ASSERT(count > 0);
 
-        std::vector<size_t> send_counts(rank_count_, size_t(0));
-        send_counts.at(destination_rank) = dal::detail::integral_cast<size_t>(count);
-        std::vector<size_t> recv_counts(rank_count_, size_t(0));
-        recv_counts.at(source_rank) = dal::detail::integral_cast<size_t>(count);
+        std::vector<std::size_t> send_counts(rank_count_, std::size_t(0));
+        send_counts.at(destination_rank) = dal::detail::integral_cast<std::size_t>(count);
+        std::vector<std::size_t> recv_counts(rank_count_, std::size_t(0));
+        recv_counts.at(source_rank) = dal::detail::integral_cast<std::size_t>(count);
 
         auto event = ccl::alltoallv(buf,
                                     send_counts,

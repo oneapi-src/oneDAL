@@ -191,7 +191,7 @@ public:
         return base_t::get_component_count();
     }
 
-    auto& set_component_count(int64_t value) {
+    auto& set_component_count(std::int64_t value) {
         base_t::set_component_count_impl(value);
         return *this;
     }

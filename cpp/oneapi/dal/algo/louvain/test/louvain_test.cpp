@@ -110,16 +110,16 @@ public:
             : graph_base_data(vertex_count, vertex_count * (vertex_count - 1) / 2) {
         assert(vertex_count >= 1);
         std::fill(degrees.begin(), degrees.end(), vertex_count - 1);
-        for (int64_t vertex_index = 0, cols_index = 0; vertex_index < vertex_count;
+        for (std::int64_t vertex_index = 0, cols_index = 0; vertex_index < vertex_count;
              ++vertex_index) {
-            for (int64_t neighbour = 0; neighbour < vertex_count; ++neighbour) {
+            for (std::int64_t neighbour = 0; neighbour < vertex_count; ++neighbour) {
                 if (neighbour != vertex_index) {
                     cols[cols_index++] = neighbour;
                 }
             }
         }
         rows[0] = 0;
-        for (int64_t index = 1; index <= vertex_count; ++index) {
+        for (std::int64_t index = 1; index <= vertex_count; ++index) {
             rows[index] = rows[index - 1] + vertex_count - 1;
         }
     }
@@ -188,10 +188,10 @@ struct CountingAllocator {
         return false;
     }
 
-    T* allocate(const size_t n) {
+    T* allocate(const std::size_t n) {
         allocated_bytes_count += n * sizeof(T);
 
-        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+        if (n > static_cast<std::size_t>(-1) / sizeof(T)) {
             throw std::bad_array_new_length();
         }
         void* const pv = malloc(n * sizeof(T));
@@ -201,7 +201,7 @@ struct CountingAllocator {
         return static_cast<T*>(pv);
     }
 
-    void deallocate(T* const p, size_t n) noexcept {
+    void deallocate(T* const p, std::size_t n) noexcept {
         allocated_bytes_count -= n * sizeof(T);
         free(p);
     }
