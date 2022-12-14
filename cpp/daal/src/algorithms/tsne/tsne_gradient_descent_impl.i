@@ -217,6 +217,7 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     DAAL_CHECK_MALLOC(pos);
 
     DataType box[4] = { pos[0].x, pos[0].x, pos[0].y, pos[0].y };
+    constexpr DataType scale = 0.5005;
 
     SafeStatus safeStat;
     daal::static_tls<DataType *> tlsBox([=, &safeStat]() {
@@ -269,9 +270,9 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     });
 
     //save results
-    centerx = (box[0] + box[1]) * 0.5;
-    centery = (box[2] + box[3]) * 0.5;
-    radius  = services::internal::max<cpu, DataType>(box[1] - box[0], box[3] - box[2]) * 0.5005f;
+    centerx = (box[0] + box[1]) * DataType(0.5);
+    centery = (box[2] + box[3]) * DataType(0.5);
+    radius  = services::internal::max<cpu, DataType>(box[1] - box[0], box[3] - box[2]) * scale;
 
     return services::Status();
 }
@@ -795,7 +796,7 @@ struct AttractiveKernel
     {
         const DataType multiplier = exaggeration * DataType(zNorm);
         divergence                = 0.;
-        const DataType zNormEps   = 0.00000001;
+        const DataType zNormEps   = std::numeric_limits<DataType>::epsilon();
 
         constexpr IdxType prefetch_dist = 32;
 
@@ -875,11 +876,7 @@ struct AttractiveKernel
         divergence *= exaggeration;
         logTlsData.reduce([&](DataType * buf) { services::internal::service_scalable_free<DataType, cpu>(buf); });
 
-        // Check if zNorm equals to zero
-        if (zNorm == 0.0)
-        {
-            zNorm = zNormEps;
-        }
+        zNorm = std::max(zNorm, zNormEps);
 
         //Find_Normalization
         zNorm = DataType(1) / zNorm;
