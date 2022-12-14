@@ -303,6 +303,28 @@ public:
     }
 #endif
 
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    T* begin() {
+        ONEDAL_ASSERT(data_is_mutable_);
+        return get_mutable_data();
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    T* end() {
+        ONEDAL_ASSERT(data_is_mutable_);
+        return get_mutable_data() + this->get_count();
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    const T* cbegin() const {
+        return get_data();
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    const T* cend() const {
+        return get_data() + this->get_count();
+    }
+
 protected:
     explicit ndview(const T* data,
                     const shape_t& shape,
