@@ -216,7 +216,7 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
 {
     DAAL_CHECK_MALLOC(pos);
 
-    DataType box[4] = { pos[0].x, pos[0].x, pos[0].y, pos[0].y };
+    DataType box[4]          = { pos[0].x, pos[0].x, pos[0].y, pos[0].y };
     constexpr DataType scale = 0.5005;
 
     SafeStatus safeStat;
