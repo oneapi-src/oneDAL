@@ -57,6 +57,6 @@ Software Requirements
 - Windows Server 2019 or higher
 - macOS* 10.14 or higher
 
-To build examples with DPC++ API extensions, you also need:
+To build examples with SYCL API extensions, you also need:
 
 - GNU* Make on Linux*, nmake on Windows*
