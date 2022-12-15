@@ -57,7 +57,7 @@ sycl::event indexed_features<Float, Bin, Index>::extract_column(
     Index* indices = indices_nd.get_mutable_data();
     auto column_count = column_count_;
 
-    const sycl::range<1> range = de::integral_cast<size_t>(row_count_);
+    const sycl::range<1> range = de::integral_cast<std::size_t>(row_count_);
 
     auto event = queue_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
@@ -82,7 +82,7 @@ sycl::event indexed_features<Float, Bin, Index>::collect_bin_borders(
     ONEDAL_ASSERT(bin_offsets_nd.get_count() == max_bins);
     ONEDAL_ASSERT(bin_borders_nd.get_count() == max_bins);
 
-    const sycl::range<1> range = de::integral_cast<size_t>(max_bins);
+    const sycl::range<1> range = de::integral_cast<std::size_t>(max_bins);
 
     const Float* values = values_nd.get_data();
     const Index* bin_offsets = bin_offsets_nd.get_data();
@@ -105,8 +105,8 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
     const pr::ndarray<Float, 1>& bin_borders_nd,
     const pr::ndarray<Bin, 1>& bins_nd,
     Index bin_count,
-    size_t local_size,
-    size_t local_blocks_count,
+    std::size_t local_size,
+    std::size_t local_blocks_count,
     const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(indexed_features.fill_bin_map, queue_);
 
@@ -234,7 +234,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     last_event = event;
 
     Index com_bin_count = 0;
-    // using int64_t instead of Index because of it is used as displ in gatherv
+    // using std::int64_t instead of Index because of it is used as displ in gatherv
     auto com_bin_count_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
     auto com_bin_offset_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
 
@@ -358,7 +358,7 @@ sycl::event indexed_features<Float, Bin, Index>::store_column(
     const Bin* column_data = column_data_nd.get_data();
     Bin* full_data = full_data_nd.get_mutable_data();
 
-    const sycl::range<1> range = de::integral_cast<size_t>(column_data_nd.get_dimension(0));
+    const sycl::range<1> range = de::integral_cast<std::size_t>(column_data_nd.get_dimension(0));
 
     auto event = queue_.submit([&](sycl::handler& h) {
         h.depends_on(deps);

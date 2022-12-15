@@ -71,7 +71,7 @@ public:
 
     /// Returns the total number of triangles in the graph
     template <typename T = Task, typename = detail::enable_if_global_t<T>>
-    int64_t get_global_rank() const {
+    std::int64_t get_global_rank() const {
         return get_global_rank_impl();
     }
 
@@ -84,16 +84,16 @@ public:
 
     /// Sets the total number of triangles in the graph
     template <typename T = Task, typename = detail::enable_if_global_t<T>>
-    auto& set_global_rank(int64_t value) {
+    auto& set_global_rank(std::int64_t value) {
         set_global_rank_impl(value);
         return *this;
     }
 
 private:
     const table& get_ranks_impl() const;
-    int64_t get_global_rank_impl() const;
+    std::int64_t get_global_rank_impl() const;
     void set_ranks_impl(const table& value);
-    void set_global_rank_impl(int64_t value);
+    void set_global_rank_impl(std::int64_t value);
     dal::detail::pimpl<detail::vertex_ranking_result_impl> impl_;
 };
 

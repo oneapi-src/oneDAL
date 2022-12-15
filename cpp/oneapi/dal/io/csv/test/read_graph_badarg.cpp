@@ -60,7 +60,7 @@ public:
         std::ofstream outf(filename);
         if (outf.is_open()) {
             std::string delimiter = ",";
-            size_t pos = 0;
+            std::size_t pos = 0;
             while ((pos = file_content.find(delimiter)) != std::string::npos) {
                 outf << file_content.substr(0, pos) << std::endl;
                 file_content.erase(0, pos + delimiter.length());

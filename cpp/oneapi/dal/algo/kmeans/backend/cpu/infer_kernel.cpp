@@ -42,9 +42,9 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,
                                            const model<Task>& trained_model,
                                            const table& data) {
-    const int64_t row_count = data.get_row_count();
-    const int64_t cluster_count = desc.get_cluster_count();
-    const int64_t max_iteration_count = 0;
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t cluster_count = desc.get_cluster_count();
+    const std::int64_t max_iteration_count = 0;
 
     daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
                                dal::detail::integral_cast<std::size_t>(max_iteration_count));

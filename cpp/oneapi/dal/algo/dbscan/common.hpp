@@ -166,7 +166,7 @@ public:
         return base_t::get_min_observations();
     }
 
-    auto& set_min_observations(int64_t value) {
+    auto& set_min_observations(std::int64_t value) {
         base_t::set_min_observations_impl(value);
         return *this;
     }
