@@ -256,7 +256,9 @@ public:
 
     device_properties get_properties() const {
         return get_or_init(properties_, [&]() {
-            ze_device_properties_t handle;
+            ze_device_properties_t handle{};
+            handle.stype = ZE_STRUCTURE_TYPE_DEVICE_PROPERTIES;
+            handle.pNext = nullptr;
             check_ze(zeDeviceGetProperties(get_handle(), &handle));
             return handle;
         });
