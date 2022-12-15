@@ -289,27 +289,30 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     const auto data = data_host.to_device(this->get_queue());
 
     auto [sums, corr, cov, means, vars, tmp] = this->allocate_arrays(column_count);
+
     auto sums_event = sums.assign(this->get_queue(), data.get_data(), column_count);
-    sums_event.wait_and_throw();
-    pr::means(this->get_queue(), data.get_dimension(0), sums, means, { sums_event });
-    INFO("run correlation");
-    auto gemm_event = pr::gemm(this->get_queue(), data.t(), data, corr, float_t(1), float_t(0));
-    correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event })
-        .wait_and_throw();
+    auto gemm_event_cov =
+        pr::gemm(this->get_queue(), data.t(), data, cov, float_t(1), float_t(0), {});
+    auto gemm_event_corr =
+        pr::gemm(this->get_queue(), data.t(), data, corr, float_t(1), float_t(0), {});
+
+    auto cov_event =
+        pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, { gemm_event_cov });
+    auto var_event = pr::variances(this->get_queue(), cov, vars, { cov_event });
+    auto corr_event =
+        correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event_corr });
 
     INFO("check if there is no NaNs in correlation matrix");
+    corr_event.wait_and_throw();
     this->check_nans(corr);
 
     INFO("check if diagonal elements are ones");
     this->check_diagonal_is_ones(corr);
 
-    INFO("check if mean is zero")
-    this->check_constant_mean(vars, 1, 0.0);
-
-    INFO("check if variance is zero")
+    INFO("check if variance is zero");
+    var_event.wait_and_throw();
     this->check_constant_variance(vars, 1, 0.0);
 }
-
 TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
     using float_t = TestType;
     SKIP_IF(this->get_policy().is_cpu());
