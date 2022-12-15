@@ -3,7 +3,7 @@
     "config:base",
     ":preserveSemverRanges"
   ],
-  "pip_doc_requirements": [
+  "packageRules": [
     {
     "fileMatch": [
       "(^|/)docs/requirements.txt$"
