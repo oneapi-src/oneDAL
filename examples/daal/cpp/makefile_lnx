@@ -21,14 +21,12 @@
 help:
 	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
 	@echo "lib is alias for libintel64, so is alias for sointel64"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
 	@echo "compiler_name     - can be intel, gnu, clang or icx. Default value is intel."
 	@echo "                    Intel(R) C++ Compiler as default"
-	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
@@ -86,27 +84,16 @@ ifndef TBBROOT
 endif
 TBB_PATH = "$(TBBROOT)/lib/intel64/gcc4.8"
 
-EXT_LIB := -lpthread -ldl
-
-ifeq ($(threading),sequential)
-    DAAL_LIB_T := $(DAAL_PATH)/libonedal_sequential.$(RES_EXT)
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
-else
-    override threading = parallel
-    DAAL_LIB_T := $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
-endif
-
-DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_LIB_T)
+DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
 
 COPTS := -pedantic -Wall -Wextra -Werror \
          -Wno-deprecated-declarations \
          -Wno-unused-parameter \
          -I./source/utils
 
-LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
+LOPTS := -Wl,--start-group $(DAAL_LIB) -lpthread -ldl $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc -Wl,--end-group
 
-RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),intel)

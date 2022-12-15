@@ -166,7 +166,10 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
     auto [sums, sums_event] = compute_sums(q_, data_nd);
-    comm_.allreduce(sums.flatten(q_, { sums_event }), spmd::reduce_op::sum).wait();
+    {
+        ONEDAL_PROFILER_TASK(allreduce_sums, q_);
+        comm_.allreduce(sums.flatten(q_, { sums_event }), spmd::reduce_op::sum).wait();
+    }
     auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
     sycl::event gemm_event;
     {
@@ -175,9 +178,14 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         gemm_event.wait_and_throw();
     }
 
-    comm_.allreduce(xtx.flatten(q_, { gemm_event }), spmd::reduce_op::sum).wait();
-
-    comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+    {
+        ONEDAL_PROFILER_TASK(allreduce_xtx, q_);
+        comm_.allreduce(xtx.flatten(q_, { gemm_event }), spmd::reduce_op::sum).wait();
+    }
+    {
+        ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
+        comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+    }
 
     if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q_, rows_count_global, sums, { gemm_event });

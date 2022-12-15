@@ -69,7 +69,7 @@ public:
 
     /// The number of connected components
     // represented as std::int64_t
-    int64_t get_component_count() const {
+    std::int64_t get_component_count() const {
         return get_component_count_impl();
     }
 
@@ -80,16 +80,16 @@ public:
     }
 
     /// Sets the number of connected components
-    auto& set_component_count(int64_t value) {
+    auto& set_component_count(std::int64_t value) {
         set_component_count_impl(value);
         return *this;
     }
 
 private:
     const table& get_labels_impl() const;
-    int64_t get_component_count_impl() const;
+    std::int64_t get_component_count_impl() const;
     void set_labels_impl(const table& value);
-    void set_component_count_impl(int64_t value);
+    void set_component_count_impl(std::int64_t value);
     dal::detail::pimpl<detail::vertex_partitioning_result_impl> impl_;
 };
 

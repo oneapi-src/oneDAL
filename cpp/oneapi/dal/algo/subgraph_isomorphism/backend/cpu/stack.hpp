@@ -495,7 +495,7 @@ void global_stack<Cpu>::clear() {
 template <typename Cpu>
 void global_stack<Cpu>::grow() {
     const std::int64_t new_capacity = (capacity_ > 0) ? capacity_ * 2 : 1;
-    const auto new_bottom = allocator.allocate<uint64_t>(
+    const auto new_bottom = allocator.allocate<std::uint64_t>(
         (new_capacity * vertex_count_ > 0) ? new_capacity * vertex_count_ : 1);
     const auto new_top = new_bottom + size() * vertex_count_;
 

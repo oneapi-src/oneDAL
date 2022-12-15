@@ -132,7 +132,10 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
 
     auto [sums, sums_event] = compute_sums(q_, data_nd);
 
-    comm_.allreduce(sums.flatten(q_, { sums_event }), spmd::reduce_op::sum).wait();
+    {
+        ONEDAL_PROFILER_TASK(allreduce_sums, q_);
+        comm_.allreduce(sums.flatten(q_, { sums_event }), spmd::reduce_op::sum).wait();
+    }
 
     auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
 
@@ -143,9 +146,14 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
         gemm_event.wait_and_throw();
     }
 
-    comm_.allreduce(xtx.flatten(q_, { gemm_event }), spmd::reduce_op::sum).wait();
-
-    comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+    {
+        ONEDAL_PROFILER_TASK(allreduce_xtx, q_);
+        comm_.allreduce(xtx.flatten(q_, { gemm_event }), spmd::reduce_op::sum).wait();
+    }
+    {
+        ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
+        comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+    }
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         auto [cov, cov_event] =

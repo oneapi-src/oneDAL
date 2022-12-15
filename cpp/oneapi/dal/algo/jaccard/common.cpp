@@ -80,7 +80,8 @@ void* caching_builder::operator()(std::int64_t block_max_size) {
     if (size < block_max_size) {
         size = block_max_size;
         result_ptr.reset();
-        result_ptr = std::shared_ptr<byte_t>(new byte_t[block_max_size]);
+        result_ptr =
+            std::shared_ptr<byte_t>(new byte_t[block_max_size], std::default_delete<byte_t[]>());
     }
     return static_cast<void*>(result_ptr.get());
 }

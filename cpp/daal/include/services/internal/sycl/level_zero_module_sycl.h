@@ -76,7 +76,7 @@ class ZeKernel : public Base
     friend ZeModule;
 
 public:
-    ZeKernel(const ZeModule &) = delete;
+    ZeKernel(const ZeModule &)             = delete;
     ZeKernel & operator=(const ZeModule &) = delete;
 
     ze_kernel_handle_t get() const { return _kernelLevelZero; }
@@ -124,7 +124,7 @@ public:
         return SharedPtr<ZeModule>(ptr);
     }
 
-    ZeModule(const ZeModule &) = delete;
+    ZeModule(const ZeModule &)             = delete;
     ZeModule & operator=(const ZeModule &) = delete;
 
     ZeKernelPtr createKernel(const char * kernelName, Status & status)
@@ -162,10 +162,10 @@ private:
         desc.pConstants   = nullptr;
         desc.pNext        = nullptr;
 
-        DAAL_CHECK_LEVEL_ZERO(
-            _zeModuleCreateF(deviceQueue.get_context().get_native<cl::sycl::backend::level_zero>(),
-                             deviceQueue.get_device().get_native<cl::sycl::backend::level_zero>(), &desc, &_moduleLevelZero, nullptr),
-            status);
+        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(cl::sycl::get_native<cl::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_context()),
+                                               cl::sycl::get_native<cl::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_device()), &desc,
+                                               &_moduleLevelZero, nullptr),
+                              status);
     }
 
     zeModuleCreateFT _zeModuleCreateF;

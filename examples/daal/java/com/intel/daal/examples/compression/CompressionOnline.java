@@ -67,7 +67,6 @@ class CompressionOnline {
         /* Create a compressor */
         ZlibCompressor compressor = new ZlibCompressor(context);
         compressor.parameter.setCompressionLevel(CompressionLevel.DefaultLevel);
-        compressor.parameter.setGzHeader(true);
 
         /* Create a stream for compression */
         CompressionStream compressionStream = new CompressionStream(context, compressor);
@@ -89,7 +88,6 @@ class CompressionOnline {
 
         /* Create a decompressor */
         ZlibDecompressor decompressor = new ZlibDecompressor(context);
-        decompressor.parameter.setGzHeader(true);
 
         /* Create a stream for decompression */
         DecompressionStream decompressionStream = new DecompressionStream(context, decompressor);

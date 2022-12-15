@@ -20,14 +20,12 @@
 
 help:
 	@echo "Usage: nmake {{lib|dll|help}}"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name."
 	@echo
 	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
 	@echo "                    Intel(R) oneAPI DPC++/C++ Compiler"
-	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run."
 
@@ -81,37 +79,30 @@ RES = $(example:+=.res)
 !ENDIF
 
 !IF ("$(compiler)"=="dpcpp" || "$(compiler)"=="clang")
-CC=dpcpp-cl
+CC=icx -fsycl
 COPTS=/W3 /EHsc /std:c++17 -fsycl-device-code-split=per_kernel
 OUT_OPTS=/Fe$(RES_DIR)
 CLEAN=
 !ENDIF
 
 !IF ("$(RES_EXT)"=="lib")
-DAAL_LIB="$(DAAL_PATH)\onedal_core.lib" "$(DAAL_PATH)\onedal_dpc.lib" "$(DAAL_PATH)\onedal_sycl.lib"
+DAAL_LIB="$(DAAL_PATH)\onedal_core.lib" "$(DAAL_PATH)\onedal_dpc.lib" "$(DAAL_PATH)\onedal_sycl.lib" "$(DAAL_PATH)\onedal_thread.lib"
 RT_LIB=/link /ignore:4078 OpenCL.lib
-!IF ("$(threading)"=="sequential")
-DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.lib"
-!ELSE
-threading = parallel
-DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.lib"
-EXT_LIB = tbb12.lib tbbmalloc.lib
-!ENDIF
-
+LOPTS = $(DAAL_LIB) tbb12.lib tbbmalloc.lib $(RT_LIB)
 !ELSE
 DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.lib"
 RT_LIB=/link /ignore:4078
+LOPTS = $(DAAL_LIB) $(RT_LIB)
 !ENDIF
 
 COPTS = -MD /Isource /I"$(DAALROOT)\include" $(COPTS) $(OUT_OPTS)
-LOPTS = $(DAAL_LIB) $(DAAL_LIB_T) $(EXT_LIB) $(RT_LIB)
-RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES_DIR  =_results\$(compiler)_$(_IA)_$(RES_EXT)
 
 lib libintel64:
-	nmake comm_func $(RES) _IA=intel64 RES_EXT=lib compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) _IA=intel64 RES_EXT=lib compiler=$(compiler)
 
 dll dllintel64:
-	nmake comm_func $(RES) _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) _IA=intel64 RES_EXT=dll compiler=$(compiler)
 
 comm_func:
 	if not exist _results md _results

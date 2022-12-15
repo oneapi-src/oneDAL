@@ -30,7 +30,6 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -39,35 +38,33 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-string leftDatasetFileName  = "../data/batch/kernel_function_csr.csv";
-string rightDatasetFileName = "../data/batch/kernel_function_csr.csv";
+std::string leftDatasetFileName = "../data/batch/kernel_function_csr.csv";
+std::string rightDatasetFileName = "../data/batch/kernel_function_csr.csv";
 
 /* Kernel algorithm parameters */
 const double sigma = 1.0; /* RBF kernel coefficient */
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &leftDatasetFileName);
     checkArguments(argc, argv, 1, &rightDatasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
         SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
-        auto leftData  = createSyclSparseTable<float>(leftDatasetFileName);
+        auto leftData = createSyclSparseTable<float>(leftDatasetFileName);
         auto rightData = createSyclSparseTable<float>(rightDatasetFileName);
 
         /* Create algorithm objects for the kernel algorithm using the default method */
         kernel_function::rbf::Batch<float, kernel_function::rbf::fastCSR> algorithm;
 
         /* Set the kernel algorithm parameter */
-        algorithm.parameter.sigma           = sigma;
+        algorithm.parameter.sigma = sigma;
         algorithm.parameter.computationMode = kernel_function::matrixMatrix;
 
         /* Set an input data table for the algorithm */

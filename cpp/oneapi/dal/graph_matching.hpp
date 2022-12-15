@@ -26,7 +26,7 @@ namespace oneapi::dal::preview {
 
 /// The main processing function for graph matching family of the algorithms
 template <typename... Args>
-auto graph_matching(Args &&... args) {
+auto graph_matching(Args &&...args) {
     return detail::graph_matching_dispatch(std::forward<Args>(args)...);
 }
 

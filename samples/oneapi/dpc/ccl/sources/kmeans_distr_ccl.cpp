@@ -32,7 +32,8 @@ void run(sycl::queue& queue) {
     const auto train_data_file_name = get_data_path("data/kmeans_dense_train_data.csv");
     const auto initial_centroids_file_name = get_data_path("data/kmeans_dense_train_centroids.csv");
 
-    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
+    const auto x_train =
+        dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
     const auto initial_centroids =
         dal::read<dal::table>(queue, dal::csv::data_source{ initial_centroids_file_name });
 
@@ -45,26 +46,27 @@ void run(sycl::queue& queue) {
     auto rank_count = comm.get_rank_count();
 
     auto input_vec = split_table_by_rows<float>(queue, x_train, rank_count);
-    dal::kmeans::train_input local_input { input_vec[rank_id], initial_centroids };
+    dal::kmeans::train_input local_input{ input_vec[rank_id], initial_centroids };
 
     const auto result_train = dal::preview::train(comm, kmeans_desc, local_input);
-    if(comm.get_rank() == 0) {
+    if (comm.get_rank() == 0) {
         std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
         std::cout << "Objective function value: " << result_train.get_objective_function_value()
-                << std::endl;
+                  << std::endl;
         std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
     }
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* argv[]) {
     ccl::init();
     int status = MPI_Init(nullptr, nullptr);
     if (status != MPI_SUCCESS) {
         throw std::runtime_error{ "Problem occurred during MPI init" };
     }
 
-    auto device = sycl::gpu_selector{}.select_device();
-    std::cout << "Running on " << device.get_info<sycl::info::device::name>() << std::endl;
+    auto device = sycl::device(sycl::gpu_selector_v);
+    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>()
+              << ", " << device.get_info<sycl::info::device::name>() << std::endl;
     sycl::queue q{ device };
     run(q);
 

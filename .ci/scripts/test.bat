@@ -18,6 +18,9 @@ rem ============================================================================
 rem %1 - Examples target
 rem %2 - Examples linking
 rem %3 - Compiler
+set examples=%1
+set linking=%2
+set compiler=%3
 
 for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
 echo CPUCOUNT=%CPUCOUNT%
@@ -25,8 +28,8 @@ echo CPUCOUNT=%CPUCOUNT%
 echo PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
 
-echo call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 
 echo call __release_win_vc\daal\latest\env\vars.bat
 call __release_win_vc\daal\latest\env\vars.bat
@@ -41,7 +44,17 @@ set LIB=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
 echo set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 
-echo __release_win_vc\daal\latest\examples\%1\cpp
-cd __release_win_vc\daal\latest\examples\%1\cpp
-echo nmake %2 compiler=%3
-nmake %2 compiler=%3
+echo Java installation
+echo JAVA_HOME=%JAVA_HOME_17_X64%
+set JAVA_HOME=%JAVA_HOME_17_X64%
+echo PATH=%JAVA_HOME%\bin;%PATH%
+set PATH=%JAVA_HOME%\bin;%PATH%
+echo set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+
+echo __release_win_vc\daal\latest\examples\%examples%
+cd __release_win_vc\daal\latest\examples\%examples%
+
+if "%examples%"=="daal\java" call launcher.bat intel64
+if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
+if "%examples%"=="oneapi\cpp" nmake %linking% compiler=%compiler%

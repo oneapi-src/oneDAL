@@ -28,14 +28,22 @@ set PATH=C:\msys64\usr\bin;%PATH%
 echo pacman -S --noconfirm msys/make msys/dos2unix
 pacman -S --noconfirm msys/make msys/dos2unix
 
+echo Java installation
+echo JAVA_HOME=%JAVA_HOME_17_X64%
+set JAVA_HOME=%JAVA_HOME_17_X64%
+echo PATH=%JAVA_HOME%\bin;%PATH%
+set PATH=%JAVA_HOME%\bin;%PATH%
+echo set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+
 echo call .ci\env\tbb.bat
 call .ci\env\tbb.bat
 
 echo call .\dev\download_micromkl.bat
 call .\dev\download_micromkl.bat
 
-echo call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 
 echo make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
 make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3

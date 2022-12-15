@@ -45,13 +45,14 @@ typedef float algorithmFPType; /* Algorithm floating-point type */
 const size_t nProcs = 4;
 
 /* Input data set parameters */
-const string dataFileNames[4] = { "./data/pca_normalized_1.csv", "./data/pca_normalized_2.csv", "./data/pca_normalized_3.csv",
+const string dataFileNames[4] = { "./data/pca_normalized_1.csv",
+                                  "./data/pca_normalized_2.csv",
+                                  "./data/pca_normalized_3.csv",
                                   "./data/pca_normalized_4.csv" };
 
 #define ccl_root 0
 
-int getLocalRank(ccl::communicator & comm, int size, int rank)
-{
+int getLocalRank(ccl::communicator &comm, int size, int rank) {
     /* Obtain local rank among nodes sharing the same host name */
     char zero = static_cast<char>(0);
     std::vector<char> name(MPI_MAX_PROCESSOR_NAME + 1, zero);
@@ -60,29 +61,34 @@ int getLocalRank(ccl::communicator & comm, int size, int rank)
     std::string str(name.begin(), name.end());
     std::vector<char> allNames((MPI_MAX_PROCESSOR_NAME + 1) * size, zero);
     std::vector<size_t> aReceiveCount(size, MPI_MAX_PROCESSOR_NAME + 1);
-    ccl::allgatherv((int8_t *)name.data(), name.size(), (int8_t *)allNames.data(), aReceiveCount, comm).wait();
+    ccl::allgatherv((int8_t *)name.data(),
+                    name.size(),
+                    (int8_t *)allNames.data(),
+                    aReceiveCount,
+                    comm)
+        .wait();
     int localRank = 0;
-    for (int i = 0; i < rank; i++)
-    {
+    for (int i = 0; i < rank; i++) {
         auto nameBegin = allNames.begin() + i * (MPI_MAX_PROCESSOR_NAME + 1);
         std::string nbrName(nameBegin, nameBegin + (MPI_MAX_PROCESSOR_NAME + 1));
-        if (nbrName == str) localRank++;
+        if (nbrName == str)
+            localRank++;
     }
     return localRank;
 }
 
-NumericTablePtr loadData(int rankId)
-{
+NumericTablePtr loadData(int rankId) {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(dataFileNames[rankId], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(dataFileNames[rankId],
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
     return dataSource.getNumericTable();
 }
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
     /* Initialize oneCCL */
     ccl::init();
 
@@ -93,14 +99,12 @@ int main(int argc, char * argv[])
 
     ccl::shared_ptr_class<ccl::kvs> kvs;
     ccl::kvs::address_type main_addr;
-    if (rank == 0)
-    {
-        kvs       = ccl::create_main_kvs();
+    if (rank == 0) {
+        kvs = ccl::create_main_kvs();
         main_addr = kvs->get_address();
         MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
     }
-    else
-    {
+    else {
         MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
         kvs = ccl::create_kvs(main_addr);
     }
@@ -109,8 +113,8 @@ int main(int argc, char * argv[])
 
     /* Create GPU device from local rank and set execution context */
     auto local_rank = getLocalRank(comm, size, rank);
-    auto gpus       = get_gpus();
-    auto rank_gpu   = gpus[local_rank % gpus.size()];
+    auto gpus = get_gpus();
+    auto rank_gpu = gpus[local_rank % gpus.size()];
     cl::sycl::queue queue(rank_gpu);
     daal::services::SyclExecutionContext ctx(queue);
     services::Environment::getInstance()->setDefaultExecutionContext(ctx);
@@ -142,8 +146,7 @@ int main(int argc, char * argv[])
     /* Calculate total archive length */
     int totalArchLength = 0;
     int displs[nProcs];
-    for (size_t i = 0; i < nProcs; ++i)
-    {
+    for (size_t i = 0; i < nProcs; ++i) {
         totalArchLength += aPerNodeArchLength[i];
     }
     aReceiveCount[ccl_root] = totalArchLength;
@@ -154,18 +157,22 @@ int main(int argc, char * argv[])
     dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
 
     /* Transfer partial results to step 2 on the root node */
-    ccl::allgatherv((int8_t *)&nodeResults[0], perNodeArchLength, (int8_t *)&serializedData[0], aPerNodeArchLength, comm).wait();
+    ccl::allgatherv((int8_t *)&nodeResults[0],
+                    perNodeArchLength,
+                    (int8_t *)&serializedData[0],
+                    aPerNodeArchLength,
+                    comm)
+        .wait();
 
-    if (isRoot)
-    {
+    if (isRoot) {
         /* Create an algorithm for principal component analysis using the correlation method on the master node */
         pca::Distributed<step2Master> masterAlgorithm;
-        for (size_t i = 0, shift = 0; i < nProcs; shift += aPerNodeArchLength[i], ++i)
-        {
+        for (size_t i = 0, shift = 0; i < nProcs; shift += aPerNodeArchLength[i], ++i) {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[shift], aPerNodeArchLength[i]);
 
-            services::SharedPtr<pca::PartialResult<pca::correlationDense> > dataForStep2FromStep1(new pca::PartialResult<pca::correlationDense>());
+            services::SharedPtr<pca::PartialResult<pca::correlationDense> > dataForStep2FromStep1(
+                new pca::PartialResult<pca::correlationDense>());
             dataForStep2FromStep1->deserialize(dataArch);
 
             /* Set local partial results as input for the master-node algorithm */

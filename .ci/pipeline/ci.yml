@@ -31,7 +31,8 @@ jobs:
         .ci/scripts/clang-format.sh
       displayName: 'clang-format check'
       failOnStderr: true
-- job: 'LinuxMake'
+
+- job: 'LinuxMakeGNU'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -39,13 +40,18 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib
-    displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal_c
-    displayName: 'make daal_c'
+      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
+    displayName: 'apt-get and conda install'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --conda-env ci-env
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c
     displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
@@ -55,11 +61,89 @@ jobs:
       artifactName: '$(platform.type) build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface daal
-    displayName: 'daal cpp examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
-    displayName: 'oneapi cpp examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi/cpp
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env
+    displayName: 'daal/cpp/mpi samples'
+  - script: |
+      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
+      tree -h -I include __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
+    displayName: 'nuget pkg'
+
+- job: 'LinuxMakeClang'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_clang'
+    platform.type : 'lnx32e'
+  pool:
+    vmImage: 'ubuntu-22.04'
+  steps:
+  - script: |
+      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
+    displayName: 'apt-get and conda install'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c
+    displayName: 'make oneapi_c'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env
+    displayName: 'daal/cpp/mpi samples'
+
+- job: 'LinuxMakeDPCPP'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_clang'
+    platform.type : 'lnx32e'
+  pool:
+    vmImage: 'ubuntu-22.04'
+  steps:
+  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix wget libtinfo5
+    displayName: 'apt-get'
+  - script: |
+      wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20221129/dpcpp-compiler.tar.gz"
+      tar -xzf dpcpp-compiler.tar.gz
+      ln -s clang++ dpcpp_compiler/bin/icpx
+      ln -s clang dpcpp_compiler/bin/icx
+    displayName: 'download dpcpp daily build'
+  - script: |
+      source dpcpp_compiler/startup.sh
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      source dpcpp_compiler/startup.sh
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc
+    displayName: 'make onedal_dpc'
+  - script: |
+      source dpcpp_compiler/startup.sh
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
+    displayName: 'daal/cpp examples'
+  - script: |
+      source dpcpp_compiler/startup.sh
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
+    displayName: 'oneapi/cpp examples'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
@@ -72,7 +156,7 @@ jobs:
   steps:
   - script: |
       # Add bazel repository
-      sudo apt install curl gnupg
+      sudo apt install -y curl gnupg
       curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
       sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
       echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
@@ -86,6 +170,9 @@ jobs:
                            $(BAZEL_VERSION)
 
     displayName: 'install-deps'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
 
   - task: Cache@2
     inputs:
@@ -174,7 +261,7 @@ jobs:
     displayName: 'bazel-cache-limit'
 
 - job: LinuxDaal4py
-  dependsOn: LinuxMake
+  dependsOn: LinuxMakeGNU
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -193,6 +280,9 @@ jobs:
       path: $(Pipeline.Workspace)
   - script: sudo apt-get update && sudo apt-get install -y git gcc-multilib g++-multilib
     displayName: 'apt-get'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
   - script: |
       conda update -y -q conda
       conda create -q -y -n CB -c intel python=$(python.version) tbb
@@ -257,7 +347,7 @@ jobs:
       artifactName: '$(platform.type) conformance tests report'
       targetPath: '$(Build.ArtifactStagingDirectory)/'
 
-- job: 'macOSMake'
+- job: 'macOSMakeClang'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_mac_clang'
@@ -266,10 +356,22 @@ jobs:
     vmImage:  'macos-12'
   steps:
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
-    displayName: 'make daal_c'
+      brew install dos2unix tree
+      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      pip install -q cpufeature
+    displayName: 'brew and conda install'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c --optimizations "sse2 ssse3 sse42 avx2 avx512_mic avx512 avx"
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 ssse3 sse42 avx avx2 avx512"
     displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
@@ -279,28 +381,108 @@ jobs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface daal
-    displayName: 'daal cpp examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --interface oneapi
-    displayName: 'oneapi cpp examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
+      tree -h -I include __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
+    displayName: 'nuget pkg'
 
-- job: 'WindowsMake'
+- job: 'macOSMakeGNU'
   timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_mac_gnu'
+    platform.type : 'mac32e'
   pool:
-    vmImage: 'windows-2019'
+    vmImage:  'macos-12'
   steps:
   - script: |
-      .\.ci\scripts\build.bat daal_c vc avx2
-    displayName: 'make daal_c'
+      brew install dos2unix tree
+      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      pip install -q cpufeature
+    displayName: 'brew and conda install'
+  - script: |
+      brew install gcc@12
+      mkdir -p ${PWD}/aliases
+      ln -s /usr/local/bin/gcc-12 ${PWD}/aliases/gcc
+      ln -s /usr/local/bin/g++-12 ${PWD}/aliases/g++
+      ln -s /usr/local/bin/c++-12 ${PWD}/aliases/c++
+      ln -s /usr/local/bin/cpp-12 ${PWD}/aliases/cpp
+    displayName: 'install gcc@12'
+  - script: |
+      export PATH=${PWD}/aliases:${PATH}
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      export PATH=${PWD}/aliases:${PATH}
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
+    displayName: 'make daal'
+  - script: |
+      export PATH=${PWD}/aliases:${PATH}
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c --optimizations "sse2 ssse3 sse42 avx avx2 avx512"
+    displayName: 'make oneapi_c'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
+  - script: |
+      export PATH=${PWD}/aliases:${PATH}
+      # TODO: error_handling_throw example throws exception out of try-catch block, and it's not reproducable locally
+      sed -i -e "s/_throw/_nothrow/" $(release.dir)/daal/latest/examples/daal/cpp/daal.lst
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp
+    displayName: 'daal/cpp examples'
+  - script: |
+      export PATH=${PWD}/aliases:${PATH}
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi/cpp
+    displayName: 'oneapi/cpp examples'
+
+- job: 'WindowsMakeVC'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_win_vc'
+    platform.type : 'win32e'
+  pool:
+    vmImage: 'windows-2022'
+  steps:
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      pip install cpufeature
+      pacman -S -y --noconfirm zip dos2unix tree
+    displayName: 'pacman'
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      bash .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .\.ci\scripts\build.bat daal vc avx2
+    displayName: 'make daal'
   - script: |
       .\.ci\scripts\build.bat oneapi_c vc avx2
     displayName: 'make oneapi_c'
   - script: |
-      .\.ci\scripts\test.bat daal lib msvs
-      .\.ci\scripts\test.bat daal dll msvs
-    displayName: 'daal cpp examples'
+      .\.ci\scripts\test.bat daal\java dll msvs
+    displayName: 'daal/java examples'
   - script: |
-      .\.ci\scripts\test.bat oneapi lib msvs
-      .\.ci\scripts\test.bat oneapi dll msvs
-    displayName: 'oneapi cpp examples'
+      .\.ci\scripts\test.bat daal\cpp lib msvs
+      .\.ci\scripts\test.bat daal\cpp dll msvs
+    displayName: 'daal/cpp examples'
+  - script: |
+      .\.ci\scripts\test.bat oneapi\cpp lib msvs
+      .\.ci\scripts\test.bat oneapi\cpp dll msvs
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
+      tree -h -I include __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
+    displayName: 'nuget pkg'

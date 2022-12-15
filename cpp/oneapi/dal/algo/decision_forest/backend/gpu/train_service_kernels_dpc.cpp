@@ -57,8 +57,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
     ONEDAL_ASSERT(tree_order.get_count() == tree_count * stride);
 
     Index* tree_order_ptr = tree_order.get_mutable_data();
-    const sycl::range<2> range{ de::integral_cast<size_t>(row_count),
-                                de::integral_cast<size_t>(tree_count) };
+    const sycl::range<2> range{ de::integral_cast<std::size_t>(row_count),
+                                de::integral_cast<std::size_t>(tree_count) };
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -420,9 +420,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> buf(
-            max_sub_groups_num,
-            cgh);
+        sycl::local_accessor<Float, 1> buf(max_sub_groups_num, cgh);
 
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();

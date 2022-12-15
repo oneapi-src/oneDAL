@@ -68,7 +68,6 @@ class CompressorExample {
         /* Create a compressor */
         ZlibCompressor compressor = new ZlibCompressor(context);
         compressor.parameter.setCompressionLevel(CompressionLevel.DefaultLevel);
-        compressor.parameter.setGzHeader(true);
 
         /* Receive the next data block for compression */
         while ((uncompressedDataBlock = getDataBlock()) != null) {
@@ -92,7 +91,6 @@ class CompressorExample {
 
         /* Create a decompressor */
         ZlibDecompressor decompressor = new ZlibDecompressor(context);
-        decompressor.parameter.setGzHeader(true);
 
         /* Receive compressed data by blocks */
         while ((compressedDataBlock = receiveDataBlock()) != null) {

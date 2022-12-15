@@ -20,19 +20,14 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename T>
-constexpr inline bool is_power_of_two(T val) {
-    return (val & (val - 1)) == 0;
-}
-
-template <typename Float, typename BinaryOp, typename UnaryOp, int f, int b, int r>
+template <typename Float, typename BinaryOp, typename UnaryOp, int f, int b>
 class reduction_kernel {
-    static_assert(is_power_of_two(r));
+    static_assert(f > 0);
+    static_assert(b > 0);
 
 public:
     constexpr static inline std::int32_t block = b;
     constexpr static inline std::int32_t folding = f;
-    constexpr static inline std::int32_t retbase = r;
 
     reduction_kernel(const Float* input,
                      Float* output,
@@ -64,13 +59,11 @@ public:
                 accs[j] = binary_(accs[j], bval);
             }
         }
-        //Trick for r == power_of_two
-        //equals       = output_ + (vid % r);
-        auto* dst_base = output_ + (vid & (r - 1));
+
         for (std::int32_t j = 0; j < folding; ++j) {
             const auto cid = hid + j * hwg;
             if (cid < width_) {
-                auto* dst_ptr = dst_base + cid * r;
+                auto* const dst_ptr = output_ + cid;
                 atomic_binary_op<BinaryOp>(dst_ptr, accs[j]);
             }
         }
@@ -86,54 +79,30 @@ private:
     const std::int32_t lstride_;
 };
 
-template <typename Float, typename BinaryOp, int r>
-class finalize_kernel {
-public:
-    constexpr static inline std::int32_t retbase = r;
-    finalize_kernel(const Float* input, Float* output) : input_(input), output_(output) {}
-
-    void operator()(sycl::id<1> idx) const {
-        const Float* const col = input_ + idx * r;
-        Float acc = BinaryOp::init_value;
-        for (std::int32_t i = 0; i < r; ++i)
-            acc = binary(acc, col[i]);
-        *(output_ + idx) = acc;
-    }
-
-private:
-    const Float* const input_;
-    Float* const output_;
-    const BinaryOp binary;
-};
-
-template <typename Float,
-          typename BinaryOp,
-          typename UnaryOp,
-          int folding,
-          int block_size,
-          int retbase>
+template <typename Float, typename BinaryOp, typename UnaryOp, int folding, int block_size>
 sycl::event reduction_impl(sycl::queue& queue,
-                           const Float* data,
+                           const Float* input,
+                           Float* output,
                            std::int64_t width,
                            std::int64_t stride,
                            std::int64_t height,
-                           Float* bins,
                            const BinaryOp& binary,
                            const UnaryOp& unary,
                            const event_vector& deps) {
-    using kernel_t = reduction_kernel<Float, BinaryOp, UnaryOp, folding, block_size, retbase>;
-    constexpr int bl = kernel_t::block;
+    constexpr auto max_folding = reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::max_folding;
+    using kernel_t = reduction_kernel<Float, BinaryOp, UnaryOp, folding, block_size>;
+    constexpr auto bl = kernel_t::block;
     const auto n_blocks = height / bl + bool(height % bl);
     const auto wg = std::min<std::int64_t>(device_max_wg_size(queue), width);
     const auto cfolding = width / wg + bool(width % wg);
 
-    if (cfolding == folding) {
+    if (folding == cfolding) {
         return queue.submit([&](sycl::handler& h) {
             h.depends_on(deps);
             const auto range = make_multiple_nd_range_2d({ wg, n_blocks }, { wg, 1l });
             h.parallel_for<kernel_t>(range,
-                                     kernel_t(data,
-                                              bins,
+                                     kernel_t(input,
+                                              output,
                                               dal::detail::integral_cast<std::int32_t>(width),
                                               dal::detail::integral_cast<std::int64_t>(height),
                                               dal::detail::integral_cast<std::int32_t>(stride),
@@ -142,34 +111,23 @@ sycl::event reduction_impl(sycl::queue& queue,
         });
     }
 
-    if constexpr (folding > 1) {
-        return reduction_impl<Float, BinaryOp, UnaryOp, folding - 1, block_size, retbase>(queue,
-                                                                                          data,
-                                                                                          width,
-                                                                                          stride,
-                                                                                          height,
-                                                                                          bins,
-                                                                                          binary,
-                                                                                          unary,
-                                                                                          deps);
+    if constexpr ((max_folding >= folding) && (folding > 1)) {
+        return reduction_impl<Float, BinaryOp, UnaryOp, folding - 1, block_size>(queue,
+                                                                                 input,
+                                                                                 output,
+                                                                                 width,
+                                                                                 stride,
+                                                                                 height,
+                                                                                 binary,
+                                                                                 unary,
+                                                                                 deps);
     }
-
-    ONEDAL_ASSERT(false);
-    return sycl::event();
+    else {
+        return reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>{
+            queue
+        }(input, output, width, stride, height, binary, unary, deps);
+    }
 };
-
-template <typename Float, typename BinaryOp, int r>
-sycl::event finalization(sycl::queue& queue,
-                         const Float* input,
-                         Float* output,
-                         std::int64_t width,
-                         const event_vector& deps) {
-    using kernel_t = finalize_kernel<Float, BinaryOp, r>;
-    return queue.submit([&](sycl::handler& h) {
-        h.depends_on(deps);
-        h.parallel_for(make_range_1d(width), kernel_t(input, output));
-    });
-}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::reduction_rm_cw_atomic(sycl::queue& q) : q_(q) {}
@@ -181,44 +139,18 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
     std::int64_t width,
     std::int64_t height,
     std::int64_t stride,
-    Float* bins,
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
-    auto reduction_event =
-        reduction_impl<Float, BinaryOp, UnaryOp, max_folding, block_size, ret_base>(q_,
-                                                                                    input,
-                                                                                    width,
-                                                                                    stride,
-                                                                                    height,
-                                                                                    bins,
-                                                                                    binary,
-                                                                                    unary,
-                                                                                    deps);
-    return finalization<Float, BinaryOp, ret_base>(q_, bins, output, width, { reduction_event });
-}
-
-template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
-    const Float* input,
-    Float* output,
-    std::int64_t width,
-    std::int64_t height,
-    std::int64_t stride,
-    const BinaryOp& binary,
-    const UnaryOp& unary,
-    const event_vector& deps) const {
-    using oneapi::dal::backend::operator+;
-    auto [bins, fill_event] = ndarray<Float, 2>::full(this->q_,
-                                                      { width, ret_base },
-                                                      binary.init_value,
-                                                      sycl::usm::alloc::device);
-    const auto new_deps = deps + fill_event;
-    auto* const bins_ptr = bins.get_mutable_data();
-    auto reduction_event =
-        this->operator()(input, output, width, height, stride, bins_ptr, binary, unary, new_deps);
-    reduction_event.wait_and_throw();
-    return reduction_event;
+    return reduction_impl<Float, BinaryOp, UnaryOp, max_folding, block_size>(q_,
+                                                                             input,
+                                                                             output,
+                                                                             width,
+                                                                             stride,
+                                                                             height,
+                                                                             binary,
+                                                                             unary,
+                                                                             deps);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>

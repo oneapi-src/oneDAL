@@ -26,7 +26,7 @@ namespace oneapi::dal::preview {
 
 /// The main processing function for traverse family of the algorithms
 template <typename... Args>
-auto traverse(Args &&... args) {
+auto traverse(Args &&...args) {
     return detail::traverse_dispatch(std::forward<Args>(args)...);
 }
 

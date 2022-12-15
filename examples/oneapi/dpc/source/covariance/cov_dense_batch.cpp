@@ -30,18 +30,20 @@ namespace dal = oneapi::dal;
 void run(sycl::queue &q) {
     const auto input_file_name = get_data_path("covcormoments_dense.csv");
 
-    const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
+    const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
     auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cov_matrix);
 
-    auto result = dal::compute(cov_desc, input);
+    auto result = dal::compute(q, cov_desc, input);
 
     std::cout << "Cov:\n" << result.get_cov_matrix() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
     for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
+                  << std::endl;
         auto q = sycl::queue{ d };
         run(q);
     }

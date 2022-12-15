@@ -9,7 +9,8 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/backend/primitives",
+        "@onedal//cpp/oneapi/dal/backend/primitives:common",
+        "@onedal//cpp/oneapi/dal/backend/primitives:selection",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/dbscan:kernel",
@@ -48,6 +49,30 @@ dal_test_suite(
     ]),
     srcs = glob([
         "test/ccl_*.cpp"
+    ]),
+    dal_deps = [
+        ":dbscan",
+    ],
+)
+
+dal_test_suite(
+    name = "cpu_tests",
+    private = True,
+    compile_as = [ "c++" ],
+    srcs = glob([
+        "backend/cpu/test/*.cpp",
+    ]),
+    dal_deps = [
+        ":dbscan",
+    ],
+)
+
+dal_test_suite(
+    name = "gpu_tests",
+    private = True,
+    compile_as = [ "dpc++" ],
+    srcs = glob([
+        "backend/gpu/test/*.cpp",
     ]),
     dal_deps = [
         ":dbscan",

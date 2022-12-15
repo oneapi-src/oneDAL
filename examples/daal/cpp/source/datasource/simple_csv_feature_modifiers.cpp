@@ -34,12 +34,12 @@ using namespace daal::data_management;
 const std::string csvFileName = "../data/batch/mixed_text_and_numbers.csv";
 
 /* Define options for CSV data source */
-const CsvDataSourceOptions csvOptions =
-    CsvDataSourceOptions::allocateNumericTable | CsvDataSourceOptions::createDictionaryFromContext | CsvDataSourceOptions::parseHeader;
+const CsvDataSourceOptions csvOptions = CsvDataSourceOptions::allocateNumericTable |
+                                        CsvDataSourceOptions::createDictionaryFromContext |
+                                        CsvDataSourceOptions::parseHeader;
 
 /* Read CSV using default data source behavior */
-void readDefault()
-{
+void readDefault() {
     FileDataSource<CSVFeatureManager> ds(csvFileName, csvOptions);
 
     /* By default all numeric columns will be parsed as continuous
@@ -50,8 +50,7 @@ void readDefault()
 }
 
 /* Read CSV and do basic filtering using columns indices */
-void readOnlySpecifiedColumnIndices()
-{
+void readOnlySpecifiedColumnIndices() {
     FileDataSource<CSVFeatureManager> ds(csvFileName, csvOptions);
 
     /* This means that columns with indices {0, 1, 5} will be included to the output numeric
@@ -66,12 +65,12 @@ void readOnlySpecifiedColumnIndices()
 }
 
 /* Read CSV and do basic filtering using columns names */
-void readOnlySpecifiedColumnNames()
-{
+void readOnlySpecifiedColumnNames() {
     FileDataSource<CSVFeatureManager> ds(csvFileName, csvOptions);
 
     /* The same as readOnlySpecifiedColumnIndices but uses column names instead of indices */
-    ds.getFeatureManager().addModifier(features::list("Numeric1", "Categorical0"), modifiers::csv::automatic());
+    ds.getFeatureManager().addModifier(features::list("Numeric1", "Categorical0"),
+                                       modifiers::csv::automatic());
 
     ds.loadDataBlock();
 
@@ -79,8 +78,7 @@ void readOnlySpecifiedColumnNames()
 }
 
 /* Read CSV using multiple modifiers */
-void readUsingMultipleModifiers()
-{
+void readUsingMultipleModifiers() {
     FileDataSource<CSVFeatureManager> ds(csvFileName, csvOptions);
 
     ds.getFeatureManager()
@@ -92,8 +90,7 @@ void readUsingMultipleModifiers()
     printNumericTable(ds.getNumericTable(), "readUsingMultipleModifiers function result:");
 }
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &csvFileName);
 
     /* Read CSV using default data source behavior */

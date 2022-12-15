@@ -40,21 +40,19 @@ using namespace daal::data_management;
 
 /* Input data set parameters */
 const std::string trainDatasetFileName = "../data/batch/binary_cls_train.csv";
-const std::string testDatasetFileName  = "../data/batch/binary_cls_test.csv";
-constexpr size_t nFeatures             = 20;
-constexpr size_t nClasses              = 2;
+const std::string testDatasetFileName = "../data/batch/binary_cls_test.csv";
+constexpr size_t nFeatures = 20;
+constexpr size_t nClasses = 2;
 
 logistic_regression::ModelPtr trainModel();
 void testModel(const logistic_regression::ModelPtr& model);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -70,31 +68,35 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-logistic_regression::ModelPtr trainModel()
-{
-    constexpr bool isIntercept           = true;
-    constexpr float l2Penalty            = 0.1f;
-    constexpr float learningRate         = 1.0f;
-    constexpr size_t nBlocksToProcess    = 40;
+logistic_regression::ModelPtr trainModel() {
+    constexpr bool isIntercept = true;
+    constexpr float l2Penalty = 0.1f;
+    constexpr float learningRate = 1.0f;
+    constexpr size_t nBlocksToProcess = 40;
     constexpr size_t nIterationsPerBlock = 5;
-    constexpr size_t dataBlockRowCount   = 1;
+    constexpr size_t dataBlockRowCount = 1;
 
     auto xBlock = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
     auto yBlock = SyclHomogenNumericTable<>::create(1, 0, NumericTable::notAllocate);
     NumericTablePtr mergedDataBlock(new MergedNumericTable(xBlock, yBlock));
 
     LogisticRegressionOnline alg;
-    alg.setParams(nClasses, nFeatures, isIntercept, l2Penalty, dataBlockRowCount, nIterationsPerBlock);
+    alg.setParams(nClasses,
+                  nFeatures,
+                  isIntercept,
+                  l2Penalty,
+                  dataBlockRowCount,
+                  nIterationsPerBlock);
 
     FileDataSource<CSVFeatureManager> dataSource(trainDatasetFileName,
-                                                DataSource::notAllocateNumericTable,
-                                                DataSource::doDictionaryFromContext);
+                                                 DataSource::notAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     size_t k = 1;
-    while (dataSource.loadDataBlock(dataBlockRowCount, mergedDataBlock.get()) == dataBlockRowCount &&
-           k <= nBlocksToProcess)
-    {
-        alg.setIterationParams(learningRate/k);
+    while (dataSource.loadDataBlock(dataBlockRowCount, mergedDataBlock.get()) ==
+               dataBlockRowCount &&
+           k <= nBlocksToProcess) {
+        alg.setIterationParams(learningRate / k);
         alg.setInput(xBlock, yBlock);
         alg.compute();
         k++;
@@ -104,8 +106,7 @@ logistic_regression::ModelPtr trainModel()
     return alg.getModel();
 }
 
-void testModel(const logistic_regression::ModelPtr& model)
-{
+void testModel(const logistic_regression::ModelPtr& model) {
     namespace class_prediction = classifier::prediction;
     using LogRegPrediction = logistic_regression::prediction::Batch<>;
 
@@ -133,6 +134,8 @@ void testModel(const logistic_regression::ModelPtr& model)
 
     /* Retrieve the algorithm results */
     auto predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(class_prediction::prediction), "Logistic regression prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(class_prediction::prediction),
+                      "Logistic regression prediction results (first 10 rows):",
+                      10);
     printNumericTable(testY, "Ground truth (first 10 rows):", 10);
 }

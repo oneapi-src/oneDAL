@@ -28,8 +28,14 @@ while [[ $# -gt 0 ]]; do
         --platform)
         platform="$2"
         ;;
+        --compiler)
+        compiler="$2"
+        ;;
         --interface)
         interface="$2"
+        ;;
+        --conda-env)
+        conda_env="$2"
         ;;
         *)
         echo "Unknown option: $1"
@@ -51,10 +57,26 @@ else
 fi
 
 if [ "${OS}" == "lnx" ]; then
+    source /usr/share/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" != "" ]; then
+        conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+    fi
     compiler=${compiler:-gnu}
+    link_modes="static dynamic"
 elif [ "${OS}" == "mac" ]; then
+    source /usr/local/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" != "" ]; then
+        conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+    fi
     compiler=${compiler:-clang}
-
+    if [ "${compiler}" == "gnu" ]; then
+        # TODO: fix static linking with gnu on mac
+        link_modes="dynamic"
+    else
+        link_modes="static dynamic"
+    fi
 else
     echo "Error not supported OS: ${OS}"
     exit 1
@@ -79,11 +101,24 @@ else
     export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
 fi
 
-interface=${interface:-daal}
-cd "${BUILD_DIR}/daal/latest/examples/${interface}/cpp"
+interface=${interface:-daal/cpp}
+cd "${BUILD_DIR}/daal/latest/${TEST_KIND}/${interface}"
 
-threading=thread
-for link_mode in static dynamic; do
+if [ "${interface}" == "daal/java" ]; then
+    bash launcher.sh
+    err=$?
+    if [ ${err} -ne 0 ]; then
+        echo -e "$(date +'%H:%M:%S') EXAMPLES FAILED\t\t with errno ${err}"
+        TESTING_RETURN=${err}
+        continue
+    else
+        echo -e "$(date +'%H:%M:%S') EXAMPLES PASSED\t\t"
+    fi
+
+    exit ${TESTING_RETURN}
+fi
+
+for link_mode in ${link_modes}; do
     # Release Examples testing
     if [ "${link_mode}" == "static" ]; then
         l="lib"
@@ -94,27 +129,27 @@ for link_mode in static dynamic; do
             l="dylib"
         fi
     fi
-    build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler} threading=${threading}"
-    echo "Building examples ${build_command}"
+    build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
+    echo "Building ${TEST_KIND} ${build_command}"
     (${build_command})
     err=$?
     if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${threading}-${link_mode}"
+        echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${link_mode}"
         TESTING_RETURN=${err}
         continue
     else
-        echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${threading}-${link_mode}"
+        echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${link_mode}"
     fi
-    run_command="make ${l}${full_arch} mode=run compiler=${compiler} threading=${threading}"
-    echo "Running examples ${run_command}"
+    run_command="make ${l}${full_arch} mode=run compiler=${compiler}"
+    echo "Running ${TEST_KIND} ${run_command}"
     (${run_command})
     err=$?
     if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${threading}-${link_mode} with errno ${err}"
+        echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${link_mode} with errno ${err}"
         TESTING_RETURN=${err}
         continue
     else
-        echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${threading}-${link_mode}"
+        echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${link_mode}"
     fi
 done
 

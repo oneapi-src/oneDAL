@@ -115,7 +115,7 @@ class LowOrderMomentsBatchTaskOneAPI : public TaskInfoBatch<algorithmFPType, sco
 public:
     LowOrderMomentsBatchTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, data_management::NumericTable * dataTable,
                                    Result * result, services::Status & status);
-    LowOrderMomentsBatchTaskOneAPI(const LowOrderMomentsBatchTaskOneAPI &) = delete;
+    LowOrderMomentsBatchTaskOneAPI(const LowOrderMomentsBatchTaskOneAPI &)             = delete;
     LowOrderMomentsBatchTaskOneAPI & operator=(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsBatchTaskOneAPI();
     services::Status compute();

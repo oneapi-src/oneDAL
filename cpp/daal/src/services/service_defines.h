@@ -258,9 +258,15 @@ typedef union
     double fp;
 } _daal_dp_union_t;
 
-#define IMPLEMENT_SERIALIZABLE_TAG(Class, Tag)    \
-    int Class::serializationTag() { return Tag; } \
-    int Class::getSerializationTag() const { return Class::serializationTag(); }
+#define IMPLEMENT_SERIALIZABLE_TAG(Class, Tag) \
+    int Class::serializationTag()              \
+    {                                          \
+        return Tag;                            \
+    }                                          \
+    int Class::getSerializationTag() const     \
+    {                                          \
+        return Class::serializationTag();      \
+    }
 
 #define IMPLEMENT_SERIALIZABLE_TAG1T(Class, T1, Tag)            \
     template <>                                                 \
@@ -298,16 +304,22 @@ typedef union
         return Class<T1, T2>::serializationTag();               \
     }
 
-#define IMPLEMENT_SERIALIZABLE_TAG22(Class, T1, Tag)       \
-    int Class<T1, Tag>::serializationTag() { return Tag; } \
-    int Class<T1, Tag>::getSerializationTag() const { return Class<T1, Tag>::serializationTag(); }
+#define IMPLEMENT_SERIALIZABLE_TAG22(Class, T1, Tag) \
+    int Class<T1, Tag>::serializationTag()           \
+    {                                                \
+        return Tag;                                  \
+    }                                                \
+    int Class<T1, Tag>::getSerializationTag() const  \
+    {                                                \
+        return Class<T1, Tag>::serializationTag();   \
+    }
 
 /* Maximal size of services::String */
 #define DAAL_MAX_STRING_SIZE 4096
 
 #define COMPUTE_DAAL_VERSION(majorVersion, minorVersion, updateVersion) (majorVersion * 10000 + minorVersion * 100 + updateVersion)
 
-#if defined(_MSC_VER) || defined(__INTEL_COMPILER)
+#if defined(_MSC_VER) || defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
     #include <immintrin.h>
     #define DAAL_PREFETCH_READ_T0(addr) _mm_prefetch((char *)addr, _MM_HINT_T0)
 #else

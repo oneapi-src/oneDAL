@@ -29,11 +29,9 @@
 #include "daal.h"
 #include <iostream>
 
-using namespace std;
 using namespace daal::services;
 
-int main()
-{
+int main() {
     LibraryVersionInfo ver;
 
     std::cout << "Major version:          " << ver.majorVersion << std::endl;

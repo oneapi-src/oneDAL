@@ -42,8 +42,7 @@ template <typename T>
 using enable_if_float_t = std::enable_if_t<detail::is_valid_float_v<T>>;
 
 template <typename Data>
-using local_accessor_rw_t =
-    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+using local_accessor_rw_t = sycl::local_accessor<Data, 1>;
 
 template <typename F>
 struct float_accuracy;
@@ -114,6 +113,7 @@ Index train_kernel_hist_impl<Float, Bin, Index, Task>::get_row_total_count(bool 
     Index row_total_count = row_count;
 
     if (distr_mode) {
+        ONEDAL_PROFILER_TASK(allreduce_row_total_count);
         comm_.allreduce(row_total_count).wait();
     }
 
@@ -128,7 +128,10 @@ Index train_kernel_hist_impl<Float, Bin, Index, Task>::get_global_row_offset(boo
     if (distr_mode) {
         auto row_count_list_host = pr::ndarray<Index, 1>::empty({ comm_.get_rank_count() });
         Index* row_count_list_host_ptr = row_count_list_host.get_mutable_data();
-        comm_.allgather(row_count, row_count_list_host.flatten()).wait();
+        {
+            ONEDAL_PROFILER_TASK(allgather_row_count);
+            comm_.allgather(row_count, row_count_list_host.flatten()).wait();
+        }
 
         for (std::int64_t i = 0; i < comm_.get_rank(); ++i) {
             global_row_offset += row_count_list_host_ptr[i];
@@ -176,9 +179,9 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
                                                                : std::sqrt(ctx.column_count_);
     }
     else {
-        ctx.selected_ftr_count_ = desc.get_features_per_node()
-                                      ? desc.get_features_per_node()
-                                      : ctx.column_count_ / 3 ? ctx.column_count_ / 3 : 1;
+        ctx.selected_ftr_count_ = desc.get_features_per_node() ? desc.get_features_per_node()
+                                  : ctx.column_count_ / 3      ? ctx.column_count_ / 3
+                                                               : 1;
     }
     ctx.min_observations_in_leaf_node_ = desc.get_min_observations_in_leaf_node();
     ctx.impurity_threshold_ = desc.get_impurity_threshold();
@@ -512,7 +515,7 @@ struct kernel_context {
     Float impurity_threshold_;
 };
 
-template <typename T, typename Index = size_t>
+template <typename T, typename Index = std::size_t>
 inline T* fill_zero(T* dst, Index elem_count) {
     for (Index i = 0; i < elem_count; ++i) {
         dst[i] = T(0);
@@ -1030,7 +1033,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::fin_initial_imp(
     const Float* sum2cent_list_ptr = sum2cent_list.get_data();
     Float* imp_list_ptr = imp_data_list.imp_list_.get_mutable_data();
 
-    const sycl::range<1> range{ de::integral_cast<size_t>(node_count) };
+    const sycl::range<1> range{ de::integral_cast<std::size_t>(node_count) };
 
     auto last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -1080,7 +1083,11 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                          imp_data_list,
                                                          node_count,
                                                          deps);
-            comm_.allreduce(imp_data_list.class_hist_list_.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_class_hist_list, queue_);
+                comm_.allreduce(imp_data_list.class_hist_list_.flatten(queue_, { last_event }))
+                    .wait();
+            }
             last_event = compute_initial_imp_for_node_list(ctx,
                                                            imp_data_list,
                                                            node_list,
@@ -1097,7 +1104,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                    sum_list,
                                                    node_count,
                                                    deps);
-            comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(sum_list, queue_);
+                comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            }
             last_event = compute_initial_sum2cent_local(ctx,
                                                         response,
                                                         tree_order,
@@ -1106,7 +1116,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                         sum2cent_list,
                                                         node_count,
                                                         { last_event });
-            comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum2cent_list, queue_);
+                comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            }
             last_event = fin_initial_imp(ctx,
                                          node_list,
                                          sum_list,
@@ -1216,9 +1229,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
             }
 
             const auto part_hist_cumulative_elem_count =
-                de::check_mul_overflow<size_t>(grp_node_count, part_hist_elem_count);
+                de::check_mul_overflow<std::size_t>(grp_node_count, part_hist_elem_count);
             const auto ph_block_elem_count =
-                de::check_mul_overflow<size_t>(part_hist_cumulative_elem_count, part_hist_count);
+                de::check_mul_overflow<std::size_t>(part_hist_cumulative_elem_count,
+                                                    part_hist_count);
 
             const Index ph_block_count =
                 de::integral_cast<Index>(ph_block_elem_count / max_ph_block_elem_count
@@ -1481,7 +1495,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                                  node_count,
                                                                  deps);
 
-        comm_.allreduce(node_hist_list.flatten(queue_, { last_event })).wait();
+        {
+            ONEDAL_PROFILER_TASK(allreduce_node_hist_list, queue_);
+            comm_.allreduce(node_hist_list.flatten(queue_, { last_event })).wait();
+        }
         last_event.wait_and_throw();
     }
     else {
@@ -1528,7 +1545,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        node_count,
                                                        { last_event });
 
-            comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum_list, queue_);
+                comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            }
 
             last_event = compute_partial_sum2cent(ctx,
                                                   data,
@@ -1545,7 +1565,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                   node_count,
                                                   { last_event });
 
-            comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum2cent_list, queue_);
+                comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            }
 
             last_event = fin_histogram_distr(ctx,
                                              sum_list,
@@ -1605,7 +1628,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        impl_const_t::hist_prop_sum_count_,
                                                        { last_event });
 
-            comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum_list, queue_);
+                comm_.allreduce(sum_list.flatten(queue_, { last_event })).wait();
+            }
 
             last_event = compute_partial_sum2cent(ctx,
                                                   data,
@@ -1630,7 +1656,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                                        impl_const_t::hist_prop_sum2cent_count_,
                                                        { last_event });
 
-            comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sum2cent_list, queue_);
+                comm_.allreduce(sum2cent_list.flatten(queue_, { last_event })).wait();
+            }
 
             last_event = fin_histogram_distr(ctx,
                                              sum_list,
@@ -1987,8 +2016,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::fin_histogram_distr
     Float* hist_ptr = hist_list.get_mutable_data();
 
     //mul overflow is checked during hist_list accumulation
-    const sycl::range<1> range{ de::integral_cast<size_t>(ctx.max_bin_count_among_ftrs_ *
-                                                          ctx.selected_ftr_count_ * node_count) };
+    const sycl::range<1> range{ de::integral_cast<std::size_t>(
+        ctx.max_bin_count_among_ftrs_ * ctx.selected_ftr_count_ * node_count) };
 
     auto last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -2670,8 +2699,14 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_oob_error(
 
     if (ctx.oob_err_required_) {
         if (ctx.distr_mode_) {
-            comm_.allreduce(predicted_count).wait();
-            comm_.allreduce(oob_err).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_predicted_count);
+                comm_.allreduce(predicted_count).wait();
+            }
+            {
+                ONEDAL_PROFILER_TASK(allreduce_oob_err);
+                comm_.allreduce(oob_err).wait();
+            }
         }
 
         *res_oob_err_host_ptr = (0 < predicted_count) ? oob_err / Float(predicted_count) : 0;
@@ -2746,13 +2781,13 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     /*init engines*/
     auto skip_num =
-        de::check_mul_overflow<size_t>(ctx.row_total_count_, (ctx.selected_ftr_count_ + 1));
-    skip_num = de::check_mul_overflow<size_t>(ctx.tree_count_, skip_num);
+        de::check_mul_overflow<std::size_t>(ctx.row_total_count_, (ctx.selected_ftr_count_ + 1));
+    skip_num = de::check_mul_overflow<std::size_t>(ctx.tree_count_, skip_num);
 
-    de::check_mul_overflow<size_t>((ctx.tree_count_ - 1), skip_num);
+    de::check_mul_overflow<std::size_t>((ctx.tree_count_ - 1), skip_num);
 
     pr::engine_collection collection(ctx.tree_count_, desc.get_seed());
-    rng_engine_list_t engine_arr = collection([&](size_t i, size_t& skip) {
+    rng_engine_list_t engine_arr = collection([&](std::size_t i, std::size_t& skip) {
         skip = i * skip_num;
     });
 
