@@ -9,13 +9,22 @@ trigger:
     - develop
     - master
     - rls/*
-
+  paths:
+    exclude:
+    - docs
+    - .ci/pipeline/docs.yml
+    - *.md
 pr:
   branches:
     include:
     - develop
     - master
     - rls/*
+  paths:
+    exclude:
+    - docs
+    - .ci/pipeline/docs.yml
+    - *.md
 
 jobs:
 - job: 'ClangFormat'
