@@ -13,7 +13,6 @@ trigger:
     exclude:
     - docs
     - .ci/pipeline/docs.yml
-    - *.md
 pr:
   branches:
     include:
@@ -24,7 +23,6 @@ pr:
     exclude:
     - docs
     - .ci/pipeline/docs.yml
-    - *.md
 
 jobs:
 - job: 'ClangFormat'
