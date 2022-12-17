@@ -13,7 +13,7 @@ importlib-resources==5.4.0
 Jinja2==3.0.3
 lxml==4.9.1
 MarkupSafe==2.0.1
-packaging==21.2
+packaging==21.3
 pydata-sphinx-theme==0.7.2
 Pygments==2.13.0
 pyparsing==3.0.6
