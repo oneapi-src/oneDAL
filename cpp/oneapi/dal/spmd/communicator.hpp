@@ -39,7 +39,7 @@ class request : public base {
     friend dal::detail::pimpl_accessor;
 
 public:
-    /// Creates empty request
+    /// Creates an empty request
     request() : impl_(nullptr) {}
 
     /// Waits for the request to be completed
@@ -49,7 +49,7 @@ public:
         }
     }
 
-    /// Checks if the request has been completed
+    /// Checks if the request is completed
     bool test() {
         if (impl_) {
             return impl_->test();
@@ -66,13 +66,13 @@ class communicator_iface_base {
 public:
     virtual ~communicator_iface_base() = default;
 
-    /// Returns current executor rank identifier
+    /// Returns the rank identifier of the current executor
     virtual std::int64_t get_rank() = 0;
 
-    /// Returns executors count
+    /// Returns the number of executors
     virtual std::int64_t get_rank_count() = 0;
 
-    /// Returns default root rak identifier
+    /// Returns the rank identifier of the default root
     virtual std::int64_t get_default_root_rank() = 0;
 
     /// Synchronizes all executors
@@ -125,7 +125,7 @@ public:
     ///                     to be sent
     /// @param recv_buf     Raw pointer to the buffer
     ///                     to be received and reduced
-    /// @param count        Number of elements to be
+    /// @param count        The number of elements to be
     ///                     reduced
     /// @param dtype        Data type flag
     /// @param op           Reduction binary operation
@@ -183,13 +183,13 @@ public:
     /// @param queue        Represents executor device
     /// @param send_buf     Raw pointer to the buffer
     ///                     to be sent
-    /// @param send_count   Number of elements in
+    /// @param send_count   The number of elements in
     ///                     send buffer
     /// @param recv_buf     Raw pointer to the buffer
     ///                     to be received
-    /// @param recv_count   Numbers of elements in
-    ///                     recv buffer
-    /// @param displs_host  Specifies array of
+    /// @param recv_count   The number of elements in
+    ///                     `recv_buffer`
+    /// @param displs_host  Specifies an array of
     ///                     displacements
     /// @param dtype        Data type flag
     /// @param deps         Dependencies of this
@@ -206,7 +206,7 @@ public:
                                       const data_type& dtype,
                                       const std::vector<sycl::event>& deps) = 0;
 
-    /// Reduces data from all executrors
+    /// Reduces data from all executors
     /// with specified binary operation
     ///
     /// @param queue        Represents executor device
@@ -214,14 +214,14 @@ public:
     ///                     to be sent
     /// @param recv_buf     Raw pointer to the buffer
     ///                     to be received and reduced
-    /// @param count        Number of elements to be
+    /// @param count        The number of elements to be
     ///                     reduced
     /// @param dtype        Data type flag
     /// @param op           Reduction binary operation
     /// @param deps         Dependencies of this
     ///                     request
     ///
-    /// @return Pointer to the request object that
+    /// @return Pointer to the `request` object that
     ///         represents allreduce operation status
     virtual request_iface* allreduce(sycl::queue& q,
                                      const byte_t* send_buf,
@@ -253,17 +253,17 @@ private:
     using interface_type = typename interface_selector<MemoryAccessKind>::type;
 
 public:
-    /// Returns current executor identifier
+    /// Returns the identifier of the current executor
     std::int64_t get_rank() const {
         return impl_->get_rank();
     }
 
-    /// Returns number of executors
+    /// Returns the number of executors
     std::int64_t get_rank_count() const {
         return impl_->get_rank_count();
     }
 
-    /// Returns identifier of the root rank
+    /// Returns the identifier of the root rank
     std::int64_t get_default_root_rank() const {
         return impl_->get_default_root_rank();
     }
@@ -310,7 +310,7 @@ public:
     /// @param buf   The buffer which content is broadcasted
     /// @param count The number of elements of `dtype` in `send_buf`
     /// @param dtype The type of elements in the passed buffers
-    /// @param root  The rank of the broadcasting process, if the passed
+    /// @param root  The rank of the broadcasting process. If the passed
     ///              rank is negative, the default root rank is used
     /// @param deps         Dependencies of this
     ///                     request
@@ -332,7 +332,7 @@ public:
     ///
     /// @param buf   The buffer which content is broadcasted
     /// @param count The number of elements of `dtype` in `send_buf`
-    /// @param root  The rank of the broadcasting process, if the passed
+    /// @param root  The rank of the broadcasting process. If the passed
     ///              rank is negative, the default root rank is used
     ///
     /// @return The object to track the progress of the operation
@@ -348,7 +348,7 @@ public:
     /// @param queue        Represents executor device
     /// @param buf          The buffer which content is broadcasted
     /// @param count        The number of elements of `dtype` in `send_buf`
-    /// @param root         The rank of the broadcasting process, if the passed
+    /// @param root         The rank of the broadcasting process. If the passed
     ///                     rank is negative, the default root rank is used
     /// @param deps         Dependencies of this request
     ///
@@ -374,7 +374,7 @@ public:
     /// Broadcasts a message from the `root` rank to all other ranks
     ///
     /// @param value        The value which content is broadcasted
-    /// @param root         The rank of the broadcasting process, if the passed
+    /// @param root         The rank of the broadcasting process. If the passed
     ///                     rank is negative, the default root rank is used
     ///
     /// @return The object to track the progress of the operation
@@ -387,7 +387,7 @@ public:
     ///
     /// @param ary   The buffer which content is broadcasted
     /// @param count The number of elements of `dtype` in `send_buf`
-    /// @param root  The rank of the broadcasting process, if the passed
+    /// @param root  The rank of the broadcasting process. If the passed
     ///              rank is negative, the default root rank is used
     ///
     /// @return The object to track the progress of the operation
@@ -445,8 +445,8 @@ public:
     }
 #ifdef ONEDAL_DATA_PARALLEL
     /// Collects data from all the ranks within a communicator into a single buffer
-    /// and redistribute to all ranks.
-    /// The data size send by each rank may be different.
+    /// and redistributes to all ranks.
+    /// The size of the data sent by each rank may be different.
     ///
     /// @param queue      Represents executor device
     /// @param send_buf   The send buffer
@@ -486,8 +486,8 @@ public:
     }
 #endif
     /// Collects data from all the ranks within a communicator into a single buffer
-    /// and redistribute to all ranks.
-    /// The data size send by each rank may be different.
+    /// and redistributes to all ranks.
+    /// The size of the data sent by each rank may be different.
     ///
     /// @param send_buf   The send buffer
     /// @param send_count The number of elements of `dtype` in `send_buf`
@@ -518,8 +518,8 @@ public:
     }
 #ifdef ONEDAL_DATA_PARALLEL
     /// Collects data from all the ranks within a communicator into a single buffer
-    /// and redistribute to all ranks.
-    /// The data size send by each rank may be different.
+    /// and redistributes to all ranks.
+    /// The size of the data sent by each rank may be different.
     ///
     /// @param queue      Represents executor device
     /// @param send_buf   The send buffer
@@ -559,8 +559,8 @@ public:
     }
 #endif
     /// Collects data from all the ranks within a communicator into a single buffer
-    /// and redistribute to all ranks.
-    /// The data size send by each rank may be different.
+    /// and redistributes to all ranks.
+    /// The size of the data sent by each rank may be different.
     ///
     /// @param send_buf   The send buffer
     /// @param send_count The number of elements of `dtype` in `send_buf`

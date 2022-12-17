@@ -72,17 +72,17 @@ public:
         return is_distributed_;
     }
 
-    /// Returns current executor identifier
+    /// Returns the identifier of the current executor
     std::int64_t get_rank() const {
         return public_comm_.get_rank();
     }
 
-    /// Returns number of executors
+    /// Returns the number of executors
     std::int64_t get_rank_count() const {
         return public_comm_.get_rank_count();
     }
 
-    /// Returns identifier of the root rank
+    /// Returns the identifier of the root rank
     std::int64_t get_default_root_rank() const {
         return public_comm_.get_default_root_rank();
     }
@@ -105,7 +105,7 @@ public:
     }
 
     /// Collects data from all the ranks within a communicator into a single buffer
-    /// and redistribute to all ranks.
+    /// and redistributes to all ranks.
     /// The data size send by each rank may be different.
     template <typename... Args>
     communicator_event allgatherv(Args&&... args) const {
@@ -113,7 +113,7 @@ public:
     }
 
     /// Collects data from all the ranks within a communicator into a single buffer
-    /// and redistribute to all ranks.
+    /// and redistributes to all ranks.
     template <typename... Args>
     communicator_event allgather(Args&&... args) const {
         return public_comm_.allgather(std::forward<Args>(args)...);
