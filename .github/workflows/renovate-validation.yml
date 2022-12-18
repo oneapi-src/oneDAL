@@ -4,9 +4,15 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - .github/workflows/renovate-validation.yml
+      - .github/renovate.json
   push:
     branches:
       - master
+    paths:
+      - .github/workflows/renovate-validation.yml
+      - .github/renovate.json
 
 jobs:
   validate:
@@ -16,6 +22,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Validate
-        uses: rinchsan/renovate-config-validator@v0.0.10
+        uses: rinchsan/renovate-config-validator@v0.0.12
         with:
           pattern: '*.json' # Regular expression for filename to validate, default to *.json
