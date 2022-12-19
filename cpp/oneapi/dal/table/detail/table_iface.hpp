@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/table/detail/access_iface_compat.hpp"
 #include "oneapi/dal/table/detail/rows_access_iface.hpp"
 #include "oneapi/dal/table/detail/columns_access_iface.hpp"
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
@@ -37,9 +36,7 @@ using v1::feature_type;
 namespace oneapi::dal::detail {
 namespace v1 {
 
-// Inheritance from `access_provider_iface` is needed to support binary backward
-// compatibility with the oneDAL 2021.1. This should be removed in 2022.1.
-class table_iface : public access_provider_iface {
+class table_iface {
 public:
     virtual ~table_iface() = default;
     virtual std::int64_t get_column_count() const = 0;
