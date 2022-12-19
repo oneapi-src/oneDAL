@@ -197,6 +197,30 @@ public:
         return ndview{ data, shape, strides };
     }
 
+    static ndview wrap(const array<T>& data, const shape_t& shape) {
+        ONEDAL_ASSERT(data.has_data());
+        ONEDAL_ASSERT(data.get_count() >= shape.get_count());
+        return wrap(data.get_data(), shape);
+    }
+
+    static ndview wrap(const array<T>& data, const shape_t& shape, const shape_t strides) {
+        ONEDAL_ASSERT(data.has_data());
+        ONEDAL_ASSERT(data.get_count() >= shape.get_count());
+        return wrap(data.get_data(), shape, strides);
+    }
+
+    static ndview wrap_mutable(const array<T>& data, const shape_t& shape) {
+        ONEDAL_ASSERT(data.has_mutable_data());
+        ONEDAL_ASSERT(data.get_count() >= shape.get_count());
+        return wrap(data.get_mutable_data(), shape);
+    }
+
+    static ndview wrap_mutable(const array<T>& data, const shape_t& shape, const shape_t strides) {
+        ONEDAL_ASSERT(data.has_mutable_data());
+        ONEDAL_ASSERT(data.get_count() >= shape.get_count());
+        return wrap(data.get_mutable_data(), shape, strides);
+    }
+
     const T* get_data() const {
         return data_;
     }

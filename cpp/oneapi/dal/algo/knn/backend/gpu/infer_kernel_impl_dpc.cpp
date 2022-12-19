@@ -20,7 +20,8 @@
 
 #include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/gpu/infer_kernel_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/gpu/infer_kernel_impl.hpp" //name switch
+
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 
@@ -31,52 +32,16 @@
 #include "oneapi/dal/backend/primitives/selection.hpp"
 #include "oneapi/dal/backend/primitives/voting.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/backend/communicator.hpp"
+#include "oneapi/dal/backend/communicator.hpp" //addition
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
 
-#ifdef ONEDAL_DATA_PARALLEL
-
 namespace oneapi::dal::knn::backend {
 
-using idx_t = std::int32_t;
-
-using dal::backend::context_gpu;
-
-template <typename Task>
-using descriptor_t = detail::descriptor_base<Task>;
-
-using voting_t = ::oneapi::dal::knn::voting_mode;
-
-namespace de = ::oneapi::dal::detail;
-namespace bk = ::oneapi::dal::backend;
-namespace pr = ::oneapi::dal::backend::primitives;
-namespace spmd = oneapi::dal::preview::spmd;
-
-using daal_distance_t = daal::algorithms::internal::PairwiseDistanceType;
-
-template <typename Task>
-struct task_to_response_map {
-    using type = int;
-};
-
-template <>
-struct task_to_response_map<task::regression> {
-    using type = float;
-};
-
-template <>
-struct task_to_response_map<task::classification> {
-    using type = std::int32_t;
-};
-
-template <typename Task>
-using response_t = typename task_to_response_map<Task>::type;
-
 template <typename T1, typename T2>
-sycl::event copy_with_sqrt(sycl::queue& q,
+inline sycl::event copy_with_sqrt(sycl::queue& q,
                            const pr::ndview<T2, 2>& src,
                            pr::ndview<T1, 2>& dst,
                            const bk::event_vector& deps = {}) {
@@ -105,7 +70,7 @@ template <typename Float, typename Task>
 class knn_callback {
     using dst_t = Float;
     using idx_t = std::int32_t;
-    using res_t = response_t<Task>;
+    using res_t = response_t<Task, Float>;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
 
     using uniform_voting_t = std::unique_ptr<pr::uniform_voting<res_t>>;
@@ -169,36 +134,30 @@ public:
         return *this;
     }
 
-    auto& set_responses(const array<res_t>& responses) {
+    auto& set_responses(const pr::ndview<res_t, 1>& responses) {
         if (result_options_.test(result_options::responses)) {
             ONEDAL_ASSERT(responses.get_count() == query_length_);
-            this->responses_ = pr::ndarray<res_t, 1>::wrap_mutable(responses, query_length_);
+            this->responses_ = responses;
         }
         return *this;
     }
 
-    auto& set_indices(const array<idx_t>& indices) {
+    auto& set_indices(const pr::ndview<idx_t, 2>& indices) {
         if (result_options_.test(result_options::indices)) {
-            ONEDAL_ASSERT(indices.get_count() ==
-                          de::check_mul_overflow(query_length_, k_neighbors_));
-            this->indices_ =
-                pr::ndarray<idx_t, 2>::wrap_mutable(indices, { query_length_, k_neighbors_ });
+            ONEDAL_ASSERT(indices.get_dimension(0) == query_length_);
+            ONEDAL_ASSERT(indices.get_dimension(1) == k_neighbors_);
+            this->indices_ = indices;
         }
         return *this;
     }
 
-    auto& set_distances(array<Float>& distances) {
+    auto& set_distances(const pr::ndview<dst_t, 2>& distances) {
         if (result_options_.test(result_options::distances)) {
-            ONEDAL_ASSERT(distances.get_count() ==
-                          de::check_mul_overflow(query_length_, k_neighbors_));
-            this->distances_ =
-                pr::ndarray<Float, 2>::wrap_mutable(distances, { query_length_, k_neighbors_ });
+            ONEDAL_ASSERT(distances.get_dimension(0) == query_length_);
+            ONEDAL_ASSERT(distances.get_dimension(1) == k_neighbors_);
+            this->distances_ = distances;
         }
         return *this;
-    }
-
-    auto get_blocking() const {
-        return bk::uniform_blocking(query_length_, query_block_);
     }
 
     // Note: `inp_distances` can be modified if
@@ -208,91 +167,210 @@ public:
                            pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
         sycl::event copy_indices, copy_distances, comp_responses;
-        const auto blocking = this->get_blocking();
-
-        const auto from = blocking.get_block_start_index(qb_id);
-        const auto to = blocking.get_block_end_index(qb_id);
+        
+        const auto bounds = this->block_bounds(qb_id);
 
         if (result_options_.test(result_options::indices)) {
-            auto out_block = indices_.get_row_slice(from, to);
-            copy_indices = copy(queue_, out_block, inp_indices, deps);
+            copy_indices = this->output_indices(bounds, inp_indices, deps);
         }
 
         if (result_options_.test(result_options::distances)) {
-            auto out_block = distances_.get_row_slice(from, to);
-            if (this->compute_sqrt_) {
-                copy_distances = copy_with_sqrt(queue_, inp_distances, out_block, deps);
-            }
-            else {
-                copy_distances = copy(queue_, out_block, inp_distances, deps);
-            }
+            copy_distances = this->output_distances(bounds, inp_distances, deps);
         }
 
         if (result_options_.test(result_options::responses)) {
             using namespace bk;
-            auto out_block = responses_.get_slice(from, to);
             const auto ndeps = deps + copy_indices + copy_distances;
-            auto temp_resp = temp_resp_.get_row_slice(0, to - from);
-            auto s_event = select_indexed(queue_, inp_indices, inp_responses_, temp_resp, ndeps);
-
-            // One and only one functor can be initialized
-            ONEDAL_ASSERT((bool(distance_voting_) + bool(uniform_voting_) +
-                           bool(distance_regression_) + bool(uniform_regression_)) == 1);
-
-            if constexpr (std::is_same_v<Task, task::classification>) {
-                if (uniform_voting_) {
-                    comp_responses = uniform_voting_->operator()(temp_resp, out_block, { s_event });
-                }
-
-                if (distance_voting_) {
-                    sycl::event sqrt_event;
-
-                    if (this->compute_sqrt_) {
-                        sqrt_event = copy_with_sqrt(queue_, inp_distances, inp_distances, deps);
-                    }
-
-                    comp_responses = distance_voting_->operator()(temp_resp,
-                                                                  inp_distances,
-                                                                  out_block,
-                                                                  { sqrt_event, s_event });
-                }
-            }
-
-            if constexpr (std::is_same_v<Task, task::regression>) {
-                if (uniform_regression_) {
-                    comp_responses =
-                        uniform_regression_->operator()(temp_resp, out_block, { s_event });
-                }
-
-                if (distance_regression_) {
-                    sycl::event sqrt_event;
-
-                    if (this->compute_sqrt_) {
-                        sqrt_event = copy_with_sqrt(queue_, inp_distances, inp_distances, deps);
-                    }
-
-                    comp_responses = distance_regression_->operator()(temp_resp,
-                                                                      inp_distances,
-                                                                      out_block,
-                                                                      { sqrt_event, s_event });
-                }
-            }
+            comp_responses = this->output_responses(bounds, inp_indices, inp_distances, ndeps);
         }
 
         sycl::event::wait_and_throw({ copy_indices, copy_distances, comp_responses });
         return sycl::event();
     }
 
+protected:
+    auto get_blocking() const {
+        return bk::uniform_blocking(query_length_, query_block_);
+    }
+
+    auto block_bounds(std::int64_t qb_id) const {
+        const auto blocking = this->get_blocking();
+        const auto first = blocking.get_block_start_index(qb_id);
+        const auto last = blocking.get_block_end_index(qb_id);
+        return std::make_pair(first, last);
+    }
+
+    sycl::event output_distances(const std::pair<idx_t, idx_t>& bnds,
+                                 const pr::ndview<dst_t, 2>& inp_dts,
+                                 const bk::event_vector& deps = {}) {
+        ONEDAL_ASSERT(inp_dts.has_data());
+        ONEDAL_ASSERT(this->result_options_.test(result_options::distances));
+
+        const auto& [first, last] = bnds;
+        ONEDAL_ASSERT(last > first);
+        auto& queue = this->queue_;
+
+        auto out_dts = this->distances_.get_row_slice(first, last);
+        ONEDAL_ASSERT((last - first) == inp_dts.get_dimension(0));
+        ONEDAL_ASSERT((last - first) == out_dts.get_dimension(0));
+
+        // Generally !csqrt is more probable
+        const bool& csqrt = this->compute_sqrt_;
+        if (!csqrt)
+            return pr::copy(queue, out_dts, inp_dts, deps);
+        else
+            return copy_with_sqrt(queue, inp_dts, out_dts, deps);
+    }
+
+    sycl::event output_indices(const std::pair<idx_t, idx_t>& bnds,
+                               const pr::ndview<idx_t, 2>& inp_ids,
+                               const bk::event_vector& deps = {}) {
+        ONEDAL_ASSERT(inp_ids.has_data());
+        ONEDAL_ASSERT(this->result_options_.test(result_options::indices));
+
+        const auto& [first, last] = bnds;
+        ONEDAL_ASSERT(last > first);
+        auto& queue = this->queue_;
+
+        auto out_ids = this->indices_.get_row_slice(first, last);
+        ONEDAL_ASSERT((last - first) == inp_ids.get_dimension(0));
+        ONEDAL_ASSERT((last - first) == out_ids.get_dimension(0));
+        ONEDAL_ASSERT(inp_ids.get_shape() == out_ids.get_shape());
+
+        return pr::copy(queue, out_ids, inp_ids, deps);
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    sycl::event do_ucls(const std::pair<idx_t, idx_t>& bnds,
+                        const pr::ndview<res_t, 2>& tmp_rps,
+                        const bk::event_vector& deps = {}) {
+        ONEDAL_ASSERT(tmp_rps.has_data());
+        ONEDAL_ASSERT(bool(this->uniform_voting_));
+        ONEDAL_ASSERT(this->result_options_.test(result_options::responses));
+
+        const auto& [first, last] = bnds;
+        ONEDAL_ASSERT(last > first);
+
+        auto out_rps = this->responses_.get_slice(first, last);
+        ONEDAL_ASSERT((last - first) == out_rps.get_count());
+        return (*(this->uniform_voting_))(tmp_rps, out_rps, deps);
+    }
+
+    template <typename T = Task, typename = detail::enable_if_regression_t<T>>
+    sycl::event do_ureg(const std::pair<idx_t, idx_t>& bnds,
+                        const pr::ndview<res_t, 2>& tmp_rps,
+                        const bk::event_vector& deps = {}) {
+        ONEDAL_ASSERT(tmp_rps.has_data());
+        ONEDAL_ASSERT(bool(this->uniform_regression_));
+        ONEDAL_ASSERT(this->result_options_.test(result_options::responses));
+
+        const auto& [first, last] = bnds;
+        ONEDAL_ASSERT(last > first);
+
+        auto out_rps = this->responses_.get_slice(first, last);
+        ONEDAL_ASSERT((last - first) == out_rps.get_count());
+        return (*(this->uniform_regression_))(tmp_rps, out_rps, deps);
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    sycl::event do_dcls(const std::pair<idx_t, idx_t>& bnds,
+                        const pr::ndview<res_t, 2>& tmp_rps,
+                        pr::ndview<dst_t, 2>& inp_dts,
+                        const bk::event_vector& deps = {}) {
+        ONEDAL_ASSERT(inp_dts.has_data());
+        ONEDAL_ASSERT(tmp_rps.has_mutable_data());
+        ONEDAL_ASSERT(bool(this->distance_voting_));
+        ONEDAL_ASSERT(this->result_options_.test(result_options::responses));
+
+        const auto& [first, last] = bnds;
+        ONEDAL_ASSERT(last > first);
+        auto& queue = this->queue_;
+
+        bk::event_vector ndeps{ deps.cbegin(), deps.cend() };
+        auto sq_event = copy_with_sqrt(queue, inp_dts, inp_dts, deps);
+        if (this->compute_sqrt_)
+            ndeps.push_back(sq_event);
+
+        auto out_rps = this->responses_.get_slice(first, last);
+        ONEDAL_ASSERT((last - first) == out_rps.get_count());
+        return (*(this->distance_voting_))(tmp_rps, inp_dts, out_rps, ndeps);
+    }
+
+    template <typename T = Task, typename = detail::enable_if_regression_t<T>>
+    sycl::event do_dreg(const std::pair<idx_t, idx_t>& bnds,
+                        const pr::ndview<res_t, 2>& tmp_rps,
+                        pr::ndview<dst_t, 2>& inp_dts,
+                        const bk::event_vector& deps = {}) {
+        ONEDAL_ASSERT(inp_dts.has_data());
+        ONEDAL_ASSERT(tmp_rps.has_mutable_data());
+        ONEDAL_ASSERT(bool(this->distance_regression_));
+        ONEDAL_ASSERT(this->result_options_.test(result_options::responses));
+
+        const auto& [first, last] = bnds;
+        ONEDAL_ASSERT(last > first);
+        auto& queue = this->queue_;
+
+        bk::event_vector ndeps{ deps.cbegin(), deps.cend() };
+        auto sq_event = copy_with_sqrt(queue, inp_dts, inp_dts, deps);
+        if (this->compute_sqrt_)
+            ndeps.push_back(sq_event);
+
+        auto out_rps = this->responses_.get_slice(first, last);
+        ONEDAL_ASSERT((last - first) == out_rps.get_count());
+        return (*(this->distance_regression_))(tmp_rps, inp_dts, out_rps, ndeps);
+    }
+
+    sycl::event output_responses(const std::pair<idx_t, idx_t>& bnds,
+                                 const pr::ndview<idx_t, 2>& inp_ids,
+                                 pr::ndview<dst_t, 2>& inp_dts,
+                                 const bk::event_vector& deps = {}) {
+        ONEDAL_ASSERT(inp_ids.has_data());
+        ONEDAL_ASSERT(this->result_options_.test(result_options::responses));
+
+        const auto& [first, last] = bnds;
+        const auto len = last - first;
+        ONEDAL_ASSERT(last > first);
+        auto& queue = this->queue_;
+
+        auto tmp_rps = this->temp_resp_.get_row_slice(0, len);
+
+        const auto& inp_rps = this->inp_responses_;
+        auto s_evt = pr::select_indexed(queue, inp_ids, inp_rps, tmp_rps, deps);
+
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            const auto ucls = bool(this->uniform_voting_);
+            if (ucls)
+                return this->do_ucls(bnds, tmp_rps, { s_evt });
+
+            const auto dcls = bool(this->distance_voting_);
+            if (dcls)
+                return this->do_dcls(bnds, tmp_rps, inp_dts, { s_evt });
+        }
+
+        if constexpr (std::is_same_v<Task, task::regression>) {
+            const auto ureg = bool(this->uniform_regression_);
+            if (ureg)
+                return this->do_ureg(bnds, tmp_rps, { s_evt });
+
+            const auto dreg = bool(this->distance_regression_);
+            if (dreg)
+                return this->do_dreg(bnds, tmp_rps, inp_dts, { s_evt });
+        }
+
+        ONEDAL_ASSERT(false);
+        return sycl::event();
+    }
+
 private:
     sycl::queue& queue_;
-    comm_t comm_;
-    const result_option_id result_options_;
+    comm_t comm_; //addition
+    const result_option_id result_options_; //modified
     const std::int64_t query_block_, query_length_, k_neighbors_;
     pr::ndview<res_t, 1> inp_responses_;
     pr::ndarray<res_t, 2> temp_resp_;
-    pr::ndarray<res_t, 1> responses_;
-    pr::ndarray<Float, 2> distances_;
-    pr::ndarray<idx_t, 2> indices_;
+    pr::ndview<res_t, 1> responses_;
+    pr::ndview<Float, 2> distances_;
+    pr::ndview<idx_t, 2> indices_;
     uniform_voting_t uniform_voting_;
     distance_voting_t distance_voting_;
     uniform_regression_t uniform_regression_;
@@ -300,45 +378,92 @@ private:
     bool compute_sqrt_ = false;
 };
 
-inline bool is_col_major(const table& t) {
-    const auto t_layout = t.get_data_layout();
-    return t_layout == decltype(t_layout)::column_major;
-}
+template <typename Task, typename Float, pr::ndorder torder, pr::ndorder qorder, typename RespT>
+sycl::event bf_kernel(sycl::queue& queue,
+                      bk::communicator<spmd::device_memory_access::usm> comm,
+                      const descriptor_t<Task>& desc,
+                      const pr::ndview<Float, 2, torder>& train,
+                      const pr::ndview<Float, 2, qorder>& query,
+                      const pr::ndview<RespT, 1>& tresps,
+                      pr::ndview<Float, 2>& distances,
+                      pr::ndview<idx_t, 2>& indices,
+                      pr::ndview<RespT, 1>& qresps,
+                      const bk::event_vector& deps) {
+    using res_t = response_t<Task, Float>;
 
-template <typename Float, bool is_cm>
-struct ndarray_t_map;
+    // Input arrays test section
+    ONEDAL_ASSERT(train.has_data());
+    ONEDAL_ASSERT(query.has_data());
+    [[maybe_unused]] const auto tcount = train.get_dimension(0);
+    const auto qcount = query.get_dimension(0);
+    const auto fcount = train.get_dimension(1);
+    ONEDAL_ASSERT(fcount == query.get_dimension(1));
 
-template <typename Float>
-struct ndarray_t_map<Float, true> {
-    using type = pr::ndarray<Float, 2, pr::ndorder::f>;
-};
+    // Output arrays test section
+    const auto& ropts = desc.get_result_options();
+    if (ropts.test(result_options::responses)) {
+        ONEDAL_ASSERT(tresps.has_data());
+        ONEDAL_ASSERT(qresps.has_mutable_data());
+        ONEDAL_ASSERT(tcount == tresps.get_count());
+        ONEDAL_ASSERT(qcount == qresps.get_count());
+    }
+    const auto kcount = desc.get_neighbor_count();
+    if (ropts.test(result_options::indices)) {
+        ONEDAL_ASSERT(indices.has_mutable_data());
+        ONEDAL_ASSERT(qcount == indices.get_dimension(0));
+        ONEDAL_ASSERT(kcount == indices.get_dimension(1));
+    }
+    if (ropts.test(result_options::distances)) {
+        ONEDAL_ASSERT(distances.has_mutable_data());
+        ONEDAL_ASSERT(qcount == distances.get_dimension(0));
+        ONEDAL_ASSERT(kcount == distances.get_dimension(1));
+    }
 
-template <typename Float>
-struct ndarray_t_map<Float, false> {
-    using type = pr::ndarray<Float, 2, pr::ndorder::c>;
-};
+    // Callback preparation
+    const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
+    const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
 
-template <typename Float, bool is_cm>
-using ndarray_t = typename ndarray_t_map<Float, is_cm>::type;
+    knn_callback<Float, Task> callback(queue, comm, ropts, qbcount, qcount, kcount);
 
-template <typename Type, pr::ndorder order>
-constexpr pr::ndorder get_ndorder(const pr::ndarray<Type, 2, order>&) {
-    return order;
-}
+    callback.set_inp_responses(tresps);
+    callback.set_distances(distances);
+    callback.set_responses(qresps);
+    callback.set_indices(indices);
 
-template <typename Float, typename Task, bool cm_train, bool cm_query>
-static infer_result<Task> kernel(const descriptor_t<Task>& desc,
-                                 const table& infer,
-                                 const model<Task>& m,
-                                 sycl::queue& queue,
-                                 bk::communicator<spmd::device_memory_access::usm> comm) {
-    using res_t = response_t<Task>;
+    if constexpr (std::is_same_v<Task, task::classification>) {
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::uniform)) {
+            callback.set_uniform_voting(std::move(pr::make_uniform_voting(queue, qbcount, kcount)));
+        }
 
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::distance)) {
+            callback.set_distance_voting(
+                std::move(pr::make_distance_voting<Float>(queue, qbcount, kcount)));
+        }
+    }
+
+    if constexpr (std::is_same_v<Task, task::regression>) {
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::uniform)) {
+            callback.set_uniform_regression(
+                std::move(pr::make_uniform_regression<res_t>(queue, qbcount, kcount)));
+        }
+
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::distance)) {
+            callback.set_distance_regression(
+                std::move(pr::make_distance_regression<Float>(queue, qbcount, kcount)));
+        }
+    }
+
+    // Actual search
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
         throw internal_error{ de::error_messages::unknown_distance_type() };
     }
 
+    using daal_distance_t = decltype(distance_impl->get_daal_distance_type());
     const bool is_minkowski_distance =
         distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
     const bool is_chebyshev_distance =
@@ -348,205 +473,78 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
     const bool is_euclidean_distance =
         is_minkowski_distance && (distance_impl->get_degree() == 2.0);
 
-    const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
-    const auto train = trained_model->get_data();
-    const auto resps = trained_model->get_responses();
-
-    const std::int64_t infer_row_count = infer.get_row_count();
-    const std::int64_t feature_count = train.get_column_count();
-
-    const std::int64_t class_count = desc.get_class_count();
-    const std::int64_t neighbor_count = desc.get_neighbor_count();
-
-    ONEDAL_ASSERT(train.get_column_count() == infer.get_column_count());
-
-    // auto& queue = ctx.get_queue();
-    // auto& comm = ctx.get_communicator();
-
-    bk::interop::execution_context_guard guard(queue);
-
-    auto arr_responses = array<res_t>{};
-    if (desc.get_result_options().test(result_options::responses)) {
-        arr_responses = array<res_t>::empty(queue, infer_row_count, sycl::usm::alloc::device);
-    }
-    auto arr_distances = array<Float>{};
-    if (desc.get_result_options().test(result_options::distances) ||
-        (desc.get_voting_mode() == voting_t::distance)) {
-        const auto length = de::check_mul_overflow(infer_row_count, neighbor_count);
-        arr_distances = array<Float>::empty(queue, length, sycl::usm::alloc::device);
-    }
-    auto arr_indices = array<idx_t>{};
-    if (desc.get_result_options().test(result_options::indices)) {
-        const auto length = de::check_mul_overflow(infer_row_count, neighbor_count);
-        arr_indices = array<idx_t>::empty(queue, length, sycl::usm::alloc::device);
-    }
-
-    using train_t = ndarray_t<Float, cm_train>;
-    auto train_var = pr::table2ndarray_variant<Float>(queue, train, sycl::usm::alloc::device);
-    train_t train_data = std::get<train_t>(train_var);
-
-    using query_t = ndarray_t<Float, cm_query>;
-    auto query_var = pr::table2ndarray_variant<Float>(queue, infer, sycl::usm::alloc::device);
-    query_t query_data = std::get<query_t>(query_var);
-
-    auto resps_data = desc.get_result_options().test(result_options::responses)
-                          ? pr::table2ndarray_1d<res_t>(queue, resps, sycl::usm::alloc::device)
-                          : pr::ndarray<res_t, 1>{};
-
-    const std::int64_t infer_block = pr::propose_query_block<Float>(queue, feature_count);
-    const std::int64_t train_block = pr::propose_train_block<Float>(queue, feature_count);
-
-    knn_callback<Float, Task> callback(queue,
-                                       comm,
-                                       desc.get_result_options(),
-                                       infer_block,
-                                       infer_row_count,
-                                       neighbor_count);
-
-    callback.set_inp_responses(resps_data);
-    callback.set_responses(arr_responses);
-    callback.set_distances(arr_distances);
-    callback.set_indices(arr_indices);
-
-    if constexpr (std::is_same_v<Task, task::classification>) {
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::uniform)) {
-            callback.set_uniform_voting(
-                std::move(pr::make_uniform_voting(queue, infer_block, neighbor_count)));
-        }
-
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::distance)) {
-            callback.set_distance_voting(
-                std::move(pr::make_distance_voting<Float>(queue, infer_block, class_count)));
-        }
-    }
-
-    if constexpr (std::is_same_v<Task, task::regression>) {
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::uniform)) {
-            callback.set_uniform_regression(
-                std::move(pr::make_uniform_regression<res_t>(queue, infer_block, neighbor_count)));
-        }
-
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::distance)) {
-            callback.set_distance_regression(
-                std::move(pr::make_distance_regression<Float>(queue, infer_block, neighbor_count)));
-        }
-    }
+    sycl::event search_event;
 
     if (is_cosine_distance) {
         using dst_t = pr::cosine_distance<Float>;
-        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
-        using search_t = pr::search_engine<Float, dst_t, order>;
+        using search_t = pr::search_engine<Float, dst_t, torder>;
 
         const dst_t dist{ queue };
-        const search_t search{ queue, train_data, train_block, dist };
-        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
+        const search_t search{ queue, train, tbcount, dist };
+        search_event = search(query, callback, qbcount, kcount);
     }
 
     if (is_chebyshev_distance) {
         using dst_t = pr::chebyshev_distance<Float>;
-        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
-        using search_t = pr::search_engine<Float, dst_t, order>;
+        using search_t = pr::search_engine<Float, dst_t, torder>;
 
         const dst_t dist{ queue };
-        const search_t search{ queue, train_data, train_block, dist };
-        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
+        const search_t search{ queue, train, tbcount, dist };
+        search_event = search(query, callback, qbcount, kcount);
     }
 
     if (is_euclidean_distance) {
         using dst_t = pr::squared_l2_distance<Float>;
-        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
-        using search_t = pr::search_engine<Float, dst_t, order>;
+        using search_t = pr::search_engine<Float, dst_t, torder>;
 
         callback.set_euclidean_distance(true);
 
         const dst_t dist{ queue };
-        const search_t search{ queue, train_data, train_block, dist };
-        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
+        const search_t search{ queue, train, tbcount, dist };
+        search_event = search(query, callback, qbcount, kcount);
     }
     else if (is_minkowski_distance) {
         using met_t = pr::lp_metric<Float>;
         using dst_t = pr::lp_distance<Float>;
-        [[maybe_unused]] constexpr auto order = get_ndorder(train_data);
-        using search_t = pr::search_engine<Float, dst_t, order>;
+        using search_t = pr::search_engine<Float, dst_t, torder>;
 
         const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
-        const search_t search{ queue, train_data, train_block, dist };
-        search(query_data, callback, infer_block, neighbor_count).wait_and_throw();
+        const search_t search{ queue, train, tbcount, dist };
+        search_event = search(query, callback, qbcount, kcount);
     }
 
-    auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
-
-    if (desc.get_result_options().test(result_options::responses)) {
-        if constexpr (detail::is_not_search_v<Task>) {
-            result = result.set_responses(homogen_table::wrap(arr_responses, infer_row_count, 1));
-        }
-    }
-
-    if (desc.get_result_options().test(result_options::indices)) {
-        result =
-            result.set_indices(homogen_table::wrap(arr_indices, infer_row_count, neighbor_count));
-    }
-
-    if (desc.get_result_options().test(result_options::distances)) {
-        result = result.set_distances(
-            homogen_table::wrap(arr_distances, infer_row_count, neighbor_count));
-    }
-
-    return result;
+    return search_event;
 }
 
-template <typename Float, typename Task>
-static infer_result<Task> call_kernel(const context_gpu& ctx,
-                                      const descriptor_t<Task>& desc,
-                                      const table& infer,
-                                      const model<Task>& m) {
-    auto& c = ctx.get_communicator();
-    auto& q = ctx.get_queue();
-    const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
-    const auto train = trained_model->get_data();
-    const bool cm_train = is_col_major(train);
-    const bool cm_query = is_col_major(infer);
-    if (cm_train) {
-        if (cm_query)
-            return kernel<Float, Task, true, true>(desc, infer, m, q, c);
-        else
-            return kernel<Float, Task, true, false>(desc, infer, m, q, c);
-    }
-    else {
-        if (cm_query)
-            return kernel<Float, Task, false, true>(desc, infer, m, q, c);
-        else
-            return kernel<Float, Task, false, false>(desc, infer, m, q, c);
-    }
-}
+#define INSTANTIATE(T, I, R, F, A, B)                                                       \
+    template sycl::event bf_kernel(sycl::queue&,                                            \
+                                   bk::communicator<spmd::device_memory_access::usm>, \
+                                   const descriptor_t<T>&,                                  \
+                                   const pr::ndview<F, 2, A>&,                              \
+                                   const pr::ndview<F, 2, B>&,                              \
+                                   const pr::ndview<R, 1>&,                                 \
+                                   pr::ndview<F, 2>&,                                       \
+                                   pr::ndview<I, 2>&,                                       \
+                                   pr::ndview<R, 1>&,                                       \
+                                   const bk::event_vector&);
 
-template <typename Float, typename Task>
-static infer_result<Task> infer(const context_gpu& ctx,
-                                const descriptor_t<Task>& desc,
-                                const infer_input<Task>& input) {
-    return call_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_model());
-}
+#define INSTANTIATE_B(T, I, R, F, A)           \
+    INSTANTIATE(T, I, R, F, A, pr::ndorder::c) \
+    INSTANTIATE(T, I, R, F, A, pr::ndorder::f)
 
-template <typename Float, typename Task>
-struct infer_kernel_gpu<Float, method::brute_force, Task> {
-    infer_result<Task> operator()(const context_gpu& ctx,
-                                  const descriptor_t<Task>& desc,
-                                  const infer_input<Task>& input) const {
-        return infer<Float, Task>(ctx, desc, input);
-    }
-};
+#define INSTANTIATE_A(T, I, R, F)             \
+    INSTANTIATE_B(T, I, R, F, pr::ndorder::c) \
+    INSTANTIATE_B(T, I, R, F, pr::ndorder::f)
 
-template struct infer_kernel_gpu<float, method::brute_force, task::classification>;
-template struct infer_kernel_gpu<double, method::brute_force, task::classification>;
-template struct infer_kernel_gpu<float, method::brute_force, task::regression>;
-template struct infer_kernel_gpu<double, method::brute_force, task::regression>;
-template struct infer_kernel_gpu<float, method::brute_force, task::search>;
-template struct infer_kernel_gpu<double, method::brute_force, task::search>;
+#define INSTANTIATE_T(I, F)                                 \
+    INSTANTIATE_A(task::classification, I, std::int32_t, F) \
+    INSTANTIATE_A(task::regression, I, float, F)            \
+    INSTANTIATE_A(task::search, I, int, F)
+
+#define INSTANTIATE_F(I)    \
+    INSTANTIATE_T(I, float) \
+    INSTANTIATE_T(I, double)
+
+INSTANTIATE_F(std::int32_t)
 
 } // namespace oneapi::dal::knn::backend
-
-#endif // ONEDAL_DATA_PARALLEL
