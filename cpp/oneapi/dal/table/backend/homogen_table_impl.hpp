@@ -19,7 +19,6 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/homogen_kernels.hpp"
-#include "oneapi/dal/table/backend/accessor_compat.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::backend {
@@ -38,8 +37,7 @@ public:
               data_(data),
               row_count_(row_count),
               col_count_(column_count),
-              layout_(layout),
-              compat_acc_(this, this) {
+              layout_(layout) {
         using error_msg = dal::detail::error_messages;
 
         if (row_count <= 0) {
@@ -62,18 +60,6 @@ public:
             throw dal::domain_error(error_msg::unsupported_data_layout());
         }
     }
-
-    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
-    detail::access_iface_host& get_access_iface_host() const override {
-        return compat_acc_.get_host_accessor();
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
-    detail::access_iface_dpc& get_access_iface_dpc() const override {
-        return compat_acc_.get_dpc_accessor();
-    }
-#endif
 
     std::int64_t get_column_count() const override {
         return col_count_;
@@ -159,9 +145,6 @@ private:
     std::int64_t row_count_;
     std::int64_t col_count_;
     data_layout layout_;
-
-    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
-    mutable compat_accessor compat_acc_;
 };
 
 } // namespace oneapi::dal::backend
