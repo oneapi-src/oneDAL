@@ -85,7 +85,7 @@ jobs:
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget pkg'
 
-- job: 'LinuxMakeClang'
+- job: 'LinuxMakeDPCPP'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_clang'
@@ -95,40 +95,8 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
-      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.7.1 openjdk=17.0.3
     displayName: 'apt-get and conda install'
-  - script: |
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
-    displayName: 'make daal'
-  - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c
-    displayName: 'make oneapi_c'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
-    displayName: 'daal/cpp examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
-    displayName: 'oneapi/cpp examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env
-    displayName: 'daal/cpp/mpi samples'
-
-- job: 'LinuxMakeDPCPP'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_lnx_clang'
-    platform.type : 'lnx32e'
-  pool:
-    vmImage: 'ubuntu-22.04'
-  steps:
-  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix wget
-    displayName: 'apt-get'
   - script: |
       wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
       sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
@@ -145,25 +113,24 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
+    displayName: 'make daal'
+  - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc
     displayName: 'make onedal_dpc'
   - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
+  - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
     displayName: 'daal/cpp examples'
   - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler dpcpp --interface daal/cpp_sycl
-    displayName: 'daal/cpp_sycl examples'
-  - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
   - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler dpcpp --interface oneapi/dpc
-    displayName: 'oneapi/dpc examples'
+      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env
+    displayName: 'daal/cpp/mpi samples'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
