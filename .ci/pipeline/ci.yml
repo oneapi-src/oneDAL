@@ -127,30 +127,37 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix wget libtinfo5
+  - script: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix wget
     displayName: 'apt-get'
   - script: |
-      wget "https://github.com/intel/llvm/releases/download/sycl-nightly%2F20221129/dpcpp-compiler.tar.gz"
-      tar -xzf dpcpp-compiler.tar.gz
-      ln -s clang++ dpcpp_compiler/bin/icpx
-      ln -s clang dpcpp_compiler/bin/icx
-    displayName: 'download dpcpp daily build'
+      wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+      sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+      rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+      echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+      sudo add-apt-repository -y "deb https://apt.repos.intel.com/oneapi all main"
+      sudo apt-get update
+      sudo apt-get install -y intel-dpcpp-cpp-compiler-2023.0.0
+      sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
+      sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
+    displayName: 'dpcpp installation'
   - script: |
-      source dpcpp_compiler/startup.sh
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      source dpcpp_compiler/startup.sh
       .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc
     displayName: 'make onedal_dpc'
   - script: |
-      source dpcpp_compiler/startup.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp
     displayName: 'daal/cpp examples'
   - script: |
-      source dpcpp_compiler/startup.sh
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler dpcpp --interface daal/cpp_sycl
+    displayName: 'daal/cpp_sycl examples'
+  - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp
     displayName: 'oneapi/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler dpcpp --interface oneapi/dpc
+    displayName: 'oneapi/dpc examples'
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
