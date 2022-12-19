@@ -141,6 +141,12 @@ jobs:
       sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
     displayName: 'dpcpp installation'
   - script: |
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      export PATH="${DPCPPROOT}/linux/bin:${DPCPPROOT}/linux/bin-llvm:${PATH}"
+      echo "##vso[task.setvariable variable=DPCPPROOT;]${DPCPPROOT}"
+      echo "##vso[task.setvariable variable=PATH;]${PATH}"
+    displayName: 'dpcpp env set'
+  - script: |
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
