@@ -137,7 +137,7 @@ endif
 
 ifeq ($(compiler),icx)
     gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-    CC = icx --gcc-toolchain=$(gcc_toolchain)
+    CC = icpx --gcc-toolchain=$(gcc_toolchain)
     COPTS += -lstdc++
 endif
 
