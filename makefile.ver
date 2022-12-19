@@ -16,11 +16,7 @@
 
 MAJOR   =       2023
 MINOR   =       0
-<<<<<<< HEAD
-UPDATE  =       0
-=======
 UPDATE  =       1
->>>>>>> origin/master
 BUILD   =       $(shell date +'%Y%m%d')
 STATUS  =       P
 BUILDREV ?=     work
