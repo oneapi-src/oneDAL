@@ -102,7 +102,6 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
         auto x_arr = x_accessor.pull(queue, { first, last }, alloc);
         auto x = pr::ndarray<Float, 2>::wrap(x_arr, { length, f_count });
 
-
         auto y_arr = y_accessor.pull(queue, { first, last }, alloc);
         auto y = pr::ndarray<Float, 2>::wrap(y_arr, { length, r_count });
 
