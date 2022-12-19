@@ -779,7 +779,7 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
     const Float* bsum_ptr = com_sum.get_data();
     const Float* bsum2cent_ptr = com_sum2cent.get_data();
 
-    const sycl::range<1> range{ de::integral_cast<size_t>(column_count) };
+    const sycl::range<1> range{ de::integral_cast<std::size_t>(column_count) };
 
     auto last_event = q_.submit([&](cl::sycl::handler& cgh) {
         cgh.depends_on(deps);

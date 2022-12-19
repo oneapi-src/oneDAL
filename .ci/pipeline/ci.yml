@@ -9,13 +9,20 @@ trigger:
     - develop
     - master
     - rls/*
-
+  paths:
+    exclude:
+    - docs
+    - .ci/pipeline/docs.yml
 pr:
   branches:
     include:
     - develop
     - master
     - rls/*
+  paths:
+    exclude:
+    - docs
+    - .ci/pipeline/docs.yml
 
 jobs:
 - job: 'ClangFormat'
@@ -394,57 +401,6 @@ jobs:
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget pkg'
-
-- job: 'macOSMakeGNU'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_mac_gnu'
-    platform.type : 'mac32e'
-  pool:
-    vmImage:  'macos-12'
-  steps:
-  - script: |
-      brew install dos2unix tree
-      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
-      source /usr/local/miniconda/etc/profile.d/conda.sh
-      conda activate ci-env
-      pip install -q cpufeature
-    displayName: 'brew and conda install'
-  - script: |
-      brew install gcc@12
-      mkdir -p ${PWD}/aliases
-      ln -s /usr/local/bin/gcc-12 ${PWD}/aliases/gcc
-      ln -s /usr/local/bin/g++-12 ${PWD}/aliases/g++
-      ln -s /usr/local/bin/c++-12 ${PWD}/aliases/c++
-      ln -s /usr/local/bin/cpp-12 ${PWD}/aliases/cpp
-    displayName: 'install gcc@12'
-  - script: |
-      export PATH=${PWD}/aliases:${PATH}
-      source /usr/local/miniconda/etc/profile.d/conda.sh
-      conda activate ci-env
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      export PATH=${PWD}/aliases:${PATH}
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --optimizations "sse2 ssse3 sse42 avx avx2 avx512" --conda-env ci-env
-    displayName: 'make daal'
-  - script: |
-      export PATH=${PWD}/aliases:${PATH}
-      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c --optimizations "sse2 ssse3 sse42 avx avx2 avx512"
-    displayName: 'make oneapi_c'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
-  - script: |
-      export PATH=${PWD}/aliases:${PATH}
-      # TODO: error_handling_throw example throws exception out of try-catch block, and it's not reproducable locally
-      sed -i -e "s/_throw/_nothrow/" $(release.dir)/daal/latest/examples/daal/cpp/daal.lst
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp
-    displayName: 'daal/cpp examples'
-  - script: |
-      export PATH=${PWD}/aliases:${PATH}
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi/cpp
-    displayName: 'oneapi/cpp examples'
 
 - job: 'WindowsMakeVC'
   timeoutInMinutes: 0

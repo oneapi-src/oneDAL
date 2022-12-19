@@ -515,7 +515,7 @@ struct kernel_context {
     Float impurity_threshold_;
 };
 
-template <typename T, typename Index = size_t>
+template <typename T, typename Index = std::size_t>
 inline T* fill_zero(T* dst, Index elem_count) {
     for (Index i = 0; i < elem_count; ++i) {
         dst[i] = T(0);
@@ -1033,7 +1033,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::fin_initial_imp(
     const Float* sum2cent_list_ptr = sum2cent_list.get_data();
     Float* imp_list_ptr = imp_data_list.imp_list_.get_mutable_data();
 
-    const sycl::range<1> range{ de::integral_cast<size_t>(node_count) };
+    const sycl::range<1> range{ de::integral_cast<std::size_t>(node_count) };
 
     auto last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -1229,9 +1229,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
             }
 
             const auto part_hist_cumulative_elem_count =
-                de::check_mul_overflow<size_t>(grp_node_count, part_hist_elem_count);
+                de::check_mul_overflow<std::size_t>(grp_node_count, part_hist_elem_count);
             const auto ph_block_elem_count =
-                de::check_mul_overflow<size_t>(part_hist_cumulative_elem_count, part_hist_count);
+                de::check_mul_overflow<std::size_t>(part_hist_cumulative_elem_count,
+                                                    part_hist_count);
 
             const Index ph_block_count =
                 de::integral_cast<Index>(ph_block_elem_count / max_ph_block_elem_count
@@ -2015,8 +2016,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::fin_histogram_distr
     Float* hist_ptr = hist_list.get_mutable_data();
 
     //mul overflow is checked during hist_list accumulation
-    const sycl::range<1> range{ de::integral_cast<size_t>(ctx.max_bin_count_among_ftrs_ *
-                                                          ctx.selected_ftr_count_ * node_count) };
+    const sycl::range<1> range{ de::integral_cast<std::size_t>(
+        ctx.max_bin_count_among_ftrs_ * ctx.selected_ftr_count_ * node_count) };
 
     auto last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -2780,13 +2781,13 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     /*init engines*/
     auto skip_num =
-        de::check_mul_overflow<size_t>(ctx.row_total_count_, (ctx.selected_ftr_count_ + 1));
-    skip_num = de::check_mul_overflow<size_t>(ctx.tree_count_, skip_num);
+        de::check_mul_overflow<std::size_t>(ctx.row_total_count_, (ctx.selected_ftr_count_ + 1));
+    skip_num = de::check_mul_overflow<std::size_t>(ctx.tree_count_, skip_num);
 
-    de::check_mul_overflow<size_t>((ctx.tree_count_ - 1), skip_num);
+    de::check_mul_overflow<std::size_t>((ctx.tree_count_ - 1), skip_num);
 
     pr::engine_collection collection(ctx.tree_count_, desc.get_seed());
-    rng_engine_list_t engine_arr = collection([&](size_t i, size_t& skip) {
+    rng_engine_list_t engine_arr = collection([&](std::size_t i, std::size_t& skip) {
         skip = i * skip_num;
     });
 

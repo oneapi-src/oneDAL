@@ -10,6 +10,7 @@ trigger:
     - cpp/oneapi
     - docs
     - examples
+    - .ci/pipeline/docs.yml
 
 pr:
   branches:
@@ -23,6 +24,7 @@ pr:
     - cpp/oneapi
     - docs
     - examples
+    - .ci/pipeline/docs.yml
 
 pool:
   vmImage: 'ubuntu-20.04'

@@ -33,7 +33,7 @@ namespace oneapi::dal::preview::jaccard::backend {
 template <typename Cpu>
 vertex_similarity_result<task::all_vertex_pairs> jaccard(
     const detail::descriptor_base<task::all_vertex_pairs> &desc,
-    const dal::preview::detail::topology<int32_t> &t,
+    const dal::preview::detail::topology<std::int32_t> &t,
     void *result_ptr) {
     const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
     const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
@@ -110,7 +110,7 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard(
 template <>
 vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_avx512>(
     const detail::descriptor_base<task::all_vertex_pairs> &desc,
-    const dal::preview::detail::topology<int32_t> &t,
+    const dal::preview::detail::topology<std::int32_t> &t,
     void *result_ptr);
 
 } // namespace oneapi::dal::preview::jaccard::backend

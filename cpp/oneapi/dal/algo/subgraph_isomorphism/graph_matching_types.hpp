@@ -82,7 +82,7 @@ public:
     }
 
     /// The number pattern matches in the target graph.
-    int64_t get_match_count() const {
+    std::int64_t get_match_count() const {
         return get_match_count_impl();
     }
 
@@ -93,16 +93,16 @@ public:
     }
 
     /// Sets the maximum number of pattern matches in the target graph.
-    auto& set_match_count(int64_t value) {
+    auto& set_match_count(std::int64_t value) {
         set_match_count_impl(value);
         return *this;
     }
 
 private:
     const table& get_vertex_match_impl() const;
-    int64_t get_match_count_impl() const;
+    std::int64_t get_match_count_impl() const;
     void set_vertex_match_impl(const table& value);
-    void set_match_count_impl(int64_t value);
+    void set_match_count_impl(std::int64_t value);
     dal::detail::pimpl<detail::graph_matching_result_impl> impl_;
 };
 

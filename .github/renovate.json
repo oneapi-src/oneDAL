@@ -1,5 +1,16 @@
 {
   "extends": [
-    "config:base"
+    "config:base",
+    ":preserveSemverRanges"
+  ],
+  "packageRules": [
+    {
+    "fileMatch": [
+      "(^|/)docs/requirements.txt$"
+    ],
+    "matchUpdateTypes": ["minor", "patch"],
+    "matchCurrentVersion": "!/^0/",
+    "automerge": true
+    }
   ]
 }

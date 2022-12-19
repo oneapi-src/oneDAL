@@ -86,7 +86,7 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 #. Set up the compiler environment for |dpcpp|.
    See |dpcpp_gsg|_ for details.
 
-#. Build and run DPC++ examples:
+#. Build and run examples:
 
    .. note::
 
@@ -102,19 +102,19 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
          .. code-block:: bash
 
-           # Navigate to DPC++ examples directory and build examples
+           # Navigate to examples directory and build examples
            cd /examples/oneapi/dpc
            make so example=svm_two_class_thunder_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
-           make so mode=build			   # This will compile all DPC++ examples
+           make so mode=build			   # This will compile all the examples
 
       .. group-tab:: Windows
 
          .. code-block:: bash
 
-            # Navigate to DPC++ examples directory and build examples
+            # Navigate to examples directory and build examples
             cd /examples/oneapi/dpc
             nmake dll example=svm_two_class_thunder_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
-            nmake dll mode=build			     # This will compile all DPC++ examples
+            nmake dll mode=build			     # This will compile all the examples
 
    To see all available parameters of the build procedure, type ``make`` on Linux\* or ``nmake`` on Windows\*.
 
@@ -122,7 +122,7 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
    .. note::
 
-      You should run DPC++ examples from :file:`examples/oneapi/dpc` folder, not from :file:`_results` folder.
+      You should run the examples from :file:`examples/oneapi/dpc` folder, not from :file:`_results` folder.
       Most examples require data to be stored in :file:`examples/oneapi/data` folder and to have a relative link to it
       started from :file:`examples/oneapi/dpc` folder.
 

@@ -211,7 +211,11 @@ def _declare_onedal_config_impl(repo_ctx):
             "%{auto_cpu}":         auto_cpu,
             "%{version_major}":    "2023",
             "%{version_minor}":    "0",
+<<<<<<< HEAD
             "%{version_update}":   "0",
+=======
+            "%{version_update}":   "1",
+>>>>>>> origin/master
             "%{version_build}":    utils.datestamp(repo_ctx),
             "%{version_buildrev}": "work",
             "%{version_status}":   "P",

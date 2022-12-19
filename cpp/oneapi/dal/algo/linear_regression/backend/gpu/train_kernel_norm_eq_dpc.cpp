@@ -101,6 +101,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
         auto x_arr = x_accessor.pull(queue, { first, last }, alloc);
         auto x = pr::ndarray<Float, 2>::wrap(x_arr, { length, f_count });
+<<<<<<< HEAD
 
         auto y_arr = y_accessor.pull(queue, { first, last }, alloc);
         auto y = pr::ndarray<Float, 2>::wrap(y_arr, { length, r_count });
@@ -126,6 +127,18 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
         }
     }
 
+=======
+
+        auto y_arr = y_accessor.pull(queue, { first, last }, alloc);
+        auto y = pr::ndarray<Float, 2>::wrap(y_arr, { length, r_count });
+
+        last_xty_event = update_xty(queue, beta, x, y, xty, { last_xty_event });
+        last_xtx_event = update_xtx(queue, beta, x, xtx, { last_xtx_event });
+    }
+
+    const be::event_vector solve_deps{ last_xty_event, last_xtx_event };
+
+>>>>>>> origin/master
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
     auto nxty = pr::ndarray<Float, 2>::wrap_mutable(betas_arr, betas_shape);
     auto solve_event = pr::solve_system<uplo>(queue, beta, xtx, xty, nxtx, nxty, solve_deps);

@@ -60,7 +60,7 @@ struct float_accuracy<double> {
     static constexpr double val = double(1e-10);
 };
 
-template <typename T, typename Index = size_t>
+template <typename T, typename Index = std::size_t>
 inline T* fill_zero(T* dst, Index elem_count) {
     for (Index i = 0; i < elem_count; ++i) {
         dst[i] = T(0);

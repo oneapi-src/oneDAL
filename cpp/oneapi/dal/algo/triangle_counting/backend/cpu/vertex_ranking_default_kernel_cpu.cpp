@@ -20,7 +20,7 @@ namespace oneapi::dal::preview::triangle_counting::backend {
 
 template array<std::int64_t> triangle_counting_local<__CPU_TAG__>(
     const dal::preview::detail::topology<std::int32_t>& t,
-    int64_t* triangles_local);
+    std::int64_t* triangles_local);
 
 template std::int64_t triangle_counting_global_scalar<__CPU_TAG__>(
     const dal::preview::detail::topology<std::int32_t>& t);
