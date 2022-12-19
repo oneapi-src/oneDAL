@@ -34,10 +34,10 @@ sycl::event gemv(sycl::queue& queue,
 
 template <typename Float, ndorder ao>
 inline sycl::event gemv(sycl::queue& queue,
-                 const ndview<Float, 2, ao>& a,
-                 const ndview<Float, 1>& x,
-                 ndview<Float, 1>& y,
-                 const event_vector& deps = {}) {
+                        const ndview<Float, 2, ao>& a,
+                        const ndview<Float, 1>& x,
+                        ndview<Float, 1>& y,
+                        const event_vector& deps = {}) {
     return gemv<Float>(queue, a, x, y, Float(1), Float(0), deps);
 }
 
