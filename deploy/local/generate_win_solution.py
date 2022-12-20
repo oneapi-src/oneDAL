@@ -29,12 +29,12 @@ EndProject
 '''
 
 _sln_project_platform_decl = '''
-        {example_guid}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
-        {example_guid}.Debug.dynamic.threaded|x64.Build.0 = Debug.dynamic.threaded|x64
-        {example_guid}.Release.dynamic.threaded|x64.ActiveCfg = Release.dynamic.threaded|x64
-        {example_guid}.Release.dynamic.threaded|x64.Build.0 = Release.dynamic.threaded|x64
-        {example_guid}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
-        {example_guid}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
+        {example_guid}.Debug.dynamic|x64.ActiveCfg = Debug.dynamic|x64
+        {example_guid}.Debug.dynamic|x64.Build.0 = Debug.dynamic|x64
+        {example_guid}.Release.dynamic|x64.ActiveCfg = Release.dynamic|x64
+        {example_guid}.Release.dynamic|x64.Build.0 = Release.dynamic|x64
+        {example_guid}.Release.static|x64.ActiveCfg = Release.static|x64
+        {example_guid}.Release.static|x64.Build.0 = Release.static|x64
 '''
 
 _this_dir = os.path.dirname(os.path.realpath(__file__))
