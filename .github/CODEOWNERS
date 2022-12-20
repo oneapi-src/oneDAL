@@ -1,6 +1,6 @@
 # Documentation owners and reviewers
-/docs/         @Vika-F @maria-Petrova @Alexsandruss
-*.md           @Vika-F @maria-Petrova @Alexsandruss
+/docs/         @Vika-F @maria-Petrova @Alexsandruss @alexandraepan
+*.md           @Vika-F @maria-Petrova @Alexsandruss @alexandraepan
 
 samples/       @maria-Petrova @Alexsandruss
 examples/      @maria-Petrova @Alexsandruss @samir-nasibli
