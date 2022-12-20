@@ -138,7 +138,7 @@ public:
 
     void check_if_initialized() {
         if (!is_initialized()) {
-            throw std::runtime_error{ "gemm test is not initialized" };
+            throw std::runtime_error{ "gemv test is not initialized" };
         }
     }
 
