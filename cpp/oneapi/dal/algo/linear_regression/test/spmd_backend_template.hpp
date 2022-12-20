@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,9 +26,10 @@ namespace de = dal::detail;
 namespace la = te::linalg;
 
 template <typename TestType>
-class lr_batch_test : public lr_test<TestType, lr_batch_test<TestType>> {
+class lr_spmd_test : public lr_test<TestType, lr_spmd_test<TestType>> {
 public:
-    using base_t = lr_test<TestType, lr_batch_test<TestType>>;
+    using base_t = lr_test<TestType, lr_spmd_test<TestType>>;
+
     using float_t = typename base_t::float_t;
     using train_input_t = typename base_t::train_input_t;
     using train_result_t = typename base_t::train_result_t;
@@ -40,14 +41,43 @@ public:
         this->r_count_ = GENERATE(2, 15, 33);
         this->intercept_ = GENERATE(0, 1);
     }
+
+    train_result_t merge_train_result_override(const std::vector<train_result_t>& results) {
+        return results[0];
+    }
+
+    template <typename... Args>
+    std::vector<train_input_t> split_train_input_override(std::int64_t split_count,
+                                                          Args&&... args) {
+        const train_input_t input{ std::forward<Args>(args)... };
+
+        const auto split_x =
+            te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
+        const auto split_y = te::split_table_by_rows<float_t>(this->get_policy(),
+                                                              input.get_responses(),
+                                                              split_count);
+
+        std::vector<train_input_t> split_input;
+        split_input.reserve(split_count);
+
+        for (std::int64_t i = 0; i < split_count; ++i) {
+            split_input.emplace_back(split_x.at(i), split_y.at(i));
+        }
+
+        return split_input;
+    }
+
+    void set_rank_count(std::int64_t rank_count) {
+        rank_count_ = rank_count;
+    }
+
+    template <typename... Args>
+    train_result_t train_override(Args&&... args) {
+        return this->train_via_spmd_threads_and_merge(rank_count_, std::forward<Args>(args)...);
+    }
+
+private:
+    std::int64_t rank_count_;
 };
-
-TEMPLATE_LIST_TEST_M(lr_batch_test, "LR common flow", "[lr][batch]", lr_types) {
-    SKIP_IF(this->not_float64_friendly());
-
-    this->generate(777);
-
-    this->run_and_check();
-}
 
 } // namespace oneapi::dal::linear_regression::test

@@ -24,8 +24,17 @@ dal_module(
 dal_test_suite(
     name = "interface_tests",
     framework = "catch2",
+    hdrs = glob([
+        "test/*.hpp",
+    ], exclude=[
+        "test/mpi_*.hpp",
+        "test/ccl_*.hpp"
+    ]),
     srcs = glob([
         "test/*.cpp",
+    ], exclude=[
+        "test/mpi_*.cpp",
+        "test/ccl_*.cpp"
     ]),
     dal_deps = [
         ":linear_regression",
