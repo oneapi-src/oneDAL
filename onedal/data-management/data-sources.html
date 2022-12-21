@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Sources &#8212; oneDAL  documentation</title>
     
-  <link href="../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
@@ -68,6 +67,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -77,9 +80,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -101,7 +104,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -227,6 +230,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -357,6 +370,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -421,7 +439,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1717,7 +1735,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2097,7 +2115,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2192,7 +2210,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#read">
@@ -2242,10 +2260,10 @@
         
               <div>
                 
-  <section id="data-sources">
+  <div class="section" id="data-sources">
 <span id="dm-data-sources"></span><h1>Data Sources<a class="headerlink" href="#data-sources" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the types related to the <a class="reference internal" href="index.html#data-source"><span class="std std-ref">data source</span></a> concept.</p>
-<section id="read">
+<div class="section" id="read">
 <h2>Read<a class="headerlink" href="#read" title="Permalink to this headline">¶</a></h2>
 <p><strong>Read operation</strong> is a function that transforms a data source and other
 arguments represented via <a class="reference internal" href="#args">an args</a> object to <a class="reference internal" href="#result">a result</a>
@@ -2255,25 +2273,25 @@ object. The operation is responsible for:</p>
 source.</p></li>
 <li><p>Passing a SYCL* queue to the data retrieval and transformation routines.</p></li>
 </ul>
-<section id="read-operation-definition">
+<div class="section" id="read-operation-definition">
 <span id="id1"></span><h3>Read operation definition<a class="headerlink" href="#read-operation-definition" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference internal" href="#read-operation-template">The following code sample</a> shows the declaration for a
 read operation.</p>
-<div class="highlight-cpp notranslate" id="read-operation-template"><div class="highlight"><pre><span></span><span class="k">namespace</span> <span class="nn">oneapi</span><span class="o">::</span><span class="nn">dal</span> <span class="p">{</span>
+<div class="highlight-cpp notranslate" id="read-operation-template"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">oneapi</span><span class="o">::</span><span class="nn">dal</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Object</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataSource</span><span class="o">&gt;</span>
-<span class="k">using</span> <span class="n">read_args_t</span> <span class="o">=</span> <span class="cm">/* implementation defined */</span><span class="p">;</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Object</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">DataSource</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">read_args_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* implementation defined */</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Object</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataSource</span><span class="o">&gt;</span>
-<span class="k">using</span> <span class="n">read_result_t</span> <span class="o">=</span> <span class="n">Object</span><span class="p">;</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Object</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">DataSource</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">read_result_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Object</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Object</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataSource</span><span class="o">&gt;</span>
-<span class="n">read_result_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">&gt;</span> <span class="n">read</span><span class="p">(</span>
-   <span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="o">&amp;</span> <span class="n">queue</span><span class="p">,</span>
-   <span class="k">const</span> <span class="n">DataSource</span><span class="o">&amp;</span> <span class="n">data_source</span><span class="p">,</span>
-   <span class="k">const</span> <span class="n">read_args_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">&gt;&amp;</span> <span class="n">args</span><span class="p">);</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Object</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">DataSource</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">read_result_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&gt;</span><span class="w"> </span><span class="n">read</span><span class="p">(</span><span class="w"></span>
+<span class="w">   </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="o">&amp;</span><span class="w"> </span><span class="n">queue</span><span class="p">,</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&amp;</span><span class="w"> </span><span class="n">data_source</span><span class="p">,</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">read_args_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
 
-<span class="p">}</span> <span class="c1">// namespace oneapi::dal</span>
+<span class="p">}</span><span class="w"> </span><span class="c1">// namespace oneapi::dal</span>
 </pre></div>
 </div>
 <p>Each operation satisfies the following requirements:</p>
@@ -2289,8 +2307,8 @@ read operation.</p>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">read_args_t</span></code> and <code class="docutils literal notranslate"><span class="pre">read_result_t</span></code> alias
 templates is used for inference of the args and return types.</p></li>
 </ul>
-</section>
-<section id="read-operation-shortcuts">
+</div>
+<div class="section" id="read-operation-shortcuts">
 <h3>Read operation shortcuts<a class="headerlink" href="#read-operation-shortcuts" title="Permalink to this headline">¶</a></h3>
 <p>In order to make the code on user side less verbose, oneDAL defines the
 following overloaded functions called <em>shortcuts</em> for a read operation in addition
@@ -2299,69 +2317,69 @@ to the general one described in section <a class="reference internal" href="#rea
 <li><p>A shortcut for execution on <a class="reference internal" href="../glossary.html#term-Host-Device"><span class="xref std std-term">host</span></a>. Performs the same
 operation as the general function on host, but does not require passing the
 queue explicitly.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Object</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataSource</span><span class="o">&gt;</span>
-<span class="n">read_result_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">&gt;</span> <span class="n">read</span><span class="p">(</span>
-   <span class="k">const</span> <span class="n">DataSource</span><span class="o">&amp;</span> <span class="n">data_source</span><span class="p">,</span>
-   <span class="k">const</span> <span class="n">read_args_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">&gt;&amp;</span> <span class="n">args</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Object</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">DataSource</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">read_result_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&gt;</span><span class="w"> </span><span class="n">read</span><span class="p">(</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&amp;</span><span class="w"> </span><span class="n">data_source</span><span class="p">,</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">read_args_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 </li>
 <li><p>A shortcut that allows omitting explicit args creation.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Object</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataSource</span><span class="p">,</span> <span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
-<span class="n">read_result_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">&gt;</span> <span class="n">read</span><span class="p">(</span>
-   <span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="o">&amp;</span> <span class="n">queue</span><span class="p">,</span>
-   <span class="k">const</span> <span class="n">DataSource</span><span class="o">&amp;</span> <span class="n">data_source</span><span class="p">,</span>
-   <span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Object</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">DataSource</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">read_result_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&gt;</span><span class="w"> </span><span class="n">read</span><span class="p">(</span><span class="w"></span>
+<span class="w">   </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="o">&amp;</span><span class="w"> </span><span class="n">queue</span><span class="p">,</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&amp;</span><span class="w"> </span><span class="n">data_source</span><span class="p">,</span><span class="w"></span>
+<span class="w">   </span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 </li>
 <li><p>A shortcut that allows omitting explicit queue and args creation. This is a
 combination of two previous shortcuts.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Object</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataSource</span><span class="p">,</span> <span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
-<span class="n">read_result_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">&gt;</span> <span class="n">read</span><span class="p">(</span>
-   <span class="k">const</span> <span class="n">DataSource</span><span class="o">&amp;</span> <span class="n">data_source</span><span class="p">,</span>
-   <span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Object</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">DataSource</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">read_result_t</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&gt;</span><span class="w"> </span><span class="n">read</span><span class="p">(</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">DataSource</span><span class="o">&amp;</span><span class="w"> </span><span class="n">data_source</span><span class="p">,</span><span class="w"></span>
+<span class="w">   </span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 </li>
 </ul>
-</section>
-<section id="args">
+</div>
+<div class="section" id="args">
 <span id="id2"></span><h3>Args<a class="headerlink" href="#args" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>The string <code class="docutils literal notranslate"><span class="pre">%DATA_SOURCE%</span></code> should be substituted with the name of the data source, for example, <code class="docutils literal notranslate"><span class="pre">csv</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">%PROPERTY_NAME%</span></code> and <code class="docutils literal notranslate"><span class="pre">%PROPERTY_TYPE%</span></code> should be substituted with the name and the type of one
 of the data source args properties.</p></li>
 </ul>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span> <span class="nn">oneapi</span><span class="o">::</span><span class="nn">dal</span><span class="o">::%</span><span class="nn">DATA_SOURCE</span><span class="o">%</span> <span class="p">{</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">oneapi</span><span class="o">::</span><span class="nn">dal</span><span class="o">::%</span><span class="nn">DATA_SOURCE</span><span class="o">%</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Object</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataSource</span><span class="o">&gt;</span>
-<span class="k">class</span> <span class="nc">read_args</span> <span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-   <span class="n">read_args</span><span class="p">(</span>
-      <span class="k">const</span> <span class="o">%</span><span class="n">PROPERTY_TYPE_1</span><span class="o">%&amp;</span> <span class="n">property_name_1</span><span class="p">,</span>
-      <span class="k">const</span> <span class="o">%</span><span class="n">PROPERTY_TYPE_2</span><span class="o">%&amp;</span> <span class="n">property_name_2</span><span class="p">,</span>
-      <span class="cm">/* more properties */</span>
-   <span class="p">)</span>
-   <span class="cm">/* Getter &amp; Setter for the property called `%PROPERTY_NAME_1%` */</span>
-   <span class="n">descriptor</span><span class="o">&amp;</span> <span class="n">set_</span><span class="o">%</span><span class="n">PROPERTY_NAME_1</span><span class="o">%</span><span class="p">(</span><span class="o">%</span><span class="n">PROPERTY_TYPE_1</span><span class="o">%</span> <span class="n">value</span><span class="p">);</span>
-   <span class="o">%</span><span class="n">PROPERTY_TYPE_1</span><span class="o">%</span> <span class="n">get_</span><span class="o">%</span><span class="n">PROPERTY_NAME_1</span><span class="o">%</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
-   <span class="cm">/* Getter &amp; Setter for the property called `%PROPERTY_NAME_2%` */</span>
-   <span class="n">descriptor</span><span class="o">&amp;</span> <span class="n">set_</span><span class="o">%</span><span class="n">PROPERTY_NAME_2</span><span class="o">%</span><span class="p">(</span><span class="o">%</span><span class="n">PROPERTY_TYPE_2</span><span class="o">%</span> <span class="n">value</span><span class="p">);</span>
-   <span class="o">%</span><span class="n">PROPERTY_TYPE_2</span><span class="o">%</span> <span class="n">get_</span><span class="o">%</span><span class="n">PROPERTY_NAME_2</span><span class="o">%</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
-   <span class="cm">/* more properties */</span>
-<span class="p">};</span>
-<span class="p">}</span> <span class="c1">// namespace oneapi::dal::%DATA_SOURCE%</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Object</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">DataSource</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">read_args</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">   </span><span class="n">read_args</span><span class="p">(</span><span class="w"></span>
+<span class="w">      </span><span class="k">const</span><span class="w"> </span><span class="o">%</span><span class="n">PROPERTY_TYPE_1</span><span class="o">%&amp;</span><span class="w"> </span><span class="n">property_name_1</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="k">const</span><span class="w"> </span><span class="o">%</span><span class="n">PROPERTY_TYPE_2</span><span class="o">%&amp;</span><span class="w"> </span><span class="n">property_name_2</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="cm">/* more properties */</span><span class="w"></span>
+<span class="w">   </span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="cm">/* Getter &amp; Setter for the property called `%PROPERTY_NAME_1%` */</span><span class="w"></span>
+<span class="w">   </span><span class="n">descriptor</span><span class="o">&amp;</span><span class="w"> </span><span class="n">set_</span><span class="o">%</span><span class="n">PROPERTY_NAME_1</span><span class="o">%</span><span class="p">(</span><span class="o">%</span><span class="n">PROPERTY_TYPE_1</span><span class="o">%</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="o">%</span><span class="n">PROPERTY_TYPE_1</span><span class="o">%</span><span class="w"> </span><span class="n">get_</span><span class="o">%</span><span class="n">PROPERTY_NAME_1</span><span class="o">%</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="cm">/* Getter &amp; Setter for the property called `%PROPERTY_NAME_2%` */</span><span class="w"></span>
+<span class="w">   </span><span class="n">descriptor</span><span class="o">&amp;</span><span class="w"> </span><span class="n">set_</span><span class="o">%</span><span class="n">PROPERTY_NAME_2</span><span class="o">%</span><span class="p">(</span><span class="o">%</span><span class="n">PROPERTY_TYPE_2</span><span class="o">%</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="o">%</span><span class="n">PROPERTY_TYPE_2</span><span class="o">%</span><span class="w"> </span><span class="n">get_</span><span class="o">%</span><span class="n">PROPERTY_NAME_2</span><span class="o">%</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="cm">/* more properties */</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="c1">// namespace oneapi::dal::%DATA_SOURCE%</span>
 </pre></div>
 </div>
-</section>
-<section id="result">
+</div>
+<div class="section" id="result">
 <h3>Result<a class="headerlink" href="#result" title="Permalink to this headline">¶</a></h3>
-<p>The result of a <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">read</span></code> operation is an instance of an in-memory object
+<p>The result of a <span class="cpp-expr sig sig-inline cpp"><span class="n">read</span></span> operation is an instance of an in-memory object
 with <code class="code docutils literal notranslate"><span class="pre">Object</span></code> type.</p>
-</section>
-</section>
-<section id="data-source-types">
+</div>
+</div>
+<div class="section" id="data-source-types">
 <h2>Data Source Types<a class="headerlink" href="#data-source-types" title="Permalink to this headline">¶</a></h2>
 <p>oneDAL defines a set of classes.</p>
 <table class="colwidths-given table" id="id3">
@@ -2381,8 +2399,8 @@ with <code class="code docutils literal notranslate"><span class="pre">Object</s
 </tr>
 </tbody>
 </table>
-</section>
-<section id="details">
+</div>
+<div class="section" id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
@@ -2393,23 +2411,34 @@ with <code class="code docutils literal notranslate"><span class="pre">Object</s
 </li>
 </ul>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="accessor/row.html" title="previous page">Row accessor</a>
-    <a class='right-next' id="next-link" href="data-source/csv.html" title="next page">CSV data source</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="accessor/row.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Row accessor</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="data-source/csv.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">CSV data source</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2426,8 +2455,7 @@ with <code class="code docutils literal notranslate"><span class="pre">Object</s
       </div>
     </div>
   
-  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

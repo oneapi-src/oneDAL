@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Column accessor &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
@@ -68,6 +67,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -77,9 +80,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -101,7 +104,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -227,6 +230,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -357,6 +370,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -421,7 +439,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1717,7 +1735,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2097,7 +2115,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2192,7 +2210,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#usage-example">
@@ -2215,73 +2233,84 @@
         
               <div>
                 
-  <section id="column-accessor">
+  <div class="section" id="column-accessor">
 <span id="id1"></span><h1>Column accessor<a class="headerlink" href="#column-accessor" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">column_accessor</span></code> class provides a read-only access to the column values
 of the <a class="reference internal" href="../index.html#table"><span class="std std-ref">table</span></a> as <a class="reference internal" href="../../glossary.html#term-Contiguous-data"><span class="xref std std-term">contiguous</span></a>
 <a class="reference internal" href="../../glossary.html#term-Homogeneous-data"><span class="xref std std-term">homogeneous</span></a> array.</p>
-<section id="usage-example">
+<div class="section" id="usage-example">
 <h2>Usage example<a class="headerlink" href="#usage-example" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;CL/sycl.hpp&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CL/sycl.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/table/homogen.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/table/column_accessor.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;oneapi/dal/table/homogen.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;oneapi/dal/table/column_accessor.hpp&quot;</span><span class="cp"></span>
 
-<span class="k">using</span> <span class="k">namespace</span> <span class="nn">oneapi</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">oneapi</span><span class="p">;</span><span class="w"></span>
 
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-   <span class="n">sycl</span><span class="o">::</span><span class="n">queue</span> <span class="n">queue</span> <span class="p">{</span> <span class="n">sycl</span><span class="o">::</span><span class="n">default_selector</span><span class="p">()</span> <span class="p">};</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="w"> </span><span class="n">queue</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">default_selector</span><span class="p">()</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">constexpr</span> <span class="kt">float</span> <span class="n">host_data</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-      <span class="mf">1.0f</span><span class="p">,</span> <span class="mf">1.5f</span><span class="p">,</span> <span class="mf">2.0f</span><span class="p">,</span>
-      <span class="mf">2.1f</span><span class="p">,</span> <span class="mf">3.2f</span><span class="p">,</span> <span class="mf">3.7f</span><span class="p">,</span>
-      <span class="mf">4.0f</span><span class="p">,</span> <span class="mf">4.9f</span><span class="p">,</span> <span class="mf">5.0f</span><span class="p">,</span>
-      <span class="mf">5.2f</span><span class="p">,</span> <span class="mf">6.1f</span><span class="p">,</span> <span class="mf">6.2f</span>
-   <span class="p">};</span>
+<span class="w">   </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">host_data</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="mf">1.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5f</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="mf">2.1f</span><span class="p">,</span><span class="w"> </span><span class="mf">3.2f</span><span class="p">,</span><span class="w"> </span><span class="mf">3.7f</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="mf">4.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">4.9f</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0f</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="mf">5.2f</span><span class="p">,</span><span class="w"> </span><span class="mf">6.1f</span><span class="p">,</span><span class="w"> </span><span class="mf">6.2f</span><span class="w"></span>
+<span class="w">   </span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">row_count</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
-   <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">column_count</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="w">   </span><span class="k">constexpr</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">row_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">constexpr</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">column_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"></span>
 
-   <span class="k">auto</span> <span class="n">shared_data</span> <span class="o">=</span> <span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">row_count</span> <span class="o">*</span> <span class="n">column_count</span><span class="p">,</span> <span class="n">queue</span><span class="p">);</span>
-   <span class="k">auto</span> <span class="n">event</span> <span class="o">=</span> <span class="n">queue</span><span class="p">.</span><span class="n">memcpy</span><span class="p">(</span><span class="n">shared_data</span><span class="p">,</span> <span class="n">host_data</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">row_count</span> <span class="o">*</span> <span class="n">column_count</span><span class="p">);</span>
-   <span class="k">auto</span> <span class="n">t</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">homogen_table</span><span class="o">::</span><span class="n">wrap</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">row_count</span><span class="p">,</span> <span class="n">column_count</span><span class="p">,</span> <span class="p">{</span> <span class="n">event</span> <span class="p">});</span>
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">shared_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">row_count</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">column_count</span><span class="p">,</span><span class="w"> </span><span class="n">queue</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queue</span><span class="p">.</span><span class="n">memcpy</span><span class="p">(</span><span class="n">shared_data</span><span class="p">,</span><span class="w"> </span><span class="n">host_data</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">row_count</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">column_count</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">homogen_table</span><span class="o">::</span><span class="n">wrap</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">row_count</span><span class="p">,</span><span class="w"> </span><span class="n">column_count</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
 
-   <span class="c1">// Accessing whole elements in a first column</span>
-   <span class="n">dal</span><span class="o">::</span><span class="n">column_accessor</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">float</span><span class="o">&gt;</span> <span class="n">acc</span> <span class="p">{</span> <span class="n">t</span> <span class="p">};</span>
+<span class="w">   </span><span class="c1">// Accessing whole elements in a first column</span>
+<span class="w">   </span><span class="n">dal</span><span class="o">::</span><span class="n">column_accessor</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">acc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">auto</span> <span class="n">block</span> <span class="o">=</span> <span class="n">acc</span><span class="p">.</span><span class="n">pull</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-   <span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">block</span><span class="p">.</span><span class="n">get_count</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">block</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;, &quot;</span><span class="p">;</span>
-   <span class="p">}</span>
-   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">acc</span><span class="p">.</span><span class="n">pull</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">get_count</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">block</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, &quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 
-   <span class="n">sycl</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">shared_data</span><span class="p">,</span> <span class="n">queue</span><span class="p">);</span>
-   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="n">sycl</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">shared_data</span><span class="p">,</span><span class="w"> </span><span class="n">queue</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
-<section id="programming-interface">
+</div>
+<div class="section" id="programming-interface">
 <h2>Programming interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>Refer to <a class="reference internal" href="../../../api/data-management/accessor/column.html#api-column-accessor"><span class="std std-ref">API Reference: Column accessor</span></a>.</p>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="../accessors.html" title="previous page">Accessors</a>
-    <a class='right-next' id="next-link" href="row.html" title="next page">Row accessor</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="../accessors.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Accessors</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="row.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Row accessor</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2298,8 +2327,7 @@ of the <a class="reference internal" href="../index.html#table"><span class="std
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

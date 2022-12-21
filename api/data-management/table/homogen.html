@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Homogeneous table &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
@@ -68,6 +67,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -77,9 +80,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -101,7 +104,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -227,6 +230,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -357,6 +370,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -421,7 +439,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1717,7 +1735,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2097,7 +2115,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2192,7 +2210,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#programming-interface">
@@ -2210,31 +2228,31 @@
         
               <div>
                 
-  <section id="homogeneous-table">
+  <div class="section" id="homogeneous-table">
 <span id="api-homogen-table"></span><h1>Homogeneous table<a class="headerlink" href="#homogeneous-table" title="Permalink to this headline">¶</a></h1>
 <p>Refer to <a class="reference internal" href="../../../onedal/data-management/table/homogen.html#homogen-table"><span class="std std-ref">Developer Guide: Homogeneous table</span></a>.</p>
-<section id="programming-interface">
+<div class="section" id="programming-interface">
 <h2>Programming interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>All types and functions in this section are declared in the
 <code class="docutils literal notranslate"><span class="pre">oneapi::dal</span></code> namespace and be available via inclusion of the
 <code class="docutils literal notranslate"><span class="pre">oneapi/dal/table/homogen.hpp</span></code> header file.</p>
 <dl class="cpp class">
-<dt id="_CPPv4N6oneapi3dal13homogen_tableE">
-<span id="_CPPv3N6oneapi3dal13homogen_tableE"></span><span id="_CPPv2N6oneapi3dal13homogen_tableE"></span><span id="oneapi::dal::homogen_table"></span><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">homogen_table</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal13homogen_tableE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal13homogen_tableE">
+<span id="_CPPv3N6oneapi3dal13homogen_tableE"></span><span id="_CPPv2N6oneapi3dal13homogen_tableE"></span><span id="oneapi::dal::homogen_table"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">homogen_table</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal13homogen_tableE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p><strong>Public Static Methods</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal13homogen_table4kindEv">
-<span id="_CPPv3N6oneapi3dal13homogen_table4kindEv"></span><span id="_CPPv2N6oneapi3dal13homogen_table4kindEv"></span><span id="oneapi::dal::homogen_table::kind"></span><em class="property"><span class="pre">static</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">kind</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal13homogen_table4kindEv" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal13homogen_table4kindEv">
+<span id="_CPPv3N6oneapi3dal13homogen_table4kindEv"></span><span id="_CPPv2N6oneapi3dal13homogen_table4kindEv"></span><span id="oneapi::dal::homogen_table::kind"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kind</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal13homogen_table4kindEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Returns the unique id of <cite>homogen_table</cite> class.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout">
-<span id="_CPPv3I0EN6oneapi3dal13homogen_table4wrapEPK4DataNSt7int64_tENSt7int64_tE11data_layout"></span><span id="_CPPv2I0EN6oneapi3dal13homogen_table4wrapEPK4DataNSt7int64_tENSt7int64_tE11data_layout"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Data</span></code><span class="pre">&gt;</span><br /><em class="property"><span class="pre">static</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal13homogen_tableE" title="oneapi::dal::homogen_table"><span class="pre">homogen_table</span></a> <code class="sig-name descname"><span class="pre">wrap</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout" title="oneapi::dal::homogen_table::wrap::Data"><span class="pre">Data</span></a> <span class="pre">*</span><em><span class="pre">data_pointer</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">row_count</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">column_count</span></em>, <span class="pre">data_layout</span> <em><span class="pre">layout</span></em> <span class="pre">=</span> <span class="pre">data_layout</span><span class="pre">::</span><span class="pre">row_major</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout">
+<span id="_CPPv3I0EN6oneapi3dal13homogen_table4wrapEPK4DataNSt7int64_tENSt7int64_tE11data_layout"></span><span id="_CPPv2I0EN6oneapi3dal13homogen_table4wrapEPK4DataNSt7int64_tENSt7int64_tE11data_layout"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Data</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">static</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal13homogen_tableE" title="oneapi::dal::homogen_table"><span class="n"><span class="pre">homogen_table</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">wrap</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout" title="oneapi::dal::homogen_table::wrap::Data"><span class="n"><span class="pre">Data</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data_pointer</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">row_count</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">column_count</span></span>, <span class="n"><span class="pre">data_layout</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">layout</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">data_layout</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">row_major</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new <cite>homogen_table</cite> instance from externally-defined data block. Table object refers to the data but does not own it. The responsibility to free the data remains on the user side. The <code class="docutils literal notranslate"><span class="pre">data</span></code> should point to the <cite>data_pointer</cite> memory block.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Data</strong> – The type of elements in the data block that will be stored into the table. The table initializes data types of metadata with this data type. The feature types should be set to default values for <code class="docutils literal notranslate"><span class="pre">Data</span></code> type: contiguous for floating-point, ordinal for integer types. The <code class="docutils literal notranslate"><span class="pre">Data</span></code> type should be at least <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">std</span><span class="pre">::</span><span class="pre">int32_t</span></code>.</p>
+<dd class="field-odd"><p><strong>Data</strong> – The type of elements in the data block that will be stored into the table. The table initializes data types of metadata with this data type. The feature types should be set to default values for <code class="docutils literal notranslate"><span class="pre">Data</span></code> type: contiguous for floating-point, ordinal for integer types. The <code class="docutils literal notranslate"><span class="pre">Data</span></code> type should be at least <span class="cpp-expr sig sig-inline cpp"><span class="kt">float</span></span>, <span class="cpp-expr sig sig-inline cpp"><span class="kt">double</span></span> or <span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">int32_t</span></span>.</p>
 </dd>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
@@ -2248,12 +2266,12 @@
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tableRKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout">
-<span id="_CPPv3I0EN6oneapi3dal13homogen_table4wrapERKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout"></span><span id="_CPPv2I0EN6oneapi3dal13homogen_table4wrapERKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Data</span></code><span class="pre">&gt;</span><br /><em class="property"><span class="pre">static</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal13homogen_tableE" title="oneapi::dal::homogen_table"><span class="pre">homogen_table</span></a> <code class="sig-name descname"><span class="pre">wrap</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">dal</span><span class="pre">::</span><a class="reference internal" href="../array.html#_CPPv4I0EN6oneapi3dal5arrayE" title="oneapi::dal::array"><span class="pre">array</span></a><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tableRKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout" title="oneapi::dal::homogen_table::wrap::Data"><span class="pre">Data</span></a><span class="pre">&gt;</span> <span class="pre">&amp;</span><em><span class="pre">data</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">row_count</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">column_count</span></em>, <span class="pre">data_layout</span> <em><span class="pre">layout</span></em> <span class="pre">=</span> <span class="pre">data_layout</span><span class="pre">::</span><span class="pre">row_major</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tableRKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tableRKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout">
+<span id="_CPPv3I0EN6oneapi3dal13homogen_table4wrapERKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout"></span><span id="_CPPv2I0EN6oneapi3dal13homogen_table4wrapERKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Data</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">static</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal13homogen_tableE" title="oneapi::dal::homogen_table"><span class="n"><span class="pre">homogen_table</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">wrap</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">dal</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="../array.html#_CPPv4I0EN6oneapi3dal5arrayE" title="oneapi::dal::array"><span class="n"><span class="pre">array</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tableRKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout" title="oneapi::dal::homogen_table::wrap::Data"><span class="n"><span class="pre">Data</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">row_count</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">column_count</span></span>, <span class="n"><span class="pre">data_layout</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">layout</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">data_layout</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">row_major</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tableRKN3dal5arrayI4DataEENSt7int64_tENSt7int64_tE11data_layout" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new <cite>homogen_table</cite> instance from an array. The created table shares data ownership with the given array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Data</strong> – The type of elements in the data block that will be stored into the table. The table initializes data types of metadata with this data type. The feature types should be set to default values for <code class="docutils literal notranslate"><span class="pre">Data</span></code> type: contiguous for floating-point, ordinal for integer types. The <code class="docutils literal notranslate"><span class="pre">Data</span></code> type should be at least <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">std</span><span class="pre">::</span><span class="pre">int32_t</span></code>.</p>
+<dd class="field-odd"><p><strong>Data</strong> – The type of elements in the data block that will be stored into the table. The table initializes data types of metadata with this data type. The feature types should be set to default values for <code class="docutils literal notranslate"><span class="pre">Data</span></code> type: contiguous for floating-point, ordinal for integer types. The <code class="docutils literal notranslate"><span class="pre">Data</span></code> type should be at least <span class="cpp-expr sig sig-inline cpp"><span class="kt">float</span></span>, <span class="cpp-expr sig sig-inline cpp"><span class="kt">double</span></span> or <span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">int32_t</span></span>.</p>
 </dd>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
@@ -2268,25 +2286,25 @@
 
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal13homogen_table13homogen_tableEv">
-<span id="_CPPv3N6oneapi3dal13homogen_table13homogen_tableEv"></span><span id="_CPPv2N6oneapi3dal13homogen_table13homogen_tableEv"></span><span id="oneapi::dal::homogen_table::homogen_table"></span><code class="sig-name descname"><span class="pre">homogen_table</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal13homogen_table13homogen_tableEv" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal13homogen_table13homogen_tableEv">
+<span id="_CPPv3N6oneapi3dal13homogen_table13homogen_tableEv"></span><span id="_CPPv2N6oneapi3dal13homogen_table13homogen_tableEv"></span><span id="oneapi::dal::homogen_table::homogen_table"></span><span class="sig-name descname"><span class="n"><span class="pre">homogen_table</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal13homogen_table13homogen_tableEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new <cite>homogen_table</cite> instance with zero number of rows and columns.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal13homogen_table13homogen_tableERK5table">
-<span id="_CPPv3N6oneapi3dal13homogen_table13homogen_tableERK5table"></span><span id="_CPPv2N6oneapi3dal13homogen_table13homogen_tableERK5table"></span><span id="oneapi::dal::homogen_table::homogen_table__tableCR"></span><code class="sig-name descname"><span class="pre">homogen_table</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal13homogen_table13homogen_tableERK5table" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal13homogen_table13homogen_tableERK5table">
+<span id="_CPPv3N6oneapi3dal13homogen_table13homogen_tableERK5table"></span><span id="_CPPv2N6oneapi3dal13homogen_table13homogen_tableERK5table"></span><span id="oneapi::dal::homogen_table::homogen_table__tableCR"></span><span class="sig-name descname"><span class="n"><span class="pre">homogen_table</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal13homogen_table13homogen_tableERK5table" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Casts an object of the base table type to a homogen table. If cast is not possible, the operation is equivalent to a default constructor call.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout">
-<span id="_CPPv3I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout"></span><span id="_CPPv2I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Data</span></code><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">ConstDeleter</span></code><span class="pre">&gt;</span><br /><code class="sig-name descname"><span class="pre">homogen_table</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout" title="oneapi::dal::homogen_table::homogen_table::Data"><span class="pre">Data</span></a> <span class="pre">*</span><em><span class="pre">data_pointer</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">row_count</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">column_count</span></em>, <a class="reference internal" href="#_CPPv4I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout" title="oneapi::dal::homogen_table::homogen_table::ConstDeleter"><span class="pre">ConstDeleter</span></a> <span class="pre">&amp;</span><span class="pre">&amp;</span><em><span class="pre">data_deleter</span></em>, <span class="pre">data_layout</span> <em><span class="pre">layout</span></em> <span class="pre">=</span> <span class="pre">data_layout</span><span class="pre">::</span><span class="pre">row_major</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout">
+<span id="_CPPv3I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout"></span><span id="_CPPv2I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Data</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ConstDeleter</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="sig-name descname"><span class="n"><span class="pre">homogen_table</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout" title="oneapi::dal::homogen_table::homogen_table::Data"><span class="n"><span class="pre">Data</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data_pointer</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">row_count</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">column_count</span></span>, <a class="reference internal" href="#_CPPv4I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout" title="oneapi::dal::homogen_table::homogen_table::ConstDeleter"><span class="n"><span class="pre">ConstDeleter</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">data_deleter</span></span>, <span class="n"><span class="pre">data_layout</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">layout</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">data_layout</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">row_major</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new <cite>homogen_table</cite> instance from externally-defined data block. Table object owns the data pointer. The <code class="docutils literal notranslate"><span class="pre">data</span></code> should point to the <cite>data_pointer</cite> memory block.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Data</strong> – The type of elements in the data block that will be stored into the table. The <code class="docutils literal notranslate"><span class="pre">Data</span></code> type should be at least <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">std</span><span class="pre">::</span><span class="pre">int32_t</span></code>.</p></li>
+<li><p><strong>Data</strong> – The type of elements in the data block that will be stored into the table. The <code class="docutils literal notranslate"><span class="pre">Data</span></code> type should be at least <span class="cpp-expr sig sig-inline cpp"><span class="kt">float</span></span>, <span class="cpp-expr sig sig-inline cpp"><span class="kt">double</span></span> or <span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">int32_t</span></span>.</p></li>
 <li><p><strong>ConstDeleter</strong> – The type of a deleter called on <cite>data_pointer</cite> when the last table that refers it is out of the scope.</p></li>
 </ul>
 </dd>
@@ -2304,42 +2322,53 @@
 
 <p><strong>Public Methods</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4I0ENK6oneapi3dal13homogen_table8get_dataEPK4Datav">
-<span id="_CPPv3I0ENK6oneapi3dal13homogen_table8get_dataEv"></span><span id="_CPPv2I0ENK6oneapi3dal13homogen_table8get_dataEv"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Data</span></code><span class="pre">&gt;</span><br /><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4I0ENK6oneapi3dal13homogen_table8get_dataEPK4Datav" title="oneapi::dal::homogen_table::get_data::Data"><span class="pre">Data</span></a> <span class="pre">*</span><code class="sig-name descname"><span class="pre">get_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4I0ENK6oneapi3dal13homogen_table8get_dataEPK4Datav" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0ENK6oneapi3dal13homogen_table8get_dataEPK4Datav">
+<span id="_CPPv3I0ENK6oneapi3dal13homogen_table8get_dataEv"></span><span id="_CPPv2I0ENK6oneapi3dal13homogen_table8get_dataEv"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Data</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0ENK6oneapi3dal13homogen_table8get_dataEPK4Datav" title="oneapi::dal::homogen_table::get_data::Data"><span class="n"><span class="pre">Data</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">get_data</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4I0ENK6oneapi3dal13homogen_table8get_dataEPK4Datav" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">data</span></code> pointer cast to the <code class="docutils literal notranslate"><span class="pre">Data</span></code> type. No checks are performed that this type is the actual type of the data within the table. If table has no data, returns <code class="docutils literal notranslate"><span class="pre">nullptr</span></code>.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4NK6oneapi3dal13homogen_table8get_dataEv">
-<span id="_CPPv3NK6oneapi3dal13homogen_table8get_dataEv"></span><span id="_CPPv2NK6oneapi3dal13homogen_table8get_dataEv"></span><span id="oneapi::dal::homogen_table::get_dataC"></span><em class="property"><span class="pre">const</span></em> <span class="pre">void</span> <span class="pre">*</span><code class="sig-name descname"><span class="pre">get_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK6oneapi3dal13homogen_table8get_dataEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The pointer to the data block within the table. Should be equal to <cite>nullptr</cite> when <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">row_count</span> <span class="pre">==</span> <span class="pre">0</span></code> and <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">column_count</span> <span class="pre">==</span> <span class="pre">0</span></code>.</p>
+<dt class="sig sig-object cpp" id="_CPPv4NK6oneapi3dal13homogen_table8get_dataEv">
+<span id="_CPPv3NK6oneapi3dal13homogen_table8get_dataEv"></span><span id="_CPPv2NK6oneapi3dal13homogen_table8get_dataEv"></span><span id="oneapi::dal::homogen_table::get_dataC"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">get_data</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK6oneapi3dal13homogen_table8get_dataEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The pointer to the data block within the table. Should be equal to <cite>nullptr</cite> when <span class="cpp-expr sig sig-inline cpp"><span class="n">row_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">0</span></span> and <span class="cpp-expr sig sig-inline cpp"><span class="n">column_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">0</span></span>.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4NK6oneapi3dal13homogen_table8get_kindEv">
-<span id="_CPPv3NK6oneapi3dal13homogen_table8get_kindEv"></span><span id="_CPPv2NK6oneapi3dal13homogen_table8get_kindEv"></span><span id="oneapi::dal::homogen_table::get_kindC"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">get_kind</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK6oneapi3dal13homogen_table8get_kindEv" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4NK6oneapi3dal13homogen_table8get_kindEv">
+<span id="_CPPv3NK6oneapi3dal13homogen_table8get_kindEv"></span><span id="_CPPv2NK6oneapi3dal13homogen_table8get_kindEv"></span><span id="oneapi::dal::homogen_table::get_kindC"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_kind</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK6oneapi3dal13homogen_table8get_kindEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The unique id of the homogen table type.</p>
 </dd></dl>
 
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="../tables.html" title="previous page">Tables</a>
-    <a class='right-next' id="next-link" href="../../algorithms/index.html" title="next page">Algorithms</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="../tables.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Tables</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="../../algorithms/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Algorithms</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2356,8 +2385,7 @@
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

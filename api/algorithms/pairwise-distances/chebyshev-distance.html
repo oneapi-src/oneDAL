@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chebyshev distance &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,18 +22,18 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -69,6 +68,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -78,9 +81,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -102,7 +105,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -228,6 +231,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -358,6 +371,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -422,7 +440,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1718,7 +1736,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2098,7 +2116,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2193,7 +2211,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#mathematical-formulation">
@@ -2235,7 +2253,7 @@
         
               <div>
                 
-  <section id="chebyshev-distance">
+  <div class="section" id="chebyshev-distance">
 <span id="api-chebyshev-distance"></span><h1>Chebyshev distance<a class="headerlink" href="#chebyshev-distance" title="Permalink to this headline">¶</a></h1>
 <p>The Chebyshev distance equals the limit of Minkowski distance metric with <span class="math notranslate nohighlight">\(p \to \infty\)</span>.</p>
 <table class="table">
@@ -2254,84 +2272,95 @@
 </tr>
 </tbody>
 </table>
-<section id="mathematical-formulation">
+<div class="section" id="mathematical-formulation">
 <h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">¶</a></h2>
 <p>Refer to <a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/chebyshev-distance.html#alg-chebyshev-distance"><span class="std std-ref">Developer Guide: Chebyshev distance</span></a>.</p>
-</section>
-<section id="programming-interface">
+</div>
+<div class="section" id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>All types and functions in this section are declared in the
 <code class="docutils literal notranslate"><span class="pre">oneapi::dal::chebyshev_distance</span></code> namespace.</p>
-<section id="descriptor">
+<div class="section" id="descriptor">
 <h3>Descriptor<a class="headerlink" href="#descriptor" title="Permalink to this headline">¶</a></h3>
 <dl class="cpp class">
-<dt id="_CPPv4I000EN6oneapi3dal18chebyshev_distance10descriptorE">
-<span id="_CPPv3I000EN6oneapi3dal18chebyshev_distance10descriptorE"></span><span id="_CPPv2I000EN6oneapi3dal18chebyshev_distance10descriptorE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Float</span></code> <span class="pre">=</span> <span class="pre">float</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Method</span></code> <span class="pre">=</span> <span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method10by_defaultE" title="oneapi::dal::chebyshev_distance::method::by_default"><span class="pre">by_default</span></a><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task10by_defaultE" title="oneapi::dal::chebyshev_distance::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">descriptor</span></code><a class="headerlink" href="#_CPPv4I000EN6oneapi3dal18chebyshev_distance10descriptorE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I000EN6oneapi3dal18chebyshev_distance10descriptorE">
+<span id="_CPPv3I000EN6oneapi3dal18chebyshev_distance10descriptorE"></span><span id="_CPPv2I000EN6oneapi3dal18chebyshev_distance10descriptorE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Float</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="kt"><span class="pre">float</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Method</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method10by_defaultE" title="oneapi::dal::chebyshev_distance::method::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task10by_defaultE" title="oneapi::dal::chebyshev_distance::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><a class="headerlink" href="#_CPPv4I000EN6oneapi3dal18chebyshev_distance10descriptorE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Float</strong> – The floating-point type that the algorithm uses for intermediate computations. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code>.</p></li>
-<li><p><strong>Method</strong> – Tag-type that specifies an the implementation of the algorithm. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method5denseE" title="oneapi::dal::chebyshev_distance::method::dense"><span class="pre">dense</span></a></code>.</p></li>
-<li><p><strong>Task</strong> – Tag-type that specifies the type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task7computeE" title="oneapi::dal::chebyshev_distance::task::compute"><span class="pre">compute</span></a></code>.</p></li>
+<li><p><strong>Float</strong> – The floating-point type that the algorithm uses for intermediate computations. Can be <span class="cpp-expr sig sig-inline cpp"><span class="kt">float</span></span> or <span class="cpp-expr sig sig-inline cpp"><span class="kt">double</span></span>.</p></li>
+<li><p><strong>Method</strong> – Tag-type that specifies an the implementation of the algorithm. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">method</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method5denseE" title="oneapi::dal::chebyshev_distance::method::dense"><span class="n">dense</span></a></span>.</p></li>
+<li><p><strong>Task</strong> – Tag-type that specifies the type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task7computeE" title="oneapi::dal::chebyshev_distance::task::compute"><span class="n">compute</span></a></span>.</p></li>
 </ul>
 </dd>
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal18chebyshev_distance10descriptor10descriptorEv">
-<span id="_CPPv3N6oneapi3dal18chebyshev_distance10descriptor10descriptorEv"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance10descriptor10descriptorEv"></span><span id="oneapi::dal::chebyshev_distance::descriptor::descriptor"></span><code class="sig-name descname"><span class="pre">descriptor</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="pre">=</span> <span class="pre">default</span><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance10descriptor10descriptorEv" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal18chebyshev_distance10descriptor10descriptorEv">
+<span id="_CPPv3N6oneapi3dal18chebyshev_distance10descriptor10descriptorEv"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance10descriptor10descriptorEv"></span><span id="oneapi::dal::chebyshev_distance::descriptor::descriptor"></span><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance10descriptor10descriptorEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new instance of the class with the default property values.</p>
 </dd></dl>
 
 </dd></dl>
 
-<section id="method-tags">
+<div class="section" id="method-tags">
 <h4>Method tags<a class="headerlink" href="#method-tags" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp struct">
-<dt id="_CPPv4N6oneapi3dal18chebyshev_distance6method5denseE">
-<span id="_CPPv3N6oneapi3dal18chebyshev_distance6method5denseE"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance6method5denseE"></span><span id="oneapi::dal::chebyshev_distance::method::dense"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">dense</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method5denseE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal18chebyshev_distance6method5denseE">
+<span id="_CPPv3N6oneapi3dal18chebyshev_distance6method5denseE"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance6method5denseE"></span><span id="oneapi::dal::chebyshev_distance::method::dense"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dense</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method5denseE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp type">
-<dt id="_CPPv4N6oneapi3dal18chebyshev_distance6method10by_defaultE">
-<span id="_CPPv3N6oneapi3dal18chebyshev_distance6method10by_defaultE"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance6method10by_defaultE"></span><em class="property"><span class="pre">using</span> </em><code class="sig-name descname"><span class="pre">by_default</span></code> <span class="pre">=</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method5denseE" title="oneapi::dal::chebyshev_distance::method::dense"><span class="pre">dense</span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal18chebyshev_distance6method10by_defaultE">
+<span id="_CPPv3N6oneapi3dal18chebyshev_distance6method10by_defaultE"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance6method10by_defaultE"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">by_default</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method5denseE" title="oneapi::dal::chebyshev_distance::method::dense"><span class="n"><span class="pre">dense</span></span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance6method10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Alias tag-type for the dense method.</p>
 </dd></dl>
 
-</section>
-<section id="task-tags">
+</div>
+<div class="section" id="task-tags">
 <h4>Task tags<a class="headerlink" href="#task-tags" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp struct">
-<dt id="_CPPv4N6oneapi3dal18chebyshev_distance4task7computeE">
-<span id="_CPPv3N6oneapi3dal18chebyshev_distance4task7computeE"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance4task7computeE"></span><span id="oneapi::dal::chebyshev_distance::task::compute"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">compute</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task7computeE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal18chebyshev_distance4task7computeE">
+<span id="_CPPv3N6oneapi3dal18chebyshev_distance4task7computeE"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance4task7computeE"></span><span id="oneapi::dal::chebyshev_distance::task::compute"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">compute</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task7computeE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Tag-type that parameterizes entities that are used to compute distances.</p>
 </dd></dl>
 
 <dl class="cpp type">
-<dt id="_CPPv4N6oneapi3dal18chebyshev_distance4task10by_defaultE">
-<span id="_CPPv3N6oneapi3dal18chebyshev_distance4task10by_defaultE"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance4task10by_defaultE"></span><em class="property"><span class="pre">using</span> </em><code class="sig-name descname"><span class="pre">by_default</span></code> <span class="pre">=</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task7computeE" title="oneapi::dal::chebyshev_distance::task::compute"><span class="pre">compute</span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal18chebyshev_distance4task10by_defaultE">
+<span id="_CPPv3N6oneapi3dal18chebyshev_distance4task10by_defaultE"></span><span id="_CPPv2N6oneapi3dal18chebyshev_distance4task10by_defaultE"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">by_default</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task7computeE" title="oneapi::dal::chebyshev_distance::task::compute"><span class="n"><span class="pre">compute</span></span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal18chebyshev_distance4task10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Alias tag-type for the compute task.</p>
 </dd></dl>
 
-</section>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="minkowski-distance.html" title="previous page">Minkowski distance</a>
-    <a class='right-next' id="next-link" href="cosine-distance.html" title="next page">Cosine distance</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="minkowski-distance.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Minkowski distance</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="cosine-distance.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Cosine distance</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2348,8 +2377,7 @@
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

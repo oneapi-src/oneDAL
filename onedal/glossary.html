@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Glossary &#8212; oneDAL  documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet" />
-  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,18 +22,18 @@
       
 
     
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../_static/favicons.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -69,6 +68,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -78,9 +81,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -102,7 +105,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -228,6 +231,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -358,6 +371,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -422,7 +440,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1718,7 +1736,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2098,7 +2116,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2193,7 +2211,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#machine-learning-terms">
@@ -2231,9 +2249,9 @@
         
               <div>
                 
-  <section id="glossary">
+  <div class="section" id="glossary">
 <span id="id1"></span><h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
-<section id="machine-learning-terms">
+<div class="section" id="machine-learning-terms">
 <h2>Machine learning terms<a class="headerlink" href="#machine-learning-terms" title="Permalink to this headline">¶</a></h2>
 <dl class="glossary">
 <dt id="term-Categorical-feature">Categorical feature<a class="headerlink" href="#term-Categorical-feature" title="Permalink to this term">¶</a></dt><dd><p>A <a class="reference internal" href="#term-Feature"><span class="xref std std-term">feature</span></a> with a discrete domain. Can be <a class="reference internal" href="#term-Nominal-feature"><span class="xref std std-term">nominal</span></a> or <a class="reference internal" href="#term-Ordinal-feature"><span class="xref std std-term">ordinal</span></a>.</p>
@@ -2366,8 +2384,8 @@ accordance with some quality criteria.</p>
 <a class="reference internal" href="#term-Feature-vector"><span class="xref std std-term">feature vectors</span></a> and dependencies between them.</p>
 </dd>
 </dl>
-</section>
-<section id="graph-analytics-terms">
+</div>
+<div class="section" id="graph-analytics-terms">
 <h2>Graph analytics terms<a class="headerlink" href="#graph-analytics-terms" title="Permalink to this headline">¶</a></h2>
 <dl class="glossary">
 <dt id="term-Adjacency">Adjacency<a class="headerlink" href="#term-Adjacency" title="Permalink to this term">¶</a></dt><dd><p>A vertex <span class="math notranslate nohighlight">\(u\)</span> is adjacent to vertex <span class="math notranslate nohighlight">\(v\)</span> if they are joined by
@@ -2435,8 +2453,8 @@ one endpoint precedes and the other succeeds that edge in the sequence <a class=
 edges have <a class="reference internal" href="#term-Weight"><span class="xref std std-term">weights</span></a></p>
 </dd>
 </dl>
-</section>
-<section id="short-name-terms">
+</div>
+<div class="section" id="short-name-terms">
 <h2>oneDAL terms<a class="headerlink" href="#short-name-terms" title="Permalink to this headline">¶</a></h2>
 <dl class="glossary">
 <dt id="term-Accessor">Accessor<a class="headerlink" href="#term-Accessor" title="Permalink to this term">¶</a></dt><dd><p>A oneDAL concept for an object that provides access to the
@@ -2479,7 +2497,7 @@ Includes size in bytes, encoding principles, and available operations
 </dd>
 <dt id="term-Getter">Getter<a class="headerlink" href="#term-Getter" title="Permalink to this term">¶</a></dt><dd><p>A method that returns the value of the private member variable.</p>
 <p><strong>Example</strong>:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="nf">get_row_count</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="nf">get_row_count</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 </dd>
@@ -2519,7 +2537,7 @@ references becomes equal to zero.</p>
 <dt id="term-Setter">Setter<a class="headerlink" href="#term-Setter" title="Permalink to this term">¶</a></dt><dd><p>A method that accepts the only parameter and assigns its value to the
 private member variable.</p>
 <p><strong>Example</strong>:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">set_row_count</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">row_count</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">set_row_count</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">row_count</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 </dd>
@@ -2532,8 +2550,8 @@ Hides details of <a class="reference internal" href="#term-Data-format"><span cl
 <dt id="term-Workload">Workload<a class="headerlink" href="#term-Workload" title="Permalink to this term">¶</a></dt><dd><p>A problem of applying a oneDAL algorithm to a <a class="reference internal" href="#term-Dataset"><span class="xref std std-term">dataset</span></a>.</p>
 </dd>
 </dl>
-</section>
-<section id="common-oneapi-terms">
+</div>
+<div class="section" id="common-oneapi-terms">
 <h2>Common oneAPI terms<a class="headerlink" href="#common-oneapi-terms" title="Permalink to this headline">¶</a></h2>
 <dl class="glossary simple">
 <dt id="term-API">API<a class="headerlink" href="#term-API" title="Permalink to this term">¶</a></dt><dd><p>Application Programming Interface</p>
@@ -2558,8 +2576,8 @@ that enables code for heterogeneous processors to be written in a
 “single-source” style using completely standard C++.</p>
 </dd>
 </dl>
-</section>
-<section id="distributed-computational-mode-terms">
+</div>
+<div class="section" id="distributed-computational-mode-terms">
 <h2>Distributed computational mode terms<a class="headerlink" href="#distributed-computational-mode-terms" title="Permalink to this headline">¶</a></h2>
 <dl class="glossary">
 <dt id="term-Communicator">Communicator<a class="headerlink" href="#term-Communicator" title="Permalink to this term">¶</a></dt><dd><p>A oneDAL concept for an object that is used to perform inter-process collective
@@ -2572,23 +2590,34 @@ operations</p>
 In SPMD model, multiple autonomous processors simultaneously execute the same program at independent points.</p>
 </dd>
 </dl>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="build_app/build-application.html" title="previous page">Build applications with oneDAL</a>
-    <a class='right-next' id="next-link" href="notations.html" title="next page">Mathematical Notations</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="build_app/build-application.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Build applications with oneDAL</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="notations.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Mathematical Notations</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2605,8 +2634,7 @@ In SPMD model, multiple autonomous processors simultaneously execute the same pr
       </div>
     </div>
   
-  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

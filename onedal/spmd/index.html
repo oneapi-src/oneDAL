@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Single Program Multiple Data &#8212; oneDAL  documentation</title>
     
-  <link href="../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
@@ -68,6 +67,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -77,9 +80,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -101,7 +104,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -227,6 +230,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -357,6 +370,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -421,7 +439,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1717,7 +1735,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2097,7 +2115,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2192,7 +2210,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#distributed-computation-using-spmd-model">
@@ -2220,25 +2238,23 @@
         
               <div>
                 
-  <section id="single-program-multiple-data">
+  <div class="section" id="single-program-multiple-data">
 <span id="dg-spmd"></span><h1>Single Program Multiple Data<a class="headerlink" href="#single-program-multiple-data" title="Permalink to this headline">¶</a></h1>
 <p>This section includes concepts and descriptions of objects that support
 distributed computations using <a class="reference internal" href="../glossary.html#term-SPMD"><span class="xref std std-term">SPMD</span></a> model.</p>
-<section id="distributed-computation-using-spmd-model">
+<div class="section" id="distributed-computation-using-spmd-model">
 <h2>Distributed computation using SPMD model<a class="headerlink" href="#distributed-computation-using-spmd-model" title="Permalink to this headline">¶</a></h2>
 <p>In a typical usage scenario, a user provides a <a class="reference internal" href="../glossary.html#term-Communicator"><span class="xref std std-term">communicator</span></a> object as a first parameter of
 a free function to indicate that the algorithm can process data simultaneously. All internal inter-process
 communications at sync points are hidden from the user.</p>
 <p>General expectation is that input dataset is distributed among processes. Results are distributed in
 accordance with the input.</p>
-<figure class="align-default" id="id1">
+<div class="figure align-default" id="id1">
 <span id="example-spmd-flow"></span><a class="reference internal image-reference" href="../../_images/spmd_flow.png"><img alt="Typical SPMD flow" src="../../_images/spmd_flow.png" style="width: 800px;" /></a>
-<figcaption>
-<p><span class="caption-text">Example of SPMD Flow in oneDAL</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-</section>
-<section id="supported-collective-operations">
+<p class="caption"><span class="caption-text">Example of SPMD Flow in oneDAL</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="supported-collective-operations">
 <span id="communicator-operations"></span><h2>Supported Collective Operations<a class="headerlink" href="#supported-collective-operations" title="Permalink to this headline">¶</a></h2>
 <p>The following collective operations are supported:</p>
 <ul class="simple">
@@ -2248,9 +2264,11 @@ Broadcasts data from specified process.</p></li>
 Reduces data among all processes.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">allgatherv</span></code>
 Gathers data from all processes and shares the result among all processes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sendrecv_replace</span></code>
+Sends and receives data using a single buffer.</p></li>
 </ul>
-</section>
-<section id="backend-specific-restrictions">
+</div>
+<div class="section" id="backend-specific-restrictions">
 <span id="backend-restrictions"></span><h2>Backend-specific restrictions<a class="headerlink" href="#backend-specific-restrictions" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>oneCCL:
@@ -2260,23 +2278,34 @@ be closely packed without gaps.</p></li>
 Collective operations in oneMPI do not support asynchronous executions. They block the
 process till completion.</p></li>
 </ul>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="../algorithms/svm/svm.html" title="previous page">Support Vector Machine Classifier and Regression (SVM)</a>
-    <a class='right-next' id="next-link" href="../appendix/index.html" title="next page">Appendix</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="../algorithms/svm/svm.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Support Vector Machine Classifier and Regression (SVM)</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="../appendix/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Appendix</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2293,8 +2322,7 @@ process till completion.</p></li>
       </div>
     </div>
   
-  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

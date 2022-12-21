@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DBSCAN &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,19 +22,19 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -70,6 +69,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -79,9 +82,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -103,7 +106,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -229,6 +232,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -359,6 +372,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -423,7 +441,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1719,7 +1737,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2099,7 +2117,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2194,7 +2212,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#mathematical-formulation">
@@ -2246,7 +2264,7 @@
         
               <div>
                 
-  <section id="dbscan">
+  <div class="section" id="dbscan">
 <span id="alg-dbscan"></span><h1>DBSCAN<a class="headerlink" href="#dbscan" title="Permalink to this headline">¶</a></h1>
 <p>Density-based spatial clustering of applications with noise (DBSCAN) is a data clustering algorithm proposed in <a class="reference internal" href="../../../bibliography.html#ester96" id="id1"><span>[Ester96]</span></a>.
 It is a density-based clustering non-parametric algorithm: given a set of observations in some space,
@@ -2273,9 +2291,9 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 </tr>
 </tbody>
 </table>
-<section id="mathematical-formulation">
+<div class="section" id="mathematical-formulation">
 <h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">¶</a></h2>
-<section id="computation">
+<div class="section" id="computation">
 <span id="dbscan-c-math"></span><h3>Computation<a class="headerlink" href="#computation" title="Permalink to this headline">¶</a></h3>
 <p>Given the set <span class="math notranslate nohighlight">\(X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\}\)</span>
 of <span class="math notranslate nohighlight">\(n\)</span> <span class="math notranslate nohighlight">\(p\)</span>-dimensional feature vectors (further referred as observations),
@@ -2286,36 +2304,36 @@ and <span class="math notranslate nohighlight">\(x\)</span> and <span class="mat
 <p>Each cluster gets a unique identifier, an integer number from <span class="math notranslate nohighlight">\(0\)</span> to <span class="math notranslate nohighlight">\(\text{total number of clusters } – 1\)</span>.
 Each observation is assigned an identifier of the <a class="reference internal" href="../../../daal/algorithms/dbscan/index.html#term-cluster"><span class="xref std std-term">cluster</span></a> it belongs to,
 or <span class="math notranslate nohighlight">\(-1\)</span> if the observation considered to be a <a class="reference internal" href="../../../daal/algorithms/dbscan/index.html#term-noise-observation"><span class="xref std std-term">noise observation</span></a>.</p>
-</section>
-</section>
-<section id="programming-interface">
+</div>
+</div>
+<div class="section" id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>Refer to <a class="reference internal" href="../../../api/algorithms/clustering/dbscan.html#api-dbscan"><span class="std std-ref">API Reference: DBSCAN</span></a>.</p>
-</section>
-<section id="distributed-mode">
+</div>
+<div class="section" id="distributed-mode">
 <h2>Distributed mode<a class="headerlink" href="#distributed-mode" title="Permalink to this headline">¶</a></h2>
 <p>The algorithm supports distributed execution in SMPD mode (only on GPU).</p>
-</section>
-<section id="usage-example">
+</div>
+<div class="section" id="usage-example">
 <h2>Usage example<a class="headerlink" href="#usage-example" title="Permalink to this headline">¶</a></h2>
-<section id="compute">
+<div class="section" id="compute">
 <h3>Compute<a class="headerlink" href="#compute" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">run_compute</span><span class="p">(</span><span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">data</span><span class="p">,</span>
-                           <span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">weights</span><span class="p">)</span> <span class="p">{</span>
-   <span class="kt">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
-   <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">max_observations</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">dbscan_desc</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">max_observations</span><span class="p">}</span>
-      <span class="p">.</span><span class="n">set_result_options</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">dbscan</span><span class="o">::</span><span class="n">result_options</span><span class="o">::</span><span class="n">responses</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">run_compute</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"></span>
+<span class="w">                           </span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">weights</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="kt">double</span><span class="w"> </span><span class="n">epsilon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">max_observations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">dbscan_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kmeans</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">epsilon</span><span class="p">,</span><span class="w"> </span><span class="n">max_observations</span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_result_options</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">dbscan</span><span class="o">::</span><span class="n">result_options</span><span class="o">::</span><span class="n">responses</span><span class="p">);</span><span class="w"></span>
 
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="n">dbscan_desc</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">weights</span><span class="p">);</span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute</span><span class="p">(</span><span class="n">dbscan_desc</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">weights</span><span class="p">);</span><span class="w"></span>
 
-   <span class="n">print_table</span><span class="p">(</span><span class="s">&quot;responses&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">get_responses</span><span class="p">());</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="n">print_table</span><span class="p">(</span><span class="s">&quot;responses&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">get_responses</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
-</section>
-<section id="examples">
+</div>
+</div>
+<div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-b25lQVBJIERQQysr" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-b25lQVBJIERQQysr" name="b25lQVBJIERQQysr" role="tab" tabindex="0">oneAPI DPC++</button><button aria-controls="panel-0-b25lQVBJIEMrKw==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-b25lQVBJIEMrKw==" name="b25lQVBJIEMrKw==" role="tab" tabindex="-1">oneAPI C++</button><button aria-controls="panel-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" name="UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" role="tab" tabindex="-1">Python* with DPC++ support</button></div><div aria-labelledby="tab-0-b25lQVBJIERQQysr" class="sphinx-tabs-panel group-tab" id="panel-0-b25lQVBJIERQQysr" name="b25lQVBJIERQQysr" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
@@ -2331,23 +2349,34 @@ or <span class="math notranslate nohighlight">\(-1\)</span> if the observation c
 <li><p><a class="reference external" href="https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/dbscan_batch.py">dbscan_batch.py</a></p></li>
 </ul>
 </div></div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="index.html" title="previous page">Clustering</a>
-    <a class='right-next' id="next-link" href="kmeans.html" title="next page">K-Means</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Clustering</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="kmeans.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">K-Means</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2364,8 +2393,7 @@ or <span class="math notranslate nohighlight">\(-1\)</span> if the observation c
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

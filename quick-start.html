@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quick Start &#8212; oneDAL  documentation</title>
     
-  <link href="_static/css/theme.css" rel="stylesheet" />
-  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="_static/css/theme.css" rel="stylesheet">
+  <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
     
-  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -69,6 +68,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -78,9 +81,9 @@
 </div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -102,7 +105,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -228,6 +231,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -358,6 +371,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -422,7 +440,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1718,7 +1736,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2098,7 +2116,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2193,7 +2211,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#before-you-begin">
@@ -2221,26 +2239,26 @@
         
               <div>
                 
-  <section id="quick-start">
+  <div class="section" id="quick-start">
 <span id="onedal-get-started"></span><h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<section id="before-you-begin">
+<div class="section" id="before-you-begin">
 <span id="id1"></span><h2>Before You Begin<a class="headerlink" href="#before-you-begin" title="Permalink to this headline">¶</a></h2>
 <p>oneDAL is located in <code class="file docutils literal notranslate"><span class="pre">&lt;install_dir&gt;/dal</span></code> directory where <code class="file docutils literal notranslate"><span class="pre">&lt;install_dir&gt;</span></code>
 is the directory in which Intel® oneAPI Base Toolkit was installed.</p>
 <p>The current version of oneDAL with
-DPC++ is available for Linux* and Windows* 64-bit operating systems. The
+SYCL is available for Linux* and Windows* 64-bit operating systems. The
 prebuilt oneDAL libraries can be found in the <code class="file docutils literal notranslate"><span class="pre">&lt;install_dir&gt;/dal/&lt;version&gt;/redist</span></code>
 directory.</p>
-<p>The dependencies needed to build examples with DPC++ extensions:</p>
+<p>The dependencies needed to build examples with SYCL extensions:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html">Intel® oneAPI DPC++/C++ Compiler</a> 2021.1 release or later (for DPC++ support)</p></li>
-<li><p>OpenCL™ runtime 1.2 or later (to run the DPC++ runtime)</p></li>
+<li><p><a class="reference external" href="https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html">Intel® oneAPI DPC++/C++ Compiler</a> 2021.1 release or later (for support)</p></li>
+<li><p>OpenCL™ runtime 1.2 or later (to run the SYCL runtime)</p></li>
 <li><p>GNU* Make on Linux*, nmake on Windows*</p></li>
 </ul>
-</section>
-<section id="end-to-end-example">
+</div>
+<div class="section" id="end-to-end-example">
 <h2>End-to-end Example<a class="headerlink" href="#end-to-end-example" title="Permalink to this headline">¶</a></h2>
 <p>Below you can find a typical usage workflow for a oneDAL algorithm on GPU. The
 example is provided for Principal Component Analysis algorithm (PCA).</p>
@@ -2262,64 +2280,64 @@ example is provided for Principal Component Analysis algorithm (PCA).</p>
 </li>
 <li><p>Create a SYCL* queue with the desired device selector. In this case,
 GPU selector is used:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="k">auto</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="p">{</span> <span class="n">sycl</span><span class="o">::</span><span class="n">gpu_selector</span><span class="p">{}</span> <span class="p">};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">queue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="p">{</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">gpu_selector_v</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 </li>
 <li><p>Since all oneDAL declarations are in the <code class="docutils literal notranslate"><span class="pre">oneapi::dal</span></code> namespace,
 import all declarations from the <code class="docutils literal notranslate"><span class="pre">oneapi</span></code> namespace to use <code class="docutils literal notranslate"><span class="pre">dal</span></code>
 instead of <code class="docutils literal notranslate"><span class="pre">oneapi::dal</span></code> for brevity:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="nn">oneapi</span><span class="p">;</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">oneapi</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 </li>
 <li><p>Use CSV data source to read the data from the CSV file into a table:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="k">auto</span> <span class="n">data</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="s">&quot;data.csv&quot;</span><span class="p">});</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="s">&quot;data.csv&quot;</span><span class="p">});</span><span class="w"></span>
 </pre></div>
 </div>
 </li>
 <li><p>Create a PCA descriptor, configure its parameters, and
 run the training algorithm on the data loaded from CSV.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="k">auto</span> <span class="n">pca_desc</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span>
-   <span class="p">.</span><span class="n">set_component_count</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-   <span class="p">.</span><span class="n">set_deterministic</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pca_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">   </span><span class="p">.</span><span class="n">set_component_count</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="p">.</span><span class="n">set_deterministic</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
 
-<span class="k">const</span> <span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">train_result</span> <span class="n">train_res</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">train</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">pca_desc</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">train_result</span><span class="w"> </span><span class="n">train_res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">train</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">pca_desc</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 </li>
 <li><p>Print the learned eigenvectors:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="n">dal</span><span class="o">::</span><span class="n">table</span> <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">train_res</span><span class="p">.</span><span class="n">get_eigenvectors</span><span class="p">();</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="w"> </span><span class="n">eigenvectors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train_res</span><span class="p">.</span><span class="n">get_eigenvectors</span><span class="p">();</span><span class="w"></span>
 
-<span class="k">const</span> <span class="k">auto</span> <span class="n">acc</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">row_accessor</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">eigenvectors</span><span class="p">};</span>
-<span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">eigenvectors</span><span class="p">.</span><span class="n">row_count</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">row_accessor</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">eigenvectors</span><span class="p">};</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">eigenvectors</span><span class="p">.</span><span class="n">row_count</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-   <span class="cm">/* Get i-th row from the table, the eigenvector stores pointer to USM */</span>
-   <span class="k">const</span> <span class="n">dal</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="n">eigenvector</span> <span class="o">=</span> <span class="n">acc</span><span class="p">.</span><span class="n">pull</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="p">{</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">});</span>
-   <span class="n">assert</span><span class="p">(</span><span class="n">eigenvector</span><span class="p">.</span><span class="n">get_count</span><span class="p">()</span> <span class="o">==</span> <span class="n">eigenvectors</span><span class="p">.</span><span class="n">get_column_count</span><span class="p">());</span>
+<span class="w">   </span><span class="cm">/* Get i-th row from the table, the eigenvector stores pointer to USM */</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">eigenvector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">acc</span><span class="p">.</span><span class="n">pull</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">});</span><span class="w"></span>
+<span class="w">   </span><span class="n">assert</span><span class="p">(</span><span class="n">eigenvector</span><span class="p">.</span><span class="n">get_count</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">eigenvectors</span><span class="p">.</span><span class="n">get_column_count</span><span class="p">());</span><span class="w"></span>
 
-   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;-th eigenvector: &quot;</span><span class="p">;</span>
-   <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">eigenvector</span><span class="p">.</span><span class="n">get_count</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">eigenvector</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;</span>
-   <span class="p">}</span>
-   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-th eigenvector: &quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">eigenvector</span><span class="p">.</span><span class="n">get_count</span><span class="p">();</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">eigenvector</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 </li>
 <li><p>Use the trained model for inference to reduce dimensionality of the data:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">model</span> <span class="n">model</span> <span class="o">=</span> <span class="n">train_res</span><span class="p">.</span><span class="n">get_model</span><span class="p">();</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">model</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train_res</span><span class="p">.</span><span class="n">get_model</span><span class="p">();</span><span class="w"></span>
 
-<span class="k">const</span> <span class="n">dal</span><span class="o">::</span><span class="n">table</span> <span class="n">data_transformed</span> <span class="o">=</span>
-   <span class="n">dal</span><span class="o">::</span><span class="n">infer</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">pca_desc</span><span class="p">,</span> <span class="n">data</span><span class="p">).</span><span class="n">get_transformed_data</span><span class="p">();</span>
+<span class="k">const</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="w"> </span><span class="n">data_transformed</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">   </span><span class="n">dal</span><span class="o">::</span><span class="n">infer</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">pca_desc</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">).</span><span class="n">get_transformed_data</span><span class="p">();</span><span class="w"></span>
 
-<span class="n">assert</span><span class="p">(</span><span class="n">data_transformed</span><span class="p">.</span><span class="n">column_count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">data_transformed</span><span class="p">.</span><span class="n">column_count</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 </li>
 </ol>
-</section>
-<section id="build-and-run-examples">
+</div>
+<div class="section" id="build-and-run-examples">
 <h2>Build and Run Examples<a class="headerlink" href="#build-and-run-examples" title="Permalink to this headline">¶</a></h2>
 <p>Perform the following steps to build and run examples demonstrating the
 basic usage scenarios of oneDAL with DPCPP. Go to
@@ -2379,7 +2397,7 @@ via <code class="docutils literal notranslate"><span class="pre">vars.sh</span><
 </li>
 <li><p>Set up the compiler environment for Intel® oneAPI DPC++/C++ Compiler.
 See <a class="reference external" href="https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-dpcpp-compiler/top.html">Get Started with Intel® oneAPI DPC++/C++ Compiler</a> for details.</p></li>
-<li><p>Build and run DPC++ examples:</p>
+<li><p>Build and run examples:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You need to have write permissions to the <code class="file docutils literal notranslate"><span class="pre">examples</span></code> folder
@@ -2389,16 +2407,16 @@ to the directory with right permissions. These two folders must be retained
 in the same directory level relative to each other.</p>
 </div>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-TGludXg=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-TGludXg=" name="TGludXg=" role="tab" tabindex="0">Linux</button><button aria-controls="panel-1-V2luZG93cw==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-V2luZG93cw==" name="V2luZG93cw==" role="tab" tabindex="-1">Windows</button></div><div aria-labelledby="tab-1-TGludXg=" class="sphinx-tabs-panel group-tab" id="panel-1-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to DPC++ examples directory and build examples</span>
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-TGludXg=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-TGludXg=" name="TGludXg=" role="tab" tabindex="0">Linux</button><button aria-controls="panel-1-V2luZG93cw==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-V2luZG93cw==" name="V2luZG93cw==" role="tab" tabindex="-1">Windows</button></div><div aria-labelledby="tab-1-TGludXg=" class="sphinx-tabs-panel group-tab" id="panel-1-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to examples directory and build examples</span>
 <span class="nb">cd</span> /examples/oneapi/dpc
 make so <span class="nv">example</span><span class="o">=</span>svm_two_class_thunder_dense_batch <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span>
-make so <span class="nv">mode</span><span class="o">=</span>build                      <span class="c1"># This will compile all DPC++ examples</span>
+make so <span class="nv">mode</span><span class="o">=</span>build                      <span class="c1"># This will compile all the examples</span>
 </pre></div>
 </div>
-</div><div aria-labelledby="tab-1-V2luZG93cw==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-V2luZG93cw==" name="V2luZG93cw==" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to DPC++ examples directory and build examples</span>
+</div><div aria-labelledby="tab-1-V2luZG93cw==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-V2luZG93cw==" name="V2luZG93cw==" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to examples directory and build examples</span>
 <span class="nb">cd</span> /examples/oneapi/dpc
 nmake dll <span class="nv">example</span><span class="o">=</span>svm_two_class_thunder_dense_batch+ <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span>
-nmake dll <span class="nv">mode</span><span class="o">=</span>build                             <span class="c1"># This will compile all DPC++ examples</span>
+nmake dll <span class="nv">mode</span><span class="o">=</span>build                             <span class="c1"># This will compile all the examples</span>
 </pre></div>
 </div>
 </div></div>
@@ -2407,7 +2425,7 @@ nmake dll <span class="nv">mode</span><span class="o">=</span>build             
 <li><p>The resulting example binaries and log files are written into the <code class="file docutils literal notranslate"><span class="pre">_results</span></code> directory.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You should run DPC++ examples from <code class="file docutils literal notranslate"><span class="pre">examples/oneapi/dpc</span></code> folder, not from <code class="file docutils literal notranslate"><span class="pre">_results</span></code> folder.
+<p>You should run the examples from <code class="file docutils literal notranslate"><span class="pre">examples/oneapi/dpc</span></code> folder, not from <code class="file docutils literal notranslate"><span class="pre">_results</span></code> folder.
 Most examples require data to be stored in <code class="file docutils literal notranslate"><span class="pre">examples/oneapi/data</span></code> folder and to have a relative link to it
 started from <code class="file docutils literal notranslate"><span class="pre">examples/oneapi/dpc</span></code> folder.</p>
 </div>
@@ -2420,23 +2438,34 @@ started from <code class="file docutils literal notranslate"><span class="pre">e
 <li><p><a class="reference internal" href="examples.html#oneapi-dal-examples"><span class="std std-ref">oneAPI Examples</span></a></p></li>
 </ul>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="installation.html" title="previous page">Installation</a>
-    <a class='right-next' id="next-link" href="examples.html" title="next page">oneAPI Examples</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="installation.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Installation</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="examples.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">oneAPI Examples</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2453,8 +2482,7 @@ started from <code class="file docutils literal notranslate"><span class="pre">e
       </div>
     </div>
   
-  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

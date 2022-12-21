@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DBSCAN &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,19 +22,19 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -70,6 +69,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -79,9 +82,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -103,7 +106,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -229,6 +232,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -359,6 +372,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -423,7 +441,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1719,7 +1737,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2099,7 +2117,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2194,7 +2212,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#mathematical-formulation">
@@ -2226,20 +2244,20 @@
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#computation-compute">
      Computation
-     <code class="xref cpp cpp-expr docutils literal notranslate">
-      <span class="pre">
+     <span class="cpp-expr sig sig-inline cpp compute(...)">
+      <span class="n">
        compute
       </span>
-      <span class="sig-paren">
+      <span class="p">
        (
       </span>
-      <span class="pre">
+      <span class="p">
        ...
       </span>
-      <span class="sig-paren">
+      <span class="p">
        )
       </span>
-     </code>
+     </span>
     </a>
     <ul class="nav section-nav flex-column">
      <li class="toc-h4 nav-item toc-entry">
@@ -2289,7 +2307,7 @@
         
               <div>
                 
-  <section id="dbscan">
+  <div class="section" id="dbscan">
 <span id="api-dbscan"></span><h1>DBSCAN<a class="headerlink" href="#dbscan" title="Permalink to this headline">¶</a></h1>
 <p>Density-based spatial clustering of applications with noise (DBSCAN) is a data clustering algorithm proposed in <a class="reference internal" href="../../../bibliography.html#ester96" id="id1"><span>[Ester96]</span></a>.
 It is a density-based clustering non-parametric algorithm: given a set of observations in some space,
@@ -2316,53 +2334,57 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 </tr>
 </tbody>
 </table>
-<section id="mathematical-formulation">
+<div class="section" id="mathematical-formulation">
 <h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">¶</a></h2>
 <p>Refer to <a class="reference internal" href="../../../onedal/algorithms/clustering/dbscan.html#alg-dbscan"><span class="std std-ref">Developer Guide: DBSCAN</span></a>.</p>
-</section>
-<section id="programming-interface">
+</div>
+<div class="section" id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>All types and functions in this section are declared in the
 <code class="docutils literal notranslate"><span class="pre">oneapi::dal::dbscan</span></code> namespace and are available via inclusion of the
 <code class="docutils literal notranslate"><span class="pre">oneapi/dal/algo/dbscan.hpp</span></code> header file.</p>
-<section id="descriptor">
+<div class="section" id="descriptor">
 <h3>Descriptor<a class="headerlink" href="#descriptor" title="Permalink to this headline">¶</a></h3>
 <dl class="cpp class">
-<dt id="_CPPv4I000EN6oneapi3dal6dbscan10descriptorE">
-<span id="_CPPv3I000EN6oneapi3dal6dbscan10descriptorE"></span><span id="_CPPv2I000EN6oneapi3dal6dbscan10descriptorE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Float</span></code> <span class="pre">=</span> <span class="pre">float</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Method</span></code> <span class="pre">=</span> <span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan6method10by_defaultE" title="oneapi::dal::dbscan::method::by_default"><span class="pre">by_default</span></a><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10by_defaultE" title="oneapi::dal::dbscan::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">descriptor</span></code><a class="headerlink" href="#_CPPv4I000EN6oneapi3dal6dbscan10descriptorE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I000EN6oneapi3dal6dbscan10descriptorE">
+<span id="_CPPv3I000EN6oneapi3dal6dbscan10descriptorE"></span><span id="_CPPv2I000EN6oneapi3dal6dbscan10descriptorE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Float</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="kt"><span class="pre">float</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Method</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan6method10by_defaultE" title="oneapi::dal::dbscan::method::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10by_defaultE" title="oneapi::dal::dbscan::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><a class="headerlink" href="#_CPPv4I000EN6oneapi3dal6dbscan10descriptorE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Float</strong> – The floating-point type that the algorithm uses for intermediate computations. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code>.</p></li>
-<li><p><strong>Method</strong> – Tag-type that specifies an implementation of algorithm. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan6method11brute_forceE" title="oneapi::dal::dbscan::method::brute_force"><span class="pre">brute_force</span></a></code>.</p></li>
-<li><p><strong>Task</strong> – Tag-type that specifies the type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="oneapi::dal::dbscan::task::clustering"><span class="pre">clustering</span></a></code>.</p></li>
+<li><p><strong>Float</strong> – The floating-point type that the algorithm uses for intermediate computations. Can be <span class="cpp-expr sig sig-inline cpp"><span class="kt">float</span></span> or <span class="cpp-expr sig sig-inline cpp"><span class="kt">double</span></span>.</p></li>
+<li><p><strong>Method</strong> – Tag-type that specifies an implementation of algorithm. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">method</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan6method11brute_forceE" title="oneapi::dal::dbscan::method::brute_force"><span class="n">brute_force</span></a></span>.</p></li>
+<li><p><strong>Task</strong> – Tag-type that specifies the type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="oneapi::dal::dbscan::task::clustering"><span class="n">clustering</span></a></span>.</p></li>
 </ul>
 </dd>
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal6dbscan10descriptor10descriptorEdNSt7int64_tE">
-<span id="_CPPv3N6oneapi3dal6dbscan10descriptor10descriptorEdNSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor10descriptorEdNSt7int64_tE"></span><span id="oneapi::dal::dbscan::descriptor::descriptor__double.std::int64_t"></span><code class="sig-name descname"><span class="pre">descriptor</span></code><span class="sig-paren">(</span><span class="pre">double</span> <em><span class="pre">epsilon</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">min_observations</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor10descriptorEdNSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan10descriptor10descriptorEdNSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal6dbscan10descriptor10descriptorEdNSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor10descriptorEdNSt7int64_tE"></span><span id="oneapi::dal::dbscan::descriptor::descriptor__double.std::int64_t"></span><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">epsilon</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">min_observations</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor10descriptorEdNSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>, <code class="docutils literal notranslate"><span class="pre">min_observations</span></code>.</p>
 </dd></dl>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan10descriptor16min_observationsE">
-<span id="_CPPv3N6oneapi3dal6dbscan10descriptor16min_observationsE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor16min_observationsE"></span><span id="oneapi::dal::dbscan::descriptor::min_observations__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">min_observations</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor16min_observationsE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The number of neighbors.</p>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan10descriptor7epsilonE">
+<span id="_CPPv3N6oneapi3dal6dbscan10descriptor7epsilonE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor7epsilonE"></span><span id="oneapi::dal::dbscan::descriptor::epsilon__double"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">epsilon</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor7epsilonE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The distance <cite>epsilon</cite> for neighbor search.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_min_observations()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_min_observations(int64_t</span> <span class="pre">value)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">get_epsilon()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_epsilon(double</span> <span class="pre">value)</span></code></div>
+</div>
+</dd>
+<dt>Invariants</dt><dd><div class="line-block">
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan10descriptor7epsilonE" title="oneapi::dal::dbscan::descriptor::epsilon"><span class="n">epsilon</span></a><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0.0</span></span></div>
 </div>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan10descriptor13mem_save_modeE">
-<span id="_CPPv3N6oneapi3dal6dbscan10descriptor13mem_save_modeE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor13mem_save_modeE"></span><span id="oneapi::dal::dbscan::descriptor::mem_save_mode__b"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">mem_save_mode</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor13mem_save_modeE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan10descriptor13mem_save_modeE">
+<span id="_CPPv3N6oneapi3dal6dbscan10descriptor13mem_save_modeE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor13mem_save_modeE"></span><span id="oneapi::dal::dbscan::descriptor::mem_save_mode__b"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mem_save_mode</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor13mem_save_modeE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The flag for memory saving mode.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2374,25 +2396,8 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan10descriptor7epsilonE">
-<span id="_CPPv3N6oneapi3dal6dbscan10descriptor7epsilonE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor7epsilonE"></span><span id="oneapi::dal::dbscan::descriptor::epsilon__double"></span><span class="pre">double</span> <code class="sig-name descname"><span class="pre">epsilon</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor7epsilonE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The distance <cite>epsilon</cite> for neighbor search.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">get_epsilon()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_epsilon(double</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan10descriptor7epsilonE" title="oneapi::dal::dbscan::descriptor::epsilon"><span class="pre">epsilon</span></a> <span class="pre">&gt;=</span> <span class="pre">0.0</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan10descriptor14result_optionsE">
-<span id="_CPPv3N6oneapi3dal6dbscan10descriptor14result_optionsE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor14result_optionsE"></span><span id="oneapi::dal::dbscan::descriptor::result_options__result_option_id"></span><span class="pre">result_option_id</span> <code class="sig-name descname"><span class="pre">result_options</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan10descriptor14result_optionsE">
+<span id="_CPPv3N6oneapi3dal6dbscan10descriptor14result_optionsE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor14result_optionsE"></span><span id="oneapi::dal::dbscan::descriptor::result_options__result_option_id"></span><span class="n"><span class="pre">result_option_id</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">result_options</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Choose which results should be computed and returned.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2403,73 +2408,73 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<section id="method-tags">
-<h4>Method tags<a class="headerlink" href="#method-tags" title="Permalink to this headline">¶</a></h4>
-<dl class="cpp struct">
-<dt id="_CPPv4N6oneapi3dal6dbscan6method11brute_forceE">
-<span id="_CPPv3N6oneapi3dal6dbscan6method11brute_forceE"></span><span id="_CPPv2N6oneapi3dal6dbscan6method11brute_forceE"></span><span id="oneapi::dal::dbscan::method::brute_force"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">brute_force</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan6method11brute_forceE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp type">
-<dt id="_CPPv4N6oneapi3dal6dbscan6method10by_defaultE">
-<span id="_CPPv3N6oneapi3dal6dbscan6method10by_defaultE"></span><span id="_CPPv2N6oneapi3dal6dbscan6method10by_defaultE"></span><em class="property"><span class="pre">using</span> </em><code class="sig-name descname"><span class="pre">by_default</span></code> <span class="pre">=</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan6method11brute_forceE" title="oneapi::dal::dbscan::method::brute_force"><span class="pre">brute_force</span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan6method10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-</section>
-<section id="task-tags">
-<h4>Task tags<a class="headerlink" href="#task-tags" title="Permalink to this headline">¶</a></h4>
-<dl class="cpp struct">
-<dt id="_CPPv4N6oneapi3dal6dbscan4task10clusteringE">
-<span id="_CPPv3N6oneapi3dal6dbscan4task10clusteringE"></span><span id="_CPPv2N6oneapi3dal6dbscan4task10clusteringE"></span><span id="oneapi::dal::dbscan::task::clustering"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">clustering</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Tag-type that parameterizes entities used for solving <a class="reference internal" href="../../../onedal/glossary.html#term-Clustering"><span class="xref std std-term">clustering problem</span></a>.</p>
-</dd></dl>
-
-<dl class="cpp type">
-<dt id="_CPPv4N6oneapi3dal6dbscan4task10by_defaultE">
-<span id="_CPPv3N6oneapi3dal6dbscan4task10by_defaultE"></span><span id="_CPPv2N6oneapi3dal6dbscan4task10by_defaultE"></span><em class="property"><span class="pre">using</span> </em><code class="sig-name descname"><span class="pre">by_default</span></code> <span class="pre">=</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="oneapi::dal::dbscan::task::clustering"><span class="pre">clustering</span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan4task10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Alias tag-type for the clustering task.</p>
-</dd></dl>
-
-</section>
-</section>
-<section id="computation-compute">
-<span id="dbscan-c-api"></span><h3>Computation <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute"><span class="pre">compute</span></a><span class="sig-paren">(</span><span class="pre">...</span><span class="sig-paren">)</span></code><a class="headerlink" href="#computation-compute" title="Permalink to this headline">¶</a></h3>
-<section id="input">
-<span id="dbscan-c-api-input"></span><h4>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h4>
-<dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal6dbscan13compute_inputE">
-<span id="_CPPv3I0EN6oneapi3dal6dbscan13compute_inputE"></span><span id="_CPPv2I0EN6oneapi3dal6dbscan13compute_inputE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10by_defaultE" title="oneapi::dal::dbscan::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">compute_input</span></code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal6dbscan13compute_inputE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="oneapi::dal::dbscan::task::clustering"><span class="pre">clustering</span></a></code>.</p>
-</dd>
-</dl>
-<p><strong>Constructors</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal6dbscan13compute_input13compute_inputERK5tableRK5table">
-<span id="_CPPv3N6oneapi3dal6dbscan13compute_input13compute_inputERK5tableRK5table"></span><span id="_CPPv2N6oneapi3dal6dbscan13compute_input13compute_inputERK5tableRK5table"></span><span id="oneapi::dal::dbscan::compute_input::compute_input__tableCR.tableCR"></span><code class="sig-name descname"><span class="pre">compute_input</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">data</span></em> <span class="pre">=</span> <span class="pre">{</span><span class="pre">}</span>, <em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">weights</span></em> <span class="pre">=</span> <span class="pre">{</span><span class="pre">}</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan13compute_input13compute_inputERK5tableRK5table" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code>.</p>
-</dd></dl>
-
-<p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan13compute_input7weightsE">
-<span id="_CPPv3N6oneapi3dal6dbscan13compute_input7weightsE"></span><span id="_CPPv2N6oneapi3dal6dbscan13compute_input7weightsE"></span><span id="oneapi::dal::dbscan::compute_input::weights__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">weights</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan13compute_input7weightsE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>A single column table with the weights, where each row stores one weight per observation.</p>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan10descriptor16min_observationsE">
+<span id="_CPPv3N6oneapi3dal6dbscan10descriptor16min_observationsE"></span><span id="_CPPv2N6oneapi3dal6dbscan10descriptor16min_observationsE"></span><span id="oneapi::dal::dbscan::descriptor::min_observations__std::int64_t"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">min_observations</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan10descriptor16min_observationsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of neighbors.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_weights()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_weights(const</span> <span class="pre">table</span> <span class="pre">&amp;weights)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_min_observations()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_min_observations(std::int64_t</span> <span class="pre">value)</span></code></div>
 </div>
 </dd>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<div class="section" id="method-tags">
+<h4>Method tags<a class="headerlink" href="#method-tags" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan6method11brute_forceE">
+<span id="_CPPv3N6oneapi3dal6dbscan6method11brute_forceE"></span><span id="_CPPv2N6oneapi3dal6dbscan6method11brute_forceE"></span><span id="oneapi::dal::dbscan::method::brute_force"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">brute_force</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan6method11brute_forceE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan6method10by_defaultE">
+<span id="_CPPv3N6oneapi3dal6dbscan6method10by_defaultE"></span><span id="_CPPv2N6oneapi3dal6dbscan6method10by_defaultE"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">by_default</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan6method11brute_forceE" title="oneapi::dal::dbscan::method::brute_force"><span class="n"><span class="pre">brute_force</span></span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan6method10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="task-tags">
+<h4>Task tags<a class="headerlink" href="#task-tags" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan4task10clusteringE">
+<span id="_CPPv3N6oneapi3dal6dbscan4task10clusteringE"></span><span id="_CPPv2N6oneapi3dal6dbscan4task10clusteringE"></span><span id="oneapi::dal::dbscan::task::clustering"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clustering</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Tag-type that parameterizes entities used for solving <a class="reference internal" href="../../../onedal/glossary.html#term-Clustering"><span class="xref std std-term">clustering problem</span></a>.</p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan4task10by_defaultE">
+<span id="_CPPv3N6oneapi3dal6dbscan4task10by_defaultE"></span><span id="_CPPv2N6oneapi3dal6dbscan4task10by_defaultE"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">by_default</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="oneapi::dal::dbscan::task::clustering"><span class="n"><span class="pre">clustering</span></span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan4task10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Alias tag-type for the clustering task.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="computation-compute">
+<span id="dbscan-c-api"></span><h3>Computation <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute"><span class="n">compute</span></a><span class="p">(</span><span class="p">...</span><span class="p">)</span></span><a class="headerlink" href="#computation-compute" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="input">
+<span id="dbscan-c-api-input"></span><h4>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal6dbscan13compute_inputE">
+<span id="_CPPv3I0EN6oneapi3dal6dbscan13compute_inputE"></span><span id="_CPPv2I0EN6oneapi3dal6dbscan13compute_inputE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10by_defaultE" title="oneapi::dal::dbscan::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">compute_input</span></span></span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal6dbscan13compute_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="oneapi::dal::dbscan::task::clustering"><span class="n">clustering</span></a></span>.</p>
+</dd>
+</dl>
+<p><strong>Constructors</strong></p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan13compute_input13compute_inputERK5tableRK5table">
+<span id="_CPPv3N6oneapi3dal6dbscan13compute_input13compute_inputERK5tableRK5table"></span><span id="_CPPv2N6oneapi3dal6dbscan13compute_input13compute_inputERK5tableRK5table"></span><span id="oneapi::dal::dbscan::compute_input::compute_input__tableCR.tableCR"></span><span class="sig-name descname"><span class="n"><span class="pre">compute_input</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">data</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">weights</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan13compute_input13compute_inputERK5tableRK5table" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code>.</p>
+</dd></dl>
+
+<p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan13compute_input4dataE">
-<span id="_CPPv3N6oneapi3dal6dbscan13compute_input4dataE"></span><span id="_CPPv2N6oneapi3dal6dbscan13compute_input4dataE"></span><span id="oneapi::dal::dbscan::compute_input::data__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan13compute_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan13compute_input4dataE">
+<span id="_CPPv3N6oneapi3dal6dbscan13compute_input4dataE"></span><span id="_CPPv2N6oneapi3dal6dbscan13compute_input4dataE"></span><span id="oneapi::dal::dbscan::compute_input::data__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan13compute_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>An <span class="math notranslate nohighlight">\(n \times p\)</span> table with the data to be clustered, where each row stores one feature vector.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2480,56 +2485,43 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 </dl>
 </dd></dl>
 
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan13compute_input7weightsE">
+<span id="_CPPv3N6oneapi3dal6dbscan13compute_input7weightsE"></span><span id="_CPPv2N6oneapi3dal6dbscan13compute_input7weightsE"></span><span id="oneapi::dal::dbscan::compute_input::weights__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">weights</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan13compute_input7weightsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A single column table with the weights, where each row stores one weight per observation.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_weights()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_weights(const</span> <span class="pre">table</span> <span class="pre">&amp;weights)</span></code></div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
-</section>
-<section id="result">
+</dd></dl>
+
+</div>
+<div class="section" id="result">
 <span id="dbscan-c-api-result"></span><h4>Result<a class="headerlink" href="#result" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal6dbscan14compute_resultE">
-<span id="_CPPv3I0EN6oneapi3dal6dbscan14compute_resultE"></span><span id="_CPPv2I0EN6oneapi3dal6dbscan14compute_resultE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10by_defaultE" title="oneapi::dal::dbscan::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">compute_result</span></code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal6dbscan14compute_resultE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal6dbscan14compute_resultE">
+<span id="_CPPv3I0EN6oneapi3dal6dbscan14compute_resultE"></span><span id="_CPPv2I0EN6oneapi3dal6dbscan14compute_resultE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10by_defaultE" title="oneapi::dal::dbscan::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">compute_result</span></span></span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal6dbscan14compute_resultE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="oneapi::dal::dbscan::task::clustering"><span class="pre">clustering</span></a></code>.</p>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan4task10clusteringE" title="oneapi::dal::dbscan::task::clustering"><span class="n">clustering</span></a></span>.</p>
 </dd>
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal6dbscan14compute_result14compute_resultEv">
-<span id="_CPPv3N6oneapi3dal6dbscan14compute_result14compute_resultEv"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result14compute_resultEv"></span><span id="oneapi::dal::dbscan::compute_result::compute_result"></span><code class="sig-name descname"><span class="pre">compute_result</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result14compute_resultEv" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan14compute_result14compute_resultEv">
+<span id="_CPPv3N6oneapi3dal6dbscan14compute_result14compute_resultEv"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result14compute_resultEv"></span><span id="oneapi::dal::dbscan::compute_result::compute_result"></span><span class="sig-name descname"><span class="n"><span class="pre">compute_result</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result14compute_resultEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new instance of the class with the default property values.</p>
 </dd></dl>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan14compute_result9responsesE">
-<span id="_CPPv3N6oneapi3dal6dbscan14compute_result9responsesE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result9responsesE"></span><span id="oneapi::dal::dbscan::compute_result::responses__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">responses</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result9responsesE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>An <span class="math notranslate nohighlight">\(n \times 1\)</span> table with the responses <span class="math notranslate nohighlight">\(y_i\)</span> assigned to the samples <span class="math notranslate nohighlight">\(x_i\)</span> in the input data. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_responses()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_responses(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan14compute_result14result_optionsE">
-<span id="_CPPv3N6oneapi3dal6dbscan14compute_result14result_optionsE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result14result_optionsE"></span><span id="oneapi::dal::dbscan::compute_result::result_options__result_option_idCR"></span><em class="property"><span class="pre">const</span></em> <span class="pre">result_option_id</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">result_options</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Result options that indicates availability of the properties. <strong>Default value</strong>: default_result_options&lt;Task&gt;.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">result_option_id</span> <span class="pre">&amp;</span> <span class="pre">get_result_options()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_result_options(const</span> <span class="pre">result_option_id</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan14compute_result10core_flagsE">
-<span id="_CPPv3N6oneapi3dal6dbscan14compute_result10core_flagsE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result10core_flagsE"></span><span id="oneapi::dal::dbscan::compute_result::core_flags__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">core_flags</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result10core_flagsE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan14compute_result10core_flagsE">
+<span id="_CPPv3N6oneapi3dal6dbscan14compute_result10core_flagsE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result10core_flagsE"></span><span id="oneapi::dal::dbscan::compute_result::core_flags__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">core_flags</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result10core_flagsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>An <span class="math notranslate nohighlight">\(n \times 1\)</span> table with the core flags <span class="math notranslate nohighlight">\(y_i\)</span> assigned to the samples <span class="math notranslate nohighlight">\(x_i\)</span> in the input data.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2541,25 +2533,21 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan14compute_result13cluster_countE">
-<span id="_CPPv3N6oneapi3dal6dbscan14compute_result13cluster_countE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result13cluster_countE"></span><span id="oneapi::dal::dbscan::compute_result::cluster_count__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">cluster_count</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result13cluster_countE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The number of clusters found by the algorithm.</p>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan14compute_result14result_optionsE">
+<span id="_CPPv3N6oneapi3dal6dbscan14compute_result14result_optionsE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result14result_optionsE"></span><span id="oneapi::dal::dbscan::compute_result::result_options__result_option_idCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">result_option_id</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">result_options</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Result options that indicates availability of the properties. <strong>Default value</strong>: default_result_options&lt;Task&gt;.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_cluster_count()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_cluster_count(std::int64_t</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan14compute_result13cluster_countE" title="oneapi::dal::dbscan::compute_result::cluster_count"><span class="pre">cluster_count</span></a> <span class="pre">&gt;=</span> <span class="pre">0</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">result_option_id</span> <span class="pre">&amp;</span> <span class="pre">get_result_options()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_result_options(const</span> <span class="pre">result_option_id</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan14compute_result24core_observation_indicesE">
-<span id="_CPPv3N6oneapi3dal6dbscan14compute_result24core_observation_indicesE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result24core_observation_indicesE"></span><span id="oneapi::dal::dbscan::compute_result::core_observation_indices__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">core_observation_indices</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result24core_observation_indicesE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan14compute_result24core_observation_indicesE">
+<span id="_CPPv3N6oneapi3dal6dbscan14compute_result24core_observation_indicesE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result24core_observation_indicesE"></span><span id="oneapi::dal::dbscan::compute_result::core_observation_indices__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">core_observation_indices</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result24core_observation_indicesE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>An <span class="math notranslate nohighlight">\(m \times 1\)</span> table with the indices of core observations in the input data. <span class="math notranslate nohighlight">\(m\)</span> is a number of core observations.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2571,8 +2559,21 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal6dbscan14compute_result17core_observationsE">
-<span id="_CPPv3N6oneapi3dal6dbscan14compute_result17core_observationsE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result17core_observationsE"></span><span id="oneapi::dal::dbscan::compute_result::core_observations__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">core_observations</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result17core_observationsE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan14compute_result9responsesE">
+<span id="_CPPv3N6oneapi3dal6dbscan14compute_result9responsesE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result9responsesE"></span><span id="oneapi::dal::dbscan::compute_result::responses__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">responses</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result9responsesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An <span class="math notranslate nohighlight">\(n \times 1\)</span> table with the responses <span class="math notranslate nohighlight">\(y_i\)</span> assigned to the samples <span class="math notranslate nohighlight">\(x_i\)</span> in the input data. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_responses()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_responses(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan14compute_result17core_observationsE">
+<span id="_CPPv3N6oneapi3dal6dbscan14compute_result17core_observationsE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result17core_observationsE"></span><span id="oneapi::dal::dbscan::compute_result::core_observations__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">core_observations</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result17core_observationsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>An <span class="math notranslate nohighlight">\(m \times p\)</span> table with the core observations in the input data. <span class="math notranslate nohighlight">\(m\)</span> is a number of core observations.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2583,54 +2584,71 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 </dl>
 </dd></dl>
 
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6dbscan14compute_result13cluster_countE">
+<span id="_CPPv3N6oneapi3dal6dbscan14compute_result13cluster_countE"></span><span id="_CPPv2N6oneapi3dal6dbscan14compute_result13cluster_countE"></span><span id="oneapi::dal::dbscan::compute_result::cluster_count__std::int64_t"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cluster_count</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6dbscan14compute_result13cluster_countE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of clusters found by the algorithm.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_cluster_count()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_cluster_count(std::int64_t</span> <span class="pre">value)</span></code></div>
+</div>
+</dd>
+<dt>Invariants</dt><dd><div class="line-block">
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6dbscan14compute_result13cluster_countE" title="oneapi::dal::dbscan::compute_result::cluster_count"><span class="n">cluster_count</span></a><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0</span></span></div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
-</section>
-<section id="operation">
+</dd></dl>
+
+</div>
+<div class="section" id="operation">
 <h4>Operation<a class="headerlink" href="#operation" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE">
-<span id="_CPPv3I0EN6oneapi3dal6dbscan7computeERK10DescriptorRKN6dbscan13compute_inputE"></span><span id="_CPPv2I0EN6oneapi3dal6dbscan7computeERK10DescriptorRKN6dbscan13compute_inputE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Descriptor</span></code><span class="pre">&gt;</span><br /><span class="pre">dbscan</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan14compute_resultE" title="oneapi::dal::dbscan::compute_result"><span class="pre">compute_result</span></a> <code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::Descriptor"><span class="pre">Descriptor</span></a> <span class="pre">&amp;</span><em><span class="pre">desc</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">dbscan</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute_input"><span class="pre">compute_input</span></a> <span class="pre">&amp;</span><em><span class="pre">input</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE">
+<span id="_CPPv3I0EN6oneapi3dal6dbscan7computeERK10DescriptorRKN6dbscan13compute_inputE"></span><span id="_CPPv2I0EN6oneapi3dal6dbscan7computeERK10DescriptorRKN6dbscan13compute_inputE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Descriptor</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="n"><span class="pre">dbscan</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan14compute_resultE" title="oneapi::dal::dbscan::compute_result"><span class="n"><span class="pre">compute_result</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">compute</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::Descriptor"><span class="n"><span class="pre">Descriptor</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">desc</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">dbscan</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute_input"><span class="n"><span class="pre">compute_input</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">input</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>desc</strong> – DBSCAN algorithm descriptor <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">dbscan</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I000EN6oneapi3dal6dbscan10descriptorE" title="oneapi::dal::dbscan::descriptor"><span class="pre">descriptor</span></a></code></p></li>
+<li><p><strong>desc</strong> – DBSCAN algorithm descriptor <span class="cpp-expr sig sig-inline cpp"><span class="n">dbscan</span><span class="p">::</span><a class="reference internal" href="#_CPPv4I000EN6oneapi3dal6dbscan10descriptorE" title="oneapi::dal::dbscan::descriptor"><span class="n">descriptor</span></a></span></p></li>
 <li><p><strong>input</strong> – Input data for the compute operation</p></li>
 </ul>
 </dd>
 </dl>
 <dl>
 <dt>Preconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">data</span><span class="pre">.</span><span class="pre">has_data</span> <span class="pre">==</span> <span class="pre">true</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">!</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">weights</span><span class="pre">.</span><span class="pre">has_data</span> <span class="pre">||</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">weights</span><span class="pre">.</span><span class="pre">row_count</span> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">data</span><span class="pre">.</span><span class="pre">row_count</span> <span class="pre">&amp;&amp;</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">weights</span><span class="pre">.</span><span class="pre">column_count</span> <span class="pre">==</span> <span class="pre">1</span></code></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="n">input</span></a><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">has_data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">true</span></span></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><span class="o">!</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="n">input</span></a><span class="p">.</span><span class="n">weights</span><span class="p">.</span><span class="n">has_data</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="n">input</span></a><span class="p">.</span><span class="n">weights</span><span class="p">.</span><span class="n">row_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="n">input</span></a><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">row_count</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE" title="oneapi::dal::dbscan::compute::input"><span class="n">input</span></a><span class="p">.</span><span class="n">weights</span><span class="p">.</span><span class="n">column_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">1</span></span></div>
 </div>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
-</section>
-</section>
-<section id="usage-example">
+</div>
+</div>
+</div>
+<div class="section" id="usage-example">
 <h2>Usage example<a class="headerlink" href="#usage-example" title="Permalink to this headline">¶</a></h2>
-<section id="compute">
+<div class="section" id="compute">
 <h3>Compute<a class="headerlink" href="#compute" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">run_compute</span><span class="p">(</span><span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">data</span><span class="p">,</span>
-                           <span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">weights</span><span class="p">)</span> <span class="p">{</span>
-   <span class="kt">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
-   <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">max_observations</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">dbscan_desc</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">max_observations</span><span class="p">}</span>
-      <span class="p">.</span><span class="n">set_result_options</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">dbscan</span><span class="o">::</span><span class="n">result_options</span><span class="o">::</span><span class="n">responses</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">run_compute</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"></span>
+<span class="w">                           </span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">weights</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="kt">double</span><span class="w"> </span><span class="n">epsilon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">max_observations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">dbscan_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kmeans</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">epsilon</span><span class="p">,</span><span class="w"> </span><span class="n">max_observations</span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_result_options</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">dbscan</span><span class="o">::</span><span class="n">result_options</span><span class="o">::</span><span class="n">responses</span><span class="p">);</span><span class="w"></span>
 
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="n">dbscan_desc</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">weights</span><span class="p">);</span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute</span><span class="p">(</span><span class="n">dbscan_desc</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">weights</span><span class="p">);</span><span class="w"></span>
 
-   <span class="n">print_table</span><span class="p">(</span><span class="s">&quot;responses&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">get_responses</span><span class="p">());</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="n">print_table</span><span class="p">(</span><span class="s">&quot;responses&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">get_responses</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
-</section>
-<section id="examples">
+</div>
+</div>
+<div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-b25lQVBJIERQQysr" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-b25lQVBJIERQQysr" name="b25lQVBJIERQQysr" role="tab" tabindex="0">oneAPI DPC++</button><button aria-controls="panel-0-b25lQVBJIEMrKw==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-b25lQVBJIEMrKw==" name="b25lQVBJIEMrKw==" role="tab" tabindex="-1">oneAPI C++</button><button aria-controls="panel-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" name="UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" role="tab" tabindex="-1">Python* with DPC++ support</button></div><div aria-labelledby="tab-0-b25lQVBJIERQQysr" class="sphinx-tabs-panel group-tab" id="panel-0-b25lQVBJIERQQysr" name="b25lQVBJIERQQysr" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
@@ -2646,23 +2664,34 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 <li><p><a class="reference external" href="https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/dbscan_batch.py">dbscan_batch.py</a></p></li>
 </ul>
 </div></div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="index.html" title="previous page">Clustering</a>
-    <a class='right-next' id="next-link" href="kmeans.html" title="next page">K-Means</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Clustering</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="kmeans.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">K-Means</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2679,8 +2708,7 @@ marking as outliers observations that lie alone in low-density regions (whose ne
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

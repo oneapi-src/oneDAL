@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>jaccard_batch.cpp &#8212; oneDAL  documentation</title>
     
-  <link href="../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
@@ -68,6 +67,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -77,9 +80,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -101,7 +104,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -227,6 +230,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -357,6 +370,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -421,7 +439,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1717,7 +1735,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2097,7 +2115,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2197,10 +2215,10 @@
         
               <div>
                 
-  <section id="jaccard-batch-cpp">
+  <div class="section" id="jaccard-batch-cpp">
 <span id="cpp-jaccard-batch-cpp"></span><h1>jaccard_batch.cpp<a class="headerlink" href="#jaccard-batch-cpp" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/*******************************************************************************</span>
-<span class="cm">* Copyright 2020-2022 Intel Corporation</span>
+<span class="cm">* Copyright 2020 Intel Corporation</span>
 <span class="cm">*</span>
 <span class="cm">* Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
 <span class="cm">* you may not use this file except in compliance with the License.</span>
@@ -2213,72 +2231,83 @@
 <span class="cm">* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="cm">* See the License for the specific language governing permissions and</span>
 <span class="cm">* limitations under the License.</span>
-<span class="cm">*******************************************************************************/</span>
+<span class="cm">*******************************************************************************/</span><span class="w"></span>
 
-<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span> <span class="cpf">&quot;example_util/output_helpers_graph.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;example_util/utils.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/algo/jaccard.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/graph/undirected_adjacency_vector_graph.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/io/csv.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/table/common.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;example_util/output_helpers_graph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;example_util/utils.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;oneapi/dal/algo/jaccard.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;oneapi/dal/graph/undirected_adjacency_vector_graph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;oneapi/dal/io/csv.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;oneapi/dal/table/common.hpp&quot;</span><span class="cp"></span>
 
-<span class="k">namespace</span> <span class="nn">dal</span> <span class="o">=</span> <span class="nn">oneapi</span><span class="o">::</span><span class="nn">dal</span><span class="p">;</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">dal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">oneapi</span><span class="o">::</span><span class="nn">dal</span><span class="p">;</span><span class="w"></span>
 
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;graph.csv&quot;</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;graph.csv&quot;</span><span class="p">);</span><span class="w"></span>
 
-    <span class="c1">// read the graph</span>
-    <span class="k">using</span> <span class="n">graph_t</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="o">::</span><span class="n">undirected_adjacency_vector_graph</span><span class="o">&lt;&gt;</span><span class="p">;</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">graph</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">graph_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span> <span class="n">filename</span> <span class="p">});</span>
+<span class="w">    </span><span class="c1">// read the graph</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">graph_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="o">::</span><span class="n">undirected_adjacency_vector_graph</span><span class="o">&lt;&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">graph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">graph_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
 
-    <span class="c1">// set blocks ranges</span>
-    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">row_range_begin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">row_range_end</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
-    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">column_range_begin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">column_range_end</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// set blocks ranges</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">row_range_begin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">row_range_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">column_range_begin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">column_range_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"></span>
 
-    <span class="c1">// set algorithm parameters</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">jaccard_desc</span> <span class="o">=</span>
-        <span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="o">::</span><span class="n">jaccard</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">().</span><span class="n">set_block</span><span class="p">({</span> <span class="n">row_range_begin</span><span class="p">,</span> <span class="n">row_range_end</span> <span class="p">},</span>
-                                                        <span class="p">{</span> <span class="n">column_range_begin</span><span class="p">,</span> <span class="n">column_range_end</span> <span class="p">});</span>
+<span class="w">    </span><span class="c1">// set algorithm parameters</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">jaccard_desc</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">        </span><span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="o">::</span><span class="n">jaccard</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">().</span><span class="n">set_block</span><span class="p">({</span><span class="w"> </span><span class="n">row_range_begin</span><span class="p">,</span><span class="w"> </span><span class="n">row_range_end</span><span class="w"> </span><span class="p">},</span><span class="w"></span>
+<span class="w">                                                        </span><span class="p">{</span><span class="w"> </span><span class="n">column_range_begin</span><span class="p">,</span><span class="w"> </span><span class="n">column_range_end</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
 
-    <span class="c1">// create caching builder for jaccard result</span>
-    <span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="o">::</span><span class="n">jaccard</span><span class="o">::</span><span class="n">caching_builder</span> <span class="n">builder</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// create caching builder for jaccard result</span>
+<span class="w">    </span><span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="o">::</span><span class="n">jaccard</span><span class="o">::</span><span class="n">caching_builder</span><span class="w"> </span><span class="n">builder</span><span class="p">;</span><span class="w"></span>
 
-    <span class="c1">// compute Jaccard similarity coefficients</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">result_vertex_similarity</span> <span class="o">=</span>
-        <span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="o">::</span><span class="n">vertex_similarity</span><span class="p">(</span><span class="n">jaccard_desc</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">builder</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// compute Jaccard similarity coefficients</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">result_vertex_similarity</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">        </span><span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="o">::</span><span class="n">vertex_similarity</span><span class="p">(</span><span class="n">jaccard_desc</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="n">builder</span><span class="p">);</span><span class="w"></span>
 
-    <span class="c1">// extract the result</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">jaccard_coeffs</span> <span class="o">=</span> <span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_coeffs</span><span class="p">();</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">vertex_pairs</span> <span class="o">=</span> <span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_vertex_pairs</span><span class="p">();</span>
-    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">nonzero_coeff_count</span> <span class="o">=</span> <span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_nonzero_coeff_count</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// extract the result</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">jaccard_coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_coeffs</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">vertex_pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_vertex_pairs</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">nonzero_coeff_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_nonzero_coeff_count</span><span class="p">();</span><span class="w"></span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;The number of nonzero Jaccard coeffs in the block: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">nonzero_coeff_count</span>
-              <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;The number of nonzero Jaccard coeffs in the block: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">nonzero_coeff_count</span><span class="w"></span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">print_vertex_similarity_result</span><span class="p">(</span><span class="n">result_vertex_similarity</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">print_vertex_similarity_result</span><span class="p">(</span><span class="n">result_vertex_similarity</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="graph_service_functions.html" title="previous page">graph_service_functions.cpp</a>
-    <a class='right-next' id="next-link" href="jaccard_batch_app.html" title="next page">jaccard_batch_app.cpp</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="graph_service_functions.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">graph_service_functions.cpp</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="jaccard_batch_app.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">jaccard_batch_app.cpp</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2295,8 +2324,7 @@
       </div>
     </div>
   
-  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>
