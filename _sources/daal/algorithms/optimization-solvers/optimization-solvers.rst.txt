@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 Optimization Solvers
 ====================
 
-An optimization solver is an algorithm to solve an optimization problem, that is, 
+An optimization solver is an algorithm to solve an optimization problem, that is,
 to find the maximum or minimum of an objective function in the presence of constraints on its variables.
 In |short_name| the optimization solver represents the interface of algorithms that search
 for the argument :math:`\theta_{*}` that minimizes the function :math:`K(\theta)`:

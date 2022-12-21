@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2021 Intel Corporation
+.. * Copyright 2019 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -34,8 +34,13 @@ compression and decompression, see :ref:`data_compression`.
 
 A general structure of an archive is as follows:
 
-.. image:: ./images/data-archive-structure.png
+.. figure:: ./images/data-archive-structure.png
   :width: 400
+  :alt: The first segment contains the archive header,
+        the last segment contains the archive footer, and all
+        other segments contain a segment header and a segment footer.
+
+  Data Archive Structure
 
 Headers and footers contain information required to reconstruct the
 archived object.

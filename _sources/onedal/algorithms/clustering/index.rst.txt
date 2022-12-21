@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -23,8 +23,13 @@ This chapter describes clustering algorithms implemented in |short_name|:
 .. toctree::
    :titlesonly:
 
+   dbscan.rst
    kmeans.rst
    kmeans-init.rst
+
+.. rubric:: Examples: DBSCAN
+
+.. include:: ../../../includes/clustering/dbscan-examples.rst
 
 .. rubric:: Examples: K-Means
 

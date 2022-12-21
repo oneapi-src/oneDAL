@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Index &#8212; oneDAL  documentation</title>
     
-  <link href="_static/css/theme.css" rel="stylesheet" />
-  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="_static/css/theme.css" rel="stylesheet">
+  <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -22,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
     
-  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -66,6 +66,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -75,11 +79,33 @@
 </div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
-  Introduction
+  About
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="data-analytics-pipeline.html">
+   Introduction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="system-requirements.html">
+   System Requirements
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="legal.html">
+   Notices and Disclaimers
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Get Started
  </span>
 </p>
 <ul class="nav bd-sidenav">
@@ -88,24 +114,342 @@
    Installation
   </a>
  </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="quick-start.html">
+   Quick Start
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="simple">
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="examples.html">
+   oneAPI Examples
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="examples/dpc.html">
+     DPC++
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/basic_statistics_dense_batch.html">
+       basic_statistics_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/column_accessor_homogen.html">
+       column_accessor_homogen.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/cor_dense_batch.html">
+       cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/cov_dense_batch.html">
+       cov_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/dbscan_brute_force_batch.html">
+       dbscan_brute_force_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/df_cls_hist_batch.html">
+       df_cls_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/df_cls_traverse_model.html">
+       df_cls_traverse_model.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/df_reg_hist_batch.html">
+       df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/df_reg_traverse_model.html">
+       df_reg_traverse_model.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/kmeans_init_dense.html">
+       kmeans_init_dense.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/kmeans_lloyd_dense_batch.html">
+       kmeans_lloyd_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/knn_cls_brute_force_dense_batch.html">
+       knn_cls_brute_force_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/knn_reg_brute_force_dense_batch.html">
+       knn_reg_brute_force_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/knn_search_brute_force_dense_batch.html">
+       knn_search_brute_force_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/linear_kernel_dense_batch.html">
+       linear_kernel_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/linear_regression_dense_batch.html">
+       linear_regression_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/pca_cor_dense_batch.html">
+       pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/rbf_kernel_dense_batch.html">
+       rbf_kernel_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/svm_two_class_thunder_dense_batch.html">
+       svm_two_class_thunder_dense_batch.cpp
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="examples/cpp.html">
+     C++
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+    <label for="toctree-checkbox-4">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/basic_statistics_dense_batch.html">
+       basic_statistics_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/column_accessor_homogen.html">
+       column_accessor_homogen.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/connected_components_batch.html">
+       connected_components_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/cor_dense_batch.html">
+       cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/cov_dense_batch.html">
+       cov_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/dbscan_brute_force_batch.html">
+       dbscan_brute_force_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/df_cls_dense_batch.html">
+       df_cls_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/df_reg_dense_batch.html">
+       df_reg_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/directed_graph.html">
+       directed_graph.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/graph_service_functions.html">
+       graph_service_functions.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/jaccard_batch.html">
+       jaccard_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/jaccard_batch_app.html">
+       jaccard_batch_app.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/kmeans_init_dense.html">
+       kmeans_init_dense.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/kmeans_lloyd_dense_batch.html">
+       kmeans_lloyd_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/knn_cls_brute_force_dense_batch.html">
+       knn_cls_brute_force_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/knn_cls_kd_tree_dense_batch.html">
+       knn_cls_kd_tree_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/knn_search_brute_force_dense_batch.html">
+       knn_search_brute_force_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/linear_kernel_dense_batch.html">
+       linear_kernel_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/linear_regression_dense_batch.html">
+       linear_regression_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/louvain_batch.html">
+       louvain_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/pca_dense_batch.html">
+       pca_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/polynomial_kernel_dense_batch.html">
+       polynomial_kernel_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/rbf_kernel_dense_batch.html">
+       rbf_kernel_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/shortest_paths_batch.html">
+       shortest_paths_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/sigmoid_kernel_dense_batch.html">
+       sigmoid_kernel_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/subgraph_isomorphism_batch.html">
+       subgraph_isomorphism_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/svm_multi_class_thunder_dense_batch.html">
+       svm_multi_class_thunder_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/svm_nu_cls_thunder_dense_batch.html">
+       svm_nu_cls_thunder_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/svm_nu_reg_thunder_dense_batch.html">
+       svm_nu_reg_thunder_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/svm_reg_thunder_dense_batch.html">
+       svm_reg_thunder_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/svm_two_class_smo_dense_batch.html">
+       svm_two_class_smo_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/svm_two_class_thunder_dense_batch.html">
+       svm_two_class_thunder_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/cpp/triangle_counting_batch.html">
+       triangle_counting_batch.cpp
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
 </p>
 <ul class="nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="data-analytics-pipeline.html">
-   Data Analytics Pipeline
-  </a>
- </li>
  <li class="toctree-l1 has-children">
   <a class="reference internal" href="oneapi-interfaces.html">
    oneAPI Interfaces
   </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
+  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -114,24 +458,12 @@
     <a class="reference internal" href="onedal/introduction.html">
      Introduction
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-    <label for="toctree-checkbox-2">
+    <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+    <label for="toctree-checkbox-6">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="onedal/get-started.html">
-       Get Started with oneDAL
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
-      <label for="toctree-checkbox-3">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul class="simple">
-      </ul>
-     </li>
      <li class="toctree-l3">
       <a class="reference internal" href="onedal/build_app/build-application.html">
        Build applications with oneDAL
@@ -140,6 +472,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="onedal/glossary.html">
        Glossary
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="onedal/notations.html">
+       Mathematical Notations
       </a>
      </li>
     </ul>
@@ -153,8 +490,8 @@
     <a class="reference internal" href="onedal/data-management/index.html">
      Data Management
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-    <label for="toctree-checkbox-4">
+    <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+    <label for="toctree-checkbox-7">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -168,8 +505,8 @@
       <a class="reference internal" href="onedal/data-management/accessors.html">
        Accessors
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-      <label for="toctree-checkbox-5">
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -190,8 +527,8 @@
       <a class="reference internal" href="onedal/data-management/data-sources.html">
        Data Sources
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
-      <label for="toctree-checkbox-6">
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -204,11 +541,33 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
+      <a class="reference internal" href="onedal/data-management/graphs.html">
+       Graphs
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="onedal/data-management/graph/undirected-adjacency-vector-graph.html">
+         Undirected adjacency vector graph
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="onedal/data-management/graph/directed-adjacency-vector-graph.html">
+         Directed adjacency vector graph
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="onedal/data-management/tables.html">
        Tables
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
-      <label for="toctree-checkbox-7">
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -226,8 +585,8 @@
     <a class="reference internal" href="onedal/algorithms/index.html">
      Algorithms
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-    <label for="toctree-checkbox-8">
+    <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+    <label for="toctree-checkbox-12">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -236,12 +595,17 @@
       <a class="reference internal" href="onedal/algorithms/clustering/index.html">
        Clustering
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
-      <label for="toctree-checkbox-9">
+      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+      <label for="toctree-checkbox-13">
        <i class="fas fa-chevron-down">
        </i>
       </label>
       <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="onedal/algorithms/clustering/dbscan.html">
+         DBSCAN
+        </a>
+       </li>
        <li class="toctree-l4">
         <a class="reference internal" href="onedal/algorithms/clustering/kmeans.html">
          K-Means
@@ -255,11 +619,28 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
+      <a class="reference internal" href="onedal/algorithms/covariance/index.html">
+       Covariance
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+      <label for="toctree-checkbox-14">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="onedal/algorithms/covariance/covariance.html">
+         Covariance
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="onedal/algorithms/decomposition/index.html">
        Decomposition
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
-      <label for="toctree-checkbox-10">
+      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+      <label for="toctree-checkbox-15">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -275,8 +656,8 @@
       <a class="reference internal" href="onedal/algorithms/ensembles/index.html">
        Ensembles
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-      <label for="toctree-checkbox-11">
+      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+      <label for="toctree-checkbox-16">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -289,11 +670,33 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
+      <a class="reference internal" href="onedal/algorithms/graph/index.html">
+       Graph
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+      <label for="toctree-checkbox-17">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="onedal/algorithms/graph/subgraph-isomorphism.html">
+         Subgraph Isomorphism
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="onedal/algorithms/graph/connected-components.html">
+         Connected Components
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="onedal/algorithms/kernel-functions/index.html">
        Kernel Functions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
-      <label for="toctree-checkbox-12">
+      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+      <label for="toctree-checkbox-18">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -324,15 +727,15 @@
       <a class="reference internal" href="onedal/algorithms/nearest-neighbors/index.html">
        Nearest Neighbors (kNN)
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
-      <label for="toctree-checkbox-13">
+      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+      <label for="toctree-checkbox-19">
        <i class="fas fa-chevron-down">
        </i>
       </label>
       <ul>
        <li class="toctree-l4">
         <a class="reference internal" href="onedal/algorithms/nearest-neighbors/knn.html">
-         k-Nearest Neighbors Classification and Search(k-NN)
+         k-Nearest Neighbors Classification and Search (k-NN)
         </a>
        </li>
       </ul>
@@ -341,8 +744,8 @@
       <a class="reference internal" href="onedal/algorithms/pairwise-distances/index.html">
        Pairwise Distances
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
-      <label for="toctree-checkbox-14">
+      <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+      <label for="toctree-checkbox-20">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -365,11 +768,28 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
+      <a class="reference internal" href="onedal/algorithms/statistics/index.html">
+       Statistics
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/>
+      <label for="toctree-checkbox-21">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="onedal/algorithms/statistics/basic-statistics.html">
+         Basic Statistics
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="onedal/algorithms/svm/index.html">
        Support Vector Machines
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
-      <label for="toctree-checkbox-15">
+      <input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/>
+      <label for="toctree-checkbox-22">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -383,288 +803,17 @@
      </li>
     </ul>
    </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="examples.html">
-     oneAPI Examples
+   <li class="toctree-l2">
+    <a class="reference internal" href="onedal/spmd/index.html">
+     Single Program Multiple Data
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
-    <label for="toctree-checkbox-16">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="examples/dpc.html">
-       DPC++
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
-      <label for="toctree-checkbox-17">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/basic_statistics_dense_batch.html">
-         basic_statistics_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/column_accessor_homogen.html">
-         column_accessor_homogen.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/cor_dense_batch.html">
-         cor_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/cov_dense_batch.html">
-         cov_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/df_cls_hist_batch.html">
-         df_cls_hist_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/df_cls_traverse_model.html">
-         df_cls_traverse_model.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/df_reg_hist_batch.html">
-         df_reg_hist_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/df_reg_traverse_model.html">
-         df_reg_traverse_model.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/kmeans_init_dense.html">
-         kmeans_init_dense.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/kmeans_lloyd_dense_batch.html">
-         kmeans_lloyd_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/knn_cls_brute_force_dense_batch.html">
-         knn_cls_brute_force_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/knn_search_brute_force_dense_batch.html">
-         knn_search_brute_force_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/linear_kernel_dense_batch.html">
-         linear_kernel_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/pca_cor_dense_batch.html">
-         pca_cor_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/rbf_kernel_dense_batch.html">
-         rbf_kernel_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/dpc/svm_two_class_thunder_dense_batch.html">
-         svm_two_class_thunder_dense_batch.cpp
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="examples/cpp.html">
-       C++
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
-      <label for="toctree-checkbox-18">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/basic_statistics_dense_batch.html">
-         basic_statistics_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/column_accessor_homogen.html">
-         column_accessor_homogen.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/connected_components_batch.html">
-         connected_components_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/cor_dense_batch.html">
-         cor_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/cov_dense_batch.html">
-         cov_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/df_cls_dense_batch.html">
-         df_cls_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/df_reg_dense_batch.html">
-         df_reg_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/directed_graph.html">
-         directed_graph.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/graph_service_functions.html">
-         graph_service_functions.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/jaccard_batch.html">
-         jaccard_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/jaccard_batch_app.html">
-         jaccard_batch_app.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/kmeans_init_dense.html">
-         kmeans_init_dense.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/kmeans_lloyd_dense_batch.html">
-         kmeans_lloyd_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/knn_cls_brute_force_dense_batch.html">
-         knn_cls_brute_force_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/knn_cls_kd_tree_dense_batch.html">
-         knn_cls_kd_tree_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/knn_search_brute_force_dense_batch.html">
-         knn_search_brute_force_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/linear_kernel_dense_batch.html">
-         linear_kernel_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/load_graph.html">
-         load_graph.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/louvain_batch.html">
-         louvain_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/pca_dense_batch.html">
-         pca_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/polynomial_kernel_dense_batch.html">
-         polynomial_kernel_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/rbf_kernel_dense_batch.html">
-         rbf_kernel_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/shortest_paths_batch.html">
-         shortest_paths_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/sigmoid_kernel_dense_batch.html">
-         sigmoid_kernel_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/subgraph_isomorphism_batch.html">
-         subgraph_isomorphism_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/svm_multi_class_thunder_dense_batch.html">
-         svm_multi_class_thunder_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/svm_nu_cls_thunder_dense_batch.html">
-         svm_nu_cls_thunder_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/svm_nu_reg_thunder_dense_batch.html">
-         svm_nu_reg_thunder_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/svm_reg_thunder_dense_batch.html">
-         svm_reg_thunder_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/svm_two_class_smo_dense_batch.html">
-         svm_two_class_smo_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/svm_two_class_thunder_dense_batch.html">
-         svm_two_class_thunder_dense_batch.cpp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="examples/cpp/triangle_counting_batch.html">
-         triangle_counting_batch.cpp
-        </a>
-       </li>
-      </ul>
-     </li>
-    </ul>
    </li>
    <li class="toctree-l2 has-children">
     <a class="reference internal" href="onedal/appendix/index.html">
      Appendix
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
-    <label for="toctree-checkbox-19">
+    <input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/>
+    <label for="toctree-checkbox-23">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -687,8 +836,8 @@
   <a class="reference internal" href="daal-interfaces.html">
    DAAL Interfaces
   </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
-  <label for="toctree-checkbox-20">
+  <input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/>
+  <label for="toctree-checkbox-24">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -702,8 +851,8 @@
     <a class="reference internal" href="daal/usage/index.html">
      Library Usage
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/>
-    <label for="toctree-checkbox-21">
+    <input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/>
+    <label for="toctree-checkbox-25">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -722,8 +871,8 @@
       <a class="reference internal" href="daal/usage/training-and-prediction/index.html">
        Training and Prediction
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/>
-      <label for="toctree-checkbox-22">
+      <input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/>
+      <label for="toctree-checkbox-26">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -751,8 +900,8 @@
     <a class="reference internal" href="daal/data-management/data-management.html">
      Data Management
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/>
-    <label for="toctree-checkbox-23">
+    <input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/>
+    <label for="toctree-checkbox-27">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -761,8 +910,8 @@
       <a class="reference internal" href="daal/data-management/numeric-tables.html">
        Numeric Tables
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/>
-      <label for="toctree-checkbox-24">
+      <input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/>
+      <label for="toctree-checkbox-28">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -815,8 +964,8 @@
     <a class="reference internal" href="daal/analysis.html">
      Analysis
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/>
-    <label for="toctree-checkbox-25">
+    <input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/>
+    <label for="toctree-checkbox-29">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -825,8 +974,8 @@
       <a class="reference internal" href="daal/algorithms/kmeans/k-means-clustering.html">
        K-Means Clustering
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/>
-      <label for="toctree-checkbox-26">
+      <input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/>
+      <label for="toctree-checkbox-30">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -857,8 +1006,8 @@
       <a class="reference internal" href="daal/algorithms/dbscan/index.html">
        Density-Based Spatial Clustering of Applications with Noise
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/>
-      <label for="toctree-checkbox-27">
+      <input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/>
+      <label for="toctree-checkbox-31">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -879,8 +1028,8 @@
       <a class="reference internal" href="daal/algorithms/covariance/correlation-and-variance-covariance-matrices.html">
        Correlation and Variance-Covariance Matrices
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/>
-      <label for="toctree-checkbox-28">
+      <input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/>
+      <label for="toctree-checkbox-32">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -906,8 +1055,8 @@
       <a class="reference internal" href="daal/algorithms/pca/principal-component-analysis.html">
        Principal Component Analysis
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/>
-      <label for="toctree-checkbox-29">
+      <input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/>
+      <label for="toctree-checkbox-33">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -938,8 +1087,8 @@
       <a class="reference internal" href="daal/algorithms/svd/singular-value-decomposition.html">
        Singular Value Decomposition
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/>
-      <label for="toctree-checkbox-30">
+      <input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/>
+      <label for="toctree-checkbox-34">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -960,8 +1109,8 @@
       <a class="reference internal" href="daal/algorithms/association_rules/association-rules.html">
        Association Rules
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/>
-      <label for="toctree-checkbox-31">
+      <input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/>
+      <label for="toctree-checkbox-35">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -972,8 +1121,8 @@
       <a class="reference internal" href="daal/algorithms/kernel_function/kernel-functions.html">
        Kernel Functions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/>
-      <label for="toctree-checkbox-32">
+      <input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/>
+      <label for="toctree-checkbox-36">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -984,8 +1133,8 @@
       <a class="reference internal" href="daal/algorithms/em/expectation-maximization.html">
        Expectation-Maximization
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/>
-      <label for="toctree-checkbox-33">
+      <input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/>
+      <label for="toctree-checkbox-37">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1001,8 +1150,8 @@
       <a class="reference internal" href="daal/algorithms/qr/qr-decomposition.html">
        QR Decomposition
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/>
-      <label for="toctree-checkbox-34">
+      <input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/>
+      <label for="toctree-checkbox-38">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1023,8 +1172,8 @@
       <a class="reference internal" href="daal/algorithms/outlier_detection/index.html">
        Outlier Detection
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/>
-      <label for="toctree-checkbox-35">
+      <input class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" type="checkbox"/>
+      <label for="toctree-checkbox-39">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1050,8 +1199,8 @@
       <a class="reference internal" href="daal/algorithms/distance/index.html">
        Distance Matrix
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/>
-      <label for="toctree-checkbox-36">
+      <input class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" type="checkbox"/>
+      <label for="toctree-checkbox-40">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1072,8 +1221,8 @@
       <a class="reference internal" href="daal/algorithms/distributions/index.html">
        Distributions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/>
-      <label for="toctree-checkbox-37">
+      <input class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" type="checkbox"/>
+      <label for="toctree-checkbox-41">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1099,8 +1248,8 @@
       <a class="reference internal" href="daal/algorithms/engines/index.html">
        Engines
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/>
-      <label for="toctree-checkbox-38">
+      <input class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" type="checkbox"/>
+      <label for="toctree-checkbox-42">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1126,8 +1275,8 @@
       <a class="reference internal" href="daal/algorithms/moments/moments-of-low-order.html">
        Moments of Low Order
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" type="checkbox"/>
-      <label for="toctree-checkbox-39">
+      <input class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" type="checkbox"/>
+      <label for="toctree-checkbox-43">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1158,8 +1307,8 @@
       <a class="reference internal" href="daal/algorithms/quality_metrics/index.html">
        Quality Metrics
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" type="checkbox"/>
-      <label for="toctree-checkbox-40">
+      <input class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" type="checkbox"/>
+      <label for="toctree-checkbox-44">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1185,8 +1334,8 @@
       <a class="reference internal" href="daal/algorithms/normalization/index.html">
        Normalization
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" type="checkbox"/>
-      <label for="toctree-checkbox-41">
+      <input class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" type="checkbox"/>
+      <label for="toctree-checkbox-45">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1207,8 +1356,8 @@
       <a class="reference internal" href="daal/algorithms/optimization-solvers/optimization-solvers.html">
        Optimization Solvers
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" type="checkbox"/>
-      <label for="toctree-checkbox-42">
+      <input class="toctree-checkbox" id="toctree-checkbox-46" name="toctree-checkbox-46" type="checkbox"/>
+      <label for="toctree-checkbox-46">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1231,8 +1380,8 @@
     <a class="reference internal" href="daal/training-prediction.html">
      Training and Prediction
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" type="checkbox"/>
-    <label for="toctree-checkbox-43">
+    <input class="toctree-checkbox" id="toctree-checkbox-47" name="toctree-checkbox-47" type="checkbox"/>
+    <label for="toctree-checkbox-47">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1241,8 +1390,8 @@
       <a class="reference internal" href="daal/algorithms/decision_forest/index.html">
        Decision Forest
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" type="checkbox"/>
-      <label for="toctree-checkbox-44">
+      <input class="toctree-checkbox" id="toctree-checkbox-48" name="toctree-checkbox-48" type="checkbox"/>
+      <label for="toctree-checkbox-48">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1268,8 +1417,8 @@
       <a class="reference internal" href="daal/algorithms/decision_tree/index.html">
        Decision Trees
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" type="checkbox"/>
-      <label for="toctree-checkbox-45">
+      <input class="toctree-checkbox" id="toctree-checkbox-49" name="toctree-checkbox-49" type="checkbox"/>
+      <label for="toctree-checkbox-49">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1295,8 +1444,8 @@
       <a class="reference internal" href="daal/algorithms/gradient_boosted_trees/index.html">
        Gradient Boosted Trees
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-46" name="toctree-checkbox-46" type="checkbox"/>
-      <label for="toctree-checkbox-46">
+      <input class="toctree-checkbox" id="toctree-checkbox-50" name="toctree-checkbox-50" type="checkbox"/>
+      <label for="toctree-checkbox-50">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1322,8 +1471,8 @@
       <a class="reference internal" href="daal/algorithms/stump/index.html">
        Stump
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-47" name="toctree-checkbox-47" type="checkbox"/>
-      <label for="toctree-checkbox-47">
+      <input class="toctree-checkbox" id="toctree-checkbox-51" name="toctree-checkbox-51" type="checkbox"/>
+      <label for="toctree-checkbox-51">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1344,8 +1493,8 @@
       <a class="reference internal" href="daal/algorithms/linear_ridge_regression/index.html">
        Linear and Ridge Regressions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-48" name="toctree-checkbox-48" type="checkbox"/>
-      <label for="toctree-checkbox-48">
+      <input class="toctree-checkbox" id="toctree-checkbox-52" name="toctree-checkbox-52" type="checkbox"/>
+      <label for="toctree-checkbox-52">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1371,8 +1520,8 @@
       <a class="reference internal" href="daal/algorithms/lasso_elastic_net/index.html">
        LASSO and Elastic Net Regressions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-49" name="toctree-checkbox-49" type="checkbox"/>
-      <label for="toctree-checkbox-49">
+      <input class="toctree-checkbox" id="toctree-checkbox-53" name="toctree-checkbox-53" type="checkbox"/>
+      <label for="toctree-checkbox-53">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1398,8 +1547,8 @@
       <a class="reference internal" href="daal/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">
        k-Nearest Neighbors (kNN) Classifier
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-50" name="toctree-checkbox-50" type="checkbox"/>
-      <label for="toctree-checkbox-50">
+      <input class="toctree-checkbox" id="toctree-checkbox-54" name="toctree-checkbox-54" type="checkbox"/>
+      <label for="toctree-checkbox-54">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1410,8 +1559,8 @@
       <a class="reference internal" href="daal/algorithms/implicit_als/implicit-alternating-least-squares.html">
        Implicit Alternating Least Squares
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-51" name="toctree-checkbox-51" type="checkbox"/>
-      <label for="toctree-checkbox-51">
+      <input class="toctree-checkbox" id="toctree-checkbox-55" name="toctree-checkbox-55" type="checkbox"/>
+      <label for="toctree-checkbox-55">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1447,8 +1596,8 @@
       <a class="reference internal" href="daal/algorithms/logistic_regression/logistic-regression.html">
        Logistic Regression
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-52" name="toctree-checkbox-52" type="checkbox"/>
-      <label for="toctree-checkbox-52">
+      <input class="toctree-checkbox" id="toctree-checkbox-56" name="toctree-checkbox-56" type="checkbox"/>
+      <label for="toctree-checkbox-56">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1459,8 +1608,8 @@
       <a class="reference internal" href="daal/algorithms/naive_bayes/naive-bayes-classifier.html">
        Naïve Bayes Classifier
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-53" name="toctree-checkbox-53" type="checkbox"/>
-      <label for="toctree-checkbox-53">
+      <input class="toctree-checkbox" id="toctree-checkbox-57" name="toctree-checkbox-57" type="checkbox"/>
+      <label for="toctree-checkbox-57">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1486,8 +1635,8 @@
       <a class="reference internal" href="daal/algorithms/svm/support-vector-machine-classifier.html">
        Support Vector Machine Classifier
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-54" name="toctree-checkbox-54" type="checkbox"/>
-      <label for="toctree-checkbox-54">
+      <input class="toctree-checkbox" id="toctree-checkbox-58" name="toctree-checkbox-58" type="checkbox"/>
+      <label for="toctree-checkbox-58">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1498,8 +1647,8 @@
       <a class="reference internal" href="daal/algorithms/svm_multi_class/multi-class-classifier.html">
        Multi-class Classifier
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-55" name="toctree-checkbox-55" type="checkbox"/>
-      <label for="toctree-checkbox-55">
+      <input class="toctree-checkbox" id="toctree-checkbox-59" name="toctree-checkbox-59" type="checkbox"/>
+      <label for="toctree-checkbox-59">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1510,8 +1659,8 @@
       <a class="reference internal" href="daal/algorithms/boosting/index.html">
        Boosting
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-56" name="toctree-checkbox-56" type="checkbox"/>
-      <label for="toctree-checkbox-56">
+      <input class="toctree-checkbox" id="toctree-checkbox-60" name="toctree-checkbox-60" type="checkbox"/>
+      <label for="toctree-checkbox-60">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1544,8 +1693,8 @@
     <a class="reference internal" href="daal/services/services.html">
      Services
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-57" name="toctree-checkbox-57" type="checkbox"/>
-    <label for="toctree-checkbox-57">
+    <input class="toctree-checkbox" id="toctree-checkbox-61" name="toctree-checkbox-61" type="checkbox"/>
+    <label for="toctree-checkbox-61">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1585,9 +1734,9 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
-  API Reference
+  Developer Reference
  </span>
 </p>
 <ul class="nav bd-sidenav">
@@ -1595,8 +1744,8 @@
   <a class="reference internal" href="api/index.html">
    C++ API
   </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-58" name="toctree-checkbox-58" type="checkbox"/>
-  <label for="toctree-checkbox-58">
+  <input class="toctree-checkbox" id="toctree-checkbox-62" name="toctree-checkbox-62" type="checkbox"/>
+  <label for="toctree-checkbox-62">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -1605,8 +1754,8 @@
     <a class="reference internal" href="api/data-management/index.html">
      Data Management
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-59" name="toctree-checkbox-59" type="checkbox"/>
-    <label for="toctree-checkbox-59">
+    <input class="toctree-checkbox" id="toctree-checkbox-63" name="toctree-checkbox-63" type="checkbox"/>
+    <label for="toctree-checkbox-63">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1620,8 +1769,8 @@
       <a class="reference internal" href="api/data-management/accessors.html">
        Accessors
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-60" name="toctree-checkbox-60" type="checkbox"/>
-      <label for="toctree-checkbox-60">
+      <input class="toctree-checkbox" id="toctree-checkbox-64" name="toctree-checkbox-64" type="checkbox"/>
+      <label for="toctree-checkbox-64">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1642,8 +1791,8 @@
       <a class="reference internal" href="api/data-management/data-sources.html">
        Data Sources
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-61" name="toctree-checkbox-61" type="checkbox"/>
-      <label for="toctree-checkbox-61">
+      <input class="toctree-checkbox" id="toctree-checkbox-65" name="toctree-checkbox-65" type="checkbox"/>
+      <label for="toctree-checkbox-65">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1656,11 +1805,55 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
+      <a class="reference internal" href="api/data-management/graphs.html">
+       Graphs
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-66" name="toctree-checkbox-66" type="checkbox"/>
+      <label for="toctree-checkbox-66">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/data-management/graph/undirected-adjacency-vector-graph.html">
+         Undirected adjacency vector graph
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/data-management/graph/directed-adjacency-vector-graph.html">
+         Directed adjacency vector graph
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="api/data-management/graph-service.html">
+       Graph Service
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-67" name="toctree-checkbox-67" type="checkbox"/>
+      <label for="toctree-checkbox-67">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/data-management/graph-service/undirected-adjacency-vector-graph.html">
+         Undirected adjacency vector graph service
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/data-management/graph-service/directed-adjacency-vector-graph.html">
+         Directed adjacency vector graph service
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="api/data-management/tables.html">
        Tables
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-62" name="toctree-checkbox-62" type="checkbox"/>
-      <label for="toctree-checkbox-62">
+      <input class="toctree-checkbox" id="toctree-checkbox-68" name="toctree-checkbox-68" type="checkbox"/>
+      <label for="toctree-checkbox-68">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1678,8 +1871,8 @@
     <a class="reference internal" href="api/algorithms/index.html">
      Algorithms
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-63" name="toctree-checkbox-63" type="checkbox"/>
-    <label for="toctree-checkbox-63">
+    <input class="toctree-checkbox" id="toctree-checkbox-69" name="toctree-checkbox-69" type="checkbox"/>
+    <label for="toctree-checkbox-69">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1688,12 +1881,17 @@
       <a class="reference internal" href="api/algorithms/clustering/index.html">
        Clustering
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-64" name="toctree-checkbox-64" type="checkbox"/>
-      <label for="toctree-checkbox-64">
+      <input class="toctree-checkbox" id="toctree-checkbox-70" name="toctree-checkbox-70" type="checkbox"/>
+      <label for="toctree-checkbox-70">
        <i class="fas fa-chevron-down">
        </i>
       </label>
       <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/algorithms/clustering/dbscan.html">
+         DBSCAN
+        </a>
+       </li>
        <li class="toctree-l4">
         <a class="reference internal" href="api/algorithms/clustering/kmeans.html">
          K-Means
@@ -1707,11 +1905,28 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
+      <a class="reference internal" href="api/algorithms/covariance/index.html">
+       Covariance
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-71" name="toctree-checkbox-71" type="checkbox"/>
+      <label for="toctree-checkbox-71">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/algorithms/covariance/covariance.html">
+         Covariance
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="api/algorithms/decomposition/index.html">
        Decomposition
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-65" name="toctree-checkbox-65" type="checkbox"/>
-      <label for="toctree-checkbox-65">
+      <input class="toctree-checkbox" id="toctree-checkbox-72" name="toctree-checkbox-72" type="checkbox"/>
+      <label for="toctree-checkbox-72">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1727,8 +1942,8 @@
       <a class="reference internal" href="api/algorithms/ensembles/index.html">
        Ensembles
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-66" name="toctree-checkbox-66" type="checkbox"/>
-      <label for="toctree-checkbox-66">
+      <input class="toctree-checkbox" id="toctree-checkbox-73" name="toctree-checkbox-73" type="checkbox"/>
+      <label for="toctree-checkbox-73">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1741,11 +1956,33 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
+      <a class="reference internal" href="api/algorithms/graph/index.html">
+       Graph
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-74" name="toctree-checkbox-74" type="checkbox"/>
+      <label for="toctree-checkbox-74">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/algorithms/graph/subgraph-isomorphism.html">
+         Subgraph Isomorphism
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/algorithms/graph/connected-components.html">
+         Connected Components
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="api/algorithms/kernel-functions/index.html">
        Kernel Functions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-67" name="toctree-checkbox-67" type="checkbox"/>
-      <label for="toctree-checkbox-67">
+      <input class="toctree-checkbox" id="toctree-checkbox-75" name="toctree-checkbox-75" type="checkbox"/>
+      <label for="toctree-checkbox-75">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1776,8 +2013,8 @@
       <a class="reference internal" href="api/algorithms/nearest-neighbors/index.html">
        Nearest Neighbors (kNN)
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-68" name="toctree-checkbox-68" type="checkbox"/>
-      <label for="toctree-checkbox-68">
+      <input class="toctree-checkbox" id="toctree-checkbox-76" name="toctree-checkbox-76" type="checkbox"/>
+      <label for="toctree-checkbox-76">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1793,8 +2030,8 @@
       <a class="reference internal" href="api/algorithms/pairwise-distances/index.html">
        Pairwise Distances
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-69" name="toctree-checkbox-69" type="checkbox"/>
-      <label for="toctree-checkbox-69">
+      <input class="toctree-checkbox" id="toctree-checkbox-77" name="toctree-checkbox-77" type="checkbox"/>
+      <label for="toctree-checkbox-77">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1817,11 +2054,28 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
+      <a class="reference internal" href="api/algorithms/statistics/index.html">
+       Statistics
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-78" name="toctree-checkbox-78" type="checkbox"/>
+      <label for="toctree-checkbox-78">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/algorithms/statistics/basic-statistics.html">
+         Basic Statistics
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="api/algorithms/svm/index.html">
        Support Vector Machines
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-70" name="toctree-checkbox-70" type="checkbox"/>
-      <label for="toctree-checkbox-70">
+      <input class="toctree-checkbox" id="toctree-checkbox-79" name="toctree-checkbox-79" type="checkbox"/>
+      <label for="toctree-checkbox-79">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1835,84 +2089,32 @@
      </li>
     </ul>
    </li>
-  </ul>
- </li>
-</ul>
-<p class="caption">
- <span class="caption-text">
-  Notes
- </span>
-</p>
-<ul class="nav bd-sidenav">
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="notes/known_issues.html">
-   Known Issues
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-71" name="toctree-checkbox-71" type="checkbox"/>
-  <label for="toctree-checkbox-71">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="notes/issues/2021.1-beta09/oneapi-examples-segfault.html">
-     oneAPI examples failing with segfault
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="api/spmd/index.html">
+     Distributed Model: Single Process Multiple Data
     </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="notes/issues/2021.1-beta09/pca-examples-on-gpu.html">
-     PCA examples failing on GPU devices
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="notes/issues/2021.1-beta08/windows-static-debug-config.html">
-     Static debug configuration not working
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html">
-     DPC++ examples not working
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="notes/issues/2021.1-beta06/incorrect-linker-behavior.html">
-     Incorrect linker behavior
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="notes/issues/2021.1-beta06/level-zero-not-found.html">
-     Level Zero runtime dependency
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="notes/issues/2021.1-beta06/performance-degradations.html">
-     Potential performance degradations
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="notes/issues/2021.1-beta06/undeclared-identifier.html">
-     Undeclared identifier
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       CL_DEVICE_IL_VERSION_KHR
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="notes/issues/2021.1-beta04/dll-file-not-found.html">
-     DLL file not found
-    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-80" name="toctree-checkbox-80" type="checkbox"/>
+    <label for="toctree-checkbox-80">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/spmd/overview.html">
+       Distributed SPMD model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/spmd/communicator.html">
+       Communicators
+      </a>
+     </li>
+    </ul>
    </li>
   </ul>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="legal.html">
-   Notices and Disclaimers
-  </a>
- </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2001,6 +2203,7 @@
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
@@ -2015,6 +2218,7 @@
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
@@ -2023,9 +2227,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Accessor"><strong>Accessor</strong></a>
 </li>
+      <li><a href="onedal/glossary.html#term-Adjacency"><strong>Adjacency</strong></a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="onedal/glossary.html#term-Adjacency-matrix"><strong>Adjacency matrix</strong></a>
+</li>
       <li><a href="onedal/glossary.html#term-API"><strong>API</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-Attribute"><strong>Attribute</strong></a>
 </li>
   </ul></td>
 </tr></table>
@@ -2053,13 +2263,23 @@
 </li>
       <li><a href="onedal/glossary.html#term-Clustering"><strong>Clustering</strong></a>
 </li>
+      <li><a href="onedal/glossary.html#term-Communicator"><strong>Communicator</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-Communicator-backend"><strong>Communicator backend</strong></a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="onedal/glossary.html#term-Component"><strong>Component</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-Connected-graph"><strong>Connected graph</strong></a>
+</li>
       <li><a href="onedal/glossary.html#term-Contiguous-data"><strong>Contiguous data</strong></a>
 </li>
       <li><a href="onedal/glossary.html#term-Continuous-feature"><strong>Continuous feature</strong></a>
 </li>
       <li><a href="daal/algorithms/dbscan/index.html#term-core-observation"><strong>core observation</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-CSR-data"><strong>CSR data</strong></a>
 </li>
       <li><a href="onedal/glossary.html#term-CSV-file"><strong>CSV file</strong></a>
 </li>
@@ -2075,15 +2295,25 @@
 </li>
       <li><a href="onedal/glossary.html#term-Data-type"><strong>Data type</strong></a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Dataset"><strong>Dataset</strong></a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Dimensionality-reduction"><strong>Dimensionality reduction</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-Directed-graph"><strong>Directed graph</strong></a>
 </li>
       <li><a href="daal/algorithms/dbscan/index.html#term-directly-reachable"><strong>directly reachable</strong></a>
 </li>
       <li><a href="onedal/glossary.html#term-DPC"><strong>DPC++</strong></a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="onedal/glossary.html#term-Edge-index"><strong>Edge index</strong></a>
 </li>
   </ul></td>
 </tr></table>
@@ -2108,6 +2338,10 @@
       <li><a href="onedal/glossary.html#term-Getter"><strong>Getter</strong></a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="onedal/glossary.html#term-Graph"><strong>Graph</strong></a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="H">H</h2>
@@ -2129,10 +2363,14 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Immutability"><strong>Immutability</strong></a>
 </li>
-      <li><a href="onedal/glossary.html#term-Inference"><strong>Inference</strong></a>
+      <li><a href="onedal/glossary.html#term-Induced-subgraph-on-the-edge-set"><strong>Induced subgraph on the edge set</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-Induced-subgraph-on-the-vertex-set"><strong>Induced subgraph on the vertex set</strong></a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="onedal/glossary.html#term-Inference"><strong>Inference</strong></a>
+</li>
       <li><a href="onedal/glossary.html#term-Inference-set"><strong>Inference set</strong></a>
 </li>
       <li><a href="onedal/glossary.html#term-Interval-feature"><strong>Interval feature</strong></a>
@@ -2227,6 +2465,52 @@
 </li>
       <li><a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5zerosENSt7int64_tE">oneapi::dal::array::zeros (C++ function)</a>
 </li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4I0EN6oneapi3dal16basic_statistics7computeEN16basic_statistics14compute_resultERK10DescriptorRKN16basic_statistics13compute_inputE">oneapi::dal::basic_statistics::compute (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4I0EN6oneapi3dal16basic_statistics13compute_inputE">oneapi::dal::basic_statistics::compute_input (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics13compute_input13compute_inputERK5table">oneapi::dal::basic_statistics::compute_input::compute_input (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics13compute_input4dataE">oneapi::dal::basic_statistics::compute_input::data (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4I0EN6oneapi3dal16basic_statistics14compute_resultE">oneapi::dal::basic_statistics::compute_result (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result14compute_resultEv">oneapi::dal::basic_statistics::compute_result::compute_result (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result3maxE">oneapi::dal::basic_statistics::compute_result::max (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result4meanE">oneapi::dal::basic_statistics::compute_result::mean (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result3minE">oneapi::dal::basic_statistics::compute_result::min (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result14result_optionsE">oneapi::dal::basic_statistics::compute_result::result_options (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result23second_order_raw_momentE">oneapi::dal::basic_statistics::compute_result::second_order_raw_moment (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result18standard_deviationE">oneapi::dal::basic_statistics::compute_result::standard_deviation (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result3sumE">oneapi::dal::basic_statistics::compute_result::sum (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result11sum_squaresE">oneapi::dal::basic_statistics::compute_result::sum_squares (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result20sum_squares_centeredE">oneapi::dal::basic_statistics::compute_result::sum_squares_centered (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result8varianceE">oneapi::dal::basic_statistics::compute_result::variance (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics14compute_result9variationE">oneapi::dal::basic_statistics::compute_result::variation (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4I000EN6oneapi3dal16basic_statistics10descriptorE">oneapi::dal::basic_statistics::descriptor (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics10descriptor14result_optionsE">oneapi::dal::basic_statistics::descriptor::result_options (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics6method10by_defaultE">oneapi::dal::basic_statistics::method::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics6method5denseE">oneapi::dal::basic_statistics::method::dense (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics4task10by_defaultE">oneapi::dal::basic_statistics::task::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics4task7computeE">oneapi::dal::basic_statistics::task::compute (C++ struct)</a>
+</li>
       <li><a href="api/algorithms/pairwise-distances/chebyshev-distance.html#_CPPv4I000EN6oneapi3dal18chebyshev_distance10descriptorE">oneapi::dal::chebyshev_distance::descriptor (C++ class)</a>
 </li>
       <li><a href="api/algorithms/pairwise-distances/chebyshev-distance.html#_CPPv4N6oneapi3dal18chebyshev_distance10descriptor10descriptorEv">oneapi::dal::chebyshev_distance::descriptor::descriptor (C++ function)</a>
@@ -2259,6 +2543,40 @@
 </li>
       <li><a href="api/algorithms/pairwise-distances/cosine-distance.html#_CPPv4N6oneapi3dal15cosine_distance4task7computeE">oneapi::dal::cosine_distance::task::compute (C++ struct)</a>
 </li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4I0EN6oneapi3dal10covariance7computeEN10covariance14compute_resultERK10DescriptorRKN10covariance13compute_inputE">oneapi::dal::covariance::compute (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4I0EN6oneapi3dal10covariance13compute_inputE">oneapi::dal::covariance::compute_input (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance13compute_input13compute_inputERK5table">oneapi::dal::covariance::compute_input::compute_input (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance13compute_input4dataE">oneapi::dal::covariance::compute_input::data (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4I0EN6oneapi3dal10covariance14compute_resultE">oneapi::dal::covariance::compute_result (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance14compute_result14compute_resultEv">oneapi::dal::covariance::compute_result::compute_result (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance14compute_result10cor_matrixE">oneapi::dal::covariance::compute_result::cor_matrix (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance14compute_result10cov_matrixE">oneapi::dal::covariance::compute_result::cov_matrix (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance14compute_result5meansE">oneapi::dal::covariance::compute_result::means (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance14compute_result14result_optionsE">oneapi::dal::covariance::compute_result::result_options (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4I000EN6oneapi3dal10covariance10descriptorE">oneapi::dal::covariance::descriptor (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance10descriptor10descriptorEv">oneapi::dal::covariance::descriptor::descriptor (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance10descriptor14result_optionsE">oneapi::dal::covariance::descriptor::result_options (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance6method10by_defaultE">oneapi::dal::covariance::method::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance6method5denseE">oneapi::dal::covariance::method::dense (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance4task10by_defaultE">oneapi::dal::covariance::task::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance4task7computeE">oneapi::dal::covariance::task::compute (C++ struct)</a>
+</li>
       <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_sourceE">oneapi::dal::csv::data_source (C++ class)</a>
 </li>
       <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options">oneapi::dal::csv::data_source::data_source (C++ function)</a>, <a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options">[1]</a>
@@ -2272,6 +2590,52 @@
       <li><a href="api/data-management/data-source/csv.html#_CPPv4I0EN6oneapi3dal3csv9read_argsE">oneapi::dal::csv::read_args (C++ class)</a>
 </li>
       <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv9read_args9read_argsEv">oneapi::dal::csv::read_args::read_args (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4I0EN6oneapi3dal6dbscan7computeEN6dbscan14compute_resultERK10DescriptorRKN6dbscan13compute_inputE">oneapi::dal::dbscan::compute (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4I0EN6oneapi3dal6dbscan13compute_inputE">oneapi::dal::dbscan::compute_input (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan13compute_input13compute_inputERK5tableRK5table">oneapi::dal::dbscan::compute_input::compute_input (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan13compute_input4dataE">oneapi::dal::dbscan::compute_input::data (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan13compute_input7weightsE">oneapi::dal::dbscan::compute_input::weights (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4I0EN6oneapi3dal6dbscan14compute_resultE">oneapi::dal::dbscan::compute_result (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan14compute_result13cluster_countE">oneapi::dal::dbscan::compute_result::cluster_count (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan14compute_result14compute_resultEv">oneapi::dal::dbscan::compute_result::compute_result (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan14compute_result10core_flagsE">oneapi::dal::dbscan::compute_result::core_flags (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan14compute_result24core_observation_indicesE">oneapi::dal::dbscan::compute_result::core_observation_indices (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan14compute_result17core_observationsE">oneapi::dal::dbscan::compute_result::core_observations (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan14compute_result9responsesE">oneapi::dal::dbscan::compute_result::responses (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan14compute_result14result_optionsE">oneapi::dal::dbscan::compute_result::result_options (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4I000EN6oneapi3dal6dbscan10descriptorE">oneapi::dal::dbscan::descriptor (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan10descriptor10descriptorEdNSt7int64_tE">oneapi::dal::dbscan::descriptor::descriptor (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan10descriptor7epsilonE">oneapi::dal::dbscan::descriptor::epsilon (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan10descriptor13mem_save_modeE">oneapi::dal::dbscan::descriptor::mem_save_mode (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan10descriptor16min_observationsE">oneapi::dal::dbscan::descriptor::min_observations (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan10descriptor14result_optionsE">oneapi::dal::dbscan::descriptor::result_options (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan6method11brute_forceE">oneapi::dal::dbscan::method::brute_force (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan6method10by_defaultE">oneapi::dal::dbscan::method::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan4task10by_defaultE">oneapi::dal::dbscan::task::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/clustering/dbscan.html#_CPPv4N6oneapi3dal6dbscan4task10clusteringE">oneapi::dal::dbscan::task::clustering (C++ struct)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I000EN6oneapi3dal15decision_forest10descriptorE">oneapi::dal::decision_forest::descriptor (C++ class)</a>
 </li>
@@ -2309,13 +2673,13 @@
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor30observations_per_tree_fractionE">oneapi::dal::decision_forest::descriptor::observations_per_tree_fraction (C++ member)</a>
 </li>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor4seedE">oneapi::dal::decision_forest::descriptor::seed (C++ member)</a>
+</li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor10tree_countE">oneapi::dal::decision_forest::descriptor::tree_count (C++ member)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor24variable_importance_modeE">oneapi::dal::decision_forest::descriptor::variable_importance_mode (C++ member)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor11voting_modeE">oneapi::dal::decision_forest::descriptor::voting_mode (C++ member)</a>
-</li>
-      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest17error_metric_modeE">oneapi::dal::decision_forest::error_metric_mode (C++ enum)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest5inferEN15decision_forest12infer_resultERK10DescriptorRKN15decision_forest11infer_inputE">oneapi::dal::decision_forest::infer (C++ function)</a>
 </li>
@@ -2326,8 +2690,6 @@
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11infer_input11infer_inputERK5modelI4TaskERK5table">oneapi::dal::decision_forest::infer_input::infer_input (C++ function)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11infer_input5modelE">oneapi::dal::decision_forest::infer_input::model (C++ member)</a>
-</li>
-      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10infer_modeE">oneapi::dal::decision_forest::infer_mode (C++ enum)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest12infer_resultE">oneapi::dal::decision_forest::infer_result (C++ class)</a>
 </li>
@@ -2373,7 +2735,9 @@
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11train_input9responsesE">oneapi::dal::decision_forest::train_input::responses (C++ member)</a>
 </li>
-      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11train_input11train_inputERK5tableRK5table">oneapi::dal::decision_forest::train_input::train_input (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11train_input11train_inputERK5tableRK5tableRK5table">oneapi::dal::decision_forest::train_input::train_input (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11train_input7weightsE">oneapi::dal::decision_forest::train_input::weights (C++ member)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest12train_resultE">oneapi::dal::decision_forest::train_result (C++ class)</a>
 </li>
@@ -2386,10 +2750,6 @@
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result12train_resultEv">oneapi::dal::decision_forest::train_result::train_result (C++ function)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result14var_importanceE">oneapi::dal::decision_forest::train_result::var_importance (C++ member)</a>
-</li>
-      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest24variable_importance_modeE">oneapi::dal::decision_forest::variable_importance_mode (C++ enum)</a>
-</li>
-      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11voting_modeE">oneapi::dal::decision_forest::voting_mode (C++ enum)</a>
 </li>
       <li><a href="api/data-management/table/homogen.html#_CPPv4N6oneapi3dal13homogen_tableE">oneapi::dal::homogen_table (C++ class)</a>
 </li>
@@ -2563,6 +2923,10 @@
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task14classificationE">oneapi::dal::knn::task::classification (C++ struct)</a>
 </li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task10regressionE">oneapi::dal::knn::task::regression (C++ struct)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task6searchE">oneapi::dal::knn::task::search (C++ struct)</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE">oneapi::dal::knn::train (C++ function)</a>
@@ -2571,8 +2935,6 @@
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input4dataE">oneapi::dal::knn::train_input::data (C++ member)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input6labelsE">oneapi::dal::knn::train_input::labels (C++ member)</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input9responsesE">oneapi::dal::knn::train_input::responses (C++ member)</a>
@@ -2641,6 +3003,8 @@
 </li>
       <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca10descriptor13deterministicE">oneapi::dal::pca::descriptor::deterministic (C++ member)</a>
 </li>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca10descriptor14result_optionsE">oneapi::dal::pca::descriptor::result_options (C++ member)</a>
+</li>
       <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca5inferEN3pca12infer_resultERK10DescriptorRKN3pca11infer_inputE">oneapi::dal::pca::infer (C++ function)</a>
 </li>
       <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca11infer_inputE">oneapi::dal::pca::infer_input (C++ class)</a>
@@ -2660,6 +3024,8 @@
       <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method10by_defaultE">oneapi::dal::pca::method::by_default (C++ type)</a>
 </li>
       <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method3covE">oneapi::dal::pca::method::cov (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method11precomputedE">oneapi::dal::pca::method::precomputed (C++ struct)</a>
 </li>
       <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method3svdE">oneapi::dal::pca::method::svd (C++ struct)</a>
 </li>
@@ -2690,6 +3056,8 @@
       <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12train_result5meansE">oneapi::dal::pca::train_result::means (C++ member)</a>
 </li>
       <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12train_result5modelE">oneapi::dal::pca::train_result::model (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12train_result14result_optionsE">oneapi::dal::pca::train_result::result_options (C++ member)</a>
 </li>
       <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12train_result12train_resultEv">oneapi::dal::pca::train_result::train_result (C++ function)</a>
 </li>
@@ -2728,6 +3096,108 @@
       <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel4task10by_defaultE">oneapi::dal::polynomial_kernel::task::by_default (C++ type)</a>
 </li>
       <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel4task7computeE">oneapi::dal::polynomial_kernel::task::compute (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4I0000EN6oneapi3dal7preview20connected_components10descriptorE">oneapi::dal::preview::connected_components::descriptor (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components10descriptor10descriptorERK9Allocator">oneapi::dal::preview::connected_components::descriptor::descriptor (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4NK6oneapi3dal7preview20connected_components10descriptor13get_allocatorEv">oneapi::dal::preview::connected_components::descriptor::get_allocator (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components6method8afforestE">oneapi::dal::preview::connected_components::method::afforest (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components6method10by_defaultE">oneapi::dal::preview::connected_components::method::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4I00EN6oneapi3dal7preview20connected_components7preview19vertex_partitioningEN20connected_components26vertex_partitioning_resultERK10DescriptorRK5Graph">oneapi::dal::preview::connected_components::preview::vertex_partitioning (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components4task10by_defaultE">oneapi::dal::preview::connected_components::task::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components4task19vertex_partitioningE">oneapi::dal::preview::connected_components::task::vertex_partitioning (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4I00EN6oneapi3dal7preview20connected_components25vertex_partitioning_inputE">oneapi::dal::preview::connected_components::vertex_partitioning_input (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components25vertex_partitioning_input5graphE">oneapi::dal::preview::connected_components::vertex_partitioning_input::graph (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components25vertex_partitioning_input25vertex_partitioning_inputERK5Graph">oneapi::dal::preview::connected_components::vertex_partitioning_input::vertex_partitioning_input (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4I0EN6oneapi3dal7preview20connected_components26vertex_partitioning_resultE">oneapi::dal::preview::connected_components::vertex_partitioning_result (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components26vertex_partitioning_result15component_countE">oneapi::dal::preview::connected_components::vertex_partitioning_result::component_count (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components26vertex_partitioning_result6labelsE">oneapi::dal::preview::connected_components::vertex_partitioning_result::labels (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/connected-components.html#_CPPv4N6oneapi3dal7preview20connected_components26vertex_partitioning_result26vertex_partitioning_resultEv">oneapi::dal::preview::connected_components::vertex_partitioning_result::vertex_partitioning_result (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graph/directed-adjacency-vector-graph.html#_CPPv4I00000EN6oneapi3dal7preview31directed_adjacency_vector_graphE">oneapi::dal::preview::directed_adjacency_vector_graph (C++ class)</a>
+</li>
+      <li><a href="api/data-management/graph/directed-adjacency-vector-graph.html#_CPPv4N6oneapi3dal7preview31directed_adjacency_vector_graph31directed_adjacency_vector_graphERR31directed_adjacency_vector_graph">oneapi::dal::preview::directed_adjacency_vector_graph::directed_adjacency_vector_graph (C++ function)</a>, <a href="api/data-management/graph/directed-adjacency-vector-graph.html#_CPPv4N6oneapi3dal7preview31directed_adjacency_vector_graph31directed_adjacency_vector_graphEv">[1]</a>
+</li>
+      <li><a href="api/data-management/graph/directed-adjacency-vector-graph.html#_CPPv4N6oneapi3dal7preview31directed_adjacency_vector_graphaSERR31directed_adjacency_vector_graph">oneapi::dal::preview::directed_adjacency_vector_graph::operator= (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graph/directed-adjacency-vector-graph.html#_CPPv4N6oneapi3dal7preview31directed_adjacency_vector_graphD0Ev">oneapi::dal::preview::directed_adjacency_vector_graph::~directed_adjacency_vector_graph (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graphs.html#_CPPv4N6oneapi3dal7preview11empty_valueE">oneapi::dal::preview::empty_value (C++ struct)</a>
+</li>
+      <li><a href="api/data-management/graph-service.html#_CPPv4I0EN6oneapi3dal7preview14get_edge_countE14edge_size_typeI5GraphERK5Graph">oneapi::dal::preview::get_edge_count (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graph-service.html#_CPPv4I0EN6oneapi3dal7preview14get_edge_valueERK20edge_user_value_typeI5GraphERK5Graph11vertex_typeI5GraphE11vertex_typeI5GraphE">oneapi::dal::preview::get_edge_value (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graph-service.html#_CPPv4I0EN6oneapi3dal7preview16get_vertex_countE16vertex_size_typeI5GraphERK5Graph">oneapi::dal::preview::get_vertex_count (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graph-service.html#_CPPv4I0EN6oneapi3dal7preview17get_vertex_degreeE21vertex_edge_size_typeI5GraphERK5Graph11vertex_typeI5GraphE">oneapi::dal::preview::get_vertex_degree (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graph-service.html#_CPPv4I0EN6oneapi3dal7preview20get_vertex_neighborsE28const_vertex_edge_range_typeI5GraphERK5Graph11vertex_typeI5GraphE">oneapi::dal::preview::get_vertex_neighbors (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graph-service.html#_CPPv4I0EN6oneapi3dal7preview25get_vertex_outward_degreeE29vertex_outward_edge_size_typeI5GraphERK5Graph11vertex_typeI5GraphE">oneapi::dal::preview::get_vertex_outward_degree (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graph-service.html#_CPPv4I0EN6oneapi3dal7preview28get_vertex_outward_neighborsE36const_vertex_outward_edge_range_typeI5GraphERK5Graph11vertex_typeI5GraphE">oneapi::dal::preview::get_vertex_outward_neighbors (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4I0000EN6oneapi3dal7preview20subgraph_isomorphism10descriptorE">oneapi::dal::preview::subgraph_isomorphism::descriptor (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor10descriptorE9Allocator">oneapi::dal::preview::subgraph_isomorphism::descriptor::descriptor (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4NK6oneapi3dal7preview20subgraph_isomorphism10descriptor13get_allocatorEv">oneapi::dal::preview::subgraph_isomorphism::descriptor::get_allocator (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE">oneapi::dal::preview::subgraph_isomorphism::descriptor::kind (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor15max_match_countE">oneapi::dal::preview::subgraph_isomorphism::descriptor::max_match_count (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor14semantic_matchE">oneapi::dal::preview::subgraph_isomorphism::descriptor::semantic_match (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4I00EN6oneapi3dal7preview20subgraph_isomorphism20graph_matching_inputE">oneapi::dal::preview::subgraph_isomorphism::graph_matching_input (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism20graph_matching_input20graph_matching_inputERK5GraphRK5Graph">oneapi::dal::preview::subgraph_isomorphism::graph_matching_input::graph_matching_input (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism20graph_matching_input13pattern_graphE">oneapi::dal::preview::subgraph_isomorphism::graph_matching_input::pattern_graph (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism20graph_matching_input12target_graphE">oneapi::dal::preview::subgraph_isomorphism::graph_matching_input::target_graph (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4I0EN6oneapi3dal7preview20subgraph_isomorphism21graph_matching_resultE">oneapi::dal::preview::subgraph_isomorphism::graph_matching_result (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism21graph_matching_result21graph_matching_resultEv">oneapi::dal::preview::subgraph_isomorphism::graph_matching_result::graph_matching_result (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism21graph_matching_result11match_countE">oneapi::dal::preview::subgraph_isomorphism::graph_matching_result::match_count (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism21graph_matching_result12vertex_matchE">oneapi::dal::preview::subgraph_isomorphism::graph_matching_result::vertex_match (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism4kindE">oneapi::dal::preview::subgraph_isomorphism::kind (C++ enum)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism6method10by_defaultE">oneapi::dal::preview::subgraph_isomorphism::method::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism6method4fastE">oneapi::dal::preview::subgraph_isomorphism::method::fast (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4I00EN6oneapi3dal7preview20subgraph_isomorphism7preview14graph_matchingEN20subgraph_isomorphism21graph_matching_resultERK10DescriptorRK5GraphRK5Graph">oneapi::dal::preview::subgraph_isomorphism::preview::graph_matching (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism4task10by_defaultE">oneapi::dal::preview::subgraph_isomorphism::task::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/graph/subgraph-isomorphism.html#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism4task7computeE">oneapi::dal::preview::subgraph_isomorphism::task::compute (C++ struct)</a>
+</li>
+      <li><a href="api/data-management/graph/undirected-adjacency-vector-graph.html#_CPPv4I00000EN6oneapi3dal7preview33undirected_adjacency_vector_graphE">oneapi::dal::preview::undirected_adjacency_vector_graph (C++ class)</a>
+</li>
+      <li><a href="api/data-management/graph/undirected-adjacency-vector-graph.html#_CPPv4N6oneapi3dal7preview33undirected_adjacency_vector_graphaSERR33undirected_adjacency_vector_graph">oneapi::dal::preview::undirected_adjacency_vector_graph::operator= (C++ function)</a>
+</li>
+      <li><a href="api/data-management/graph/undirected-adjacency-vector-graph.html#_CPPv4N6oneapi3dal7preview33undirected_adjacency_vector_graph33undirected_adjacency_vector_graphERR33undirected_adjacency_vector_graph">oneapi::dal::preview::undirected_adjacency_vector_graph::undirected_adjacency_vector_graph (C++ function)</a>, <a href="api/data-management/graph/undirected-adjacency-vector-graph.html#_CPPv4N6oneapi3dal7preview33undirected_adjacency_vector_graph33undirected_adjacency_vector_graphEv">[1]</a>
+</li>
+      <li><a href="api/data-management/graph/undirected-adjacency-vector-graph.html#_CPPv4N6oneapi3dal7preview33undirected_adjacency_vector_graphD0Ev">oneapi::dal::preview::undirected_adjacency_vector_graph::~undirected_adjacency_vector_graph (C++ function)</a>
 </li>
       <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I0EN6oneapi3dal10rbf_kernel7computeEN10rbf_kernel14compute_resultERK10DescriptorRKN10rbf_kernel13compute_inputE">oneapi::dal::rbf_kernel::compute (C++ function)</a>
 </li>
@@ -2959,13 +3429,15 @@
 </li>
       <li><a href="daal/algorithms/dbscan/index.html#term-reachable"><strong>reachable</strong></a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Reference-counted-object"><strong>Reference-counted object</strong></a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Regression"><strong>Regression</strong></a>
 </li>
       <li><a href="onedal/glossary.html#term-Response"><strong>Response</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-Result-options"><strong>Result options:</strong></a>
 </li>
   </ul></td>
 </tr></table>
@@ -2975,11 +3447,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Search"><strong>Search</strong></a>
 </li>
+      <li><a href="onedal/glossary.html#term-Self-loop"><strong>Self-loop</strong></a>
+</li>
       <li><a href="onedal/glossary.html#term-Setter"><strong>Setter</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-SPIR-V"><strong>SPIR-V</strong></a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="onedal/glossary.html#term-SPIR-V"><strong>SPIR-V</strong></a>
+      <li><a href="onedal/glossary.html#term-SPMD"><strong>SPMD</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-Subgraph"><strong>Subgraph</strong></a>
 </li>
       <li><a href="onedal/glossary.html#term-Supervised-learning"><strong>Supervised learning</strong></a>
 </li>
@@ -2993,6 +3471,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Table"><strong>Table</strong></a>
 </li>
+      <li><a href="onedal/glossary.html#term-Topology"><strong>Topology</strong></a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Training"><strong>Training</strong></a>
@@ -3005,7 +3485,21 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="onedal/glossary.html#term-Undirected-graph"><strong>Undirected graph</strong></a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Unsupervised-learning"><strong>Unsupervised learning</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-Unweighted-graph"><strong>Unweighted graph</strong></a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="onedal/glossary.html#term-Vertex-index"><strong>Vertex index</strong></a>
 </li>
   </ul></td>
 </tr></table>
@@ -3013,6 +3507,14 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="onedal/glossary.html#term-Walk"><strong>Walk</strong></a>
+</li>
+      <li><a href="onedal/glossary.html#term-Weight"><strong>Weight</strong></a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="onedal/glossary.html#term-Weighted-graph"><strong>Weighted graph</strong></a>
+</li>
       <li><a href="onedal/glossary.html#term-Workload"><strong>Workload</strong></a>
 </li>
   </ul></td>
@@ -3023,18 +3525,17 @@
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-
-        </div>
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
-            &copy; Copyright 2014 - 2021, Intel Corporation.<br/>
+            &copy; Copyright 2014 - 2022, Intel Corporation.<br/>
           <div class="extra_footer">
             <p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>
           </div>
@@ -3047,8 +3548,7 @@
       </div>
     </div>
   
-  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

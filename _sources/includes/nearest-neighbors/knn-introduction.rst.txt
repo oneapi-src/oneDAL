@@ -14,7 +14,6 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-
 :math:`k`-NN :capterm:`classification` and :capterm:`search` algorithms are based on finding
 the :math:`k` nearest observations to the training set. For :capterm:`classification`,
 the problem is to infer the class of a new feature vector by computing the majority vote of its

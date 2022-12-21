@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2021 Intel Corporation
+.. * Copyright 2019 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ Types of Numeric Tables
 .. include:: ./numeric-tables/heterogen-numeric-tables.rst
 
 .. include:: ./numeric-tables/homogen-numeric-tables.rst
-   
+
 .. include:: ./numeric-tables/csr-numeric-table.rst
 
 .. include:: ./numeric-tables/merged-numeric-table.rst

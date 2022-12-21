@@ -14,7 +14,6 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-
 The K-Means initialization algorithm receives :math:`n` feature vectors as input
 and chooses :math:`k` initial centroids. After initialization, K-Means algorithm
 uses the initialization result to partition input data into :math:`k` clusters.

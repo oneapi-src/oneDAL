@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2021 Intel Corporation
+.. * Copyright 2019 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 Data Model
 ==========
 
-The Data Model component of the |full_name| (|short_name|) 
+The Data Model component of the |full_name| (|short_name|)
 provides classes for model representation. The
 model mimics the actual data and represents it in a compact way so
 that you can use the library when the actual data is missing,

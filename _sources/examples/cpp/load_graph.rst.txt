@@ -1,7 +1,0 @@
-.. _cpp_load_graph.cpp:
-
-load_graph.cpp
-##############
-
-.. literalinclude:: ../../../../examples/oneapi/cpp/source/graph/load_graph.cpp
-  :language: cpp

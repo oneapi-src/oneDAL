@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 Homogeneous table
 =================
 
-Class ``homogen_table`` is an implementation of a table type
+Class ``homogen_table`` is a subtype of a table type
 for which the following is true:
 
 - The data within the table are dense and stored as one contiguous memory block.
