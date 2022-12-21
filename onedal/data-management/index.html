@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Management &#8212; oneDAL  documentation</title>
     
-  <link href="../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,18 +22,18 @@
       
 
     
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -69,6 +68,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -78,9 +81,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -102,7 +105,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -228,6 +231,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -358,6 +371,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -422,7 +440,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1718,7 +1736,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2098,7 +2116,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2193,7 +2211,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#key-concepts">
@@ -2253,7 +2271,7 @@
         
               <div>
                 
-  <section id="data-management">
+  <div class="section" id="data-management">
 <span id="dg-data-management"></span><h1>Data Management<a class="headerlink" href="#data-management" title="Permalink to this headline">¶</a></h1>
 <p>This section includes concepts and objects that operate on data. For
 oneDAL, such set of operations, or <strong>data management</strong>, is distributed
@@ -2289,23 +2307,21 @@ forth. For example, when the data are not fully available at the start of the
 computation, it can be done step-by-step using blocks of data. After the
 computation on the current block is completed, the next block should be obtained
 and prepared.</p>
-<figure class="align-default" id="id7">
+<div class="figure align-default" id="id7">
 <span id="typical-data-management-flow"></span><a class="reference internal image-reference" href="../../_images/data_management_flow.png"><img alt="Typical data management flow" src="../../_images/data_management_flow.png" style="width: 800px;" /></a>
-<figcaption>
-<p><span class="caption-text">Data Management Flow in oneDAL</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<section id="key-concepts">
+<p class="caption"><span class="caption-text">Data Management Flow in oneDAL</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="key-concepts">
 <h2>Key concepts<a class="headerlink" href="#key-concepts" title="Permalink to this headline">¶</a></h2>
 <p>oneDAL provides a set of concepts to operate on out-of-memory and
 in-memory data during different stages of the <a class="reference internal" href="../../data-analytics-pipeline.html#onedal-data-analytics-pipeline"><span class="std std-ref">data analytics pipeline</span></a>.</p>
-<section id="dataset">
+<div class="section" id="dataset">
 <span id="id1"></span><h3>Dataset<a class="headerlink" href="#dataset" title="Permalink to this headline">¶</a></h3>
 <p>The main data-related concept that oneDAL works with is a
 <a class="reference internal" href="../glossary.html#term-Dataset"><span class="xref std std-term">dataset</span></a>. It is a collection of data in a specific data format.</p>
-<figure class="align-default">
+<div class="figure align-default">
 <a class="reference internal image-reference" href="../../_images/dataset.png"><img alt="Dataset" src="../../_images/dataset.png" style="width: 400px;" /></a>
-</figure>
+</div>
 <p>The dataset is used across all stages of the data analytics pipeline. For
 example:</p>
 <ol class="arabic simple">
@@ -2316,8 +2332,8 @@ representation.</p></li>
 <li><p>At the computation stage, it is used as one of the inputs or
 results of an algorithm or a descriptor properties.</p></li>
 </ol>
-</section>
-<section id="data-source">
+</div>
+<div class="section" id="data-source">
 <span id="id2"></span><h3>Data source<a class="headerlink" href="#data-source" title="Permalink to this headline">¶</a></h3>
 <p>Data source is a concept of an out-of-memory storage for a <a class="reference internal" href="../glossary.html#term-Dataset"><span class="xref std std-term">dataset</span></a>.
 It is used at the data acquisition and data preparation stages to:</p>
@@ -2334,8 +2350,8 @@ automatically transforms non-numeric <a class="reference internal" href="../glos
 of the numeric <a class="reference internal" href="../glossary.html#term-Data-format"><span class="xref std std-term">data formats</span></a>.</p></li>
 </ul>
 <p>For details, see <a class="reference internal" href="data-sources.html#dm-data-sources"><span class="std std-ref">dm data sources</span></a> section.</p>
-</section>
-<section id="table">
+</div>
+<div class="section" id="table">
 <span id="id3"></span><h3>Table<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h3>
 <p>Table is a concept of in-memory numerical data that are organized in a tabular
 view with several rows and columns. It is used at the data preparation and data
@@ -2375,8 +2391,8 @@ compressed-sparse-row format. The number of bytes needed to store the data
 differs from the number of elements <span class="math notranslate nohighlight">\(n \times p\)</span> within a table.</p></li>
 </ul>
 <p>For details, see <a class="reference internal" href="tables.html#dm-tables"><span class="std std-ref">dm tables</span></a> section.</p>
-</section>
-<section id="table-metadata">
+</div>
+<div class="section" id="table-metadata">
 <span id="id4"></span><h3>Table metadata<a class="headerlink" href="#table-metadata" title="Permalink to this headline">¶</a></h3>
 <p>Table metadata concept provides an additional information about data in the
 table:</p>
@@ -2388,8 +2404,8 @@ table:</p>
 </ol>
 <p>Only the properties of data that do not affect table concept definition is
 a part of metadata concept.</p>
-</section>
-<section id="accessor">
+</div>
+<div class="section" id="accessor">
 <span id="id5"></span><h3>Accessor<a class="headerlink" href="#accessor" title="Permalink to this headline">¶</a></h3>
 <p>Accessor is a concept that defines a single way to extract the data from a
 <a class="reference internal" href="#table"><span class="std std-ref">table</span></a>. It allows to:</p>
@@ -2404,8 +2420,8 @@ a specific set of operations is defined.</p></li>
 <li><p>Have read-only access to the data.</p></li>
 </ul>
 <p>For details, see <a class="reference internal" href="accessors.html#dm-accessors"><span class="std std-ref">dm accessors</span></a> section.</p>
-</section>
-<section id="example-of-interaction-between-table-and-accessor-objects">
+</div>
+<div class="section" id="example-of-interaction-between-table-and-accessor-objects">
 <h3>Example of interaction between table and accessor objects<a class="headerlink" href="#example-of-interaction-between-table-and-accessor-objects" title="Permalink to this headline">¶</a></h3>
 <p>This section provides a basic usage scenario of the <a class="reference internal" href="#table"><span class="std std-ref">table</span></a> and
 <a class="reference internal" href="#accessor"><span class="std std-ref">accessor</span></a> concepts and demonstrates the relations between them.
@@ -2416,12 +2432,10 @@ of these concepts, which are highlighted by colors:</p>
 <li><p><a class="reference internal" href="#accessor"><span class="std std-ref">accessor</span></a> is orange</p></li>
 <li><p><a class="reference internal" href="#table-metadata"><span class="std std-ref">table metadata</span></a> is light blue</p></li>
 </ul>
-<figure class="align-default" id="id8">
+<div class="figure align-default" id="id8">
 <span id="table-accessor-usage-example"></span><a class="reference internal image-reference" href="../../_images/table_accessor_usage_example.png"><img alt="Sequence diagram of accessor-builder-table relations" src="../../_images/table_accessor_usage_example.png" style="width: 800px;" /></a>
-<figcaption>
-<p><span class="caption-text">Sequence diagram of accessor-builder-table relations</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">Sequence diagram of accessor-builder-table relations</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
 <p>To perform computations on a dataset, you have to create a <a class="reference internal" href="#table"><span class="std std-ref">table</span></a> object
 first. It can be done either using a <a class="reference internal" href="#data-source"><span class="std std-ref">data source</span></a> or directly from
 user-defined memory. The diagram shows the creation of a <a class="reference internal" href="#table"><span class="std std-ref">table</span></a> object
@@ -2431,8 +2445,8 @@ the data.</p>
 <p>Once a table object is created, it can be used as an input in computations or as
 a parameter of some algorithm. The data in the table can be accessed via its own
 interface or via read-only accessor as shown on the diagram.</p>
-</section>
-<section id="graph">
+</div>
+<div class="section" id="graph">
 <span id="id6"></span><h3>Graph<a class="headerlink" href="#graph" title="Permalink to this headline">¶</a></h3>
 <p>A graph is a concept of in-memory structured data that is organized
 as a <a class="reference internal" href="../glossary.html#term-Graph"><span class="xref std std-term">graph</span></a> with several vertices and edges.
@@ -2465,9 +2479,9 @@ of the <a class="reference internal" href="../glossary.html#term-Graph"><span cl
 and others data formats.</p></li>
 </ul>
 <p>For details, see <a class="reference internal" href="graphs.html#dm-graphs"><span class="std std-ref">dm graphs</span></a> section.</p>
-</section>
-</section>
-<section id="details">
+</div>
+</div>
+<div class="section" id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
 <p>This section includes the detailed descriptions of all data management objects in
 oneDAL.</p>
@@ -2529,23 +2543,34 @@ oneDAL.</p>
 </li>
 </ul>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="../programming-model/computational-modes.html" title="previous page">Computational Modes</a>
-    <a class='right-next' id="next-link" href="array.html" title="next page">Array</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="../programming-model/computational-modes.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Computational Modes</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="array.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Array</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2562,8 +2587,7 @@ oneDAL.</p>
       </div>
     </div>
   
-  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

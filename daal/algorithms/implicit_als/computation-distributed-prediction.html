@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Distributed Processing: Prediction of Ratings &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,18 +22,18 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -69,6 +68,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -78,9 +81,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -102,7 +105,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -228,6 +231,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -358,6 +371,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -422,7 +440,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1718,7 +1736,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2098,7 +2116,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2193,7 +2211,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#algorithm-parameters">
@@ -2216,10 +2234,10 @@
         
               <div>
                 
-  <section id="distributed-processing-prediction-of-ratings">
+  <div class="section" id="distributed-processing-prediction-of-ratings">
 <span id="implicit-als-distributed-prediction"></span><h1>Distributed Processing: Prediction of Ratings<a class="headerlink" href="#distributed-processing-prediction-of-ratings" title="Permalink to this headline">¶</a></h1>
 <p>The distributed processing mode assumes that the data set is split in <code class="docutils literal notranslate"><span class="pre">nblocks</span></code> blocks across computation nodes.</p>
-<section id="algorithm-parameters">
+<div class="section" id="algorithm-parameters">
 <h2>Algorithm Parameters<a class="headerlink" href="#algorithm-parameters" title="Permalink to this headline">¶</a></h2>
 <p>At the prediction stage, implicit ALS recommender in the distributed processing mode has the following parameters:</p>
 <table class="colwidths-given longtable table" id="id1">
@@ -2260,19 +2278,17 @@
 </table>
 <p>Use the one-step computation schema for implicit ALS recommender prediction in the distributed processing mode,
 as explained below and illustrated by the graphic for <span class="math notranslate nohighlight">\(\mathrm{nblocks} = 3\)</span>:</p>
-</section>
-<section id="step-1-on-local-nodes">
+</div>
+<div class="section" id="step-1-on-local-nodes">
 <h2>Step 1 - on Local Nodes<a class="headerlink" href="#step-1-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>Prediction of rating uses partial models, which contain the parts of user factors <span class="math notranslate nohighlight">\(X_1, X_2, \ldots, X_{\mathrm{nblocks}}\)</span>
 and item factors <span class="math notranslate nohighlight">\(Y_1, Y_2, \ldots, Y_{\mathrm{nblocks}}\)</span> produced at the training stage.
 Each pair of partial models <span class="math notranslate nohighlight">\((X_i , Y_j)\)</span> is used to compute a numeric table with ratings <span class="math notranslate nohighlight">\(R_{ij}\)</span>
 that correspond to the user factors and item factors from the input partial models.</p>
-<figure class="align-center" id="id2">
+<div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="../../../_images/implicit-als-distributed-computation-prediction-step-1.png"><img alt="" src="../../../_images/implicit-als-distributed-computation-prediction-step-1.png" style="width: 800px;" /></a>
-<figcaption>
-<p><span class="caption-text">Prediction with Implicit Alternating Least Squares: Distributed Processing, Step 1 - on Local Nodes</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">Prediction with Implicit Alternating Least Squares: Distributed Processing, Step 1 - on Local Nodes</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
 <p>In this step, implicit ALS recommender-based prediction accepts the input described below.
 Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
 For more details, see <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
@@ -2325,23 +2341,34 @@ except <code class="docutils literal notranslate"><span class="pre">PackedTriang
 </tr>
 </tbody>
 </table>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="computation-distributed-training.html" title="previous page">Distributed Processing: Training</a>
-    <a class='right-next' id="next-link" href="../logistic_regression/logistic-regression.html" title="next page">Logistic Regression</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="computation-distributed-training.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Distributed Processing: Training</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="../logistic_regression/logistic-regression.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Logistic Regression</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2358,8 +2385,7 @@ except <code class="docutils literal notranslate"><span class="pre">PackedTriang
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CSV data source &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
@@ -68,6 +67,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -77,9 +80,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -101,7 +104,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -227,6 +230,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -357,6 +370,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -421,7 +439,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1717,7 +1735,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2097,7 +2115,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2192,7 +2210,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#usage-example">
@@ -2215,49 +2233,60 @@
         
               <div>
                 
-  <section id="csv-data-source">
+  <div class="section" id="csv-data-source">
 <span id="id1"></span><h1>CSV data source<a class="headerlink" href="#csv-data-source" title="Permalink to this headline">¶</a></h1>
 <p>Class <code class="docutils literal notranslate"><span class="pre">csv::data_source</span></code> is an API for accessing the data source represented
 as a <a class="reference internal" href="../../glossary.html#term-CSV-file"><span class="xref std std-term">csv file</span></a>. CSV data source is used with
-<code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">read</span></code> operation to extract data in text format from the given input file,
+<span class="cpp-expr sig sig-inline cpp"><span class="n">read</span></span> operation to extract data in text format from the given input file,
 process it using provided parameters (such as delimiter and read options),
 transform it into numerical representation, and store it as an in-memory
 <a class="reference internal" href="../index.html#dataset"><span class="std std-ref">dataset</span></a> of a chosen type.</p>
-<p>Supported type of in-memory object for <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">read</span></code> operation with CSV data
-source is <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><a class="reference internal" href="../../../api/data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a></code>.</p>
+<p>Supported type of in-memory object for <span class="cpp-expr sig sig-inline cpp"><span class="n">read</span></span> operation with CSV data
+source is <span class="cpp-expr sig sig-inline cpp"><span class="n">oneapi</span><span class="p">::</span><span class="n">dal</span><span class="p">::</span><a class="reference internal" href="../../../api/data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n">table</span></a></span>.</p>
 <p>CSV data source requires input file name to be set in the constructor, while the
 other parameters of the constructor such as delimiter and read options rely on
 default values.</p>
-<section id="usage-example">
+<div class="section" id="usage-example">
 <h2>Usage example<a class="headerlink" href="#usage-example" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="nn">oneapi</span><span class="p">;</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">oneapi</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">const</span> <span class="k">auto</span> <span class="n">data_source</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">(</span><span class="s">&quot;data.csv&quot;</span><span class="p">,</span> <span class="sc">&#39;,&#39;</span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">data_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">(</span><span class="s">&quot;data.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;,&#39;</span><span class="p">);</span><span class="w"></span>
 
-<span class="k">const</span> <span class="k">auto</span> <span class="n">table</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">data_source</span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">data_source</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
-<section id="programming-interface">
+</div>
+<div class="section" id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>Refer to <a class="reference internal" href="../../../api/data-management/data-source/csv.html#api-csv-data-source"><span class="std std-ref">API Reference: CSV data source</span></a>.</p>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="../data-sources.html" title="previous page">Data Sources</a>
-    <a class='right-next' id="next-link" href="../graphs.html" title="next page">Graphs</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="../data-sources.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Data Sources</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="../graphs.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Graphs</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2274,8 +2303,7 @@ default values.</p>
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Principal Component Analysis &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,19 +22,19 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -70,6 +69,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -79,9 +82,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -103,7 +106,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -229,6 +232,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -359,6 +372,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -423,7 +441,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1719,7 +1737,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2099,7 +2117,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2194,7 +2212,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#details">
@@ -2244,7 +2262,7 @@
         
               <div>
                 
-  <section id="principal-component-analysis">
+  <div class="section" id="principal-component-analysis">
 <span id="pca"></span><h1>Principal Component Analysis<a class="headerlink" href="#principal-component-analysis" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -2265,7 +2283,7 @@ out.</p>
 is no redundant information. This is a way of replacing a group of
 variables with a smaller set of new variables. PCA is one of powerful
 techniques for dimension reduction.</p>
-<section id="details">
+<div class="section" id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
 <p>Given a set <span class="math notranslate nohighlight">\(X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\}\)</span> of <span class="math notranslate nohighlight">\(p\)</span>-dimensional
 feature vectors or a <span class="math notranslate nohighlight">\(p \times p\)</span> correlation matrix and the number of principal components <span class="math notranslate nohighlight">\(p_r\)</span>,
@@ -2300,8 +2318,8 @@ the library:</p>
 <li><p>Normalized data set, where each feature has the zero mean and unit variance</p></li>
 <li><p>Correlation matrix</p></li>
 </ul>
-</section>
-<section id="computation">
+</div>
+<div class="section" id="computation">
 <h2>Computation<a class="headerlink" href="#computation" title="Permalink to this headline">¶</a></h2>
 <p>The following computation modes are available:</p>
 <div class="toctree-wrapper compound">
@@ -2311,8 +2329,8 @@ the library:</p>
 <li class="toctree-l1"><a class="reference internal" href="computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </div>
-</section>
-<section id="examples">
+</div>
+<div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">oneAPI DPC++</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">oneAPI C++</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">C++ (CPU)</button><button aria-controls="panel-0-0-3" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-3" name="0-3" role="tab" tabindex="-1">Java*</button><button aria-controls="panel-0-0-4" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-4" name="0-4" role="tab" tabindex="-1">Python* with DPC++ support</button><button aria-controls="panel-0-0-5" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-5" name="0-5" role="tab" tabindex="-1">Python*</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
@@ -2376,8 +2394,8 @@ the library:</p>
 <li><p><a class="reference external" href="https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/pca_spmd.py">pca_spmd.py</a></p></li>
 </ul>
 </div></div>
-</section>
-<section id="performance-considerations">
+</div>
+<div class="section" id="performance-considerations">
 <h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permalink to this headline">¶</a></h2>
 <p>To get the best overall performance of the PCA algorithm:</p>
 <ul class="simple">
@@ -2391,7 +2409,7 @@ layout.</p></li>
 and variance-covariance matrices algorithm. Depending on the method
 of this algorithm, the performance of PCA computations may vary. For
 sparse data sets, use the methods of this algorithm for sparse data.</p>
-<section id="batch-processing">
+<div class="section" id="batch-processing">
 <h3>Batch Processing<a class="headerlink" href="#batch-processing" title="Permalink to this headline">¶</a></h3>
 <p>Because the PCA in the batch processing mode performs
 normalization for data passed as Input ID, to achieve the best
@@ -2404,8 +2422,8 @@ batch processing mode is based on the computation of the
 correlation matrix, to achieve the best performance, precompute
 the correlation matrix. To pass the precomputed correlation matrix
 to the algorithm, use correlation as Input ID.</p>
-</section>
-<section id="online-processing">
+</div>
+<div class="section" id="online-processing">
 <h3>Online Processing<a class="headerlink" href="#online-processing" title="Permalink to this headline">¶</a></h3>
 <p>PCA with the SVD method (svdDense) in the online processing mode
 is at least as computationally complex as in the batch processing
@@ -2415,8 +2433,8 @@ of the PCA with the SVD method may enable you to hide the latency
 of reading data from a slow data source. To do this, implement
 load prefetching of the next data block in parallel with the
 compute() method for the current block.</p>
-</section>
-<section id="distributed-processing">
+</div>
+<div class="section" id="distributed-processing">
 <h3>Distributed Processing<a class="headerlink" href="#distributed-processing" title="Permalink to this headline">¶</a></h3>
 <p>PCA with the SVD method (svdDense) in the distributed processing
 mode requires gathering local-node <span class="math notranslate nohighlight">\(p \times p\)</span> numeric tables on the
@@ -2441,24 +2459,35 @@ Learn more at www.Intel.com/PerformanceIndex​.</p>
 </tr>
 </tbody>
 </table>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="../covariance/computation-distributed.html" title="previous page">Distributed Processing</a>
-    <a class='right-next' id="next-link" href="computation-batch.html" title="next page">Batch Processing</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="../covariance/computation-distributed.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Distributed Processing</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="computation-batch.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Batch Processing</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2475,8 +2504,7 @@ Learn more at www.Intel.com/PerformanceIndex​.</p>
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

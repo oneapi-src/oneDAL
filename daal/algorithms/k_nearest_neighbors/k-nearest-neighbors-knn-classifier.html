@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>k-Nearest Neighbors (kNN) Classifier &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,19 +22,19 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -70,6 +69,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -79,9 +82,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -103,7 +106,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -229,6 +232,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -359,6 +372,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -423,7 +441,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1719,7 +1737,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2099,7 +2117,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2194,7 +2212,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#details">
@@ -2285,7 +2303,7 @@
         
               <div>
                 
-  <section id="k-nearest-neighbors-knn-classifier">
+  <div class="section" id="k-nearest-neighbors-knn-classifier">
 <span id="knn"></span><h1>k-Nearest Neighbors (kNN) Classifier<a class="headerlink" href="#k-nearest-neighbors-knn-classifier" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -2304,7 +2322,7 @@ the feature vectors in the training data set to which the query
 vector is similar. A similarity between feature vectors is determined
 by the type of distance (for example, Euclidian) in a
 multidimensional feature space.</p>
-<section id="details">
+<div class="section" id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
 <p>Given n feature vectors <span class="math notranslate nohighlight">\(x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\)</span> of size <span class="math notranslate nohighlight">\(p\)</span> and a vector
 of class labels <span class="math notranslate nohighlight">\(y = (y_1, \ldots, y_n)\)</span>, where <span class="math notranslate nohighlight">\(y_i \in \{0, 1, \ldots, C-1\}\)</span>
@@ -2325,7 +2343,7 @@ observation <span class="math notranslate nohighlight">\(x_0\)</span></p></li>
 <p>On CPU, kNN classification might use <a class="reference internal" href="#k-d-tree">K-D tree</a>, a space-partitioning data structure,
 or <a class="reference internal" href="#brute-force">Brute Force</a> search to find nearest neighbors,
 while on GPU only <a class="reference internal" href="#brute-force">Brute Force</a> search is available.</p>
-<section id="k-d-tree">
+<div class="section" id="k-d-tree">
 <h3>K-D tree<a class="headerlink" href="#k-d-tree" title="Permalink to this headline">¶</a></h3>
 <p>On CPU, the library provides kNN classification based on multidimensional binary search tree
 (K-D tree, where D means the dimension and K means the number of dimensions in the feature space).
@@ -2340,17 +2358,17 @@ associated subset (a bucket) of elements of the training data set.
 Feature vectors from any bucket belong to the region of the space
 defined by tree nodes on the path from the root node to the
 respective leaf.</p>
-</section>
-<section id="brute-force">
+</div>
+<div class="section" id="brute-force">
 <h3>Brute Force<a class="headerlink" href="#brute-force" title="Permalink to this headline">¶</a></h3>
 <p>Brute Force kNN algorithm calculates the squared distances from each query feature vector
 to each reference feature vector in the training data set. Then,
 for each query feature vector it selects <span class="math notranslate nohighlight">\(k\)</span> objects from the training set that are closest to that query feature vector.
 For details, see <a class="reference internal" href="../../../bibliography.html#li2015" id="id4"><span>[Li2015]</span></a>, <a class="reference internal" href="../../../bibliography.html#verma2014" id="id5"><span>[Verma2014]</span></a>.</p>
-</section>
-<section id="training-stage">
+</div>
+<div class="section" id="training-stage">
 <h3>Training Stage<a class="headerlink" href="#training-stage" title="Permalink to this headline">¶</a></h3>
-<section id="training-using-k-d-tree">
+<div class="section" id="training-using-k-d-tree">
 <h4>Training using K-D Tree<a class="headerlink" href="#training-using-k-d-tree" title="Permalink to this headline">¶</a></h4>
 <p>For each non-leaf node, the process of building a K-D tree
 involves the choice of the feature (that is, dimension in the
@@ -2376,18 +2394,18 @@ vectors in a leaf node gets less or equal to a predefined
 threshold. Once the threshold is reached, PANDA stops growing the
 tree and associates the feature vectors with the bucket of the
 respective leaf node.</p>
-</section>
-<section id="training-using-brute-force">
+</div>
+<div class="section" id="training-using-brute-force">
 <h4>Training using Brute Force<a class="headerlink" href="#training-using-brute-force" title="Permalink to this headline">¶</a></h4>
 <p>During training with the Brute Force approach, the algorithm stores all feature vectors from the training data set
 to calculate their distances to the query feature vectors.</p>
-</section>
-</section>
-<section id="prediction-stage">
+</div>
+</div>
+<div class="section" id="prediction-stage">
 <h3>Prediction Stage<a class="headerlink" href="#prediction-stage" title="Permalink to this headline">¶</a></h3>
 <p>Given kNN classifier and query vectors <span class="math notranslate nohighlight">\(x_0, \ldots, x_r\)</span>,
 the problem is to calculate the labels for those vectors.</p>
-<section id="prediction-using-k-d-tree">
+<div class="section" id="prediction-using-k-d-tree">
 <h4>Prediction using K-D Tree<a class="headerlink" href="#prediction-using-k-d-tree" title="Permalink to this headline">¶</a></h4>
 <p>To solve the problem for each given query vector
 <span class="math notranslate nohighlight">\(x_i\)</span>, the algorithm traverses the K-D tree to find feature
@@ -2397,8 +2415,8 @@ of the nodes for which the distance between the query vector and
 respective part of the feature space is not less than the distance
 from the <span class="math notranslate nohighlight">\(k^{th}\)</span> neighbor. This distance is progressively
 updated during the tree traverse.</p>
-</section>
-<section id="prediction-using-brute-force">
+</div>
+<div class="section" id="prediction-using-brute-force">
 <h4>Prediction using Brute Force<a class="headerlink" href="#prediction-using-brute-force" title="Permalink to this headline">¶</a></h4>
 <p>To solve the problem, the algorithm computes distances between vectors from training and testing sets:
 <span class="math notranslate nohighlight">\(d_{ij}=\mathrm{distance\_metric}(x_i^\mathrm{test}, x_j^\mathrm{train})\)</span>.
@@ -2406,14 +2424,14 @@ For example, if Euclidean distance is used, <span class="math notranslate nohigh
 <div class="math notranslate nohighlight">
 \[d_{ij} = \sum_{k=1}^p (x_{ik}^{\mathrm{test}} - x_{jk}^{\mathrm{train}})^2\]</div>
 <p>K training vectors with minimal distance to the testing vector are the nearest neighbors the algorithms searches for.</p>
-</section>
-</section>
-</section>
-<section id="batch-processing">
+</div>
+</div>
+</div>
+<div class="section" id="batch-processing">
 <h2>Batch Processing<a class="headerlink" href="#batch-processing" title="Permalink to this headline">¶</a></h2>
 <p>kNN classification follows the general workflow described in
 <a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>.</p>
-<section id="training">
+<div class="section" id="training">
 <h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
 <p>For a description of the input and output, refer to Usage Model: Training and Prediction.</p>
 <p>At the training stage, both Brute Force and K-D tree based kNN classifier have the
@@ -2466,8 +2484,8 @@ perform sampling needed to choose dimensions and cut-points for the K-D tree.</p
 </tr>
 </tbody>
 </table>
-</section>
-<section id="prediction">
+</div>
+<div class="section" id="prediction">
 <h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
 <p>For a description of the input and output, refer to Usage Model: Training and Prediction.</p>
 <p>At the prediction stage, both Brute Force and K-D tree based kNN classifier have the
@@ -2525,8 +2543,8 @@ The closer to the query point the neighbor is, the more it weights.</p></li>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="output">
+</div>
+<div class="section" id="output">
 <h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
 <p>In addition to classifier output, kNN calculates the results described below.
 Pass the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the result of your algorithm.</p>
@@ -2562,9 +2580,9 @@ but you can define the result as an object of any class derived from <code class
 </tr>
 </tbody>
 </table>
-</section>
-</section>
-<section id="examples">
+</div>
+</div>
+<div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">oneAPI DPC++</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">oneAPI C++</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">C++ (CPU)</button><button aria-controls="panel-0-0-3" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-3" name="0-3" role="tab" tabindex="-1">Java*</button><button aria-controls="panel-0-0-4" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-4" name="0-4" role="tab" tabindex="-1">Python* with DPC++ support</button><button aria-controls="panel-0-0-5" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-5" name="0-5" role="tab" tabindex="-1">Python*</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
@@ -2599,23 +2617,34 @@ but you can define the result as an object of any class derived from <code class
 <li><p><a class="reference external" href="https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/bf_knn_classification_batch.py">bf_knn_classification_batch.py</a></p></li>
 </ul>
 </div></div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="../lasso_elastic_net/lasso-elasticnet-computation.html" title="previous page">LASSO and Elastic Net Computation</a>
-    <a class='right-next' id="next-link" href="../implicit_als/implicit-alternating-least-squares.html" title="next page">Implicit Alternating Least Squares</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="../lasso_elastic_net/lasso-elasticnet-computation.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">LASSO and Elastic Net Computation</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="../implicit_als/implicit-alternating-least-squares.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Implicit Alternating Least Squares</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2632,8 +2661,7 @@ but you can define the result as an object of any class derived from <code class
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

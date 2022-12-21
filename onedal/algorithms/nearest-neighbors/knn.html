@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>k-Nearest Neighbors Classification and Search (k-NN) &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,19 +22,19 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -70,6 +69,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -79,9 +82,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -103,7 +106,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -229,6 +232,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -359,6 +372,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -423,7 +441,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1719,7 +1737,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2099,7 +2117,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2194,7 +2212,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#mathematical-formulation">
@@ -2287,7 +2305,7 @@
         
               <div>
                 
-  <section id="k-nearest-neighbors-classification-and-search-k-nn">
+  <div class="section" id="k-nearest-neighbors-classification-and-search-k-nn">
 <span id="alg-knn"></span><h1>k-Nearest Neighbors Classification and Search (k-NN)<a class="headerlink" href="#k-nearest-neighbors-classification-and-search-k-nn" title="Permalink to this headline">¶</a></h1>
 <p><span class="math notranslate nohighlight">\(k\)</span>-NN <a class="reference internal" href="../../glossary.html#term-Classification"><span class="xref std std-term">classification</span></a> and <a class="reference internal" href="../../glossary.html#term-Search"><span class="xref std std-term">search</span></a> algorithms are based on finding
 the <span class="math notranslate nohighlight">\(k\)</span> nearest observations to the training set. For <a class="reference internal" href="../../glossary.html#term-Classification"><span class="xref std std-term">classification</span></a>,
@@ -2326,9 +2344,9 @@ based on the chosen distance metric.</p>
 </tr>
 </tbody>
 </table>
-<section id="mathematical-formulation">
+<div class="section" id="mathematical-formulation">
 <h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">¶</a></h2>
-<section id="training">
+<div class="section" id="training">
 <span id="knn-t-math"></span><h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-Q2xhc3NpZmljYXRpb24=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-Q2xhc3NpZmljYXRpb24=" name="Q2xhc3NpZmljYXRpb24=" role="tab" tabindex="0">Classification</button><button aria-controls="panel-0-U2VhcmNo" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-U2VhcmNo" name="U2VhcmNo" role="tab" tabindex="-1">Search</button></div><div aria-labelledby="tab-0-Q2xhc3NpZmljYXRpb24=" class="sphinx-tabs-panel group-tab" id="panel-0-Q2xhc3NpZmljYXRpb24=" name="Q2xhc3NpZmljYXRpb24=" role="tabpanel" tabindex="0"><p>Let <span class="math notranslate nohighlight">\(X = \{ x_1, \ldots, x_n \}\)</span> be the training set of
@@ -2345,18 +2363,18 @@ stage.</p>
 between the feature vectors in training and inference sets at the inference
 stage.</p>
 </div></div>
-<section id="training-method-brute-force">
+<div class="section" id="training-method-brute-force">
 <span id="knn-t-math-brute-force"></span><h4>Training method: <em>brute-force</em><a class="headerlink" href="#training-method-brute-force" title="Permalink to this headline">¶</a></h4>
 <p>The training operation produces the model that stores all the feature vectors
 from the initial training set <span class="math notranslate nohighlight">\(X\)</span>.</p>
-</section>
-<section id="training-method-k-d-tree">
+</div>
+<div class="section" id="training-method-k-d-tree">
 <span id="knn-t-math-kd-tree"></span><h4>Training method: <em>k-d tree</em><a class="headerlink" href="#training-method-k-d-tree" title="Permalink to this headline">¶</a></h4>
 <p>The training operation builds a <span class="math notranslate nohighlight">\(k\)</span>-<span class="math notranslate nohighlight">\(d\)</span> tree that partitions the
 training set <span class="math notranslate nohighlight">\(X\)</span> (for more details, see <a class="reference internal" href="../../appendix/kd_tree.html#kd-tree"><span class="std std-ref">k-d Tree</span></a>).</p>
-</section>
-</section>
-<section id="inference">
+</div>
+</div>
+<div class="section" id="inference">
 <span id="knn-i-math"></span><h3>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h3>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-Q2xhc3NpZmljYXRpb24=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-Q2xhc3NpZmljYXRpb24=" name="Q2xhc3NpZmljYXRpb24=" role="tab" tabindex="0">Classification</button><button aria-controls="panel-1-U2VhcmNo" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-U2VhcmNo" name="U2VhcmNo" role="tab" tabindex="-1">Search</button></div><div aria-labelledby="tab-1-Q2xhc3NpZmljYXRpb24=" class="sphinx-tabs-panel group-tab" id="panel-1-Q2xhc3NpZmljYXRpb24=" name="Q2xhc3NpZmljYXRpb24=" role="tabpanel" tabindex="0"><p>Let <span class="math notranslate nohighlight">\(X' = \{ x_1', \ldots, x_m' \}\)</span> be the inference set of
@@ -2397,14 +2415,14 @@ with the predefined set of pairwise distances: <a class="reference internal" hre
 <a class="reference internal" href="../pairwise-distances/cosine-distance.html#alg-cosine-distance"><span class="std std-ref">Cosine distance</span></a>.</p></li>
 </ol>
 </div></div>
-<section id="inference-method-brute-force">
+<div class="section" id="inference-method-brute-force">
 <span id="knn-i-math-brute-force"></span><h4>Inference method: <em>brute-force</em><a class="headerlink" href="#inference-method-brute-force" title="Permalink to this headline">¶</a></h4>
 <p>Brute-force inference method determines the set <span class="math notranslate nohighlight">\(N(x_j')\)</span> of the
 nearest feature vectors by iterating over all the pairs <span class="math notranslate nohighlight">\((x_j', x_i)\)</span> in
 the implementation defined order, <span class="math notranslate nohighlight">\(1 \leq i \leq n\)</span>, <span class="math notranslate nohighlight">\(1 \leq j \leq
 m\)</span>.</p>
-</section>
-<section id="inference-method-k-d-tree">
+</div>
+<div class="section" id="inference-method-k-d-tree">
 <span id="knn-i-math-kd-tree"></span><h4>Inference method: <em>k-d tree</em><a class="headerlink" href="#inference-method-k-d-tree" title="Permalink to this headline">¶</a></h4>
 <p>K-d tree inference method traverses the <span class="math notranslate nohighlight">\(k\)</span>-<span class="math notranslate nohighlight">\(d\)</span> tree to find feature
 vectors associated with a leaf node that are closest to <span class="math notranslate nohighlight">\(x_j'\)</span>, <span class="math notranslate nohighlight">\(1
@@ -2415,47 +2433,47 @@ the <span class="math notranslate nohighlight">\(x_j'\)</span> and respective pa
 distance between <span class="math notranslate nohighlight">\(x_j'\)</span> and the most distant feature vector from
 <span class="math notranslate nohighlight">\(\tilde{n}(x_j')\)</span>. Once tree traversal is finished, <span class="math notranslate nohighlight">\(\tilde{n}(x_j')
 \equiv N(x_j')\)</span>.</p>
-</section>
-</section>
-</section>
-<section id="programming-interface">
+</div>
+</div>
+</div>
+<div class="section" id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>Refer to <a class="reference internal" href="../../../api/algorithms/nearest-neighbors/knn-classification.html#api-knn"><span class="std std-ref">API Reference: k-Nearest Neighbors Classification and Search</span></a>.</p>
-</section>
-<section id="usage-example">
+</div>
+<div class="section" id="usage-example">
 <h2>Usage example<a class="headerlink" href="#usage-example" title="Permalink to this headline">¶</a></h2>
-<section id="id1">
+<div class="section" id="id1">
 <h3>Training<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">knn</span><span class="o">::</span><span class="n">model</span><span class="o">&lt;&gt;</span> <span class="n">run_training</span><span class="p">(</span><span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">data</span><span class="p">,</span>
-                        <span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">labels</span><span class="p">)</span> <span class="p">{</span>
-   <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">class_count</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
-   <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">neighbor_count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">knn_desc</span> <span class="o">=</span> <span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">class_count</span><span class="p">,</span> <span class="n">neighbor_count</span><span class="p">};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">knn</span><span class="o">::</span><span class="n">model</span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">run_training</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"></span>
+<span class="w">                        </span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">labels</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">class_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">neighbor_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">knn_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">class_count</span><span class="p">,</span><span class="w"> </span><span class="n">neighbor_count</span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">knn_desc</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">);</span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train</span><span class="p">(</span><span class="n">knn_desc</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">labels</span><span class="p">);</span><span class="w"></span>
 
-   <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="n">get_model</span><span class="p">();</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">get_model</span><span class="p">();</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
-<section id="id2">
+</div>
+<div class="section" id="id2">
 <h3>Inference<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="nf">run_inference</span><span class="p">(</span><span class="k">const</span> <span class="n">knn</span><span class="o">::</span><span class="n">model</span><span class="o">&lt;&gt;&amp;</span> <span class="n">model</span><span class="p">,</span>
-                  <span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">new_data</span><span class="p">)</span> <span class="p">{</span>
-   <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">class_count</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
-   <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">neighbor_count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">knn_desc</span> <span class="o">=</span> <span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">class_count</span><span class="p">,</span> <span class="n">neighbor_count</span><span class="p">};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">table</span><span class="w"> </span><span class="nf">run_inference</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">knn</span><span class="o">::</span><span class="n">model</span><span class="o">&lt;&gt;&amp;</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"></span>
+<span class="w">                  </span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">new_data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">class_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">neighbor_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">knn_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">class_count</span><span class="p">,</span><span class="w"> </span><span class="n">neighbor_count</span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">infer</span><span class="p">(</span><span class="n">knn_desc</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">new_data</span><span class="p">);</span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">infer</span><span class="p">(</span><span class="n">knn_desc</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">new_data</span><span class="p">);</span><span class="w"></span>
 
-   <span class="n">print_table</span><span class="p">(</span><span class="s">&quot;labels&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">get_labels</span><span class="p">());</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="n">print_table</span><span class="p">(</span><span class="s">&quot;labels&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">get_labels</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
-</section>
-<section id="examples">
+</div>
+</div>
+<div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-b25lQVBJIERQQysr" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-2-b25lQVBJIERQQysr" name="b25lQVBJIERQQysr" role="tab" tabindex="0">oneAPI DPC++</button><button aria-controls="panel-2-b25lQVBJIEMrKw==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-b25lQVBJIEMrKw==" name="b25lQVBJIEMrKw==" role="tab" tabindex="-1">oneAPI C++</button><button aria-controls="panel-2-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" name="UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" role="tab" tabindex="-1">Python* with DPC++ support</button></div><div aria-labelledby="tab-2-b25lQVBJIERQQysr" class="sphinx-tabs-panel group-tab" id="panel-2-b25lQVBJIERQQysr" name="b25lQVBJIERQQysr" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
@@ -2473,23 +2491,34 @@ distance between <span class="math notranslate nohighlight">\(x_j'\)</span> and 
 <li><p><a class="reference external" href="https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/bf_knn_classification_batch.py">bf_knn_classification_batch.py</a></p></li>
 </ul>
 </div></div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="index.html" title="previous page">Nearest Neighbors (kNN)</a>
-    <a class='right-next' id="next-link" href="../pairwise-distances/index.html" title="next page">Pairwise Distances</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Nearest Neighbors (kNN)</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="../pairwise-distances/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Pairwise Distances</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2506,8 +2535,7 @@ distance between <span class="math notranslate nohighlight">\(x_j'\)</span> and 
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Algorithms &#8212; oneDAL  documentation</title>
     
-  <link href="../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
@@ -68,6 +67,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -77,9 +80,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -101,7 +104,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -227,6 +230,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -357,6 +370,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -421,7 +439,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1717,7 +1735,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2097,7 +2115,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2192,7 +2210,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#algorithm-input">
@@ -2220,7 +2238,7 @@
         
               <div>
                 
-  <section id="algorithms">
+  <div class="section" id="algorithms">
 <span id="id1"></span><h1>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h1>
 <p>All Algorithms classes are derived from the base class <code class="docutils literal notranslate"><span class="pre">AlgorithmIface</span></code>.
 It provides interfaces for computations covering a variety of usage scenarios.
@@ -2228,7 +2246,7 @@ Basic methods that you typically call are <code class="docutils literal notransl
 In a very generic form algorithms accept one or several numeric tables or models as an input and return one or several numeric tables and models as an output.
 Algorithms may also require algorithm-specific parameters that you can modify by accessing the <code class="docutils literal notranslate"><span class="pre">parameter</span></code> field of the algorithm.
 Because most of algorithm parameters are preset with default values, you can often omit initialization of the parameter.</p>
-<section id="algorithm-input">
+<div class="section" id="algorithm-input">
 <h2>Algorithm Input<a class="headerlink" href="#algorithm-input" title="Permalink to this headline">¶</a></h2>
 <p>An algorithm can accept one or several numeric tables or models as an input.
 In computation modes that permit multiple calls to the <code class="docutils literal notranslate"><span class="pre">compute()</span></code> method,
@@ -2256,8 +2274,8 @@ but stores all the input pointers until the <code class="docutils literal notran
 </tbody>
 </table>
 <p>For the input that each specific algorithm accepts, refer to the description of this algorithm.</p>
-</section>
-<section id="algorithm-output">
+</div>
+<div class="section" id="algorithm-output">
 <h2>Algorithm Output<a class="headerlink" href="#algorithm-output" title="Permalink to this headline">¶</a></h2>
 <p>Output of an algorithm can be one or several models or numeric tables.
 To retrieve the results of the algorithm computation, call the <code class="docutils literal notranslate"><span class="pre">getResult()</span></code> method.
@@ -2272,8 +2290,8 @@ Follow these steps to provide user allocated memory for partial or final results
 <li><p>Provide a pointer to that object to the algorithm by calling the <code class="docutils literal notranslate"><span class="pre">setPartialResult()</span></code> or <code class="docutils literal notranslate"><span class="pre">setResult()</span></code> method as appropriate.</p></li>
 <li><p>Call the <code class="docutils literal notranslate"><span class="pre">compute()</span></code> method. After the call, the object created contains partial or final results.</p></li>
 </ol>
-</section>
-<section id="algorithm-parameters">
+</div>
+<div class="section" id="algorithm-parameters">
 <h2>Algorithm Parameters<a class="headerlink" href="#algorithm-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Most of algorithms in oneDAL have a set of algorithm-specific parameters.
 Because most of the parameters are optional and preset with default values, you can often omit parameter modification.
@@ -2290,23 +2308,34 @@ You can change the template parameters while declaring the algorithm.</p></li>
 <li><p>In Java, the generic parameters have no default values, and you need to define them in the constructor during algorithm initialization.</p></li>
 </ul>
 <p>For a list of algorithm parameters, refer to the description of an appropriate algorithm.</p>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="index.html" title="previous page">Library Usage</a>
-    <a class='right-next' id="next-link" href="computation-modes.html" title="next page">Computation Modes</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Library Usage</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="computation-modes.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Computation Modes</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2323,8 +2352,7 @@ You can change the template parameters while declaring the algorithm.</p></li>
       </div>
     </div>
   
-  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

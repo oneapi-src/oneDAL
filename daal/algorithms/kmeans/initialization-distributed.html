@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Distributed Processing &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,19 +22,19 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -70,6 +69,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -79,9 +82,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -103,7 +106,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -229,6 +232,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -359,6 +372,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -423,7 +441,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1719,7 +1737,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2099,7 +2117,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2194,7 +2212,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#parameters">
@@ -2320,10 +2338,10 @@
         
               <div>
                 
-  <section id="distributed-processing">
+  <div class="section" id="distributed-processing">
 <h1>Distributed Processing<a class="headerlink" href="#distributed-processing" title="Permalink to this headline">¶</a></h1>
 <p>This mode assumes that the data set is split into <code class="docutils literal notranslate"><span class="pre">nblocks</span></code> blocks across computation nodes.</p>
-<section id="parameters">
+<div class="section" id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
 <p>Centroid initialization for K-Means clustering in the distributed processing mode has the following parameters:</p>
 <table class="colwidths-given longtable table" id="id5">
@@ -2439,35 +2457,27 @@ For details, see <a class="reference internal" href="../../../bibliography.html#
 </table>
 <p>Centroid initialization for K-Means clustering follows the general schema described in <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><figure class="align-default" id="id6">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="figure align-default" id="id6">
 <img alt="" src="../../../_images/kmeans-distributed-init-plusPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><figure class="align-default" id="id7">
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="figure align-default" id="id7">
 <img alt="" src="../../../_images/kmeans-distributed-init-parallelPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
 </div></div>
-</section>
-<section id="step-1-on-local-nodes-deterministic-random-plusplus-and-parallelplus-methods">
+</div>
+<div class="section" id="step-1-on-local-nodes-deterministic-random-plusplus-and-parallelplus-methods">
 <span id="kmeans-init-step-1"></span><h2>Step 1 - on Local Nodes (<code class="docutils literal notranslate"><span class="pre">deterministic</span></code>, <code class="docutils literal notranslate"><span class="pre">random</span></code>, <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code>, and <code class="docutils literal notranslate"><span class="pre">parallelPlus</span></code> methods)<a class="headerlink" href="#step-1-on-local-nodes-deterministic-random-plusplus-and-parallelplus-methods" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><figure class="align-default" id="id8">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="figure align-default" id="id8">
 <img alt="" src="../../../_images/kmeans-distributed-init-step-1-plusPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing, Step 1 - on Local Nodes</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><figure class="align-default" id="id9">
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing, Step 1 - on Local Nodes</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
+</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><div class="figure align-default" id="id9">
 <img alt="" src="../../../_images/kmeans-distributed-init-step-1-parallelPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 1 - on Local Nodes</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 1 - on Local Nodes</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</div>
 </div></div>
 <p>In this step, centroid initialization for K-Means clustering accepts the input described below.
 Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
@@ -2524,8 +2534,8 @@ except <code class="docutils literal notranslate"><span class="pre">PackedTriang
 </tr>
 </tbody>
 </table>
-</section>
-<section id="step-2-on-master-node-deterministic-and-random-methods">
+</div>
+<div class="section" id="step-2-on-master-node-deterministic-and-random-methods">
 <span id="kmeans-init-step-2-master"></span><h2>Step 2 - on Master Node (<code class="docutils literal notranslate"><span class="pre">deterministic</span></code> and <code class="docutils literal notranslate"><span class="pre">random</span></code> methods)<a class="headerlink" href="#step-2-on-master-node-deterministic-and-random-methods" title="Permalink to this headline">¶</a></h2>
 <p>This step is applicable for <code class="docutils literal notranslate"><span class="pre">deterministic</span></code> and <code class="docutils literal notranslate"><span class="pre">random</span></code> methods only.
 Centroid initialization for K-Means clustering accepts the input from each local node described below.
@@ -2576,22 +2586,18 @@ except <code class="docutils literal notranslate"><span class="pre">PackedTriang
 </tr>
 </tbody>
 </table>
-</section>
-<section id="step-2-on-local-nodes-plusplus-and-parallelplus-methods">
+</div>
+<div class="section" id="step-2-on-local-nodes-plusplus-and-parallelplus-methods">
 <span id="kmeans-init-step-2-local"></span><h2>Step 2 - on Local Nodes (<code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> and <code class="docutils literal notranslate"><span class="pre">parallelPlus</span></code> methods)<a class="headerlink" href="#step-2-on-local-nodes-plusplus-and-parallelplus-methods" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><figure class="align-default" id="id14">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><div class="figure align-default" id="id14">
 <img alt="" src="../../../_images/kmeans-distributed-init-step-2-plusPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing, Step 2 - on Local Nodes</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><figure class="align-default" id="id15">
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing, Step 2 - on Local Nodes</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+</div>
+</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><div class="figure align-default" id="id15">
 <img alt="" src="../../../_images/kmeans-distributed-init-step-2-parallelPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 2 - on Local Nodes</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 2 - on Local Nodes</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
+</div>
 </div></div>
 <p>This step is applicable for <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> and <code class="docutils literal notranslate"><span class="pre">parallelPlus</span></code> methods only.
 Centroid initialization for K-Means clustering accepts the input from each local node described below.
@@ -2679,22 +2685,18 @@ For a description of ratings, see <a class="reference internal" href="k-means-cl
 but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
-</section>
-<section id="step-3-on-master-node-plusplus-and-parallelplus-methods">
+</div>
+<div class="section" id="step-3-on-master-node-plusplus-and-parallelplus-methods">
 <span id="kmeans-init-step-3"></span><h2>Step 3 - on Master Node (<code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> and <code class="docutils literal notranslate"><span class="pre">parallelPlus</span></code> methods)<a class="headerlink" href="#step-3-on-master-node-plusplus-and-parallelplus-methods" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-3-3-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-1" name="3-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><figure class="align-default" id="id18">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-3-3-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-1" name="3-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><div class="figure align-default" id="id18">
 <img alt="" src="../../../_images/kmeans-distributed-init-step-3-plusPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing, Step 3 - on Master Node</span><a class="headerlink" href="#id18" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-</div><div aria-labelledby="tab-3-3-1" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-1" name="3-1" role="tabpanel" tabindex="0"><figure class="align-default" id="id19">
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing, Step 3 - on Master Node</span><a class="headerlink" href="#id18" title="Permalink to this image">¶</a></p>
+</div>
+</div><div aria-labelledby="tab-3-3-1" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-1" name="3-1" role="tabpanel" tabindex="0"><div class="figure align-default" id="id19">
 <img alt="" src="../../../_images/kmeans-distributed-init-step-3-parallelPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 3 - on Master Node</span><a class="headerlink" href="#id19" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 3 - on Master Node</span><a class="headerlink" href="#id19" title="Permalink to this image">¶</a></p>
+</div>
 </div></div>
 <p>This step is applicable for plusPlus and parallelPlus methods only.
 Centroid initialization for K-Means clustering accepts the input from each local node described below.
@@ -2749,22 +2751,18 @@ For a description of the overall error, see <a class="reference internal" href="
 </tr>
 </tbody>
 </table>
-</section>
-<section id="step-4-on-local-nodes-plusplus-and-parallelplus-methods">
+</div>
+<div class="section" id="step-4-on-local-nodes-plusplus-and-parallelplus-methods">
 <span id="kmeans-init-step-4"></span><h2>Step 4 - on Local Nodes (<code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> and <code class="docutils literal notranslate"><span class="pre">parallelPlus</span></code> methods)<a class="headerlink" href="#step-4-on-local-nodes-plusplus-and-parallelplus-methods" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-4-4-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-4-4-0" name="4-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-4-4-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-4-4-1" name="4-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-4-4-0" class="sphinx-tabs-panel" id="panel-4-4-0" name="4-0" role="tabpanel" tabindex="0"><figure class="align-default" id="id22">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-4-4-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-4-4-0" name="4-0" role="tab" tabindex="0"><code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods</button><button aria-controls="panel-4-4-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-4-4-1" name="4-1" role="tab" tabindex="-1"><code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods</button></div><div aria-labelledby="tab-4-4-0" class="sphinx-tabs-panel" id="panel-4-4-0" name="4-0" role="tabpanel" tabindex="0"><div class="figure align-default" id="id22">
 <img alt="" src="../../../_images/kmeans-distributed-init-step-4-plusPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing, Step 4 - on Local Nodes</span><a class="headerlink" href="#id22" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-</div><div aria-labelledby="tab-4-4-1" class="sphinx-tabs-panel" hidden="true" id="panel-4-4-1" name="4-1" role="tabpanel" tabindex="0"><figure class="align-default" id="id23">
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">plusPlus</span></code> methods: Distributed Processing, Step 4 - on Local Nodes</span><a class="headerlink" href="#id22" title="Permalink to this image">¶</a></p>
+</div>
+</div><div aria-labelledby="tab-4-4-1" class="sphinx-tabs-panel" hidden="true" id="panel-4-4-1" name="4-1" role="tabpanel" tabindex="0"><div class="figure align-default" id="id23">
 <img alt="" src="../../../_images/kmeans-distributed-init-step-4-parallelPlus-methods.png" />
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 4 - on Local Nodes</span><a class="headerlink" href="#id23" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 4 - on Local Nodes</span><a class="headerlink" href="#id23" title="Permalink to this image">¶</a></p>
+</div>
 </div></div>
 <p>This step is applicable for plusPlus and parallelPlus methods only.
 Centroid initialization for K-Means clustering accepts the input from each local node described below.
@@ -2841,15 +2839,13 @@ except <code class="docutils literal notranslate"><span class="pre">CSRNumericTa
 </tr>
 </tbody>
 </table>
-</section>
-<section id="step-5-on-master-node-parallelplus-methods">
+</div>
+<div class="section" id="step-5-on-master-node-parallelplus-methods">
 <span id="kmeans-init-step-5"></span><h2>Step 5 - on Master Node (<code class="docutils literal notranslate"><span class="pre">parallelPlus</span></code> methods)<a class="headerlink" href="#step-5-on-master-node-parallelplus-methods" title="Permalink to this headline">¶</a></h2>
-<figure class="align-default" id="id26">
+<div class="figure align-default" id="id26">
 <a class="reference internal image-reference" href="../../../_images/kmeans-distributed-init-step-5-parallelPlus-methods.png"><img alt="" src="../../../_images/kmeans-distributed-init-step-5-parallelPlus-methods.png" style="width: 1000px;" /></a>
-<figcaption>
-<p><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 5 - on Master Node</span><a class="headerlink" href="#id26" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">K-Means Centroid Initialization with <code class="docutils literal notranslate"><span class="pre">parrallelPlus</span></code> methods: Distributed Processing, Step 5 - on Master Node</span><a class="headerlink" href="#id26" title="Permalink to this image">¶</a></p>
+</div>
 <p>This step is applicable for parallelPlus methods only.
 Centroid initialization for K-Means clustering accepts the input from each local node described below.
 Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
@@ -2917,23 +2913,34 @@ except <code class="docutils literal notranslate"><span class="pre">PackedTriang
 </tr>
 </tbody>
 </table>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="initialization-batch.html" title="previous page">Batch Processing</a>
-    <a class='right-next' id="next-link" href="computation-batch.html" title="next page">Batch Processing</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="initialization-batch.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Batch Processing</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="computation-batch.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Batch Processing</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2950,8 +2957,7 @@ except <code class="docutils literal notranslate"><span class="pre">PackedTriang
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

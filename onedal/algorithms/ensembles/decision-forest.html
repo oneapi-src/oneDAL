@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Decision Forest Classification and Regression (DF) &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,19 +22,19 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -70,6 +69,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -79,9 +82,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -103,7 +106,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -229,6 +232,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -359,6 +372,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -423,7 +441,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1719,7 +1737,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2099,7 +2117,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2194,7 +2212,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#mathematical-formulation">
@@ -2306,7 +2324,7 @@
         
               <div>
                 
-  <section id="decision-forest-classification-and-regression-df">
+  <div class="section" id="decision-forest-classification-and-regression-df">
 <span id="alg-df"></span><h1>Decision Forest Classification and Regression (DF)<a class="headerlink" href="#decision-forest-classification-and-regression-df" title="Permalink to this headline">¶</a></h1>
 <p>Decision Forest (DF) <a class="reference internal" href="../../glossary.html#term-Classification"><span class="xref std std-term">classification</span></a> and <a class="reference internal" href="../../glossary.html#term-Regression"><span class="xref std std-term">regression</span></a> algorithms are based on an ensemble of
 tree-structured classifiers, which are known as <a class="reference internal" href="../../appendix/decision-tree.html#dt"><span class="std std-ref">decision trees</span></a>. Decision forest is built
@@ -2342,9 +2360,9 @@ For more details, see <a class="reference internal" href="../../../bibliography.
 </tr>
 </tbody>
 </table>
-<section id="mathematical-formulation">
+<div class="section" id="mathematical-formulation">
 <h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">¶</a></h2>
-<section id="training">
+<div class="section" id="training">
 <span id="df-t-math"></span><h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
 <p>Given <span class="math notranslate nohighlight">\(n\)</span> feature vectors <span class="math notranslate nohighlight">\(X=\{x_1=(x_{11},\ldots,x_{1p}),\ldots,x_n=(x_{n1},\ldots,x_{np})\}\)</span> of
 size <span class="math notranslate nohighlight">\(p\)</span>, their non-negative observation weights <span class="math notranslate nohighlight">\(W=\{w_1,\ldots,w_n\}\)</span> and <span class="math notranslate nohighlight">\(n\)</span> responses <span class="math notranslate nohighlight">\(Y=\{y_1,\ldots,y_n\}\)</span>,</p>
@@ -2376,20 +2394,20 @@ the training set <span class="math notranslate nohighlight">\(D\)</span>, with t
 internal node <span class="math notranslate nohighlight">\(t\)</span> represents a binary test (split) that divides the
 subset <span class="math notranslate nohighlight">\(X_t\)</span> in two subsets, <span class="math notranslate nohighlight">\(X_{t_L}\)</span> and <span class="math notranslate nohighlight">\(X_{t_R}\)</span>,
 corresponding to their children, <span class="math notranslate nohighlight">\(t_L\)</span> and <span class="math notranslate nohighlight">\(t_R\)</span>.</p>
-<section id="training-method-dense">
+<div class="section" id="training-method-dense">
 <span id="df-t-math-dense"></span><h4>Training method: <em>Dense</em><a class="headerlink" href="#training-method-dense" title="Permalink to this headline">¶</a></h4>
 <p>In <em>dense</em> training method, all possible splits for each feature are taken from the subset of selected features for the current node and evaluated
 for best split computation.</p>
-</section>
-<section id="training-method-hist">
+</div>
+<div class="section" id="training-method-hist">
 <span id="df-t-math-hist"></span><h4>Training method: <em>Hist</em><a class="headerlink" href="#training-method-hist" title="Permalink to this headline">¶</a></h4>
 <p>In <em>hist</em> training method, only a selected subset of splits is considered for best split computation.
 This subset of splits is computed for each feature at the initialization stage of the algorithm.
 After computing the subset of splits, each value from the initially provided data is substituted
 with the value of the corresponding bin.
 Bins are continuous intervals between selected splits.</p>
-</section>
-<section id="split-criteria">
+</div>
+<div class="section" id="split-criteria">
 <h4>Split Criteria<a class="headerlink" href="#split-criteria" title="Permalink to this headline">¶</a></h4>
 <p>The metric for measuring the best split is called <em>impurity</em>,
 <span class="math notranslate nohighlight">\(i(t)\)</span>. It generally reflects the homogeneity of responses within
@@ -2448,8 +2466,8 @@ the subset <span class="math notranslate nohighlight">\(D_t\)</span> in the node
 <p>Let the <em>impurity decrease</em> in the node <span class="math notranslate nohighlight">\(t\)</span> be</p>
 <div class="math notranslate nohighlight">
 \[\Delta i\left(t\right)=i\left(t\right)–\frac{|{D}_{t}{}_{{}_{L}}|}{|{D}_{t}|}i\left({t}_{L}\right)–\frac{|{D}_{t}{}_{{}_{R}}|}{|{D}_{t}|}i\left({t}_{R}\right).\text{ }\]</div>
-</section>
-<section id="termination-criteria">
+</div>
+<div class="section" id="termination-criteria">
 <h4>Termination Criteria<a class="headerlink" href="#termination-criteria" title="Permalink to this headline">¶</a></h4>
 <p>The library supports the following termination criteria of
 decision forest training:</p>
@@ -2473,12 +2491,12 @@ If maximal number of leaf nodes equals zero, then this criterion does not limit 
 and trees grow in a <a class="reference internal" href="#df-t-depth-first-strategy"><span class="std std-ref">depth-first</span></a> fashion.</p>
 </dd>
 </dl>
-</section>
-<section id="tree-building-strategies">
+</div>
+<div class="section" id="tree-building-strategies">
 <h4>Tree Building Strategies<a class="headerlink" href="#tree-building-strategies" title="Permalink to this headline">¶</a></h4>
 <p>Maximal number of leaf nodes defines the strategy of tree building:
 <a class="reference internal" href="#df-t-depth-first-strategy"><span class="std std-ref">depth-first</span></a> or <a class="reference internal" href="#df-t-best-first-strategy"><span class="std std-ref">best-first</span></a>.</p>
-<section id="depth-first-strategy">
+<div class="section" id="depth-first-strategy">
 <span id="df-t-depth-first-strategy"></span><h5>Depth-first Strategy<a class="headerlink" href="#depth-first-strategy" title="Permalink to this headline">¶</a></h5>
 <p>If maximal number of leaf nodes equals zero, a <a class="reference internal" href="../../appendix/decision-tree.html#dt"><span class="std std-ref">decision tree</span></a> is built using depth-first strategy.
 In each terminal node <span class="math notranslate nohighlight">\(t\)</span>, the following recursive procedure is applied:</p>
@@ -2493,8 +2511,8 @@ Get the best split <span class="math notranslate nohighlight">\(s_t\)</span> tha
 <span class="math notranslate nohighlight">\(\Delta i\)</span> in all <span class="math notranslate nohighlight">\(s_{j,t}\)</span> splits.</p></li>
 <li><p>Apply this procedure recursively to <span class="math notranslate nohighlight">\(t_L\)</span> and <span class="math notranslate nohighlight">\(t_R\)</span>.</p></li>
 </ul>
-</section>
-<section id="best-first-strategy">
+</div>
+<div class="section" id="best-first-strategy">
 <span id="df-t-best-first-strategy"></span><h5>Best-first Strategy<a class="headerlink" href="#best-first-strategy" title="Permalink to this headline">¶</a></h5>
 <p>If maximal number of leaf nodes is positive, a <a class="reference internal" href="../../appendix/decision-tree.html#dt"><span class="std std-ref">decision tree</span></a> is built using best-first strategy.
 In each terminal node <span class="math notranslate nohighlight">\(t\)</span>, the following steps are applied:</p>
@@ -2513,15 +2531,15 @@ The node with maximal improvement is the first in the array. For a leaf node, th
 <li><p>Apply this procedure to <span class="math notranslate nohighlight">\(t_L\)</span> and <span class="math notranslate nohighlight">\(t_R\)</span> and grow a tree one by one getting the first element from the array
 until the array is empty.</p></li>
 </ul>
-</section>
-</section>
-</section>
-<section id="inference">
+</div>
+</div>
+</div>
+<div class="section" id="inference">
 <span id="df-i-math"></span><h3>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h3>
 <p>Given decision forest classification or regression model and vectors <span class="math notranslate nohighlight">\(x_1, \ldots, x_r\)</span>,
 the problem is to calculate the responses for those vectors.</p>
-</section>
-<section id="inference-methods-dense-and-hist">
+</div>
+<div class="section" id="inference-methods-dense-and-hist">
 <span id="df-i-math-dense-hist"></span><h3>Inference methods: <em>Dense</em> and <em>Hist</em><a class="headerlink" href="#inference-methods-dense-and-hist" title="Permalink to this headline">¶</a></h3>
 <p><em>Dense</em> and <em>hist</em> inference methods perform prediction in the same way.
 To solve the problem for each given query vector <span class="math notranslate nohighlight">\(x_i\)</span>, the
@@ -2532,14 +2550,14 @@ trees in the forest vote for is chosen as the predicted label for the query vect
 </div><div aria-labelledby="tab-2-UmVncmVzc2lvbg==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-2-UmVncmVzc2lvbg==" name="UmVncmVzc2lvbg==" role="tabpanel" tabindex="0"><p>For each tree in the forest, it finds the leaf node that gives <span class="math notranslate nohighlight">\(x_i\)</span> the response as the mean of
 dependent variables. The mean of responses from all trees in the forest is the predicted response for the query vector <span class="math notranslate nohighlight">\(x_i\)</span>.</p>
 </div></div>
-</section>
-<section id="additional-characteristics-calculated-by-the-decision-forest">
+</div>
+<div class="section" id="additional-characteristics-calculated-by-the-decision-forest">
 <h3>Additional Characteristics Calculated by the Decision Forest<a class="headerlink" href="#additional-characteristics-calculated-by-the-decision-forest" title="Permalink to this headline">¶</a></h3>
 <p>Decision forests can produce additional characteristics, such as
 an estimate of generalization error and an importance measure
 (relative decisive power) of each of p features (variables).</p>
-</section>
-<section id="out-of-bag-error">
+</div>
+<div class="section" id="out-of-bag-error">
 <h3>Out-of-bag Error<a class="headerlink" href="#out-of-bag-error" title="Permalink to this headline">¶</a></h3>
 <p>The estimate of the generalization error based on the training
 data can be obtained and calculated as follows:</p>
@@ -2570,8 +2588,8 @@ as the mean of prediction from the trees that contain <span class="math notransl
 </li>
 </ul>
 </div></div>
-</section>
-<section id="variable-importance">
+</div>
+<div class="section" id="variable-importance">
 <h3>Variable Importance<a class="headerlink" href="#variable-importance" title="Permalink to this headline">¶</a></h3>
 <p>There are two main types of variable importance measures:</p>
 <ul>
@@ -2607,32 +2625,43 @@ follows:</p>
 </ul>
 </li>
 </ul>
-</section>
-</section>
-<section id="programming-interface">
+</div>
+</div>
+<div class="section" id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>Refer to <a class="reference internal" href="../../../api/algorithms/ensembles/decision-forest.html#api-df"><span class="std std-ref">API Reference: Decision Forest Classification and Regression</span></a>.</p>
-</section>
-<section id="distributed-mode">
+</div>
+<div class="section" id="distributed-mode">
 <h2>Distributed mode<a class="headerlink" href="#distributed-mode" title="Permalink to this headline">¶</a></h2>
 <p>The algorithm supports distributed execution in SMPD mode (only on GPU).</p>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="index.html" title="previous page">Ensembles</a>
-    <a class='right-next' id="next-link" href="../graph/index.html" title="next page">Graph</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Ensembles</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="../graph/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Graph</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2649,8 +2678,7 @@ follows:</p>
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

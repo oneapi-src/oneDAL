@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>k-Nearest Neighbors Classification (k-NN) &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,19 +22,19 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -70,6 +69,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -79,9 +82,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -103,7 +106,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -229,6 +232,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -359,6 +372,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -423,7 +441,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1719,7 +1737,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2099,7 +2117,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2194,7 +2212,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#mathematical-formulation">
@@ -2241,20 +2259,20 @@
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#training-train">
      Training
-     <code class="xref cpp cpp-expr docutils literal notranslate">
-      <span class="pre">
+     <span class="cpp-expr sig sig-inline cpp train(...)">
+      <span class="n">
        train
       </span>
-      <span class="sig-paren">
+      <span class="p">
        (
       </span>
-      <span class="pre">
+      <span class="p">
        ...
       </span>
-      <span class="sig-paren">
+      <span class="p">
        )
       </span>
-     </code>
+     </span>
     </a>
     <ul class="nav section-nav flex-column">
      <li class="toc-h4 nav-item toc-entry">
@@ -2277,20 +2295,20 @@
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#inference-infer">
      Inference
-     <code class="xref cpp cpp-expr docutils literal notranslate">
-      <span class="pre">
+     <span class="cpp-expr sig sig-inline cpp infer(...)">
+      <span class="n">
        infer
       </span>
-      <span class="sig-paren">
+      <span class="p">
        (
       </span>
-      <span class="pre">
+      <span class="p">
        ...
       </span>
-      <span class="sig-paren">
+      <span class="p">
        )
       </span>
-     </code>
+     </span>
     </a>
     <ul class="nav section-nav flex-column">
      <li class="toc-h4 nav-item toc-entry">
@@ -2345,7 +2363,7 @@
         
               <div>
                 
-  <section id="k-nearest-neighbors-classification-k-nn">
+  <div class="section" id="k-nearest-neighbors-classification-k-nn">
 <span id="api-knn"></span><h1>k-Nearest Neighbors Classification (k-NN)<a class="headerlink" href="#k-nearest-neighbors-classification-k-nn" title="Permalink to this headline">¶</a></h1>
 <p><span class="math notranslate nohighlight">\(k\)</span>-NN <a class="reference internal" href="../../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification</span></a> and <a class="reference internal" href="../../../onedal/glossary.html#term-Search"><span class="xref std std-term">search</span></a> algorithms are based on finding
 the <span class="math notranslate nohighlight">\(k\)</span> nearest observations to the training set. For <a class="reference internal" href="../../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification</span></a>,
@@ -2384,20 +2402,20 @@ based on the chosen distance metric.</p>
 </tr>
 </tbody>
 </table>
-<section id="mathematical-formulation">
+<div class="section" id="mathematical-formulation">
 <h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">¶</a></h2>
 <p>Refer to <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#alg-knn"><span class="std std-ref">Developer Guide: k-Nearest Neighbors Classification</span></a>.</p>
-</section>
-<section id="programming-interface">
+</div>
+<div class="section" id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>All types and functions in this section are declared in the
 <code class="docutils literal notranslate"><span class="pre">oneapi::dal::knn</span></code> namespace and be available via inclusion of the
 <code class="docutils literal notranslate"><span class="pre">oneapi/dal/algo/knn.hpp</span></code> header file.</p>
-<section id="enum-classes">
+<div class="section" id="enum-classes">
 <h3>Enum classes<a class="headerlink" href="#enum-classes" title="Permalink to this headline">¶</a></h3>
 <dl class="cpp enum-class">
-<dt id="_CPPv4N6oneapi3dal3knn11voting_modeE">
-<span id="_CPPv3N6oneapi3dal3knn11voting_modeE"></span><span id="_CPPv2N6oneapi3dal3knn11voting_modeE"></span><em class="property"><span class="pre">enum</span> <span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">voting_mode</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11voting_modeE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn11voting_modeE">
+<span id="_CPPv3N6oneapi3dal3knn11voting_modeE"></span><span id="_CPPv2N6oneapi3dal3knn11voting_modeE"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">voting_mode</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11voting_modeE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="simple">
 <dt>voting_mode::uniform</dt><dd><p>Uniform weights for neighbors for prediction voting.</p>
 </dd>
@@ -2406,100 +2424,70 @@ based on the chosen distance metric.</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="result-options">
+</div>
+<div class="section" id="result-options">
 <h3>Result options<a class="headerlink" href="#result-options" title="Permalink to this headline">¶</a></h3>
 <dl class="cpp class">
-<dt id="_CPPv4N6oneapi3dal3knn16result_option_idE">
-<span id="_CPPv3N6oneapi3dal3knn16result_option_idE"></span><span id="_CPPv2N6oneapi3dal3knn16result_option_idE"></span><span id="oneapi::dal::knn::result_option_id"></span><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">result_option_id</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn16result_option_idE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn16result_option_idE">
+<span id="_CPPv3N6oneapi3dal3knn16result_option_idE"></span><span id="_CPPv2N6oneapi3dal3knn16result_option_idE"></span><span id="oneapi::dal::knn::result_option_id"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">result_option_id</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn16result_option_idE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p><strong>Public Methods</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idEv">
-<span id="_CPPv3N6oneapi3dal3knn16result_option_id16result_option_idEv"></span><span id="_CPPv2N6oneapi3dal3knn16result_option_id16result_option_idEv"></span><span id="oneapi::dal::knn::result_option_id::result_option_idCE"></span><em class="property"><span class="pre">constexpr</span></em> <code class="sig-name descname"><span class="pre">result_option_id</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="pre">=</span> <span class="pre">default</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idEv" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idEv">
+<span id="_CPPv3N6oneapi3dal3knn16result_option_id16result_option_idEv"></span><span id="_CPPv2N6oneapi3dal3knn16result_option_id16result_option_idEv"></span><span id="oneapi::dal::knn::result_option_id::result_option_idCE"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">result_option_id</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idERK21result_option_id_base">
-<span id="_CPPv3N6oneapi3dal3knn16result_option_id16result_option_idERK21result_option_id_base"></span><span id="_CPPv2N6oneapi3dal3knn16result_option_id16result_option_idERK21result_option_id_base"></span><span id="oneapi::dal::knn::result_option_id::result_option_id__result_option_id_baseCRCE"></span><em class="property"><span class="pre">constexpr</span></em> <code class="sig-name descname"><span class="pre">result_option_id</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">result_option_id_base</span> <span class="pre">&amp;</span><em><span class="pre">base</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idERK21result_option_id_base" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idERK21result_option_id_base">
+<span id="_CPPv3N6oneapi3dal3knn16result_option_id16result_option_idERK21result_option_id_base"></span><span id="_CPPv2N6oneapi3dal3knn16result_option_id16result_option_idERK21result_option_id_base"></span><span id="oneapi::dal::knn::result_option_id::result_option_id__result_option_id_baseCRCE"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">result_option_id</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">result_option_id_base</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">base</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn16result_option_id16result_option_idERK21result_option_id_base" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
-<section id="descriptor">
+</div>
+<div class="section" id="descriptor">
 <h3>Descriptor<a class="headerlink" href="#descriptor" title="Permalink to this headline">¶</a></h3>
 <dl class="cpp class">
-<dt id="_CPPv4I0000EN6oneapi3dal3knn10descriptorE">
-<span id="_CPPv3I0000EN6oneapi3dal3knn10descriptorE"></span><span id="_CPPv2I0000EN6oneapi3dal3knn10descriptorE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Float</span></code> <span class="pre">=</span> <span class="pre">float</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Method</span></code> <span class="pre">=</span> <span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method10by_defaultE" title="oneapi::dal::knn::method::by_default"><span class="pre">by_default</span></a><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="pre">by_default</span></a><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Distance</span></code> <span class="pre">=</span> <span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><span class="pre">minkowski_distance</span><span class="pre">::</span><a class="reference internal" href="../pairwise-distances/minkowski-distance.html#_CPPv4I000EN6oneapi3dal18minkowski_distance10descriptorE" title="oneapi::dal::minkowski_distance::descriptor"><span class="pre">descriptor</span></a><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor::Float"><span class="pre">Float</span></a><span class="pre">&gt;</span><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">descriptor</span></code><a class="headerlink" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0000EN6oneapi3dal3knn10descriptorE">
+<span id="_CPPv3I0000EN6oneapi3dal3knn10descriptorE"></span><span id="_CPPv2I0000EN6oneapi3dal3knn10descriptorE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Float</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="kt"><span class="pre">float</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Method</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method10by_defaultE" title="oneapi::dal::knn::method::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Distance</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">oneapi</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">dal</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">minkowski_distance</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="../pairwise-distances/minkowski-distance.html#_CPPv4I000EN6oneapi3dal18minkowski_distance10descriptorE" title="oneapi::dal::minkowski_distance::descriptor"><span class="n"><span class="pre">descriptor</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor::Float"><span class="n"><span class="pre">Float</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><a class="headerlink" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Float</strong> – The floating-point type that the algorithm uses for intermediate computations. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code>.</p></li>
-<li><p><strong>Method</strong> – Tag-type that specifies an implementation of algorithm. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method7kd_treeE" title="oneapi::dal::knn::method::kd_tree"><span class="pre">kd_tree</span></a></code>.</p></li>
-<li><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="pre">classification</span></a></code>, <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10regressionE" title="oneapi::dal::knn::task::regression"><span class="pre">regression</span></a></code>, or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="pre">search</span></a></code>.</p></li>
-<li><p><strong>Distance</strong> – The descriptor of the distance used for computations. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">minkowski_distance</span><span class="pre">::</span><a class="reference internal" href="../pairwise-distances/minkowski-distance.html#_CPPv4I000EN6oneapi3dal18minkowski_distance10descriptorE" title="oneapi::dal::minkowski_distance::descriptor"><span class="pre">descriptor</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">chebyshev_distance</span><span class="pre">::</span><a class="reference internal" href="../pairwise-distances/chebyshev-distance.html#_CPPv4I000EN6oneapi3dal18chebyshev_distance10descriptorE" title="oneapi::dal::chebyshev_distance::descriptor"><span class="pre">descriptor</span></a></code>.</p></li>
+<li><p><strong>Float</strong> – The floating-point type that the algorithm uses for intermediate computations. Can be <span class="cpp-expr sig sig-inline cpp"><span class="kt">float</span></span> or <span class="cpp-expr sig sig-inline cpp"><span class="kt">double</span></span>.</p></li>
+<li><p><strong>Method</strong> – Tag-type that specifies an implementation of algorithm. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">method</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="n">brute_force</span></a></span> or <span class="cpp-expr sig sig-inline cpp"><span class="n">method</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method7kd_treeE" title="oneapi::dal::knn::method::kd_tree"><span class="n">kd_tree</span></a></span>.</p></li>
+<li><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="n">classification</span></a></span>, <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10regressionE" title="oneapi::dal::knn::task::regression"><span class="n">regression</span></a></span>, or <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="n">search</span></a></span>.</p></li>
+<li><p><strong>Distance</strong> – The descriptor of the distance used for computations. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">minkowski_distance</span><span class="p">::</span><a class="reference internal" href="../pairwise-distances/minkowski-distance.html#_CPPv4I000EN6oneapi3dal18minkowski_distance10descriptorE" title="oneapi::dal::minkowski_distance::descriptor"><span class="n">descriptor</span></a></span> or <span class="cpp-expr sig sig-inline cpp"><span class="n">chebyshev_distance</span><span class="p">::</span><a class="reference internal" href="../pairwise-distances/chebyshev-distance.html#_CPPv4I000EN6oneapi3dal18chebyshev_distance10descriptorE" title="oneapi::dal::chebyshev_distance::descriptor"><span class="n">descriptor</span></a></span>.</p></li>
 </ul>
 </dd>
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE">
-<span id="_CPPv3N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE"></span><span id="oneapi::dal::knn::descriptor::descriptor__std::int64_t.std::int64_t"></span><code class="sig-name descname"><span class="pre">descriptor</span></code><span class="sig-paren">(</span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">class_count</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">neighbor_count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE"></span><span id="oneapi::dal::knn::descriptor::descriptor__std::int64_t.std::int64_t"></span><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">class_count</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">neighbor_count</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">class_count</span></code> and <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> property values.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t">
-<span id="_CPPv3I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t"></span><span id="_CPPv2I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">M</span></code> <span class="pre">=</span> <span class="pre">Method</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">None</span></code> <span class="pre">=</span> <span class="pre">detail</span><span class="pre">::</span><span class="pre">enable_if_brute_force_t</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t" title="oneapi::dal::knn::descriptor::descriptor::M"><span class="pre">M</span></a><span class="pre">&gt;</span><span class="pre">&gt;</span><br /><code class="sig-name descname"><span class="pre">descriptor</span></code><span class="sig-paren">(</span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">class_count</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">neighbor_count</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">distance_t</span> <span class="pre">&amp;</span><em><span class="pre">distance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">class_count</span></code>, <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> and <code class="docutils literal notranslate"><span class="pre">distance</span></code> property values. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a></code> only.</p>
+<dt class="sig sig-object cpp" id="_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t">
+<span id="_CPPv3I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t"></span><span id="_CPPv2I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">M</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">Method</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">None</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">detail</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">enable_if_brute_force_t</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t" title="oneapi::dal::knn::descriptor::descriptor::M"><span class="n"><span class="pre">M</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">class_count</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">neighbor_count</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">distance_t</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">distance</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">class_count</span></code>, <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> and <code class="docutils literal notranslate"><span class="pre">distance</span></code> property values. Used with <span class="cpp-expr sig sig-inline cpp"><span class="n">method</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="n">brute_force</span></a></span> only.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE">
-<span id="_CPPv3I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE"></span><span id="_CPPv2I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">T</span></code> <span class="pre">=</span> <span class="pre">Task</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">None</span></code> <span class="pre">=</span> <span class="pre">detail</span><span class="pre">::</span><span class="pre">enable_if_not_classification_t</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE" title="oneapi::dal::knn::descriptor::descriptor::T"><span class="pre">T</span></a><span class="pre">&gt;</span><span class="pre">&gt;</span><br /><code class="sig-name descname"><span class="pre">descriptor</span></code><span class="sig-paren">(</span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">neighbor_count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> property value. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="pre">search</span></a></code> only.</p>
+<dt class="sig sig-object cpp" id="_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE">
+<span id="_CPPv3I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE"></span><span id="_CPPv2I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">Task</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">None</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">detail</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">enable_if_not_classification_t</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE" title="oneapi::dal::knn::descriptor::descriptor::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">neighbor_count</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> property value. Used with <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="n">search</span></a></span> and <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10regressionE" title="oneapi::dal::knn::task::regression"><span class="n">regression</span></a></span> only.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t">
-<span id="_CPPv3I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t"></span><span id="_CPPv2I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">T</span></code> <span class="pre">=</span> <span class="pre">Task</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">None</span></code> <span class="pre">=</span> <span class="pre">detail</span><span class="pre">::</span><span class="pre">enable_if_not_classification_t</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t" title="oneapi::dal::knn::descriptor::descriptor::T"><span class="pre">T</span></a><span class="pre">&gt;</span><span class="pre">&gt;</span><br /><code class="sig-name descname"><span class="pre">descriptor</span></code><span class="sig-paren">(</span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">neighbor_count</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">distance_t</span> <span class="pre">&amp;</span><em><span class="pre">distance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> and <code class="docutils literal notranslate"><span class="pre">distance</span></code> property values. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="pre">search</span></a></code> only.</p>
+<dt class="sig sig-object cpp" id="_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t">
+<span id="_CPPv3I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t"></span><span id="_CPPv2I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">Task</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">None</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">detail</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">enable_if_not_classification_t</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t" title="oneapi::dal::knn::descriptor::descriptor::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">neighbor_count</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">distance_t</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">distance</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> and <code class="docutils literal notranslate"><span class="pre">distance</span></code> property values. Used with <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="n">search</span></a></span> and <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10regressionE" title="oneapi::dal::knn::task::regression"><span class="n">regression</span></a></span> only.</p>
 </dd></dl>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn10descriptor14neighbor_countE">
-<span id="_CPPv3N6oneapi3dal3knn10descriptor14neighbor_countE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor14neighbor_countE"></span><span id="oneapi::dal::knn::descriptor::neighbor_count__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">neighbor_count</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor14neighbor_countE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The number of neighbors k.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_neighbor_count()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_neighbor_count(std::int64_t</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor14neighbor_countE" title="oneapi::dal::knn::descriptor::neighbor_count"><span class="pre">neighbor_count</span></a> <span class="pre">&gt;</span> <span class="pre">0</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn10descriptor8distanceE">
-<span id="_CPPv3N6oneapi3dal3knn10descriptor8distanceE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor8distanceE"></span><span id="oneapi::dal::knn::descriptor::distance__distance_tCR"></span><em class="property"><span class="pre">const</span></em> <span class="pre">distance_t</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">distance</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor8distanceE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Choose distance type for calculations. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a></code> only.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">const</span> <span class="pre">distance_t</span> <span class="pre">&amp;</span> <span class="pre">get_distance()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_distance(const</span> <span class="pre">distance_t</span> <span class="pre">&amp;dist)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn10descriptor14result_optionsE">
-<span id="_CPPv3N6oneapi3dal3knn10descriptor14result_optionsE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor14result_optionsE"></span><span id="oneapi::dal::knn::descriptor::result_options__result_option_id"></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn16result_option_idE" title="oneapi::dal::knn::result_option_id"><span class="pre">result_option_id</span></a> <code class="sig-name descname"><span class="pre">result_options</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn10descriptor14result_optionsE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor14result_optionsE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor14result_optionsE"></span><span id="oneapi::dal::knn::descriptor::result_options__result_option_id"></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn16result_option_idE" title="oneapi::dal::knn::result_option_id"><span class="n"><span class="pre">result_option_id</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">result_options</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Choose which results should be computed and returned.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2511,8 +2499,25 @@ based on the chosen distance metric.</p>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE">
-<span id="_CPPv3N6oneapi3dal3knn10descriptor11voting_modeE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor11voting_modeE"></span><span id="oneapi::dal::knn::descriptor::voting_mode__voting_mode"></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE" title="oneapi::dal::knn::descriptor::voting_mode"><span class="pre">voting_mode</span></a> <code class="sig-name descname"><span class="pre">voting_mode</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn10descriptor14neighbor_countE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor14neighbor_countE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor14neighbor_countE"></span><span id="oneapi::dal::knn::descriptor::neighbor_count__std::int64_t"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">neighbor_count</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor14neighbor_countE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of neighbors k.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_neighbor_count()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_neighbor_count(std::int64_t</span> <span class="pre">value)</span></code></div>
+</div>
+</dd>
+<dt>Invariants</dt><dd><div class="line-block">
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor14neighbor_countE" title="oneapi::dal::knn::descriptor::neighbor_count"><span class="n">neighbor_count</span></a><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">0</span></span></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor11voting_modeE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor11voting_modeE"></span><span id="oneapi::dal::knn::descriptor::voting_mode__voting_mode"></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE" title="oneapi::dal::knn::descriptor::voting_mode"><span class="n"><span class="pre">voting_mode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">voting_mode</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The voting mode.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2524,8 +2529,8 @@ based on the chosen distance metric.</p>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn10descriptor11class_countE">
-<span id="_CPPv3N6oneapi3dal3knn10descriptor11class_countE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor11class_countE"></span><span id="oneapi::dal::knn::descriptor::class_count__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">class_count</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn10descriptor11class_countE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor11class_countE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor11class_countE"></span><span id="oneapi::dal::knn::descriptor::class_count__std::int64_t"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">class_count</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The number of classes c.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2534,7 +2539,20 @@ based on the chosen distance metric.</p>
 </div>
 </dd>
 <dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="oneapi::dal::knn::descriptor::class_count"><span class="pre">class_count</span></a> <span class="pre">&gt;</span> <span class="pre">1</span></code></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="oneapi::dal::knn::descriptor::class_count"><span class="n">class_count</span></a><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">1</span></span></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn10descriptor8distanceE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor8distanceE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor8distanceE"></span><span id="oneapi::dal::knn::descriptor::distance__distance_tCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">distance_t</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">distance</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor8distanceE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Choose distance type for calculations. Used with <span class="cpp-expr sig sig-inline cpp"><span class="n">method</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="n">brute_force</span></a></span> only.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">const</span> <span class="pre">distance_t</span> <span class="pre">&amp;</span> <span class="pre">get_distance()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_distance(const</span> <span class="pre">distance_t</span> <span class="pre">&amp;dist)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2542,103 +2560,116 @@ based on the chosen distance metric.</p>
 
 </dd></dl>
 
-<section id="method-tags">
+<div class="section" id="method-tags">
 <h4>Method tags<a class="headerlink" href="#method-tags" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp struct">
-<dt id="_CPPv4N6oneapi3dal3knn6method11brute_forceE">
-<span id="_CPPv3N6oneapi3dal3knn6method11brute_forceE"></span><span id="_CPPv2N6oneapi3dal3knn6method11brute_forceE"></span><span id="oneapi::dal::knn::method::brute_force"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">brute_force</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn6method11brute_forceE">
+<span id="_CPPv3N6oneapi3dal3knn6method11brute_forceE"></span><span id="_CPPv2N6oneapi3dal3knn6method11brute_forceE"></span><span id="oneapi::dal::knn::method::brute_force"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">brute_force</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Tag-type that denotes <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-brute-force"><span class="std std-ref">brute-force</span></a> computational method.</p>
 </dd></dl>
 
 <dl class="cpp struct">
-<dt id="_CPPv4N6oneapi3dal3knn6method7kd_treeE">
-<span id="_CPPv3N6oneapi3dal3knn6method7kd_treeE"></span><span id="_CPPv2N6oneapi3dal3knn6method7kd_treeE"></span><span id="oneapi::dal::knn::method::kd_tree"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">kd_tree</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn6method7kd_treeE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn6method7kd_treeE">
+<span id="_CPPv3N6oneapi3dal3knn6method7kd_treeE"></span><span id="_CPPv2N6oneapi3dal3knn6method7kd_treeE"></span><span id="oneapi::dal::knn::method::kd_tree"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kd_tree</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn6method7kd_treeE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Tag-type that denotes <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-kd-tree"><span class="std std-ref">k-d tree</span></a> computational method.</p>
 </dd></dl>
 
 <dl class="cpp type">
-<dt id="_CPPv4N6oneapi3dal3knn6method10by_defaultE">
-<span id="_CPPv3N6oneapi3dal3knn6method10by_defaultE"></span><span id="_CPPv2N6oneapi3dal3knn6method10by_defaultE"></span><em class="property"><span class="pre">using</span> </em><code class="sig-name descname"><span class="pre">by_default</span></code> <span class="pre">=</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn6method10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn6method10by_defaultE">
+<span id="_CPPv3N6oneapi3dal3knn6method10by_defaultE"></span><span id="_CPPv2N6oneapi3dal3knn6method10by_defaultE"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">by_default</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="n"><span class="pre">brute_force</span></span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn6method10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Alias tag-type for <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-brute-force"><span class="std std-ref">brute-force</span></a> computational method.</p>
 </dd></dl>
 
-</section>
-<section id="task-tags">
+</div>
+<div class="section" id="task-tags">
 <h4>Task tags<a class="headerlink" href="#task-tags" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp struct">
-<dt id="_CPPv4N6oneapi3dal3knn4task14classificationE">
-<span id="_CPPv3N6oneapi3dal3knn4task14classificationE"></span><span id="_CPPv2N6oneapi3dal3knn4task14classificationE"></span><span id="oneapi::dal::knn::task::classification"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">classification</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn4task14classificationE">
+<span id="_CPPv3N6oneapi3dal3knn4task14classificationE"></span><span id="_CPPv2N6oneapi3dal3knn4task14classificationE"></span><span id="oneapi::dal::knn::task::classification"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">classification</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Tag-type that parameterizes entities used for solving <a class="reference internal" href="../../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification problem</span></a>.</p>
 </dd></dl>
 
 <dl class="cpp struct">
-<dt id="_CPPv4N6oneapi3dal3knn4task10regressionE">
-<span id="_CPPv3N6oneapi3dal3knn4task10regressionE"></span><span id="_CPPv2N6oneapi3dal3knn4task10regressionE"></span><span id="oneapi::dal::knn::task::regression"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">regression</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task10regressionE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn4task10regressionE">
+<span id="_CPPv3N6oneapi3dal3knn4task10regressionE"></span><span id="_CPPv2N6oneapi3dal3knn4task10regressionE"></span><span id="oneapi::dal::knn::task::regression"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">regression</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task10regressionE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Tag-type that parameterizes entities used for solving the <a class="reference internal" href="../../../onedal/glossary.html#term-Regression"><span class="xref std std-term">regression problem</span></a>.</p>
 </dd></dl>
 
 <dl class="cpp struct">
-<dt id="_CPPv4N6oneapi3dal3knn4task6searchE">
-<span id="_CPPv3N6oneapi3dal3knn4task6searchE"></span><span id="_CPPv2N6oneapi3dal3knn4task6searchE"></span><span id="oneapi::dal::knn::task::search"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">search</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn4task6searchE">
+<span id="_CPPv3N6oneapi3dal3knn4task6searchE"></span><span id="_CPPv2N6oneapi3dal3knn4task6searchE"></span><span id="oneapi::dal::knn::task::search"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">search</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Tag-type that parameterizes entities used for solving the <a class="reference internal" href="../../../onedal/glossary.html#term-Search"><span class="xref std std-term">search problem</span></a>.</p>
 </dd></dl>
 
 <dl class="cpp type">
-<dt id="_CPPv4N6oneapi3dal3knn4task10by_defaultE">
-<span id="_CPPv3N6oneapi3dal3knn4task10by_defaultE"></span><span id="_CPPv2N6oneapi3dal3knn4task10by_defaultE"></span><em class="property"><span class="pre">using</span> </em><code class="sig-name descname"><span class="pre">by_default</span></code> <span class="pre">=</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="pre">classification</span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn4task10by_defaultE">
+<span id="_CPPv3N6oneapi3dal3knn4task10by_defaultE"></span><span id="_CPPv2N6oneapi3dal3knn4task10by_defaultE"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">by_default</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="n"><span class="pre">classification</span></span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Alias tag-type for classification task.</p>
 </dd></dl>
 
-</section>
-</section>
-<section id="model">
+</div>
+</div>
+<div class="section" id="model">
 <h3>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h3>
 <dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal3knn5modelE">
-<span id="_CPPv3I0EN6oneapi3dal3knn5modelE"></span><span id="_CPPv2I0EN6oneapi3dal3knn5modelE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn5modelE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal3knn5modelE">
+<span id="_CPPv3I0EN6oneapi3dal3knn5modelE"></span><span id="_CPPv2I0EN6oneapi3dal3knn5modelE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">model</span></span></span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn5modelE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="pre">classification</span></a></code>.</p>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="n">classification</span></a></span>, <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="n">search</span></a></span> and <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10regressionE" title="oneapi::dal::knn::task::regression"><span class="n">regression</span></a></span>.</p>
 </dd>
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3knn5model5modelEv">
-<span id="_CPPv3N6oneapi3dal3knn5model5modelEv"></span><span id="_CPPv2N6oneapi3dal3knn5model5modelEv"></span><span id="oneapi::dal::knn::model::model"></span><code class="sig-name descname"><span class="pre">model</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn5model5modelEv" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn5model5modelEv">
+<span id="_CPPv3N6oneapi3dal3knn5model5modelEv"></span><span id="_CPPv2N6oneapi3dal3knn5model5modelEv"></span><span id="oneapi::dal::knn::model::model"></span><span class="sig-name descname"><span class="n"><span class="pre">model</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn5model5modelEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new instance of the class with the default property values.</p>
 </dd></dl>
 
 </dd></dl>
 
-</section>
-<section id="training-train">
-<span id="knn-t-api"></span><h3>Training <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train"><span class="pre">train</span></a><span class="sig-paren">(</span><span class="pre">...</span><span class="sig-paren">)</span></code><a class="headerlink" href="#training-train" title="Permalink to this headline">¶</a></h3>
-<section id="input">
+</div>
+<div class="section" id="training-train">
+<span id="knn-t-api"></span><h3>Training <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train"><span class="n">train</span></a><span class="p">(</span><span class="p">...</span><span class="p">)</span></span><a class="headerlink" href="#training-train" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="input">
 <span id="knn-t-api-input"></span><h4>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal3knn11train_inputE">
-<span id="_CPPv3I0EN6oneapi3dal3knn11train_inputE"></span><span id="_CPPv2I0EN6oneapi3dal3knn11train_inputE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">train_input</span></code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn11train_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal3knn11train_inputE">
+<span id="_CPPv3I0EN6oneapi3dal3knn11train_inputE"></span><span id="_CPPv2I0EN6oneapi3dal3knn11train_inputE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">train_input</span></span></span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn11train_inputE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="pre">search</span></a></code>.</p>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="n">classification</span></a></span> or <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="n">search</span></a></span>.</p>
 </dd>
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table">
-<span id="_CPPv3N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table"></span><span id="_CPPv2N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table"></span><span id="oneapi::dal::knn::train_input::train_input__tableCR.tableCR"></span><code class="sig-name descname"><span class="pre">train_input</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">data</span></em>, <em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">responses</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table">
+<span id="_CPPv3N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table"></span><span id="_CPPv2N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table"></span><span id="oneapi::dal::knn::train_input::train_input__tableCR.tableCR"></span><span class="sig-name descname"><span class="n"><span class="pre">train_input</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">responses</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">responses</span></code> property values.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5table">
-<span id="_CPPv3N6oneapi3dal3knn11train_input11train_inputERK5table"></span><span id="_CPPv2N6oneapi3dal3knn11train_input11train_inputERK5table"></span><span id="oneapi::dal::knn::train_input::train_input__tableCR"></span><code class="sig-name descname"><span class="pre">train_input</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5table" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5table">
+<span id="_CPPv3N6oneapi3dal3knn11train_input11train_inputERK5table"></span><span id="_CPPv2N6oneapi3dal3knn11train_input11train_inputERK5table"></span><span id="oneapi::dal::knn::train_input::train_input__tableCR"></span><span class="sig-name descname"><span class="n"><span class="pre">train_input</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">data</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5table" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn11train_input9responsesE">
-<span id="_CPPv3N6oneapi3dal3knn11train_input9responsesE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input9responsesE"></span><span id="oneapi::dal::knn::train_input::responses__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">responses</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input9responsesE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn11train_input4dataE">
+<span id="_CPPv3N6oneapi3dal3knn11train_input4dataE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input4dataE"></span><span id="oneapi::dal::knn::train_input::data__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The training set X. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn11train_input9responsesE">
+<span id="_CPPv3N6oneapi3dal3knn11train_input9responsesE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input9responsesE"></span><span id="oneapi::dal::knn::train_input::responses__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">responses</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input9responsesE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Vector of responses y for the training set X. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2650,8 +2681,8 @@ based on the chosen distance metric.</p>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn11train_input6labelsE">
-<span id="_CPPv3N6oneapi3dal3knn11train_input6labelsE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input6labelsE"></span><span id="oneapi::dal::knn::train_input::labels__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input6labelsE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn11train_input6labelsE">
+<span id="_CPPv3N6oneapi3dal3knn11train_input6labelsE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input6labelsE"></span><span id="oneapi::dal::knn::train_input::labels__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">labels</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input6labelsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Vector of labels y for the training set X. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2662,43 +2693,30 @@ based on the chosen distance metric.</p>
 </dl>
 </dd></dl>
 
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn11train_input4dataE">
-<span id="_CPPv3N6oneapi3dal3knn11train_input4dataE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input4dataE"></span><span id="oneapi::dal::knn::train_input::data__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The training set X. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
+</dd></dl>
+
 </div>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="result">
+<div class="section" id="result">
 <span id="knn-t-api-result"></span><h4>Result<a class="headerlink" href="#result" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal3knn12train_resultE">
-<span id="_CPPv3I0EN6oneapi3dal3knn12train_resultE"></span><span id="_CPPv2I0EN6oneapi3dal3knn12train_resultE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">train_result</span></code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn12train_resultE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal3knn12train_resultE">
+<span id="_CPPv3I0EN6oneapi3dal3knn12train_resultE"></span><span id="_CPPv2I0EN6oneapi3dal3knn12train_resultE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">train_result</span></span></span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn12train_resultE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="pre">search</span></a></code>.</p>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="n">classification</span></a></span> or <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="n">search</span></a></span>.</p>
 </dd>
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3knn12train_result12train_resultEv">
-<span id="_CPPv3N6oneapi3dal3knn12train_result12train_resultEv"></span><span id="_CPPv2N6oneapi3dal3knn12train_result12train_resultEv"></span><span id="oneapi::dal::knn::train_result::train_result"></span><code class="sig-name descname"><span class="pre">train_result</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12train_result12train_resultEv" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn12train_result12train_resultEv">
+<span id="_CPPv3N6oneapi3dal3knn12train_result12train_resultEv"></span><span id="_CPPv2N6oneapi3dal3knn12train_result12train_resultEv"></span><span id="oneapi::dal::knn::train_result::train_result"></span><span class="sig-name descname"><span class="n"><span class="pre">train_result</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12train_result12train_resultEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new instance of the class with the default property values.</p>
 </dd></dl>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn12train_result5modelE">
-<span id="_CPPv3N6oneapi3dal3knn12train_result5modelE"></span><span id="_CPPv2N6oneapi3dal3knn12train_result5modelE"></span><span id="oneapi::dal::knn::train_result::model__model:Task:CR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal3knn12train_result5modelE" title="oneapi::dal::knn::train_result::model"><span class="pre">model</span></a><span class="pre">&lt;</span><span class="pre">Task</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12train_result5modelE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn12train_result5modelE">
+<span id="_CPPv3N6oneapi3dal3knn12train_result5modelE"></span><span id="_CPPv2N6oneapi3dal3knn12train_result5modelE"></span><span id="oneapi::dal::knn::train_result::model__model:Task:CR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn12train_result5modelE" title="oneapi::dal::knn::train_result::model"><span class="n"><span class="pre">model</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Task</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">model</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12train_result5modelE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The trained k-NN model. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2711,58 +2729,58 @@ based on the chosen distance metric.</p>
 
 </dd></dl>
 
-</section>
-<section id="operation">
+</div>
+<div class="section" id="operation">
 <h4>Operation<a class="headerlink" href="#operation" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE">
-<span id="_CPPv3I0EN6oneapi3dal3knn5trainERK10DescriptorRKN3knn11train_inputE"></span><span id="_CPPv2I0EN6oneapi3dal3knn5trainERK10DescriptorRKN3knn11train_inputE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Descriptor</span></code><span class="pre">&gt;</span><br /><span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn12train_resultE" title="oneapi::dal::knn::train_result"><span class="pre">train_result</span></a> <code class="sig-name descname"><span class="pre">train</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::Descriptor"><span class="pre">Descriptor</span></a> <span class="pre">&amp;</span><em><span class="pre">desc</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn11train_inputE" title="oneapi::dal::knn::train_input"><span class="pre">train_input</span></a> <span class="pre">&amp;</span><em><span class="pre">input</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE">
+<span id="_CPPv3I0EN6oneapi3dal3knn5trainERK10DescriptorRKN3knn11train_inputE"></span><span id="_CPPv2I0EN6oneapi3dal3knn5trainERK10DescriptorRKN3knn11train_inputE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Descriptor</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="n"><span class="pre">knn</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn12train_resultE" title="oneapi::dal::knn::train_result"><span class="n"><span class="pre">train_result</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">train</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::Descriptor"><span class="n"><span class="pre">Descriptor</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">desc</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">knn</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn11train_inputE" title="oneapi::dal::knn::train_input"><span class="n"><span class="pre">train_input</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">input</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>desc</strong> – k-NN algorithm descriptor <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor"><span class="pre">descriptor</span></a></code></p></li>
+<li><p><strong>desc</strong> – k-NN algorithm descriptor <span class="cpp-expr sig sig-inline cpp"><span class="n">knn</span><span class="p">::</span><a class="reference internal" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor"><span class="n">descriptor</span></a></span></p></li>
 <li><p><strong>input</strong> – Input data for the training operation</p></li>
 </ul>
 </dd>
 </dl>
 <dl>
 <dt>Preconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">data</span><span class="pre">.</span><span class="pre">has_data</span> <span class="pre">==</span> <span class="pre">true</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">labels</span><span class="pre">.</span><span class="pre">has_data</span> <span class="pre">==</span> <span class="pre">true</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">data</span><span class="pre">.</span><span class="pre">row_count</span> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">labels</span><span class="pre">.</span><span class="pre">row_count</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">labels</span><span class="pre">.</span><span class="pre">column_count</span> <span class="pre">==</span> <span class="pre">1</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">labels</span><span class="pre">[</span><span class="pre">i</span><span class="pre">]</span> <span class="pre">&gt;=</span> <span class="pre">0</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">labels</span><span class="pre">[</span><span class="pre">i</span><span class="pre">]</span> <span class="pre">&lt;</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::desc"><span class="pre">desc</span></a><span class="pre">.</span><span class="pre">class_count</span></code></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="n">input</span></a><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">has_data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">true</span></span></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="n">input</span></a><span class="p">.</span><span class="n">labels</span><span class="p">.</span><span class="n">has_data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">true</span></span></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="n">input</span></a><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">row_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="n">input</span></a><span class="p">.</span><span class="n">labels</span><span class="p">.</span><span class="n">row_count</span></span></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="n">input</span></a><span class="p">.</span><span class="n">labels</span><span class="p">.</span><span class="n">column_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">1</span></span></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="n">input</span></a><span class="p">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0</span></span></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::input"><span class="n">input</span></a><span class="p">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE" title="oneapi::dal::knn::train::desc"><span class="n">desc</span></a><span class="p">.</span><span class="n">class_count</span></span></div>
 </div>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
-</section>
-<section id="inference-infer">
-<span id="knn-i-api"></span><h3>Inference <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer"><span class="pre">infer</span></a><span class="sig-paren">(</span><span class="pre">...</span><span class="sig-paren">)</span></code><a class="headerlink" href="#inference-infer" title="Permalink to this headline">¶</a></h3>
-<section id="knn-i-api-input">
+</div>
+</div>
+<div class="section" id="inference-infer">
+<span id="knn-i-api"></span><h3>Inference <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer"><span class="n">infer</span></a><span class="p">(</span><span class="p">...</span><span class="p">)</span></span><a class="headerlink" href="#inference-infer" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="knn-i-api-input">
 <span id="id1"></span><h4>Input<a class="headerlink" href="#knn-i-api-input" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal3knn11infer_inputE">
-<span id="_CPPv3I0EN6oneapi3dal3knn11infer_inputE"></span><span id="_CPPv2I0EN6oneapi3dal3knn11infer_inputE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">infer_input</span></code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn11infer_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal3knn11infer_inputE">
+<span id="_CPPv3I0EN6oneapi3dal3knn11infer_inputE"></span><span id="_CPPv2I0EN6oneapi3dal3knn11infer_inputE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">infer_input</span></span></span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn11infer_inputE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="pre">search</span></a></code>.</p>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="n">classification</span></a></span> or <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="n">search</span></a></span>.</p>
 </dd>
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE">
-<span id="_CPPv3N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE"></span><span id="_CPPv2N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE"></span><span id="oneapi::dal::knn::infer_input::infer_input__tableCR.model:Task:CR"></span><code class="sig-name descname"><span class="pre">infer_input</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">data</span></em>, <em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE" title="oneapi::dal::knn::infer_input::infer_input::model"><span class="pre">model</span></a><span class="pre">&lt;</span><span class="pre">Task</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><em><span class="pre">model</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE">
+<span id="_CPPv3N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE"></span><span id="_CPPv2N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE"></span><span id="oneapi::dal::knn::infer_input::infer_input__tableCR.model:Task:CR"></span><span class="sig-name descname"><span class="n"><span class="pre">infer_input</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE" title="oneapi::dal::knn::infer_input::infer_input::model"><span class="n"><span class="pre">model</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Task</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">model</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">model</span></code> and <code class="docutils literal notranslate"><span class="pre">data</span></code> property values.</p>
 </dd></dl>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn11infer_input4dataE">
-<span id="_CPPv3N6oneapi3dal3knn11infer_input4dataE"></span><span id="_CPPv2N6oneapi3dal3knn11infer_input4dataE"></span><span id="oneapi::dal::knn::infer_input::data__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11infer_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn11infer_input4dataE">
+<span id="_CPPv3N6oneapi3dal3knn11infer_input4dataE"></span><span id="_CPPv2N6oneapi3dal3knn11infer_input4dataE"></span><span id="oneapi::dal::knn::infer_input::data__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11infer_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The dataset for inference <span class="math notranslate nohighlight">\(X'\)</span>. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2774,8 +2792,8 @@ based on the chosen distance metric.</p>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn11infer_input5modelE">
-<span id="_CPPv3N6oneapi3dal3knn11infer_input5modelE"></span><span id="_CPPv2N6oneapi3dal3knn11infer_input5modelE"></span><span id="oneapi::dal::knn::infer_input::model__model:Task:CR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal3knn11infer_input5modelE" title="oneapi::dal::knn::infer_input::model"><span class="pre">model</span></a><span class="pre">&lt;</span><span class="pre">Task</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11infer_input5modelE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn11infer_input5modelE">
+<span id="_CPPv3N6oneapi3dal3knn11infer_input5modelE"></span><span id="_CPPv2N6oneapi3dal3knn11infer_input5modelE"></span><span id="oneapi::dal::knn::infer_input::model__model:Task:CR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn11infer_input5modelE" title="oneapi::dal::knn::infer_input::model"><span class="n"><span class="pre">model</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Task</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">model</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11infer_input5modelE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The trained k-NN model. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2788,67 +2806,28 @@ based on the chosen distance metric.</p>
 
 </dd></dl>
 
-</section>
-<section id="knn-i-api-result">
+</div>
+<div class="section" id="knn-i-api-result">
 <span id="id2"></span><h4>Result<a class="headerlink" href="#knn-i-api-result" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal3knn12infer_resultE">
-<span id="_CPPv3I0EN6oneapi3dal3knn12infer_resultE"></span><span id="_CPPv2I0EN6oneapi3dal3knn12infer_resultE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">infer_result</span></code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn12infer_resultE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal3knn12infer_resultE">
+<span id="_CPPv3I0EN6oneapi3dal3knn12infer_resultE"></span><span id="_CPPv2I0EN6oneapi3dal3knn12infer_resultE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">infer_result</span></span></span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn12infer_resultE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="pre">search</span></a></code>.</p>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="n">classification</span></a></span> or <span class="cpp-expr sig sig-inline cpp"><span class="n">task</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="n">search</span></a></span>.</p>
 </dd>
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3knn12infer_result12infer_resultEv">
-<span id="_CPPv3N6oneapi3dal3knn12infer_result12infer_resultEv"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result12infer_resultEv"></span><span id="oneapi::dal::knn::infer_result::infer_result"></span><code class="sig-name descname"><span class="pre">infer_result</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result12infer_resultEv" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn12infer_result12infer_resultEv">
+<span id="_CPPv3N6oneapi3dal3knn12infer_result12infer_resultEv"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result12infer_resultEv"></span><span id="oneapi::dal::knn::infer_result::infer_result"></span><span class="sig-name descname"><span class="n"><span class="pre">infer_result</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result12infer_resultEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a new instance of the class with the default property values.</p>
 </dd></dl>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn12infer_result9responsesE">
-<span id="_CPPv3N6oneapi3dal3knn12infer_result9responsesE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result9responsesE"></span><span id="oneapi::dal::knn::infer_result::responses__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">responses</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result9responsesE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The predicted responses. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_responses()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_not_search_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_responses(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn12infer_result6labelsE">
-<span id="_CPPv3N6oneapi3dal3knn12infer_result6labelsE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result6labelsE"></span><span id="oneapi::dal::knn::infer_result::labels__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result6labelsE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The predicted labels. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn12infer_result7indicesE">
-<span id="_CPPv3N6oneapi3dal3knn12infer_result7indicesE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result7indicesE"></span><span id="oneapi::dal::knn::infer_result::indices__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">indices</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result7indicesE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Indices of nearest neighbors. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_indices()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_indices(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn12infer_result14result_optionsE">
-<span id="_CPPv3N6oneapi3dal3knn12infer_result14result_optionsE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result14result_optionsE"></span><span id="oneapi::dal::knn::infer_result::result_options__result_option_idCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal3knn16result_option_idE" title="oneapi::dal::knn::result_option_id"><span class="pre">result_option_id</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">result_options</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn12infer_result14result_optionsE">
+<span id="_CPPv3N6oneapi3dal3knn12infer_result14result_optionsE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result14result_optionsE"></span><span id="oneapi::dal::knn::infer_result::result_options__result_option_idCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn16result_option_idE" title="oneapi::dal::knn::result_option_id"><span class="n"><span class="pre">result_option_id</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">result_options</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Result options that indicates availability of the properties.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2860,8 +2839,8 @@ based on the chosen distance metric.</p>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn12infer_result9distancesE">
-<span id="_CPPv3N6oneapi3dal3knn12infer_result9distancesE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result9distancesE"></span><span id="oneapi::dal::knn::infer_result::distances__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">distances</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result9distancesE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn12infer_result9distancesE">
+<span id="_CPPv3N6oneapi3dal3knn12infer_result9distancesE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result9distancesE"></span><span id="oneapi::dal::knn::infer_result::distances__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">distances</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result9distancesE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Distances to nearest neighbors. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
@@ -2872,74 +2851,113 @@ based on the chosen distance metric.</p>
 </dl>
 </dd></dl>
 
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn12infer_result7indicesE">
+<span id="_CPPv3N6oneapi3dal3knn12infer_result7indicesE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result7indicesE"></span><span id="oneapi::dal::knn::infer_result::indices__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">indices</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result7indicesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Indices of nearest neighbors. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_indices()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_indices(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
-</section>
-<section id="id3">
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn12infer_result9responsesE">
+<span id="_CPPv3N6oneapi3dal3knn12infer_result9responsesE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result9responsesE"></span><span id="oneapi::dal::knn::infer_result::responses__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">responses</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result9responsesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The predicted responses. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_responses()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_not_search_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_responses(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal3knn12infer_result6labelsE">
+<span id="_CPPv3N6oneapi3dal3knn12infer_result6labelsE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result6labelsE"></span><span id="oneapi::dal::knn::infer_result::labels__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">labels</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result6labelsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The predicted labels. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="id3">
 <h4>Operation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
 <dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE">
-<span id="_CPPv3I0EN6oneapi3dal3knn5inferERK10DescriptorRKN3knn11infer_inputE"></span><span id="_CPPv2I0EN6oneapi3dal3knn5inferERK10DescriptorRKN3knn11infer_inputE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Descriptor</span></code><span class="pre">&gt;</span><br /><span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn12infer_resultE" title="oneapi::dal::knn::infer_result"><span class="pre">infer_result</span></a> <code class="sig-name descname"><span class="pre">infer</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer::Descriptor"><span class="pre">Descriptor</span></a> <span class="pre">&amp;</span><em><span class="pre">desc</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn11infer_inputE" title="oneapi::dal::knn::infer_input"><span class="pre">infer_input</span></a> <span class="pre">&amp;</span><em><span class="pre">input</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE">
+<span id="_CPPv3I0EN6oneapi3dal3knn5inferERK10DescriptorRKN3knn11infer_inputE"></span><span id="_CPPv2I0EN6oneapi3dal3knn5inferERK10DescriptorRKN3knn11infer_inputE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Descriptor</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="n"><span class="pre">knn</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn12infer_resultE" title="oneapi::dal::knn::infer_result"><span class="n"><span class="pre">infer_result</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">infer</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer::Descriptor"><span class="n"><span class="pre">Descriptor</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">desc</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">knn</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn11infer_inputE" title="oneapi::dal::knn::infer_input"><span class="n"><span class="pre">infer_input</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">input</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>desc</strong> – k-NN algorithm descriptor <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor"><span class="pre">descriptor</span></a></code></p></li>
+<li><p><strong>desc</strong> – k-NN algorithm descriptor <span class="cpp-expr sig sig-inline cpp"><span class="n">knn</span><span class="p">::</span><a class="reference internal" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor"><span class="n">descriptor</span></a></span></p></li>
 <li><p><strong>input</strong> – Input data for the inference operation</p></li>
 </ul>
 </dd>
 </dl>
 <dl>
 <dt>Preconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">data</span><span class="pre">.</span><span class="pre">has_data</span> <span class="pre">==</span> <span class="pre">true</span></code></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer::input"><span class="n">input</span></a><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">has_data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">true</span></span></div>
 </div>
 </dd>
 <dt>Postconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">result</span><span class="pre">.</span><span class="pre">labels</span><span class="pre">.</span><span class="pre">row_count</span> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">data</span><span class="pre">.</span><span class="pre">row_count</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">result</span><span class="pre">.</span><span class="pre">labels</span><span class="pre">.</span><span class="pre">column_count</span> <span class="pre">==</span> <span class="pre">1</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">result</span><span class="pre">.</span><span class="pre">labels</span><span class="pre">[</span><span class="pre">i</span><span class="pre">]</span> <span class="pre">&gt;=</span> <span class="pre">0</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">result</span><span class="pre">.</span><span class="pre">labels</span><span class="pre">[</span><span class="pre">i</span><span class="pre">]</span> <span class="pre">&lt;</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer::desc"><span class="pre">desc</span></a><span class="pre">.</span><span class="pre">class_count</span></code></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><span class="n">result</span><span class="p">.</span><span class="n">labels</span><span class="p">.</span><span class="n">row_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer::input"><span class="n">input</span></a><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">row_count</span></span></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><span class="n">result</span><span class="p">.</span><span class="n">labels</span><span class="p">.</span><span class="n">column_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">1</span></span></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><span class="n">result</span><span class="p">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0</span></span></div>
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><span class="n">result</span><span class="p">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE" title="oneapi::dal::knn::infer::desc"><span class="n">desc</span></a><span class="p">.</span><span class="n">class_count</span></span></div>
 </div>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
-</section>
-</section>
-<section id="usage-example">
+</div>
+</div>
+</div>
+<div class="section" id="usage-example">
 <h2>Usage example<a class="headerlink" href="#usage-example" title="Permalink to this headline">¶</a></h2>
-<section id="training">
+<div class="section" id="training">
 <h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">knn</span><span class="o">::</span><span class="n">model</span><span class="o">&lt;&gt;</span> <span class="n">run_training</span><span class="p">(</span><span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">data</span><span class="p">,</span>
-                        <span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">labels</span><span class="p">)</span> <span class="p">{</span>
-   <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">class_count</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
-   <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">neighbor_count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">knn_desc</span> <span class="o">=</span> <span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">class_count</span><span class="p">,</span> <span class="n">neighbor_count</span><span class="p">};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">knn</span><span class="o">::</span><span class="n">model</span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">run_training</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"></span>
+<span class="w">                        </span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">labels</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">class_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">neighbor_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">knn_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">class_count</span><span class="p">,</span><span class="w"> </span><span class="n">neighbor_count</span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">knn_desc</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">);</span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train</span><span class="p">(</span><span class="n">knn_desc</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">labels</span><span class="p">);</span><span class="w"></span>
 
-   <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="n">get_model</span><span class="p">();</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">get_model</span><span class="p">();</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
-<section id="inference">
+</div>
+<div class="section" id="inference">
 <h3>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="nf">run_inference</span><span class="p">(</span><span class="k">const</span> <span class="n">knn</span><span class="o">::</span><span class="n">model</span><span class="o">&lt;&gt;&amp;</span> <span class="n">model</span><span class="p">,</span>
-                  <span class="k">const</span> <span class="n">table</span><span class="o">&amp;</span> <span class="n">new_data</span><span class="p">)</span> <span class="p">{</span>
-   <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">class_count</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
-   <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">neighbor_count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">knn_desc</span> <span class="o">=</span> <span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">class_count</span><span class="p">,</span> <span class="n">neighbor_count</span><span class="p">};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">table</span><span class="w"> </span><span class="nf">run_inference</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">knn</span><span class="o">::</span><span class="n">model</span><span class="o">&lt;&gt;&amp;</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"></span>
+<span class="w">                  </span><span class="k">const</span><span class="w"> </span><span class="n">table</span><span class="o">&amp;</span><span class="w"> </span><span class="n">new_data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">class_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">neighbor_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">knn_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span><span class="n">class_count</span><span class="p">,</span><span class="w"> </span><span class="n">neighbor_count</span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">const</span> <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">infer</span><span class="p">(</span><span class="n">knn_desc</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">new_data</span><span class="p">);</span>
+<span class="w">   </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">infer</span><span class="p">(</span><span class="n">knn_desc</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">new_data</span><span class="p">);</span><span class="w"></span>
 
-   <span class="n">print_table</span><span class="p">(</span><span class="s">&quot;labels&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">get_labels</span><span class="p">());</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="n">print_table</span><span class="p">(</span><span class="s">&quot;labels&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">get_labels</span><span class="p">());</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
-</section>
-<section id="examples">
+</div>
+</div>
+<div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-b25lQVBJIERQQysr" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-b25lQVBJIERQQysr" name="b25lQVBJIERQQysr" role="tab" tabindex="0">oneAPI DPC++</button><button aria-controls="panel-0-b25lQVBJIEMrKw==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-b25lQVBJIEMrKw==" name="b25lQVBJIEMrKw==" role="tab" tabindex="-1">oneAPI C++</button><button aria-controls="panel-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" name="UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" role="tab" tabindex="-1">Python* with DPC++ support</button></div><div aria-labelledby="tab-0-b25lQVBJIERQQysr" class="sphinx-tabs-panel group-tab" id="panel-0-b25lQVBJIERQQysr" name="b25lQVBJIERQQysr" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
@@ -2957,23 +2975,34 @@ based on the chosen distance metric.</p>
 <li><p><a class="reference external" href="https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/bf_knn_classification_batch.py">bf_knn_classification_batch.py</a></p></li>
 </ul>
 </div></div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="index.html" title="previous page">Nearest Neighbors (kNN)</a>
-    <a class='right-next' id="next-link" href="../pairwise-distances/index.html" title="next page">Pairwise Distances</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Nearest Neighbors (kNN)</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="../pairwise-distances/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Pairwise Distances</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2990,8 +3019,7 @@ based on the chosen distance metric.</p>
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

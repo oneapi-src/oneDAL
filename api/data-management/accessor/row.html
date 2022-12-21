@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Row accessor &#8212; oneDAL  documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,13 +22,13 @@
       
 
     
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
@@ -68,6 +67,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -77,9 +80,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -101,7 +104,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -227,6 +230,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -357,6 +370,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -421,7 +439,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1717,7 +1735,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2097,7 +2115,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2192,7 +2210,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#usage-example">
@@ -2215,60 +2233,60 @@
         
               <div>
                 
-  <section id="row-accessor">
+  <div class="section" id="row-accessor">
 <span id="api-row-accessor"></span><h1>Row accessor<a class="headerlink" href="#row-accessor" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">row_accessor</span></code> class provides a read-only access to the rows of the
 <a class="reference internal" href="../../../onedal/data-management/index.html#table"><span class="std std-ref">table</span></a> as <a class="reference internal" href="../../../onedal/glossary.html#term-Contiguous-data"><span class="xref std std-term">contiguous</span></a> <a class="reference internal" href="../../../onedal/glossary.html#term-Homogeneous-data"><span class="xref std std-term">homogeneous</span></a> array.</p>
-<section id="usage-example">
+<div class="section" id="usage-example">
 <h2>Usage example<a class="headerlink" href="#usage-example" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;CL/sycl.hpp&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CL/sycl.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/table/homogen.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/table/row_accessor.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;oneapi/dal/table/homogen.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;oneapi/dal/table/row_accessor.hpp&quot;</span><span class="cp"></span>
 
-<span class="k">using</span> <span class="k">namespace</span> <span class="nn">oneapi</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">oneapi</span><span class="p">;</span><span class="w"></span>
 
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-   <span class="n">sycl</span><span class="o">::</span><span class="n">queue</span> <span class="n">queue</span> <span class="p">{</span> <span class="n">sycl</span><span class="o">::</span><span class="n">default_selector</span><span class="p">()</span> <span class="p">};</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="w"> </span><span class="n">queue</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">default_selector</span><span class="p">()</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">constexpr</span> <span class="kt">float</span> <span class="n">host_data</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-      <span class="mf">1.0f</span><span class="p">,</span> <span class="mf">1.5f</span><span class="p">,</span> <span class="mf">2.0f</span><span class="p">,</span>
-      <span class="mf">2.1f</span><span class="p">,</span> <span class="mf">3.2f</span><span class="p">,</span> <span class="mf">3.7f</span><span class="p">,</span>
-      <span class="mf">4.0f</span><span class="p">,</span> <span class="mf">4.9f</span><span class="p">,</span> <span class="mf">5.0f</span><span class="p">,</span>
-      <span class="mf">5.2f</span><span class="p">,</span> <span class="mf">6.1f</span><span class="p">,</span> <span class="mf">6.2f</span>
-   <span class="p">};</span>
+<span class="w">   </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">host_data</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="mf">1.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5f</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="mf">2.1f</span><span class="p">,</span><span class="w"> </span><span class="mf">3.2f</span><span class="p">,</span><span class="w"> </span><span class="mf">3.7f</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="mf">4.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">4.9f</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0f</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="mf">5.2f</span><span class="p">,</span><span class="w"> </span><span class="mf">6.1f</span><span class="p">,</span><span class="w"> </span><span class="mf">6.2f</span><span class="w"></span>
+<span class="w">   </span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">row_count</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
-   <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">column_count</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="w">   </span><span class="k">constexpr</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">row_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="k">constexpr</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">column_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"></span>
 
-   <span class="k">auto</span> <span class="n">shared_data</span> <span class="o">=</span> <span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">row_count</span> <span class="o">*</span> <span class="n">column_count</span><span class="p">,</span> <span class="n">queue</span><span class="p">);</span>
-   <span class="k">auto</span> <span class="n">event</span> <span class="o">=</span> <span class="n">queue</span><span class="p">.</span><span class="n">memcpy</span><span class="p">(</span><span class="n">shared_data</span><span class="p">,</span> <span class="n">host_data</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">row_count</span> <span class="o">*</span> <span class="n">column_count</span><span class="p">);</span>
-   <span class="k">auto</span> <span class="n">t</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">homogen_table</span><span class="o">::</span><span class="n">wrap</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">row_count</span><span class="p">,</span> <span class="n">column_count</span><span class="p">,</span> <span class="p">{</span> <span class="n">event</span> <span class="p">});</span>
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">shared_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">row_count</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">column_count</span><span class="p">,</span><span class="w"> </span><span class="n">queue</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queue</span><span class="p">.</span><span class="n">memcpy</span><span class="p">(</span><span class="n">shared_data</span><span class="p">,</span><span class="w"> </span><span class="n">host_data</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">row_count</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">column_count</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">homogen_table</span><span class="o">::</span><span class="n">wrap</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">row_count</span><span class="p">,</span><span class="w"> </span><span class="n">column_count</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
 
-   <span class="c1">// Accessing second and third rows of the table</span>
-   <span class="n">dal</span><span class="o">::</span><span class="n">row_accessor</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">float</span><span class="o">&gt;</span> <span class="n">acc</span> <span class="p">{</span> <span class="n">t</span> <span class="p">};</span>
+<span class="w">   </span><span class="c1">// Accessing second and third rows of the table</span>
+<span class="w">   </span><span class="n">dal</span><span class="o">::</span><span class="n">row_accessor</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">acc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 
-   <span class="k">auto</span> <span class="n">block</span> <span class="o">=</span> <span class="n">acc</span><span class="p">.</span><span class="n">pull</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">});</span>
-   <span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">block</span><span class="p">.</span><span class="n">get_count</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">block</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;, &quot;</span><span class="p">;</span>
-   <span class="p">}</span>
-   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">acc</span><span class="p">.</span><span class="n">pull</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">});</span><span class="w"></span>
+<span class="w">   </span><span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">get_count</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">block</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, &quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 
-   <span class="n">sycl</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">shared_data</span><span class="p">,</span> <span class="n">queue</span><span class="p">);</span>
-   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="n">sycl</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">shared_data</span><span class="p">,</span><span class="w"> </span><span class="n">queue</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</section>
-<section id="programming-interface">
+</div>
+<div class="section" id="programming-interface">
 <h2>Programming interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>All types and functions in this section are declared in the
 <code class="docutils literal notranslate"><span class="pre">oneapi::dal</span></code> namespace and be available via inclusion of the
 <code class="docutils literal notranslate"><span class="pre">oneapi/dal/table/row_accessor.hpp</span></code> header file.</p>
 <dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal12row_accessorE">
-<span id="_CPPv3I0EN6oneapi3dal12row_accessorE"></span><span id="_CPPv2I0EN6oneapi3dal12row_accessorE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">T</span></code><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">row_accessor</span></code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal12row_accessorE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN6oneapi3dal12row_accessorE">
+<span id="_CPPv3I0EN6oneapi3dal12row_accessorE"></span><span id="_CPPv2I0EN6oneapi3dal12row_accessorE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">row_accessor</span></span></span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal12row_accessorE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
 <dd class="field-odd"><p><strong>T</strong> – The type of data values in blocks returned by the accessor. Should be const-qualified for read-only access. An accessor supports at least <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>, and <code class="docutils literal notranslate"><span class="pre">std::int32_t</span></code>.</p>
@@ -2276,20 +2294,20 @@
 </dl>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table">
-<span id="_CPPv3I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table"></span><span id="_CPPv2I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">U</span></code> <span class="pre">=</span> <span class="pre">T</span><span class="pre">,</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">enable_if_t</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">is_const_v</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table" title="oneapi::dal::row_accessor::row_accessor::U"><span class="pre">U</span></a><span class="pre">&gt;</span><span class="pre">,</span> <span class="pre">int</span><span class="pre">&gt;</span> <span class="pre">=</span> <span class="pre">0</span><span class="pre">&gt;</span><br /><code class="sig-name descname"><span class="pre">row_accessor</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table" title="oneapi::dal::row_accessor::row_accessor::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">table</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table">
+<span id="_CPPv3I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table"></span><span id="_CPPv2I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">enable_if_t</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">is_const_v</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table" title="oneapi::dal::row_accessor::row_accessor::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="sig-name descname"><span class="n"><span class="pre">row_accessor</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table" title="oneapi::dal::row_accessor::row_accessor::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">table</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0_NSt11enable_if_tINSt10is_const_vI1UEEiEEEN6oneapi3dal12row_accessor12row_accessorERK5table" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Creates a read-only accessor object from the table. Available only for const-qualified <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal12row_accessor12row_accessorERKN6detail13table_builderE">
-<span id="_CPPv3N6oneapi3dal12row_accessor12row_accessorERKN6detail13table_builderE"></span><span id="_CPPv2N6oneapi3dal12row_accessor12row_accessorERKN6detail13table_builderE"></span><span id="oneapi::dal::row_accessor::row_accessor__detail::table_builderCR"></span><code class="sig-name descname"><span class="pre">row_accessor</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">detail</span><span class="pre">::</span><span class="pre">table_builder</span> <span class="pre">&amp;</span><em><span class="pre">builder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal12row_accessor12row_accessorERKN6detail13table_builderE" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal12row_accessor12row_accessorERKN6detail13table_builderE">
+<span id="_CPPv3N6oneapi3dal12row_accessor12row_accessorERKN6detail13table_builderE"></span><span id="_CPPv2N6oneapi3dal12row_accessor12row_accessorERKN6detail13table_builderE"></span><span id="oneapi::dal::row_accessor::row_accessor__detail::table_builderCR"></span><span class="sig-name descname"><span class="n"><span class="pre">row_accessor</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">detail</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">table_builder</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">builder</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal12row_accessor12row_accessorERKN6detail13table_builderE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <p><strong>Public Methods</strong></p>
 <dl class="cpp function">
-<dt id="_CPPv4NK6oneapi3dal12row_accessor4pullERK5range">
-<span id="_CPPv3NK6oneapi3dal12row_accessor4pullERK5range"></span><span id="_CPPv2NK6oneapi3dal12row_accessor4pullERK5range"></span><span id="oneapi::dal::row_accessor::pull__rangeCRC"></span><span class="pre">dal</span><span class="pre">::</span><a class="reference internal" href="../array.html#_CPPv4I0EN6oneapi3dal5arrayE" title="oneapi::dal::array"><span class="pre">array</span></a><span class="pre">&lt;</span><span class="pre">data_t</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">pull</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">range</span> <span class="pre">&amp;</span><em><span class="pre">row_range</span></em> <span class="pre">=</span> <span class="pre">{</span><span class="pre">0</span><span class="pre">,</span> <span class="pre">-</span><span class="pre">1</span><span class="pre">}</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK6oneapi3dal12row_accessor4pullERK5range" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4NK6oneapi3dal12row_accessor4pullERK5range">
+<span id="_CPPv3NK6oneapi3dal12row_accessor4pullERK5range"></span><span id="_CPPv2NK6oneapi3dal12row_accessor4pullERK5range"></span><span id="oneapi::dal::row_accessor::pull__rangeCRC"></span><span class="n"><span class="pre">dal</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="../array.html#_CPPv4I0EN6oneapi3dal5arrayE" title="oneapi::dal::array"><span class="n"><span class="pre">array</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">data_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pull</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">range</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">row_range</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK6oneapi3dal12row_accessor4pullERK5range" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Provides access to the rows of the table. The method returns an array that directly points to the memory within the table if it is possible. In that case, the array refers to the memory as to immutable data. Otherwise, the new memory block is allocated, the data from the table rows is converted and copied into this block. In this case, the array refers to the block as to mutable data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2305,9 +2323,9 @@
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range">
-<span id="_CPPv3NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range"></span><span id="_CPPv2NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range"></span><span id="oneapi::dal::row_accessor::pull__dal::array:data_t:R.rangeCRC"></span><span class="pre">T</span> <span class="pre">*</span><code class="sig-name descname"><span class="pre">pull</span></code><span class="sig-paren">(</span><span class="pre">dal</span><span class="pre">::</span><a class="reference internal" href="../array.html#_CPPv4I0EN6oneapi3dal5arrayE" title="oneapi::dal::array"><span class="pre">array</span></a><span class="pre">&lt;</span><span class="pre">data_t</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><em><span class="pre">block</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">range</span> <span class="pre">&amp;</span><em><span class="pre">row_range</span></em> <span class="pre">=</span> <span class="pre">{</span><span class="pre">0</span><span class="pre">,</span> <span class="pre">-</span><span class="pre">1</span><span class="pre">}</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Provides access to the rows of the table. The method returns an array that directly points to the memory within the table if it is possible. In that case, the array refers to the memory as to immutable data. Otherwise, the new memory block is allocated, the data from the table rows is converted and copied into this block. In this case, the array refers to the block as to mutable data. The method updates the <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range" title="oneapi::dal::row_accessor::pull::block"><span class="pre">block</span></a></code> array.</p>
+<dt class="sig sig-object cpp" id="_CPPv4NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range">
+<span id="_CPPv3NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range"></span><span id="_CPPv2NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range"></span><span id="oneapi::dal::row_accessor::pull__dal::array:data_t:R.rangeCRC"></span><span class="n"><span class="pre">T</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">pull</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">dal</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="../array.html#_CPPv4I0EN6oneapi3dal5arrayE" title="oneapi::dal::array"><span class="n"><span class="pre">array</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">data_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">block</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">range</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">row_range</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Provides access to the rows of the table. The method returns an array that directly points to the memory within the table if it is possible. In that case, the array refers to the memory as to immutable data. Otherwise, the new memory block is allocated, the data from the table rows is converted and copied into this block. In this case, the array refers to the block as to mutable data. The method updates the <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4NK6oneapi3dal12row_accessor4pullERN3dal5arrayI6data_tEERK5range" title="oneapi::dal::row_accessor::pull::block"><span class="n">block</span></a></span> array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -2325,29 +2343,40 @@
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4I0_NSt11enable_if_tIXntNSt10is_const_vI1UEEEiEEEN6oneapi3dal12row_accessor4pushEvRKN3dal5arrayI6data_tEERK5range">
-<span id="_CPPv3I0_NSt11enable_if_tIXntNSt10is_const_vI1UEEEiEEEN6oneapi3dal12row_accessor4pushERKN3dal5arrayI6data_tEERK5range"></span><span id="_CPPv2I0_NSt11enable_if_tIX!std::is_const_v<U>EiEEEN6oneapi3dal12row_accessor4pushERKN3dal5arrayI6data_tEERK5range"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">U</span></code> <span class="pre">=</span> <span class="pre">T</span><span class="pre">,</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">enable_if_t</span><span class="pre">&lt;</span><span class="pre">!</span><span class="pre">std</span><span class="pre">::</span><span class="pre">is_const_v</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I0_NSt11enable_if_tIXntNSt10is_const_vI1UEEEiEEEN6oneapi3dal12row_accessor4pushEvRKN3dal5arrayI6data_tEERK5range" title="oneapi::dal::row_accessor::push::U"><span class="pre">U</span></a><span class="pre">&gt;</span><span class="pre">,</span> <span class="pre">int</span><span class="pre">&gt;</span> <span class="pre">=</span> <span class="pre">0</span><span class="pre">&gt;</span><br /><span class="pre">void</span> <code class="sig-name descname"><span class="pre">push</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">dal</span><span class="pre">::</span><a class="reference internal" href="../array.html#_CPPv4I0EN6oneapi3dal5arrayE" title="oneapi::dal::array"><span class="pre">array</span></a><span class="pre">&lt;</span><span class="pre">data_t</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><em><span class="pre">block</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">range</span> <span class="pre">&amp;</span><em><span class="pre">row_range</span></em> <span class="pre">=</span> <span class="pre">{</span><span class="pre">0</span><span class="pre">,</span> <span class="pre">-</span><span class="pre">1</span><span class="pre">}</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0_NSt11enable_if_tIXntNSt10is_const_vI1UEEEiEEEN6oneapi3dal12row_accessor4pushEvRKN3dal5arrayI6data_tEERK5range" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I0_NSt11enable_if_tIXntNSt10is_const_vI1UEEEiEEEN6oneapi3dal12row_accessor4pushEvRKN3dal5arrayI6data_tEERK5range">
+<span id="_CPPv3I0_NSt11enable_if_tIXntNSt10is_const_vI1UEEEiEEEN6oneapi3dal12row_accessor4pushERKN3dal5arrayI6data_tEERK5range"></span><span id="_CPPv2I0_NSt11enable_if_tIX!std::is_const_v<U>EiEEEN6oneapi3dal12row_accessor4pushERKN3dal5arrayI6data_tEERK5range"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">enable_if_t</span></span><span class="p"><span class="pre">&lt;</span></span><span class="o"><span class="pre">!</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">is_const_v</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_NSt11enable_if_tIXntNSt10is_const_vI1UEEEiEEEN6oneapi3dal12row_accessor4pushEvRKN3dal5arrayI6data_tEERK5range" title="oneapi::dal::row_accessor::push::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">push</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">dal</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="../array.html#_CPPv4I0EN6oneapi3dal5arrayE" title="oneapi::dal::array"><span class="n"><span class="pre">array</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">data_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">block</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">range</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">row_range</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0_NSt11enable_if_tIXntNSt10is_const_vI1UEEEiEEEN6oneapi3dal12row_accessor4pushEvRKN3dal5arrayI6data_tEERK5range" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="column.html" title="previous page">Column accessor</a>
-    <a class='right-next' id="next-link" href="../data-sources.html" title="next page">Data Sources</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="column.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Column accessor</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="../data-sources.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Data Sources</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2364,8 +2393,7 @@
       </div>
     </div>
   
-  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

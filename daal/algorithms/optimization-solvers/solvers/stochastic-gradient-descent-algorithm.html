@@ -4,12 +4,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stochastic Gradient Descent Algorithm &#8212; oneDAL  documentation</title>
     
-  <link href="../../../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,19 +22,19 @@
       
 
     
-    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../../_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
     
-  <link rel="preload" as="script" href="../../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
     <script src="../../../../_static/jquery.js"></script>
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
     <script src="../../../../_static/tabs.js"></script>
     <script src="../../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -70,6 +69,10 @@
         <div class="navbar-brand-box">
     <a class="navbar-brand text-wrap" href="../../../../index.html">
       
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
       <img src="../../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
@@ -79,9 +82,9 @@
 </div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   About
  </span>
@@ -103,7 +106,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Get Started
  </span>
@@ -229,6 +232,16 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../../examples/dpc/pca_cor_dense_batch.html">
        pca_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../examples/dpc/pca_precomputed_cor_dense_batch.html">
+       pca_precomputed_cor_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../examples/dpc/pca_precomputed_cov_dense_batch.html">
+       pca_precomputed_cov_dense_batch.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -359,6 +372,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../../examples/cpp/pca_precomputed_dense_batch.html">
+       pca_precomputed_dense_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../../examples/cpp/polynomial_kernel_dense_batch.html">
        polynomial_kernel_dense_batch.cpp
       </a>
@@ -423,7 +441,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Guide
  </span>
@@ -1719,7 +1737,7 @@
   </a>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Developer Reference
  </span>
@@ -2099,7 +2117,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Contributing Guide
  </span>
@@ -2194,7 +2212,7 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#computation-methods">
@@ -2246,13 +2264,13 @@
         
               <div>
                 
-  <section id="stochastic-gradient-descent-algorithm">
+  <div class="section" id="stochastic-gradient-descent-algorithm">
 <span id="sgd-solver"></span><h1>Stochastic Gradient Descent Algorithm<a class="headerlink" href="#stochastic-gradient-descent-algorithm" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <p>The stochastic gradient descent (SGD) algorithm is a special case of
 an iterative solver. See <a class="reference internal" href="../iterative-solver.html#iterative-solver"><span class="std std-ref">Iterative Solver</span></a> for more details.</p>
-<section id="computation-methods">
+<div class="section" id="computation-methods">
 <h2>Computation methods<a class="headerlink" href="#computation-methods" title="Permalink to this headline">¶</a></h2>
 <p>The following computation methods are available in oneDAL for the
 stochastic gradient descent algorithm:</p>
@@ -2261,7 +2279,7 @@ stochastic gradient descent algorithm:</p>
 <li><p><a class="reference internal" href="#default-method">Default method</a> (a special case of mini-batch used by default)</p></li>
 <li><p><a class="reference internal" href="#momentum-method">Momentum method</a></p></li>
 </ul>
-<section id="mini-batch-method">
+<div class="section" id="mini-batch-method">
 <h3>Mini-batch method<a class="headerlink" href="#mini-batch-method" title="Permalink to this headline">¶</a></h3>
 <p>The mini-batch method (miniBatch) of the stochastic gradient
 descent algorithm <a class="reference internal" href="../../../../bibliography.html#mu2014" id="id1"><span>[Mu2014]</span></a>
@@ -2282,13 +2300,13 @@ follows:</p>
 <li><p>Compute the gradient: <span class="math notranslate nohighlight">\(g\left({\theta }_{t}\right)=\nabla {F}_{I}\left({\theta }_{t}\right)\)</span></p></li>
 </ol>
 <p>Convergence check: <span class="math notranslate nohighlight">\(U=g\left({\theta }_{t-1}\right), d=2\)</span></p>
-</section>
-<section id="default-method">
+</div>
+<div class="section" id="default-method">
 <h3>Default method<a class="headerlink" href="#default-method" title="Permalink to this headline">¶</a></h3>
 <p>The default method (defaultDense) is a particular case of the
 mini-batch method with the batch size <span class="math notranslate nohighlight">\(b=1\)</span>, <span class="math notranslate nohighlight">\(L=1\)</span>, and conservative sequence <span class="math notranslate nohighlight">\({\gamma }_{t}\equiv 0\)</span>.</p>
-</section>
-<section id="momentum-method">
+</div>
+<div class="section" id="momentum-method">
 <h3>Momentum method<a class="headerlink" href="#momentum-method" title="Permalink to this headline">¶</a></h3>
 <p>The momentum method (momentum) of the stochastic gradient descent
 algorithm <a class="reference internal" href="../../../../bibliography.html#rumelhart86" id="id2"><span>[Rumelhart86]</span></a> follows the algorithmic framework of an iterative solver with the
@@ -2306,14 +2324,14 @@ follows:</p>
 <p>For the momentum method of the SGD algorithm, the set of intrinsic
 parameters <span class="math notranslate nohighlight">\(S_t\)</span> only contains the last update vector <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
 <p>Convergence check: <span class="math notranslate nohighlight">\(U=g\left({\theta }_{t-1}\right), d=2\)</span></p>
-</section>
-</section>
-<section id="computation">
+</div>
+</div>
+<div class="section" id="computation">
 <h2>Computation<a class="headerlink" href="#computation" title="Permalink to this headline">¶</a></h2>
 <p>The stochastic gradient descent algorithm is a special case of an
 iterative solver. For parameters, input, and output of iterative
 solvers, see <a class="reference internal" href="computation.html#iterative-solver-computation"><span class="std std-ref">Computation</span></a>.</p>
-<section id="algorithm-parameters">
+<div class="section" id="algorithm-parameters">
 <h3>Algorithm Parameters<a class="headerlink" href="#algorithm-parameters" title="Permalink to this headline">¶</a></h3>
 <p>In addition to parameters of the iterative solver, the stochastic
 gradient descent algorithm has the following parameters. Some of
@@ -2421,9 +2439,9 @@ for generation of 32-bit integer indices of terms in the objective function.</p>
 </tr>
 </tbody>
 </table>
-</section>
-</section>
-<section id="examples">
+</div>
+</div>
+<div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">C++ (CPU)</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">Java*</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Python*</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
@@ -2450,23 +2468,34 @@ for generation of 32-bit integer indices of terms in the objective function.</p>
 <li><p><a class="reference external" href="https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sgd_mse_batch.py">sgd_mse_batch.py</a></p></li>
 </ul>
 </div></div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
               
         
-        <div class='prev-next-bottom'>
-            
-    <a class='left-prev' id="prev-link" href="lbfgs.html" title="previous page">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a>
-    <a class='right-next' id="next-link" href="adaptive-subgradient-method.html" title="next page">Adaptive Subgradient Method</a>
-
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="lbfgs.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</p>
         </div>
+    </a>
+    <a class='right-next' id="next-link" href="adaptive-subgradient-method.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Adaptive Subgradient Method</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
         
         </div>
     </div>
-    <footer class="footer mt-5 mt-md-0">
+    <footer class="footer">
     <div class="container">
       <p>
         
@@ -2483,8 +2512,7 @@ for generation of 32-bit integer indices of terms in the objective function.</p>
       </div>
     </div>
   
-  <script src="../../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>

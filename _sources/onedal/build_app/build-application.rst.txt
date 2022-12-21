@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2022 Intel Corporation
+.. * Copyright 2014 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ Applications on Linux* OS
 
 #. Set environment variables by calling ``<install dir>/setvars.sh``.
 
-#. Build your application with dpcpp:
+#. Build the application using ``icpx`` (Linux* OS) and ``icx-cl`` (Windows* OS) commands:
 
    - Add |short_name| ``includes`` folder:
 
@@ -185,14 +185,32 @@ Examples
 
 Dynamic linking, Multi-threaded |short_name|:
 
-.. code-block:: text
+   * Linux* OS:
+   
+   .. code-block:: text
 
-     dpcpp my_first_dal_program.cpp -Wl,
+     icpx -fsycl my_first_dal_program.cpp -Wl,
+     --start-group -L<install dir>/dal/latest/lib/intel64 -lonedal_core -lonedal_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+
+   * Windows* OS:
+   
+   .. code-block:: text
+
+     icx-cl -fsycl my_first_dal_program.cpp -Wl,
      --start-group -L<install dir>/dal/latest/lib/intel64 -lonedal_core -lonedal_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
 
 Static linking, Single-threaded |short_name|:
 
-.. code-block:: text
+   * Linux* OS:
+   
+   .. code-block:: text
 
-     dpcpp my_first_dal_program.cpp -Wl,
+     icpx -fsycl my_first_dal_program.cpp -Wl,
+     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a <install dir>/dal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+     
+   * Windows* OS:
+   
+   .. code-block:: text
+
+     icx-cl -fsycl my_first_dal_program.cpp -Wl,
      --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a <install dir>/dal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
