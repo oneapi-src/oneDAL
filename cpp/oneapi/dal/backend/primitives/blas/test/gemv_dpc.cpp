@@ -19,7 +19,6 @@
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
-#include <iostream>
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -119,7 +118,6 @@ public:
 
     void check_value_vector(const ndarray<float_t, 1>& vec, int64_t len, float_t value) {
         check_if_initialized();
-        // const float_t* ptr2 = vec.get_data();
         CAPTURE(vec.get_shape()[0]);
         REQUIRE(vec.get_shape() == ndshape<1>{ len });
         const float_t* ptr = vec.get_data();
@@ -150,7 +148,7 @@ private:
 using gemv_types = COMBINE_TYPES((float, double), (c_order, f_order));
 
 TEMPLATE_LIST_TEST_M(gemv_test, "ones matrix gemv on small sizes", "[gemv][small]", gemv_types) {
-    // DPC++ GEMM from micro MKL libs is not supported on GPU
+    // DPC++ GEMV from micro MKL libs is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
 
     // Test takes too long time if HW emulates float64
@@ -161,7 +159,7 @@ TEMPLATE_LIST_TEST_M(gemv_test, "ones matrix gemv on small sizes", "[gemv][small
 }
 
 TEMPLATE_LIST_TEST_M(gemv_test, "ones matrix gemv on medium sizes", "[gemv][small]", gemv_types) {
-    // DPC++ GEMM from micro MKL libs is not supported on GPU
+    // DPC++ GEMV from micro MKL libs is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
 
     // Test takes too long time if HW emulates float64
