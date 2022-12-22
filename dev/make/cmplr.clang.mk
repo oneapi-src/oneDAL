@@ -36,7 +36,7 @@ COMPILER.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) -fgnu-runtime -Wno-i
 COMPILER.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) \
                      -Werror -Wreturn-type
 
-link.dynamic.mac.clang = clang++ -m64
+link.dynamic.mac.clang = clang++ -m64 -falign-functions=16
 link.dynamic.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
 link.dynamic.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
 
