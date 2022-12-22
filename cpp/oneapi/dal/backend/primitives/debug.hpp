@@ -63,6 +63,13 @@ inline std::ostream& operator<<(std::ostream& s, const ndview<T, 2, ord>& v) {
     return s << std::endl;
 }
 
+template <typename T, ndorder ord>
+inline std::ostream& operator<<(std::ostream& s, const ndview<T, 1, ord>& v) {
+    const ndshape<2> new_shape{ 1l, v.get_count() };
+    const auto as_2d = v.template reshape<2>(new_shape);
+    return s << as_2d;
+}
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives
