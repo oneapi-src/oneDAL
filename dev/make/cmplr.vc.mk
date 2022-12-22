@@ -31,8 +31,6 @@ CORE.SERV.COMPILER.vc = generic
 COMPILER.win.vc = cl $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -EHsc -wd4661 -WX
 
 p4_OPT.vc   =
-mc_OPT.vc   =
 mc3_OPT.vc  =
-avx_OPT.vc  = -arch:AVX
 avx2_OPT.vc = -arch:AVX2
 skx_OPT.vc  = -arch:AVX2

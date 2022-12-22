@@ -49,8 +49,6 @@ pedantic.opts.mac.clang = $(pedantic.opts.clang)
 pedantic.opts.lnx.clang = $(pedantic.opts.clang)
 
 p4_OPT.clang   = $(-Q)march=nocona
-mc_OPT.clang   = $(-Q)march=core2
 mc3_OPT.clang  = $(-Q)march=nehalem
-avx_OPT.clang  = $(-Q)march=sandybridge
 avx2_OPT.clang = $(-Q)march=haswell
 skx_OPT.clang  = $(-Q)march=skx

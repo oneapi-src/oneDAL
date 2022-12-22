@@ -39,11 +39,11 @@
 #if defined(_WIN64) || defined(__x86_64__)
 
     #if defined(__APPLE__)
-        #define __DAAL_MKLVML_SSE2  H8
-        #define __DAAL_MKLVML_SSSE3 H8
+        #define __DAAL_MKLVML_SSE2  L9
+        #define __DAAL_MKLVML_SSE42 L9
     #else
         #define __DAAL_MKLVML_SSE2  EX
-        #define __DAAL_MKLVML_SSSE3 U8
+        #define __DAAL_MKLVML_SSE42 H8
     #endif
 
     #define VMLFN_CALL1(f_name, f_suff, f_args)                \
@@ -56,22 +56,12 @@
         {                                                      \
             VMLFN(L9, f_name, f_suff) f_args;                  \
             return;                                            \
-        }                                                      \
-        if (avx == cpu)                                        \
-        {                                                      \
-            VMLFN(E9, f_name, f_suff) f_args;                  \
-            return;                                            \
-        }                                                      \
+        }                                                      \                                               \
         if (sse42 == cpu)                                      \
         {                                                      \
-            VMLFN(H8, f_name, f_suff) f_args;                  \
+            VMLFN(__DAAL_MKLVML_SSE42, f_name, f_suff) f_args; \
             return;                                            \
-        }                                                      \
-        if (ssse3 == cpu)                                      \
-        {                                                      \
-            VMLFN(__DAAL_MKLVML_SSSE3, f_name, f_suff) f_args; \
-            return;                                            \
-        }                                                      \
+        }                                                      \                                          \
         if (sse2 == cpu)                                       \
         {                                                      \
             VMLFN(__DAAL_MKLVML_SSE2, f_name, f_suff) f_args;  \
@@ -91,19 +81,9 @@
             VMLFN(S9, f_name, f_suff) f_args;   \
             return;                             \
         }                                       \
-        if (avx == cpu)                         \
-        {                                       \
-            VMLFN(G9, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
         if (sse42 == cpu)                       \
         {                                       \
             VMLFN(N8, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (ssse3 == cpu)                       \
-        {                                       \
-            VMLFN(V8, f_name, f_suff) f_args;   \
             return;                             \
         }                                       \
         if (sse2 == cpu)                        \

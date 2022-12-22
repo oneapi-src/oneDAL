@@ -42,8 +42,6 @@ pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wno-unused-parameter
 
 p4_OPT.dpcpp   = -march=nocona
-mc_OPT.dpcpp   = -march=core2
 mc3_OPT.dpcpp  = -march=nehalem
-avx_OPT.dpcpp  = -march=sandybridge
 avx2_OPT.dpcpp = -march=haswell
 skx_OPT.dpcpp  = -march=skx
