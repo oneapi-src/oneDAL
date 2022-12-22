@@ -41,7 +41,7 @@ ifeq ($(if $(OS_is_mac),$(shell icc --version | grep "icc (ICC) 16"),),)
 endif
 
 link.dynamic.lnx.icc = icc -no-cilk
-link.dynamic.mac.icc = icc
+link.dynamic.mac.icc = icc -falign-functions=16
 
 pedantic.opts.lnx.icc = -pedantic \
                         -Wall \
