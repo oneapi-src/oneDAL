@@ -56,13 +56,13 @@
         {                                                      \
             VMLFN(L9, f_name, f_suff) f_args;                  \
             return;                                            \
-        }                                                      \                                               \
-        if (sse42 == cpu)                                      \
+        }                                                      \
+        \ if (sse42 == cpu)                                    \
         {                                                      \
             VMLFN(__DAAL_MKLVML_SSE42, f_name, f_suff) f_args; \
             return;                                            \
-        }                                                      \                                          \
-        if (sse2 == cpu)                                       \
+        }                                                      \
+        \ if (sse2 == cpu)                                     \
         {                                                      \
             VMLFN(__DAAL_MKLVML_SSE2, f_name, f_suff) f_args;  \
             return;                                            \

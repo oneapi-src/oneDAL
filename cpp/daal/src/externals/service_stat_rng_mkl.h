@@ -99,7 +99,8 @@
 #else
 
     #if defined(__APPLE__)
-        #define __DAAL_MKLVSL_SSE2 v8
+        #define __DAAL_MKLVSL_SSE2 s9
+
     #else
         #define __DAAL_MKLVSL_SSE2 w7
     #endif

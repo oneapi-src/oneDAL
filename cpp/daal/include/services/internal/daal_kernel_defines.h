@@ -68,12 +68,12 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__)
     #define DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, ...) \
         extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__);
-    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, ...)                         \
-    case ssse3:                                                                              \
+    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, ...)                              \
+    case ssse3:                                                                                   \
         _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__)(daalEnv)); \
         break;
-    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                   \
-    case ssse3:                                                                             \
+    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                        \
+    case ssse3:                                                                                  \
     {                                                                                            \
         using contTemplType = DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__); \
         static volatile daal::services::internal::GpuSupportRegistrar<contTemplType> registrar;  \
@@ -110,22 +110,22 @@ case cpuType:                                                                   
 
 #if defined(DAAL_KERNEL_AVX)
     #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
-    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID                    daal::avx
-    #define DAAL_KERNEL_AVX_ONLY(something)                             , something
-    #define DAAL_KERNEL_AVX_ONLY_CODE(...)                              __VA_ARGS__
-    #define DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, ...)           , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, ...)          extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__);
-    #define DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, ...)                         \
-    case avx:                                                                              \
+    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID           daal::avx
+    #define DAAL_KERNEL_AVX_ONLY(something)                    , something
+    #define DAAL_KERNEL_AVX_ONLY_CODE(...)                     __VA_ARGS__
+    #define DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, ...)  , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__)
+    #define DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__);
+    #define DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, ...)                                 \
+    case avx:                                                                                      \
         _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__)(daalEnv)); \
         break;
-    #define DAAL_KERNEL_AVX_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                   \
-    case avx:                                                                             \
-    {                                                                                            \
+    #define DAAL_KERNEL_AVX_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                           \
+    case avx:                                                                                     \
+    {                                                                                             \
         using contTemplType = DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__); \
-        static volatile daal::services::internal::GpuSupportRegistrar<contTemplType> registrar;  \
-        _cntr = (new contTemplType(daalEnv));                                                    \
-        break;                                                                                   \
+        static volatile daal::services::internal::GpuSupportRegistrar<contTemplType> registrar;   \
+        _cntr = (new contTemplType(daalEnv));                                                     \
+        break;                                                                                    \
     }
 #else
     #define DAAL_KERNEL_AVX_ONLY(something)
