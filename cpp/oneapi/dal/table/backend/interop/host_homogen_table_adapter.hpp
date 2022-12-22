@@ -48,55 +48,55 @@ private:
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
-                            block_desc_t<double>& block) override;
+                            block_desc_t<double>& block) final;
 
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
-                            block_desc_t<float>& block) override;
+                            block_desc_t<float>& block) final;
 
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
-                            block_desc_t<int>& block) override;
+                            block_desc_t<int>& block) final;
 
     status_t getBlockOfColumnValues(std::size_t feature_idx,
                                     std::size_t vector_idx,
                                     std::size_t value_num,
                                     rw_mode_t rwflag,
-                                    block_desc_t<double>& block) override;
+                                    block_desc_t<double>& block) final;
 
     status_t getBlockOfColumnValues(std::size_t feature_idx,
                                     std::size_t vector_idx,
                                     std::size_t value_num,
                                     rw_mode_t rwflag,
-                                    block_desc_t<float>& block) override;
+                                    block_desc_t<float>& block) final;
 
     status_t getBlockOfColumnValues(std::size_t feature_idx,
                                     std::size_t vector_idx,
                                     std::size_t value_num,
                                     rw_mode_t rwflag,
-                                    block_desc_t<int>& block) override;
+                                    block_desc_t<int>& block) final;
 
-    status_t releaseBlockOfRows(block_desc_t<double>& block) override;
-    status_t releaseBlockOfRows(block_desc_t<float>& block) override;
-    status_t releaseBlockOfRows(block_desc_t<int>& block) override;
+    status_t releaseBlockOfRows(block_desc_t<double>& block) final;
+    status_t releaseBlockOfRows(block_desc_t<float>& block) final;
+    status_t releaseBlockOfRows(block_desc_t<int>& block) final;
 
-    status_t releaseBlockOfColumnValues(block_desc_t<double>& block) override;
-    status_t releaseBlockOfColumnValues(block_desc_t<float>& block) override;
-    status_t releaseBlockOfColumnValues(block_desc_t<int>& block) override;
+    status_t releaseBlockOfColumnValues(block_desc_t<double>& block) final;
+    status_t releaseBlockOfColumnValues(block_desc_t<float>& block) final;
+    status_t releaseBlockOfColumnValues(block_desc_t<int>& block) final;
 
-    status_t assign(float value) override;
-    status_t assign(double value) override;
-    status_t assign(int value) override;
+    status_t assign(float value) final;
+    status_t assign(double value) final;
+    status_t assign(int value) final;
 
-    int getSerializationTag() const override;
-    status_t serializeImpl(daal::data_management::InputDataArchive* arch) override;
-    status_t deserializeImpl(const daal::data_management::OutputDataArchive* arch) override;
+    int getSerializationTag() const final;
+    status_t serializeImpl(daal::data_management::InputDataArchive* arch) final;
+    status_t deserializeImpl(const daal::data_management::OutputDataArchive* arch) final;
 
-    status_t allocateDataMemoryImpl(daal::MemType) override;
-    status_t setNumberOfColumnsImpl(std::size_t) override;
-    void freeDataMemoryImpl() override;
+    status_t allocateDataMemoryImpl(daal::MemType) final;
+    status_t setNumberOfColumnsImpl(std::size_t) final;
+    void freeDataMemoryImpl() final;
 
     template <typename BlockData>
     status_t read_rows_impl(std::size_t vector_idx,
