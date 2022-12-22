@@ -1141,7 +1141,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
 #endif
             split.featureUnordered = _featHelper.isUnordered(iFeature);
             if (!_helper.findBestSplitForFeature(featBuf, aIdx, n, _par.minObservationsInLeafNode, _accuracy, curImpurity, split, _minWeightLeaf,
-                                                 totalWeights))
+                                                 totalWeights, _engineImpl))
                 continue;
             idxFeatureValueBestSplit = -1;
             iBestSplit               = i;

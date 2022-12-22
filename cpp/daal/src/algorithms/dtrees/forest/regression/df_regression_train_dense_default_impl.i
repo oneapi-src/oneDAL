@@ -111,7 +111,9 @@ public:
     void calcImpurity(const IndexType * aIdx, size_t n, ImpurityData & imp, double & totalweights) const;
     bool findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                  const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                 engines::internal::BatchBaseImpl * engineImpl) const;
+
     template <typename BinIndexType>
     int findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                       const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
@@ -191,7 +193,8 @@ private:
     template <bool noWeights>
     bool findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                      const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                     engines::internal::BatchBaseImpl * engineImpl) const;
     template <bool noWeights>
     bool findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                          const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
@@ -327,7 +330,8 @@ template <typename algorithmFPType, CpuType cpu>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                       size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                       const ImpurityData & curImpurity, TSplitData & split,
-                                                                      const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
+                                                                      const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                                                      engines::internal::BatchBaseImpl * engineImpl) const
 {
     const bool noWeights = !this->_weights;
     if (noWeights)
@@ -335,14 +339,14 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeature(const algo
         return split.featureUnordered ?
                    findBestSplitCategoricalFeature<true>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf,
                                                          totalWeights) :
-                   findBestSplitOrderedFeature<true>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights);
+                   findBestSplitOrderedFeature<true>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
     }
     else
     {
         return split.featureUnordered ?
                    findBestSplitCategoricalFeature<false>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf,
                                                           totalWeights) :
-                   findBestSplitOrderedFeature<false>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights);
+                   findBestSplitOrderedFeature<false>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
     }
 }
 
@@ -586,7 +590,8 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
                                                                           size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                           const ImpurityData & curImpurity, TSplitData & split,
                                                                           const algorithmFPType minWeightLeaf,
-                                                                          const algorithmFPType totalWeights) const
+                                                                          const algorithmFPType totalWeights,
+                                                                          engines::internal::BatchBaseImpl * engineImpl) const
 {
     ImpurityData left;
     ImpurityData right;
