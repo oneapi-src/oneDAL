@@ -72,6 +72,29 @@ public:
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 
+    void generate_input() {
+        const auto train_dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, n_ }.fill_uniform(-0.2, 0.5));
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+    }
+
+
+    void test_1d_reduce(const float_t tol = 1.e-3) {
+        auto input_array = row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
+        auto input = ndview<float_t, 1>::wrap(input_array.get_data(), { n_ });
+
+        float_t out = reduce_1d(this->get_queue(), input, binary_t{}, unary_t{}, { });
+
+        float_t ans = groundtruth();
+
+        if (out - ans < -tol || out - ans > tol) {
+            CAPTURE(out, ans, out - ans, tol);
+            FAIL();
+        }
+        SUCCEED();
+    }
+
+    /*
     void test_1d_reduce(const float_t tol = 1.e-3) {
         auto input_array = row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
         auto input = ndview<float_t, 1>::wrap(input_array.get_data(), { n_ });
@@ -86,6 +109,7 @@ public:
         }
         SUCCEED();
     }
+    */
 
 private:
     table input_table_;
