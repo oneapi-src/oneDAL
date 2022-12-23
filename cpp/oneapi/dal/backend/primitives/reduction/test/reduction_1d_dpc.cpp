@@ -35,8 +35,8 @@ namespace pr = oneapi::dal::backend::primitives;
 using std::cout;
 using std::endl;
 
-using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>  >;//,
-//                                   std::tuple<double, sum<double>, square<double>>>;
+using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
+                                   std::tuple<double, sum<double>, square<double>>>;
 
 
 
@@ -50,7 +50,7 @@ public:
     void generate() {
         n_ = GENERATE(17, 999, 1, 5, 1001);
         CAPTURE(n_);
-        // generate_input();
+        generate_input();
     }
 
     bool is_initialized() const {
@@ -63,11 +63,14 @@ public:
         }
     }
 
-    float_t groundtruth(const ndview<float_t, 1>& input) const {
+    float_t groundtruth() const {
+        // ONEDAL_ASSERT(!input_table_.empty());
         float_t res = float_t(binary_.init_value);
-        const auto* const inp_ptr = input.get_data();
-        for (std::int64_t i = 0; i < input.get_count(); ++i) {
-            res = binary_(res, unary_(inp_ptr[i]));
+        // const auto* const inp_ptr = input.get_data();
+        // row_accessor<const float_t>{ input_table_ }.pull({ j, j + 1 });
+        auto inp = row_accessor<const float_t>{this->input_table_}.pull({0, 1});
+        for (std::int64_t i = 0; i < inp.get_count(); ++i) {
+            res = binary_(res, unary_(inp[i]));
         }
         return res;
     }
@@ -97,6 +100,29 @@ public:
     } 
     */
 
+    void generate_input() {
+        const auto train_dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, n_ }.fill_uniform(-0.2, 0.5));
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+    }
+
+
+    void test_1d_reduce(const float_t tol = 1.e-3) {
+        auto input_array = row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
+        auto input = ndview<float_t, 1>::wrap(input_array.get_data(), { n_ });
+
+        float_t out = reduce_1d(this->get_queue(), input, binary_t{}, unary_t{}, { });
+
+        float_t ans = groundtruth();
+
+        if (out - ans < -tol || out - ans > tol) {
+            CAPTURE(out, ans, out - ans, tol);
+            FAIL();
+        }
+        SUCCEED();
+    }
+
+    /*
     void test_1d_reduce(const float_t tol = 1.e-3) {
 
         // auto inp = ndarray<float_t, 1>::empty(this->get_queue(), { n_ });
@@ -104,6 +130,8 @@ public:
         // auto inp_e = random_fill_array(inp);
 
         auto [inp, inp_e] = ndarray<float_t, 1>::full(this->get_queue(), n_, float_t(2), sycl::usm::alloc::device);
+
+        ndview<float_t, 2, ndorder::c>::wrap(input_array.get_data(), { height_, width_ });
 
         float_t out = reduce_1d(this->get_queue(), inp, binary_t{}, unary_t{}, {inp_e});
 
@@ -117,8 +145,10 @@ public:
         }
         SUCCEED();
     }
+    */
 
 private:
+    table input_table_;
     const binary_t binary_{};
     const unary_t unary_{};
     std::int64_t n_;
