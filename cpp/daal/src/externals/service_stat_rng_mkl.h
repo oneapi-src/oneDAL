@@ -48,11 +48,11 @@
     }
 
 #if defined(__APPLE__)
-    #define __DAAL_MKLVSL_SSE2  L9
-    #define __DAAL_MKLVSL_SSE42 L9
+    #define __DAAL_MKLVSL_SSE2  l9
+    #define __DAAL_MKLVSL_SSE42 l9
 #else
-    #define __DAAL_MKLVSL_SSE2  EX
-    #define __DAAL_MKLVSL_SSE42 H8
+    #define __DAAL_MKLVSL_SSE2  ex
+    #define __DAAL_MKLVSL_SSE42 h8
 #endif
 
 #define __DAAL_VSLFN_CALL1(f_pref, f_name, f_args, errcode)                 \
