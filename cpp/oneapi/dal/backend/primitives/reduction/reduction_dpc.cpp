@@ -22,6 +22,35 @@
 
 namespace oneapi::dal::backend::primitives {
 
+template<typename Float, typename BinaryOp, typename UnaryOp>
+Float reduce_1d_impl(sycl::queue& q,
+                                const ndview<Float, 1>& input,
+                                const BinaryOp& binary,
+                                const UnaryOp& unary,
+                                const event_vector& deps) {
+    // auto [out, out_event] = ndarray<Float, 1>::full(q, std::int64_t(1), binary.init_value, sycl::usm::alloc::device);
+    const auto full_deps = deps;
+    Float result = Float(binary.init_value);
+    sycl::buffer<Float> acc_buf{ &result, 1 };
+
+    auto event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        const auto* const inp_ptr = input.get_data();
+        // auto out_ptr = out.get_mutable_data();
+        
+        auto accum = reduction(acc_buf, cgh, binary.native);
+        cgh.parallel_for(make_range_1d(input.get_count()), accum, 
+            [=](sycl::id<1> idx, auto& acc) { 
+                acc.combine(unary(inp_ptr[idx])); 
+            }
+        );
+    });
+    event.wait_and_throw();
+    return acc_buf.get_host_access()[0];
+
+}
+
+
 template <typename Float, typename BinaryOp, typename UnaryOp>
 inline sycl::event reduce_rm_rw(sycl::queue& q,
                                 const ndview<Float, 2, ndorder::c>& input,
@@ -116,7 +145,13 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
                                                             ndview<F, 1>&,          \
                                                             const B&,               \
                                                             const U&,               \
-                                                            const event_vector&);
+                                                            const event_vector&);   
+
+#define INSTANTIATE1(F, B, U)   template F reduce_1d_impl<F, B, U>(sycl::queue&, \
+                                const ndview<F, 1>&, \
+                                const B&, \
+                                const U&,\
+                                const event_vector&);
 
 #define INSTANTIATE_LAYOUT(F, B, U)  \
     INSTANTIATE(F, ndorder::c, B, U) \
@@ -124,7 +159,9 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
 
 #define INSTANTIATE_FLOAT(B, U)                       \
     INSTANTIATE_LAYOUT(double, B<double>, U<double>); \
-    INSTANTIATE_LAYOUT(float, B<float>, U<float>);
+    INSTANTIATE_LAYOUT(float, B<float>, U<float>); \
+    INSTANTIATE1(float, B<float>, U<float>); \
+    INSTANTIATE1(double, B<double>, U<double>);
 
 INSTANTIATE_FLOAT(min, identity)
 INSTANTIATE_FLOAT(min, abs)
