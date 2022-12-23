@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,49 +17,62 @@
 #include <type_traits>
 
 #include "oneapi/dal/backend/primitives/reduction/reduction_1d.hpp"
-
+#include "oneapi/dal/backend/primitives/common.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename Float, typename BinaryOp, typename UnaryOp>
-Float reduce_1d_impl(sycl::queue& q,
-                                const ndview<Float, 1>& input,
-                                const BinaryOp& binary,
-                                const UnaryOp& unary,
-                                const event_vector& deps) {
-    // auto [out, out_event] = ndarray<Float, 1>::full(q, std::int64_t(1), binary.init_value, sycl::usm::alloc::device);
-    const auto full_deps = deps;
-    Float result = Float(binary.init_value);
-    sycl::buffer<Float> acc_buf{ &result, 1 };
-
-    auto event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        const auto* const inp_ptr = input.get_data();
-        // auto out_ptr = out.get_mutable_data();
-        
-        auto accum = reduction(acc_buf, cgh, binary.native);
-        cgh.parallel_for(make_range_1d(input.get_count()), accum, 
-            [=](sycl::id<1> idx, auto& acc) { 
-                acc.combine(unary(inp_ptr[idx])); 
-            }
-        );
+template <typename Float, typename BinaryOp, typename UnaryOp>
+sycl::event reduce_1d_impl(sycl::queue& queue,
+                           const ndview<Float, 1>& inp,
+                           ndview<Float, 1>& out,
+                           const BinaryOp& binary,
+                           const UnaryOp& unary,
+                           const event_vector& deps) {
+    ONEDAL_ASSERT(inp.has_data());
+    ONEDAL_ASSERT(out.has_mutable_data());
+    ONEDAL_ASSERT(out.get_count() == std::int64_t(1));
+    return queue.submit([&](sycl::handler& h) {
+        using sycl::reduction;
+        h.depends_on(deps);
+        const auto* const inp_ptr = inp.get_data();
+        auto* const out_ptr = out.get_mutable_data();
+        auto accum = reduction(out_ptr, binary.native);
+        h.parallel_for(make_range_1d(inp.get_count()), accum, [=](sycl::id<1> idx, auto& acc) {
+            acc.combine(unary(inp_ptr[idx]));
+        });
     });
-    event.wait_and_throw();
-    return acc_buf.get_host_access()[0];
-
-
-
 }
 
+template <typename Float, typename BinaryOp, typename UnaryOp>
+Float reduce_1d_impl(sycl::queue& queue,
+                     const ndview<Float, 1>& inp,
+                     const BinaryOp& binary,
+                     const UnaryOp& unary,
+                     const event_vector& deps) {
+    using oneapi::dal::backend::operator+;
+    auto [out, out_event] = ndarray<Float, 1>::full(queue,
+                                                    std::int64_t(1),
+                                                    binary.init_value,
+                                                    sycl::usm::alloc::device);
+    const auto full_deps = deps + out_event;
+    auto event = reduce_1d_impl(queue, inp, out, binary, unary, full_deps);
+    return out.to_host(queue, { event }).at(0);
+}
 
-#define INSTANTIATE(F, B, U)   template F reduce_1d_impl<F, B, U>(sycl::queue&, \
-                                const ndview<F, 1>&, \
-                                const B&, \
-                                const U&,\
-                                const event_vector&);
+#define INSTANTIATE(F, B, U)                                          \
+    template F reduce_1d_impl<F, B, U>(sycl::queue&,                  \
+                                       const ndview<F, 1>&,           \
+                                       const B&,                      \
+                                       const U&,                      \
+                                       const event_vector&);          \
+    template sycl::event reduce_1d_impl<F, B, U>(sycl::queue&,        \
+                                                 const ndview<F, 1>&, \
+                                                 ndview<F, 1>&,       \
+                                                 const B&,            \
+                                                 const U&,            \
+                                                 const event_vector&);
 
-
-#define INSTANTIATE_FLOAT(B, U)                       \
+#define INSTANTIATE_FLOAT(B, U)             \
     INSTANTIATE(float, B<float>, U<float>); \
     INSTANTIATE(double, B<double>, U<double>);
 
@@ -81,4 +94,4 @@ INSTANTIATE_FLOAT(sum, square)
 
 #undef INSTANTIATE
 
-} //
+} // namespace oneapi::dal::backend::primitives
