@@ -58,11 +58,11 @@
     {                                                          \
         __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
     }                                                          \
-    \ if (sse42 == cpu)                                        \
+    if (sse42 == cpu)                                          \
     {                                                          \
         __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
     }                                                          \
-    \ if (sse2 == cpu)                                         \
+    if (sse2 == cpu)                                           \
     {                                                          \
         __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
     }
@@ -76,11 +76,11 @@
     {                                                                 \
         return __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
     }                                                                 \
-    \ if (sse42 == cpu)                                               \
+    if (sse42 == cpu)                                                 \
     {                                                                 \
         return __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
     }                                                                 \
-    \ if (sse2 == cpu)                                                \
+    if (sse2 == cpu)                                                  \
     {                                                                 \
         return __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
     }
