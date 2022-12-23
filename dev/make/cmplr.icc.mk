@@ -51,7 +51,6 @@ pedantic.opts.lnx.icc = -pedantic \
 daaldep.lnx32e.rt.icc = -static-intel
 daaldep.lnx32.rt.icc  = -static-intel
 
-# p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSSE3,xSSE2)
 p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xCORE-AVX2,xSSE2)
 mc3_OPT.icc  = $(-Q)$(if $(OS_is_mac),xCORE-AVX2,xSSE4.2)
 avx2_OPT.icc = $(-Q)xCORE-AVX2
