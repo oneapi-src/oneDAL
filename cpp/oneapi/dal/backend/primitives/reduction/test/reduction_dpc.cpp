@@ -17,12 +17,10 @@
 #include <array>
 #include <cmath>
 #include <type_traits>
-// #include "oneapi/dpl/random"
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
-
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -33,11 +31,8 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using std::cout;
-using std::endl;
-
-using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>  >;//,
-//                                   std::tuple<double, sum<double>, square<double>>>;
+using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
+                                   std::tuple<double, sum<double>, square<double>>>;
 
 template <typename Param>
 class reduction_test_random : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
@@ -224,9 +219,6 @@ private:
     table input_table_;
 };
 
-
-
-/*
 TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "Randomly filled Row-Major Row-Wise reduction",
                      "[reduction][rm][small]",
@@ -262,7 +254,5 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
     this->generate();
     this->test_cm_rw_reduce();
 }
-*/
-
 
 } // namespace oneapi::dal::backend::primitives::test
