@@ -2,7 +2,7 @@
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
+# you may not use this fonedal_threadile except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
@@ -30,6 +30,10 @@ attr.fbsd32e = fbsd intel64 fre
 _OS := $(word 1,$(attr.$(PLAT)))
 _IA := $(word 2,$(attr.$(PLAT)))
 _OSc:= $(word 3,$(attr.$(PLAT)))
+
+MSVC_RUNTIME_VERSIONs = release debug
+MSVC_RUNTIME_VERSION ?= release
+$(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
 COMPILER_is_$(COMPILER)            := yes
 OS_is_$(_OS)                       := yes
@@ -61,10 +65,6 @@ else
     USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
 endif
 $(info Selected list of CPUs - USECPUS: $(USECPUS))
-
-MSVC_RUNTIME_VERSIONs = release debug
-MSVC_RUNTIME_VERSION ?= release
-$(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
 req-features = order-only second-expansion
 ifneq ($(words $(req-features)),$(words $(filter $(req-features),$(.FEATURES))))
