@@ -14,29 +14,6 @@
 # limitations under the License.
 #===============================================================================
 
-COMPILERs = icc icx gnu clang vc
-COMPILER ?= icc
-
-$(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
-
-CPUs := sse2 ssse3 sse42 avx2 avx512_mic avx512 avx
-CPUs.files := nrh neh hsw skx
-USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
-USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
-USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
-
-MSVC_RUNTIME_VERSIONs = release debug
-MSVC_RUNTIME_VERSION ?= release
-$(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
-
-req-features = order-only second-expansion
-ifneq ($(words $(req-features)),$(words $(filter $(req-features),$(.FEATURES))))
-$(error This makefile requires a decent make, supporting $(req-features))
-endif
-
-.PHONY: help
-help: ; $(info $(help))
-
 #===============================================================================
 # Common macros
 #===============================================================================
@@ -59,6 +36,43 @@ OS_is_$(_OS)                       := yes
 IA_is_$(_IA)                       := yes
 PLAT_is_$(PLAT)                    := yes
 MSVC_RT_is_$(MSVC_RUNTIME_VERSION) := yes
+
+COMPILERs = icc icx gnu clang vc
+COMPILER ?= icc
+
+$(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
+
+CPUs.full := sse2 sse42 avx2 avx512
+
+ifneq ($(OS_is_mac),)
+    CPUs := avx2 avx512
+    CPUs.files := hsw skx
+else
+    CPUs := $(CPUs.full)
+    CPUs.files := nrh neh hsw skx
+endif
+
+USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
+USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
+
+ifneq ($(OS_is_mac),)
+    USECPUS := $(if $(filter avx2,$(USECPUS)),$(USECPUS),avx2 $(USECPUS))
+else
+    USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
+endif
+$(info Selected list of CPUs - USECPUS: $(USECPUS))
+
+MSVC_RUNTIME_VERSIONs = release debug
+MSVC_RUNTIME_VERSION ?= release
+$(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
+
+req-features = order-only second-expansion
+ifneq ($(words $(req-features)),$(words $(filter $(req-features),$(.FEATURES))))
+$(error This makefile requires a decent make, supporting $(req-features))
+endif
+
+.PHONY: help
+help: ; $(info $(help))
 
 #===============================================================================
 # Compiler specific part
@@ -124,7 +138,7 @@ skx_OPT  := $(skx_OPT.$(COMPILER))
 _OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,$(if $(OS_is_fbsd),fre,)))
 
 USECPUS.files := $(subst sse2,nrh,$(subst ssse3,,$(subst sse42,neh,$(subst avx,,$(subst avx2,hsw,$(subst avx512,skx,$(subst avx512_mic,,$(USECPUS))))))))
-USECPUS.out := $(filter-out $(USECPUS),$(CPUs))
+USECPUS.out := $(filter-out $(USECPUS),$(CPUs.full))
 USECPUS.out.for.grep.filter := $(addprefix _,$(addsuffix _,$(subst $(space),_|_,$(USECPUS.out))))
 USECPUS.out.grep.filter := $(if $(USECPUS.out),| grep -v -E '$(USECPUS.out.for.grep.filter)')
 USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2\b,$(subst ssse3,^\#define DAAL_KERNEL_SSSE3\b,\
