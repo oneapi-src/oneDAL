@@ -355,10 +355,10 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 sse42 avx2" --conda-env ci-env
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 sse42 avx2 avx512" --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 sse42 avx2"
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 sse42 avx2 avx512"
     displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
