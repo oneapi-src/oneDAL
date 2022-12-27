@@ -49,8 +49,8 @@ $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPI
 CPUs.full := sse2 sse42 avx2 avx512
 
 ifneq ($(OS_is_mac),)
-    CPUs := avx2 avx512
-    CPUs.files := hsw skx
+    CPUs := sse2 avx2 avx512
+    CPUs.files := nrh hsw skx
 else
     CPUs := $(CPUs.full)
     CPUs.files := nrh neh hsw skx
