@@ -25,6 +25,11 @@ else
     echo "Unable to get CPU features via lscpu or python/cpufeature"
 fi
 echo
+if [ -x "$(command -v system_profiler)" ]; then
+    echo "MacOS detailed features:"
+    system_profiler SPSoftwareDataType SPHardwareDataType
+fi
+echo
 # OS info
 echo "Operating system:"
 if [ -x "$(command -v uname)" ]; then
