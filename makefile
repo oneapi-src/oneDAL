@@ -58,12 +58,8 @@ endif
 
 USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
 USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
+USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
 
-ifneq ($(OS_is_mac),)
-    USECPUS := $(if $(filter avx2,$(USECPUS)),$(USECPUS),avx2 $(USECPUS))
-else
-    USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
-endif
 $(info Selected list of CPUs - USECPUS: $(USECPUS))
 
 req-features = order-only second-expansion
