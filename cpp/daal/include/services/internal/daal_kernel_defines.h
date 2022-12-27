@@ -52,11 +52,12 @@ case cpuType:                                                                   
 
 #if defined(DAAL_KERNEL_SSE2)
     #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
-    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID                daal::sse2
-    #define DAAL_KERNEL_SSE2_ONLY(something)                        , something
-    #define DAAL_KERNEL_SSE2_ONLY_CODE(...)                         __VA_ARGS__
-    #define DAAL_KERNEL_SSE2_CONTAINER(ContainerTemplate, ...)      , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__)
-    #define DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, ...)     extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__);
+    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID           daal::sse2
+    #define DAAL_KERNEL_SSE2_ONLY(something)                   , something
+    #define DAAL_KERNEL_SSE2_ONLY_CODE(...)                    __VA_ARGS__
+    #define DAAL_KERNEL_SSE2_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__)
+    #define DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, ...) \
+        extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__);
     #define DAAL_KERNEL_SSE2_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, sse2, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_SSE2_ONLY(something)
