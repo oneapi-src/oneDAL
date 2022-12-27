@@ -64,7 +64,7 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
     avx2 = []
     avx512 = []
     if compiler_id == "gcc":
-        sse2 = ["-march={}".format("pentium4" if arch_id == "ia32" else "nocona")]
+        sse2 = ["-march=nocona"]
         sse42 = ["-march=corei7"]
         avx2 = ["-march=haswell"]
         avx512 = ["-march=haswell"]

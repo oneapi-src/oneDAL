@@ -39,7 +39,7 @@ help:
 ##                                 Intel(R) 64 processor family applications,
 ##                                 static linking
 ##
-## make dylibia32 compiler=clang - build by Clang C++ compiler and
+## make dylibintel64 compiler=clang - build by Clang C++ compiler and
 ##                                 run all examples of Intel(R) oneDAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 dynamic linking
