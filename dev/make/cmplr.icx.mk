@@ -27,11 +27,11 @@ CORE.SERV.COMPILER.icx = generic
 -Zl.icx =  -no-intel-lib=libirc
 -DEBC.icx = -g
 
-COMPILER.lnx.icx = icpx $(if $(IA_is_ia32),-m32,-m64) \
+COMPILER.lnx.icx = icpx -m64 \
                      -Werror -Wreturn-type
 
 
-link.dynamic.lnx.icx = icpx $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.lnx.icx = icpx -m64
 
 pedantic.opts.icx = -pedantic \
                       -Wall \

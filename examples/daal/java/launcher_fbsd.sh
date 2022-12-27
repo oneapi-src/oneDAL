@@ -28,7 +28,7 @@ help_message() {
     echo "path_to_javac - optional parameter."
     echo "                Specify it in case, if you do not want to use default javac"
     echo "help          - print this message"
-    echo "Example: launcher.sh intel64"
+    echo "Example: launcher.sh build"
 }
 
 rmode=
