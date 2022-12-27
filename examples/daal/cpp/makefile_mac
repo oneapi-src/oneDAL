@@ -93,7 +93,7 @@ RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(
 
 ifeq ($(compiler),intel)
     CC = icc
-    COPTS += -stdlib=libc++
+    COPTS += -stdlib=libc++ -diag-disable=10441
 endif
 
 ifeq ($(compiler),gnu)
