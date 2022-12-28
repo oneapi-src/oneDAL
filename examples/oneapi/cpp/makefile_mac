@@ -101,6 +101,10 @@ ifneq ($(compiler),gnu)
     COPTS += -stdlib=libc++
 endif
 
+ifeq ($(compiler),intel)
+    COPTS += -diag-disable=10441
+endif
+
 LIBS := $(onedal) \
         $(onedal_core) \
         $(onedal_thread) \

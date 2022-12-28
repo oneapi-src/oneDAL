@@ -41,8 +41,6 @@ pedantic.opts.icx = -pedantic \
 pedantic.opts.lnx.icx = $(pedantic.opts.icx)
 
 p4_OPT.icx   = $(-Q)march=nocona
-mc_OPT.icx   = $(-Q)march=core2
 mc3_OPT.icx  = $(-Q)march=nehalem
-avx_OPT.icx  = $(-Q)march=sandybridge
 avx2_OPT.icx = $(-Q)march=haswell
 skx_OPT.icx  = $(-Q)march=skx
