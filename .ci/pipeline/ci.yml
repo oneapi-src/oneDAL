@@ -30,9 +30,6 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
     - script: |
-        echo `pwd`
-        ls -al
-    - script: |
         sudo apt-get update && sudo apt-get install -y clang-format-14
         sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 100
         sudo update-alternatives --set clang-format /usr/bin/clang-format-14
@@ -66,7 +63,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) build'
-      targetPath: '$(Pipeline.Workspace)/$(release.dir)'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
@@ -89,7 +86,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) fail'
-      targetPath: '$(Pipeline.Workspace)/$(release.dir)'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Uploading on fail'
     condition: failed()
     continueOnError: true
@@ -131,7 +128,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) DPC build'
-      targetPath: '$(Pipeline.Workspace)/$(release.dir)'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
@@ -149,7 +146,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) DPC fail'
-      targetPath: '$(Pipeline.Workspace)/$(release.dir)'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Uploading on fail'
     condition: failed()
 
@@ -212,17 +209,13 @@ jobs:
       cat bazel-bin/external/config/config.json
       echo
     displayName: 'bazel-configure'
-
-  - script: |
-      echo `pwd`
-      ls -al
   - script: |
       $(BAZEL_VERSION) build :release
     displayName: 'release'
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) Bazel build'
-      targetPath: '$(Pipeline.Workspace)/bazel-bin/release'
+      targetPath: '$(Build.Repository.LocalPath)/bazel-bin/release'
     displayName: 'Upload build artifacts'
   - script: |
       $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
@@ -325,8 +318,8 @@ jobs:
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) daal4py build'
-      targetPath: '$(Pipeline.Workspace)/daal4py'
-    displayName: 'Upload build artifacts'
+      targetPath: '$(Build.Repository.LocalPath)/daal4py'
+    displayName: 'Upload daal4py build artifacts'
     continueOnError: true
   - script: |
       . /usr/share/miniconda/etc/profile.d/conda.sh
@@ -396,7 +389,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) build'
-      targetPath: '$(Pipeline.Workspace)/$(release.dir)'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
@@ -416,7 +409,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) fail'
-      targetPath: '$(Pipeline.Workspace)/$(release.dir)'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Uploading on fail'
     condition: failed()
     continueOnError: true
@@ -447,7 +440,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) build'
-      targetPath: '$(Pipeline.Workspace)/$(release.dir)'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
@@ -470,7 +463,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) fail'
-      targetPath: '$(Pipeline.Workspace)/$(release.dir)'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Uploading on fail'
     condition: failed()
     continueOnError: true
