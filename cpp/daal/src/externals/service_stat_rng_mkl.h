@@ -48,8 +48,8 @@
     }
 
 #if defined(__APPLE__)
-    #define __DAAL_MKLVSL_SSE2  l9
-    #define __DAAL_MKLVSL_SSE42 l9
+    #define __DAAL_MKLVSL_SSE2  e9
+    #define __DAAL_MKLVSL_SSE42 e9
 #else
     #define __DAAL_MKLVSL_SSE2  ex
     #define __DAAL_MKLVSL_SSE42 h8

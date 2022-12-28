@@ -37,8 +37,8 @@
 #define VMLFN_CALL(f_name, f_suff, f_args) VMLFN_CALL1(f_name, f_suff, f_args)
 
 #if defined(__APPLE__)
-    #define __DAAL_MKLVML_SSE2  L9
-    #define __DAAL_MKLVML_SSE42 L9
+    #define __DAAL_MKLVML_SSE2  E9
+    #define __DAAL_MKLVML_SSE42 E9
 #else
     #define __DAAL_MKLVML_SSE2  EX
     #define __DAAL_MKLVML_SSE42 H8
