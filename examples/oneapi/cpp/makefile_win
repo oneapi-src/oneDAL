@@ -55,6 +55,8 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
+@echo "make build system for oneDAL in deprecated, please use cmake instead"
+
 {examples_list}
 
 !IFNDEF example
