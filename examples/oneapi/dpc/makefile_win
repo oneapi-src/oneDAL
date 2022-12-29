@@ -46,7 +46,7 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
-$(info =====make build system for DAAL in deprecated, please use cmake instead====)
+!MESSAGE =====make build system for DAAL in deprecated, please use cmake instead====!
 
 {examples_list}
 
