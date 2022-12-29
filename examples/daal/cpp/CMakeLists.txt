@@ -73,8 +73,12 @@ include_directories(source/utils)
 # Define variable to specify the examples or directories to include or exclude
 set(EXAMPLES "")
 
-# Split the EXAMPLES option into a list of patterns
-string(REPLACE "," ";" EXAMPLES_LIST ${EXAMPLES})
+if(EXAMPLES)
+    # Split the EXAMPLES option into a list of patterns
+    string(REPLACE "," ";" EXAMPLES_LIST ${EXAMPLES})
+else()
+    set(EXAMPLES_LIST "")
+endif()
 
 # Initialize the EXAMPLES variable with an empty list
 set(EXAMPLES "")
