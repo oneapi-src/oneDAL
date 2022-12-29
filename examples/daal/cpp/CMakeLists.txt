@@ -76,6 +76,7 @@ set(EXAMPLES "")
 if(EXAMPLES)
     # Split the EXAMPLES option into a list of patterns
     string(REPLACE "," ";" EXAMPLES_LIST ${EXAMPLES})
+    message(STATUS "Executing examples owerride: ${EXAMPLES_LIST}")
 else()
     set(EXAMPLES_LIST "")
 endif()
