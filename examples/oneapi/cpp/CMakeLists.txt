@@ -87,26 +87,26 @@ endif()
 # Initialize the EXAMPLES variable with an empty list
 set(EXAMPLES "")
 
-# Initialize the EXCLUDE_PATTERN variable
-set(EXCLUDE_PATTERN "source/utils/*;source/example_util/*")
+# Initialize the EXCLUDE_PATHS variable
+set(EXCLUDE_PATHS "source/utils/*;source/example_util/*")
 
 # Recursively find all the example files in the source directory, using the
-# EXCLUDE_PATTERN exclude examples or directories
-file(GLOB_RECURSE EXAMPLE_FILES source/*/*.cpp EXCLUDE_PATTERN ${EXCLUDE_PATTERN})
+# EXCLUDE_PATHS exclude examples or directories
+file(GLOB_RECURSE EXAMPLE_FILES source/*/*.cpp EXCLUDE_PATTERN ${EXCLUDE_PATHS})
 
 # Convert the file names to executable names
 foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
     get_filename_component(EXAMPLE_NAME ${EXAMPLE_FILE} NAME_WE)
-    if("${EXAMPLES_LIST}" STREQUAL "")
-        # If EXAMPLES_LIST is empty, add all examples to the EXAMPLES variable
-        list(APPEND EXAMPLES ${EXAMPLE_FILE})
-    else()
+    if(EXAMPLES_LIST)
         # Otherwise, check if the example is in the EXAMPLES_LIST
         foreach(EXAMPLE_PATTERN ${EXAMPLES_LIST})
             if("${EXAMPLE_NAME}" MATCHES "${EXAMPLE_PATTERN}")
                 list(APPEND EXAMPLES ${EXAMPLE_FILE})
             endif()
         endforeach()
+    else()
+        # If EXAMPLES_LIST is empty, add all examples to the EXAMPLES variable
+        list(APPEND EXAMPLES ${EXAMPLE_FILE})
     endif()
 endforeach()
 
