@@ -74,7 +74,7 @@ find_package(oneDAL REQUIRED)
 include_directories(source/utils)
 
 # Define variable to specify the examples or directories to include or exclude
-set(EXAMPLES "")
+option(EXAMPLES "")
 
 if(EXAMPLES)
     # Split the EXAMPLES option into a list of patterns
