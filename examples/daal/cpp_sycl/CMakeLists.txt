@@ -81,4 +81,37 @@ find_package(oneDAL REQUIRED)
 
 include_directories(source/utils)
 
-add_subdirectory(source/pca)
+# Define variable to specify the examples or directories to include or exclude
+set(EXAMPLES "")
+
+# Split the EXAMPLES option into a list of patterns
+string(REPLACE "," ";" EXAMPLES_LIST ${EXAMPLES})
+
+# Initialize the EXAMPLES variable with an empty list
+set(EXAMPLES "")
+
+# Initialize the EXCLUDE_PATTERN variable
+set(EXCLUDE_PATTERN "source/utils/*")
+
+# Recursively find all the example files in the source directory, using the
+# EXCLUDE_PATTERN exclude examples or directories
+file(GLOB_RECURSE EXAMPLE_FILES source/*/*.cpp EXCLUDE_PATTERN ${EXCLUDE_PATTERN})
+
+# Convert the file names to executable names
+foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
+    get_filename_component(EXAMPLE_NAME ${EXAMPLE_FILE} NAME_WE)
+    if("${EXAMPLES_LIST}" STREQUAL "")
+        # If EXAMPLES_LIST is empty, add all examples to the EXAMPLES variable
+        list(APPEND EXAMPLES ${EXAMPLE_NAME})
+    else()
+        # Otherwise, check if the example is in the EXAMPLES_LIST
+        foreach(EXAMPLE_PATTERN ${EXAMPLES_LIST})
+            if("${EXAMPLE_NAME}" MATCHES "${EXAMPLE_PATTERN}")
+                list(APPEND EXAMPLES ${EXAMPLE_NAME})
+            endif()
+        endforeach()
+    endif()
+endforeach()
+
+# Add the examples to the build
+add_examples(${EXAMPLES})
