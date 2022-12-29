@@ -109,6 +109,5 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
         list(APPEND EXAMPLES ${EXAMPLE_FILE})
     endif()
 endforeach()
-
 # Add the examples to the build
-add_examples(${EXAMPLES})
+add_examples("${EXAMPLES}")

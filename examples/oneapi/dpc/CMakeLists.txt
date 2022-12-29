@@ -120,4 +120,4 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
 endforeach()
 
 # Add the examples to the build
-add_examples(${EXAMPLES})
+add_examples("${EXAMPLES}")
