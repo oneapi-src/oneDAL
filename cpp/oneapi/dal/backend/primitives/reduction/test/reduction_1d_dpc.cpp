@@ -31,9 +31,6 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using std::cout;
-using std::endl;
-
 using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
                                    std::tuple<double, sum<double>, square<double>>>;
 
