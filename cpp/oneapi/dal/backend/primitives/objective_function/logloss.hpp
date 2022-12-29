@@ -29,35 +29,35 @@ sycl::event compute_predictions(sycl::queue& q,
 
 template <typename Float>
 sycl::event compute_logloss(sycl::queue& q,
-                      const ndview<Float, 1>& parameters,
-                      const ndview<Float, 2>& data,
-                      const ndview<std::int32_t, 1>& labels,
-                      ndview<Float, 1>& out,
-                      Float L1 = Float(0),
-                      Float L2 = Float(0),
-                      const event_vector& deps = {});
+                            const ndview<Float, 1>& parameters,
+                            const ndview<Float, 2>& data,
+                            const ndview<std::int32_t, 1>& labels,
+                            ndview<Float, 1>& out,
+                            Float L1 = Float(0),
+                            Float L2 = Float(0),
+                            const event_vector& deps = {});
 
 template <typename Float>
 sycl::event compute_logloss_with_der(sycl::queue& q,
-                      const ndview<Float, 1>& parameters,
-                      const ndview<Float, 2>& data,
-                      const ndview<std::int32_t, 1>& labels,
-                      ndview<Float, 1>& out,
-                      ndview<Float, 1>& out_derivative,
-                      Float L1 = Float(0),
-                      Float L2 = Float(0),
-                      const event_vector& deps = {});
-/*
+                                     const ndview<Float, 1>& parameters,
+                                     const ndview<Float, 2>& data,
+                                     const ndview<std::int32_t, 1>& labels,
+                                     const ndview<Float, 1>& probabilities,
+                                     ndview<Float, 1>& out,
+                                     ndview<Float, 1>& out_derivative,
+                                     Float L1 = Float(0),
+                                     Float L2 = Float(0),
+                                     const event_vector& deps = {});
+
 template <typename Float>
-Float compute_logloss_with_regularization(sycl::queue& q,
-                                          const ndview<Float, 1>& parameters,
-                                          const ndview<Float, 2>& data,
-                                          const ndview<Float, 1>& labels,
-                                          ndview<Float, 1>& out,
-                                          const Float L1 = Float(0),
-                                          const Float L2 = Float(0),
-                                          const Float tol = float(1e-7),
-                                          const event_vector& deps = {});
-*/
+sycl::event compute_hessian(sycl::queue& q,
+                            const ndview<Float, 1>& parameters,
+                            const ndview<Float, 2>& data,
+                            const ndview<std::int32_t, 1>& labels,
+                            const ndview<Float, 1>& probabilities,
+                            ndview<Float, 2>& out_hessian,
+                            Float L1 = Float(0),
+                            Float L2 = Float(0),
+                            const event_vector& deps = {});
 
 } // namespace oneapi::dal::backend::primitives
