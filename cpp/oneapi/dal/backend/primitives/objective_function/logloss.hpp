@@ -47,17 +47,6 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                       Float L1 = Float(0),
                       Float L2 = Float(0),
                       const event_vector& deps = {});
-/*
-template <typename Float>
-Float compute_logloss_with_regularization(sycl::queue& q,
-                                          const ndview<Float, 1>& parameters,
-                                          const ndview<Float, 2>& data,
-                                          const ndview<Float, 1>& labels,
-                                          ndview<Float, 1>& out,
-                                          const Float L1 = Float(0),
-                                          const Float L2 = Float(0),
-                                          const Float tol = float(1e-7),
-                                          const event_vector& deps = {});
-*/
+
 
 } // namespace oneapi::dal::backend::primitives

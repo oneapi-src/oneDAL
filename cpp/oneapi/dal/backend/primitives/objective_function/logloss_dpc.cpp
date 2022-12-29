@@ -68,7 +68,6 @@ sycl::event compute_logloss(sycl::queue& q,
 
     const std::int32_t* labels_ptr = labels.get_data();
     auto loss_ptr = losses.get_data();
-    // auto param_ptr = parameters.get_data();
 
     // auto [out, out_event] =
     //    ndarray<Float, 1>::full(q, std::int64_t(1), Float(0), sycl::usm::alloc::device);
@@ -100,42 +99,34 @@ sycl::event compute_logloss(sycl::queue& q,
             sum += sycl::log(1 + sycl::exp(-label * pred));
         });
     });
-    /*
-    auto regularization_event = q.submit([&](sycl::handler& cgh){
-        cgh.depends_on({loss_event});
+    
+
+    auto [out_reg, out_reg_e] = ndarray<Float, 1>::zeros(q, {1}, sycl::usm::alloc::device);
+    auto reg_ptr = out_reg.get_mutable_data();
+    event_vector vector_out_reg = {out_reg_e};
+    
+    auto param_ptr = parameters.get_data();
+
+    auto reg_event = q.submit([&](sycl::handler& cgh){
+        cgh.depends_on(vector_out_reg);
         const auto range = make_range_1d(p + 1);
-        auto sumReduction = sycl::reduction(out_ptr, sycl::plus<>());
+        auto sumReduction = sycl::reduction(reg_ptr, sycl::plus<>());
         cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx];
             sum += L1 * sycl::abs(param) + L2 * param * param;
         });
     });
-    */
-    return loss_event;
-}
-/*
-template <typename Float>
-sycl::event compute_Lnorms(sycl::queue& q,
-                                          const ndview<Float, 1>& parameters,
-                                          ndview<Float, 1>& out,
-                                          const Float L1,
-                                          const Float L2,
-                                          const Float tol,
-                                          const event_vector& deps) {
-    ONEDAL_ASSERT(out.get_count() == 1);
-    auto out_ptr = out.get_mutable_data();
-    auto ptr = parameters.get_data();
-    auto Levent = q.submit([&](sycl::handler& cgh) {
-        using sycl::reduction;
-        const auto range = make_range_1d(parameters.get_dimenmsion(0) - 1);
-        auto sumReduction = reduction(out_ptr, sycl::plus<>());
-        cgh.parallel_for(range, sumReduction, (sycl::id<1> idx, auto& sum) {
-            sum += ptr[idx + 1] * ptr[idx + 1] * L2 + abs(ptr[idx + 1]) * L1;
+
+    auto final_event = q.submit([&](sycl::handler& cgh){
+        cgh.depends_on({reg_event, loss_event});
+        cgh.single_task([=]{
+            out_ptr[0] += reg_ptr[0];
         });
     });
-    return Levent;  
+
+    return final_event;
 }
-*/
+
 
 
 
@@ -251,14 +242,23 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
         });
     });
     */
+    // std::cout << out.to_host(q, {loss_event});
 
-    auto regularization_event = q.submit([&](sycl::handler& cgh){
-        cgh.depends_on({der_event});
+    auto [reg_val, reg_val_e] = ndarray<Float, 1>::zeros(q, {1}, sycl::usm::alloc::device);
+
+    event_vector vec = {reg_val_e};
+    auto reg_ptr = reg_val.get_mutable_data();
+
+    auto reg_event = q.submit([&](sycl::handler& cgh){
+        using oneapi::dal::backend::operator+;
+        cgh.depends_on(vec + der_event);
         const auto range = make_range_1d(p + 1);
-        auto sumReduction = sycl::reduction(out_ptr, sycl::plus<>());
+        auto sumReduction = sycl::reduction(reg_ptr, sycl::plus<>());
+        sycl::stream ss(16384, 16, cgh);
         cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx];
             sum += L1 * sycl::abs(param) + L2 * param * param;
+            // ss << idx << ':' <<  ' ' <<  L1 * sycl::abs(param) + L2 * param * param << sycl::endl;
             out_derivative_ptr[idx] += L2 * 2 * param;
             if (param > 0) {
                 out_derivative_ptr[idx] += L1;
@@ -267,7 +267,17 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
             }
         });
     });
-    return regularization_event;
+
+
+    auto final_event = q.submit([&](sycl::handler& cgh){
+        cgh.depends_on({reg_event, loss_event});
+        cgh.single_task([=]{
+            out_ptr[0] += reg_ptr[0];
+        });
+    });
+
+    // std::cout << out.to_host(q, {final_event});
+    return final_event;
 }
 
 

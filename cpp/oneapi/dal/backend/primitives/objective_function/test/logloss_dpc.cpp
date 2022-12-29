@@ -66,8 +66,8 @@ public:
         0.30589827, 0.63919892, -0.23380754, \
         2.38196927,  1.64158111,  0.13677077};
         const std::int32_t labels[n_] = {0, 1, 1, 0, 1};
-        const float_t L1 = 0;
-        const float_t L2 = 0;
+        const float_t L1 = 2.3456;
+        const float_t L2 = 3.123;
         // const Float real_param[p_ + 1] = {-0.38, 0.58, -0.4, 0.7};
         float_t cur_param[p_ + 1] = {-0.2, 0.1, -1, 0.4};
         
@@ -99,13 +99,19 @@ public:
         for (int i = 0; i < n_; ++i) {
             float_t prob = 1 / (1 + sycl::exp(-real_predictions[i]));
             logloss -= labels[i] * sycl::log(prob) + (1 - labels[i]) * sycl::log(1 - prob);
-            cout << - labels[i] * sycl::log(prob) - (1 - labels[i]) * sycl::log(1 - prob) << endl;
+            // cout << - labels[i] * sycl::log(prob) - (1 - labels[i]) * sycl::log(1 - prob) << endl;
             // cout << sycl::log(1 + sycl::exp(- (2 * labels[i] - 1) * real_predictions[i])) << endl;;
             float_t out_val = predictions_host.at(i);
             // cout << i << ": " << out_val << endl;
             REQUIRE(abs(out_val - real_predictions[i]) < 1e-5);
         }
-
+        // cout << logloss << endl;
+        for (int i = 0; i <= p_; ++i) {
+            // cout << L1 * abs(cur_param[i]) + L2 * cur_param[i] * cur_param[i] << " ";
+            logloss += L1 * abs(cur_param[i]);
+            logloss += L2 * cur_param[i] * cur_param[i];
+        }
+        // cout << endl;
         // cout << logloss << endl;
 
         auto [out_logloss, out_e] = ndarray<float_t, 1>::zeros(this->get_queue(), {1}, sycl::usm::alloc::device);
@@ -124,8 +130,9 @@ public:
         logloss_event_der.wait_and_throw();
 
         auto out_derivative_host = out_derivative.to_host(this->get_queue());
-        
-        cout << out_derivative_host;
+        val_logloss = out_logloss.to_host(this->get_queue(), {}).at(0);
+        REQUIRE(abs(val_logloss - logloss) < 1e-5);
+        // cout << out_derivative_host;
 
         const float_t eps = 1e-4;
         for (int i = 0; i <= p_; ++i) { // --------- CHANGE i to zero !!!! -------
