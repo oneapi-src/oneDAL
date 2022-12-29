@@ -74,18 +74,8 @@ const table& infer_result<Task>::get_responses() const {
 }
 
 template <typename Task>
-const table& infer_result<Task>::get_decision_function() const {
-    return impl_->decision_function;
-}
-
-template <typename Task>
 void infer_result<Task>::set_responses_impl(const table& value) {
     impl_->responses = value;
-}
-
-template <typename Task>
-void infer_result<Task>::set_decision_function_impl(const table& value) {
-    impl_->decision_function = value;
 }
 
 template class ONEDAL_EXPORT infer_input<task::classification>;

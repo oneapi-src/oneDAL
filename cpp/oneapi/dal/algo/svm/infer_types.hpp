@@ -114,24 +114,6 @@ public:
         return *this;
     }
 
-    // TODO: Enable this function only for classification and nu_classification
-    // problems.
-    // This will break binary compatibility, so the change should happen in
-    // 2022.1.
-    //
-    /// The $n \\times 1$ table with the predicted class.
-    /// Used with :expr:`oneapi::dal::svm::task::classification`
-    /// and :expr:`oneapi::dal::svm::task::nu_classification`.
-    /// decision function for each observation
-    /// @remark default = table{}
-    const table &get_decision_function() const;
-
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto &set_decision_function(const table &value) {
-        set_decision_function_impl(value);
-        return *this;
-    }
-
 protected:
     void set_responses_impl(const table &);
     void set_decision_function_impl(const table &);

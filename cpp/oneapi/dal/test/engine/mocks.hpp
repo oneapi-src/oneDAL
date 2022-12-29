@@ -26,18 +26,6 @@ public:
             : row_count_(row_count),
               column_count_(column_count) {}
 
-    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
-    detail::access_iface_host& get_access_iface_host() const override {
-        throw std::runtime_error{ "Do not use this method, it's for backward compatibility only" };
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
-    detail::access_iface_dpc& get_access_iface_dpc() const override {
-        throw std::runtime_error{ "Do not use this method, it's for backward compatibility only" };
-    }
-#endif
-
     std::int64_t get_kind() const override {
         return -1;
     }
