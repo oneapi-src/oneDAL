@@ -66,6 +66,8 @@ public:
         0.30589827, 0.63919892, -0.23380754, \
         2.38196927,  1.64158111,  0.13677077};
         const std::int32_t labels[n_] = {0, 1, 1, 0, 1};
+        const float_t L1 = 0;
+        const float_t L2 = 0;
         // const Float real_param[p_ + 1] = {-0.38, 0.58, -0.4, 0.7};
         float_t cur_param[p_ + 1] = {-0.2, 0.1, -1, 0.4};
         
@@ -109,15 +111,15 @@ public:
         auto [out_logloss, out_e] = ndarray<float_t, 1>::zeros(this->get_queue(), {1}, sycl::usm::alloc::device);
         // auto out_logloss_.to_device(this->get_queue());
 
-        sycl::event logloss_event = compute_logloss(this->get_queue(), params_gpu, data_gpu, labels_gpu, out_logloss, {out_e});
+        sycl::event logloss_event = compute_logloss(this->get_queue(), params_gpu, data_gpu, labels_gpu, out_logloss, L1, L2, {out_e});
 
         logloss_event.wait_and_throw();
         float_t val_logloss = out_logloss.to_host(this->get_queue(), {}).at(0);
         REQUIRE(abs(val_logloss - logloss) < 1e-5);
 
         auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
-        auto out_derivative = ndarray<float_t, 1>::empty(this->get_queue(), {p_ + 1}, sycl::usm::alloc::device);
-        auto logloss_event_der = compute_logloss_with_der(this->get_queue(), params_gpu, data_gpu, labels_gpu, out_logloss, out_derivative, float_t(0), float_t(0), {fill_event});
+        auto [out_derivative, out_der_e] = ndarray<float_t, 1>::zeros(this->get_queue(), {p_ + 1}, sycl::usm::alloc::device);
+        auto logloss_event_der = compute_logloss_with_der(this->get_queue(), params_gpu, data_gpu, labels_gpu, out_logloss, out_derivative, L1, L2, {fill_event, out_der_e});
 
         logloss_event_der.wait_and_throw();
 
@@ -126,13 +128,13 @@ public:
         cout << out_derivative_host;
 
         const float_t eps = 1e-4;
-        for (int i = 1; i < p_; ++i) { // --------- CHANGE i to zero !!!! -------
+        for (int i = 0; i <= p_; ++i) { // --------- CHANGE i to zero !!!! -------
             cur_param[i] += eps;
             auto params_host2 = ndarray<float_t, 1>::wrap(cur_param, p_ + 1);
             auto params_gpu2 = params_host2.to_device(this->get_queue());
             auto fill_event2 = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
 
-            sycl::event logloss_event2 = compute_logloss(this->get_queue(), params_gpu2, data_gpu, labels_gpu, out_logloss, {fill_event2});
+            sycl::event logloss_event2 = compute_logloss(this->get_queue(), params_gpu2, data_gpu, labels_gpu, out_logloss, L1, L2, {fill_event2});
             logloss_event2.wait_and_throw();
             float_t logloss_up = out_logloss.to_host(this->get_queue(), {}).at(0);
 
@@ -143,7 +145,7 @@ public:
             auto params_gpu3 = params_host3.to_device(this->get_queue());
             auto fill_event3 = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
 
-            sycl::event logloss_event3 = compute_logloss(this->get_queue(), params_gpu3, data_gpu, labels_gpu, out_logloss, {fill_event3});
+            sycl::event logloss_event3 = compute_logloss(this->get_queue(), params_gpu3, data_gpu, labels_gpu, out_logloss, L1, L2, {fill_event3});
             logloss_event3.wait_and_throw();
             float_t logloss_down = out_logloss.to_host(this->get_queue(), {}).at(0);
 

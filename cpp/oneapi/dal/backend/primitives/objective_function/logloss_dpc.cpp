@@ -53,6 +53,8 @@ sycl::event compute_logloss(sycl::queue& q,
                       const ndview<Float, 2>& data,
                       const ndview<std::int32_t, 1>& labels,
                       ndview<Float, 1>& out,
+                      Float L1,
+                      Float L2,
                       const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
@@ -66,6 +68,7 @@ sycl::event compute_logloss(sycl::queue& q,
 
     const std::int32_t* labels_ptr = labels.get_data();
     auto loss_ptr = losses.get_data();
+    // auto param_ptr = parameters.get_data();
 
     // auto [out, out_event] =
     //    ndarray<Float, 1>::full(q, std::int64_t(1), Float(0), sycl::usm::alloc::device);
@@ -97,6 +100,17 @@ sycl::event compute_logloss(sycl::queue& q,
             sum += sycl::log(1 + sycl::exp(-label * pred));
         });
     });
+    /*
+    auto regularization_event = q.submit([&](sycl::handler& cgh){
+        cgh.depends_on({loss_event});
+        const auto range = make_range_1d(p + 1);
+        auto sumReduction = sycl::reduction(out_ptr, sycl::plus<>());
+        cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
+            const Float param = param_ptr[idx];
+            sum += L1 * sycl::abs(param) + L2 * param * param;
+        });
+    });
+    */
     return loss_event;
 }
 /*
@@ -160,6 +174,11 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
     auto labels_ptr = labels.get_data();
     auto param_ptr = parameters.get_data();
     auto out_ptr = out.get_mutable_data();
+    auto out_derivative_ptr = out_derivative.get_mutable_data();
+
+    // std::cout << derivative_object.to_host(q, {prediction_event});
+    // std::cout << out_derivative.to_host(q, {prediction_event});
+
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
         using oneapi::dal::backend::operator+;
@@ -169,36 +188,72 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
         // const event_vector& full_deps = deps + prediction_event;
         cgh.depends_on({prediction_event});
 
-        auto sumReduction = reduction(out_ptr, sycl::plus<>());
-        
+        auto sumReductionLogLoss = reduction(out_ptr, sycl::plus<>());
+        auto sumReductionDerivativeW0 = reduction(out_derivative_ptr, sycl::plus<>());
         // if y in {-1, 1} then loss function would be log(1 + exp(-y * pred))
         // so we need to compute log(1 + exp(-(y * 2 - 1) * pred)) as our original labels are in {0, 1}
 
-        const auto range = make_range_1d(n);
-        cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
+        // const auto range = make_range_1d(n);
+        const auto wg_size = propose_wg_size(q);
+        const auto range = make_multiple_nd_range_1d(n, wg_size);
+        /*
+        cgh.parallel_for(range, sumReductionLogLoss, [=](sycl::id<1> idx, auto& sum_logloss) {
             const Float pred = pred_ptr[idx];
             const Float label = labels_ptr[idx] * 2 - 1;
             const Float prob = 1 / (1 + sycl::exp(-pred));
-            sum += sycl::log(1 + sycl::exp(-label * pred));
+            sum_logloss += sycl::log(1 + sycl::exp(-label * pred));
             der_obj_ptr[idx] = prob - labels_ptr[idx];
+            // sum_Dw0 += der_obj_ptr[idx];
         });
+        */
+       // sycl::stream ss(16384, 16, cgh);
+        
+        cgh.parallel_for(range, sumReductionLogLoss, sumReductionDerivativeW0, [=](sycl::nd_item<1> id, auto& sum_logloss, auto& sum_Dw0) {
+            auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
+            if (idx >= std::size_t(n)) 
+                return;
+            const Float pred = pred_ptr[idx];
+            const Float label = labels_ptr[idx] * 2 - 1;
+            const Float prob = 1 / (1 + sycl::exp(-pred));
+            sum_logloss += sycl::log(1 + sycl::exp(-label * pred));
+            der_obj_ptr[idx] = prob - labels_ptr[idx];
+            // ss << idx << ':' <<  ' ' << out_derivative_ptr[0] << ' ' << der_obj_ptr[idx] << sycl::endl;
+            sum_Dw0 += der_obj_ptr[idx];
+        });
+        
     });
+
+    //std::cout << derivative_object.to_host(q, {prediction_event, loss_event});
+    //std::cout << out_derivative.to_host(q, {prediction_event, loss_event});
+
     auto out_der_suffix = out_derivative.get_slice(1, p + 1);
+    // std::cout << "Out der suffix" << std::endl;
+    // std::cout << out_der_.to_host(q, {loss_event});
+    
     auto der_event = gemv(q, data.t(),
                 derivative_object,
                 out_der_suffix,
                 {loss_event});
 
-    auto out_derivative_ptr = out_derivative.get_mutable_data();
+    // std::cout << "Out der suffix" << std::endl;
+    // std::cout << out_derivative.to_host(q, {der_event});
+
+    /*
     auto derivative_first = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(loss_event);
+
         cgh.single_task([=](){
-            out_derivative_ptr[0] = der_obj_ptr[0];
+            out_derivative_ptr[0] = 0;
+            for (int i = 0; i < n; ++i) {
+                out_derivative_ptr[0] += der_obj_ptr[i];
+            }
+            // out_derivative_ptr[0] = der_obj_ptr[0] * n;
         });
     });
+    */
 
     auto regularization_event = q.submit([&](sycl::handler& cgh){
-        cgh.depends_on({der_event, derivative_first});
+        cgh.depends_on({der_event});
         const auto range = make_range_1d(p + 1);
         auto sumReduction = sycl::reduction(out_ptr, sycl::plus<>());
         cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
@@ -228,6 +283,7 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                                 const ndview<F, 2>&, \
                                 const ndview<std::int32_t, 1>&, \
                                 ndview<F, 1>&, \
+                                F, F, \
                                 const event_vector&); \
                         template sycl::event compute_logloss_with_der<F>(sycl::queue&, \
                                 const ndview<F, 1>&, \

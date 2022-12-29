@@ -33,6 +33,8 @@ sycl::event compute_logloss(sycl::queue& q,
                       const ndview<Float, 2>& data,
                       const ndview<std::int32_t, 1>& labels,
                       ndview<Float, 1>& out,
+                      Float L1 = Float(0),
+                      Float L2 = Float(0),
                       const event_vector& deps = {});
 
 template <typename Float>
