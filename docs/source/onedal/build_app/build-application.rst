@@ -56,7 +56,6 @@ Applications on Linux* OS
             -
               | libonedal_core.a,
               | libonedal_dpc.a,
-              | libonedal_sequential.a
             -
               | libonedal_core.a,
               | libonedal_dpc.a,
@@ -65,7 +64,6 @@ Applications on Linux* OS
             -
               | libonedal_core.so,
               | libonedal_dpc.so,
-              | libonedal_sequential.so
             -
               | libonedal_core.so,
               | libonedal_dpc.so,
@@ -128,7 +126,6 @@ Applications on Windows* OS
       * - Static linking
         -
           | onedal_core.lib,
-          | onedal_sequential.lib
         -
           | onedal_core.lib,
           | onedal_thread.lib
@@ -155,7 +152,6 @@ Applications on Windows* OS
           | onedald.lib,
           | onedal_dpcd.lib,
           | onedal_sycld.lib,
-          | onedal_sequentiald.lib
         -
           | onedal_cored.lib,
           | onedald.lib,
@@ -170,7 +166,6 @@ Applications on Windows* OS
           | onedald.1.dll,
           | onedal_cored.1.dll,
           | onedal_dpcd.1.dll,
-          | onedal_sequentiald.1.dll
         -
           | onedal_cored_dll.lib (onedal_cored_dll.1.lib),
           | onedald_dll.lib (onedald_dll.1.lib),
@@ -206,11 +201,11 @@ Static linking, Single-threaded |short_name|:
    .. code-block:: text
 
      icpx -fsycl my_first_dal_program.cpp -Wl,
-     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a <install dir>/dal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
      
    * Windows* OS:
    
    .. code-block:: text
 
      icx-cl -fsycl my_first_dal_program.cpp -Wl,
-     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a <install dir>/dal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
