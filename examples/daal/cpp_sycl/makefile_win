@@ -58,8 +58,8 @@ help:
 
 {examples_list}
 
-@echo "DAAL SYCL interfaces are depricated, please use oneDAL DPC interfaces"
-@echo "make build system for DAAL in deprecated, please use cmake instead"
+$(info =====DAAL SYCL interfaces are depricated, please use oneDAL DPC interfaces====)
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
 
 !IFNDEF example
 example = $(EXAMPLES_LIST)

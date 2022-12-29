@@ -63,7 +63,7 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
-@echo "make build system for DAAL in deprecated, please use cmake instead"
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
 
 include daal.lst
 

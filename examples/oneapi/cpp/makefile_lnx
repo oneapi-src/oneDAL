@@ -51,7 +51,7 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
-@echo "make build system for oneDAL in deprecated, please use cmake instead"
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
 
 include onedal.lst
 
