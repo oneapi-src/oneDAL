@@ -71,12 +71,7 @@ elif [ "${OS}" == "mac" ]; then
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-clang}
-    if [ "${compiler}" == "gnu" ]; then
-        # TODO: fix static linking with gnu on mac
-        link_modes="dynamic"
-    else
-        link_modes="static dynamic"
-    fi
+    link_modes="static dynamic"
 else
     echo "Error not supported OS: ${OS}"
     exit 1
@@ -119,37 +114,38 @@ if [ "${interface}" == "daal/java" ]; then
 fi
 
 for link_mode in ${link_modes}; do
-    # Release Examples testing
-    if [ "${link_mode}" == "static" ]; then
-        l="lib"
-    elif [ "${link_mode}" == "dynamic" ]; then
-        if [ "${OS}" == "lnx" ]; then
-            l="so"
-        else
-            l="dylib"
-        fi
+    if [[ ${compiler} == gnu ]]; then
+        export CC=gcc
+        export CXX=g++
+    elif [[ ${compiler} == clang ]]; then
+        export CC=clang
+        export CXX=clang++
+    elif [[ ${compiler} == icx ]]; then
+        export CC=icx
+        export CXX=icpx
     fi
-    build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
-    echo "Building ${TEST_KIND} ${build_command}"
-    (${build_command})
+    echo "============== Configuration: =============="
+    echo Compiler:  ${compiler}
+    echo Link mode: ${link_mode}
+    echo CMAKE_C_COMPILE: ${CC}
+    echo CMAKE_CXX_COMPILER: ${CXX}
+    echo "============================================"
+
+    cmake_command="cmake -G \"Unix Makefiles\" -DTARGET_LINK=${link_mode}"
+    echo "Cmake call: ${cmake_command}"
+    (${cmake_command})
     err=$?
     if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${link_mode}"
+        echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
         TESTING_RETURN=${err}
         continue
-    else
-        echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${link_mode}"
     fi
-    run_command="make ${l}${full_arch} mode=run compiler=${compiler}"
-    echo "Running ${TEST_KIND} ${run_command}"
-    (${run_command})
+    make
     err=$?
     if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${link_mode} with errno ${err}"
+        echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t"
         TESTING_RETURN=${err}
         continue
-    else
-        echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${link_mode}"
     fi
 done
 
