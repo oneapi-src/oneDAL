@@ -102,7 +102,6 @@ set(EXCLUDE_PATHS "source/utils/*;source/example_util/*")
 # Recursively find all the example files in the source directory, using the
 # EXCLUDE_PATHS exclude examples or directories
 file(GLOB_RECURSE EXAMPLE_FILES source/*/*.cpp)
-file(GLOB_RECURSE EXAMPLE_FILES source/*/*.cpp)
 foreach(EXCLUDE_RULE ${EXCLUDE_PATHS})
     list(FILTER EXAMPLE_FILES EXCLUDE REGEX ${EXCLUDE_RULE})
 endforeach()
