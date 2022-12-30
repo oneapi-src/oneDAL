@@ -27,7 +27,7 @@ set(CMAKE_BUILD_TYPE Release)
 set(USE_DPCPP yes)
 set(USE_NEW_IFACES yes)
 
-set(CUSTOM_OPTIONS "-fsycl-device-code-split=per_kernel")
+set(CUSTOM_OPTIONS "")
 
 if (WIN32)
     set(TARGET_LINK dynamic)
