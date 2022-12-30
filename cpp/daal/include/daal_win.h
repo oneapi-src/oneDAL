@@ -40,7 +40,6 @@
 #include "data_management/compression/compression_stream.h"
 #include "data_management/compression/lzocompression.h"
 #include "data_management/compression/rlecompression.h"
-#include "data_management/compression/zlibcompression.h"
 #include "data_management/features/compatibility.h"
 #include "data_management/data_source/csv_feature_manager.h"
 #include "data_management/data_source/data_source.h"
