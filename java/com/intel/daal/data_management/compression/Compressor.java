@@ -45,7 +45,7 @@ public class Compressor extends Compression {
      */
     public Compressor(DaalContext context, CompressionMethod method) {
         super(context);
-        if (method != CompressionMethod.zlib && method != CompressionMethod.lzo && method != CompressionMethod.rle
+        if (method != CompressionMethod.lzo && method != CompressionMethod.rle
                 && method != CompressionMethod.bzip2) {
             throw new IllegalArgumentException("method unsupported");
         }

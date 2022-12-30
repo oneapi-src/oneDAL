@@ -33,7 +33,6 @@
 #define Level9       com_intel_daal_data_management_compression_CompressionLevel_Level9Value
 
 #include "com_intel_daal_data_management_compression_CompressionMethod.h"
-#define Zlib  com_intel_daal_data_management_compression_CompressionMethod_Zlib
 #define Lzo   com_intel_daal_data_management_compression_CompressionMethod_Lzo
 #define Rle   com_intel_daal_data_management_compression_CompressionMethod_Rle
 #define Bzip2 com_intel_daal_data_management_compression_CompressionMethod_Bzip2

@@ -46,13 +46,10 @@ public final class CompressionMethod {
         return _value;
     }
 
-    @Native private static final int Zlib  = 0;
     @Native private static final int Lzo   = 1;
     @Native private static final int Rle   = 2;
     @Native private static final int Bzip2 = 3;
 
-    public static final CompressionMethod zlib  = new CompressionMethod(Zlib);  /*!< DEFLATE compression method with ZLIB block header
-                                                                                     or simple GZIP block header */
     public static final CompressionMethod lzo   = new CompressionMethod(
             Lzo);                                                               /*!< LZO1X compatible compression method */
     public static final CompressionMethod rle   = new CompressionMethod(Rle);   /*!< Run-Length Encoding method */
