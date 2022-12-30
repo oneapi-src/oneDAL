@@ -144,7 +144,7 @@ for link_mode in ${link_modes}; do
     echo "============================================"
 
     if [ -d "Build" ]; then
-        srm -rf ./Build/*
+        rm -rf ./Build/*
     else
         mkdir Build
     fi
