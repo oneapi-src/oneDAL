@@ -30,6 +30,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Compres
     jlong compressor = 0;
     switch (method)
     {
+    case Zlib: compressor = (jlong)(new Compressor<data_management::zlib>()); break;
     case Lzo: compressor = (jlong)(new Compressor<data_management::lzo>()); break;
     case Rle: compressor = (jlong)(new Compressor<data_management::rle>()); break;
     case Bzip2: compressor = (jlong)(new Compressor<data_management::bzip2>()); break;
@@ -44,6 +45,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Compres
     jlong par = 0;
     switch (method)
     {
+    case Zlib: par = (jlong) & (((Compressor<data_management::zlib> *)comprAddr)->parameter); break;
     case Lzo: par = (jlong) & (((Compressor<data_management::lzo> *)comprAddr)->parameter); break;
     case Rle: par = (jlong) & (((Compressor<data_management::rle> *)comprAddr)->parameter); break;
     case Bzip2: par = (jlong) & (((Compressor<data_management::bzip2> *)comprAddr)->parameter); break;
