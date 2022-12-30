@@ -88,7 +88,11 @@ endif()
 option(EXAMPLES "")
 
 # Initialize the EXCLUDE_PATHS variable
-set(EXCLUDE_PATHS "source/utils/*;source/example_util/*")
+set(EXCLUDE_PATHS
+    "source/utils/*"
+    "source/example_util/*"
+    "jaccard_batch_app"
+)
 
 # Recursively find all the example files in the source directory, using the
 # EXCLUDE_PATHS exclude examples or directories

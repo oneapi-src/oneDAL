@@ -97,8 +97,10 @@ endif()
 set(EXAMPLES "")
 
 # Initialize the EXCLUDE_PATHS variable
-set(EXCLUDE_PATHS "source/utils/*;source/example_util/*")
-
+set(EXCLUDE_PATHS
+    "source/utils/*"
+    "source/example_util/*"
+)
 # Recursively find all the example files in the source directory, using the
 # EXCLUDE_PATHS exclude examples or directories
 file(GLOB_RECURSE EXAMPLE_FILES source/*/*.cpp)
