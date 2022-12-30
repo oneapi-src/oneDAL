@@ -278,12 +278,69 @@ sycl::event compute_hessian(sycl::queue& q,
 
 
     auto prediction_event = compute_predictions(q, parameters, data, probabilities, deps);
-
+    
     auto data_ptr = data.get_data();
     auto hes_ptr = out_hessian.get_mutable_data();
     auto proba_ptr = probabilities.get_mutable_data();
 
 
+    event_vector hess_deps = {};
+    
+    for (std::int64_t j = 0; j < p; ++j) {
+        for (std::int64_t k = j; k < p; ++k) {
+            using oneapi::dal::backend::operator+;
+            auto event = q.submit([&](sycl::handler& cgh) {
+                cgh.depends_on({prediction_event});
+                const auto range = make_range_1d(n);
+                auto sumReduction = sycl::reduction(hes_ptr + (j + 1) * (p + 1) + (k + 1), sycl::plus<>());
+                cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
+                    const Float prob = proba_ptr[idx]; 
+                    sum += data_ptr[idx * p + j] * data_ptr[idx * p + k] * prob * (1 - prob);
+                });
+            });
+            hess_deps = hess_deps + event;
+        }
+        auto event = q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on({prediction_event});
+            const auto range = make_range_1d(n);
+            auto sumReduction = sycl::reduction(hes_ptr + (j + 1), sycl::plus<>());
+            cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
+                const Float prob = proba_ptr[idx]; 
+                sum += data_ptr[idx * p + j] * prob * (1 - prob);
+            });
+        });
+        hess_deps = hess_deps + event;
+    }
+    auto event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({prediction_event});
+        const auto range = make_range_1d(n);
+        auto sumReduction = sycl::reduction(hes_ptr, sycl::plus<>());
+        cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
+            const Float prob = proba_ptr[idx]; 
+            sum += prob * (1 - prob);
+        });
+    });
+    hess_deps = hess_deps + event;
+
+    auto copy_event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(hess_deps);
+        const auto range = make_range_2d(p + 1, p + 1);
+        cgh.parallel_for(range, [=](sycl::id<2> idx) {
+            auto j = idx[0];
+            auto k = idx[1];
+            if (j < k) {
+                hes_ptr[k * (p + 1) + j] = hes_ptr[j * (p + 1) + k];
+            }
+            if (j == k) {
+                hes_ptr[j * (p + 1) + j] += 2 * L2;
+            }
+        });             
+    });
+
+    return copy_event;
+
+
+    /*
     auto hess_event = q.submit([&](sycl::handler& cgh) {
         const auto range = make_range_2d(p, p);
 
@@ -293,13 +350,6 @@ sycl::event compute_hessian(sycl::queue& q,
             const std::int64_t j = idx[0];
             const std::int64_t k = idx[1];
             const std::int64_t gi = (j + 1) * (p + 1) + (k + 1);
-            hes_ptr[gi] = 0;
-            if (k == 0) {
-                hes_ptr[j + 1] = 0;
-            }
-            if (j == 0 && k == 0) {
-                hes_ptr[0] = 0;
-            }
             for (int64_t i = 0; i < n; ++i) {
                 const Float prob = proba_ptr[i];
                 hes_ptr[gi] += data_ptr[i * p + j] * data_ptr[i * p + k] * prob * (1 - prob);
@@ -315,6 +365,7 @@ sycl::event compute_hessian(sycl::queue& q,
             }
         });
     });
+    
 
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on({hess_event});
@@ -323,6 +374,7 @@ sycl::event compute_hessian(sycl::queue& q,
             hes_ptr[idx * (p + 1) + idx] += 2 * L2;
         });
     });
+    */
 }
 
 
