@@ -131,9 +131,7 @@ for link_mode in ${link_modes}; do
     echo CMAKE_CXX_COMPILER: ${CXX}
     echo "============================================"
 
-    cmake_command="cmake -G \"Unix Makefiles\" -DTARGET_LINK=${link_mode}"
-    echo "Cmake call: ${cmake_command}"
-    (${cmake_command})
+    cmake -G "Unix Makefiles" -DTARGET_LINK=${link_mode}
     err=$?
     if [ ${err} -ne 0 ]; then
         echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
