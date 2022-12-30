@@ -283,6 +283,80 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
 
 
 
+template<typename Float>
+sycl::event compute_hessian(sycl::queue& q,
+                      const ndview<Float, 1>& parameters,
+                      const ndview<Float, 2>& data,
+                      const ndview<std::int32_t, 1>& labels,
+                      ndview<Float, 2>& out_hessian,
+                      Float L1,
+                      Float L2,
+                      const event_vector& deps) {
+
+    const int64_t n = data.get_dimension(0);
+    const int64_t p = data.get_dimension(1);
+
+   // ONEDAL_ASSERT(out.get_count() == 1);
+    ONEDAL_ASSERT(out_hessian.get_dimension(0) == (p + 1));
+    ONEDAL_ASSERT(out_hessian.get_dimension(1) == (p + 1));
+
+
+    // regression output
+    auto predictions = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
+
+
+    auto prediction_event = compute_predictions(q, parameters, data, predictions, deps);
+
+    auto data_ptr = data.get_data();
+    auto hes_ptr = out_hessian.get_mutable_data();
+    auto pred_ptr = predictions.get_mutable_data();
+
+
+    auto hess_event = q.submit([&](sycl::handler& cgh) {
+        const auto range = make_range_2d(p, p);
+
+        cgh.depends_on({prediction_event});
+        cgh.parallel_for(range, [=](sycl::id<2> idx) {
+            // can make more parallelization with atomics!
+            const std::int64_t j = idx[0];
+            const std::int64_t k = idx[1];
+            const std::int64_t gi = (j + 1) * (p + 1) + (k + 1);
+            hes_ptr[gi] = 0;
+            if (k == 0) {
+                hes_ptr[j + 1] = 0;
+            }
+            if (j == 0 && k == 0) {
+                hes_ptr[0] = 0;
+            }
+            for (int64_t i = 0; i < n; ++i) {
+                const Float pred = pred_ptr[i];
+                const Float prob = 1 / (1 + sycl::exp(-pred)); // can save this info
+                hes_ptr[gi] += data_ptr[i * p + j] * data_ptr[i * p + k] * prob * (1 - prob);
+                if (k == 0) {
+                    hes_ptr[j + 1] += prob * (1 - prob) * data_ptr[i * p + j];
+                }
+                if (j == 0 && k == 0) {
+                    hes_ptr[0] += prob * (1 - prob);
+                }
+            }
+            if (k == 0) {
+                hes_ptr[(j + 1) * (p + 1)] = hes_ptr[j + 1]; 
+            }
+        });
+    });
+
+    return q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({hess_event});
+        const auto range = make_range_1d(p + 1);
+        cgh.parallel_for(range, [=](sycl::id<1> idx){
+            hes_ptr[idx * (p + 1) + idx] += 2 * L2;
+        });
+    });
+}
+
+
+
+
 #define INSTANTIATE(F)  template sycl::event compute_predictions<F>(sycl::queue&, \
                                 const ndview<F, 1>&, \
                                 const ndview<F, 2>&, \
@@ -301,6 +375,13 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                                 const ndview<std::int32_t, 1>&, \
                                 ndview<F, 1>&, \
                                 ndview<F, 1>&, \
+                                F, F, \
+                                const event_vector&); \
+                        template sycl::event compute_hessian<F>(sycl::queue&, \
+                                const ndview<F, 1>&, \
+                                const ndview<F, 2>&, \
+                                const ndview<std::int32_t, 1>&, \
+                                ndview<F, 2>&, \
                                 F, F, \
                                 const event_vector&);
 

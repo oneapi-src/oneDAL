@@ -132,7 +132,14 @@ public:
         auto out_derivative_host = out_derivative.to_host(this->get_queue());
         val_logloss = out_logloss.to_host(this->get_queue(), {}).at(0);
         REQUIRE(abs(val_logloss - logloss) < 1e-5);
-        // cout << out_derivative_host;
+        cout << out_derivative_host;
+
+        auto out_hessian = ndarray<float_t, 2>::empty(this->get_queue(), {p_ + 1, p_ + 1}, sycl::usm::alloc::device);
+        auto hess_event = compute_hessian(this->get_queue(), params_gpu, data_gpu, labels_gpu, out_hessian, L1, L2, {});
+
+        auto hessian_host = out_hessian.to_host(this->get_queue(), {hess_event});
+
+        cout << hessian_host;
 
         const float_t eps = 1e-4;
         for (int i = 0; i <= p_; ++i) { // --------- CHANGE i to zero !!!! -------
@@ -145,6 +152,11 @@ public:
             logloss_event2.wait_and_throw();
             float_t logloss_up = out_logloss.to_host(this->get_queue(), {}).at(0);
 
+            auto [out_derivative2, out_der_e2] = ndarray<float_t, 1>::zeros(this->get_queue(), {p_ + 1}, sycl::usm::alloc::device);
+            sycl::event der_event2 = compute_logloss_with_der(this->get_queue(), params_gpu, data_gpu, labels_gpu, out_logloss, out_derivative2, L1, L2, {out_der_e2});
+            der_event2.wait_and_throw();
+
+            auto out_der_ptr2 = out_derivative2.to_host(this->get_queue(), {});
 
             cur_param[i] -= 2 * eps;
 
@@ -155,8 +167,21 @@ public:
             sycl::event logloss_event3 = compute_logloss(this->get_queue(), params_gpu3, data_gpu, labels_gpu, out_logloss, L1, L2, {fill_event3});
             logloss_event3.wait_and_throw();
             float_t logloss_down = out_logloss.to_host(this->get_queue(), {}).at(0);
+            
+            auto [out_derivative3, out_der_e3] = ndarray<float_t, 1>::zeros(this->get_queue(), {p_ + 1}, sycl::usm::alloc::device);
+            sycl::event der_event3 = compute_logloss_with_der(this->get_queue(), params_gpu, data_gpu, labels_gpu, out_logloss, out_derivative3, L1, L2, {out_der_e3});
+            der_event3.wait_and_throw();
+
+            auto out_der_ptr3 = out_derivative3.to_host(this->get_queue(), {});
+
+        
 
             REQUIRE(abs((logloss_up - logloss_down) - 2 * eps * out_derivative_host.at(i)) < 1e-5);
+
+            for (int j = 0; j <= p_; ++j) {
+                
+                REQUIRE(abs((out_der_ptr2.at(j) - out_der_ptr3.at(j)) - 2 * eps * hessian_host.at(i, j)));
+            }
 
             cur_param[i] += eps;
         }

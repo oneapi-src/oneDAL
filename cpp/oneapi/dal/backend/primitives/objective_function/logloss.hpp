@@ -49,4 +49,15 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                       const event_vector& deps = {});
 
 
+template <typename Float>
+sycl::event compute_hessian(sycl::queue& q,
+                      const ndview<Float, 1>& parameters,
+                      const ndview<Float, 2>& data,
+                      const ndview<std::int32_t, 1>& labels,
+                      ndview<Float, 2>& out_hessian,
+                      Float L1 = Float(0),
+                      Float L2 = Float(0),
+                      const event_vector& deps = {});
+
+
 } // namespace oneapi::dal::backend::primitives
