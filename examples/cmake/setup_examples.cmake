@@ -66,8 +66,8 @@ endfunction()
 #Finction generate list of example paths based in user selection and exlude paths
 function (generate_examples EXCLUDE_PATHS EXAMPLES_INPUT)
     if(EXAMPLES_INPUT)
-        # Split the EXAMPLES option into a list of patterns
-        string(REPLACE "," ";" EXAMPLES_LIST ${EXAMPLES})
+        # Split the EXAMPLES_INPUT option into a list of patterns
+        string(REPLACE "," ";" EXAMPLES_LIST ${EXAMPLES_INPUT})
         message(STATUS "Executing examples owerride: ${EXAMPLES_LIST}")
     else()
         set(EXAMPLES_LIST "")

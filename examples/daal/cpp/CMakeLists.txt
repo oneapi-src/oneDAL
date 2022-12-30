@@ -41,4 +41,4 @@ set(EXCLUDE_LIST
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")
 
-generate_examples( EXCLUDE_LIST EXAMPLES_LIST)
+generate_examples(EXCLUDE_LIST EXAMPLES_LIST)
