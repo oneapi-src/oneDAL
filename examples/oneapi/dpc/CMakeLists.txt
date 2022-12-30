@@ -51,4 +51,6 @@ set(EXCLUDE_LIST
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")
 
+set_common_compiler_options()
+
 generate_examples("${EXCLUDE_LIST}" "${EXAMPLES_LIST}")

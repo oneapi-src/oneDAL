@@ -25,6 +25,24 @@ function (set_link_type)
     endif()
 endfunction()
 
+function (set_common_compiler_options)
+    #Setting base common set of params for examples compilation
+    if(WIN32)
+        add_compile_options(/W3 /EHsc)
+    elseif(APPLE)
+        add_compile_options(-pedantic -Wall -Wextra -Werror -Wno-unused-parameter)
+    elseif(UNIX)
+        add_compile_options(-pedantic -Wall -Wextra -Werror -Wno-unused-parameter)
+    endif()
+    #For DAAL interfaces remove deprecated warnings
+    if (USE_NEW_IFACES STREQUAL "no")
+        if (UNIX)
+            add_compile_options(-Wno-deprecated-declarations)
+        endif()
+    endif()
+endfunction()
+
+
 #Funtion for resetting mode to MDD on windows
 function (change_md_to_mdd)
     set(cxx_flag ${CMAKE_CXX_FLAGS})
