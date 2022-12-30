@@ -85,7 +85,7 @@ else()
 endif()
 
 # Initialize the EXAMPLES variable with an empty list
-option(EXAMPLES "")
+set(EXAMPLES "")
 
 # Initialize the EXCLUDE_PATHS variable
 set(EXCLUDE_PATHS
