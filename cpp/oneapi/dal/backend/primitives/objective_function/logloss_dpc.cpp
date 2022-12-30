@@ -33,7 +33,8 @@ sycl::event compute_predictions(sycl::queue& q,
     auto fill_event = fill<Float>(q, predictions, Float(1), {});
     using oneapi::dal::backend::operator+;
 
-    
+    const int64_t n = data.get_dimension(0);
+
     auto param_arr = ndarray<Float, 1>::wrap(parameters.get_data(), 1);
     Float w0 = param_arr.to_host(q, deps).at(0); // Poor perfomance
 
@@ -44,7 +45,16 @@ sycl::event compute_predictions(sycl::queue& q,
                 Float(1),
                 w0,
                 {fill_event});
-    return event;
+    auto pred_ptr = predictions.get_mutable_data();
+
+    return q.submit([&](sycl::handler& cgh){
+        cgh.depends_on(event);
+        const auto range = make_range_1d(n);
+        cgh.parallel_for(range, [=](sycl::id<1> idx){
+            pred_ptr[idx] = 1 / (1 + sycl::exp(-pred_ptr[idx]));
+        });
+    });
+    // return event;
 }
 
 template <typename Float>
@@ -63,11 +73,11 @@ sycl::event compute_logloss(sycl::queue& q,
     ONEDAL_ASSERT(labels.has_data());
     ONEDAL_ASSERT(parameters.has_data());
     ONEDAL_ASSERT(data.has_data());
-    auto losses = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
-    auto prediction_event = compute_predictions(q, parameters, data, losses, deps);
+    auto probabilities = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
+    auto prediction_event = compute_predictions(q, parameters, data, probabilities, deps);
 
     const std::int32_t* labels_ptr = labels.get_data();
-    auto loss_ptr = losses.get_data();
+    auto prob_ptr = probabilities.get_data();
 
     // auto [out, out_event] =
     //    ndarray<Float, 1>::full(q, std::int64_t(1), Float(0), sycl::usm::alloc::device);
@@ -94,9 +104,10 @@ sycl::event compute_logloss(sycl::queue& q,
         
 
         cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
-            const Float pred = loss_ptr[idx];
-            const int label = labels_ptr[idx] * 2 - 1;
-            sum += sycl::log(1 + sycl::exp(-label * pred));
+            const Float prob = prob_ptr[idx];
+            const int32_t label = labels_ptr[idx];
+            sum += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
+            //sum += sycl::log(1 + sycl::exp(-label * pred));
         });
     });
     
@@ -149,7 +160,7 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
 
 
     // regression output
-    auto predictions = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
+    auto probabilities = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
 
     // d loss_i / d pred_i
     auto derivative_object = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
@@ -157,18 +168,15 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
     // auto der_obj_ptr = derivative_object.get_mutable_data();
 
 
-    auto prediction_event = compute_predictions(q, parameters, data, predictions, deps);
+    auto prediction_event = compute_predictions(q, parameters, data, probabilities, deps);
 
 
     auto der_obj_ptr = derivative_object.get_mutable_data();
-    auto pred_ptr = predictions.get_mutable_data();
+    auto proba_ptr = probabilities.get_mutable_data();
     auto labels_ptr = labels.get_data();
     auto param_ptr = parameters.get_data();
     auto out_ptr = out.get_mutable_data();
     auto out_derivative_ptr = out_derivative.get_mutable_data();
-
-    // std::cout << derivative_object.to_host(q, {prediction_event});
-    // std::cout << out_derivative.to_host(q, {prediction_event});
 
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
@@ -187,62 +195,27 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
         // const auto range = make_range_1d(n);
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
-        /*
-        cgh.parallel_for(range, sumReductionLogLoss, [=](sycl::id<1> idx, auto& sum_logloss) {
-            const Float pred = pred_ptr[idx];
-            const Float label = labels_ptr[idx] * 2 - 1;
-            const Float prob = 1 / (1 + sycl::exp(-pred));
-            sum_logloss += sycl::log(1 + sycl::exp(-label * pred));
-            der_obj_ptr[idx] = prob - labels_ptr[idx];
-            // sum_Dw0 += der_obj_ptr[idx];
-        });
-        */
-       // sycl::stream ss(16384, 16, cgh);
+
         
         cgh.parallel_for(range, sumReductionLogLoss, sumReductionDerivativeW0, [=](sycl::nd_item<1> id, auto& sum_logloss, auto& sum_Dw0) {
             auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
             if (idx >= std::size_t(n)) 
                 return;
-            const Float pred = pred_ptr[idx];
-            const Float label = labels_ptr[idx] * 2 - 1;
-            const Float prob = 1 / (1 + sycl::exp(-pred));
-            sum_logloss += sycl::log(1 + sycl::exp(-label * pred));
-            der_obj_ptr[idx] = prob - labels_ptr[idx];
-            // ss << idx << ':' <<  ' ' << out_derivative_ptr[0] << ' ' << der_obj_ptr[idx] << sycl::endl;
+            const Float prob = proba_ptr[idx];
+            const float label = labels_ptr[idx];
+            sum_logloss += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
+            der_obj_ptr[idx] = prob - label;
             sum_Dw0 += der_obj_ptr[idx];
         });
         
     });
 
-    //std::cout << derivative_object.to_host(q, {prediction_event, loss_event});
-    //std::cout << out_derivative.to_host(q, {prediction_event, loss_event});
-
     auto out_der_suffix = out_derivative.get_slice(1, p + 1);
-    // std::cout << "Out der suffix" << std::endl;
-    // std::cout << out_der_.to_host(q, {loss_event});
     
     auto der_event = gemv(q, data.t(),
                 derivative_object,
                 out_der_suffix,
                 {loss_event});
-
-    // std::cout << "Out der suffix" << std::endl;
-    // std::cout << out_derivative.to_host(q, {der_event});
-
-    /*
-    auto derivative_first = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(loss_event);
-
-        cgh.single_task([=](){
-            out_derivative_ptr[0] = 0;
-            for (int i = 0; i < n; ++i) {
-                out_derivative_ptr[0] += der_obj_ptr[i];
-            }
-            // out_derivative_ptr[0] = der_obj_ptr[0] * n;
-        });
-    });
-    */
-    // std::cout << out.to_host(q, {loss_event});
 
     auto [reg_val, reg_val_e] = ndarray<Float, 1>::zeros(q, {1}, sycl::usm::alloc::device);
 
@@ -258,7 +231,6 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
         cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx];
             sum += L1 * sycl::abs(param) + L2 * param * param;
-            // ss << idx << ':' <<  ' ' <<  L1 * sycl::abs(param) + L2 * param * param << sycl::endl;
             out_derivative_ptr[idx] += L2 * 2 * param;
             if (param > 0) {
                 out_derivative_ptr[idx] += L1;
@@ -302,14 +274,14 @@ sycl::event compute_hessian(sycl::queue& q,
 
 
     // regression output
-    auto predictions = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
+    auto probabilities = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
 
 
-    auto prediction_event = compute_predictions(q, parameters, data, predictions, deps);
+    auto prediction_event = compute_predictions(q, parameters, data, probabilities, deps);
 
     auto data_ptr = data.get_data();
     auto hes_ptr = out_hessian.get_mutable_data();
-    auto pred_ptr = predictions.get_mutable_data();
+    auto proba_ptr = probabilities.get_mutable_data();
 
 
     auto hess_event = q.submit([&](sycl::handler& cgh) {
@@ -329,8 +301,7 @@ sycl::event compute_hessian(sycl::queue& q,
                 hes_ptr[0] = 0;
             }
             for (int64_t i = 0; i < n; ++i) {
-                const Float pred = pred_ptr[i];
-                const Float prob = 1 / (1 + sycl::exp(-pred)); // can save this info
+                const Float prob = proba_ptr[i];
                 hes_ptr[gi] += data_ptr[i * p + j] * data_ptr[i * p + k] * prob * (1 - prob);
                 if (k == 0) {
                     hes_ptr[j + 1] += prob * (1 - prob) * data_ptr[i * p + j];

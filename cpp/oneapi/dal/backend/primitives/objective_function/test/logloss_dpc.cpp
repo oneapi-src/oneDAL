@@ -92,6 +92,7 @@ public:
 
         auto predictions_host = out_predictions.to_host(this->get_queue(), {});
 
+        cout << predictions_host;
         // cout << out_predictions;
 
         float_t logloss = 0;
@@ -103,7 +104,8 @@ public:
             // cout << sycl::log(1 + sycl::exp(- (2 * labels[i] - 1) * real_predictions[i])) << endl;;
             float_t out_val = predictions_host.at(i);
             // cout << i << ": " << out_val << endl;
-            REQUIRE(abs(out_val - real_predictions[i]) < 1e-5);
+            // REQUIRE(abs(out_val - real_predictions[i]) < 1e-5);
+            REQUIRE(abs(out_val - prob) < 1e-5);
         }
         // cout << logloss << endl;
         for (int i = 0; i <= p_; ++i) {
@@ -194,10 +196,9 @@ public:
 
 private:
 
-    table input_data_;
-    table labels;
     // int64_t n_;
     // int64_t p_;
+
 
 };
 
