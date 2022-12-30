@@ -74,9 +74,9 @@ find_package(oneDAL REQUIRED)
 include_directories(source)
 
 # Define variable to specify the examples or directories to include or exclude
-set(EXAMPLES "")
+option(EXAMPLES_INPUT "")
 
-if(EXAMPLES)
+if(EXAMPLES_INPUT)
     # Split the EXAMPLES option into a list of patterns
     string(REPLACE "," ";" EXAMPLES_LIST ${EXAMPLES})
     message(STATUS "Executing examples owerride: ${EXAMPLES_LIST}")
