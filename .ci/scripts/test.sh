@@ -143,14 +143,20 @@ for link_mode in ${link_modes}; do
     echo CMAKE_CXX_COMPILER: ${CXX}
     echo "============================================"
 
-    cmake -G "Unix Makefiles" -DTARGET_LINK=${link_mode}
+    if [ -d "Build" ]; then
+        srm -rf ./Build/*
+    else
+        mkdir Build
+    fi
+
+    cmake -B./Build -S. -G "Unix Makefiles" -DTARGET_LINK=${link_mode}
     err=$?
     if [ ${err} -ne 0 ]; then
         echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
         TESTING_RETURN=${err}
         continue
     fi
-    make
+    make -C Build
     err=$?
     if [ ${err} -ne 0 ]; then
         echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t"
