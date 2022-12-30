@@ -18,7 +18,6 @@
 #include <jni.h>
 
 #include "daal.h"
-#include "data_management/compression/zlibcompression.h"
 
 #include "com_intel_daal_data_management_compression_CompressionLevel.h"
 #define DefaultLevel com_intel_daal_data_management_compression_CompressionLevel_DefaultLevelValue

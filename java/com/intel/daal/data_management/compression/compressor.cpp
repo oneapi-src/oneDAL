@@ -19,7 +19,6 @@
 
 #include "com_intel_daal_data_management_compression_Compressor.h"
 #include "daal.h"
-#include "data_management/compression/zlibcompression.h"
 
 using namespace daal;
 using namespace daal::data_management;
