@@ -16,6 +16,7 @@
 
 include_guard()
 
+#Defines mapping between link mode and filenames
 function (set_link_type)
     if ("${TARGET_LINK}" STREQUAL "static")
         set(LINK_TYPE "a" PARENT_SCOPE)
@@ -24,6 +25,7 @@ function (set_link_type)
     endif()
 endfunction()
 
+#Funtion for resetting mode to MDD on windows
 function (change_md_to_mdd)
     set(cxx_flag ${CMAKE_CXX_FLAGS})
     set(cxxr_flag ${CMAKE_CXX_FLAGS_RELEASE})
@@ -44,6 +46,7 @@ function (change_md_to_mdd)
     set(CMAKE_C_FLAGS_RELEASE ${cr_flag} PARENT_SCOPE)
 endfunction()
 
+#Function for adding new examples to CMAKE configuration based on list of examples paths
 function (add_examples examples_paths)
     foreach(example_file_path ${examples_paths})
         get_filename_component(example ${example_file_path} NAME_WE)
@@ -60,6 +63,7 @@ function (add_examples examples_paths)
     endforeach()
 endfunction()
 
+#Finction generate list of example paths based in user selection and exlude paths
 function (generate_examples EXCLUDE_PATHS EXAMPLES_INPUT)
     if(EXAMPLES_INPUT)
         # Split the EXAMPLES option into a list of patterns
