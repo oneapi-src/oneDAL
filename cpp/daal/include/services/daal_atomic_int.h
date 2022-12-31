@@ -43,37 +43,25 @@ public:
      * Returns an increment of atomic object
      * \return An increment of atomic object
      */
-    DAAL_FORCEINLINE Type inc()
-    {
-        return my_storage.fetch_add(1);
-    }
+    DAAL_FORCEINLINE Type inc() { return my_storage.fetch_add(1); }
 
     /**
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    DAAL_FORCEINLINE Type dec()
-    {
-        return my_storage.fetch_sum(1);
-    }
+    DAAL_FORCEINLINE Type dec() { return my_storage.fetch_sum(1); }
 
     /**
      * Assigns the value to atomic object
      * \param[in] value    The value to be assigned
      */
-    DAAL_FORCEINLINE void set(Type value)
-    {
-        my_storage.set(value);
-    }
+    DAAL_FORCEINLINE void set(Type value) { my_storage.set(value); }
 
     /**
      * Returns the value of the atomic object
      * \return The value of the atomic object
      */
-    DAAL_FORCEINLINE Type get() const
-    {
-        return my_storage.load();
-    }
+    DAAL_FORCEINLINE Type get() const { return my_storage.load(); }
 
     /**
      * Constructs an atomic object
