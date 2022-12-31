@@ -50,6 +50,9 @@ function (set_common_compiler_options)
             add_compile_options(-Wall -w)
         endif()
     endif()
+    message(STATUS "Common compiler params set")
+    message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+    message(STATUS "CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
 endfunction()
 
 
