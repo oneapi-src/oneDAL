@@ -29,13 +29,6 @@ set(USE_NEW_IFACES yes)
 
 set(CUSTOM_OPTIONS "")
 
-if (WIN32)
-    set(TARGET_LINK dynamic)
-    set(CMAKE_CXX_COMPILE_OBJECT "<CMAKE_CXX_COMPILER> <DEFINES> <INCLUDES> <FLAGS> /Fo<OBJECT> -c <SOURCE>")
-    set(CMAKE_CXX_CREATE_STATIC_LIBRARY "lib <OBJECTS> /out:<TARGET>")
-    set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> ${CUSTOM_OPTIONS} <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
-endif()
-
 set_link_type()
 
 find_package(oneDAL REQUIRED)
@@ -50,7 +43,5 @@ set(EXCLUDE_LIST
 
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")
-
-set_common_compiler_options()
 
 generate_examples("${EXCLUDE_LIST}" "${EXAMPLES_LIST}")

@@ -93,6 +93,7 @@ function (add_examples examples_paths)
         target_link_options(${example} PRIVATE ${CUSTOM_LINK_OPTIONS})
         set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/intel_intel64_${LINK_TYPE}")
     endforeach()
+    set_common_compiler_options()
 endfunction()
 
 #Finction generate list of example paths based in user selection and exlude paths
