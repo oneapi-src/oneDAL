@@ -163,16 +163,16 @@ for link_mode in ${link_modes}; do
         TESTING_RETURN=${err}
         continue
     fi
-    local output_result=
-    local err=
-    local cmake_results_dir="_cmake_results/intel_intel64_${lib_ext}"
+    output_result=
+    err=
+    cmake_results_dir="_cmake_results/intel_intel64_${lib_ext}"
     for p in ${cmake_results_dir}/*; do
         e=$(basename "$p")
         ${p} 2>&1 > ${e}.res
         err=$?
         output_result=$(cat ${e}.res)
         mv -f ${e}.res ${cmake_results_dir}/
-        local status_ex=
+        status_ex=
         if [ ${err} -ne 0 ]; then
             echo "${output_result}"
             status_ex="$(date +'%H:%M:%S') FAILED\t\t${e} with errno ${err}"
