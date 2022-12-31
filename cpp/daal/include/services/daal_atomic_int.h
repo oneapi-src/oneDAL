@@ -49,7 +49,7 @@ public:
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    DAAL_FORCEINLINE Type dec() { return my_storage.fetch_sum(1); }
+    DAAL_FORCEINLINE Type dec() { return my_storage.fetch_sub(1); }
 
     /**
      * Assigns the value to atomic object
