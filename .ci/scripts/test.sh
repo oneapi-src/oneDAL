@@ -90,7 +90,7 @@ source ${BUILD_DIR}/daal/latest/env/vars.sh
 export TBBROOT=$(pwd)/__deps/tbb/${OS}
 export CPATH=${TBBROOT}/include:$CPATH
 export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${TBBROOT}/lib:${LIBRARY_PATH}
-export CMAKE_MODULE_PATH=${TBBROOT}/lib/cmake:${CMAKE_MODULE_PATH}
+export CMAKE_MODULE_PATH=${TBBROOT}/lib/cmake/tbb:${CMAKE_MODULE_PATH}
 if [ "${OS}" == "mac" ]; then
     export DYLD_LIBRARY_PATH=${TBBROOT}/lib:${DYLD_LIBRARY_PATH}
 else
