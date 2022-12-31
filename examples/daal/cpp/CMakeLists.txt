@@ -16,6 +16,12 @@
 
 cmake_minimum_required(VERSION 3.1)
 
+message(STATUS "Adding TBB CMake: $ENV{TBBROOT}/lib/cmake")
+list(APPEND CMAKE_MODULE_PATH "$ENV{TBBROOT}/lib/cmake")
+find_package(TBB REQUIRED tbb tbbmalloc)
+
+message(FATAL_ERROR "Vars $ENV{COMPUTERNAME}")
+
 # Add cmake scripts and modules to CMake search path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
 include(setup_examples)
