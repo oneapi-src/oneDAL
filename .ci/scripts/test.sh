@@ -209,6 +209,7 @@ for link_mode in ${link_modes}; do
         else
             echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${link_mode}"
         fi
+    fi
 done
 
 #exit with overall testing status
