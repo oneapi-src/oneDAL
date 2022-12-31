@@ -55,7 +55,7 @@ public:
      * Assigns the value to atomic object
      * \param[in] value    The value to be assigned
      */
-    DAAL_FORCEINLINE void set(Type value) { my_storage.set(value); }
+    DAAL_FORCEINLINE void set(Type value) { my_storage.store(value); }
 
     /**
      * Returns the value of the atomic object
