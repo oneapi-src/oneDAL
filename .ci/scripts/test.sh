@@ -37,6 +37,9 @@ while [[ $# -gt 0 ]]; do
         --conda-env)
         conda_env="$2"
         ;;
+        --build_system)
+        build_system="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -50,11 +53,8 @@ done
 TESTING_RETURN=0
 OS=${platform::3}
 ARCH=${platform:3:3}
-if [ "${ARCH}" == "32" ]; then
-    full_arch=ia32
-else
-    full_arch=intel64
-fi
+full_arch=intel64
+build_system=${build_system:-cmake}
 
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
@@ -126,64 +126,88 @@ for link_mode in ${link_modes}; do
             l="dylib"
         fi
     fi
-    if [[ ${compiler} == gnu ]]; then
-        export CC=gcc
-        export CXX=g++
-    elif [[ ${compiler} == clang ]]; then
-        export CC=clang
-        export CXX=clang++
-    elif [[ ${compiler} == icx ]]; then
-        export CC=icx
-        export CXX=icpx
-    fi
-    echo "============== Configuration: =============="
-    echo Compiler:  ${compiler}
-    echo Link mode: ${link_mode}
-    echo CMAKE_C_COMPILE: ${CC}
-    echo CMAKE_CXX_COMPILER: ${CXX}
-    echo "============================================"
+    if [ "$build_system" == "cmake" ]; then
+        if [[ ${compiler} == gnu ]]; then
+            export CC=gcc
+            export CXX=g++
+        elif [[ ${compiler} == clang ]]; then
+            export CC=clang
+            export CXX=clang++
+        elif [[ ${compiler} == icx ]]; then
+            export CC=icx
+            export CXX=icpx
+        fi
+        echo "============== Configuration: =============="
+        echo Compiler:  ${compiler}
+        echo Link mode: ${link_mode}
+        echo CMAKE_C_COMPILE: ${CC}
+        echo CMAKE_CXX_COMPILER: ${CXX}
+        echo "============================================"
 
-    if [ -d "Build" ]; then
-        rm -rf ./Build/*
-    else
-        mkdir Build
-    fi
+        if [ -d "Build" ]; then
+            rm -rf ./Build/*
+        else
+            mkdir Build
+        fi
 
-    cmake -B./Build -S. -G "Unix Makefiles" -DTARGET_LINK=${link_mode} -DSET_TBB_MANUALLY=yes
-    err=$?
-    if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
-        TESTING_RETURN=${err}
-        continue
-    fi
-    make -C Build
-    err=$?
-    if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t"
-        TESTING_RETURN=${err}
-        continue
-    fi
-    output_result=
-    err=
-    cmake_results_dir="_cmake_results/intel_intel64_${lib_ext}"
-    for p in ${cmake_results_dir}/*; do
-        e=$(basename "$p")
-        ${p} 2>&1 > ${e}.res
+        cmake -B./Build -S. -G "Unix Makefiles" -DTARGET_LINK=${link_mode} -DSET_TBB_MANUALLY=yes
         err=$?
-        output_result=$(cat ${e}.res)
-        mv -f ${e}.res ${cmake_results_dir}/
-        status_ex=
         if [ ${err} -ne 0 ]; then
-            echo "${output_result}"
-            status_ex="$(date +'%H:%M:%S') FAILED\t\t${e} with errno ${err}"
+            echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
+            TESTING_RETURN=${err}
+            continue
+        fi
+        make -C Build
+        err=$?
+        if [ ${err} -ne 0 ]; then
+            echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t"
+            TESTING_RETURN=${err}
+            continue
+        fi
+        output_result=
+        err=
+        cmake_results_dir="_cmake_results/intel_intel64_${lib_ext}"
+        for p in ${cmake_results_dir}/*; do
+            e=$(basename "$p")
+            ${p} 2>&1 > ${e}.res
+            err=$?
+            output_result=$(cat ${e}.res)
+            mv -f ${e}.res ${cmake_results_dir}/
+            status_ex=
+            if [ ${err} -ne 0 ]; then
+                echo "${output_result}"
+                status_ex="$(date +'%H:%M:%S') FAILED\t\t${e} with errno ${err}"
+                TESTING_RETURN=${err}
+                continue
+            else
+                echo "${output_result}" | grep -i "error\|warn"
+                status_ex="$(date +'%H:%M:%S') PASSED\t\t${e}"
+            fi
+            echo -e $status_ex
+        done
+    else
+        build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
+        echo "Building ${TEST_KIND} ${build_command}"
+        (${build_command})
+        err=$?
+        if [ ${err} -ne 0 ]; then
+            echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${link_mode}"
             TESTING_RETURN=${err}
             continue
         else
-            echo "${output_result}" | grep -i "error\|warn"
-            status_ex="$(date +'%H:%M:%S') PASSED\t\t${e}"
+            echo -e "$(date +'%H:%M:%S') BUILD COMPLETED\t\t${link_mode}"
         fi
-        echo -e $status_ex
-    done
+        run_command="make ${l}${full_arch} mode=run compiler=${compiler}"
+        echo "Running ${TEST_KIND} ${run_command}"
+        (${run_command})
+        err=$?
+        if [ ${err} -ne 0 ]; then
+            echo -e "$(date +'%H:%M:%S') RUN FAILED\t\t${link_mode} with errno ${err}"
+            TESTING_RETURN=${err}
+            continue
+        else
+            echo -e "$(date +'%H:%M:%S') RUN PASSED\t\t${link_mode}"
+        fi
 done
 
 #exit with overall testing status
