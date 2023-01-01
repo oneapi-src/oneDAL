@@ -121,11 +121,10 @@ for link_mode in ${link_modes}; do
         lib_ext="a"
         l="lib"
     elif [ "${link_mode}" == "dynamic" ]; then
+        lib_ext="so"
         if [ "${OS}" == "lnx" ]; then
-            lib_ext="so"
             l="so"
         else
-            lib_ext="dylib"
             l="dylib"
         fi
     fi
