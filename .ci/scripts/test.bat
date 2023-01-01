@@ -46,6 +46,9 @@ set LIB=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
 echo set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 
+echo set TBB_DIR=%~dp0..\..\__release_win_vc\tbb\latest\lib\cmake\tbb
+set TBB_DIR=%~dp0..\..\__release_win_vc\tbb\latest\lib\cmake\tbb
+
 echo Java installation
 echo JAVA_HOME=%JAVA_HOME_17_X64%
 set JAVA_HOME=%JAVA_HOME_17_X64%
@@ -58,5 +61,18 @@ echo __release_win_vc\daal\latest\examples\%examples%
 cd __release_win_vc\daal\latest\examples\%examples%
 
 if "%examples%"=="daal\java" call launcher.bat intel64
-if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
-if "%examples%"=="oneapi\cpp" nmake %linking% compiler=%compiler%
+if "%build_system%"=="cmake" (
+    set cmake_link_mode_short=so
+    if "%link_mode%"=="static" (
+        set cmake_link_mode_short=a
+    )
+    if exist Build rd /S /Q Build
+    md Build
+    cd Build
+    set results_dir=_cmake_results\intel_intel64_!cmake_link_mode_short!
+    cmake -DTARGET_LINK=%linking% -DTBB_DIR=%TBB_DIR% ..
+
+) else (
+    if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
+    if "%examples%"=="oneapi\cpp" nmake %linking% compiler=%compiler%
+)

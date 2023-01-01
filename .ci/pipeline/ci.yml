@@ -447,12 +447,12 @@ jobs:
       .\.ci\scripts\test.bat daal\java dll msvs
     displayName: 'daal/java examples'
   - script: |
-      .\.ci\scripts\test.bat daal\cpp lib msvs
-      .\.ci\scripts\test.bat daal\cpp dll msvs
+      .\.ci\scripts\test.bat daal\cpp lib msvs cmake
+      .\.ci\scripts\test.bat daal\cpp dll msvs cmake
     displayName: 'daal/cpp examples'
   - script: |
-      .\.ci\scripts\test.bat oneapi\cpp lib msvs
-      .\.ci\scripts\test.bat oneapi\cpp dll msvs
+      .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
+      .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
     displayName: 'oneapi/cpp examples'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
