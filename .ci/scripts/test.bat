@@ -63,14 +63,16 @@ cd __release_win_vc\daal\latest\examples\%examples%
 if "%examples%"=="daal\java" call launcher.bat intel64
 if "%build_system%"=="cmake" (
     set cmake_link_mode_short=so
-    if "%link_mode%"=="static" (
+    set cmake_link_mode=dynamic
+    if "%link_mode%"=="lib" (
         set cmake_link_mode_short=a
+        set cmake_link_mode=static
     )
     if exist Build rd /S /Q Build
     md Build
     cd Build
     set results_dir=_cmake_results\intel_intel64_!cmake_link_mode_short!
-    cmake -DTARGET_LINK=%linking% -DTBB_DIR=%TBB_DIR% ..
+    cmake -DTARGET_LINK=!cmake_link_mode! -DTBB_DIR=%TBB_DIR% ..
 
 ) else (
     if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
