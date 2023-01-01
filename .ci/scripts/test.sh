@@ -143,8 +143,8 @@ for link_mode in ${link_modes}; do
         echo "============== Configuration: =============="
         echo Compiler:  ${compiler}
         echo Link mode: ${link_mode}
-        echo CMAKE_C_COMPILE: ${CC}
-        echo CMAKE_CXX_COMPILER: ${CXX}
+        echo CC: ${CC}
+        echo CXX: ${CXX}
         echo "============================================"
 
         if [ -d "Build" ]; then
