@@ -18,9 +18,11 @@ rem ============================================================================
 rem %1 - Examples target
 rem %2 - Examples linking
 rem %3 - Compiler
+rem %4 - build system
 set examples=%1
 set linking=%2
 set compiler=%3
+set build_system=%4
 
 for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
 echo CPUCOUNT=%CPUCOUNT%
