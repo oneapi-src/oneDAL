@@ -8,7 +8,7 @@ colorama==0.4.6
 docutils==0.17.1
 idna==3.4
 imagesize==1.4.1
-importlib-metadata==5.2.0
+importlib-metadata==6.0.0
 importlib-resources==5.10.2
 Jinja2==3.0.3
 lxml==4.9.2
