@@ -91,6 +91,7 @@ export TBBROOT=$(pwd)/__deps/tbb/${OS}
 export CPATH=${TBBROOT}/include:$CPATH
 export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${TBBROOT}/lib:${LIBRARY_PATH}
 export CMAKE_MODULE_PATH=${TBBROOT}/lib/cmake/tbb:${CMAKE_MODULE_PATH}
+
 if [ "${OS}" == "mac" ]; then
     export DYLD_LIBRARY_PATH=${TBBROOT}/lib:${DYLD_LIBRARY_PATH}
 else
@@ -151,7 +152,7 @@ for link_mode in ${link_modes}; do
             mkdir Build
         fi
 
-        cmake -B./Build -S. -G "Unix Makefiles" -DTARGET_LINK=${link_mode}
+        cmake -B./Build -S. -G "Unix Makefiles" -DTARGET_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
