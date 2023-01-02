@@ -82,6 +82,9 @@ if "%build_system%"=="cmake" (
     set solution_name=%examples:\=_%
     msbuild.exe "!solution_name!_examples.sln" /p:Configuration=Release
 
+    echo "List of examples built in !results_dir!:"
+    dir /B !results_dir!\
+
     for /f "delims=." %%F in ('dir /B !results_dir!\*.exe 2^> nul') do (
         set example=%%F
         echo !example! >> cmake_examples_list.txt
