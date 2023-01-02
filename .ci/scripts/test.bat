@@ -26,6 +26,8 @@ set linking=%2
 set compiler=%3
 set build_system=%4
 
+set errorcode=0
+
 for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
 echo CPUCOUNT=%CPUCOUNT%
 
@@ -90,6 +92,13 @@ if "%build_system%"=="cmake" (
         set exe_log=%%G.res
         if exist !results_dir!\%%G.exe (
             !results_dir!\%%G.exe
+            set errorcode=!errorlevel!
+            if !errorcode! EQU 0 (
+                set status_ex=PASSED %ExampleName%
+                echo !status_ex!
+            ) else (
+                echo FAILED %ExampleName% with errno !errorcode!
+            )
         )
     )
 ) else (
