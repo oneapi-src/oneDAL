@@ -48,8 +48,8 @@ set LIB=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%LIB%
 echo set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 
-echo set TBB_DIR=%~dp0..\..\__release_win_vc\tbb\latest\lib\cmake\tbb
-set TBB_DIR=%~dp0..\..\__release_win_vc\tbb\latest\lib\cmake\tbb
+echo set TBB_DIR=%~dp0..\..\__deps\tbb\win\tbb\lib\cmake\tbb
+set TBB_DIR=%~dp0..\..\__deps\tbb\win\tbb\lib\cmake\tbb
 
 echo Java installation
 echo JAVA_HOME=%JAVA_HOME_17_X64%
