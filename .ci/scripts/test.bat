@@ -15,6 +15,8 @@ rem See the License for the specific language governing permissions and
 rem limitations under the License.
 rem ============================================================================
 
+setlocal enabledelayedexpansion enableextensions
+
 rem %1 - Examples target
 rem %2 - Examples linking
 rem %3 - Compiler
@@ -72,10 +74,24 @@ if "%build_system%"=="cmake" (
     if exist Build rd /S /Q Build
     md Build
     cd Build
-    set results_dir=_cmake_results\intel_intel64_!cmake_link_mode_short!
-    echo cmake -DTARGET_LINK=!cmake_link_mode! -DTBB_DIR=%TBB_DIR% ..
-    cmake -DTARGET_LINK=!cmake_link_mode! -DTBB_DIR=%TBB_DIR% ..
+    set results_dir=_cmake_results\intel_intel64_%cmake_link_mode_short%\Release
+    echo cmake -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
+    cmake -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
+    set solution_name=%examples:/=_%
+    msbuild.exe "!solution_name!_examples.sln" /p:Configuration="Release.%cmake_link_mode%"
 
+    for /f "delims=." %%F in ('dir /B !results_dir!\*.exe 2^> nul') do (
+        set example=%%F
+        echo !example! >> cmake_examples_list.txt
+    )
+
+    for /f %%G in (cmake_examples_list.txt) do (
+        set ExampleName=%%G
+        set exe_log=%%G.res
+        if exist !results_dir!\%%G.exe (
+            !results_dir!\%%G.exe
+        )
+    )
 ) else (
     if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
     if "%examples%"=="oneapi\cpp" nmake %linking% compiler=%compiler%
