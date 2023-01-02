@@ -80,7 +80,7 @@ if "%build_system%"=="cmake" (
     echo cmake -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
     cmake -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
     set solution_name=%examples:\=_%
-    msbuild.exe "!solution_name!_examples.sln" /p:Configuration="Release.%cmake_link_mode%"
+    msbuild.exe "!solution_name!_examples.sln" /p:Configuration=Release
 
     for /f "delims=." %%F in ('dir /B !results_dir!\*.exe 2^> nul') do (
         set example=%%F
