@@ -80,7 +80,7 @@ if "%build_system%"=="cmake" (
     echo cmake -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
     cmake -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
     set solution_name=%examples:\=_%
-    msbuild.exe "!solution_name!_examples.sln" /p:Configuration=Release
+    msbuild.exe "!solution_name!_examples.sln" /p:Configuration=Release > !solution_name!_msbuild_log.txt
 
     cd ..
     echo "List of examples built in !results_dir!:"
@@ -95,7 +95,7 @@ if "%build_system%"=="cmake" (
         set ExampleName=%%G
         set exe_log=%%G.res
         if exist !results_dir!\%%G.exe (
-            !results_dir!\%%G.exe
+            !results_dir!\%%G.exe 2>&1 > !exe_log!
             set errorcode=!errorlevel!
             if !errorcode! EQU 0 (
                 set status_ex=PASSED %ExampleName%
@@ -105,6 +105,11 @@ if "%build_system%"=="cmake" (
             )
         )
     )
+    echo xcopy *_msbuild*.txt "!results_folder!" /I /H /Q /R /Y
+    xcopy *_msbuild*.txt "!results_folder!" /I /H /Q /R /Y
+
+    echo xcopy *.res "!results_folder!" /I /H /Q /R /Y
+    xcopy *.res "!results_folder!" /I /H /Q /R /Y
 ) else (
     if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
     if "%examples%"=="oneapi\cpp" nmake %linking% compiler=%compiler%
