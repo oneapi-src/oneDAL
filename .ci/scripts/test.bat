@@ -110,6 +110,12 @@ if "%build_system%"=="cmake" (
 
     echo xcopy *.res "!results_folder!" /I /H /Q /R /Y
     xcopy *.res "!results_folder!" /I /H /Q /R /Y
+
+    for /f %%F in ('dir /B *_msbuild_log.txt 2^> nul') do (
+        set log=%%F
+        type !log! | findstr /I /R "error warning" | findstr /v /C:"0 Warning(s)" /C:"0 Error(s)"
+    )
+
 ) else (
     if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
     if "%examples%"=="oneapi\cpp" nmake %linking% compiler=%compiler%
