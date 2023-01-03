@@ -75,12 +75,12 @@ if "%examples%"=="daal\java" call launcher.bat intel64
 if "%build_system%"=="cmake" (
     if exist Build rd /S /Q Build
     md Build
-    cd Build
+
     set results_dir=_cmake_results\intel_intel64_%cmake_link_mode_short%\Release
     echo cmake -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
-    cmake -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
+    cmake -B Build -S . -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
     set solution_name=%examples:\=_%
-    msbuild.exe "!solution_name!_examples.sln" /p:Configuration=Release > !solution_name!_msbuild_log.txt
+    msbuild.exe "!solution_name!_examples.sln" /p:Configuration=Release
 
     for /f "delims=." %%F in ('dir /B !results_dir!\*.exe 2^> nul') do (
         set example=%%F
@@ -106,11 +106,6 @@ if "%build_system%"=="cmake" (
 
     echo xcopy *.res "!results_dir!" /I /H /Q /R /Y
     xcopy *.res "!results_dir!" /I /H /Q /R /Y
-
-    for /f %%F in ('dir /B *_msbuild_log.txt 2^> nul') do (
-        set log=%%F
-        type !log! | findstr /I /R "error warning" | findstr /v /C:"0 Warning(s)" /C:"0 Error(s)"
-    )
 
 ) else (
     if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
