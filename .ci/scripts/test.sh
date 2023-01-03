@@ -147,12 +147,12 @@ for link_mode in ${link_modes}; do
         echo "============================================"
 
         if [ -d "Build" ]; then
-            rm -rf ./Build/*
+            rm -rf Build/*
         else
             mkdir Build
         fi
 
-        cmake -B./Build -S. -G "Unix Makefiles" -DTARGET_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb
+        cmake -B Build -S . -G "Unix Makefiles" -DTARGET_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
