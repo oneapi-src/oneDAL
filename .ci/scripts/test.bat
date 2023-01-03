@@ -77,10 +77,10 @@ if "%build_system%"=="cmake" (
     md Build
 
     set results_dir=_cmake_results\intel_intel64_%cmake_link_mode_short%\Release
-    echo cmake -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
-    cmake -B Build -S . -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% ..
+    echo cmake -B Build -S . -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR%
+    cmake -B Build -S . -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR%
     set solution_name=%examples:\=_%
-    msbuild.exe "!solution_name!_examples.sln" /p:Configuration=Release
+    msbuild.exe "Build\!solution_name!_examples.sln" /p:Configuration=Release
 
     for /f "delims=." %%F in ('dir /B !results_dir!\*.exe 2^> nul') do (
         set example=%%F
@@ -101,8 +101,6 @@ if "%build_system%"=="cmake" (
             )
         )
     )
-    echo xcopy *_msbuild*.txt "!results_dir!" /I /H /Q /R /Y
-    xcopy *_msbuild*.txt "!results_dir!" /I /H /Q /R /Y
 
     echo xcopy *.res "!results_dir!" /I /H /Q /R /Y
     xcopy *.res "!results_dir!" /I /H /Q /R /Y
