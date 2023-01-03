@@ -82,10 +82,6 @@ if "%build_system%"=="cmake" (
     set solution_name=%examples:\=_%
     msbuild.exe "!solution_name!_examples.sln" /p:Configuration=Release > !solution_name!_msbuild_log.txt
 
-    cd ..
-    echo "List of examples built in !results_dir!:"
-    dir /B !results_dir!\
-
     for /f "delims=." %%F in ('dir /B !results_dir!\*.exe 2^> nul') do (
         set example=%%F
         echo !example! >> cmake_examples_list.txt
@@ -98,18 +94,18 @@ if "%build_system%"=="cmake" (
             !results_dir!\%%G.exe 2>&1 > !exe_log!
             set errorcode=!errorlevel!
             if !errorcode! EQU 0 (
-                set status_ex=PASSED %ExampleName%
+                set status_ex=PASSED !ExampleName!
                 echo !status_ex!
             ) else (
-                echo FAILED %ExampleName% with errno !errorcode!
+                echo FAILED !ExampleName! with errno !errorcode!
             )
         )
     )
-    echo xcopy *_msbuild*.txt "!results_folder!" /I /H /Q /R /Y
-    xcopy *_msbuild*.txt "!results_folder!" /I /H /Q /R /Y
+    echo xcopy *_msbuild*.txt "!results_dir!" /I /H /Q /R /Y
+    xcopy *_msbuild*.txt "!results_dir!" /I /H /Q /R /Y
 
-    echo xcopy *.res "!results_folder!" /I /H /Q /R /Y
-    xcopy *.res "!results_folder!" /I /H /Q /R /Y
+    echo xcopy *.res "!results_dir!" /I /H /Q /R /Y
+    xcopy *.res "!results_dir!" /I /H /Q /R /Y
 
     for /f %%F in ('dir /B *_msbuild_log.txt 2^> nul') do (
         set log=%%F
