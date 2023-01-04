@@ -70,9 +70,8 @@ public:
     template <typename Policy, typename Allocator>
     static array_impl<T>* empty(const Policy& policy, std::int64_t count, const Allocator& alloc) {
         auto data = alloc.allocate(count);
-        return new array_impl<T>(policy, data, count, [alloc, count](T* ptr) {
-            alloc.deallocate(ptr, count);
-        });
+        auto deleter = [alloc, count](T* ptr) { alloc.deallocate(ptr, count); };
+        return new array_impl<T>(policy, data, count, std::move(deleter));
     }
 
     template <typename Policy, typename K, typename Allocator>

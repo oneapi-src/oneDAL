@@ -78,7 +78,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     const std::int64_t ext_f_count = f_count + beta;
 
     const auto betas_size = check_mul_overflow(r_count, f_count + 1);
-    auto betas_arr = array<Float>::zeros(queue, betas_size);
+    auto betas_arr = array<Float>::zeros(queue, betas_size, alloc);
 
     const auto b_count = propose_block_size<Float>(queue, f_count, r_count);
     const be::uniform_blocking blocking(s_count, b_count);
