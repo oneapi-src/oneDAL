@@ -47,6 +47,7 @@ OS=${platform::3}
 ARCH=${platform:3:3}
 
 optimizations=${optimizations:-avx2}
+GLOBAL_RETURN=0
 
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
@@ -95,5 +96,24 @@ make ${target:-daal_c} ${make_op} \
     PLAT=${platform} \
     COMPILER=${compiler} \
     REQCPU="${optimizations}"
+err=$?
 
-exit $?
+if [ ${err} -ne 0 ]; then
+    status_ex="$(date +'%H:%M:%S') BUILD FAILED with errno ${err}"
+    GLOBAL_RETURN=${err}
+fi
+
+cmake_folder="__release_${OS}_${compiler}/daal/latest/lib/cmake/oneDAL"
+if ! [[ -d "${cmake_folder}" ]]; then
+    #generating CMake configs
+    echo "Generating CMake module for build"
+    cmake -DINSTALL_DIR=${cmake_folder} -P cmake/scripts/generate_config.cmake
+    err=$?
+
+    if [ ${err} -ne 0 ]; then
+        status_ex="$(date +'%H:%M:%S') BUILD FAILED with errno ${err}"
+        GLOBAL_RETURN=${err}
+    fi
+fi
+
+exit ${GLOBAL_RETURN}
