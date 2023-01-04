@@ -52,6 +52,38 @@ using v1::by_default;
 
 } // namespace method
 
+/// Represents result option flag
+/// Behaves like a regular :expr`enum`.
+class result_option_id : public result_option_id_base {
+public:
+    constexpr result_option_id() = default;
+    constexpr explicit result_option_id(const result_option_id_base& base)
+            : result_option_id_base{ base } {}
+};
+
+namespace detail {
+
+ONEDAL_EXPORT result_option_id get_intercept_id();
+ONEDAL_EXPORT result_option_id get_coefficients_id();
+ONEDAL_EXPORT result_option_id get_packed_coefficients_id();
+
+} // namespace detail
+
+/// Result options are used to define
+/// what should algorithm return
+namespace result_options {
+
+/// Return the indices the intercept term in linear regression
+const inline result_option_id intercept = detail::get_intercept_id();
+
+/// Return the coefficients to use in linear regression
+const inline result_option_id coefficients = detail::get_coefficients_id();
+
+/// Return both intercept term and coefficients concatenated
+const inline result_option_id packed_coefficients = detail::get_packed_coefficients_id();
+
+} // namespace result_options
+
 namespace detail {
 namespace v1 {
 
@@ -84,9 +116,11 @@ public:
     descriptor_base(bool compute_intercept);
 
     bool get_compute_intercept() const;
+    result_option_id get_result_options() const;
 
 protected:
     void set_compute_intercept_impl(bool compute_intercept);
+    void set_result_options_impl(const result_option_id& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -142,6 +176,16 @@ public:
 
     auto& set_compute_intercept(bool compute_intercept) const {
         base_t::set_compute_intercept(compute_intercept);
+        return *this;
+    }
+
+    /// Choose which results should be computed and returned.
+    result_option_id get_result_options() const {
+        return base_t::get_result_options();
+    }
+
+    auto& set_result_options(const result_option_id& value) {
+        base_t::set_result_options_impl(value);
         return *this;
     }
 };

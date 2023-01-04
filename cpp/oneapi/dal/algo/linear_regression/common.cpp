@@ -22,6 +22,23 @@ namespace oneapi::dal::linear_regression {
 
 namespace detail {
 
+result_option_id get_intercept_id() {
+    return result_option_id{ result_option_id::make_by_index(0) };
+}
+
+result_option_id get_coefficients_id() {
+    return result_option_id{ result_option_id::make_by_index(1) };
+}
+
+result_option_id get_packed_coefficients_id() {
+    return result_option_id{ result_option_id::make_by_index(2) };
+}
+
+template <typename Task>
+result_option_id get_default_result_options() {
+    return result_option_id{};
+}
+
 namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
@@ -29,10 +46,28 @@ public:
     explicit descriptor_impl() = default;
 
     bool compute_intercept = true;
+    result_option_id result_options = get_default_result_options<Task>();
 };
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
+
+template <typename Task>
+result_option_id descriptor_base<Task>::get_result_options() const {
+    return impl_->result_options;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_result_options_impl(const result_option_id& value) {
+    using msg = dal::detail::error_messages;
+    if (!bool(value)) {
+        throw domain_error(msg::empty_set_of_result_options());
+    }
+    else if (!get_compute_intercept() && value.test(result_options::intercept)) {
+        throw domain_error(msg::intercept_result_option_requires_intercept_flag());
+    }
+    impl_->result_options = value;
+}
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base(bool compute_intercept)
