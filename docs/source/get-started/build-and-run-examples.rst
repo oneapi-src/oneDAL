@@ -106,7 +106,7 @@ basic usage scenarios of |short_name| with DPCPP. Go to
            cd /examples/oneapi/dpc
            cmake -G "Unix Makefiles⁮" -DEXAMPLES_LIST=svm_two_class_thunder # This would generate makefiles for all svm examples matching passed name
            make               # This will compile and run generated svm examples
-           cmake -G "Unix Makefiles⁮" -DTARGET_LINK=static # This wouldgenerate make for static version
+           cmake -G "Unix Makefiles⁮" -DONEDAL_LINK=static # This wouldgenerate make for static version
            make               # This will compile and run all the examples
 
       .. group-tab:: Windows
@@ -117,7 +117,7 @@ basic usage scenarios of |short_name| with DPCPP. Go to
             cd /examples/oneapi/dpc
            cmake  -G "NMake Makefiles" -DEXAMPLES_LIST=svm_two_class_thunder # This would generate makefiles for all svm examples matching passed name
            nmake             # This will compile and run generated svm examples
-           cmake  -G "NMake Makefiles" -DTARGET_LINK=static # This wouldgenerate make for static version
+           cmake  -G "NMake Makefiles" -DONEDAL_LINK=static # This wouldgenerate make for static version
            nmake              # This will compile and run all the examples
 
 
