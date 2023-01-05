@@ -41,15 +41,15 @@ def detect_os(repo_ctx):
         return "win"
 
 def detect_default_compiler(repo_ctx, os_id):
-    compiler_id = "icc"
-    is_icc_available = repo_ctx.which("icc") != None
-    if not is_icc_available:
-        compiler_id = {
+    default = "icx"
+    is_icx_available = repo_ctx.which(default) != None
+    if not is_icx_available:
+        default = {
             "lnx": "gcc",
             "mac": "clang",
             "win": "cl",
         }[os_id]
-    return compiler_id
+    return default
 
 def detect_compiler(repo_ctx, os_id):
     if not "CC" in repo_ctx.os.environ:
@@ -62,6 +62,8 @@ def detect_compiler(repo_ctx, os_id):
         return "clang"
     elif "cl" in compiler_path:
         return "cl"
+    elif "icx" in compiler_path:
+        return "icx"
     elif "icc" in compiler_path:
         return "icc"
 

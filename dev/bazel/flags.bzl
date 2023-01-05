@@ -42,10 +42,9 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
     _check_flag_category(category)
     if os_id == "lnx":
         flags = lnx_cc_flags[category]
-        if compiler_id == "icc" and category == "common":
+        if compiler_id == "icx" and category == "common":
             flags = flags + [
                 "-qopenmp-simd",
-                "-mGLOB_freestanding=TRUE",
                 "-mCG_no_libirc=TRUE",
             ]
         if compiler_id == "icpx":
@@ -68,7 +67,7 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         sse42 = ["-march=corei7"]
         avx2 = ["-march=haswell"]
         avx512 = ["-march=haswell"]
-    elif compiler_id == "icc":
+    elif compiler_id == "icx":
         sse2 = ["-xSSE2"]
         sse42 = ["-xSSE4.2"]
         avx2 = ["-xCORE-AVX2"]
