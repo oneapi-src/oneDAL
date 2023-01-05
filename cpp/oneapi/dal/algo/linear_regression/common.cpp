@@ -102,7 +102,12 @@ model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl
 
 template <typename Task>
 const table& model<Task>::get_betas() const {
-    return impl_->get_betas();
+    return impl_->get_packed_coefficients();
+}
+
+template <typename Task>
+const table& model<Task>::get_packed_coefficients() const {
+    return impl_->get_packed_coefficients();
 }
 
 template <typename Task>

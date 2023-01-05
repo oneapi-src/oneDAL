@@ -100,7 +100,7 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     constexpr Float zero = 0, one = 1;
 
-    const auto& betas = m.get_betas();
+    const auto& betas = m.get_packed_coefficients();
 
     const auto s_count = infer.get_row_count();
     const auto r_count = betas.get_row_count();

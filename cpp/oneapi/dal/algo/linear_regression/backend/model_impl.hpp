@@ -27,8 +27,8 @@ class detail::v1::model_impl : public base {
 public:
     model_impl() = default;
 
-    virtual void set_betas(const table&) = 0;
-    virtual const table& get_betas() const = 0;
+    virtual void set_packed_coefficients(const table&) = 0;
+    virtual const table& get_packed_coefficients() const = 0;
 };
 
 namespace backend {
@@ -43,26 +43,26 @@ class norm_eq_model_impl : public norm_eq_proto, public model_impl<Task> {
 public:
     norm_eq_model_impl() = default;
 
-    norm_eq_model_impl(const table& betas) : betas_(betas) {}
+    norm_eq_model_impl(const table& packed_coefficients) : packed_coefficients_(packed_coefficients) {}
 
     void serialize(dal::detail::output_archive& ar) const final {
-        ar(betas_);
+        ar(packed_coefficients_);
     }
 
     void deserialize(dal::detail::input_archive& ar) final {
-        ar(betas_);
+        ar(packed_coefficients_);
     }
 
-    const table& get_betas() const final {
-        return betas_;
+    const table& get_packed_coefficients() const final {
+        return packed_coefficients_;
     }
 
-    void set_betas(const table& v) final {
-        this->betas_ = v;
+    void set_packed_coefficients(const table& v) final {
+        this->packed_coefficients_ = v;
     }
 
 private:
-    table betas_;
+    table packed_coefficients_;
 };
 
 } // namespace backend

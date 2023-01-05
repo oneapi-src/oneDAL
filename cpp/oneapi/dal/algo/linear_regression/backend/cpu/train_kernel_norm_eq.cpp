@@ -137,10 +137,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         result.set_coefficients(coefficients);
     }
 
-    if (options.test(result_options::packed_coefficients)) {
-        result.set_packed_coefficients(betas_table);
-    }
-
     return result;
 }
 

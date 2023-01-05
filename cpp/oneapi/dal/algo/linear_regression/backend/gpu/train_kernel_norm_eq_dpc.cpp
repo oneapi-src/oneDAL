@@ -163,10 +163,6 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
         result.set_coefficients(coefficients);
     }
 
-    if (options.test(result_options::packed_coefficients)) {
-        result.set_packed_coefficients(betas);
-    }
-
     return result;
 }
 

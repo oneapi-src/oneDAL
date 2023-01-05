@@ -65,7 +65,6 @@ namespace detail {
 
 ONEDAL_EXPORT result_option_id get_intercept_id();
 ONEDAL_EXPORT result_option_id get_coefficients_id();
-ONEDAL_EXPORT result_option_id get_packed_coefficients_id();
 
 } // namespace detail
 
@@ -78,9 +77,6 @@ const inline result_option_id intercept = detail::get_intercept_id();
 
 /// Return the coefficients to use in linear regression
 const inline result_option_id coefficients = detail::get_coefficients_id();
-
-/// Return both intercept term and coefficients concatenated
-const inline result_option_id packed_coefficients = detail::get_packed_coefficients_id();
 
 } // namespace result_options
 
@@ -201,7 +197,9 @@ public:
     /// Creates a new instance of the class with the default property values.
     model();
 
-    const table& get_betas() const;
+    const table& get_packed_coefficients() const;
+    [[deprecated]] const table& get_betas() const;
+    model& set_packed_coefficients(const table& t);
 
 private:
     void serialize(dal::detail::output_archive& ar) const;
