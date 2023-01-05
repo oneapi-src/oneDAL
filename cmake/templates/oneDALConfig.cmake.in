@@ -20,11 +20,16 @@
 #
 # oneDALConfigVersion.cmake defines oneDAL_VERSION
 
+if(oneDAL_FOUND)
+    return()
+endif()
+
 # Handle arguments:
 # TARGET_LINK: static | dynamic. Default is dynamic
 # USE_DPCPP: yes | no. Default is yes
 # USE_NEW_IFACES: yes | no. Default is no
 # SET_TBB_MANUALLY: yes | no. Default is no
+unset(DAL_LIBS)
 if ("${TARGET_LINK}" STREQUAL "")
     set(TARGET_LINK "dynamic")
 elseif (NOT "${TARGET_LINK}" STREQUAL "static" AND NOT "${TARGET_LINK}" STREQUAL "dynamic")
@@ -143,30 +148,32 @@ foreach (_dal_component ${DAL_LIBS})
 endforeach()
 
 foreach (_dal_component ${DAL_LIBS})
+    if (TARGET oneDAL::${_dal_component})
+        continue()
+    endif()
+
     set(oneDAL_${_dal_component}_FOUND 0)
 
-    if (NOT TARGET oneDAL::${_dal_component})
-        if (${TARGET_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycl")
-            add_library(oneDAL::${_dal_component} STATIC IMPORTED)
-            find_library(
-                _dal_lib
-                NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
-                PATH_SUFFIXES "@LIB_REL_PATH@/@SUB_DIR@"
-                PATHS "${_dal_root}")
-        elseif (${TARGET_LINK} STREQUAL "dynamic")
-            add_library(oneDAL::${_dal_component} SHARED IMPORTED)
-            find_library(
-                _dal_lib
-                NAMES "${LIB_PREFIX}${_dal_component}${DLL_EXT}"
-                PATH_SUFFIXES "@LIB_REL_PATH@/@SUB_DIR@"
-                PATHS "${_dal_root}")
-        endif()
-
-        get_filename_component(_dal_include_dir "${_dal_root}/@INC_REL_PATH@" ABSOLUTE)
-        set_target_properties(oneDAL::${_dal_component} PROPERTIES
-                              INTERFACE_INCLUDE_DIRECTORIES "${_dal_include_dir}")
-        unset(_dal_include_dir)
+    if (${TARGET_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycl")
+        add_library(oneDAL::${_dal_component} STATIC IMPORTED)
+        find_library(
+            _dal_lib
+            NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
+            PATH_SUFFIXES "lib/intel64"
+            PATHS "${_dal_root}")
+    elseif (${TARGET_LINK} STREQUAL "dynamic")
+        add_library(oneDAL::${_dal_component} SHARED IMPORTED)
+        find_library(
+            _dal_lib
+            NAMES "${LIB_PREFIX}${_dal_component}${DLL_EXT}"
+            PATH_SUFFIXES "lib/intel64"
+            PATHS "${_dal_root}")
     endif()
+
+    get_filename_component(_dal_include_dir "${_dal_root}/include" ABSOLUTE)
+    set_target_properties(oneDAL::${_dal_component} PROPERTIES
+                            INTERFACE_INCLUDE_DIRECTORIES "${_dal_include_dir}")
+    unset(_dal_include_dir)
 
     if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycl")
         find_file(${_dal_component}_dll ${_dal_component}.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/@DLL_REL_PATH@")
