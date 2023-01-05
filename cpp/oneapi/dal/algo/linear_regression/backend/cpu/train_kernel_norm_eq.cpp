@@ -35,6 +35,7 @@ using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace be = dal::backend;
+namespace pr = be::primitives;
 namespace interop = dal::backend::interop;
 namespace daal_lr = daal::algorithms::linear_regression;
 
@@ -55,26 +56,26 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     bool intp = desc.get_compute_intercept();
 
-    const auto feature_count = data.get_column_count();
-    const auto response_count = resp.get_column_count();
+    const auto f_count = data.get_column_count();
+    const auto r_count = resp.get_column_count();
 
-    const auto ext_feature_count = feature_count + intp;
+    const auto ext_f_count = f_count + intp;
 
-    const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
+    const auto xtx_size = check_mul_overflow(ext_f_count, ext_f_count);
     auto xtx_arr = array<Float>::zeros(xtx_size);
 
-    const auto xty_size = check_mul_overflow(response_count, ext_feature_count);
+    const auto xty_size = check_mul_overflow(r_count, ext_f_count);
     auto xty_arr = array<Float>::zeros(xty_size);
 
-    const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
+    const auto betas_size = check_mul_overflow(r_count, f_count + 1);
     auto betas_arr = array<Float>::zeros(betas_size);
 
     auto xtx_daal_table =
-        interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
+        interop::convert_to_daal_homogen_table(xtx_arr, ext_f_count, ext_f_count);
     auto xty_daal_table =
-        interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
+        interop::convert_to_daal_homogen_table(xty_arr, r_count, ext_f_count);
     auto betas_daal_table =
-        interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
+        interop::convert_to_daal_homogen_table(betas_arr, r_count, f_count + 1);
 
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
@@ -104,11 +105,44 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         interop::status_to_exception(status);
     }
 
-    auto betas = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
+    auto betas_table = homogen_table::wrap(betas_arr, r_count, f_count + 1);
 
-    const auto model_impl = std::make_shared<model_impl_t>(betas);
+    const auto model_impl = std::make_shared<model_impl_t>(betas_table);
     const auto model = dal::detail::make_private<model_t>(model_impl);
-    auto result = train_result<Task>().set_model(model);
+    
+    const auto options = desc.get_result_options();
+    auto result = train_result<Task>().set_model(model).set_result_options(options);
+
+    const pr::ndshape<2> betas_shape{ r_count, f_count + 1 };
+    auto betas = pr::ndarray<Float, 2>::wrap(betas_arr, betas_shape);
+
+    if (options.test(result_options::intercept)) {
+        auto arr = array<Float>::zeros(r_count);
+        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { 1l, r_count });
+        const auto src = betas.get_col_slice(0l, 1l).t();
+
+        pr::copy(dst, src);
+
+        auto intercept = homogen_table::wrap(arr, 1l, r_count);
+        result.set_intercept(intercept);
+    }
+
+    if (options.test(result_options::coefficients)) {
+        const auto size = check_mul_overflow(r_count, f_count);
+
+        auto arr = array<Float>::zeros(size);
+        const auto src = betas.get_col_slice(1l, f_count + 1);
+        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { r_count, f_count });
+
+        pr::copy(dst, src);
+
+        auto coefficients = homogen_table::wrap(arr, r_count, f_count);
+        result.set_coefficients(coefficients);
+    }
+
+    if (options.test(result_options::packed_coefficients)) {
+        result.set_packed_coefficients(betas_table);
+    }
 
     return result;
 }

@@ -109,7 +109,7 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
     ONEDAL_ASSERT((f_count + 1) == betas.get_column_count());
 
     const auto resps_size = check_mul_overflow(s_count, r_count);
-    auto resps_arr = array<Float>::empty(queue, resps_size);
+    auto resps_arr = array<Float>::zeros(queue, resps_size, alloc);
 
     auto y = pr::ndarray<Float, 2>::wrap_mutable(resps_arr, { s_count, r_count });
 

@@ -135,7 +135,37 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     const auto model_impl = std::make_shared<model_impl_t>(betas);
     const auto model = dal::detail::make_private<model_t>(model_impl);
-    auto result = train_result<Task>().set_model(model);
+
+    const auto options = desc.get_result_options();
+    auto result = train_result<Task>().set_model(model).set_result_options(options);
+
+    if (options.test(result_options::intercept)) {
+        auto arr = array<Float>::zeros(queue, r_count, alloc);
+        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { 1l, r_count });
+        const auto src = nxty.get_col_slice(0l, 1l).t();
+
+        pr::copy(queue, dst, src).wait_and_throw();
+
+        auto intercept = homogen_table::wrap(arr, 1l, r_count);
+        result.set_intercept(intercept);
+    }
+
+    if (options.test(result_options::coefficients)) {
+        const auto size = check_mul_overflow(r_count, f_count);
+
+        auto arr = array<Float>::zeros(queue, size, alloc);
+        const auto src = nxty.get_col_slice(1l, f_count + 1);
+        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { r_count, f_count });
+
+        pr::copy(queue, dst, src).wait_and_throw();
+
+        auto coefficients = homogen_table::wrap(arr, r_count, f_count);
+        result.set_coefficients(coefficients);
+    }
+
+    if (options.test(result_options::packed_coefficients)) {
+        result.set_packed_coefficients(betas);
+    }
 
     return result;
 }
