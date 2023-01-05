@@ -122,7 +122,7 @@ void model<Task>::deserialize(dal::detail::input_archive& ar) {
 
 template class ONEDAL_EXPORT model<task::regression>;
 
-ONEDAL_REGISTER_SERIALIZABLE(backend::norm_eq_model_impl<task::regression>)
+ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::regression>)
 
 } // namespace v1
 } // namespace oneapi::dal::linear_regression

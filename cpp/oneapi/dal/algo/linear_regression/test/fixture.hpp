@@ -145,10 +145,9 @@ public:
     }
 
     auto get_descriptor() const {
-        const auto resopts =
-            (this->intercept_)
-                ? (result_options::intercept | result_options::coefficients)
-                : (result_options::coefficients | result_options::packed_coefficients);
+        result_option_id resopts = result_options::coefficients;
+        if (this->intercept_)
+            resopts = resopts | result_options::intercept;
         return linear_regression::descriptor<float_t, method_t, task_t>(intercept_)
             .set_result_options(resopts);
     }

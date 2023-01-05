@@ -58,7 +58,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     using dal::detail::check_mul_overflow;
 
     using model_t = model<Task>;
-    using model_impl_t = backend::norm_eq_model_impl<Task>;
+    using model_impl_t = detail::model_impl<Task>;
 
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);

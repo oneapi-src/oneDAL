@@ -52,7 +52,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     using dal::detail::check_mul_overflow;
 
     using model_t = model<Task>;
-    using model_impl_t = backend::norm_eq_model_impl<Task>;
+    using model_impl_t = detail::model_impl<Task>;
 
     bool intp = desc.get_compute_intercept();
 
