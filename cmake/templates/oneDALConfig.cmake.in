@@ -30,6 +30,20 @@ endif()
 # ONEDAL_INTERFACE: yes | no. Default is no
 # ONEDAL_SET_TBB_MANUALLY: yes | no. Default is no
 unset(DAL_LIBS)
+#Backward compatibility section to be removed with next major version
+if ("${ONEDAL_LINK}" STREQUAL "" and NOT "${TARGET_LINK}" STREQUAL "")
+    set(ONEDAL_LINK "${TARGET_LINK}")
+endif()
+if ("${ONEDAL_USE_DPCPP}" STREQUAL "" and NOT "${USE_DPCPP}" STREQUAL "")
+    set(ONEDAL_USE_DPCPP "${USE_DPCPP}")
+endif()
+if ("${ONEDAL_INTERFACE}" STREQUAL "" and NOT "${USE_NEW_IFACES}" STREQUAL "")
+    set(ONEDAL_INTERFACE "${USE_NEW_IFACES}")
+endif()
+if ("${ONEDAL_SET_TBB_MANUALLY}" STREQUAL "" and NOT "${SET_TBB_MANUALLY}" STREQUAL "")
+    set(ONEDAL_SET_TBB_MANUALLY "${ONEDAL_SET_TBB_MANUALLY}")
+endif()
+
 if ("${ONEDAL_LINK}" STREQUAL "")
     set(ONEDAL_LINK "dynamic")
 elseif (NOT "${ONEDAL_LINK}" STREQUAL "static" AND NOT "${ONEDAL_LINK}" STREQUAL "dynamic")

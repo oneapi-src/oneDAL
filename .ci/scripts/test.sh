@@ -152,7 +152,7 @@ for link_mode in ${link_modes}; do
             mkdir Build
         fi
 
-        cmake -B Build -S . -G "Unix Makefiles" -DTARGET_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb
+        cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
