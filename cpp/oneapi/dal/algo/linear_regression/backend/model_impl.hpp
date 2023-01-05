@@ -27,6 +27,7 @@ class detail::v1::model_impl : public base {
 public:
     model_impl() = default;
 
+    virtual void set_betas(const table&) = 0;
     virtual const table& get_betas() const = 0;
 };
 
@@ -44,16 +45,20 @@ public:
 
     norm_eq_model_impl(const table& betas) : betas_(betas) {}
 
-    void serialize(dal::detail::output_archive& ar) const override {
+    void serialize(dal::detail::output_archive& ar) const final {
         ar(betas_);
     }
 
-    void deserialize(dal::detail::input_archive& ar) override {
+    void deserialize(dal::detail::input_archive& ar) final {
         ar(betas_);
     }
 
-    const table& get_betas() const override {
+    const table& get_betas() const final {
         return betas_;
+    }
+
+    void set_betas(const table& v) final {
+        this->betas_ = v;
     }
 
 private:
