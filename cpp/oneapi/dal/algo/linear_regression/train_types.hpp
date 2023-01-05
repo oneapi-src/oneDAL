@@ -114,6 +114,14 @@ public:
         return *this;
     }
 
+    /// Table of Linear regression coefficients with intercept
+    const table& get_packed_coefficients() const;
+
+    auto& set_packed_coefficients(const table& value) {
+        set_packed_coefficients_impl(value);
+        return *this;
+    }
+
     /// Result options that indicates availability of the properties
     const result_option_id& get_result_options() const;
 
@@ -127,6 +135,7 @@ protected:
 
     void set_intercept_impl(const table&);
     void set_coefficients_impl(const table&);
+    void set_packed_coefficients_impl(const table&);
 
     void set_result_options_impl(const result_option_id&);
 

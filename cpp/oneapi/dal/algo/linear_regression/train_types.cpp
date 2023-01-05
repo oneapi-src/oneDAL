@@ -124,6 +124,16 @@ void train_result<Task>::set_coefficients_impl(const table& value) {
 }
 
 template <typename Task>
+const table& train_result<Task>::get_packed_coefficients() const {
+    return impl_->trained_model.get_packed_coefficients();
+}
+
+template <typename Task>
+void train_result<Task>::set_packed_coefficients_impl(const table& value) {
+    impl_->trained_model.set_packed_coefficients(value);
+}
+
+template <typename Task>
 const result_option_id& train_result<Task>::get_result_options() const {
     return impl_->options;
 }
