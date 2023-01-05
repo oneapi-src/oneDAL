@@ -17,7 +17,6 @@
 lnx_cc_common_flags = [
     "-fwrapv",
     "-fstack-protector-strong",
-    "-fno-strict-overflow",
     "-fno-delete-null-pointer-checks",
     "-Werror",
     "-Wformat",
@@ -45,7 +44,7 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
         if compiler_id == "icx" and category == "common":
             flags = flags + [
                 "-qopenmp-simd",
-                "-mCG_no_libirc=TRUE",
+                "-no-intel-lib=libirc",
             ]
         if compiler_id == "icpx":
             flags = flags + ["-fsycl"]
