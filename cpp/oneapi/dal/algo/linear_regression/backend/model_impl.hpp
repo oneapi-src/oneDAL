@@ -43,7 +43,8 @@ class norm_eq_model_impl : public norm_eq_proto, public model_impl<Task> {
 public:
     norm_eq_model_impl() = default;
 
-    norm_eq_model_impl(const table& packed_coefficients) : packed_coefficients_(packed_coefficients) {}
+    norm_eq_model_impl(const table& packed_coefficients)
+            : packed_coefficients_(packed_coefficients) {}
 
     void serialize(dal::detail::output_archive& ar) const final {
         ar(packed_coefficients_);
