@@ -65,7 +65,7 @@ public:
 
         REQUIRE(beta.get_row_count() == this->r_count_);
         REQUIRE(beta.get_column_count() == this->f_count_);
-        
+
         REQUIRE(bias.get_row_count() == std::int64_t(1));
         REQUIRE(bias.get_column_count() == this->r_count_);
 
@@ -145,11 +145,12 @@ public:
     }
 
     auto get_descriptor() const {
-        const auto resopts = (this->intercept_) 
-            ? (result_options::intercept | result_options::coefficients) 
-            : (result_options::coefficients | result_options::packed_coefficients);
+        const auto resopts =
+            (this->intercept_)
+                ? (result_options::intercept | result_options::coefficients)
+                : (result_options::coefficients | result_options::packed_coefficients);
         return linear_regression::descriptor<float_t, method_t, task_t>(intercept_)
-                                                        .set_result_options(resopts);
+            .set_result_options(resopts);
     }
 
     void check_if_close(const table& left, const table& right, double tol = 1e-3) {
@@ -164,21 +165,23 @@ public:
         row_accessor<const float_t> lacc(left);
         row_accessor<const float_t> racc(right);
 
-        const auto larr = lacc.pull({0, -1});
-        const auto rarr = racc.pull({0, -1});
+        const auto larr = lacc.pull({ 0, -1 });
+        const auto rarr = racc.pull({ 0, -1 });
 
         for (std::int64_t r = 0; r < r_count; ++r) {
-            for(std::int64_t c = 0; c < c_count; ++c) {
+            for (std::int64_t c = 0; c < c_count; ++c) {
                 const auto lval = larr[r * c_count + c];
                 const auto rval = rarr[r * c_count + c];
 
                 CAPTURE(r_count, c_count, r, c, lval, rval);
 
                 const auto aerr = std::abs(lval - rval);
-                if (aerr < tol) continue;
+                if (aerr < tol)
+                    continue;
 
-                const auto den = std::max({eps, //
-                    std::abs(lval), std::abs(rval)});
+                const auto den = std::max({ eps, //
+                                            std::abs(lval),
+                                            std::abs(rval) });
 
                 const auto rerr = aerr / den;
                 CAPTURE(aerr, rerr, den, r, c, lval, rval);
@@ -223,7 +226,7 @@ public:
             if (desc.get_result_options().test(result_options::coefficients))
                 check_if_close(train_res.get_coefficients(), this->beta_, tol);
         }
-        
+
         const auto infer_res = this->infer(desc, x_test, train_res.get_model());
 
         SECTION("Checking infer results") {

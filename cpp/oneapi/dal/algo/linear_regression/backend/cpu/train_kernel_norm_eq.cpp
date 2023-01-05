@@ -70,12 +70,9 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto betas_size = check_mul_overflow(r_count, f_count + 1);
     auto betas_arr = array<Float>::zeros(betas_size);
 
-    auto xtx_daal_table =
-        interop::convert_to_daal_homogen_table(xtx_arr, ext_f_count, ext_f_count);
-    auto xty_daal_table =
-        interop::convert_to_daal_homogen_table(xty_arr, r_count, ext_f_count);
-    auto betas_daal_table =
-        interop::convert_to_daal_homogen_table(betas_arr, r_count, f_count + 1);
+    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, ext_f_count, ext_f_count);
+    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, r_count, ext_f_count);
+    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, r_count, f_count + 1);
 
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
@@ -109,7 +106,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const auto model_impl = std::make_shared<model_impl_t>(betas_table);
     const auto model = dal::detail::make_private<model_t>(model_impl);
-    
+
     const auto options = desc.get_result_options();
     auto result = train_result<Task>().set_model(model).set_result_options(options);
 

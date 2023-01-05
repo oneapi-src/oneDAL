@@ -271,7 +271,8 @@ MSG(input_x_is_empty, "Input x is empty")
 MSG(input_y_is_empty, "Input y is empty")
 
 /* Linear Regression */
-MSG(intercept_result_option_requires_intercept_flag, "Intercept result option requires intercept flag")
+MSG(intercept_result_option_requires_intercept_flag,
+    "Intercept result option requires intercept flag")
 
 /* Decision Forest */
 MSG(bootstrap_is_incompatible_with_error_metric,

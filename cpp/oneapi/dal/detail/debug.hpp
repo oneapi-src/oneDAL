@@ -25,7 +25,7 @@ namespace oneapi::dal::detail {
 
 #ifdef _GLIBCXX_OSTREAM
 
-template<typename Float>
+template <typename Float>
 inline auto& print_array_shape(std::ostream& s, const array<Float>& a) {
     const auto c = a.get_count();
 

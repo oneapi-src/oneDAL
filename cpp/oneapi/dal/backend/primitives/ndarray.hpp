@@ -368,8 +368,7 @@ private:
 };
 
 template <typename T1, ndorder ord1, typename T2, ndorder ord2>
-inline void copy(ndview<T1, 2, ord1>& dst,
-                 const ndview<T2, 2, ord2>& src) {
+inline void copy(ndview<T1, 2, ord1>& dst, const ndview<T2, 2, ord2>& src) {
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     const ndshape<2> dst_shape = dst.get_shape();
@@ -379,9 +378,9 @@ inline void copy(ndview<T1, 2, ord1>& dst,
         const T2* const src_ptr = src.get_data();
         const auto dst_stride = dst.get_leading_stride();
         const auto src_stride = src.get_leading_stride();
-        
-        for(std::int64_t r = 0; r < dst_shape[0]; ++r) {
-            for(std::int64_t c = 0; c < dst_shape[1]; ++c) {
+
+        for (std::int64_t r = 0; r < dst_shape[0]; ++r) {
+            for (std::int64_t c = 0; c < dst_shape[1]; ++c) {
                 T1& dst_ref = *(dst_ptr + r * dst_stride + c);
                 if constexpr (ord2 == ndorder::c) {
                     dst_ref = static_cast<T1>(*(src_ptr + r * src_stride + c));
