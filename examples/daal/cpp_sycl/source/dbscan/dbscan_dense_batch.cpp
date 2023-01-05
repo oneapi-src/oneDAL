@@ -1,6 +1,6 @@
 /* file: dbscan_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -37,20 +36,18 @@ using namespace daal::data_management;
 using daal::services::internal::SyclExecutionContext;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/dbscan_dense.csv";
+std::string datasetFileName = "../data/batch/dbscan_dense.csv";
 
 /* DBSCAN algorithm parameters */
-const float epsilon          = 0.04f;
+const float epsilon = 0.04f;
 const size_t minObservations = 45;
-const size_t nFeatures       = 2;
+const size_t nFeatures = 2;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -58,7 +55,9 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
         auto data = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
         /* Retrieve the data from the input file */
@@ -73,7 +72,9 @@ int main(int argc, char * argv[])
 
         /* Print the clusterization results */
         printNumericTable(algorithm.getResult()->get(dbscan::nClusters), "Number of clusters:");
-        printNumericTable(algorithm.getResult()->get(dbscan::assignments), "Assignments of first 50 observations:", 50);
+        printNumericTable(algorithm.getResult()->get(dbscan::assignments),
+                          "Assignments of first 50 observations:",
+                          50);
     }
     return 0;
 }

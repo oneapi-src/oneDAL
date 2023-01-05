@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2021-2022 Intel Corporation
+# Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
 
 cmake_minimum_required(VERSION 3.1)
 
+# Add cmake scripts and modules to CMake search path
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
+include(setup_examples)
+
 project(daal_cpp_examples)
 
 set(CMAKE_BUILD_TYPE Release)
@@ -23,57 +27,18 @@ set(CMAKE_BUILD_TYPE Release)
 set(USE_DPCPP no)
 set(USE_NEW_IFACES no)
 
-function (add_examples examples)
-    foreach(example ${examples})
-        add_executable(${example} "${example}.cpp")
-        target_include_directories(${example} PRIVATE ${oneDAL_INCLUDE_DIRS})
-        if (UNIX)
-            target_link_libraries(${example} PRIVATE -Wl,--start-group ${oneDAL_IMPORTED_TARGETS} -Wl,--end-group)
-        else()
-            target_link_libraries(${example} PRIVATE ${oneDAL_IMPORTED_TARGETS})
-        endif()
-        set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/intel_intel64_${THREADING_TYPE}_${LINK_TYPE}")
-    endforeach()
-endfunction()
-
-function (set_link_and_threading_types)
-    if ("${TARGET_LINK}" STREQUAL "static")
-        set(LINK_TYPE "a" PARENT_SCOPE)
-    else()
-        set(LINK_TYPE "so" PARENT_SCOPE)
-    endif()
-
-    if ("${USE_PARALLEL}" STREQUAL "yes")
-        set(THREADING_TYPE "parallel" PARENT_SCOPE)
-    else()
-        set(THREADING_TYPE "sequential" PARENT_SCOPE)
-    endif()
-endfunction()
-
-function (change_md_to_mdd)
-    set(cxx_flag ${CMAKE_CXX_FLAGS})
-    set(cxxr_flag ${CMAKE_CXX_FLAGS_RELEASE})
-    set(c_flag ${CMAKE_C_FLAGS})
-    set(cr_flag ${CMAKE_C_FLAGS_RELEASE})
-    set(flags
-            cxx_flag
-            cxxr_flag
-            c_flag
-            cr_flag)
-    foreach(flag ${flags})
-        string(REPLACE "/MD" "/MDd /debug:none" ${flag} "${${flag}}")
-    endforeach()
-
-    set(CMAKE_CXX_FLAGS ${cxx_flag} PARENT_SCOPE)
-    set(CMAKE_CXX_FLAGS_RELEASE ${cxxr_flag} PARENT_SCOPE)
-    set(CMAKE_C_FLAGS ${c_flag} PARENT_SCOPE)
-    set(CMAKE_C_FLAGS_RELEASE ${cr_flag} PARENT_SCOPE)
-endfunction()
-
-set_link_and_threading_types()
+set_link_type()
 
 find_package(oneDAL REQUIRED)
 
 include_directories(source/utils)
 
-add_subdirectory(source/pca)
+# Initialize the EXCLUDE_LIST variable
+set(EXCLUDE_LIST
+    "source/utils/*"
+)
+
+# Define variable to specify the examples or directories to include or exclude
+option(EXAMPLES_LIST "")
+
+generate_examples("${EXCLUDE_LIST}" "${EXAMPLES_LIST}")

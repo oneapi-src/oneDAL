@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2021-2022 Intel Corporation
+# Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,20 +25,20 @@ help:
 	@echo "name              - sample name. Please see onedal.lst file"
 	@echo
 	@echo "compiler_name     - currently can be dpcpp only that stands
-	@echo "                    for Intel(R) oneAPI DPC++ Compiler."
+	@echo "                    for Intel(R) oneAPI DPC++/C++ Compiler."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## make lib sample=kmeans_distr_oneccl   - build by Intel(R) oneAPI DPC++ Compiler (as default)
+## make lib sample=kmeans_distr_oneccl   - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                          and run kmeans_distr_oneccl sample, static linking
 ##
-## make so                                - build by Intel(R) oneAPI DPC++ Compiler (as default)
+## make so                                - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                          and run all samples, dynamic linking
 ##
-## make so mode=build                     - build only (not run) by Intel(R) oneAPI DPC++ Compiler
+## make so mode=build                     - build only (not run) by Intel(R) oneAPI DPC++/C++ Compiler
 ##                                          (as default) all samples, dynamic linking
 ##
 ## make help                              - show help
@@ -68,22 +68,15 @@ TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
 MPI_PATH = $(I_MPI_ROOT)
 CCL_PATH = $(CCL_ROOT)
 
-ifeq ($(threading),sequential)
-    $(error Sequential version is not supported. To run sequential version please refer to 'samples/oneapi/cpp')
-else
-    override threading = parallel
-    THREADING_LIB := onedal_thread
-endif
-
 ifeq ($(RES_EXT),so)
     ONEDAL_LIBS := -lonedal_dpc \
                    -lonedal_core \
-                   -l$(THREADING_LIB) \
+                   -lonedal_thread \
                    "$(DAAL_PATH)"/libonedal_sycl.a
 else
     ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a \
                    "$(DAAL_PATH)"/libonedal_core.a \
-                   "$(DAAL_PATH)"/lib$(THREADING_LIB).a \
+                   "$(DAAL_PATH)"/libonedal_thread.a \
                    "$(DAAL_PATH)"/libonedal_sycl.a
 endif
 
@@ -122,7 +115,7 @@ override proc = 4
 
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
 
-CC = dpcpp 
+CC = icpx -fsycl 
 CRUN = mpirun
 RUNOPTS = -n $(proc) -ppn $(proc)
 

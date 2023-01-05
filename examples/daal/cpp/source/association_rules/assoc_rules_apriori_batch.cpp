@@ -1,6 +1,6 @@
 /* file: assoc_rules_apriori_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,24 +27,25 @@
 
 #include "daal.h"
 #include "service.h"
-using namespace std;
+
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/apriori.csv";
+std::string datasetFileName = "../data/batch/apriori.csv";
 
 /* Apriori algorithm parameters */
-const double minSupport    = 0.001; /* Minimum support */
-const double minConfidence = 0.7;   /* Minimum confidence */
+const double minSupport = 0.001; /* Minimum support */
+const double minConfidence = 0.7; /* Minimum confidence */
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -56,7 +57,7 @@ int main(int argc, char * argv[])
     algorithm.input.set(association_rules::data, dataSource.getNumericTable());
 
     /* Set the Apriori algorithm parameters */
-    algorithm.parameter.minSupport    = minSupport;
+    algorithm.parameter.minSupport = minSupport;
     algorithm.parameter.minConfidence = minConfidence;
 
     /* Find large item sets and construct association rules */
@@ -66,10 +67,12 @@ int main(int argc, char * argv[])
     association_rules::ResultPtr res = algorithm.getResult();
 
     /* Print the large item sets */
-    printAprioriItemsets(res->get(association_rules::largeItemsets), res->get(association_rules::largeItemsetsSupport));
+    printAprioriItemsets(res->get(association_rules::largeItemsets),
+                         res->get(association_rules::largeItemsetsSupport));
 
     /* Print the association rules */
-    printAprioriRules(res->get(association_rules::antecedentItemsets), res->get(association_rules::consequentItemsets),
+    printAprioriRules(res->get(association_rules::antecedentItemsets),
+                      res->get(association_rules::consequentItemsets),
                       res->get(association_rules::confidence));
 
     return 0;

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ ONEDAL_EXPORT void _onedal_threader_for_int32ptr(const std::int32_t *begin,
 }
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64(
-    int32_t n,
+    std::int32_t n,
     std::int64_t init,
     const void *a,
     oneapi::dal::preview::loop_functype_int32_int64 loop_func,
@@ -69,7 +69,7 @@ ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64(
 }
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64_simple(
-    int32_t n,
+    std::int32_t n,
     std::int64_t init,
     const void *a,
     oneapi::dal::preview::loop_functype_int32_int64 loop_func,
@@ -85,8 +85,8 @@ ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64_simple(
 }
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32ptr_int64_simple(
-    const int32_t *begin,
-    const int32_t *end,
+    const std::int32_t *begin,
+    const std::int32_t *end,
     std::int64_t init,
     const void *a,
     oneapi::dal::preview::loop_functype_int32ptr_int64 loop_func,
@@ -139,7 +139,7 @@ ONEDAL_EXPORT void _onedal_del_mutex(void *mutex_ptr) {
 
 namespace oneapi::dal::detail {
 
-typedef std::pair<std::int32_t, size_t> pair_int32_t_size_t;
+typedef std::pair<std::int32_t, std::size_t> pair_int32_t_size_t;
 
 #define ONEDAL_PARALLEL_SORT_SPECIALIZATION(TYPE, DAALTYPE, NAMESUFFIX)               \
     template <>                                                                       \
@@ -149,7 +149,7 @@ typedef std::pair<std::int32_t, size_t> pair_int32_t_size_t;
     }
 
 ONEDAL_PARALLEL_SORT_SPECIALIZATION(std::int32_t, int, int32)
-ONEDAL_PARALLEL_SORT_SPECIALIZATION(std::uint64_t, size_t, uint64)
+ONEDAL_PARALLEL_SORT_SPECIALIZATION(std::uint64_t, std::size_t, uint64)
 ONEDAL_PARALLEL_SORT_SPECIALIZATION(pair_int32_t_size_t, daal::IdxValType<int>, pair_int32_uint64)
 
 #undef ONEDAL_PARALLEL_SORT_SPECIALIZATION

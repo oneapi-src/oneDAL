@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ namespace oneapi::dal::preview::triangle_counting::backend {
 
 template <typename Cpu>
 array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology<std::int32_t>& t,
-                                            int64_t* triangles_local) {
+                                            std::int64_t* triangles_local) {
     const auto vertex_count = t.get_vertex_count();
     std::int32_t average_degree = t.get_edge_count() / vertex_count;
     int thread_cnt = dal::detail::threader_get_max_threads();
@@ -62,7 +62,7 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
                     }
                     if (w == *u_neighbors_ptr) {
                         int thread_id = dal::detail::threader_get_current_thread_index();
-                        int64_t indx = (int64_t)thread_id * (int64_t)vertex_count;
+                        std::int64_t indx = (std::int64_t)thread_id * (std::int64_t)vertex_count;
                         triangles_local[indx + u]++;
                         triangles_local[indx + v]++;
                         triangles_local[indx + w]++;
@@ -91,7 +91,8 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
                                 ;
 
                             int thread_id = dal::detail::threader_get_current_thread_index();
-                            int64_t indx = (int64_t)thread_id * (int64_t)vertex_count;
+                            std::int64_t indx =
+                                (std::int64_t)thread_id * (std::int64_t)vertex_count;
 
                             auto tc = intersection_local_tc<Cpu>{}(t.get_vertex_neighbors_begin(u),
                                                                    t.get_vertex_neighbors_begin(v),
@@ -109,7 +110,7 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
 
     auto arr_triangles = array<std::int64_t>::empty(vertex_count);
 
-    int64_t* triangles_ptr = arr_triangles.get_mutable_data();
+    std::int64_t* triangles_ptr = arr_triangles.get_mutable_data();
 
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t u) {
         triangles_ptr[u] = 0;
@@ -117,7 +118,7 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
 
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t u) {
         for (int j = 0; j < thread_cnt; j++) {
-            int64_t idx_glob = (int64_t)j * (int64_t)vertex_count;
+            std::int64_t idx_glob = (std::int64_t)j * (std::int64_t)vertex_count;
             triangles_ptr[u] += triangles_local[idx_glob + u];
         }
     });

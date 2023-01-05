@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,8 +30,7 @@ using sycl::ext::oneapi::maximum;
 using sycl::ext::oneapi::minimum;
 
 template <typename Data>
-using local_accessor_rw_t =
-    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+using local_accessor_rw_t = sycl::local_accessor<Data, 1>;
 
 constexpr std::int32_t delta_b_i = 0;
 constexpr std::int32_t delta_b_j = 1;

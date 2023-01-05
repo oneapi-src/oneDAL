@@ -1,6 +1,6 @@
 /** file error_handling.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -352,7 +352,7 @@ KernelErrorCollection & KernelErrorCollection::operator=(const KernelErrorCollec
     if (&other != this)
     {
         super::operator=(other);
-        _description   = nullptr;
+        _description = nullptr;
     }
 
     return *this;

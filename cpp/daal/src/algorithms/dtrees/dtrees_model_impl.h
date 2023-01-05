@@ -1,6 +1,6 @@
 /* file: dtrees_model_impl.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public:
 #else
     ClassifierResponse() : value(0) {}
 #endif
-    ClassifierResponse(const ClassifierResponse &) = delete;
+    ClassifierResponse(const ClassifierResponse &)               = delete;
     ClassifierResponse & operator=(const ClassifierResponse & o) = delete;
 };
 

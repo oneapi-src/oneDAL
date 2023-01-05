@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2021-2022 Intel Corporation
+# Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,18 +22,13 @@
 
 # Handle arguments:
 # TARGET_LINK: static | dynamic. Default is dynamic
-# USE_PARALLEL: yes | no. Default is yes
 # USE_DPCPP: yes | no. Default is yes
 # USE_NEW_IFACES: yes | no. Default is no
+# SET_TBB_MANUALLY: yes | no. Default is no
 if ("${TARGET_LINK}" STREQUAL "")
     set(TARGET_LINK "dynamic")
 elseif (NOT "${TARGET_LINK}" STREQUAL "static" AND NOT "${TARGET_LINK}" STREQUAL "dynamic")
     message(FATAL_ERROR "TARGET_LINK must be 'static' or 'dynamic'")
-endif()
-if ("${USE_PARALLEL}" STREQUAL "")
-    set(USE_PARALLEL "yes")
-elseif (NOT "${USE_PARALLEL}" STREQUAL "yes" AND NOT "${USE_PARALLEL}" STREQUAL "no")
-    message(FATAL_ERROR "USE_PARALLEL must be 'yes' or 'no'")
 endif()
 if ("${USE_DPCPP}" STREQUAL "")
     set(USE_DPCPP "yes")
@@ -45,11 +40,16 @@ if ("${USE_NEW_IFACES}" STREQUAL "")
 elseif (NOT "${USE_NEW_IFACES}" STREQUAL "yes" AND NOT "${USE_NEW_IFACES}" STREQUAL "no")
     message(FATAL_ERROR "USE_NEW_IFACES must be 'yes' or 'no'")
 endif()
+if ("${SET_TBB_MANUALLY}" STREQUAL "")
+    set(SET_TBB_MANUALLY "no")
+elseif (NOT "${SET_TBB_MANUALLY}" STREQUAL "yes" AND NOT "${SET_TBB_MANUALLY}" STREQUAL "no")
+    message(FATAL_ERROR "SET_TBB_MANUALLY must be 'yes' or 'no'")
+endif()
 
-message(STATUS "TARGET_LINK:    ${TARGET_LINK}")
-message(STATUS "USE_PARALLEL:   ${USE_PARALLEL}")
-message(STATUS "USE_DPCPP:      ${USE_DPCPP}")
-message(STATUS "USE_NEW_IFACES: ${USE_NEW_IFACES}")
+message(STATUS "TARGET_LINK:      ${TARGET_LINK}")
+message(STATUS "USE_DPCPP:        ${USE_DPCPP}")
+message(STATUS "USE_NEW_IFACES:   ${USE_NEW_IFACES}")
+message(STATUS "SET_TBB_MANUALLY: ${SET_TBB_MANUALLY}")
 
 if (NOT DAL_LIBRARIES)
     set(DAL_LIBRARIES "")
@@ -78,20 +78,20 @@ endif()
 
 list(APPEND DAL_LIBS onedal_core)
 
-if(USE_PARALLEL STREQUAL "yes")
-    set(DAL_THREAD_LIBRARY_NAME onedal_thread)
+set(THREADING_TYPE "parallel")
+set(DAL_THREAD_LIBRARY_NAME onedal_thread)
+
+if (SET_TBB_MANUALLY STREQUAL "no")
     find_package(TBB REQUIRED tbb tbbmalloc)
     list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
+endif()
 
-    if(UNIX)
-        if(APPLE)
-            list(APPEND oneDAL_IMPORTED_TARGETS -lc++)
-        else()
-            list(APPEND oneDAL_IMPORTED_TARGETS -lstdc++)
-        endif()
+if(UNIX)
+    if(APPLE)
+        list(APPEND oneDAL_IMPORTED_TARGETS -lc++)
+    else()
+        list(APPEND oneDAL_IMPORTED_TARGETS -lstdc++)
     endif()
-else()
-    set(DAL_THREAD_LIBRARY_NAME onedal_sequential)
 endif()
 
 if (UNIX OR TARGET_LINK STREQUAL "static")
@@ -99,7 +99,10 @@ if (UNIX OR TARGET_LINK STREQUAL "static")
 endif()
 
 if(UNIX)
-    list(APPEND oneDAL_IMPORTED_TARGETS -lm -lpthread -ldl)
+    if(NOT APPLE)
+        list(APPEND oneDAL_IMPORTED_TARGETS -lm -lpthread)
+    endif()
+    list(APPEND oneDAL_IMPORTED_TARGETS -ldl)
 endif()
 
 if (USE_DPCPP STREQUAL "yes")
@@ -108,6 +111,7 @@ if (USE_DPCPP STREQUAL "yes")
     else()
         list(APPEND oneDAL_IMPORTED_TARGETS OpenCL.lib)
     endif()
+    set(CMAKE_CXX_FLAGS "-fsycl -fsycl-device-code-split=per_kernel ${CMAKE_CXX_FLAGS}")
 endif()
 
 if (USE_NEW_IFACES STREQUAL "yes")
@@ -119,9 +123,15 @@ if (USE_NEW_IFACES STREQUAL "yes")
 endif()
 
 if(UNIX)
-    set(LIB_PREFIX "lib")
-    set(LIB_EXT ".a")
-    set(DLL_EXT ".so.${_dal_ver_major_bin}.${_dal_ver_minor_bin}")
+    if(APPLE)
+        set(LIB_PREFIX "lib")
+        set(LIB_EXT ".a")
+        set(DLL_EXT ".${_dal_ver_major_bin}.dylib")
+    else()
+        set(LIB_PREFIX "lib")
+        set(LIB_EXT ".a")
+        set(DLL_EXT ".so.${_dal_ver_major_bin}")
+    endif()
 else()
     set(LIB_PREFIX "")
     set(LIB_EXT ".lib")

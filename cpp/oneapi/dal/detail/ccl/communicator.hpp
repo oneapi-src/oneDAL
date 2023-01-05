@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -114,17 +114,20 @@ public:
     using spmd::communicator_iface::bcast;
     using spmd::communicator_iface::allgatherv;
     using spmd::communicator_iface::allreduce;
+    using spmd::communicator_iface::sendrecv_replace;
 
     template <typename Kvs>
     explicit ccl_device_communicator_impl(const sycl::queue& queue,
                                           std::shared_ptr<Kvs> kvs,
                                           std::int64_t rank,
                                           std::int64_t rank_count)
-            : queue_(queue) {
+            : queue_(queue),
+              rank_(rank),
+              rank_count_(rank_count) {
         auto dev = ccl::create_device(queue_.get_device());
         auto ctx = ccl::create_context(queue_.get_context());
         device_comm_.reset(
-            new ccl_comm_wrapper{ ccl::create_communicator(rank_count, rank, dev, ctx, kvs) });
+            new ccl_comm_wrapper{ ccl::create_communicator(rank_count_, rank_, dev, ctx, kvs) });
         stream_.reset(new ccl_stream_wrapper{ ccl::create_stream(queue_) });
     }
 
@@ -175,9 +178,11 @@ public:
         ONEDAL_ASSERT(send_buf != nullptr);
         ONEDAL_ASSERT(recv_buf);
 
-        std::vector<size_t> internal_recv_counts(this->get_rank_count());
+        sycl::event::wait(deps);
+
+        std::vector<std::size_t> internal_recv_counts(this->get_rank_count());
         for (std::int64_t i = 0; i < this->get_rank_count(); ++i) {
-            internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
+            internal_recv_counts[i] = integral_cast<std::size_t>(recv_counts[i]);
         }
 
         auto event = ccl::allgatherv(send_buf,
@@ -207,6 +212,8 @@ public:
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_buf);
 
+        sycl::event::wait(deps);
+
         auto event = ccl::allreduce(send_buf,
                                     recv_buf,
                                     integral_cast<int>(count),
@@ -216,11 +223,49 @@ public:
                                     stream_->get_ref());
         return new ccl_request_impl{ std::move(event) };
     }
+    /// `sendrecv_replace` that accepts USM pointers
+    spmd::request_iface* sendrecv_replace(sycl::queue& q,
+                                          byte_t* buf,
+                                          std::int64_t count,
+                                          const data_type& dtype,
+                                          std::int64_t destination_rank,
+                                          std::int64_t source_rank,
+                                          const std::vector<sycl::event>& deps) override {
+        ONEDAL_ASSERT(destination_rank >= 0);
+        ONEDAL_ASSERT(source_rank >= 0);
+        ONEDAL_ASSERT(destination_rank < rank_count_);
+        ONEDAL_ASSERT(source_rank < rank_count_);
+
+        if (count == 0) {
+            return nullptr;
+        }
+
+        ONEDAL_ASSERT(buf);
+        ONEDAL_ASSERT(count > 0);
+
+        sycl::event::wait(deps);
+
+        std::vector<std::size_t> send_counts(rank_count_, std::size_t(0));
+        send_counts.at(destination_rank) = dal::detail::integral_cast<std::size_t>(count);
+        std::vector<std::size_t> recv_counts(rank_count_, std::size_t(0));
+        recv_counts.at(source_rank) = dal::detail::integral_cast<std::size_t>(count);
+
+        auto event = ccl::alltoallv(buf,
+                                    send_counts,
+                                    buf,
+                                    recv_counts,
+                                    make_ccl_data_type(dtype),
+                                    device_comm_->get_ref(),
+                                    stream_->get_ref());
+        return new ccl_request_impl{ std::move(event) };
+    }
 
 private:
     std::unique_ptr<ccl_comm_wrapper> device_comm_;
     std::unique_ptr<ccl_stream_wrapper> stream_;
     sycl::queue queue_;
+    std::int64_t rank_ = -1;
+    std::int64_t rank_count_ = -1;
 };
 template <typename MemoryAccessKind>
 struct ccl_interface_selector {
@@ -244,6 +289,7 @@ public:
     using base_t::bcast;
     using base_t::allgatherv;
     using base_t::allreduce;
+    using base_t::sendrecv_replace;
 
     explicit ccl_communicator_impl(ccl::shared_ptr_class<ccl::kvs> kvs,
                                    std::int64_t rank,
@@ -310,16 +356,15 @@ public:
                                     const std::int64_t* recv_counts,
                                     const std::int64_t* displs,
                                     const data_type& dtype) override {
-        std::vector<size_t> internal_recv_counts(rank_count_);
+        std::vector<std::size_t> internal_recv_counts(rank_count_);
         for (std::int64_t i = 0; i < rank_count_; i++) {
-            internal_recv_counts[i] = integral_cast<size_t>(recv_counts[i]);
+            internal_recv_counts[i] = integral_cast<std::size_t>(recv_counts[i]);
         }
 
-        ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_buf);
 
         auto event = ccl::allgatherv(send_buf,
-                                     integral_cast<size_t>(send_count),
+                                     integral_cast<std::size_t>(send_count),
                                      recv_buf,
                                      internal_recv_counts,
                                      make_ccl_data_type(dtype),
@@ -344,6 +389,36 @@ public:
                                     integral_cast<int>(count),
                                     make_ccl_data_type(dtype),
                                     make_ccl_reduce_op(op),
+                                    host_comm_->get_ref());
+        return new ccl_request_impl{ std::move(event) };
+    }
+    spmd::request_iface* sendrecv_replace(byte_t* buf,
+                                          std::int64_t count,
+                                          const data_type& dtype,
+                                          std::int64_t destination_rank,
+                                          std::int64_t source_rank) override {
+        ONEDAL_ASSERT(destination_rank >= 0);
+        ONEDAL_ASSERT(source_rank >= 0);
+        ONEDAL_ASSERT(destination_rank < rank_count_);
+        ONEDAL_ASSERT(source_rank < rank_count_);
+
+        if (count == 0) {
+            return nullptr;
+        }
+
+        ONEDAL_ASSERT(buf);
+        ONEDAL_ASSERT(count > 0);
+
+        std::vector<std::size_t> send_counts(rank_count_, std::size_t(0));
+        send_counts.at(destination_rank) = dal::detail::integral_cast<std::size_t>(count);
+        std::vector<std::size_t> recv_counts(rank_count_, std::size_t(0));
+        recv_counts.at(source_rank) = dal::detail::integral_cast<std::size_t>(count);
+
+        auto event = ccl::alltoallv(buf,
+                                    send_counts,
+                                    buf,
+                                    recv_counts,
+                                    make_ccl_data_type(dtype),
                                     host_comm_->get_ref());
         return new ccl_request_impl{ std::move(event) };
     }

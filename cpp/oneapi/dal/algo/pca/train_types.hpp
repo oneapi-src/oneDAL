@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -122,6 +122,14 @@ public:
         set_means_impl(value);
         return *this;
     }
+    /// Result options that indicates availability of the properties
+    /// @remark default = default_result_options<Task>
+    const result_option_id& get_result_options() const;
+
+    auto& set_result_options(const result_option_id& value) {
+        set_result_options_impl(value);
+        return *this;
+    }
 
 protected:
     void set_model_impl(const model<Task>&);
@@ -129,6 +137,7 @@ protected:
     void set_eigenvectors_impl(const table&);
     void set_variances_impl(const table&);
     void set_means_impl(const table&);
+    void set_result_options_impl(const result_option_id&);
 
 private:
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;

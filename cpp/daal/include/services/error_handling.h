@@ -1,6 +1,6 @@
 /** file error_handling.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -393,13 +393,19 @@ public:
      * Returns size of an error collection
      * \return Size of an error collection
      */
-    size_t size() const { return _errors->size(); }
+    size_t size() const
+    {
+        return _errors->size();
+    }
 
     /**
      * Returns true if kernel error collection is empty
      * \return True if kernel error collection is empty
      */
-    bool isEmpty() const { return _errors->isEmpty(); }
+    bool isEmpty() const
+    {
+        return _errors->isEmpty();
+    }
 
     /**
      * Destructor of error collection
@@ -410,19 +416,28 @@ public:
      * Returns kernel error collection
      * \return True if kernel error collection is empty
      */
-    const KernelErrorCollectionPtr & getErrors() const { return _errors; }
+    const KernelErrorCollectionPtr & getErrors() const
+    {
+        return _errors;
+    }
 
     /**
      * Returns description of all errors from collection
      * \return Description of all errors from collection
      */
-    const char * getDescription() const { return _errors->getDescription(); }
+    const char * getDescription() const
+    {
+        return _errors->getDescription();
+    }
 
     /**
     * Returns true if can throw exceptions
     * \return true if can throw exceptions
     */
-    bool canThrow() const { return _canThrow; }
+    bool canThrow() const
+    {
+        return _canThrow;
+    }
 
     /**
     * Set canThrow flag

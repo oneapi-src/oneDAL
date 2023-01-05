@@ -1,6 +1,6 @@
 /* file: pca_correlation_dense_distributed_mpi.cpp */
 /*******************************************************************************
-* Copyright 2017-2022 Intel Corporation
+* Copyright 2017 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -42,19 +41,28 @@ size_t nFeatures;
 int rankId, comm_size;
 #define mpi_root 0
 
-const string datasetFileNames[] = { "./data/distributed/pca_normalized_1.csv", "./data/distributed/pca_normalized_2.csv",
-                                    "./data/distributed/pca_normalized_3.csv", "./data/distributed/pca_normalized_4.csv" };
+const std::string datasetFileNames[] = { "./data/distributed/pca_normalized_1.csv",
+                                         "./data/distributed/pca_normalized_2.csv",
+                                         "./data/distributed/pca_normalized_3.csv",
+                                         "./data/distributed/pca_normalized_4.csv" };
 
-int main(int argc, char * argv[])
-{
-    checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
+int main(int argc, char* argv[]) {
+    checkArguments(argc,
+                   argv,
+                   4,
+                   &datasetFileNames[0],
+                   &datasetFileNames[1],
+                   &datasetFileNames[2],
+                   &datasetFileNames[3]);
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rankId);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[rankId], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[rankId],
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the input data */
     dataSource.loadDataBlock();
@@ -75,31 +83,37 @@ int main(int argc, char * argv[])
     size_t perNodeArchLength = dataArch.getSizeOfArchive();
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
-    if (rankId == mpi_root)
-    {
+    if (rankId == mpi_root) {
         serializedData = services::SharedPtr<byte>(new byte[perNodeArchLength * nBlocks]);
     }
 
-    byte * nodeResults = new byte[perNodeArchLength];
+    byte* nodeResults = new byte[perNodeArchLength];
     dataArch.copyArchiveToArray(nodeResults, perNodeArchLength);
 
     /* Transfer partial results to step 2 on the root node */
-    MPI_Gather(nodeResults, perNodeArchLength, MPI_CHAR, serializedData.get(), perNodeArchLength, MPI_CHAR, mpi_root, MPI_COMM_WORLD);
+    MPI_Gather(nodeResults,
+               perNodeArchLength,
+               MPI_CHAR,
+               serializedData.get(),
+               perNodeArchLength,
+               MPI_CHAR,
+               mpi_root,
+               MPI_COMM_WORLD);
 
     delete[] nodeResults;
 
-    if (rankId == mpi_root)
-    {
+    if (rankId == mpi_root) {
         /* Create an algorithm for principal component analysis using the correlation method on the master node */
         pca::Distributed<step2Master> masterAlgorithm;
 
-        for (size_t i = 0; i < nBlocks; i++)
-        {
+        for (size_t i = 0; i < nBlocks; i++) {
             /* Deserialize partial results from step 1 */
-            OutputDataArchive dataArch(serializedData.get() + perNodeArchLength * i, perNodeArchLength);
+            OutputDataArchive dataArch(serializedData.get() + perNodeArchLength * i,
+                                       perNodeArchLength);
 
             services::SharedPtr<pca::PartialResult<pca::correlationDense> > dataForStep2FromStep1 =
-                services::SharedPtr<pca::PartialResult<pca::correlationDense> >(new pca::PartialResult<pca::correlationDense>());
+                services::SharedPtr<pca::PartialResult<pca::correlationDense> >(
+                    new pca::PartialResult<pca::correlationDense>());
             dataForStep2FromStep1->deserialize(dataArch);
 
             /* Set local partial results as input for the master-node algorithm */

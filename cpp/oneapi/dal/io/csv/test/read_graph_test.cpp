@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -184,11 +184,11 @@ struct CountingAllocator {
         return false;
     }
 
-    T* allocate(const size_t n) {
+    T* allocate(const std::size_t n) {
         allocated_bytes_count += n * sizeof(T);
         if (!was_custom_alloc_used)
             was_custom_alloc_used = true;
-        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+        if (n > static_cast<std::size_t>(-1) / sizeof(T)) {
             throw std::bad_array_new_length();
         }
         void* const pv = malloc(n * sizeof(T));
@@ -198,7 +198,7 @@ struct CountingAllocator {
         return static_cast<T*>(pv);
     }
 
-    void deallocate(T* const p, size_t n) noexcept {
+    void deallocate(T* const p, std::size_t n) noexcept {
         allocated_bytes_count -= n * sizeof(T);
         free(p);
     }

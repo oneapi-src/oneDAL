@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,19 +15,11 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/blas/gemm.hpp"
+#include "oneapi/dal/backend/primitives/blas/misc.hpp"
+
 #include <mkl_dal_sycl.hpp>
 
 namespace oneapi::dal::backend::primitives {
-
-namespace mkl = oneapi::fpk;
-
-inline constexpr mkl::transpose f_order_as_transposed(ndorder order) {
-    return (order == ndorder::f) ? mkl::transpose::trans : mkl::transpose::nontrans;
-}
-
-inline constexpr mkl::transpose c_order_as_transposed(ndorder order) {
-    return (order == ndorder::c) ? mkl::transpose::trans : mkl::transpose::nontrans;
-}
 
 template <typename Float, ndorder ao, ndorder bo, ndorder co>
 sycl::event gemm(sycl::queue& queue,

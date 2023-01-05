@@ -1,6 +1,6 @@
 /* file: out_detect_mult_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,26 +28,27 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/outlierdetection.csv";
+std::string datasetFileName = "../data/batch/outlierdetection.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
 
     /* Create an algorithm to detect outliers using the default method */
-    multivariate_outlier_detection::Batch<float, multivariate_outlier_detection::defaultDense> algorithm;
+    multivariate_outlier_detection::Batch<float, multivariate_outlier_detection::defaultDense>
+        algorithm;
 
     algorithm.input.set(multivariate_outlier_detection::data, dataSource.getNumericTable());
 
@@ -57,7 +58,10 @@ int main(int argc, char * argv[])
     /* Get the computed results */
     multivariate_outlier_detection::ResultPtr res = algorithm.getResult();
 
-    printNumericTables(dataSource.getNumericTable().get(), res->get(multivariate_outlier_detection::weights).get(), "Input data", "Weights",
+    printNumericTables(dataSource.getNumericTable().get(),
+                       res->get(multivariate_outlier_detection::weights).get(),
+                       "Input data",
+                       "Weights",
                        "Outlier detection result (Default method)");
 
     return 0;

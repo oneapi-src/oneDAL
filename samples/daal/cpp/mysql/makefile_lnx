@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2022 Intel Corporation
+# Copyright 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 help:
 	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
 	@echo "lib is alias for libintel64, so is alias for sointel64"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "compiler_name       - intel or gnu"
 	@echo "                      Intel(R) C++ Compiler as default"
@@ -85,7 +85,7 @@ endif
 
 ifeq ($(compiler),gnu)
     CC = g++
-    COPTS += $(if $(filter ia32, intel64), -m32, -m64)
+    COPTS += -m64
 endif
 
 

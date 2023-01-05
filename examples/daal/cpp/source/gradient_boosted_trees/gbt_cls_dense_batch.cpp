@@ -1,6 +1,6 @@
 /* file: gbt_cls_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,30 +31,28 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::gbt::classification;
 
 /* Input data set parameters */
-const string trainDatasetFileName         = "../data/batch/df_classification_train.csv";
-const string testDatasetFileName          = "../data/batch/df_classification_test.csv";
+const std::string trainDatasetFileName = "../data/batch/df_classification_train.csv";
+const std::string testDatasetFileName = "../data/batch/df_classification_test.csv";
 const size_t categoricalFeaturesIndices[] = { 2 };
-const size_t nFeatures                    = 3; /* Number of features in training and testing data sets */
+const size_t nFeatures = 3; /* Number of features in training and testing data sets */
 
 /* Gradient boosted trees training parameters */
-const size_t maxIterations             = 40;
+const size_t maxIterations = 40;
 const size_t minObservationsInLeafNode = 8;
 
 const size_t nClasses = 5; /* Number of classes */
 
 training::ResultPtr trainModel();
-void testModel(const training::ResultPtr & res);
-void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
+void testModel(const training::ResultPtr& res);
+void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
     training::ResultPtr trainingResult = trainModel();
@@ -63,8 +61,7 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-training::ResultPtr trainModel()
-{
+training::ResultPtr trainModel() {
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData;
     NumericTablePtr trainDependentVariable;
@@ -78,8 +75,8 @@ training::ResultPtr trainModel()
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainDependentVariable);
 
-    algorithm.parameter().maxIterations             = maxIterations;
-    algorithm.parameter().featuresPerNode           = nFeatures;
+    algorithm.parameter().maxIterations = maxIterations;
+    algorithm.parameter().featuresPerNode = nFeatures;
     algorithm.parameter().minObservationsInLeafNode = minObservationsInLeafNode;
 
     /* Build the gradient boosted trees classification model */
@@ -90,8 +87,7 @@ training::ResultPtr trainModel()
     return trainingResult;
 }
 
-void testModel(const training::ResultPtr & trainingResult)
-{
+void testModel(const training::ResultPtr& trainingResult) {
     /* Create Numeric Tables for testing data and ground truth values */
     NumericTablePtr testData;
     NumericTablePtr testGroundTruth;
@@ -103,21 +99,25 @@ void testModel(const training::ResultPtr & trainingResult)
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
-    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.input.set(classifier::prediction::model,
+                        trainingResult->get(classifier::training::model));
 
     /* Predict values of gradient boosted trees classification */
     algorithm.compute();
 
     /* Retrieve the algorithm results */
     classifier::prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(classifier::prediction::prediction), "Gragient boosted trees prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(classifier::prediction::prediction),
+                      "Gragient boosted trees prediction results (first 10 rows):",
+                      10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 
-void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
-{
+void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar) {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     pData.reset(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -128,6 +128,10 @@ void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTabl
     trainDataSource.loadDataBlock(mergedData.get());
 
     NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
-    for (size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
-        (*pDictionary)[categoricalFeaturesIndices[i]].featureType = data_feature_utils::DAAL_CATEGORICAL;
+    for (size_t i = 0,
+                n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]);
+         i < n;
+         ++i)
+        (*pDictionary)[categoricalFeaturesIndices[i]].featureType =
+            data_feature_utils::DAAL_CATEGORICAL;
 }

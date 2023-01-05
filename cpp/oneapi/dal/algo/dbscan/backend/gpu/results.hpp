@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/selection.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/kernels_fp.hpp"
 
@@ -32,13 +33,55 @@ namespace oneapi::dal::dbscan::backend {
 using descriptor_t = detail::descriptor_base<task::clustering>;
 using result_t = compute_result<task::clustering>;
 
-template <typename Float>
+template <typename Index>
+inline auto output_core_indices(sycl::queue& queue,
+                                std::int64_t block_size,
+                                std::int64_t core_count,
+                                const pr::ndview<Index, 1>& cores,
+                                const bk::event_vector& deps = {}) {
+    using oneapi::dal::backend::operator+;
+
+    ONEDAL_ASSERT(block_size > 0);
+    ONEDAL_ASSERT(core_count > 0);
+    ONEDAL_ASSERT(cores.has_data());
+
+    auto [res, res_event] =
+        pr::ndarray<Index, 1>::zeros(queue, core_count, sycl::usm::alloc::device);
+    auto [err, err_event] = pr::ndarray<bool, 1>::full(queue, 1, false, sycl::usm::alloc::device);
+
+    auto* const err_ptr = err.get_mutable_data();
+    auto* const res_ptr = res.get_mutable_data();
+    const auto* const cores_ptr = cores.get_data();
+    auto full_deps = deps + bk::event_vector{ err_event, res_event };
+    auto event = queue.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+        h.single_task([=]() {
+            std::int64_t pos = 0;
+            for (std::int64_t i = 0; i < block_size; i++) {
+                if (*(cores_ptr + i) > 0) {
+                    if (pos < core_count) {
+                        *(res_ptr + pos) = i;
+                        pos++;
+                    }
+                    else {
+                        *err_ptr = true;
+                        break;
+                    }
+                }
+            }
+        });
+    });
+
+    ONEDAL_ASSERT(err.to_host(queue, { event }).at(0));
+    return std::make_tuple(res, event);
+}
+
+template <typename Float, typename Index>
 inline auto make_results(sycl::queue& queue,
                          const descriptor_t& desc,
                          const pr::ndarray<Float, 2> data,
-                         const pr::ndarray<std::int32_t, 1> responses,
-                         const pr::ndarray<std::int32_t, 1> cores,
-
+                         const pr::ndarray<Index, 1> responses,
+                         const pr::ndarray<Index, 1> cores,
                          std::int64_t cluster_count,
                          std::int64_t core_count = -1) {
     const std::int64_t column_count = data.get_dimension(1);
@@ -64,8 +107,7 @@ inline auto make_results(sycl::queue& queue,
         if (core_count == -1) {
             core_count = count_cores(queue, cores);
         }
-        ONEDAL_ASSERT(block_size >= core_count);
-        if (core_count == 0) {
+        else if (core_count == 0) {
             if (return_core_indices) {
                 results.set_core_observation_indices(dal::homogen_table{});
             }
@@ -73,46 +115,30 @@ inline auto make_results(sycl::queue& queue,
                 results.set_core_observations(dal::homogen_table{});
             }
         }
-        if (return_core_indices) {
-            auto host_indices = array<std::int32_t>::empty(core_count);
-            auto host_indices_ptr = host_indices.get_mutable_data();
-            std::int64_t pos = 0;
-            auto host_cores = cores.to_host(queue);
-            auto host_cores_ptr = host_cores.get_data();
-            for (std::int64_t i = 0; i < block_size; i++) {
-                if (host_cores_ptr[i] > 0) {
-                    ONEDAL_ASSERT(pos < core_count);
-                    host_indices_ptr[pos] = i;
-                    pos++;
-                }
+        else {
+            ONEDAL_ASSERT(core_count > 0);
+            ONEDAL_ASSERT(block_size >= core_count);
+
+            auto [ids_array, ids_event] = output_core_indices(queue, block_size, core_count, cores);
+
+            if (return_core_indices) {
+                results.set_core_observation_indices(
+                    dal::homogen_table::wrap(ids_array.flatten(queue, { ids_event }),
+                                             core_count,
+                                             1));
             }
-            auto device_indices =
-                pr::ndarray<std::int32_t, 1>::empty(queue, core_count, sycl::usm::alloc::device);
-            dal::detail::memcpy_host2usm(queue,
-                                         device_indices.get_mutable_data(),
-                                         host_indices_ptr,
-                                         core_count * sizeof(std::int32_t));
-            results.set_core_observation_indices(
-                dal::homogen_table::wrap(device_indices.flatten(queue), core_count, 1));
-        }
-        if (return_core_observations) {
-            auto observations = pr::ndarray<Float, 1>::empty(queue, core_count * column_count);
-            auto observations_ptr = observations.get_mutable_data();
-            std::int64_t pos = 0;
-            auto host_cores = cores.to_host(queue);
-            auto host_cores_ptr = host_cores.get_data();
-            for (std::int64_t i = 0; i < block_size; i++) {
-                if (host_cores_ptr[i] > 0) {
-                    ONEDAL_ASSERT(pos < core_count * column_count);
-                    bk::memcpy(queue,
-                               observations_ptr + pos * column_count,
-                               data.get_data() + i * column_count,
-                               std::size_t(column_count) * sizeof(Float));
-                    pos += column_count;
-                }
+            if (return_core_observations) {
+                auto res = pr::ndarray<Float, 2>::empty(queue,
+                                                        { core_count, column_count },
+                                                        sycl::usm::alloc::device);
+
+                auto event = pr::select_indexed_rows(queue, ids_array, data, res, { ids_event });
+
+                results.set_core_observations(
+                    dal::homogen_table::wrap(res.flatten(queue, { event }),
+                                             core_count,
+                                             column_count));
             }
-            results.set_core_observations(
-                dal::homogen_table::wrap(observations.flatten(queue), core_count, column_count));
         }
     }
     return results;

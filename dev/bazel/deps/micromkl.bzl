@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ micromkl_repo = repos.prebuilt_libs_repo_rule(
     ],
     libs = [
         "%{os}/lib/intel64/libdaal_mkl_thread.a",
-        "%{os}/lib/intel64/libdaal_mkl_sequential.a",
         "%{os}/lib/intel64/libdaal_vmlipp_core.a",
     ],
     build_template = "@onedal//dev/bazel/deps:micromkl.tpl.BUILD",

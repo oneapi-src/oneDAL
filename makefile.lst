@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2022 Intel Corporation
+# Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdi
                 dtrees/gbt dtrees/forest linear_regression ridge_regression naivebayes stump adaboost brownboost       \
                 logitboost svm multiclassclassifier k_nearest_neighbors logistic_regression implicit_als               \
                 coordinate_descent jaccard triangle_counting shortest_paths subgraph_isomorphism connected_components  \
-                louvain
+                louvain tsne
 
 classifier += classifier/inner
 low_order_moments +=
@@ -67,6 +67,7 @@ logistic_regression += classifier optimization_solver objective_function engines
 implicit_als += engines distributions
 engines += engines/mt19937 engines/mcg59 engines/mt2203
 distributions += distributions/bernoulli distributions/normal distributions/uniform
+tsne +=
 
 CORE.ALGORITHMS.FULL :=                                                       \
     adaboost                                                                  \
@@ -139,7 +140,8 @@ CORE.ALGORITHMS.FULL :=                                                       \
     stump                                                                     \
     svd                                                                       \
     svm                                                                       \
-    weak_learner/inner
+    weak_learner/inner                                                        \
+    tsne
 
 CORE.ALGORITHMS := $(if $(CORE.ALGORITHMS.CUSTOM), $(CORE.ALGORITHMS.CUSTOM), $(CORE.ALGORITHMS.FULL))
 CORE.ALGORITHMS := $(sort $(foreach alg,$(CORE.ALGORITHMS),$(foreach alg1,$($(alg)),$(foreach alg2,$($(alg1)),$($(alg2)) $(alg2)) $(alg1)) $(alg)))
@@ -194,7 +196,8 @@ CORE.ALGORITHMS.INC :=                                                        \
     svd                                                                       \
     svm                                                                       \
     tree_utils                                                                \
-    weak_learner
+    weak_learner                                                              \
+    tsne
 
 
 CORE.SERVICES       := compression            \

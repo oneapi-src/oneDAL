@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,11 +57,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
                                  const table& weights) {
-    const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
 
     const double epsilon = desc.get_epsilon();
-    const int64_t min_observations = desc.get_min_observations();
+    const std::int64_t min_observations = desc.get_min_observations();
 
     daal_dbscan::Parameter par(epsilon, dal::detail::integral_cast<std::size_t>(min_observations));
     par.memorySavingMode = desc.get_mem_save_mode();

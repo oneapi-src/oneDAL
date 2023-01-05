@@ -1,6 +1,6 @@
 /* file: cov_dense_online.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,26 +29,25 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/covcormoments_dense.csv";
-const size_t nObservations   = 50;
+const std::string datasetFileName = "../data/batch/covcormoments_dense.csv";
+const size_t nObservations = 50;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Create an algorithm to compute a dense variance-covariance matrix in the online processing mode using the default method */
     covariance::Online<> algorithm;
-    while (dataSource.loadDataBlock(nObservations) == nObservations)
-    {
+    while (dataSource.loadDataBlock(nObservations) == nObservations) {
         /* Set input objects for the algorithm */
         algorithm.input.set(covariance::data, dataSource.getNumericTable());
 

@@ -1,6 +1,6 @@
 /* file: svm_two_class_boser_csr_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,20 +30,20 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/svm_two_class_train_csr.csv";
-string trainLabelsFileName  = "../data/batch/svm_two_class_train_labels.csv";
+std::string trainDatasetFileName = "../data/batch/svm_two_class_train_csr.csv";
+std::string trainLabelsFileName = "../data/batch/svm_two_class_train_labels.csv";
 
-string testDatasetFileName = "../data/batch/svm_two_class_test_csr.csv";
-string testLabelsFileName  = "../data/batch/svm_two_class_test_labels.csv";
+std::string testDatasetFileName = "../data/batch/svm_two_class_test_csr.csv";
+std::string testLabelsFileName = "../data/batch/svm_two_class_test_labels.csv";
 
 /* Parameters for the SVM kernel function */
-kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
+kernel_function::KernelIfacePtr kernel(
+    new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
 
 /* Model object for the SVM algorithm */
 svm::training::ResultPtr trainingResult;
@@ -53,9 +53,14 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char * argv[])
-{
-    checkArguments(argc, argv, 4, &trainDatasetFileName, &trainLabelsFileName, &testDatasetFileName, &testLabelsFileName);
+int main(int argc, char* argv[]) {
+    checkArguments(argc,
+                   argv,
+                   4,
+                   &trainDatasetFileName,
+                   &trainLabelsFileName,
+                   &testDatasetFileName,
+                   &testLabelsFileName);
 
     trainModel();
     testModel();
@@ -64,10 +69,10 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void trainModel()
-{
+void trainModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainLabelsDataSource(trainLabelsFileName, DataSource::doAllocateNumericTable,
+    FileDataSource<CSVFeatureManager> trainLabelsDataSource(trainLabelsFileName,
+                                                            DataSource::doAllocateNumericTable,
                                                             DataSource::doDictionaryFromContext);
 
     /* Create numeric table for training data */
@@ -79,7 +84,7 @@ void trainModel()
     /* Create an algorithm object to train the SVM model */
     svm::training::Batch<float, svm::training::boser> algorithm;
 
-    algorithm.parameter.kernel    = kernel;
+    algorithm.parameter.kernel = kernel;
     algorithm.parameter.cacheSize = 40000000;
 
     /* Pass a training data set and dependent values to the algorithm */
@@ -93,8 +98,7 @@ void trainModel()
     trainingResult = algorithm.getResult();
 }
 
-void testModel()
-{
+void testModel() {
     /* Create Numeric Tables for testing data */
     NumericTablePtr testData(createSparseTable<float>(testDatasetFileName));
 
@@ -105,7 +109,8 @@ void testModel()
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
-    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.input.set(classifier::prediction::model,
+                        trainingResult->get(classifier::training::model));
 
     /* Predict SVM values */
     algorithm.compute();
@@ -114,15 +119,19 @@ void testModel()
     predictionResult = algorithm.getResult();
 }
 
-void printResults()
-{
+void printResults() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testLabelsDataSource(testLabelsFileName, DataSource::doAllocateNumericTable,
+    FileDataSource<CSVFeatureManager> testLabelsDataSource(testLabelsFileName,
+                                                           DataSource::doAllocateNumericTable,
                                                            DataSource::doDictionaryFromContext);
     /* Retrieve the data from input file */
     testLabelsDataSource.loadDataBlock();
     NumericTablePtr testGroundTruth = testLabelsDataSource.getNumericTable();
 
-    printNumericTables<int, float>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth\t",
-                                   "Classification results", "SVM classification results (first 20 observations):", 20);
+    printNumericTables<int, float>(testGroundTruth,
+                                   predictionResult->get(classifier::prediction::prediction),
+                                   "Ground truth\t",
+                                   "Classification results",
+                                   "SVM classification results (first 20 observations):",
+                                   20);
 }

@@ -42,8 +42,7 @@ constexpr inline std::int32_t bin_block_count =
 constexpr inline std::int32_t bin_in_block_count = sizeof(bin_map_t) * 8;
 
 template <typename Data>
-using local_accessor_rw_t =
-    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+using local_accessor_rw_t = sycl::local_accessor<Data, 1>;
 
 template <typename T>
 using enable_if_float_t = std::enable_if_t<detail::is_valid_float_v<T>>;
@@ -61,7 +60,7 @@ struct float_accuracy<double> {
     static constexpr double val = double(1e-10);
 };
 
-template <typename T, typename Index = size_t>
+template <typename T, typename Index = std::size_t>
 inline T* fill_zero(T* dst, Index elem_count) {
     for (Index i = 0; i < elem_count; ++i) {
         dst[i] = T(0);
@@ -586,7 +585,7 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
                       node_count * ctx.class_count_);
     }
     if (update_imp_dec_required) {
-        ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
+        ONEDAL_ASSERT(node_imp_dec_list.get_count() >= node_count);
     }
 
     const hist_type_t* node_hist_list_ptr = node_hist_list.get_data();
@@ -873,7 +872,7 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
     }
 
     if (update_imp_dec_required) {
-        ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
+        ONEDAL_ASSERT(node_imp_dec_list.get_count() >= node_count);
     }
 
     const Bin* data_ptr = data.get_data();

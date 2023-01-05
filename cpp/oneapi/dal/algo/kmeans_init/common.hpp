@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ public:
         return base_t::get_cluster_count();
     }
 
-    auto& set_cluster_count(int64_t value) {
+    auto& set_cluster_count(std::int64_t value) {
         base_t::set_cluster_count_impl(value);
         return *this;
     }

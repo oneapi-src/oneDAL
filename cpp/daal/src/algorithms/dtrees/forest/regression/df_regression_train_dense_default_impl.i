@@ -1,6 +1,6 @@
 /* file: df_regression_train_dense_default_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -177,7 +177,10 @@ public:
     }
 
 #ifdef DEBUG_CHECK_IMPURITY
-    void checkImpurity(const IndexType * ptrIdx, size_t n, const ImpurityData & expected) const { checkImpurityInternal(ptrIdx, n, expected, false); }
+    void checkImpurity(const IndexType * ptrIdx, size_t n, const ImpurityData & expected) const
+    {
+        checkImpurityInternal(ptrIdx, n, expected, false);
+    }
     void checkImpurityInternal(const IndexType * ptrIdx, size_t n, const ImpurityData & expected, bool bInternal = true) const;
 #endif
 

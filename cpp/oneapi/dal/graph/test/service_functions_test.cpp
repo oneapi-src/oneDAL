@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -569,7 +569,7 @@ SERVICE_FUNCTIONS_TEST("Check get_edge_value on directed graph with double weigh
     this->check_edge_value_double_dir<d_complete_graph_5_type>();
 }
 
-SERVICE_FUNCTIONS_TEST("Check get_edge_value on directed graph with int32_t weights") {
+SERVICE_FUNCTIONS_TEST("Check get_edge_value on directed graph with std::int32_t weights") {
     this->check_edge_value_int_dir<d_complete_graph_5_type>();
 }
 

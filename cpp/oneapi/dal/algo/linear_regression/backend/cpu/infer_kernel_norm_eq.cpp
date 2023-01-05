@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,8 +56,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto response_count = betas.get_row_count();
 
     const auto feature_count = infer.get_column_count();
-    [[maybe_unused]] const auto ext_feature_count = feature_count + intp;
-    ONEDAL_ASSERT(ext_feature_count == betas.get_column_count());
+    ONEDAL_ASSERT((feature_count + 1) == betas.get_column_count());
 
     const auto resps_size = check_mul_overflow(sample_count, response_count);
     auto resps_arr = array<Float>::empty(resps_size);

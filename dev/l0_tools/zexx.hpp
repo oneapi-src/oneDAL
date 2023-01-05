@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -256,7 +256,9 @@ public:
 
     device_properties get_properties() const {
         return get_or_init(properties_, [&]() {
-            ze_device_properties_t handle;
+            ze_device_properties_t handle{};
+            handle.stype = ZE_STRUCTURE_TYPE_DEVICE_PROPERTIES;
+            handle.pNext = nullptr;
             check_ze(zeDeviceGetProperties(get_handle(), &handle));
             return handle;
         });

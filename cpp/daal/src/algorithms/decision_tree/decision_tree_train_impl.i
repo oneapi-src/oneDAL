@@ -1,6 +1,6 @@
 /* file: decision_tree_train_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -584,7 +584,7 @@ public:
 
     Tree() : _nodes(nullptr), _nodeCount(0), _nodeCapacity(0) {}
 
-    Tree(const Tree &) = delete;
+    Tree(const Tree &)             = delete;
     Tree & operator=(const Tree &) = delete;
 
     ~Tree()
@@ -2088,7 +2088,7 @@ public:
         reset();
     }
 
-    PruningData(const PruningData &) = delete;
+    PruningData(const PruningData &)             = delete;
     PruningData & operator=(const PruningData &) = delete;
 
     virtual ~PruningData()

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,12 +19,7 @@
 
 #pragma warning(disable : 809)
 
-#if defined(_DAAL_SEQ_DYNAMIC)
-    #pragma comment(lib, "onedal_core_dll.1.lib")
-#elif defined(_DAAL_SEQ_STATIC)
-    #pragma comment(lib, "onedal_core.lib")
-    #pragma comment(lib, "onedal_sequential.lib")
-#elif defined(_DAAL_PAR_DYNAMIC)
+#if defined(_DAAL_PAR_DYNAMIC)
     #pragma comment(lib, "onedal_core_dll.1.lib")
     #pragma comment(lib, "tbb12.lib")
     #pragma comment(lib, "tbbmalloc.lib")

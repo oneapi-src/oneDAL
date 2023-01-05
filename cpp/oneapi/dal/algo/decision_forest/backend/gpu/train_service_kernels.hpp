@@ -44,15 +44,6 @@ public:
                                                  Index tree_count,
                                                  double observations_per_tree_fraction);
 
-    sycl::event split_node_list_on_groups_by_size(const context_t& ctx,
-                                                  const pr::ndarray<Index, 1>& node_list,
-                                                  pr::ndarray<Index, 1>& node_groups,
-                                                  pr::ndarray<Index, 1>& node_indices,
-                                                  Index node_count,
-                                                  Index group_count,
-                                                  Index group_prop_count,
-                                                  const bk::event_vector& deps = {});
-
     sycl::event get_split_node_count(const pr::ndarray<Index, 1>& node_list,
                                      Index node_count,
                                      Index& split_node_count,
@@ -146,11 +137,9 @@ private:
     sycl::queue queue_;
 
     static constexpr inline double aproximate_oob_rows_fraction_ = 0.6;
-    static constexpr inline Index big_node_low_border_blocks_num_ = 32;
     static constexpr inline Index partition_min_block_size_ = 128;
     // max blocks number for one node
     static constexpr inline Index partition_max_block_count_ = 256;
-    static constexpr inline Index min_rows_block_ = 256;
 
     static constexpr inline Index max_local_sums_ = 256;
 

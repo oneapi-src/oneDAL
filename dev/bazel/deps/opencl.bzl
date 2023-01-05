@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ load("@onedal//dev/bazel:repos.bzl", "repos")
 load("@onedal//dev/bazel:utils.bzl", "paths")
 
 def _get_dpcpp_compiler_root(repo_ctx):
-    dpcpp_path = repo_ctx.which("dpcpp")
+    dpcpp_path = repo_ctx.which("icpx")
     return dpcpp_path and str(dpcpp_path.dirname.dirname.realpath)
 
 def _opencl_repo_impl(repo_ctx):

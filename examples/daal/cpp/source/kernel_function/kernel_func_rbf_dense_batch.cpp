@@ -1,6 +1,6 @@
 /* file: kernel_func_rbf_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,27 +29,29 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string leftDatasetFileName  = "../data/batch/kernel_function.csv";
-string rightDatasetFileName = "../data/batch/kernel_function.csv";
+std::string leftDatasetFileName = "../data/batch/kernel_function.csv";
+std::string rightDatasetFileName = "../data/batch/kernel_function.csv";
 
 /* Kernel algorithm parameters */
 const double sigma = 1.0; /* RBF kernel coefficient */
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &leftDatasetFileName);
     checkArguments(argc, argv, 1, &rightDatasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> leftDataSource(leftDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> leftDataSource(leftDatasetFileName,
+                                                     DataSource::doAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
-    FileDataSource<CSVFeatureManager> rightDataSource(rightDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> rightDataSource(rightDatasetFileName,
+                                                      DataSource::doAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     leftDataSource.loadDataBlock();
@@ -59,7 +61,7 @@ int main(int argc, char * argv[])
     kernel_function::rbf::Batch<> algorithm;
 
     /* Set the kernel algorithm parameter */
-    algorithm.parameter.sigma           = sigma;
+    algorithm.parameter.sigma = sigma;
     algorithm.parameter.computationMode = kernel_function::matrixMatrix;
 
     /* Set an input data table for the algorithm */

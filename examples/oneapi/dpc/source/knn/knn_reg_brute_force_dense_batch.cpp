@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -64,7 +64,9 @@ void run(sycl::queue& q) {
 
 int main(int argc, char const* argv[]) {
     for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
+                  << std::endl;
         auto q = sycl::queue{ d };
         // TODO: Should be deleted after regression algorithm introduction on CPU
         try {

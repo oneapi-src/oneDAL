@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,47 +48,39 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
                 "-mGLOB_freestanding=TRUE",
                 "-mCG_no_libirc=TRUE",
             ]
-        if compiler_id == "dpcpp" and category == "pedantic":
+        if compiler_id == "icpx":
+            flags = flags + ["-fsycl"]
+        if compiler_id == "icpx" and category == "pedantic":
             # TODO: Consider removing
             flags = flags + ["-Wno-unused-command-line-argument"]
-        if compiler_id == "gcc" or compiler_id == "dpcpp":
+        if compiler_id == "gcc" or compiler_id == "icpx":
             flags = flags + ["-Wno-gnu-zero-variadic-macro-arguments"]
         return flags
     fail("Unsupported OS")
 
 def get_cpu_flags(arch_id, os_id, compiler_id):
     sse2 = []
-    ssse3 = []
     sse42 = []
-    avx = []
     avx2 = []
     avx512 = []
     if compiler_id == "gcc":
-        sse2 = ["-march={}".format("pentium4" if arch_id == "ia32" else "nocona")]
-        ssse3 = ["-march={}".format("pentium4" if arch_id == "ia32" else "nocona")]
+        sse2 = ["-march=nocona"]
         sse42 = ["-march=corei7"]
-        avx = ["-march=sandybridge"]
         avx2 = ["-march=haswell"]
         avx512 = ["-march=haswell"]
     elif compiler_id == "icc":
         sse2 = ["-xSSE2"]
-        ssse3 = ["-xSSE3"]
         sse42 = ["-xSSE4.2"]
-        avx = ["-xAVX"]
         avx2 = ["-xCORE-AVX2"]
         avx512 = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
-    elif compiler_id == "dpcpp":
+    elif compiler_id == "icpx":
         sse2 = ["-march=nocona"]
-        ssse3 = ["-march=core2"]
         sse42 = ["-march=nehalem"]
-        avx = ["-march=sandybridge"]
         avx2 = ["-march=haswell"]
         avx512 = ["-march=skx"]
     return {
         "sse2": sse2,
-        "ssse3": ssse3,
         "sse42": sse42,
-        "avx": avx,
         "avx2": avx2,
         "avx512": avx512,
     }

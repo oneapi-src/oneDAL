@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ namespace dal = oneapi::dal;
 void run(sycl::queue &q) {
     const auto input_file_name = get_data_path("covcormoments_dense.csv");
 
-    const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
+    const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
 
-    const auto result = dal::compute(cov_desc, input);
+    const auto result = dal::compute(q, cov_desc, input);
 
     std::cout << "Means:\n" << result.get_means() << std::endl;
     std::cout << "Cor:\n" << result.get_cor_matrix() << std::endl;
@@ -42,7 +42,9 @@ void run(sycl::queue &q) {
 
 int main(int argc, char const *argv[]) {
     for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
+                  << std::endl;
         auto q = sycl::queue{ d };
         run(q);
     }

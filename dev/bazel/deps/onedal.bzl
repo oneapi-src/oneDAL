@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ onedal_repo = repos.prebuilt_libs_repo_rule(
         # Static
         "lib/intel64/libonedal_core.a",
         "lib/intel64/libonedal_thread.a",
-        "lib/intel64/libonedal_sequential.a",
         "lib/intel64/libonedal.a",
         "lib/intel64/libonedal_dpc.a",
         "lib/intel64/libonedal_sycl.a",
@@ -32,7 +31,6 @@ onedal_repo = repos.prebuilt_libs_repo_rule(
         # Dynamic
         "lib/intel64/libonedal_core.so",
         "lib/intel64/libonedal_thread.so",
-        "lib/intel64/libonedal_sequential.so",
         "lib/intel64/libonedal.so",
         "lib/intel64/libonedal_dpc.so",
     ],

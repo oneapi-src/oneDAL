@@ -1,6 +1,6 @@
 /* file: service_sycl.h */
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,14 +31,11 @@
 
 #include "service.h"
 
-std::vector<sycl::device> get_gpus()
-{
+std::vector<sycl::device> get_gpus() {
     auto platforms = sycl::platform::get_platforms();
-    for (auto p : platforms)
-    {
+    for (auto p : platforms) {
         auto devices = p.get_devices(sycl::info::device_type::gpu);
-        if (!devices.empty())
-        {
+        if (!devices.empty()) {
             return devices;
         }
     }

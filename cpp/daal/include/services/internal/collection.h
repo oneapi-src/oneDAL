@@ -1,6 +1,6 @@
 /* file: collection.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class PrimitiveCollection : public Base
 public:
     PrimitiveCollection() : _buffer(NULL), _size(0) {}
 
-    explicit PrimitiveCollection(size_t size, services::Status * status = NULL)
+    explicit PrimitiveCollection(size_t size, services::Status * status = NULL) : _buffer(NULL), _size(0)
     {
         services::Status localStatus = reallocate(size);
         services::internal::tryAssignStatusAndThrow(status, localStatus);

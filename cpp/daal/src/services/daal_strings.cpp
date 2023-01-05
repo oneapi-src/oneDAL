@@ -1,6 +1,6 @@
 /** file daal_strings.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,8 +31,11 @@ const char * s_stringConsts[] = {
 };
 #undef DECLARE_DAAL_STRING_CONST
 
-#define DECLARE_DAAL_STRING_CONST(arg1) \
-    const char * arg1##Str() { return s_stringConsts[arg1##EStr]; }
+#define DECLARE_DAAL_STRING_CONST(arg1)    \
+    const char * arg1##Str()               \
+    {                                      \
+        return s_stringConsts[arg1##EStr]; \
+    }
 DAAL_STRINGS_LIST()
 #undef DECLARE_DAAL_STRING_CONST
 

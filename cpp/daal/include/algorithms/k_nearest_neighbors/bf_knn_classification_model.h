@@ -1,6 +1,6 @@
 /* file: bf_knn_classification_model.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -131,12 +131,12 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
         if (this != &other)
         {
             daal::algorithms::classifier::Parameter::operator=(other);
-            k                                                = other.k;
-            dataUseInModel                                   = other.dataUseInModel;
-            engine                                           = other.engine->clone();
-            voteWeights                                      = other.voteWeights;
-            resultsToCompute                                 = other.resultsToCompute;
-            this->resultsToEvaluate                          = other.resultsToEvaluate;
+            k                       = other.k;
+            dataUseInModel          = other.dataUseInModel;
+            engine                  = other.engine->clone();
+            voteWeights             = other.voteWeights;
+            resultsToCompute        = other.resultsToCompute;
+            this->resultsToEvaluate = other.resultsToEvaluate;
         }
         return *this;
     }

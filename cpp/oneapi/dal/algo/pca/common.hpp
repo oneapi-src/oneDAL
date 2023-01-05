@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/util/result_option_id.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/table/common.hpp"
@@ -24,10 +25,10 @@ namespace oneapi::dal::pca {
 
 namespace task {
 namespace v1 {
+
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`dimensionality reduction problem <dimensionality reduction>`.
 struct dim_reduction {};
-
 /// Alias tag-type for dimensionality reduction task.
 using by_default = dim_reduction;
 } // namespace v1
@@ -43,6 +44,8 @@ namespace v1 {
 /// method.
 struct cov {};
 
+struct precomputed {};
+
 /// Tag-type that denotes :ref:`SVD <pca_t_math_svd>` computational method.
 struct svd {};
 
@@ -52,10 +55,44 @@ using by_default = cov;
 } // namespace v1
 
 using v1::cov;
+using v1::precomputed;
 using v1::svd;
 using v1::by_default;
 
 } // namespace method
+
+/// Represents result option flag
+/// Behaves like a regular :expr`enum`.
+class result_option_id : public result_option_id_base {
+public:
+    constexpr result_option_id() = default;
+    constexpr explicit result_option_id(const result_option_id_base& base)
+            : result_option_id_base{ base } {}
+};
+
+namespace detail {
+
+ONEDAL_EXPORT result_option_id get_eigenvectors_id();
+ONEDAL_EXPORT result_option_id get_eigenvalues_id();
+ONEDAL_EXPORT result_option_id get_variances_id();
+ONEDAL_EXPORT result_option_id get_means_id();
+
+} // namespace detail
+
+/// Result options are used to define
+/// what should an algorithm return
+namespace result_options {
+
+/// Return eigenvectors
+const inline result_option_id eigenvectors = detail::get_eigenvectors_id();
+/// Return eigenvalues
+const inline result_option_id eigenvalues = detail::get_eigenvalues_id();
+/// Return variances
+const inline result_option_id vars = detail::get_variances_id();
+/// Return means
+const inline result_option_id means = detail::get_means_id();
+
+} // namespace result_options
 
 namespace detail {
 namespace v1 {
@@ -71,7 +108,8 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::cov, method::svd>;
+constexpr bool is_valid_method_v =
+    dal::detail::is_one_of_v<Method, method::cov, method::svd, method::precomputed>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::dim_reduction>;
@@ -91,9 +129,12 @@ public:
     bool get_deterministic() const;
     std::int64_t get_component_count() const;
 
+    result_option_id get_result_options() const;
+
 protected:
     void set_deterministic_impl(bool value);
     void set_component_count_impl(std::int64_t value);
+    void set_result_options_impl(const result_option_id& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -150,7 +191,7 @@ public:
         return base_t::get_component_count();
     }
 
-    auto& set_component_count(int64_t value) {
+    auto& set_component_count(std::int64_t value) {
         base_t::set_component_count_impl(value);
         return *this;
     }
@@ -164,6 +205,16 @@ public:
 
     auto& set_deterministic(bool value) {
         base_t::set_deterministic_impl(value);
+        return *this;
+    }
+
+    /// Choose which results should be computed and returned.
+    result_option_id get_result_options() const {
+        return base_t::get_result_options();
+    }
+
+    auto& set_result_options(const result_option_id& value) {
+        base_t::set_result_options_impl(value);
         return *this;
     }
 };

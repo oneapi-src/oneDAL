@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1636,9 +1636,9 @@ struct LimitedAllocator {
     typedef T *pointer;
 
     bool is_limited;
-    size_t max_allocation_size;
+    std::size_t max_allocation_size;
 
-    LimitedAllocator(bool is_limited = false, size_t max_allocation_size = 0)
+    LimitedAllocator(bool is_limited = false, std::size_t max_allocation_size = 0)
             : is_limited(is_limited),
               max_allocation_size(max_allocation_size) {}
 
@@ -1658,11 +1658,11 @@ struct LimitedAllocator {
         return false;
     }
 
-    T *allocate(const size_t n) const {
+    T *allocate(const std::size_t n) const {
         if (n == 0 || (is_limited && max_allocation_size < n)) {
             return nullptr;
         }
-        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+        if (n > static_cast<std::size_t>(-1) / sizeof(T)) {
             throw std::bad_array_new_length();
         }
         void *const pv = malloc(n * sizeof(T));
@@ -1672,7 +1672,7 @@ struct LimitedAllocator {
         return static_cast<T *>(pv);
     }
 
-    void deallocate(T *const p, size_t n) const noexcept {
+    void deallocate(T *const p, std::size_t n) const noexcept {
         free(p);
     }
 };
@@ -1747,7 +1747,7 @@ public:
         edgelist.reserve(graph_data.get_cols_count());
         for (std::int32_t current_vertex = 0; current_vertex < graph_data.get_rows_count() - 1;
              ++current_vertex) {
-            for (int64_t edge_index = graph_data.rows[current_vertex];
+            for (std::int64_t edge_index = graph_data.rows[current_vertex];
                  edge_index < graph_data.rows[current_vertex + 1];
                  ++edge_index) {
                 edgelist.emplace_back(current_vertex, graph_data.cols[edge_index]);

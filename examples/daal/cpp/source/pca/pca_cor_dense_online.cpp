@@ -1,6 +1,6 @@
 /* file: pca_cor_dense_online.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,27 +30,26 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
 const size_t nVectorsInBlock = 250;
-const string dataFileName    = "../data/online/pca_normalized.csv";
+const std::string dataFileName = "../data/online/pca_normalized.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &dataFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(dataFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Create an algorithm for principal component analysis using the correlation method */
     pca::Online<> algorithm;
 
-    while (dataSource.loadDataBlock(nVectorsInBlock) == nVectorsInBlock)
-    {
+    while (dataSource.loadDataBlock(nVectorsInBlock) == nVectorsInBlock) {
         /* Set the input data to the algorithm */
         algorithm.input.set(pca::data, dataSource.getNumericTable());
 

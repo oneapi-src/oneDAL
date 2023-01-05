@@ -1,6 +1,6 @@
 /* file: bf_knn_classification_predict_kernel_ucapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -152,8 +152,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const uint32_t nQueryRows = static_cast<uint32_t>(nQueryRowsSizeT);
     const uint32_t nLabelRows = static_cast<uint32_t>(nLabelRowsSizeT);
     const uint32_t nDataRows  = computeOutputLabels ? static_cast<uint32_t>(nDataRowsSizeT < nLabelRowsSizeT ? nDataRowsSizeT : nLabelRowsSizeT) :
-                                                     static_cast<uint32_t>(nDataRowsSizeT);
-    const uint32_t nFeatures = static_cast<uint32_t>(nTrainFeaturesSizeT);
+                                                      static_cast<uint32_t>(nDataRowsSizeT);
+    const uint32_t nFeatures  = static_cast<uint32_t>(nTrainFeaturesSizeT);
 
     // Block dimensions below are optimal for GEN9
     // Number of doubles is to 2X less against floats

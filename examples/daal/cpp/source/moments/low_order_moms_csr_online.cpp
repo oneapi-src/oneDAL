@@ -1,6 +1,6 @@
 /* file: low_order_moms_csr_online.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -39,21 +38,27 @@ using namespace daal::data_management;
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string datasetFileNames[] = { "../data/online/covcormoments_csr_1.csv", "../data/online/covcormoments_csr_2.csv",
-                                    "../data/online/covcormoments_csr_3.csv", "../data/online/covcormoments_csr_4.csv" };
+const std::string datasetFileNames[] = { "../data/online/covcormoments_csr_1.csv",
+                                         "../data/online/covcormoments_csr_2.csv",
+                                         "../data/online/covcormoments_csr_3.csv",
+                                         "../data/online/covcormoments_csr_4.csv" };
 
-void printResults(const low_order_moments::ResultPtr & res);
+void printResults(const low_order_moments::ResultPtr& res);
 
-int main(int argc, char * argv[])
-{
-    checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
+int main(int argc, char* argv[]) {
+    checkArguments(argc,
+                   argv,
+                   4,
+                   &datasetFileNames[0],
+                   &datasetFileNames[1],
+                   &datasetFileNames[2],
+                   &datasetFileNames[3]);
 
     /* Create an algorithm to compute low order moments in the online processing mode using the default method */
     low_order_moments::Online<float, low_order_moments::fastCSR> algorithm;
 
-    for (size_t i = 0; i < nBlocks; i++)
-    {
-        CSRNumericTable * dataTable = createSparseTable<float>(datasetFileNames[i]);
+    for (size_t i = 0; i < nBlocks; i++) {
+        CSRNumericTable* dataTable = createSparseTable<float>(datasetFileNames[i]);
 
         /* Set input objects for the algorithm */
         algorithm.input.set(low_order_moments::data, CSRNumericTablePtr(dataTable));
@@ -73,15 +78,16 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void printResults(const low_order_moments::ResultPtr & res)
-{
+void printResults(const low_order_moments::ResultPtr& res) {
     printNumericTable(res->get(low_order_moments::minimum), "Minimum:");
     printNumericTable(res->get(low_order_moments::maximum), "Maximum:");
     printNumericTable(res->get(low_order_moments::sum), "Sum:");
     printNumericTable(res->get(low_order_moments::sumSquares), "Sum of squares:");
-    printNumericTable(res->get(low_order_moments::sumSquaresCentered), "Sum of squared difference from the means:");
+    printNumericTable(res->get(low_order_moments::sumSquaresCentered),
+                      "Sum of squared difference from the means:");
     printNumericTable(res->get(low_order_moments::mean), "Mean:");
-    printNumericTable(res->get(low_order_moments::secondOrderRawMoment), "Second order raw moment:");
+    printNumericTable(res->get(low_order_moments::secondOrderRawMoment),
+                      "Second order raw moment:");
     printNumericTable(res->get(low_order_moments::variance), "Variance:");
     printNumericTable(res->get(low_order_moments::standardDeviation), "Standard deviation:");
     printNumericTable(res->get(low_order_moments::variation), "Variation:");

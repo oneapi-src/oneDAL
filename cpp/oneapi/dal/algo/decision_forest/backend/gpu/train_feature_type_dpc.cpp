@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ sycl::event indexed_features<Float, Bin, Index>::extract_column(
     Index* indices = indices_nd.get_mutable_data();
     auto column_count = column_count_;
 
-    const sycl::range<1> range = de::integral_cast<size_t>(row_count_);
+    const sycl::range<1> range = de::integral_cast<std::size_t>(row_count_);
 
     auto event = queue_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
@@ -82,7 +82,7 @@ sycl::event indexed_features<Float, Bin, Index>::collect_bin_borders(
     ONEDAL_ASSERT(bin_offsets_nd.get_count() == max_bins);
     ONEDAL_ASSERT(bin_borders_nd.get_count() == max_bins);
 
-    const sycl::range<1> range = de::integral_cast<size_t>(max_bins);
+    const sycl::range<1> range = de::integral_cast<std::size_t>(max_bins);
 
     const Float* values = values_nd.get_data();
     const Index* bin_offsets = bin_offsets_nd.get_data();
@@ -105,8 +105,8 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
     const pr::ndarray<Float, 1>& bin_borders_nd,
     const pr::ndarray<Bin, 1>& bins_nd,
     Index bin_count,
-    size_t local_size,
-    size_t local_blocks_count,
+    std::size_t local_size,
+    std::size_t local_blocks_count,
     const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(indexed_features.fill_bin_map, queue_);
 
@@ -138,7 +138,8 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
 
             const std::uint32_t local_id = sbg.get_local_id();
             const std::uint32_t sub_group_id = sbg.get_group_id();
-            const std::uint32_t group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
+            const std::uint32_t group_id =
+                item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             Index ind_start = group_id * elems_for_sbg;
             Index ind_end =
@@ -233,15 +234,21 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     last_event = event;
 
     Index com_bin_count = 0;
-    // using int64_t instead of Index because of it is used as displ in gatherv
+    // using std::int64_t instead of Index because of it is used as displ in gatherv
     auto com_bin_count_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
     auto com_bin_offset_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
 
     std::int64_t lbc_64 = static_cast<std::int64_t>(local_bin_count);
-    comm_.allgather(lbc_64, com_bin_count_arr.flatten()).wait();
+    {
+        ONEDAL_PROFILER_TASK(allgather_lbc_64);
+        comm_.allgather(lbc_64, com_bin_count_arr.flatten()).wait();
+    }
 
     com_bin_count = local_bin_count;
-    comm_.allreduce(com_bin_count).wait();
+    {
+        ONEDAL_PROFILER_TASK(allreduce_com_bin_count);
+        comm_.allreduce(com_bin_count).wait();
+    }
 
     pr::ndarray<Float, 1> com_bin_brd;
     com_bin_brd = pr::ndarray<Float, 1>::empty(queue_, { com_bin_count }, sycl::usm::alloc::device);
@@ -255,12 +262,15 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
         offset += com_bin_count_ptr[i];
     }
 
-    comm_
-        .allgatherv(local_bin_borders_nd_device.flatten(queue_),
-                    com_bin_brd.flatten(queue_),
-                    com_bin_count_arr.get_data(),
-                    com_bin_offset_arr.get_data())
-        .wait();
+    {
+        ONEDAL_PROFILER_TASK(allgather_com_bin_borders, queue_);
+        comm_
+            .allgatherv(local_bin_borders_nd_device.flatten(queue_),
+                        com_bin_brd.flatten(queue_),
+                        com_bin_count_arr.get_data(),
+                        com_bin_offset_arr.get_data())
+            .wait();
+    }
 
     if (comm_.is_root_rank()) {
         last_event = sort_inplace<Float, Index>(queue_, com_bin_brd, { last_event });
@@ -274,14 +284,20 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
         bin_count = fin_bin_count_temp;
     }
 
-    comm_.bcast(bin_count).wait();
+    {
+        ONEDAL_PROFILER_TASK(bcast_bin_count);
+        comm_.bcast(bin_count).wait();
+    }
 
     if (!comm_.is_root_rank()) {
         bin_borders_nd_device =
             pr::ndarray<Float, 1>::empty(queue_, { bin_count }, sycl::usm::alloc::device);
     }
 
-    comm_.bcast(queue_, bin_borders_nd_device.get_mutable_data(), bin_count).wait();
+    {
+        ONEDAL_PROFILER_TASK(bcast_bin_borders, queue_);
+        comm_.bcast(queue_, bin_borders_nd_device.get_mutable_data(), bin_count).wait();
+    }
 
     return std::make_tuple(bin_borders_nd_device, bin_count, last_event);
 }
@@ -342,7 +358,7 @@ sycl::event indexed_features<Float, Bin, Index>::store_column(
     const Bin* column_data = column_data_nd.get_data();
     Bin* full_data = full_data_nd.get_mutable_data();
 
-    const sycl::range<1> range = de::integral_cast<size_t>(column_data_nd.get_dimension(0));
+    const sycl::range<1> range = de::integral_cast<std::size_t>(column_data_nd.get_dimension(0));
 
     auto event = queue_.submit([&](sycl::handler& h) {
         h.depends_on(deps);

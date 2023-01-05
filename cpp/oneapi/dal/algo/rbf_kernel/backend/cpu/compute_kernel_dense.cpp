@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& x,
                                  const table& y) {
-    const int64_t row_count_x = x.get_row_count();
-    const int64_t row_count_y = y.get_row_count();
+    const std::int64_t row_count_x = x.get_row_count();
+    const std::int64_t row_count_y = y.get_row_count();
 
     dal::detail::check_mul_overflow(row_count_x, row_count_y);
     auto arr_values = array<Float>::empty(row_count_x * row_count_y);

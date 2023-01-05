@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,9 +45,7 @@ def daal_module(name, features=[], lib_tag="daal",
         features = [ "c++11" ] + features,
         cpu_defines = {
             "sse2":       [ "DAAL_CPU=sse2"       ],
-            "ssse3":      [ "DAAL_CPU=ssse3"      ],
             "sse42":      [ "DAAL_CPU=sse42"      ],
-            "avx":        [ "DAAL_CPU=avx"        ],
             "avx2":       [ "DAAL_CPU=avx2"       ],
             "avx512":     [ "DAAL_CPU=avx512"     ],
         },

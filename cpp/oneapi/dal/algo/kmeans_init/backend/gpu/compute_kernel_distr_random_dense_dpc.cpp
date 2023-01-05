@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
@@ -91,7 +92,11 @@ ids_arr_t generate_random_indices_distr(const ctx_t& ctx,
         root_rand = generate_random_indices(rank_count, maxval, rseed);
     }
 
-    comm.bcast(root_rand).wait();
+    {
+        ONEDAL_PROFILER_TASK(bcast_root_rand);
+        comm.bcast(root_rand).wait();
+    }
+
     ONEDAL_ASSERT(root_rand.get_count() == rank_count);
 
     const auto seed = root_rand[comm.get_rank()];

@@ -1,6 +1,6 @@
 /* file: low_order_moments_kernel_online_oneapi.h */
 /*******************************************************************************
-* Copyright 2019-2022 Intel Corporation
+* Copyright 2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ class LowOrderMomentsOnlineTaskOneAPI : public TaskInfoOnline<algorithmFPType, s
 public:
     LowOrderMomentsOnlineTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, NumericTable * dataTable,
                                     PartialResult * partialResult, services::Status & status);
-    LowOrderMomentsOnlineTaskOneAPI(const LowOrderMomentsOnlineTaskOneAPI &) = delete;
+    LowOrderMomentsOnlineTaskOneAPI(const LowOrderMomentsOnlineTaskOneAPI &)             = delete;
     LowOrderMomentsOnlineTaskOneAPI & operator=(const LowOrderMomentsOnlineTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsOnlineTaskOneAPI();
     Status compute();
@@ -174,7 +174,7 @@ class LowOrderMomentsOnlineFinalizeTaskOneAPI : public TaskInfoOnline<algorithmF
 public:
     LowOrderMomentsOnlineFinalizeTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, PartialResult * partialResult, Result * result,
                                             services::Status & status);
-    LowOrderMomentsOnlineFinalizeTaskOneAPI(const LowOrderMomentsOnlineFinalizeTaskOneAPI &) = delete;
+    LowOrderMomentsOnlineFinalizeTaskOneAPI(const LowOrderMomentsOnlineFinalizeTaskOneAPI &)             = delete;
     LowOrderMomentsOnlineFinalizeTaskOneAPI & operator=(const LowOrderMomentsOnlineFinalizeTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsOnlineFinalizeTaskOneAPI();
     Status compute();

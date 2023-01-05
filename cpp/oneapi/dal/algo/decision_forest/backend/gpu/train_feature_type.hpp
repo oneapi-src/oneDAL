@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -106,8 +106,8 @@ private:
                              const pr::ndarray<Float, 1>& bin_borders_nd,
                              const pr::ndarray<Bin, 1>& bins_nd,
                              Index bin_count,
-                             size_t local_size,
-                             size_t local_blocks_count,
+                             std::size_t local_size,
+                             std::size_t local_blocks_count,
                              const bk::event_vector& deps = {});
     sycl::event compute_bins(const pr::ndarray<Float, 1>& values_nd,
                              const pr::ndarray<Index, 1>& indices_nd,

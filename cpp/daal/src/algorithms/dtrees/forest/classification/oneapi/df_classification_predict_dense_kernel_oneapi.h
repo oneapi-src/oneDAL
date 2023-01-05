@@ -1,6 +1,6 @@
 /* file: df_classification_predict_dense_kernel_oneapi.h */
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ class PredictKernelOneAPI : public algorithms::Kernel
 {
 public:
     PredictKernelOneAPI() : _nClasses(0), _nTreeGroups(0), _votingMethod(VotingMethod::unweighted) {};
-    PredictKernelOneAPI(const PredictKernelOneAPI &) = delete;
+    PredictKernelOneAPI(const PredictKernelOneAPI &)             = delete;
     PredictKernelOneAPI & operator=(const PredictKernelOneAPI &) = delete;
     ~PredictKernelOneAPI() {};
 

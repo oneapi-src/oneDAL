@@ -18,6 +18,7 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_helpers.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -33,16 +34,6 @@ using sycl::ext::oneapi::maximum;
 
 using alloc = sycl::usm::alloc;
 using address = sycl::access::address_space;
-
-template <typename T>
-inline T atomic_global_add(T* ptr, T operand) {
-    sycl::ext::oneapi::atomic_ref<T,
-                                  cl::sycl::ext::oneapi::memory_order::relaxed,
-                                  cl::sycl::ext::oneapi::memory_scope::device,
-                                  cl::sycl::access::address_space::ext_intel_global_device_space>
-        atomic_var(*ptr);
-    return atomic_var.fetch_add(operand);
-}
 
 template <typename Float, typename Bin, typename Index, typename Task>
 std::uint64_t train_service_kernels<Float, Bin, Index, Task>::get_oob_rows_required_mem_size(
@@ -66,8 +57,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
     ONEDAL_ASSERT(tree_order.get_count() == tree_count * stride);
 
     Index* tree_order_ptr = tree_order.get_mutable_data();
-    const sycl::range<2> range{ de::integral_cast<size_t>(row_count),
-                                de::integral_cast<size_t>(tree_count) };
+    const sycl::range<2> range{ de::integral_cast<std::size_t>(row_count),
+                                de::integral_cast<std::size_t>(tree_count) };
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -77,114 +68,6 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
     });
 
     event.wait_and_throw();
-    return event;
-}
-
-template <typename Float, typename Bin, typename Index, typename Task>
-sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_groups_by_size(
-    const context_t& ctx,
-    const pr::ndarray<Index, 1>& node_list,
-    pr::ndarray<Index, 1>& node_groups,
-    pr::ndarray<Index, 1>& node_indices,
-    Index node_count,
-    Index group_count,
-    Index group_prop_count,
-    const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(split_node_list_on_groups_by_size, queue_);
-
-    ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
-    ONEDAL_ASSERT(node_groups.get_count() == group_count * group_prop_count);
-    ONEDAL_ASSERT(node_indices.get_count() == node_count);
-
-    const Index big_node_low_border_blocks_num = big_node_low_border_blocks_num_;
-    const Index block_size = min_rows_block_;
-    const Index node_prop_count =
-        impl_const_t::node_prop_count_; // num of split attributes for node
-
-    const Index* node_list_ptr = node_list.get_data();
-    Index* node_groups_ptr = node_groups.get_mutable_data();
-    Index* node_indices_ptr = node_indices.get_mutable_data();
-
-    auto krn_local_size = preferable_sbg_size_;
-    const sycl::nd_range<1> nd_range =
-        bk::make_multiple_nd_range_1d(krn_local_size, krn_local_size);
-
-    auto event = queue_.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
-            auto sbg = item.get_sub_group();
-            if (sbg.get_group_id() > 0) {
-                return;
-            }
-
-            //for now only 3 groups are produced, may be more required
-            const Index local_id = sbg.get_local_id();
-            const Index local_size = sbg.get_local_range()[0];
-
-            Index big_node_count = 0;
-            Index max_big_block_count = 1;
-            Index mid_node_count = 0;
-            Index max_mid_block_count = 1;
-
-            // calculate num of big and mid nodes
-            for (Index i = local_id; i < node_count; i += local_size) {
-                Index row_count = node_list_ptr[i * node_prop_count + impl_const_t::ind_grc];
-                Index block_count = row_count / block_size + bool(row_count % block_size);
-
-                Index big_node = (Index)(block_count > big_node_low_border_blocks_num);
-                Index mid_node =
-                    (Index)(block_count <= big_node_low_border_blocks_num && block_count > 1);
-
-                big_node_count += sycl::reduce_over_group(sbg, big_node, plus<Index>());
-                mid_node_count += sycl::reduce_over_group(sbg, mid_node, plus<Index>());
-                max_big_block_count =
-                    sycl::max(max_big_block_count, static_cast<Index>(big_node ? block_count : 0));
-                max_big_block_count =
-                    sycl::reduce_over_group(sbg, max_big_block_count, maximum<Index>());
-                max_mid_block_count =
-                    sycl::max(max_mid_block_count, static_cast<Index>(mid_node ? block_count : 0));
-                max_mid_block_count =
-                    sycl::reduce_over_group(sbg, max_mid_block_count, maximum<Index>());
-            }
-
-            big_node_count = sycl::group_broadcast(sbg, big_node_count, 0);
-            mid_node_count = sycl::group_broadcast(sbg, mid_node_count, 0);
-
-            if (0 == local_id) {
-                node_groups_ptr[0] = big_node_count;
-                node_groups_ptr[1] = max_big_block_count;
-                node_groups_ptr[2] = mid_node_count;
-                node_groups_ptr[3] = max_mid_block_count;
-                node_groups_ptr[4] = node_count - big_node_count - mid_node_count;
-                node_groups_ptr[5] = 1;
-            }
-
-            Index sum_big = 0;
-            Index sum_mid = 0;
-
-            //split nodes on groups
-            for (Index i = local_id; i < node_count; i += local_size) {
-                Index row_count = node_list_ptr[i * node_prop_count + impl_const_t::ind_grc];
-                Index block_count = row_count / block_size + bool(row_count % block_size);
-                Index big_node = (Index)(block_count > big_node_low_border_blocks_num);
-                Index mid_node =
-                    (Index)(block_count <= big_node_low_border_blocks_num && block_count > 1);
-
-                Index boundary_big =
-                    sum_big + sycl::exclusive_scan_over_group(sbg, big_node, plus<Index>());
-                Index boundary_mid =
-                    sum_mid + sycl::exclusive_scan_over_group(sbg, mid_node, plus<Index>());
-                Index pos_new = (big_node ? boundary_big
-                                          : (mid_node ? big_node_count + boundary_mid
-                                                      : big_node_count + mid_node_count + i -
-                                                            boundary_big - boundary_mid));
-                node_indices_ptr[pos_new] = i;
-                sum_big += sycl::reduce_over_group(sbg, big_node, plus<Index>());
-                sum_mid += sycl::reduce_over_group(sbg, mid_node, plus<Index>());
-            }
-        });
-    });
-
     return event;
 }
 
@@ -285,8 +168,9 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
             const Index sub_group_local_id = sbg.get_local_id();
             const Index work_group_local_id = item.get_local_id()[0];
 
-            const Index sub_group_id = item.get_group().get_id(0) * sub_groups_in_work_group_num +
-                                       work_group_local_id / sub_group_size;
+            const Index sub_group_id =
+                item.get_group().get_group_id(0) * sub_groups_in_work_group_num +
+                work_group_local_id / sub_group_size;
             const Index sub_groups_num =
                 item.get_group_range(0) *
                 sub_groups_in_work_group_num; // num of subgroups for current node processing
@@ -332,8 +216,8 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
                         }
 
                         if (0 == sub_group_local_id) {
-                            atomic_global_add(node + impl_const_t::ind_lch_lrc,
-                                              group_row_count - group_row_to_right_count);
+                            bk::atomic_global_add(node + impl_const_t::ind_lch_lrc,
+                                                  group_row_count - group_row_to_right_count);
                         }
                     }
                 }
@@ -411,8 +295,9 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
             const Index sub_group_local_id = sbg.get_local_id();
             const Index work_group_local_id = item.get_local_id()[0];
 
-            const Index sub_group_id = item.get_group().get_id(0) * sub_groups_in_work_group_num +
-                                       work_group_local_id / sub_group_size;
+            const Index sub_group_id =
+                item.get_group().get_group_id(0) * sub_groups_in_work_group_num +
+                work_group_local_id / sub_group_size;
             const Index sub_groups_num =
                 item.get_group_range(0) *
                 sub_groups_in_work_group_num; // num of subgroups for current node processing
@@ -469,10 +354,10 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
 
                         if (0 == sub_group_local_id) {
                             group_left_boundary =
-                                atomic_global_add(node_aux + 0,
-                                                  group_row_count - group_row_to_right_count);
+                                bk::atomic_global_add(node_aux + 0,
+                                                      group_row_count - group_row_to_right_count);
                             group_right_boundary =
-                                atomic_global_add(node_aux + 1, group_row_to_right_count);
+                                bk::atomic_global_add(node_aux + 1, group_row_to_right_count);
                         }
                         group_left_boundary = sycl::group_broadcast(sbg, group_left_boundary, 0);
                         group_right_boundary = sycl::group_broadcast(sbg, group_right_boundary, 0);
@@ -535,9 +420,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> buf(
-            max_sub_groups_num,
-            cgh);
+        sycl::local_accessor<Float, 1> buf(max_sub_groups_num, cgh);
 
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
@@ -639,7 +522,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
 
             const Index local_id = sbg.get_local_id();
             const Index sub_group_id = sbg.get_group_id();
-            const Index group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
+            const Index group_id = item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
             const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, node_row_count);
@@ -691,7 +574,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
 
             const Index local_id = sbg.get_local_id();
             const Index sub_group_id = sbg.get_group_id();
-            const Index group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
+            const Index group_id = item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
             const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, block_row_count);
@@ -806,7 +689,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
 
             const Index local_id = sbg.get_local_id();
             const Index sub_group_id = sbg.get_group_id();
-            const Index group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
+            const Index group_id = item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
             const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, block_row_count);

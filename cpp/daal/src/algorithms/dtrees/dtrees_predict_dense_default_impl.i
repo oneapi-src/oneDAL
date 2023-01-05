@@ -1,6 +1,6 @@
 /* file: dtrees_predict_dense_default_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ struct TileDimensions
         : nTreesTotal(nTrees), nRowsTotal(data.getNumberOfRows()), nCols(data.getNumberOfColumns())
     {
         nRowsInBlock  = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
-                                                                     (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
+                                                                      (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
         nTreesInBlock = services::internal::getNumElementsFitInMemory(services::internal::getLLCacheSize() * 0.8, treeSize, nTrees);
         nDataBlocks   = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
         nTreeBlocks   = nTreesTotal / nTreesInBlock + !!(nTreesTotal % nTreesInBlock);

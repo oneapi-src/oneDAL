@@ -4,6 +4,7 @@
 # Release and work directories
 __release*
 __work*
+__nuget*
 
 # External dependencies
 __deps*
@@ -19,3 +20,7 @@ bazel-*
 
 # PyCharm directories
 .idea*
+
+# CMake directories and cache
+CMakeFiles
+CMakeCache.txt

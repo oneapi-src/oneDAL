@@ -1,6 +1,6 @@
 /* file: linear_regression_training_distributed.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -211,11 +211,10 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, method> & other)
+    Distributed(const Distributed<step2Master, algorithmFPType, method> & other) : parameter(other.parameter)
     {
         initialize();
         input.set(partialModels, other.input.get(partialModels));
-        parameter = other.parameter;
     }
 
     ~Distributed() {}

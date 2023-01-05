@@ -1,6 +1,6 @@
 # file: cmplt.dpcpp.mk
 #===============================================================================
-# Copyright 2012-2022 Intel Corporation
+# Copyright 2012 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,13 +28,13 @@ CORE.SERV.COMPILER.dpcpp = generic
 -Zl.dpcpp =
 -DEBC.dpcpp = -g
 
-COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv \
+COMPILER.lnx.dpcpp = icpx -fsycl -m64 -stdlib=libstdc++ -fgnu-runtime -fwrapv \
                      -Werror -Wreturn-type -fsycl-device-code-split=per_kernel
-COMPILER.win.dpcpp = dpcpp $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX \
+COMPILER.win.dpcpp = icx -fsycl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX \
                      -Wno-deprecated-declarations -fsycl-device-code-split=per_kernel
 
-link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
-link.dynamic.win.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
+link.dynamic.lnx.dpcpp = icpx -fsycl -m64 -fsycl-device-code-split=per_kernel
+link.dynamic.win.dpcpp = icx -fsycl -m64 -fsycl-device-code-split=per_kernel
 
 pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wall \
@@ -42,8 +42,6 @@ pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wno-unused-parameter
 
 p4_OPT.dpcpp   = -march=nocona
-mc_OPT.dpcpp   = -march=core2
 mc3_OPT.dpcpp  = -march=nehalem
-avx_OPT.dpcpp  = -march=sandybridge
 avx2_OPT.dpcpp = -march=haswell
 skx_OPT.dpcpp  = -march=skx

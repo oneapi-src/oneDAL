@@ -1,6 +1,6 @@
 /* file: numeric_table_sycl_homogen.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -143,7 +143,10 @@ public:
 
     SyclHomogenNumericTable() : SyclNumericTable(0, 0, DictionaryIface::notEqual) {}
 
-    ~SyclHomogenNumericTable() DAAL_C11_OVERRIDE { freeDataMemoryImpl(); }
+    ~SyclHomogenNumericTable() DAAL_C11_OVERRIDE
+    {
+        freeDataMemoryImpl();
+    }
 
     services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
@@ -160,11 +163,20 @@ public:
         return getTBlock<int>(vector_idx, vector_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTBlock<double>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    {
+        return releaseTBlock<double>(block);
+    }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTBlock<float>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        return releaseTBlock<float>(block);
+    }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTBlock<int>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        return releaseTBlock<int>(block);
+    }
 
     services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
                                             BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
@@ -184,17 +196,35 @@ public:
         return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    {
+        return releaseTFeature<double>(block);
+    }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        return releaseTFeature<float>(block);
+    }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        return releaseTFeature<int>(block);
+    }
 
-    services::Status assign(float value) DAAL_C11_OVERRIDE { return assignImpl<float>(value); }
+    services::Status assign(float value) DAAL_C11_OVERRIDE
+    {
+        return assignImpl<float>(value);
+    }
 
-    services::Status assign(double value) DAAL_C11_OVERRIDE { return assignImpl<double>(value); }
+    services::Status assign(double value) DAAL_C11_OVERRIDE
+    {
+        return assignImpl<double>(value);
+    }
 
-    services::Status assign(int value) DAAL_C11_OVERRIDE { return assignImpl<int>(value); }
+    services::Status assign(int value) DAAL_C11_OVERRIDE
+    {
+        return assignImpl<int>(value);
+    }
 
 protected:
     SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows, services::Status & st)
@@ -562,9 +592,15 @@ private:
         return status;
     }
 
-    inline bool isCpuTable() const { return (bool)_cpuTable; }
+    inline bool isCpuTable() const
+    {
+        return (bool)_cpuTable;
+    }
 
-    static bool isCpuContext() { return services::internal::getDefaultContext().getInfoDevice().isCpu; }
+    static bool isCpuContext()
+    {
+        return services::internal::getDefaultContext().getInfoDevice().isCpu;
+    }
 
     services::internal::Buffer<DataType> _buffer;
     services::SharedPtr<HomogenNumericTable<DataType> > _cpuTable;

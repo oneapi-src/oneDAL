@@ -1,6 +1,6 @@
 /* file: log_reg_model_builder.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,23 +23,21 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::logistic_regression;
 
 /* Input data set parameters */
-const string trainedModelFileName = "../data/batch/logreg_trained_model.csv";
-const string testDatasetFileName  = "../data/batch/logreg_test.csv";
+const std::string trainedModelFileName = "../data/batch/logreg_trained_model.csv";
+const std::string testDatasetFileName = "../data/batch/logreg_test.csv";
 
 const size_t nFeatures = 6; /* Number of features in training and testing data sets */
-const size_t nClasses  = 5; /* Number of classes */
+const size_t nClasses = 5; /* Number of classes */
 
 ModelPtr buildModel();
 void testModel(ModelPtr &);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
     checkArguments(argc, argv, 2, &trainedModelFileName, &testDatasetFileName);
 
     ModelPtr builtModel = buildModel();
@@ -48,10 +46,11 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-ModelPtr buildModel()
-{
+ModelPtr buildModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the beta data from a .csv file */
-    FileDataSource<CSVFeatureManager> modelSource(trainedModelFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> modelSource(trainedModelFileName,
+                                                  DataSource::doAllocateNumericTable,
+                                                  DataSource::doDictionaryFromContext);
 
     /* Create Numeric Table for beta coefficients */
     NumericTablePtr beta(new HomogenNumericTable<>(nFeatures + 1, 0, NumericTable::doNotAllocate));
@@ -65,8 +64,8 @@ ModelPtr buildModel()
     size_t numberOfBetas = (beta->getNumberOfRows()) * (beta->getNumberOfColumns());
 
     /* Initialize iterators for beta array with itrecepts */
-    float * first = blockResult.getBlockPtr();
-    float * last  = first + numberOfBetas;
+    float *first = blockResult.getBlockPtr();
+    float *last = first + numberOfBetas;
 
     /* Create model builder with true intercept flag */
     ModelBuilder<> modelBuilder(nFeatures, nClasses);
@@ -75,15 +74,17 @@ ModelPtr buildModel()
     modelBuilder.setBeta(first, last);
     beta->releaseBlockOfRows(blockResult);
 
-    printNumericTable(modelBuilder.getModel()->getBeta(), "Logistic Regression coefficients of built model:");
+    printNumericTable(modelBuilder.getModel()->getBeta(),
+                      "Logistic Regression coefficients of built model:");
 
     return modelBuilder.getModel();
 }
 
-void testModel(ModelPtr & inputModel)
-{
+void testModel(ModelPtr &inputModel) {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
+                                                     DataSource::doAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and ground truth values */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -104,7 +105,8 @@ void testModel(ModelPtr & inputModel)
     algorithm.compute();
 
     /* Retrieve the algorithm results */
-    NumericTablePtr prediction = algorithm.getResult()->get(algorithms::classifier::prediction::prediction);
+    NumericTablePtr prediction =
+        algorithm.getResult()->get(algorithms::classifier::prediction::prediction);
     printNumericTable(prediction, "Logistic Regression prediction results: (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }

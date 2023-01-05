@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,14 +20,13 @@
 
 help:
 	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file."
 	@echo
-	@echo "compiler_name     - the only supported compiler is clang (default value)"
+	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
 	@echo "                    Intel(R) oneAPI DPC++ compiler"
 	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
@@ -38,7 +37,7 @@ help:
 ##                                 and run pca example for 64-bit
 ##                                 applications, static linking
 ##
-## make sointel64 compiler=clang   - build by Intel(R) oneAPI Compiler and run all examples
+## make sointel64 compiler=dpcpp   - build by Intel(R) oneAPI Compiler and run all examples
 ##                                 of oneDAL for
 ##                                 64-bit applications, dynamic linking
 ##
@@ -61,7 +60,12 @@ ifndef example
 endif
 
 ifndef compiler
-    compiler = clang
+    compiler = dpcpp
+endif
+
+ifeq ($(compiler),clang)
+    $(warning warning: clang driver usage has been deprecated. Please user dpcpp)
+    override compiler = dpcpp
 endif
 
 ifneq ($(mode),build)
@@ -78,7 +82,7 @@ ifndef TBBROOT
 endif
 TBB_PATH = "$(TBBROOT)/lib/intel64/gcc4.8"
 
-EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL -lccl -lmpi
+EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL -lccl -lmpi $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 
 ifeq ($(RES_EXT),so)
     DAAL_LIB_EXT := -Bdynamic
@@ -86,27 +90,18 @@ else
     DAAL_LIB_EXT := -Bstatic
 endif
 
-ifeq ($(threading),sequential)
-    DAAL_LIB_T := $(DAAL_LIB_EXT),-lonedal_sequential
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
-else
-    override threading = parallel
-    DAAL_LIB_T := $(DAAL_LIB_EXT),-lonedal_thread
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
-endif
-
-DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
+DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,-lonedal_thread
 
 COPTS := -Wall -w -I./source/utils
 
-ifeq ($(compiler),clang)
-    CC = clang++
-    COPTS += -fsycl -fsycl-device-code-split=per_kernel
+ifeq ($(compiler),dpcpp)
+    CC = icpx -fsycl 
+    COPTS += -fsycl-device-code-split=per_kernel
 endif
 
 LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a -Wl,--end-group
 
-RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 override proc = 4

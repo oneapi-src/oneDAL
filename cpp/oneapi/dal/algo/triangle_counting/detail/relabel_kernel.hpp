@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ struct relabel_by_greater_degree {
         std::int64_t* offsets =
             oneapi::dal::preview::detail::allocate(int64_allocator, vertex_count + 1);
 
-        const size_t block_size = 1 << 20;
+        const std::size_t block_size = 1 << 20;
         const std::int64_t num_blocks = (vertex_count + block_size - 1) / block_size;
         std::int64_t* local_sums =
             oneapi::dal::preview::detail::allocate(int64_allocator, num_blocks);

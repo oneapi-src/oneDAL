@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2022 Intel Corporation
+# Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,29 +14,6 @@
 # limitations under the License.
 #===============================================================================
 
-COMPILERs = icc gnu clang vc
-COMPILER ?= icc
-
-$(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
-
-CPUs := sse2 ssse3 sse42 avx2 avx512_mic avx512 avx
-CPUs.files := nrh mrm neh snb hsw skx
-USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
-USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
-USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
-
-MSVC_RUNTIME_VERSIONs = release debug
-MSVC_RUNTIME_VERSION ?= release
-$(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
-
-req-features = order-only second-expansion
-ifneq ($(words $(req-features)),$(words $(filter $(req-features),$(.FEATURES))))
-$(error This makefile requires a decent make, supporting $(req-features))
-endif
-
-.PHONY: help
-help: ; $(info $(help))
-
 #===============================================================================
 # Common macros
 #===============================================================================
@@ -48,17 +25,42 @@ endif
 attr.lnx32e = lnx intel64 lin
 attr.mac32e = mac intel64
 attr.win32e = win intel64 win
-attr.fbsd32e = fbsd intel64 fre
 
 _OS := $(word 1,$(attr.$(PLAT)))
 _IA := $(word 2,$(attr.$(PLAT)))
 _OSc:= $(word 3,$(attr.$(PLAT)))
+
+MSVC_RUNTIME_VERSIONs = release debug
+MSVC_RUNTIME_VERSION ?= release
+$(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
 COMPILER_is_$(COMPILER)            := yes
 OS_is_$(_OS)                       := yes
 IA_is_$(_IA)                       := yes
 PLAT_is_$(PLAT)                    := yes
 MSVC_RT_is_$(MSVC_RUNTIME_VERSION) := yes
+
+COMPILERs = icc icx gnu clang vc
+COMPILER ?= icc
+
+$(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
+
+CPUs := sse2 sse42 avx2 avx512
+CPUs.files := nrh neh hsw skx
+
+USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
+USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
+USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
+
+$(info Selected list of CPUs - USECPUS: $(USECPUS))
+
+req-features = order-only second-expansion
+ifneq ($(words $(req-features)),$(words $(filter $(req-features),$(.FEATURES))))
+$(error This makefile requires a decent make, supporting $(req-features))
+endif
+
+.PHONY: help
+help: ; $(info $(help))
 
 #===============================================================================
 # Compiler specific part
@@ -92,7 +94,7 @@ include dev/make/deps.mk
 
 AR_is_$(subst $(space),_,$(origin AR)) := yes
 
-OSList          := lnx win mac fbsd
+OSList          := lnx win mac
 
 o      := $(if $(OS_is_win),obj,o)
 a      := $(if $(OS_is_win),lib,a)
@@ -100,7 +102,7 @@ d      := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),d,),)
 dtbb   := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),_debug,),)
 plib   := $(if $(OS_is_win),,lib)
 scr    := $(if $(OS_is_win),bat,sh)
-y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
+y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 -Fo    := $(if $(OS_is_win),-Fo,-o)
 -Q     := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
 -cxx11 := $(if $(COMPILER_is_vc),,$(-Q)std=c++11)
@@ -112,20 +114,18 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
 -EHsc  := $(if $(OS_is_win),-EHsc,)
 -isystem := $(if $(OS_is_win),-I,-isystem)
--sGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--start-group,)
--eGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--end-group,)
-daalmake = $(if $(OS_is_fbsd),gmake,make)
+-sGRP  = $(if $(OS_is_lnx),-Wl$(comma)--start-group,)
+-eGRP  = $(if $(OS_is_lnx),-Wl$(comma)--end-group,)
+daalmake = make
 
 p4_OPT   := $(p4_OPT.$(COMPILER))
-mc_OPT   := $(mc_OPT.$(COMPILER))
 mc3_OPT  := $(mc3_OPT.$(COMPILER))
-avx_OPT  := $(avx_OPT.$(COMPILER))
 avx2_OPT := $(avx2_OPT.$(COMPILER))
 skx_OPT  := $(skx_OPT.$(COMPILER))
 
-_OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,$(if $(OS_is_fbsd),fre,)))
+_OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,))
 
-USECPUS.files := $(subst sse2,nrh,$(subst ssse3,mrm,$(subst sse42,neh,$(subst avx,snb,$(subst avx2,hsw,$(subst avx512,skx,$(subst avx512_mic,,$(USECPUS))))))))
+USECPUS.files := $(subst sse2,nrh,$(subst ssse3,,$(subst sse42,neh,$(subst avx,,$(subst avx2,hsw,$(subst avx512,skx,$(subst avx512_mic,,$(USECPUS))))))))
 USECPUS.out := $(filter-out $(USECPUS),$(CPUs))
 USECPUS.out.for.grep.filter := $(addprefix _,$(addsuffix _,$(subst $(space),_|_,$(USECPUS.out))))
 USECPUS.out.grep.filter := $(if $(USECPUS.out),| grep -v -E '$(USECPUS.out.for.grep.filter)')
@@ -164,17 +164,9 @@ USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -
 # daal/lib/intel64 - static and import libraries for intel64
 # redist/intel64/daal - dlls for intel64
 
-# FREEBSD release structure (under __release_fbsd):
-# daal
-# daal/bin - platform independent binaries: env setters
-# daal/examples - usage demonstrations
-# daal/include - header files
-# daal/lib - platform-independent libraries (jar files)
-# daal/lib/intel64 - static and dynamic libraries for intel64
-
 # List of needed threadings layers can be specified in DAALTHRS.
 # if DAALTHRS is empty, threading will be incapsulated to core
-DAALTHRS ?= tbb seq
+DAALTHRS ?= tbb
 DAALAY   ?= a y
 
 DIR:=.
@@ -188,6 +180,7 @@ RELEASEDIR.lib         := $(RELEASEDIR.daal)/lib
 RELEASEDIR.env         := $(RELEASEDIR.daal)/env
 RELEASEDIR.modulefiles := $(RELEASEDIR.daal)/modulefiles
 RELEASEDIR.conf        := $(RELEASEDIR.daal)/config
+RELEASEDIR.nuspec      := $(RELEASEDIR.daal)/nuspec
 RELEASEDIR.doc         := $(RELEASEDIR.daal)/documentation
 RELEASEDIR.samples     := $(RELEASEDIR.daal)/samples
 RELEASEDIR.jardir      := $(RELEASEDIR.daal)/lib
@@ -203,8 +196,8 @@ COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
 MKLFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklfpk/$(_OS)/*),$(DIR)/__deps/mklfpk,                            \
                 $(if $(wildcard $(MKLFPKROOT)/include/*),$(subst \,/,$(MKLFPKROOT)),                              \
                     $(error Can`t find MKLFPK libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLFPKROOT.)))
-MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
-MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/$(_IA)
+MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(_OS)/include
+MKLFPKDIR.libia   := $(MKLFPKDIR)/$(_OS)/lib/$(_IA)
 
 topf = $(shell echo $1 | sed 's/ /111/g' | sed 's/(/222/g' | sed 's/)/333/g' | sed 's/\\/\//g')
 frompf = $(shell echo $1 | sed 's/111/ /g' | sed 's/222/(/g' | sed 's/333/)/g')
@@ -236,16 +229,13 @@ TBBDIR.libia.mac.clang2  := $(if $(OS_is_mac),$(if $(TBBDIR.libia.mac.clang1),,$
 TBBDIR.libia.mac.clang22 := $(if $(OS_is_mac),$(if $(TBBDIR.libia.mac.clang2),$(wildcard $(TBBDIR.libia.mac.clang2)/libtbb.dylib)))
 TBBDIR.libia.mac := $(if $(OS_is_mac),$(if $(TBBDIR.libia.mac.clang22),$(TBBDIR.libia.mac.clang2),$(if $(TBBDIR.libia.mac.clang1),$(TBBDIR.libia.mac.clang1),$(error Can`t find TBB runtimes nether in $(TBBDIR.libia.prefix) not in $(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LIBRARY_PATH)))).))))
 
-TBBDIR.libia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.libia.prefix))
 TBBDIR.libia := $(TBBDIR.libia.$(_OS))
 
 TBBDIR.soia.prefix := $(TBBDIR.2)/
-TBBDIR.soia.prefix.1 := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix),$(TBBDIR.2)/../))
 
-TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix.1))redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix.1)redist/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix.1))redist/$(_IA)/vc14/*),$(TBBDIR.soia.prefix.1)redist/$(_IA)/vc14,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix.1)redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).)))))
+TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc14/*),$(TBBDIR.soia.prefix)redist/$(_IA)/vc14,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).)))))
 TBBDIR.soia.lnx  := $(if $(OS_is_lnx),$(TBBDIR.libia.lnx))
 TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.mac))
-TBBDIR.soia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.soia.prefix)/lib)
 TBBDIR.soia := $(TBBDIR.soia.$(_OS))
 
 RELEASEDIR.tbb       := $(RELEASEDIR)/tbb/latest
@@ -253,14 +243,14 @@ RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,/$(_IA)$(if $(OS
 RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR.tbb)/redist/$(_IA)/vc_mt,$(RELEASEDIR.tbb.libia))
 releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb12$(dtbb).$(a) $(TBBDIR.libia)/tbbmalloc$(dtbb).$(a))
 releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y) $(TBBDIR.soia)/$(plib)tbbmalloc$(dtbb).$(y)                                                           \
-                     $(if $(or $(OS_is_lnx),$(OS_is_fbsd)), $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2),$(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2))\
+                     $(if $(OS_is_lnx), $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2),$(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2))\
                                                             $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.so.12),$(wildcard $(TBBDIR.soia)/libtbbmalloc.so.12))\
                                                             $(if $(wildcard $(TBBDIR.soia)/libtbb.so.2),$(wildcard $(TBBDIR.soia)/libtbb.so.2))\
                                                             $(if $(wildcard $(TBBDIR.soia)/libtbb.so.12),$(wildcard $(TBBDIR.soia)/libtbb.so.12))) \
                      $(if $(OS_is_mac),$(if $(wildcard $(TBBDIR.soia)/libtbb.12.dylib),$(wildcard $(TBBDIR.soia)/libtbb.12.dylib))\
                                        $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib),$(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib)))
 
-
+#============================= Micromkl folders =====================================
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
 
 MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
@@ -269,6 +259,16 @@ MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
 
 mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.libia)/$(plib)daal_sycl$d.$(a)
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
+
+#============================= oneAPI folders =====================================
+ifeq ($(if $(or $(OS_is_lnx),$(OS_is_win)),yes,),yes)
+ONEAPIDIR := $(call topf,$$ONEAPI_ROOT)
+ONEAPIDIR := $(if $(wildcard $(ONEAPIDIR)/compiler/latest),$(ONEAPIDIR)/compiler/latest,$(info ONEAPI_ROOT not defined))
+ONEAPIDIR.libia.prefix := $(if $(ONEAPIDIR),$(ONEAPIDIR)/$(if $(OS_is_win),windows,linux)/lib)
+
+libsycl := $(if $(OS_is_win),$(notdir $(wildcard $(ONEAPIDIR.libia.prefix)/sycl$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9]$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9][0-9]$d.lib)))
+libsycl.default = sycl6$d.lib
+endif
 
 #===============================================================================
 # Release library names
@@ -289,9 +289,7 @@ oneapi_a.dpc := $(plib)onedal_dpc$d.$a
 oneapi_y.dpc := $(plib)onedal_dpc$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
 thr_tbb_a := $(plib)onedal_thread$d.$a
-thr_seq_a := $(plib)onedal_sequential$d.$a
 thr_tbb_y := $(plib)onedal_thread$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
-thr_seq_y := $(plib)onedal_sequential$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
 daal_jar  := onedal.jar
 
@@ -321,7 +319,7 @@ daaldep.lnx32e.vml :=
 daaldep.lnx32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.seq := -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.lnx32e.rt.dpc := -lpthread $(if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.lnx32e.rt.dpc := -lpthread -lOpenCL $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.threxport := export_lnx32e.def
 
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
@@ -349,19 +347,6 @@ daaldep.mac32e.threxport := export_mac.def
 
 daaldep.mac.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
-
-daaldep.fbsd32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
-daaldep.fbsd32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
-daaldep.fbsd32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
-daaldep.fbsd32e.vml :=
-daaldep.fbsd32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.fbsd32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc -lpthread $(daaldep.fbsd32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.fbsd32e.rt.seq := -lpthread $(daaldep.fbsd32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.fbsd32e.threxport := export_lnx32e.def
-
-daaldep.fbsd.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-Wl,-u -Wl,/'
-
-
 daaldep.mkl.thr := $(daaldep.$(PLAT).mkl.thr)
 daaldep.mkl.seq := $(daaldep.$(PLAT).mkl.seq)
 daaldep.mkl     := $(daaldep.$(PLAT).mkl)
@@ -387,6 +372,7 @@ release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC
 # List examples files to populate release/examples.
 expat = %.java %.cpp %.h %.hpp %.txt %.csv %.cmake
 expat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln %makefile_$(_OS),%_$(_OS).lst %makefile_$(_OS) %_$(_OS).sh)
+release.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
 release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f)) $(filter $(expat),$(shell find examples/daal/cpp_sycl -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
 release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/daal/java -type f))
@@ -422,12 +408,12 @@ release.SAMPLES.ONEDAL.DPC  := $(if $(wildcard $(SAMPLES.srcdir)/oneapi/dpc/*), 
                           )                                                                                              \
                         )
 release.SAMPLES.JAVA := $(if $(wildcard $(SAMPLES.srcdir)/daal/java/*),                                                  \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                            \
+                          $(if $(or $(OS_is_lnx),$(OS_is_mac)),                                            \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/java -type f))                          \
                           )                                                                                              \
                         )
 release.SAMPLES.SCALA := $(if $(wildcard $(SAMPLES.srcdir)/daal/scala/*),                                                \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                            \
+                          $(if $(or $(OS_is_lnx),$(OS_is_mac)),                                            \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/scala -type f))                         \
                           )                                                                                              \
                         )
@@ -523,9 +509,7 @@ $(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
 $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
 $(filter %threading.$o, $(CORE.objs_a)): COPT += -D__DO_TBB_LAYER__
 $(call containing,_nrh, $(CORE.objs_a)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
-$(call containing,_mrm, $(CORE.objs_a)): COPT += $(mc_OPT)   -DDAAL_CPU=ssse3
 $(call containing,_neh, $(CORE.objs_a)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
-$(call containing,_snb, $(CORE.objs_a)): COPT += $(avx_OPT)  -DDAAL_CPU=avx
 $(call containing,_hsw, $(CORE.objs_a)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
 $(call containing,_skx, $(CORE.objs_a)): COPT += $(skx_OPT)  -DDAAL_CPU=avx512
 $(call containing,_flt, $(CORE.objs_a)): COPT += -DDAAL_FPTYPE=float
@@ -540,9 +524,7 @@ $(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
 $(CORE.objs_y): COPT += @$(CORE.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(CORE.objs_y)): COPT += -D__DO_TBB_LAYER__
 $(call containing,_nrh, $(CORE.objs_y)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
-$(call containing,_mrm, $(CORE.objs_y)): COPT += $(mc_OPT)   -DDAAL_CPU=ssse3
 $(call containing,_neh, $(CORE.objs_y)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
-$(call containing,_snb, $(CORE.objs_y)): COPT += $(avx_OPT)  -DDAAL_CPU=avx
 $(call containing,_hsw, $(CORE.objs_y)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
 $(call containing,_skx, $(CORE.objs_y)): COPT += $(skx_OPT)  -DDAAL_CPU=avx512
 $(call containing,_flt, $(CORE.objs_y)): COPT += -DDAAL_FPTYPE=float
@@ -563,9 +545,7 @@ $(eval template_source_cpp := $(subst .$o,.cpp,$(notdir $1)))
 $(eval template_source_cpp := $(subst _fpt_flt,_fpt,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _fpt_dbl,_fpt,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_nrh,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_mrm,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_snb,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
 $1: $(template_source_cpp) ; $(value C.COMPILE)
@@ -588,14 +568,12 @@ ONEAPI.tmpdir_a.dpc := $(WORKDIR)/oneapi_dpc_static
 ONEAPI.tmpdir_y.dpc := $(WORKDIR)/oneapi_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
-ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
+ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(MKLGPUFPKDIR.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
 
 ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
 ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=__CPU_TAG_SSE2__
-ONEAPI.dispatcher_tag.mrm := -D__CPU_TAG__=__CPU_TAG_SSSE3__
 ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=__CPU_TAG_SSE42__
-ONEAPI.dispatcher_tag.snb := -D__CPU_TAG__=__CPU_TAG_AVX__
 ONEAPI.dispatcher_tag.hsw := -D__CPU_TAG__=__CPU_TAG_AVX2__
 ONEAPI.dispatcher_tag.skx := -D__CPU_TAG__=__CPU_TAG_AVX512__
 
@@ -639,12 +617,10 @@ define .populate_cpus
 $(eval non_cpu_files := $(call notcontaining,_cpu,$2))
 $(eval cpu_files := $(call containing,_cpu,$2))
 $(eval nrh_files := $(subst _nrh,_cpu_nrh,$(call containing,_nrh,$(non_cpu_files))))
-$(eval mrm_files := $(subst _mrm,_cpu_mrm,$(call containing,_mrm,$(non_cpu_files))))
 $(eval neh_files := $(subst _neh,_cpu_neh,$(call containing,_neh,$(non_cpu_files))))
-$(eval snb_files := $(subst _snb,_cpu_snb,$(call containing,_snb,$(non_cpu_files))))
 $(eval hsw_files := $(subst _hsw,_cpu_hsw,$(call containing,_hsw,$(non_cpu_files))))
 $(eval skx_files := $(subst _skx,_cpu_skx,$(call containing,_skx,$(non_cpu_files))))
-$(eval user_cpu_files := $(nrh_files) $(mrm_files) $(neh_files) $(snb_files) $(hsw_files) $(skx_files))
+$(eval user_cpu_files := $(nrh_files) $(neh_files) $(hsw_files) $(skx_files))
 $(eval populated_cpu_files := $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(cpu_files))))
 $(eval populated_cpu_files := $(filter-out $(user_cpu_files),$(populated_cpu_files)))
 $(eval $1 := $(non_cpu_files) $(populated_cpu_files))
@@ -668,9 +644,7 @@ define .ONEAPI.compile
 $(eval template_source_cpp := $(1:$2/%.$o=%.cpp))
 $(eval template_source_cpp := $(subst -,/,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_nrh,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_mrm,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_snb,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
 $1: $(template_source_cpp) | $(dir $1)/. ; $(value $3.COMPILE)
@@ -686,9 +660,7 @@ $1: $(1:%.$a=%_link.txt) | $(dir $1)/. ; $(value LINK.STATIC)
 endef
 
 $(ONEAPI.dispatcher_cpu): | $(dir $(ONEAPI.dispatcher_cpu))/.
-	$(if $(filter ssse3,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSSE3" >> $@)
 	$(if $(filter sse42,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSE42" >> $@)
-	$(if $(filter avx,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX" >> $@)
 	$(if $(filter avx2,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX2" >> $@)
 	$(if $(filter avx512,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX512" >> $@)
 
@@ -718,9 +690,7 @@ $(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -DTBB_USE_ASSERT=0 \
                            @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
 $(call containing,_nrh, $(ONEAPI.objs_a)): COPT += $(p4_OPT)   $(ONEAPI.dispatcher_tag.nrh)
-$(call containing,_mrm, $(ONEAPI.objs_a)): COPT += $(mc_OPT)   $(ONEAPI.dispatcher_tag.mrm)
 $(call containing,_neh, $(ONEAPI.objs_a)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
-$(call containing,_snb, $(ONEAPI.objs_a)): COPT += $(avx_OPT)  $(ONEAPI.dispatcher_tag.snb)
 $(call containing,_hsw, $(ONEAPI.objs_a)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
 $(call containing,_skx, $(ONEAPI.objs_a)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
 
@@ -735,9 +705,7 @@ $(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DTBB_USE_ASSERT=0 \
                                @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
 $(call containing,_nrh, $(ONEAPI.objs_a.dpc)): COPT += $(p4_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.nrh)
-$(call containing,_mrm, $(ONEAPI.objs_a.dpc)): COPT += $(mc_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.mrm)
 $(call containing,_neh, $(ONEAPI.objs_a.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
-$(call containing,_snb, $(ONEAPI.objs_a.dpc)): COPT += $(avx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.snb)
 $(call containing,_hsw, $(ONEAPI.objs_a.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
 $(call containing,_skx, $(ONEAPI.objs_a.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
 
@@ -753,9 +721,7 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -DTBB_USE_ASSERT=0 \
                           @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(call containing,_nrh, $(ONEAPI.objs_y)): COPT += $(p4_OPT)   $(ONEAPI.dispatcher_tag.nrh)
-$(call containing,_mrm, $(ONEAPI.objs_y)): COPT += $(mc_OPT)   $(ONEAPI.dispatcher_tag.mrm)
 $(call containing,_neh, $(ONEAPI.objs_y)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
-$(call containing,_snb, $(ONEAPI.objs_y)): COPT += $(avx_OPT)  $(ONEAPI.dispatcher_tag.snb)
 $(call containing,_hsw, $(ONEAPI.objs_y)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
 $(call containing,_skx, $(ONEAPI.objs_y)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
 
@@ -772,9 +738,7 @@ $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DTBB_USE_ASSERT=0 \
                               @$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
 $(call containing,_nrh, $(ONEAPI.objs_y.dpc)): COPT += $(p4_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.nrh)
-$(call containing,_mrm, $(ONEAPI.objs_y.dpc)): COPT += $(mc_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.mrm)
 $(call containing,_neh, $(ONEAPI.objs_y.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
-$(call containing,_snb, $(ONEAPI.objs_y.dpc)): COPT += $(avx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.snb)
 $(call containing,_hsw, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
 $(call containing,_skx, $(ONEAPI.objs_y.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
 
@@ -809,7 +773,7 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl$d.lib OpenCL.lib)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(libsycl),$(libsycl.default)) OpenCL.lib)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
@@ -832,15 +796,11 @@ THR.tmpdir_a := $(WORKDIR)/threading_static
 THR.tmpdir_y := $(WORKDIR)/threading_dynamic
 THR_TBB.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_tbb.$o))
 THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
-THR_SEQ.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_seq.$o))
-THR_SEQ.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_seq.$o))
 -include $(THR.tmpdir_a)/*.d
 -include $(THR.tmpdir_y)/*.d
 
 $(WORKDIR.lib)/$(thr_tbb_a): LOPT:=
 $(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.mkl.thr) ; $(LINK.STATIC)
-$(WORKDIR.lib)/$(thr_seq_a): LOPT:=
-$(WORKDIR.lib)/$(thr_seq_a): $(THR_SEQ.objs_a) $(daaldep.mkl.seq) ; $(LINK.STATIC)
 
 $(THR.tmpdir_y)/%_link.def: $(THR.srcdir)/$(daaldep.$(PLAT).threxport) | $(THR.tmpdir_y)/.
 	$(daaldep.$(_OS).threxport.create) > $@
@@ -849,19 +809,13 @@ $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(daaldep.rt.thr)
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
 $(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(daaldep.mkl.thr) $(daaldep.mkl) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
-$(WORKDIR.lib)/$(thr_seq_y): LOPT += $(-fPIC) $(daaldep.rt.seq)
-$(WORKDIR.lib)/$(thr_seq_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(thr_seq_y): $(THR_SEQ.objs_y) $(daaldep.mkl.seq) $(daaldep.mkl) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_seq.res,) $(THR.tmpdir_y)/$(thr_seq_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
-
-THR.objs_a := $(THR_TBB.objs_a) $(THR_SEQ.objs_a)
-THR.objs_y := $(THR_TBB.objs_y) $(THR_SEQ.objs_y)
+THR.objs_a := $(THR_TBB.objs_a)
+THR.objs_y := $(THR_TBB.objs_y)
 THR_TBB.objs := $(THR_TBB.objs_a) $(THR_TBB.objs_y)
-THR_SEQ.objs := $(THR_SEQ.objs_a) $(THR_SEQ.objs_y)
 THR.objs := $(THR.objs_a) $(THR.objs_y)
 
 $(THR.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX
 $(THR_TBB.objs): COPT += -D__DO_TBB_LAYER__
-$(THR_SEQ.objs): COPT += -D__DO_SEQ_LAYER__
 
 $(THR.objs_a): $(THR.tmpdir_a)/thr_inc_a_folders.txt
 $(THR.objs_a): COPT += @$(THR.tmpdir_a)/thr_inc_a_folders.txt
@@ -875,16 +829,11 @@ $(THR.tmpdir_y)/thr_inc_y_folders.txt: makefile.lst | $(THR.tmpdir_y)/. $(CORE.i
 
 $(THR_TBB.objs_a): $(THR.tmpdir_a)/%_tbb.$o: $(THR.srcdir)/%.cpp | $(THR.tmpdir_a)/. ; $(C.COMPILE)
 $(THR_TBB.objs_y): $(THR.tmpdir_y)/%_tbb.$o: $(THR.srcdir)/%.cpp | $(THR.tmpdir_y)/. ; $(C.COMPILE)
-$(THR_SEQ.objs_a): $(THR.tmpdir_a)/%_seq.$o: $(THR.srcdir)/%.cpp | $(THR.tmpdir_a)/. ; $(C.COMPILE)
-$(THR_SEQ.objs_y): $(THR.tmpdir_y)/%_seq.$o: $(THR.srcdir)/%.cpp | $(THR.tmpdir_y)/. ; $(C.COMPILE)
 
 $(THR.tmpdir_y)/dll_tbb.res: $(VERSION_DATA_FILE)
-$(THR.tmpdir_y)/dll_seq.res: $(VERSION_DATA_FILE)
 $(THR.tmpdir_y)/dll_tbb.res: RCOPT += -D_DAAL_THR_TBB $(addprefix -I, $(CORE.incdirs.common))
-$(THR.tmpdir_y)/dll_seq.res: RCOPT += -D_DAAL_THR_SEQ $(addprefix -I, $(CORE.incdirs.common))
 
 $(THR.tmpdir_y)/%_tbb.res: %.rc | $(THR.tmpdir_y)/. ; $(RC.COMPILE)
-$(THR.tmpdir_y)/%_seq.res: %.rc | $(THR.tmpdir_y)/. ; $(RC.COMPILE)
 
 #===============================================================================
 # Java/JNI part
@@ -971,7 +920,6 @@ _daal_core:  $(WORKDIR.lib)/$(core_a) $(WORKDIR.lib)/$(core_y) ## TODO: move lis
 _daal_thr:   info.building.threading
 _daal_thr:   $(if $(DAALTHRS),$(foreach ithr,$(DAALTHRS),_daal_thr_$(ithr)),)
 _daal_thr_tbb:   $(WORKDIR.lib)/$(thr_tbb_a) $(WORKDIR.lib)/$(thr_tbb_y)
-_daal_thr_seq:   $(WORKDIR.lib)/$(thr_seq_a) $(WORKDIR.lib)/$(thr_seq_y)
 _daal_jar _daal_jni: info.building.java
 _daal_jar: $(WORKDIR.lib)/$(daal_jar)
 _daal_jni: $(WORKDIR.lib)/$(jni_so)
@@ -1078,6 +1026,8 @@ $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASE
 $(foreach x,$(release.ONEAPI.EXAMPLES.DPC),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_common)))
 $(foreach x,$(release.EXAMPLES.COMMON_CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
+$(foreach x,$(release.CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
+
 
 #----- releasing VS solutions
 ifeq ($(OS_is_win),yes)
@@ -1162,6 +1112,12 @@ $2/$(notdir $1): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
+
+#----- nuspecs generation
+_release_common: _release_nuspec
+_release_nuspec: update_headers_version
+	mkdir -p $(RELEASEDIR.nuspec)
+	bash ./deploy/nuget/prepare_dal_nuget.sh --release-dir $(RELEASEDIR) --platform $(PLAT)
 
 #===============================================================================
 # Miscellaneous stuff

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -233,7 +233,7 @@ public:
     }
 
     bool is_cpu() const {
-        return queue_.get_device().is_cpu() || queue_.get_device().is_host();
+        return queue_.get_device().is_cpu();
     }
 
     bool is_gpu() const {

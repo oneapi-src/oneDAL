@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ template vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512<
 template <>
 vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_avx512>(
     const detail::descriptor_base<task::all_vertex_pairs>& desc,
-    const dal::preview::detail::topology<int32_t>& t,
+    const dal::preview::detail::topology<std::int32_t>& t,
     void* result_ptr) {
     return jaccard_avx512<dal::backend::cpu_dispatch_avx512>(desc, t, result_ptr);
 }

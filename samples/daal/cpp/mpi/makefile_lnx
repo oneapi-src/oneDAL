@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2022 Intel Corporation
+# Copyright 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,11 @@
 
 help:
 	@echo "Usage: make {libintel64|sointel64|help}"
-	@echo "[sample=name] [mode=mode_name]"
+	@echo "[sample=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name                - sample name. Please see daal.lst file"
+	@echo
+	@echo "compiler_name       - can be intel or gnu. Default value is intel."
 	@echo
 	@echo "mode_name           - can be build or run. Default is run"
 
@@ -43,7 +45,9 @@ help:
 
 include daal.lst
 
-compiler = intel
+ifneq ($(compiler),gnu)
+    override compiler = intel
+endif
 
 ifndef DAALROOT
     DAALROOT =./../..
@@ -74,6 +78,10 @@ override proc = 4
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
 
 CC = mpiicc
+ifeq ($(compiler),gnu)
+	override CC = mpigxx
+endif
+
 CRUN = mpirun
 RUNOPTS = -n $(proc) -ppn 1
 

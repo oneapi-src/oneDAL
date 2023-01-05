@@ -1,6 +1,6 @@
 /* file: kernel_scheduler_sycl.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -234,10 +234,16 @@ public:
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    ZeModulePtr getModuleLevelZeroPtr() const { return _moduleLevelZeroPtr; }
+    ZeModulePtr getModuleLevelZeroPtr() const
+    {
+        return _moduleLevelZeroPtr;
+    }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
-    const String & getName() const { return _programName; }
+    const String & getName() const
+    {
+        return _programName;
+    }
 
 private:
     OpenClProgramRef() = default;
@@ -399,7 +405,7 @@ public:
         using namespace cl::sycl;
         kernel_bundle<bundle_state::executable> _kernelBundle =
             make_kernel_bundle<backend::ext_oneapi_level_zero, bundle_state::executable>({ getProgramRef().getModuleLevelZeroPtr()->get() }, ctx);
-        return make_kernel<backend::level_zero>({ _kernelBundle, _zeKernelRef.getKernelLevelZeroPtr()->get() }, ctx);
+        return make_kernel<backend::ext_oneapi_level_zero>({ _kernelBundle, _zeKernelRef.getKernelLevelZeroPtr()->get() }, ctx);
     }
 
 private:
@@ -414,8 +420,8 @@ private:
 class UsmPointerStorage
 {
 public:
-    UsmPointerStorage()                          = default;
-    UsmPointerStorage(const UsmPointerStorage &) = delete;
+    UsmPointerStorage()                                      = default;
+    UsmPointerStorage(const UsmPointerStorage &)             = delete;
     UsmPointerStorage & operator=(const UsmPointerStorage &) = delete;
 
     template <typename T>

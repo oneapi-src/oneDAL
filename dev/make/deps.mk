@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2012-2022 Intel Corporation
+# Copyright 2012 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ $1 = $$(if $$(or $$(.sources-changed),$$(and $$(.mkfiles-changed),$$(call .trigg
 dep-gen-enhanced-common   = $(call $(SELF),$1 $(.copt-gen-deps)) && $(.keep-raw-deps) sed -n $(sed.-i) $(sed.fix-deps) $(sed.rm-abs-paths) -e '/./{ p; $(sed.mk-phony-targets)}' $(.dep-file-tmp)
 dep-gen-enhanced.icc   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.icl   = $(dep-gen-enhanced-common)
+dep-gen-enhanced.icx   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.g++   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.dpcpp = $(if $(OS_is_win),,$(dep-gen-enhanced-common))
 cmd-enhanced-with-dep-gen = $(or $(dep-gen-enhanced.$(call get-command-name,$($(SELF)))),$($(SELF)))
@@ -132,7 +133,6 @@ sed.mk-phony-targets = $(sed.mk-phony-targets.$(_OS))
 sed.mk-phony-targets.lnx = s/^.*://; s/^ *//; /./{ s/ *$$/:/; s/  */:\n/g; p; };
 sed.mk-phony-targets.win = s/^.*://; s/^ *//; /./{ s/ *$$/:/; s/  */:\n/g; p; };
 sed.mk-phony-targets.mac = s/^.*://; s/^ *//; /./{ s/ *$$/:/; s/  */:\'$$'\n''/g; p; };
-sed.mk-phony-targets.fbsd = s/^.*://; s/^ *//; /./{ s/ *$$/:/; s/  */:\n/g; p; };
 sed.remove-source = s@$<\( \|$$\)@@
 
 # } sed scripts

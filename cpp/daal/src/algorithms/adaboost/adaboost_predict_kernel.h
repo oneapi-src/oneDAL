@@ -1,6 +1,6 @@
 /* file: adaboost_predict_kernel.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ struct TileDimensions
     TileDimensions(const NumericTablePtr & data, size_t nYPerRow = 1) : nRowsTotal(data->getNumberOfRows()), nCols(data->getNumberOfColumns())
     {
         nRowsInBlock     = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
-                                                                     (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
+                                                                         (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
         nDataBlocks      = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
         nRowsInLastBlock = nRowsTotal - (nDataBlocks - 1) * nRowsInBlock;
     }

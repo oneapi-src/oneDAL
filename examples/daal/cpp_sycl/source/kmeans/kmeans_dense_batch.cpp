@@ -1,6 +1,6 @@
 /* file: kmeans_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -38,21 +37,19 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/kmeans_dense.csv";
+std::string datasetFileName = "../data/batch/kmeans_dense.csv";
 
 /* K-Means algorithm parameters */
-const size_t nFeatures   = 20; /* Number of features in input data sets */
-const size_t nClusters   = 20;
+const size_t nFeatures = 20; /* Number of features in input data sets */
+const size_t nClusters = 20;
 const size_t nIterations = 5;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -60,9 +57,12 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
-        NumericTablePtr data = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
+        NumericTablePtr data =
+            SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
 
         /* Retrieve the data from the input file */
         dataSource.loadDataBlock(data.get());
@@ -83,9 +83,15 @@ int main(int argc, char * argv[])
         algorithm.compute();
 
         /* Print the clusterization results */
-        printNumericTable(algorithm.getResult()->get(kmeans::assignments), "First 10 cluster assignments:", 10);
-        printNumericTable(algorithm.getResult()->get(kmeans::centroids), "First 10 dimensions of centroids:", 20, 10);
-        printNumericTable(algorithm.getResult()->get(kmeans::objectiveFunction), "Objective function value:");
+        printNumericTable(algorithm.getResult()->get(kmeans::assignments),
+                          "First 10 cluster assignments:",
+                          10);
+        printNumericTable(algorithm.getResult()->get(kmeans::centroids),
+                          "First 10 dimensions of centroids:",
+                          20,
+                          10);
+        printNumericTable(algorithm.getResult()->get(kmeans::objectiveFunction),
+                          "Objective function value:");
     }
 
     return 0;

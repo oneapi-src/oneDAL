@@ -1,6 +1,6 @@
 /* file: custom_csv_feature_modifiers.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,13 +34,11 @@
 using namespace daal::data_management;
 
 /** User-defined feature modifier that computes a square for every feature */
-class MySquaringModifier : public modifiers::csv::FeatureModifier
-{
+class MySquaringModifier : public modifiers::csv::FeatureModifier {
 public:
     /* This method is called for every row in CSV file */
-    virtual void apply(modifiers::csv::Context & context)
-    {
-        const size_t numberOfTokens                             = context.getNumberOfTokens();
+    virtual void apply(modifiers::csv::Context& context) {
+        const size_t numberOfTokens = context.getNumberOfTokens();
         daal::services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
 
         /* By default number of tokens (token is one word separated by commas) is equals to the
@@ -48,21 +46,18 @@ public:
          * initialization stage of the modifier (see 'MyMaxFeatureModifier') */
         assert(numberOfTokens == outputBuffer.size());
 
-        for (size_t i = 0; i < numberOfTokens; i++)
-        {
-            const float x   = context.getTokenAs<float>(i);
+        for (size_t i = 0; i < numberOfTokens; i++) {
+            const float x = context.getTokenAs<float>(i);
             outputBuffer[i] = x * x;
         }
     }
 };
 
 /** User-defined feature modifier that selects max element among all features  */
-class MyMaxFeatureModifier : public modifiers::csv::FeatureModifier
-{
+class MyMaxFeatureModifier : public modifiers::csv::FeatureModifier {
 public:
     /* This method is called once before CSV parsing */
-    virtual void initialize(modifiers::csv::Config & config)
-    {
+    virtual void initialize(modifiers::csv::Config& config) {
         /* Set number of output features for the modifier. We assume modifier
          * computes function y = max { x_1, ..., x_n }, where x_i is input
          * features and y is output feature, so there is single output feature  */
@@ -70,14 +65,12 @@ public:
     }
 
     /* This method is called for every row in CSV file */
-    virtual void apply(modifiers::csv::Context & context)
-    {
+    virtual void apply(modifiers::csv::Context& context) {
         const size_t numberOfTokens = context.getNumberOfTokens();
 
         /* Iterate throughout tokens, parse every token as float and compute max value  */
         float maxFeature = context.getTokenAs<float>(0);
-        for (size_t i = 1; i < numberOfTokens; i++)
-        {
+        for (size_t i = 1; i < numberOfTokens; i++) {
             maxFeature = std::max(maxFeature, context.getTokenAs<float>(i));
         }
 
@@ -87,16 +80,16 @@ public:
     }
 };
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     /* Path to the CSV to be read */
     const std::string csvFileName = "../data/batch/mixed_text_and_numbers.csv";
 
     checkArguments(argc, argv, 1, &csvFileName);
 
     /* Define options for CSV data source */
-    const CsvDataSourceOptions csvOptions =
-        CsvDataSourceOptions::allocateNumericTable | CsvDataSourceOptions::createDictionaryFromContext | CsvDataSourceOptions::parseHeader;
+    const CsvDataSourceOptions csvOptions = CsvDataSourceOptions::allocateNumericTable |
+                                            CsvDataSourceOptions::createDictionaryFromContext |
+                                            CsvDataSourceOptions::parseHeader;
 
     /* Define CSV file data source */
     FileDataSource<CSVFeatureManager> ds(csvFileName, csvOptions);
@@ -106,8 +99,10 @@ int main(int argc, char * argv[])
      * | Numeric1 | Numeric2 ^ 2 | Numeric5 ^ 2 | max(Numeric0, Numeric5) | */
     ds.getFeatureManager()
         .addModifier(features::list("Numeric1"), modifiers::csv::continuous())
-        .addModifier(features::list("Numeric2", "Numeric5"), modifiers::csv::custom<MySquaringModifier>())
-        .addModifier(features::list("Numeric0", "Numeric5"), modifiers::csv::custom<MyMaxFeatureModifier>());
+        .addModifier(features::list("Numeric2", "Numeric5"),
+                     modifiers::csv::custom<MySquaringModifier>())
+        .addModifier(features::list("Numeric0", "Numeric5"),
+                     modifiers::csv::custom<MyMaxFeatureModifier>());
 
     /* Load and parse CSV file */
     ds.loadDataBlock();

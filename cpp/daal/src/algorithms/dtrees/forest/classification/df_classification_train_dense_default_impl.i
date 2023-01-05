@@ -1,6 +1,6 @@
 /* file: df_classification_train_dense_default_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -209,7 +209,10 @@ public:
 #endif
 
 private:
-    size_t nClasses() const { return _nClasses; }
+    size_t nClasses() const
+    {
+        return _nClasses;
+    }
     void calcGini(double totalWeights, ImpurityData & imp) const
     {
         const double sqWeights = totalWeights * totalWeights;
@@ -228,8 +231,8 @@ private:
     {
         double delta = (2. * totalWeights - moveWeights) * imp.var + 2. * (imp.hist[iClass] - totalWeights);
         imp.var      = isZero<double, cpu>((totalWeights - moveWeights) * (totalWeights - moveWeights)) ?
-                      1. :
-                      (imp.var + moveWeights * delta / ((totalWeights - moveWeights) * (totalWeights - moveWeights)));
+                           1. :
+                           (imp.var + moveWeights * delta / ((totalWeights - moveWeights) * (totalWeights - moveWeights)));
         imp.hist[iClass] -= moveWeights;
     }
 
@@ -386,7 +389,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     {
         const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
         const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
-        leftWeights += weights;
+        leftWeights += this->_aWeights[aIdx[i - 1]].val;
         if (bSameFeaturePrev || (i < nMinSplitPart) || (leftWeights < minWeightLeaf) || (totalWeights - leftWeights < minWeightLeaf))
         {
             //can't make a split

@@ -1,6 +1,6 @@
 /* file: library_version_info.cpp */
 /*******************************************************************************
-* Copyright 2015-2022 Intel Corporation
+* Copyright 2015 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,11 +29,9 @@
 #include "daal.h"
 #include <iostream>
 
-using namespace std;
 using namespace daal::services;
 
-int main()
-{
+int main() {
     LibraryVersionInfo ver;
 
     std::cout << "Major version:          " << ver.majorVersion << std::endl;

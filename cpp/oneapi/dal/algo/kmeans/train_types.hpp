@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ public:
     /// The number of iterations performed by the algorithm.
     /// @remark default = 0
     /// @invariant :expr:`iteration_count >= 0`
-    int64_t get_iteration_count() const;
+    std::int64_t get_iteration_count() const;
 
     auto& set_iteration_count(std::int64_t value) {
         set_iteration_count_impl(value);

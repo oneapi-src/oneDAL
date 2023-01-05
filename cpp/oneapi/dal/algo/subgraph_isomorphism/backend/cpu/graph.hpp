@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ template <typename Cpu>
 void graph<Cpu>::allocate_arrays() {
     p_degree = allocator.allocate<std::int64_t>(vertex_count_);
 
-    for (int64_t i = 0; i < vertex_count_; i++) {
+    for (std::int64_t i = 0; i < vertex_count_; i++) {
         p_degree[i] = 0;
     }
 
@@ -94,14 +94,14 @@ void graph<Cpu>::allocate_arrays() {
         const std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count_);
 
         p_edges_bit = allocator.template allocate<std::uint8_t*>(vertex_count_);
-        for (int64_t i = 0; i < vertex_count_; ++i) {
+        for (std::int64_t i = 0; i < vertex_count_; ++i) {
             p_edges_bit[i] = allocator.template allocate<std::uint8_t>(bit_array_size);
             bit_vector<Cpu>::set(bit_array_size, p_edges_bit[i]);
         }
     }
     else {
         p_edges_list = allocator.template allocate<std::int64_t*>(vertex_count_);
-        for (int64_t i = 0; i < vertex_count_; i++) {
+        for (std::int64_t i = 0; i < vertex_count_; i++) {
             p_edges_list[i] = nullptr;
         }
     }
@@ -232,7 +232,7 @@ graph<Cpu>::~graph() {
     allocator.deallocate(p_degree, vertex_count_);
 
     if (p_edges_attribute) {
-        for (int64_t i = 0; i < vertex_count_; i++) {
+        for (std::int64_t i = 0; i < vertex_count_; i++) {
             if (p_edges_attribute[i] != nullptr) {
                 allocator.deallocate(p_edges_attribute[i], 1);
                 p_edges_attribute[i] = nullptr;

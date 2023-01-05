@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 namespace oneapi::dal::kmeans::backend {
 
 using dal::backend::context_gpu;
@@ -53,8 +55,8 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
 
     const auto data = input.get_data();
 
-    const int64_t column_count = data.get_column_count();
-    const int64_t cluster_count = params.get_cluster_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t cluster_count = params.get_cluster_count();
 
     daal::data_management::NumericTablePtr daal_initial_centroids;
 
@@ -64,12 +66,12 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
         const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
         daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
-        const size_t init_len_input = 1;
+        const std::size_t init_len_input = 1;
         daal::data_management::NumericTable* init_input[init_len_input] = { daal_data.get() };
 
         daal_initial_centroids =
             interop::allocate_daal_homogen_table<Float>(cluster_count, column_count);
-        const size_t init_len_output = 1;
+        const std::size_t init_len_output = 1;
         daal::data_management::NumericTable* init_output[init_len_output] = {
             daal_initial_centroids.get()
         };
@@ -108,10 +110,10 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         auto& comm = ctx.get_communicator();
 
         const auto data = input.get_data();
-        const int64_t row_count = data.get_row_count();
-        const int64_t column_count = data.get_column_count();
-        const int64_t cluster_count = params.get_cluster_count();
-        const int64_t max_iteration_count = params.get_max_iteration_count();
+        const std::int64_t row_count = data.get_row_count();
+        const std::int64_t column_count = data.get_column_count();
+        const std::int64_t cluster_count = params.get_cluster_count();
+        const std::int64_t max_iteration_count = params.get_max_iteration_count();
         const double accuracy_threshold = params.get_accuracy_threshold();
         dal::detail::check_mul_overflow(cluster_count, column_count);
 
@@ -127,15 +129,15 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         // called underneath.
         auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
 
-        std::int64_t block_size_in_rows = std::min(
-            row_count,
-            kernels_fp<float_t>::get_block_size_in_rows(queue, column_count, cluster_count));
+        std::int64_t block_size_in_rows =
+            std::min(row_count,
+                     kernels_fp<Float>::get_block_size_in_rows(queue, column_count, cluster_count));
 
         dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
         std::int64_t part_count =
-            kernels_fp<float_t>::get_part_count_for_partial_centroids(queue,
-                                                                      column_count,
-                                                                      cluster_count);
+            kernels_fp<Float>::get_part_count_for_partial_centroids(queue,
+                                                                    column_count,
+                                                                    cluster_count);
 
         auto arr_centroid_squares =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
@@ -213,7 +215,11 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
 
         Float final_objective_function =
             arr_objective_function.to_host(queue, { objective_event }).get_data()[0];
-        comm.allreduce(final_objective_function).wait();
+
+        {
+            ONEDAL_PROFILER_TASK(allreduce_final_objective);
+            comm.allreduce(final_objective_function).wait();
+        }
 
         model<task::clustering> model;
         model.set_centroids(

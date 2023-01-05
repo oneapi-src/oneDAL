@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2021-2022 Intel Corporation
+# Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,31 +20,18 @@ import glob
 import argparse
 from sys import platform
 
-LIBS_SEQ_STAT = ['onedal', 'onedal_core', 'onedal_sequential']
 LIBS_PAR_STAT = ['onedal', 'onedal_core', 'onedal_thread']
 
 if platform in ["win32", "win64"]:
-    LIBS_SEQ_DYN = ['onedal', 'onedal_core']
     LIBS_PAR_DYN = ['onedal', 'onedal_core']
 else:
-    LIBS_SEQ_DYN = ['onedal', 'onedal_core', 'onedal_sequential']
     LIBS_PAR_DYN = ['onedal', 'onedal_core', 'onedal_thread']
 
 RESULT_PKG_CONFIGS = {
-    'dal-static-sequential-host': {
-        'is_static': True,
-        'is_threading': False,
-        'dal_libs': LIBS_SEQ_STAT
-    },
     'dal-static-threading-host': {
         'is_static': True,
         'is_threading': True,
         'dal_libs': LIBS_PAR_STAT
-    },
-    'dal-dynamic-sequential-host': {
-        'is_static': False,
-        'is_threading': False,
-        'dal_libs': LIBS_SEQ_DYN
     },
     'dal-dynamic-threading-host': {
         'is_static': False,
@@ -84,8 +71,7 @@ def get_result_libs(is_static, is_threading, dal_libs):
     suffix = SUFF_STAT_LIB if is_static else SUFF_DYN_LIB
     out_lib = ["${{libdir}}{}{}{}{}".format('/', PREF_LIB, lib, suffix) for lib in dal_libs]
     res_dal_libs = " ".join(out_lib)
-    res_thread_libs = TBB_LIBS if is_threading else ''
-    return res_dal_libs + ' ' + res_thread_libs + ' ' + OTHER_LIBS
+    return res_dal_libs + ' ' + TBB_LIBS + ' ' + OTHER_LIBS
 
 def generate(config):
     with open(config.template_name, 'r') as pkg_template_file:

@@ -1,6 +1,6 @@
 /* file: linear_regression_predict.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -142,7 +142,7 @@ protected:
     void initialize()
     {
         this->_ac  = new __DAAL_ALGORITHM_CONTAINER(batch, linear_model::prediction::BatchContainer, algorithmFPType,
-                                                   linear_model::prediction::defaultDense)(&(this->_env));
+                                                    linear_model::prediction::defaultDense)(&(this->_env));
         this->_in  = &input;
         this->_par = NULL;
         this->_result.reset(new ResultType());

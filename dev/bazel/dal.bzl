@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -189,7 +189,6 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         ] if is_catch2 else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:mpi",
         ] if mpi else []) + ([
-            "@onedal//cpp/oneapi/dal/test/engine:mpi",
             "@onedal//cpp/oneapi/dal/test/engine:ccl",
         ] if ccl else []),
         extra_deps = _test_deps_on_daal() + extra_deps,
@@ -213,6 +212,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         _dal_cc_test(
             name = name + "_host",
             mpi = mpi,
+            ccl = ccl,
             mpi_ranks = mpi_ranks,
             deps = [ ":" + module_name ],
             data = data,
@@ -225,6 +225,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
             name = name + "_dpc",
             features = [ "dpc++" ],
             mpi = mpi,
+            ccl = ccl,
             mpi_ranks = mpi_ranks,
             deps = [
                 ":" + module_name + "_dpc",
@@ -269,7 +270,7 @@ def dal_test_suite(name, srcs=[], tests=[],
         tests = tests + targets,
     )
 
-def dal_collect_test_suites(name, root, modules, target="tests", tests=[], **kwargs):
+def dal_collect_test_suites(name, root, modules=[], target="tests", tests=[], **kwargs):
     test_deps = []
     for module_name in modules:
         test_label = "{0}/{1}:{2}".format(root, module_name, target)
@@ -383,9 +384,7 @@ def _dal_generate_cpu_dispatcher_impl(ctx):
         "// DO NOT PUT THIS FILE TO SVC: file is auto-generated on build time\n" +
         "// CPU detection logic specified in dev/bazel/config.bzl file\n" +
         "\n" +
-        ("#define ONEDAL_CPU_DISPATCH_SSSE3\n"      if sets.contains(cpus, "ssse3")      else "") +
         ("#define ONEDAL_CPU_DISPATCH_SSE42\n"      if sets.contains(cpus, "sse42")      else "") +
-        ("#define ONEDAL_CPU_DISPATCH_AVX\n"        if sets.contains(cpus, "avx")        else "") +
         ("#define ONEDAL_CPU_DISPATCH_AVX2\n"       if sets.contains(cpus, "avx2")       else "") +
         ("#define ONEDAL_CPU_DISPATCH_AVX512\n"     if sets.contains(cpus, "avx512")     else "")
     )
@@ -486,9 +485,7 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         ),
         cpu_defines = {
             "sse2":   [ "__CPU_TAG__=__CPU_TAG_SSE2__"   ],
-            "ssse3":  [ "__CPU_TAG__=__CPU_TAG_SSSE3__"  ],
             "sse42":  [ "__CPU_TAG__=__CPU_TAG_SSE42__"  ],
-            "avx":    [ "__CPU_TAG__=__CPU_TAG_AVX__"    ],
             "avx2":   [ "__CPU_TAG__=__CPU_TAG_AVX2__"   ],
             "avx512": [ "__CPU_TAG__=__CPU_TAG_AVX512__" ],
         },
@@ -510,7 +507,7 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         **kwargs,
     )
 
-def _dal_cc_test(name, mpi=False, mpi_ranks=0, **kwargs):
+def _dal_cc_test(name, mpi=False, ccl = False, mpi_ranks=0, **kwargs):
     if mpi:
         if mpi_ranks <= 0:
             fail("Test is marked as MPI, you must provide `mpi_ranks` " +
@@ -522,6 +519,21 @@ def _dal_cc_test(name, mpi=False, mpi_ranks=0, **kwargs):
         mpi_test(
             name = name,
             src = "_mpi_" + name,
+            mpi_ranks = mpi_ranks,
+            mpiexec = "@mpi//:mpiexec",
+            fi = "@mpi//:fi",
+        )
+    elif ccl:
+        if mpi_ranks <= 0:
+            fail("Test is marked as CCL, you must provide `mpi_ranks` " +
+                 "attribute with the valid number of MPI ranks ")
+        cc_test(
+            name = "_ccl_" + name,
+            **kwargs,
+        )
+        ccl_test(
+            name = name,
+            src = "_ccl_" + name,
             mpi_ranks = mpi_ranks,
             mpiexec = "@mpi//:mpiexec",
             fi = "@mpi//:fi",

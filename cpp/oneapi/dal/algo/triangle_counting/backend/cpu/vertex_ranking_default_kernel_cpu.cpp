@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ namespace oneapi::dal::preview::triangle_counting::backend {
 
 template array<std::int64_t> triangle_counting_local<__CPU_TAG__>(
     const dal::preview::detail::topology<std::int32_t>& t,
-    int64_t* triangles_local);
+    std::int64_t* triangles_local);
 
 template std::int64_t triangle_counting_global_scalar<__CPU_TAG__>(
     const dal::preview::detail::topology<std::int32_t>& t);

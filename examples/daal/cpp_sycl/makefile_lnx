@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2022 Intel Corporation
+# Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file."
 	@echo
-	@echo "compiler_name     - the only supported compiler is clang (default value)"
-	@echo "                    Intel(R) oneAPI DPC++ compiler"
+	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
+	@echo "                    Intel(R) oneAPI DPC++/C++ Compiler"
 	@echo "mode_name         - can be build or run. Default is run"
 
 ##------------------------------------------------------------------------------
@@ -35,15 +35,15 @@ help:
 ##                                 and run pca example for 64-bit
 ##                                 applications, static linking
 ##
-## make sointel64 compiler=clang   - build by Intel(R) oneAPI Compiler and run all examples
+## make sointel64 compiler=dpcpp   - build by Intel(R) oneAPI Compiler and run all examples
 ##                                 of Intel(R) oneDAL for
 ##                                 64-bit applications, dynamic linking
 ##
-## make sointel64                - build by Intel(R) oneAPI Compiler (as default)
+## make sointel64                - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                 and run all examples for Intel(R)64 processor
 ##                                 family  applications, dynamic linking
 ##
-## make sointel64 mode=build     - build only (not run) by Intel(R) oneAPI Compiler
+## make sointel64 mode=build     - build only (not run) by Intel(R) oneAPI DPC++/C++ Compiler
 ##                                 (as default) all examples for Intel(R)64
 ##                                 processor family  applications, dynamic linking
 ##
@@ -51,14 +51,26 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
+$(info =====DAAL SYCL interfaces are depricated, please use oneDAL DPC interfaces====)
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
+
 include daal.lst
 
 ifndef example
     example = $(DAAL)
 endif
 
+ifeq ($(compiler),clang)
+    $(warning warning: clang driver usage has been deprecated. Please user dpcpp)
+    override compiler = dpcpp
+endif
+
 ifndef compiler
-    compiler = clang
+    compiler = dpcpp
+endif
+
+ifneq ($(compiler),dpcpp)
+    override compiler = dpcpp
 endif
 
 ifneq ($(mode),build)
@@ -75,7 +87,7 @@ ifndef TBBROOT
 endif
 TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
 
-EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL
+EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 
 ifeq ($(RES_EXT),so)
     DAAL_LIB_EXT := -Bdynamic
@@ -83,15 +95,7 @@ else
     DAAL_LIB_EXT := -Bstatic
 endif
 
-ifeq ($(threading),sequential)
-    $(error Sequential version is not supported. To run sequential version please refer to 'examples/daal/cpp')
-else
-    override threading = parallel
-    DAAL_LIB_T := $(DAAL_LIB_EXT),-lonedal_thread
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
-endif
-
-DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
+DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,$(DAAL_LIB_EXT),-lonedal_thread
 
 COPTS := -pedantic -Wall -Wextra -Werror \
          -Wno-deprecated-declarations \
@@ -101,13 +105,13 @@ COPTS := -pedantic -Wall -Wextra -Werror \
 
 LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a -Wl,--end-group
 
-RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_$(_IA)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
-ifeq ($(compiler),clang)
-    gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-    CC = dpcpp --gcc-toolchain=$(gcc_toolchain)
-endif
+
+gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
+CC = icpx -fsycl --gcc-toolchain=$(gcc_toolchain)
+
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
 

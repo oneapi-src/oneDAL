@@ -1,6 +1,6 @@
 /* file: datastructures_rowmerged.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,14 +31,13 @@
 using namespace daal;
 using namespace daal::data_management;
 
-int main()
-{
+int main() {
     std::cout << "Row merged numeric table example" << std::endl << std::endl;
 
     const size_t nObservations1 = 5;
     const size_t nObservations2 = 6;
-    const size_t nFeatures      = 5;
-    const size_t featureIdx     = 2;
+    const size_t nFeatures = 5;
+    const size_t featureIdx = 2;
 
     /*Example of using homogeneous numeric table*/
     float data1[nFeatures * nObservations1] = {
@@ -52,9 +51,11 @@ int main()
 
     /* Create row merged numeric table consisting of two homogen numeric tables */
 
-    NumericTablePtr table1 = HomogenNumericTable<>::create(DictionaryIface::equal, data1, nFeatures, nObservations1);
+    NumericTablePtr table1 =
+        HomogenNumericTable<>::create(DictionaryIface::equal, data1, nFeatures, nObservations1);
     checkPtr(table1.get());
-    NumericTablePtr table2 = HomogenNumericTable<>::create(DictionaryIface::equal, data2, nFeatures, nObservations2);
+    NumericTablePtr table2 =
+        HomogenNumericTable<>::create(DictionaryIface::equal, data2, nFeatures, nObservations2);
     checkPtr(table2.get());
 
     RowMergedNumericTablePtr dataTable = RowMergedNumericTable::create();
@@ -66,15 +67,22 @@ int main()
 
     /* Read one row from merged numeric table */
     dataTable->getBlockOfRows(0, nObservations1 + nObservations2, readWrite, block);
-    printArray<float>(block.getBlockPtr(), nFeatures, block.getNumberOfRows(), "Print rows from row merged numeric table as float:");
+    printArray<float>(block.getBlockPtr(),
+                      nFeatures,
+                      block.getNumberOfRows(),
+                      "Print rows from row merged numeric table as float:");
 
     /* Modify row of the merged numeric table */
-    float * row = block.getBlockPtr();
-    for (size_t i = 0; i < nObservations1 + nObservations2; i++) row[i * nFeatures + featureIdx] *= row[i * nFeatures + featureIdx];
+    float* row = block.getBlockPtr();
+    for (size_t i = 0; i < nObservations1 + nObservations2; i++)
+        row[i * nFeatures + featureIdx] *= row[i * nFeatures + featureIdx];
     dataTable->releaseBlockOfRows(block);
 
     dataTable->getBlockOfRows(0, nObservations1 + nObservations2, readOnly, block);
-    printArray<float>(block.getBlockPtr(), nFeatures, block.getNumberOfRows(), "Print rows from row merged numeric table as float:");
+    printArray<float>(block.getBlockPtr(),
+                      nFeatures,
+                      block.getNumberOfRows(),
+                      "Print rows from row merged numeric table as float:");
     dataTable->releaseBlockOfRows(block);
 
     NumericTablePtr finalizedTable = data_management::convertToHomogen<float>(*dataTable);

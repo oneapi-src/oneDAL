@@ -1,6 +1,6 @@
 /* file: kmeans_cl_kernels.cl */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ DECLARE_SOURCE(
         {
             int curRem = (i == sub_group_num - 1 && rem > 0) ? rem : sub_group_size;
             newVal     = insert_subgroup_shift_right_fp(data, index - i * sub_group_size, offset + i * sub_group_size, newVal, sub_group_id,
-                                                    sub_group_size, curRem);
+                                                        sub_group_size, curRem);
         }
     }
 

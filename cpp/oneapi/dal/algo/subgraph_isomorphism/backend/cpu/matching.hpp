@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -520,12 +520,11 @@ solution<Cpu> engine_bundle<Cpu>::run(std::int64_t max_match_count) {
             static_cast<bool>(first_states_count % max_threads_count);
     }
 
-    const std::uint64_t array_size =
-        (max_threads_count >= 64)
-            ? max_threads_count * 2 / 10
-            : (max_threads_count >= 24)
-                  ? max_threads_count * 4 / 10
-                  : (max_threads_count >= 8) ? 4 : (max_threads_count >= 4) ? 2 : 1;
+    const std::uint64_t array_size = (max_threads_count >= 64)   ? max_threads_count * 2 / 10
+                                     : (max_threads_count >= 24) ? max_threads_count * 4 / 10
+                                     : (max_threads_count >= 8)  ? 4
+                                     : (max_threads_count >= 4)  ? 2
+                                                                 : 1;
     auto engine_array_ptr = allocator.make_shared_memory<matching_engine<Cpu>>(array_size);
     matching_engine<Cpu>* engine_array = engine_array_ptr.get();
 

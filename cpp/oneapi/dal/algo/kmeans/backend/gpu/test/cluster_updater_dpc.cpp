@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ public:
                 tol);
     }
 
-    void run_counting(const pr::ndarray<int32_t, 2>& responses, std::int64_t cluster_count) {
+    void run_counting(const pr::ndarray<std::int32_t, 2>& responses, std::int64_t cluster_count) {
         auto [counters, counters_event] = pr::ndarray<std::int32_t, 1>::zeros( //
             this->get_queue(),
             { cluster_count },
@@ -330,8 +330,8 @@ public:
         }
     }
 
-    void check_counters(const pr::ndarray<int32_t, 2>& responses,
-                        const pr::ndarray<int32_t, 1>& counters,
+    void check_counters(const pr::ndarray<std::int32_t, 2>& responses,
+                        const pr::ndarray<std::int32_t, 1>& counters,
                         std::int32_t cluster_count,
                         std::int32_t empty_cluster_count) {
         const std::int64_t row_count = responses.get_dimension(0);

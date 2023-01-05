@@ -1,6 +1,6 @@
 /* file: cor_dist_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,20 +28,20 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/distance.csv";
+const std::string datasetFileName = "../data/batch/distance.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -58,7 +58,9 @@ int main(int argc, char * argv[])
     /* Get the computed correlation distance matrix */
     correlation_distance::ResultPtr res = algorithm.getResult();
 
-    printNumericTable(res->get(correlation_distance::correlationDistance), "Correlation distance", 15);
+    printNumericTable(res->get(correlation_distance::correlationDistance),
+                      "Correlation distance",
+                      15);
 
     return 0;
 }

@@ -1,6 +1,6 @@
 /* file: dbscan_utils.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public:
 
     ~Queue() { clear(); }
 
-    Queue(const Queue &) = delete;
+    Queue(const Queue &)             = delete;
     Queue & operator=(const Queue &) = delete;
 
     void clear()
@@ -152,7 +152,7 @@ public:
 
     ~Vector() { clear(); }
 
-    Vector(const Vector &) = delete;
+    Vector(const Vector &)             = delete;
     Vector & operator=(const Vector &) = delete;
 
     void clear()
@@ -219,7 +219,7 @@ public:
 
     Neighborhood() : _values(nullptr), _capacity(0), _size(0), _weight(0) {}
 
-    Neighborhood(const Neighborhood &) = delete;
+    Neighborhood(const Neighborhood &)             = delete;
     Neighborhood & operator=(const Neighborhood &) = delete;
 
     ~Neighborhood() { clear(); }
@@ -413,7 +413,7 @@ public:
 
     ~NeighborhoodEngine() {}
 
-    NeighborhoodEngine(const NeighborhoodEngine &) = delete;
+    NeighborhoodEngine(const NeighborhoodEngine &)             = delete;
     NeighborhoodEngine & operator=(const NeighborhoodEngine &) = delete;
 
     size_t getIndex(size_t * idx, FPType * array, size_t size, FPType cmp)

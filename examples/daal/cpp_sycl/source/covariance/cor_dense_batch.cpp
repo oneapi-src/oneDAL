@@ -1,6 +1,6 @@
 /* file: cor_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@
 #include "service.h"
 #include "service_sycl.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -39,23 +38,23 @@ using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/covcormoments_dense.csv";
+const std::string datasetFileName = "../data/batch/covcormoments_dense.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
         SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
         auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
         dataSource.loadDataBlock(data.get());

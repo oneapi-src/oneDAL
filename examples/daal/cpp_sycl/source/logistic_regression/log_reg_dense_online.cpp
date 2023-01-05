@@ -1,6 +1,6 @@
 /* file: log_reg_dense_online.cpp */
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,21 +40,19 @@ using namespace daal::data_management;
 
 /* Input data set parameters */
 const std::string trainDatasetFileName = "../data/batch/logreg_train.csv";
-const std::string testDatasetFileName  = "../data/batch/logreg_test.csv";
-constexpr size_t nFeatures             = 6;
-constexpr size_t nClasses              = 5;
+const std::string testDatasetFileName = "../data/batch/logreg_test.csv";
+constexpr size_t nFeatures = 6;
+constexpr size_t nClasses = 5;
 
 logistic_regression::ModelPtr trainModel();
 void testModel(const logistic_regression::ModelPtr& model);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -70,30 +68,33 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-logistic_regression::ModelPtr trainModel()
-{
-    constexpr bool isIntercept           = false;
-    constexpr float l2Penalty            = 0.0f;
-    constexpr float learningRate         = 1.0f;
-    constexpr size_t nEpochs             = 20;
+logistic_regression::ModelPtr trainModel() {
+    constexpr bool isIntercept = false;
+    constexpr float l2Penalty = 0.0f;
+    constexpr float learningRate = 1.0f;
+    constexpr size_t nEpochs = 20;
     constexpr size_t nIterationsPerBlock = 5;
-    constexpr size_t dataBlockRowCount   = 500;
+    constexpr size_t dataBlockRowCount = 500;
 
     auto xBlock = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
     auto yBlock = SyclHomogenNumericTable<>::create(1, 0, NumericTable::notAllocate);
     NumericTablePtr mergedDataBlock(new MergedNumericTable(xBlock, yBlock));
 
     LogisticRegressionOnline alg;
-    alg.setParams(nClasses, nFeatures, isIntercept, l2Penalty, dataBlockRowCount, nIterationsPerBlock);
+    alg.setParams(nClasses,
+                  nFeatures,
+                  isIntercept,
+                  l2Penalty,
+                  dataBlockRowCount,
+                  nIterationsPerBlock);
 
-    for (size_t epoch = 0; epoch < nEpochs; epoch++)
-    {
+    for (size_t epoch = 0; epoch < nEpochs; epoch++) {
         FileDataSource<CSVFeatureManager> dataSource(trainDatasetFileName,
-                                                    DataSource::notAllocateNumericTable,
-                                                    DataSource::doDictionaryFromContext);
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
-        while (dataSource.loadDataBlock(dataBlockRowCount, mergedDataBlock.get()) == dataBlockRowCount)
-        {
+        while (dataSource.loadDataBlock(dataBlockRowCount, mergedDataBlock.get()) ==
+               dataBlockRowCount) {
             alg.setIterationParams(learningRate);
             alg.setInput(xBlock, yBlock);
             alg.compute();
@@ -104,8 +105,7 @@ logistic_regression::ModelPtr trainModel()
     return alg.getModel();
 }
 
-void testModel(const logistic_regression::ModelPtr& model)
-{
+void testModel(const logistic_regression::ModelPtr& model) {
     namespace class_prediction = classifier::prediction;
     using LogRegPrediction = logistic_regression::prediction::Batch<>;
 
@@ -123,7 +123,8 @@ void testModel(const logistic_regression::ModelPtr& model)
 
     /* Create an algorithm object to predict values of logistic regression */
     LogRegPrediction algorithm(nClasses);
-    algorithm.parameter().resultsToEvaluate |= classifier::computeClassProbabilities | classifier::computeClassLogProbabilities;
+    algorithm.parameter().resultsToEvaluate |=
+        classifier::computeClassProbabilities | classifier::computeClassLogProbabilities;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(class_prediction::data, testX);
@@ -134,10 +135,14 @@ void testModel(const logistic_regression::ModelPtr& model)
 
     /* Retrieve the algorithm results */
     auto predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(class_prediction::prediction), "Logistic regression prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(class_prediction::prediction),
+                      "Logistic regression prediction results (first 10 rows):",
+                      10);
     printNumericTable(testY, "Ground truth (first 10 rows):", 10);
     printNumericTable(predictionResult->get(class_prediction::probabilities),
-                      "Logistic regression prediction probabilities (first 10 rows):", 10);
+                      "Logistic regression prediction probabilities (first 10 rows):",
+                      10);
     printNumericTable(predictionResult->get(class_prediction::logProbabilities),
-                      "Logistic regression prediction log probabilities (first 10 rows):", 10);
+                      "Logistic regression prediction log probabilities (first 10 rows):",
+                      10);
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -62,7 +62,8 @@ std::vector<dal::table> split_table_by_rows(sycl::queue& queue,
         const std::int64_t block_size = block_size_regular + tail;
 
         const auto row_range = dal::range{ row_offset, row_offset + block_size };
-        const auto block = dal::row_accessor<const Float>{ t }.pull(queue, row_range, sycl::usm::alloc::device);
+        const auto block =
+            dal::row_accessor<const Float>{ t }.pull(queue, row_range, sycl::usm::alloc::device);
         result[i] = dal::homogen_table::wrap(block, block_size, column_count);
         row_offset += block_size;
     }

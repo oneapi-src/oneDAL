@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,9 +28,10 @@ namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
 using model_t = model<task::dim_reduction>;
+using task_t = task::dim_reduction;
 using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
-using descriptor_t = detail::descriptor_base<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task_t>;
 
 namespace daal_pca = daal::algorithms::pca;
 namespace daal_zscore = daal::algorithms::normalization::zscore;
@@ -51,8 +52,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
     const std::int64_t column_count = data.get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
-
+    ONEDAL_ASSERT(component_count > 0);
+    auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
@@ -90,32 +93,23 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                 *daal_means.get(),
                                                                 *daal_variances.get()));
 
-    // clang-format off
-    const auto mdl = model_t{}
-        .set_eigenvectors(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_eigvec, component_count, column_count)
-                .build()
-        );
+    if (desc.get_result_options().test(result_options::eigenvectors)) {
+        const auto mdl = model_t{}.set_eigenvectors(
+            homogen_table::wrap(arr_eigvec, component_count, column_count));
+        result.set_model(mdl);
+    }
 
-    return result_t()
-        .set_model(mdl)
-        .set_eigenvalues(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_eigval, 1, component_count)
-                .build()
-        )
-        .set_variances(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_vars, 1, column_count)
-                .build()
-        )
-        .set_means(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_means, 1, column_count)
-                .build()
-        );
-    // clang-format on
+    if (desc.get_result_options().test(result_options::eigenvalues)) {
+        result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+    }
+    if (desc.get_result_options().test(result_options::vars)) {
+        result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
+    }
+    if (desc.get_result_options().test(result_options::means)) {
+        result.set_means(homogen_table::wrap(arr_means, 1, column_count));
+    }
+
+    return result;
 }
 
 template <typename Float>

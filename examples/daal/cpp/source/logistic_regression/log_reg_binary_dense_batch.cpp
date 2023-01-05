@@ -1,6 +1,6 @@
 /* file: log_reg_binary_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,26 +31,24 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::logistic_regression;
 
 /* Input data set parameters */
-const string trainDatasetFileName = "../data/batch/binary_cls_train.csv";
-const string testDatasetFileName  = "../data/batch/binary_cls_test.csv";
-const size_t nFeatures            = 20; /* Number of features in training and testing data sets */
+const std::string trainDatasetFileName = "../data/batch/binary_cls_train.csv";
+const std::string testDatasetFileName = "../data/batch/binary_cls_test.csv";
+const size_t nFeatures = 20; /* Number of features in training and testing data sets */
 
 /* Logistic regression training parameters */
 const size_t nClasses = 2; /* Number of classes */
 
 training::ResultPtr trainModel();
-void testModel(const training::ResultPtr & res);
-void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
+void testModel(const training::ResultPtr& res);
+void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
     training::ResultPtr trainingResult = trainModel();
@@ -59,8 +57,7 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-training::ResultPtr trainModel()
-{
+training::ResultPtr trainModel() {
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData;
     NumericTablePtr trainDependentVariable;
@@ -78,21 +75,18 @@ training::ResultPtr trainModel()
     algorithm.compute();
 
     /* Retrieve the algorithm results */
-    training::ResultPtr trainingResult     = algorithm.getResult();
+    training::ResultPtr trainingResult = algorithm.getResult();
     logistic_regression::ModelPtr modelptr = trainingResult->get(classifier::training::model);
-    if (modelptr.get())
-    {
+    if (modelptr.get()) {
         printNumericTable(modelptr->getBeta(), "Logistic Regression coefficients:");
     }
-    else
-    {
+    else {
         std::cout << "Null model pointer" << std::endl;
     }
     return trainingResult;
 }
 
-void testModel(const training::ResultPtr & trainingResult)
-{
+void testModel(const training::ResultPtr& trainingResult) {
     /* Create Numeric Tables for testing data and ground truth values */
     NumericTablePtr testData;
     NumericTablePtr testGroundTruth;
@@ -104,21 +98,25 @@ void testModel(const training::ResultPtr & trainingResult)
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
-    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.input.set(classifier::prediction::model,
+                        trainingResult->get(classifier::training::model));
 
     /* Predict values of logistic regression */
     algorithm.compute();
 
     /* Retrieve the algorithm results */
     classifier::prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(classifier::prediction::prediction), "Logistic regression prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(classifier::prediction::prediction),
+                      "Logistic regression prediction results (first 10 rows):",
+                      10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 
-void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
-{
+void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar) {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     pData.reset(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));

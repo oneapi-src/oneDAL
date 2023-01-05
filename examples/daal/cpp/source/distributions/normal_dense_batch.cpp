@@ -1,6 +1,6 @@
 /* file: normal_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,15 +28,13 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::engines;
 using namespace daal::algorithms::distributions;
 
-int main()
-{
+int main() {
     /* Create input table to fill with random numbers */
     NumericTablePtr dataTable(new HomogenNumericTable<>(1, 10, NumericTable::doAllocate));
 

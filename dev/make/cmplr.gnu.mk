@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2012-2022 Intel Corporation
+# Copyright 2012 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #  g++ defenitions for makefile
 #--
 
-PLATs.gnu = lnx32e
+PLATs.gnu = lnx32e mac32e
 
 CMPLRDIRSUFF.gnu = _gnu
 
@@ -27,19 +27,25 @@ CORE.SERV.COMPILER.gnu = generic
 -Zl.gnu =
 -DEBC.gnu = -g
 
-COMPILER.lnx.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
+COMPILER.all.gnu =  ${CXX} -m64 -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
                     -Werror -Wreturn-type
 
-link.dynamic.lnx.gnu = ${CXX} $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.all.gnu = ${CXX} -m64
 
-pedantic.opts.lnx.gnu = -pedantic \
+pedantic.opts.all.gnu = -pedantic \
                         -Wall \
                         -Wextra \
                         -Wno-unused-parameter
 
-p4_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)
-mc_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)
+COMPILER.lnx.gnu = $(COMPILER.all.gnu)
+link.dynamic.lnx.gnu = $(link.dynamic.all.gnu)
+pedantic.opts.lnx.gnu = $(pedantic.opts.all.gnu)
+
+COMPILER.mac.gnu = $(COMPILER.all.gnu)
+link.dynamic.mac.gnu = $(link.dynamic.all.gnu)
+pedantic.opts.mac.gnu = $(pedantic.opts.all.gnu)
+
+p4_OPT.gnu   = $(-Q)march=nocona
 mc3_OPT.gnu  = $(-Q)march=corei7
-avx_OPT.gnu  = $(-Q)march=sandybridge
 avx2_OPT.gnu = $(-Q)march=haswell
 skx_OPT.gnu  = $(-Q)march=haswell

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ namespace te = dal::test::engine;
 //         };
 //     }
 
-//     void run_cluster_counters(const pr::ndview<int32_t, 2>& responses, std::int64_t cluster_count) {
+//     void run_cluster_counters(const pr::ndview<std::int32_t, 2>& responses, std::int64_t cluster_count) {
 //         INFO("benchmark cluster counters");
 //         const auto name =
 //             fmt::format("Cluster counters: val_type {}, cluster_count {}, elem_count {}",
@@ -75,7 +75,7 @@ namespace te = dal::test::engine;
 //     }
 
 //     void run_reduce_centroids(const pr::ndview<float_t, 2>& data,
-//                               const pr::ndview<int32_t, 2>& responses,
+//                               const pr::ndview<std::int32_t, 2>& responses,
 //                               std::int64_t cluster_count,
 //                               std::int64_t part_count) {
 //         INFO("benchmark centroid reduction");

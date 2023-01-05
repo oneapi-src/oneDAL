@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ void vertex_ranking_result<Task>::set_ranks_impl(const table& value) {
 }
 
 template <typename Task>
-void vertex_ranking_result<Task>::set_global_rank_impl(int64_t value) {
+void vertex_ranking_result<Task>::set_global_rank_impl(std::int64_t value) {
     impl_->global_rank = value;
 }
 

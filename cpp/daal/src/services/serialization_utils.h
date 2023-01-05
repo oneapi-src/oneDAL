@@ -1,6 +1,6 @@
 /* file: serialization_utils.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,23 +26,38 @@
 
 #include "data_management/data/factory.h"
 
-#define __DAAL_SERIALIZATION_TAG(ClassName, Tag)              \
-    int ClassName::serializationTag() { return _desc.tag(); } \
-    int ClassName::getSerializationTag() const { return _desc.tag(); }
+#define __DAAL_SERIALIZATION_TAG(ClassName, Tag) \
+    int ClassName::serializationTag()            \
+    {                                            \
+        return _desc.tag();                      \
+    }                                            \
+    int ClassName::getSerializationTag() const   \
+    {                                            \
+        return _desc.tag();                      \
+    }
 
-#define __DAAL_REGISTER_SERIALIZATION_CLASS(ClassName, Tag)                                       \
-    static data_management::SerializationIface * creator##ClassName() { return new ClassName(); } \
-    data_management::SerializationDesc ClassName::_desc(creator##ClassName, Tag);                 \
+#define __DAAL_REGISTER_SERIALIZATION_CLASS(ClassName, Tag)                       \
+    static data_management::SerializationIface * creator##ClassName()             \
+    {                                                                             \
+        return new ClassName();                                                   \
+    }                                                                             \
+    data_management::SerializationDesc ClassName::_desc(creator##ClassName, Tag); \
     __DAAL_SERIALIZATION_TAG(ClassName, Tag)
 
-#define __DAAL_REGISTER_SERIALIZATION_CLASS2(ClassName, ImplClassName, Tag)                           \
-    static data_management::SerializationIface * creator##ClassName() { return new ImplClassName(); } \
-    data_management::SerializationDesc ClassName::_desc(creator##ClassName, Tag);                     \
+#define __DAAL_REGISTER_SERIALIZATION_CLASS2(ClassName, ImplClassName, Tag)       \
+    static data_management::SerializationIface * creator##ClassName()             \
+    {                                                                             \
+        return new ImplClassName();                                               \
+    }                                                                             \
+    data_management::SerializationDesc ClassName::_desc(creator##ClassName, Tag); \
     __DAAL_SERIALIZATION_TAG(ClassName, Tag)
 
-#define __DAAL_REGISTER_SERIALIZATION_CLASS3(ClassName, ClassName2, Tag)                                                  \
-    static data_management::SerializationIface * creator##ClassName##ClassName2() { return new ClassName<ClassName2>(); } \
-    data_management::SerializationDesc ClassName<ClassName2>::_desc(creator##ClassName##ClassName2, Tag);                 \
+#define __DAAL_REGISTER_SERIALIZATION_CLASS3(ClassName, ClassName2, Tag)                                  \
+    static data_management::SerializationIface * creator##ClassName##ClassName2()                         \
+    {                                                                                                     \
+        return new ClassName<ClassName2>();                                                               \
+    }                                                                                                     \
+    data_management::SerializationDesc ClassName<ClassName2>::_desc(creator##ClassName##ClassName2, Tag); \
     __DAAL_SERIALIZATION_TAG(ClassName<ClassName2>, Tag)
 
 #endif

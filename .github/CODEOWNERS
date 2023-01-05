@@ -1,3 +1,18 @@
-#Documentation owners and reviewers
-/docs/      @outoftardis @averbukh @Vika-F
-*.md        @outoftardis @averbukh @Vika-F
+# Documentation owners and reviewers
+/docs/         @Vika-F @maria-Petrova @Alexsandruss @alexandraepan
+*.md           @Vika-F @maria-Petrova @Alexsandruss @alexandraepan
+
+samples/       @maria-Petrova @Alexsandruss
+examples/      @maria-Petrova @Alexsandruss @samir-nasibli
+
+.ci/           @Alexsandruss @napetrov
+.github/       @Alexsandruss @napetrov
+
+make*          @Alexsandruss
+cmake/         @Alexsandruss
+deploy/        @Alexsandruss
+dev/           @Alexsandruss
+
+cpp/daal/      @Alexsandruss @samir-nasibli
+cpp/oneapi/    @Alexsandruss @samir-nasibli @KulikovNikita
+java/          @Alexsandruss

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,13 +25,21 @@ namespace oneapi::dal::backend::primitives {
 #ifdef _GLIBCXX_OSTREAM
 
 // Available only if (i)ostream header is included
+
 template <typename T, ndorder ord>
-inline std::ostream& operator<<(std::ostream& s, const ndview<T, 2, ord>& v) {
+inline std::ostream& print_shape(std::ostream& s, const ndview<T, 2, ord>& v) {
     constexpr char o = (ord == ndorder::c) ? 'C' : 'F';
     const auto h = v.get_dimension(0);
     const auto w = v.get_dimension(1);
     const auto d = v.get_leading_stride();
-    s << o << "-like ndview with shape height,width=" << h << ',' << w << " (stride=" << d << ")\n";
+    return s << o << "-like ndview with shape height,width=" << h << ',' << w << " (stride=" << d
+             << ")\n";
+}
+
+template <typename T, ndorder ord>
+inline std::ostream& print_content(std::ostream& s, const ndview<T, 2, ord>& v) {
+    const auto h = v.get_dimension(0);
+    const auto w = v.get_dimension(1);
 #ifdef _GLIBCXX_IOMANIP
     const auto init_flags = s.flags();
     s << std::scientific << std::setprecision(4);
@@ -45,7 +53,21 @@ inline std::ostream& operator<<(std::ostream& s, const ndview<T, 2, ord>& v) {
 #ifdef _GLIBCXX_IOMANIP
     s.setf(init_flags);
 #endif
-    return (s << std::endl);
+    return s;
+}
+
+template <typename T, ndorder ord>
+inline std::ostream& operator<<(std::ostream& s, const ndview<T, 2, ord>& v) {
+    print_shape(s, v);
+    print_content(s, v);
+    return s << std::endl;
+}
+
+template <typename T, ndorder ord>
+inline std::ostream& operator<<(std::ostream& s, const ndview<T, 1, ord>& v) {
+    const ndshape<2> new_shape{ 1l, v.get_count() };
+    const auto as_2d = v.template reshape<2>(new_shape);
+    return s << as_2d;
 }
 
 #endif

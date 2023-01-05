@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -143,35 +143,11 @@ int check_avx2_features() {
     return 1;
 }
 
-int check_avx_features() {
-    /* CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 &&
-       CPUID.(EAX=01H, ECX=0H):ECX.AVX[bit 28]==1 */
-    uint32_t avx_mask = 0x18000000;
-
-    if (!check_cpuid(1, 0, 2, avx_mask)) {
-        return 0;
-    }
-    if (!check_xgetbv_xcr0_ymm(6)) {
-        return 0;
-    }
-    return 1;
-}
-
 int check_sse42_features() {
     /* CPUID.(EAX=01H, ECX=0H):ECX.SSE4.2[bit 20]==1 */
     uint32_t sse42_mask = 0x100000;
 
     if (!check_cpuid(1, 0, 2, sse42_mask)) {
-        return 0;
-    }
-    return 1;
-}
-
-int check_ssse3_features() {
-    /* CPUID.(EAX=01H, ECX=0H):ECX.SSSE3[bit 9]==1 */
-    uint32_t ssse3_mask = 0x200;
-
-    if (!check_cpuid(1, 0, 2, ssse3_mask)) {
         return 0;
     }
     return 1;
@@ -186,14 +162,8 @@ std::string detect_cpu() {
     else if (check_avx2_features()) {
         return "avx2";
     }
-    else if (check_avx_features()) {
-        return "avx";
-    }
     else if (check_sse42_features()) {
         return "sse42";
-    }
-    else if (check_ssse3_features()) {
-        return "ssse3";
     }
     else {
         return "sse2";

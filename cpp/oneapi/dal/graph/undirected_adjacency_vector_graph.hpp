@@ -1,6 +1,6 @@
 /* file: undirected_adjacency_vector_graph.hpp */
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public:
     using graph_type =
         undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
 
-    static_assert(detail::is_valid_index_v<IndexType>, "Use int32_t for vertex index type");
+    static_assert(detail::is_valid_index_v<IndexType>, "Use std::int32_t for vertex index type");
 
     /// Constructs an empty graph
     undirected_adjacency_vector_graph();

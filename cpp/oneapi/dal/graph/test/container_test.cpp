@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,9 +48,9 @@ struct CountingAllocator {
         return false;
     }
 
-    T* allocate(const size_t n) {
+    T* allocate(const std::size_t n) {
         allocated_bytes_count += n * sizeof(T);
-        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+        if (n > static_cast<std::size_t>(-1) / sizeof(T)) {
             throw std::bad_array_new_length();
         }
         void* const pv = malloc(n * sizeof(T));
@@ -60,7 +60,7 @@ struct CountingAllocator {
         return static_cast<T*>(pv);
     }
 
-    void deallocate(T* const p, size_t n) noexcept {
+    void deallocate(T* const p, std::size_t n) noexcept {
         allocated_bytes_count -= n * sizeof(T);
         free(p);
     }
@@ -636,9 +636,9 @@ TEST("check begin() + end() iterators in range-based for") {
 TEST("check begin() + end() iterators for random access") {
     allocated_bytes_count = 0;
     {
-        CountingAllocator<int32_t> alloc;
+        CountingAllocator<std::int32_t> alloc;
         std::int64_t n = 5;
-        vector_container<int32_t, CountingAllocator<int32_t>> vec(n, alloc);
+        vector_container<std::int32_t, CountingAllocator<std::int32_t>> vec(n, alloc);
         REQUIRE(std::distance(vec.begin(), vec.end()) == n);
         REQUIRE(vec[3] == 0);
         *(vec.begin() + 3) = 3;
@@ -653,11 +653,13 @@ TEST("check begin() + end() iterators for random access") {
 TEST("can return allocator") {
     allocated_bytes_count = 0;
     {
-        CountingAllocator<int32_t> alloc;
+        CountingAllocator<std::int32_t> alloc;
         std::int64_t n = 5;
-        vector_container<int32_t, CountingAllocator<int32_t>> vec(n, alloc);
+        vector_container<std::int32_t, CountingAllocator<std::int32_t>> vec(n, alloc);
         REQUIRE(typeid(alloc) == typeid(vec.get_allocator()));
-        vector_container<int32_t, CountingAllocator<int32_t>> vec_alloc(n, vec.get_allocator());
+        vector_container<std::int32_t, CountingAllocator<std::int32_t>> vec_alloc(
+            n,
+            vec.get_allocator());
         REQUIRE(typeid(vec.get_allocator()) == typeid(vec_alloc.get_allocator()));
     }
     REQUIRE(allocated_bytes_count == 0);

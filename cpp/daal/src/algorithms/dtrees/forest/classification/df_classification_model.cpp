@@ -1,6 +1,6 @@
 /* file: df_classification_model.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -307,6 +307,10 @@ services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArc
     if ((daalVersion >= COMPUTE_DAAL_VERSION(2020, 0, 1)))
     {
         arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
+    }
+    if ((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
+    {
+        arch->setSharedPtrObj(_probTbl);
     }
 
     return s;

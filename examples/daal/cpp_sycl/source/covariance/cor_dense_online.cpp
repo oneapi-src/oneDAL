@@ -1,6 +1,6 @@
 /* file: cor_dense_online.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,22 +34,19 @@
 using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-const string datasetFileName = "../data/batch/covcormoments_dense.csv";
-const size_t nObservations   = 50;
+const std::string datasetFileName = "../data/batch/covcormoments_dense.csv";
+const size_t nObservations = 50;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
+    for (const auto& deviceSelector : getListOfDevices()) {
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -58,13 +55,14 @@ int main(int argc, char * argv[])
 
         auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
 
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
+                                                     DataSource::doAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
         covariance::Online<> algorithm;
         algorithm.parameter.outputMatrixType = covariance::correlationMatrix;
 
-        while (dataSource.loadDataBlock(nObservations, data.get()) == nObservations)
-        {
+        while (dataSource.loadDataBlock(nObservations, data.get()) == nObservations) {
             /* Set input objects for the algorithm */
             algorithm.input.set(covariance::data, data);
 

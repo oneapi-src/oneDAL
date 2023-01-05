@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -159,6 +159,7 @@ public:
     ID(2010000000, simple_table_metadata_id);
     ID(2020000000, empty_table_id);
     ID(2030000000, homogen_table_id);
+    ID(2040000000, csr_table_id);
 
     // Algorithms - SVM
     ID(3010000000, svm_classification_model_impl_id);
@@ -167,7 +168,7 @@ public:
     ID(3010300000, svm_nu_classification_model_impl_id);
     ID(3010400000, svm_nu_regression_model_impl_id);
 
-    // PCA
+    // Algorithms - PCA
     ID(4010000000, pca_dim_reduction_model_impl_id);
 
     // Algorithms - KNN

@@ -1,6 +1,6 @@
 #!/bin/bash
 #===============================================================================
-# Copyright 2017-2022 Intel Corporation
+# Copyright 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,70 +50,37 @@ hdfs dfs -mkdir -p /Hadoop/Libraries  >  "${result_folder}"/hdfs.log 2>&1
 
 # Comma-separated list of shared libs
 os_name=$(uname)
-if [ "${os_name}" == "Linux" ]; then
-    export LIBJAVAAPI=libJavaAPI.so
-    export LIBTBB=
-    export LIBTBBMALLOC=
 
-    TBBLIBS=
-    if [ -d "${TBBROOT}/lib/intel64/gcc4.8" ]; then TBBLIBS=${TBBROOT}/lib/intel64/gcc4.8; fi
-    if [ -z "${TBBLIBS}" ]; then
-        echo Can not find TBB runtimes
-        exit 1
-    fi
+export LIBJAVAAPI=libJavaAPI.so
+export LIBTBB=
+export LIBTBBMALLOC=
 
-    if [ -f "${TBBLIBS}/libtbb.so.2" ]; then
-        export LIBTBB=libtbb.so.2
-    elif [ -f "${TBBLIBS}/libtbb.so.12" ]; then
-        export LIBTBB=libtbb.so.12
-    else 
-        echo Can not find libtbb.so
-        exit 1
-    fi
-
-    if [ -f "${TBBLIBS}/libtbbmalloc.so.2" ]; then
-        export LIBTBBMALLOC=libtbbmalloc.so.2
-    elif [ -f "${TBBLIBS}/libtbbmalloc.so.12" ]; then
-        export LIBTBBMALLOC=libtbbmalloc.so.12
-    else 
-        echo Can not find libtbbmalloc.so
-        exit 1
-    fi
-
-    hdfs dfs -put -f "${DAALROOT}/lib/intel64/${LIBJAVAAPI}" "${TBBLIBS}/${LIBTBB}" "${TBBLIBS}/${LIBTBBMALLOC}" /Hadoop/Libraries/ >> "${result_folder}/hdfs.log" 2>&1
-elif [ "${os_name}" == "Darwin" ]; then
-    export LIBJAVAAPI=libJavaAPI.dylib
-    export LIBTBB=
-    export LIBTBBMALLOC=
-
-    TBBLIBS=
-    if [ -d "${TBBROOT}/lib" ]; then TBBLIBS=${TBBROOT}/lib; fi
-    if [ "${TBBROOT}" ] && [ -d "${TBBROOT}/lib" ]; then TBBLIBS=${TBBROOT}/lib; fi
-    if [ -z "${TBBLIBS}" ]; then
-        echo Can not find TBB runtimes
-        exit 1
-    fi
-
-    if [ -f "${TBBLIBS}/libtbb.2.dylib" ]; then
-        export LIBTBB=libtbb.2.dylib
-    elif [ -f "${TBBLIBS}/libtbb.12.dylib" ]; then
-        export LIBTBB=libtbb.12.dylib
-    else 
-        echo Can not find libtbb.dylib
-        exit 1
-    fi
-
-    if [ -f "${TBBLIBS}/libtbbmalloc.2.dylib" ]; then
-        export LIBTBBMALLOC=libtbbmalloc.2.dylib
-    elif [ -f "${TBBLIBS}/libtbbmalloc.12.dylib" ]; then
-        export LIBTBBMALLOC=libtbbmalloc.12.dylib
-    else 
-        echo Can not find libtbbmalloc.dylib
-        exit 1
-    fi
-
-    hdfs dfs -put -f "${DAALROOT}/lib/${LIBJAVAAPI}" "${TBBLIBS}/${LIBTBB}" "${TBBLIBS}/${LIBTBBMALLOC}" /Hadoop/Libraries/ >> "${result_folder}/hdfs.log" 2>&1
+TBBLIBS=
+if [ -d "${TBBROOT}/lib/intel64/gcc4.8" ]; then TBBLIBS=${TBBROOT}/lib/intel64/gcc4.8; fi
+if [ -z "${TBBLIBS}" ]; then
+    echo Can not find TBB runtimes
+    exit 1
 fi
+
+if [ -f "${TBBLIBS}/libtbb.so.2" ]; then
+    export LIBTBB=libtbb.so.2
+elif [ -f "${TBBLIBS}/libtbb.so.12" ]; then
+    export LIBTBB=libtbb.so.12
+else 
+    echo Can not find libtbb.so
+    exit 1
+fi
+
+if [ -f "${TBBLIBS}/libtbbmalloc.so.2" ]; then
+    export LIBTBBMALLOC=libtbbmalloc.so.2
+elif [ -f "${TBBLIBS}/libtbbmalloc.so.12" ]; then
+    export LIBTBBMALLOC=libtbbmalloc.so.12
+else 
+    echo Can not find libtbbmalloc.so
+    exit 1
+fi
+
+hdfs dfs -put -f "${DAALROOT}/lib/intel64/${LIBJAVAAPI}" "${TBBLIBS}/${LIBTBB}" "${TBBLIBS}/${LIBTBBMALLOC}" /Hadoop/Libraries/ >> "${result_folder}/hdfs.log" 2>&1
 
 # Setting envs
 export LIBJARS=${DAALROOT}/lib/onedal.jar

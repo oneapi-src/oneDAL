@@ -1,6 +1,6 @@
 /* file: env_detect_features.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -168,43 +168,12 @@ static int check_avx2_features()
     return 1;
 }
 
-static int check_avx_features()
-{
-    /* CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 &&
-       CPUID.(EAX=01H, ECX=0H):ECX.AVX[bit 28]==1 */
-    uint32_t avx_mask = 0x18000000;
-
-    if (!check_cpuid(1, 0, 2, avx_mask))
-    {
-        return 0;
-    }
-    if (!check_xgetbv_xcr0_ymm(6))
-    {
-        return 0;
-    }
-
-    return 1;
-}
-
 static int check_sse42_features()
 {
     /* CPUID.(EAX=01H, ECX=0H):ECX.SSE4.2[bit 20]==1 */
     uint32_t sse42_mask = 0x100000;
 
     if (!check_cpuid(1, 0, 2, sse42_mask))
-    {
-        return 0;
-    }
-
-    return 1;
-}
-
-static int check_ssse3_features()
-{
-    /* CPUID.(EAX=01H, ECX=0H):ECX.SSSE3[bit 9]==1 */
-    uint32_t ssse3_mask = 0x200;
-
-    if (!check_cpuid(1, 0, 2, ssse3_mask))
     {
         return 0;
     }
@@ -232,19 +201,9 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
         return daal::avx2;
     }
 
-    if (check_avx_features())
-    {
-        return daal::avx;
-    }
-
     if (check_sse42_features())
     {
         return daal::sse42;
-    }
-
-    if (check_ssse3_features())
-    {
-        return daal::ssse3;
     }
 
     return daal::sse2;

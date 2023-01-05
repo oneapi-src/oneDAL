@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2012-2022 Intel Corporation
+# Copyright 2012 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,8 +31,6 @@ CORE.SERV.COMPILER.vc = generic
 COMPILER.win.vc = cl $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -EHsc -wd4661 -WX
 
 p4_OPT.vc   =
-mc_OPT.vc   =
 mc3_OPT.vc  =
-avx_OPT.vc  = -arch:AVX
 avx2_OPT.vc = -arch:AVX2
 skx_OPT.vc  = -arch:AVX2

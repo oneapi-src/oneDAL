@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@
 #include "oneapi/dal/algo/decision_forest/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-
-//#define DISTRIBUTED_SUPPORT_ENABLED
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_node_helpers.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -45,8 +44,10 @@ template <typename Index>
 struct impl_const<Index, task::classification> {
     constexpr static Index bad_val_ = -1;
     constexpr static Index leaf_mark_ = bad_val_;
-    constexpr static Index node_prop_count_ = 8; // rows offset, rows count, ftr id, ftr val(bin),
+    constexpr static Index node_prop_count_ =
+        node<Index>::get_prop_count(); // rows offset, rows count, ftr id, ftr val(bin),
     // left part rows count, response
+    // node_prop_count_ is going to be removed here after migration to node_list_manager
     // node props mapping
     constexpr static Index ind_ofs = 0; // property index for local row offset
     constexpr static Index ind_lrc = 1; // property index for local row count
@@ -77,8 +78,10 @@ template <typename Index>
 struct impl_const<Index, task::regression> {
     constexpr static Index bad_val_ = -1;
     constexpr static Index leaf_mark_ = bad_val_;
-    constexpr static Index node_prop_count_ = 8; // rows offset, rows count, ftr id, ftr val(bin),
+    constexpr static Index node_prop_count_ =
+        node<Index>::get_prop_count(); // rows offset, rows count, ftr id, ftr val(bin),
     // left part rows count, response
+    // node_prop_count_ is going to be removed here after migration to node_list_manager
     // node props mapping
     constexpr static Index ind_ofs = 0; // property index for local row offset
     constexpr static Index ind_lrc = 1; // property index for local row count
@@ -166,4 +169,5 @@ struct train_context {
     static constexpr inline Index preferable_sbg_size_ = 16;
     static constexpr inline Index max_local_block_count_ = 1024;
 };
+
 } // namespace oneapi::dal::decision_forest::backend

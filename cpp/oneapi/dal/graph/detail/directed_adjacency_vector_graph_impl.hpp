@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -107,11 +107,11 @@ public:
         _topology.set_topology(std::forward<Args>(args)...);
     }
 
-    inline void set_edge_values(EdgeValue* values, int64_t values_count) {
+    inline void set_edge_values(EdgeValue* values, std::int64_t values_count) {
         _edge_values = edge_values<EdgeValue>::wrap(values, values_count);
     }
 
-    inline void set_edge_values(const EdgeValue* values, int64_t values_count) {
+    inline void set_edge_values(const EdgeValue* values, std::int64_t values_count) {
         _edge_values = edge_values<EdgeValue>::wrap(values, values_count);
     }
 

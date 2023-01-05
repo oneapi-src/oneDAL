@@ -1,6 +1,6 @@
 /* file: logitboost_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,21 +31,20 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/logitboost_train.csv";
+std::string trainDatasetFileName = "../data/batch/logitboost_train.csv";
 
-string testDatasetFileName = "../data/batch/logitboost_test.csv";
+std::string testDatasetFileName = "../data/batch/logitboost_test.csv";
 
 const size_t nFeatures = 20;
-const size_t nClasses  = 5;
+const size_t nClasses = 5;
 
 /* LogitBoost algorithm parameters */
-const size_t maxIterations     = 100;  /* Maximum number of terms in additive regression */
+const size_t maxIterations = 100; /* Maximum number of terms in additive regression */
 const double accuracyThreshold = 0.01; /* Training accuracy */
 
 /* Model object for the LogitBoost algorithm */
@@ -59,8 +58,7 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
     trainModel();
@@ -72,10 +70,11 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void trainModel()
-{
+void trainModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -87,7 +86,7 @@ void trainModel()
 
     /* Create an algorithm object to train the LogitBoost model */
     logitboost::training::Batch<> algorithm(nClasses);
-    algorithm.parameter().maxIterations     = maxIterations;
+    algorithm.parameter().maxIterations = maxIterations;
     algorithm.parameter().accuracyThreshold = accuracyThreshold;
 
     /* Pass the training data set and dependent values to the algorithm */
@@ -99,13 +98,14 @@ void trainModel()
 
     /* Retrieve the results of the training algorithm */
     logitboost::training::ResultPtr trainingResult = algorithm.getResult();
-    model                                          = trainingResult->get(classifier::training::model);
+    model = trainingResult->get(classifier::training::model);
 }
 
-void testModel()
-{
+void testModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -129,8 +129,11 @@ void testModel()
     predictionResult = algorithm.getResult();
 }
 
-void printResults()
-{
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
-                                 "LogitBoost classification results (first 20 observations):", 20);
+void printResults() {
+    printNumericTables<int, int>(testGroundTruth,
+                                 predictionResult->get(classifier::prediction::prediction),
+                                 "Ground truth",
+                                 "Classification results",
+                                 "LogitBoost classification results (first 20 observations):",
+                                 20);
 }

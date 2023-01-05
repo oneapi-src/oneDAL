@@ -1,6 +1,6 @@
 /* file: df_classification_train_hist_oneapi_impl.i */
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -789,7 +789,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
     }
 
-    const size_t nSelectedFeatures = par.featuresPerNode ? par.featuresPerNode : daal::internal::Math<algorithmFPType, sse2>::sSqrt(_nFeatures);
+    const size_t nSelectedFeatures = par.featuresPerNode ? par.featuresPerNode : daal::internal::Math<double, sse2>::sSqrt(_nFeatures);
 
     _nSelectedRows = par.observationsPerTreeFraction * _nRows;
     DAAL_CHECK_EX((_nSelectedRows > 0), ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());

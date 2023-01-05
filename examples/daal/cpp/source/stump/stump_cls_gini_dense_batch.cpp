@@ -1,6 +1,6 @@
 /* file: stump_cls_gini_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,15 +31,14 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::stump::classification;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/stump_train.csv";
-string testDatasetFileName  = "../data/batch/stump_test.csv";
+std::string trainDatasetFileName = "../data/batch/stump_train.csv";
+std::string testDatasetFileName = "../data/batch/stump_test.csv";
 
 const size_t nFeatures = 20;
 
@@ -51,8 +50,7 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
     trainModel();
@@ -64,10 +62,11 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void trainModel()
-{
+void trainModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -91,10 +90,11 @@ void trainModel()
     trainingResult = algorithm.getResult();
 }
 
-void testModel()
-{
+void testModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
+                                                     DataSource::doAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -106,11 +106,13 @@ void testModel()
 
     /* Create an algorithm object to predict values */
     prediction::Batch<> algorithm;
-    algorithm.parameter().resultsToEvaluate = classifier::computeClassLabels | classifier::computeClassProbabilities;
+    algorithm.parameter().resultsToEvaluate =
+        classifier::computeClassLabels | classifier::computeClassProbabilities;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
-    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.input.set(classifier::prediction::model,
+                        trainingResult->get(classifier::training::model));
 
     /* Predict values */
     algorithm.compute();
@@ -119,11 +121,18 @@ void testModel()
     predictionResult = algorithm.getResult();
 }
 
-void printResults()
-{
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
-                                 "Stump classification results (first 20 observations):", 20);
+void printResults() {
+    printNumericTables<int, int>(testGroundTruth,
+                                 predictionResult->get(classifier::prediction::prediction),
+                                 "Ground truth",
+                                 "Classification results",
+                                 "Stump classification results (first 20 observations):",
+                                 20);
 
-    printNumericTables<int, float>(testGroundTruth, predictionResult->get(classifier::prediction::probabilities), "Ground truth",
-                                   "Classification results", "Stump classification results (first 20 observations):", 20);
+    printNumericTables<int, float>(testGroundTruth,
+                                   predictionResult->get(classifier::prediction::probabilities),
+                                   "Ground truth",
+                                   "Classification results",
+                                   "Stump classification results (first 20 observations):",
+                                   20);
 }

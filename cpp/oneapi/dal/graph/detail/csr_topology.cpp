@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,6 @@
 
 namespace oneapi::dal::preview::detail {
 
-template class ONEDAL_EXPORT topology<int32_t>;
+template class ONEDAL_EXPORT topology<std::int32_t>;
 
 } // namespace oneapi::dal::preview::detail

@@ -1,6 +1,6 @@
 /* file: service_blas_mkl.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,11 +38,11 @@
 #endif
 
 #if defined(__APPLE__)
-    #define __DAAL_MKL_SSE2  sse42_
-    #define __DAAL_MKL_SSSE3 sse42_
+    #define __DAAL_MKL_SSE2  avx_
+    #define __DAAL_MKL_SSE42 avx_
 #else
     #define __DAAL_MKL_SSE2  sse2_
-    #define __DAAL_MKL_SSSE3 ssse3_
+    #define __DAAL_MKL_SSE42 sse42_
 #endif
 
 #define __DAAL_MKLFN(f_cpu, f_pref, f_name)              __DAAL_CONCAT4(fpk_, f_pref, f_cpu, f_name)
@@ -58,17 +58,9 @@
     {                                                          \
         __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
     }                                                          \
-    if (avx == cpu)                                            \
-    {                                                          \
-        __DAAL_MKLFN(avx_, f_pref, f_name) f_args;             \
-    }                                                          \
     if (sse42 == cpu)                                          \
     {                                                          \
-        __DAAL_MKLFN(sse42_, f_pref, f_name) f_args;           \
-    }                                                          \
-    if (ssse3 == cpu)                                          \
-    {                                                          \
-        __DAAL_MKLFN(__DAAL_MKL_SSSE3, f_pref, f_name) f_args; \
+        __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
     }                                                          \
     if (sse2 == cpu)                                           \
     {                                                          \
@@ -84,17 +76,9 @@
     {                                                                 \
         return __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
     }                                                                 \
-    if (avx == cpu)                                                   \
-    {                                                                 \
-        return __DAAL_MKLFN(avx_, f_pref, f_name) f_args;             \
-    }                                                                 \
     if (sse42 == cpu)                                                 \
     {                                                                 \
-        return __DAAL_MKLFN(sse42_, f_pref, f_name) f_args;           \
-    }                                                                 \
-    if (ssse3 == cpu)                                                 \
-    {                                                                 \
-        return __DAAL_MKLFN(__DAAL_MKL_SSSE3, f_pref, f_name) f_args; \
+        return __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
     }                                                                 \
     if (sse2 == cpu)                                                  \
     {                                                                 \

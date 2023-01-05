@@ -5,7 +5,7 @@ Spark\* samples for the Intel(R) oneAPI Data Analytics Library (oneDAL) are desi
 Unzip the archive with oneDAL samples to your working directory (`<sample_dir>`).
 
 ## System Requirements
-You can use oneDAL Spark samples on Linux\* and macOS\* operating systems. For a list of oneDAL hardware and software requirements, refer to release notes for the version of oneDAL you are using.
+You can use oneDAL Spark samples on Linux\* operating systems. For a list of oneDAL hardware and software requirements, refer to release notes for the version of oneDAL you are using.
 
 ### Spark implementations against which oneDAL has been validated:
 - Spark 2.0.0
@@ -17,21 +17,20 @@ You can use oneDAL Spark samples on Linux\* and macOS\* operating systems. For a
 Before you build the sample, you must set certain environment variables that define the location of related libraries. The oneDAL includes the `vars` scripts that you can run to set environment variables:
 
 - On Linux\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:
-source vars.sh {ia32|intel64}`
-- On macOS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
 source vars.sh`
+
 
 For more information about setting environment variables and configuring oneDAL, refer to Getting Started guides for the library.
 
 ## Build and Run Instructions
-### On Linux\* and macOS\*
+### On Linux\*
 To build oneDAL Spark Java samples, go to the Java Spark samples directory:
 
 ```
 cd <sample_dir>/java/spark
 ```
 
-Execute the `./launcher.sh {ia32|intel64}` script to run the following algorithms on your Spark cluster:
+Execute the `./launcher.sh` script to run the following algorithms on your Spark cluster:
 
 - Correlation and variance-covariance matrices;
 - Correlation and variance-covariance matrices using CSR numeric tables;
@@ -52,8 +51,6 @@ Execute the `./launcher.sh {ia32|intel64}` script to run the following algorithm
 - Singular value decomposition (SVD).
 
 You can manage the list of running samples by changing the `Spark_samples_list` variable in the `./launcher.sh` script.
-
-From the `{ia32|intel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script. If no parameters are defined for the `make` command, the Intel(R) 64 architecture is used by default.
 
 For each algorithm, the results are stored in the `/_results/<sample_name>/<sample_name>.res` file.
 

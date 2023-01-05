@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,8 +41,10 @@ struct infer_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 
 INSTANTIATE(float, method::cov, task::dim_reduction)
 INSTANTIATE(float, method::svd, task::dim_reduction)
+INSTANTIATE(float, method::precomputed, task::dim_reduction)
 INSTANTIATE(double, method::cov, task::dim_reduction)
 INSTANTIATE(double, method::svd, task::dim_reduction)
+INSTANTIATE(double, method::precomputed, task::dim_reduction)
 
 } // namespace v1
 } // namespace oneapi::dal::pca::detail

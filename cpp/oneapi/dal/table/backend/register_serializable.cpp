@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 #include "oneapi/dal/table/backend/empty_table_impl.hpp"
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
+#include "oneapi/dal/table/backend/csr_table_impl.hpp"
 
 using oneapi::dal::backend::empty_table_impl;
 using oneapi::dal::backend::homogen_table_impl;
+using oneapi::dal::backend::csr_table_impl;
 
 ONEDAL_REGISTER_SERIALIZABLE(empty_table_impl)
 ONEDAL_REGISTER_SERIALIZABLE(homogen_table_impl)
+ONEDAL_REGISTER_SERIALIZABLE(csr_table_impl)
 ONEDAL_REGISTER_SERIALIZABLE_INIT(tables)

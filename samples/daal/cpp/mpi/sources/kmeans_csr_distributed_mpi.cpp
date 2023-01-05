@@ -1,6 +1,6 @@
 /* file: kmeans_csr_distributed_mpi.cpp */
 /*******************************************************************************
-* Copyright 2017-2022 Intel Corporation
+* Copyright 2017 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@
 #include "service.h"
 #include "stdio.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
@@ -39,53 +38,58 @@ typedef float algorithmFPType; /* Algorithm floating-point type */
 typedef std::vector<byte> ByteBuffer;
 
 /* K-Means algorithm parameters */
-const size_t nClusters   = 20;
+const size_t nClusters = 20;
 const size_t nIterations = 5;
-const size_t nBlocks     = 4;
+const size_t nBlocks = 4;
 
 /* Input data set parameters */
-const string dataFileNames[4] = { "./data/distributed/kmeans_csr.csv", "./data/distributed/kmeans_csr.csv", "./data/distributed/kmeans_csr.csv",
-                                  "./data/distributed/kmeans_csr.csv" };
+const std::string dataFileNames[4] = { "./data/distributed/kmeans_csr.csv",
+                                       "./data/distributed/kmeans_csr.csv",
+                                       "./data/distributed/kmeans_csr.csv",
+                                       "./data/distributed/kmeans_csr.csv" };
 
 int rankId, comm_size;
 #define mpi_root 0
 
-NumericTablePtr loadData(int rankId)
-{
+NumericTablePtr loadData(int rankId) {
     return NumericTablePtr(createSparseTable<float>(dataFileNames[rankId]));
 }
 
-NumericTablePtr init(int rankId, const NumericTablePtr & pData);
-NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids);
+NumericTablePtr init(int rankId, const NumericTablePtr& pData);
+NumericTablePtr compute(int rankId,
+                        const NumericTablePtr& pData,
+                        const NumericTablePtr& initialCentroids);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     int rankId, comm_size;
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rankId);
 
-    NumericTablePtr pData     = loadData(rankId);
+    NumericTablePtr pData = loadData(rankId);
     NumericTablePtr centroids = init(rankId, pData);
 
-    for (size_t it = 0; it < nIterations; it++) centroids = compute(rankId, pData, centroids);
+    for (size_t it = 0; it < nIterations; it++)
+        centroids = compute(rankId, pData, centroids);
 
     /* Print the clusterization results */
-    if (rankId == mpi_root) printNumericTable(centroids, "First 10 dimensions of centroids:", 20, 10);
+    if (rankId == mpi_root)
+        printNumericTable(centroids, "First 10 dimensions of centroids:", 20, 10);
 
     MPI_Finalize();
     return 0;
 }
 
-NumericTablePtr init(int rankId, const NumericTablePtr & pData)
-{
+NumericTablePtr init(int rankId, const NumericTablePtr& pData) {
     const bool isRoot = (rankId == mpi_root);
 
     const size_t nVectorsInBlock = pData->getNumberOfRows();
 
     /* Create an algorithm to compute k-means on local nodes */
-    kmeans::init::Distributed<step1Local, algorithmFPType, kmeans::init::randomCSR> localInit(nClusters, nBlocks * nVectorsInBlock,
-                                                                                              rankId * nVectorsInBlock);
+    kmeans::init::Distributed<step1Local, algorithmFPType, kmeans::init::randomCSR> localInit(
+        nClusters,
+        nBlocks * nVectorsInBlock,
+        rankId * nVectorsInBlock);
 
     /* Set the input data set to the algorithm */
     localInit.input.set(kmeans::init::data, pData);
@@ -100,16 +104,21 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData)
 
     int aPerNodeArchLength[nBlocks];
     /* Transfer archive length to the step 2 on the root node */
-    MPI_Gather(&perNodeArchLength, sizeof(int), MPI_CHAR, isRoot ? &aPerNodeArchLength[0] : NULL, sizeof(int), MPI_CHAR, mpi_root, MPI_COMM_WORLD);
+    MPI_Gather(&perNodeArchLength,
+               sizeof(int),
+               MPI_CHAR,
+               isRoot ? &aPerNodeArchLength[0] : NULL,
+               sizeof(int),
+               MPI_CHAR,
+               mpi_root,
+               MPI_COMM_WORLD);
 
     ByteBuffer serializedData;
     /* Calculate total archive length */
     int totalArchLength = 0;
     int displs[nBlocks];
-    if (isRoot)
-    {
-        for (size_t i = 0; i < nBlocks; ++i)
-        {
+    if (isRoot) {
+        for (size_t i = 0; i < nBlocks; ++i) {
             displs[i] = totalArchLength;
             totalArchLength += aPerNodeArchLength[i];
         }
@@ -120,15 +129,21 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData)
     dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
 
     /* Transfer partial results to step 2 on the root node */
-    MPI_Gatherv(&nodeResults[0], perNodeArchLength, MPI_CHAR, serializedData.size() ? &serializedData[0] : NULL, aPerNodeArchLength, displs, MPI_CHAR,
-                mpi_root, MPI_COMM_WORLD);
+    MPI_Gatherv(&nodeResults[0],
+                perNodeArchLength,
+                MPI_CHAR,
+                serializedData.size() ? &serializedData[0] : NULL,
+                aPerNodeArchLength,
+                displs,
+                MPI_CHAR,
+                mpi_root,
+                MPI_COMM_WORLD);
 
-    if (isRoot)
-    {
+    if (isRoot) {
         /* Create an algorithm to compute k-means on the master node */
-        kmeans::init::Distributed<step2Master, algorithmFPType, kmeans::init::randomCSR> masterInit(nClusters);
-        for (size_t i = 0, shift = 0; i < nBlocks; shift += aPerNodeArchLength[i], ++i)
-        {
+        kmeans::init::Distributed<step2Master, algorithmFPType, kmeans::init::randomCSR> masterInit(
+            nClusters);
+        for (size_t i = 0, shift = 0; i < nBlocks; shift += aPerNodeArchLength[i], ++i) {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[shift], aPerNodeArchLength[i]);
 
@@ -148,13 +163,13 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData)
     return NumericTablePtr();
 }
 
-NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids)
-{
-    const bool isRoot          = (rankId == mpi_root);
+NumericTablePtr compute(int rankId,
+                        const NumericTablePtr& pData,
+                        const NumericTablePtr& initialCentroids) {
+    const bool isRoot = (rankId == mpi_root);
     size_t CentroidsArchLength = 0;
     InputDataArchive inputArch;
-    if (isRoot)
-    {
+    if (isRoot) {
         /*Retrieve the algorithm results and serialize them */
         initialCentroids->serialize(inputArch);
         CentroidsArchLength = inputArch.getSizeOfArchive();
@@ -164,7 +179,8 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
     MPI_Bcast(&CentroidsArchLength, sizeof(size_t), MPI_CHAR, mpi_root, MPI_COMM_WORLD);
 
     ByteBuffer nodeCentroids(CentroidsArchLength);
-    if (isRoot) inputArch.copyArchiveToArray(&nodeCentroids[0], CentroidsArchLength);
+    if (isRoot)
+        inputArch.copyArchiveToArray(&nodeCentroids[0], CentroidsArchLength);
 
     MPI_Bcast(&nodeCentroids[0], CentroidsArchLength, MPI_CHAR, mpi_root, MPI_COMM_WORLD);
 
@@ -192,22 +208,28 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
     ByteBuffer serializedData;
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
-    if (isRoot) serializedData.resize(perNodeArchLength * nBlocks);
+    if (isRoot)
+        serializedData.resize(perNodeArchLength * nBlocks);
 
     ByteBuffer nodeResults(perNodeArchLength);
     dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
 
     /* Transfer partial results to step 2 on the root node */
-    MPI_Gather(&nodeResults[0], perNodeArchLength, MPI_CHAR, serializedData.size() ? &serializedData[0] : NULL, perNodeArchLength, MPI_CHAR, mpi_root,
+    MPI_Gather(&nodeResults[0],
+               perNodeArchLength,
+               MPI_CHAR,
+               serializedData.size() ? &serializedData[0] : NULL,
+               perNodeArchLength,
+               MPI_CHAR,
+               mpi_root,
                MPI_COMM_WORLD);
 
-    if (isRoot)
-    {
+    if (isRoot) {
         /* Create an algorithm to compute k-means on the master node */
-        kmeans::Distributed<step2Master, algorithmFPType, kmeans::lloydCSR> masterAlgorithm(nClusters);
+        kmeans::Distributed<step2Master, algorithmFPType, kmeans::lloydCSR> masterAlgorithm(
+            nClusters);
 
-        for (size_t i = 0; i < nBlocks; i++)
-        {
+        for (size_t i = 0; i < nBlocks; i++) {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[perNodeArchLength * i], perNodeArchLength);
 

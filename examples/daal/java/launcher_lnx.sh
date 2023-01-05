@@ -1,6 +1,6 @@
 #!/bin/bash
 #===============================================================================
-# Copyright 2014-2022 Intel Corporation
+# Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ help_message() {
     echo "path_to_javac - optional parameter."
     echo "                Specify it in case, if you do not want to use default javac"
     echo "help          - print this message"
-    echo "Example: launcher.sh ia32 run or launcher.sh intel64 build /export/users/test/jdk1.7/lnx32/jdk1.7.0_67"
+    echo "Example: launcher.sh build /export/users/test/jdk1.7/lnx32/jdk1.7.0_67"
 }
 
 rmode=

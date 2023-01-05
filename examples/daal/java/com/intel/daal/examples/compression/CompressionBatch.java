@@ -1,6 +1,6 @@
 /* file: CompressionBatch.java */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ class CompressionBatch {
         /* Create a compressor */
         ZlibCompressor compressor = new ZlibCompressor(context);
         compressor.parameter.setCompressionLevel(CompressionLevel.Level9);
-        compressor.parameter.setGzHeader(true);
 
         /* Create a stream for compression */
         CompressionStream compressionStream = new CompressionStream(context, compressor);
@@ -70,7 +69,6 @@ class CompressionBatch {
 
         /* Create a decompressor */
         ZlibDecompressor decompressor = new ZlibDecompressor(context);
-        decompressor.parameter.setGzHeader(true);
 
         /* Create a stream for decompression */
         DecompressionStream decompressionStream = new DecompressionStream(context, decompressor);

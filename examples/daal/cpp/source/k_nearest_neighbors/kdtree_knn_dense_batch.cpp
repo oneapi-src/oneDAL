@@ -1,6 +1,6 @@
 /* file: kdtree_knn_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,17 +29,16 @@
 #include "service.h"
 #include <cstdio>
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
-string testDatasetFileName  = "../data/batch/k_nearest_neighbors_test.csv";
+std::string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
+std::string testDatasetFileName = "../data/batch/k_nearest_neighbors_test.csv";
 
 size_t nFeatures = 5;
-size_t nClasses  = 5;
+size_t nClasses = 5;
 
 kdtree_knn_classification::training::ResultPtr trainingResult;
 kdtree_knn_classification::prediction::ResultPtr predictionResult;
@@ -49,8 +48,7 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
     trainModel();
@@ -60,10 +58,11 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-void trainModel()
-{
+void trainModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
+                                                      DataSource::notAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -88,10 +87,11 @@ void trainModel()
     trainingResult = algorithm.getResult();
 }
 
-void testModel()
-{
+void testModel() {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
+                                                     DataSource::notAllocateNumericTable,
+                                                     DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -106,7 +106,8 @@ void testModel()
 
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
-    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.input.set(classifier::prediction::model,
+                        trainingResult->get(classifier::training::model));
     algorithm.parameter.nClasses = nClasses;
 
     /* Compute prediction results */
@@ -116,8 +117,12 @@ void testModel()
     predictionResult = algorithm.getResult();
 }
 
-void printResults()
-{
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(kdtree_knn_classification::prediction::prediction), "Ground truth",
-                                 "Classification results", "KD-tree based kNN classification results (first 20 observations):", 20);
+void printResults() {
+    printNumericTables<int, int>(
+        testGroundTruth,
+        predictionResult->get(kdtree_knn_classification::prediction::prediction),
+        "Ground truth",
+        "Classification results",
+        "KD-tree based kNN classification results (first 20 observations):",
+        20);
 }

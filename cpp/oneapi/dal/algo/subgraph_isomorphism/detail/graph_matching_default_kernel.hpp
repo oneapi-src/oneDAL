@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ struct call_subgraph_isomorphism_kernel_cpu {
         const dal::preview::detail::edge_values<EdgeValue>& ev_t,
         const dal::preview::detail::vertex_values<VertexValue>& vv_p,
         const dal::preview::detail::edge_values<EdgeValue>& ev_p) {
-        int64_t *t_vertex_attribute = nullptr, *p_vertex_attribute = nullptr;
+        std::int64_t *t_vertex_attribute = nullptr, *p_vertex_attribute = nullptr;
 
         const auto t_vertex_count = t_data._vertex_count;
         const auto p_vertex_count = p_data._vertex_count;

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,8 +51,8 @@ public:
         }
 
         detail::check_mul_overflow(row_count, column_count);
-        const int64_t element_count = row_count * column_count;
-        const int64_t dtype_size = detail::get_data_type_size(dtype);
+        const std::int64_t element_count = row_count * column_count;
+        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
         if (data.get_count() != element_count * dtype_size) {
@@ -156,8 +156,8 @@ private:
 
     table_metadata meta_;
     array<byte_t> data_;
-    int64_t row_count_;
-    int64_t col_count_;
+    std::int64_t row_count_;
+    std::int64_t col_count_;
     data_layout layout_;
 
     // Needed for backward compatibility. Should be remove in oneDAL 2022.1.

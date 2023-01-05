@@ -1,6 +1,6 @@
 /* file: cross_entropy_loss_dense_default_batch_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -168,7 +168,7 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmaxThreaded(const
 
     const size_t nRowsInBlockDefault = 500;
     const size_t nRowsInBlock        = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
-                                                                              nCols * sizeof(algorithmFPType), nRowsInBlockDefault);
+                                                                                     nCols * sizeof(algorithmFPType), nRowsInBlockDefault);
     const size_t nDataBlocks         = nRows / nRowsInBlock + !!(nRows % nRowsInBlock);
     daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
         const size_t iStartRow       = iBlock * nRowsInBlock;

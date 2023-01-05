@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ def _get_gcc_toolchain_path(repo_ctx):
     return str(repo_ctx.which("gcc").dirname.dirname.realpath)
 
 def _add_gcc_toolchain_if_needed(repo_ctx, cc):
-    if ("clang" in cc) or ("dpcpp" in cc):
+    if ("clang" in cc) or ("icpx" in cc):
         return ["--gcc-toolchain=" + _get_gcc_toolchain_path(repo_ctx)]
     else:
         return []
@@ -158,7 +158,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
     if reqs.os_id != "lnx":
         auto_configure_fail("Cannot configure Linux toolchain for '{}'".format(reqs.os_id))
 
-    # Write empry C++ file to test compiler options
+    # Write empty C++ file to test compiler options
     repo_ctx.file(TEST_CPP_FILE, "int main() { return 0; }")
 
     # Default compilations/link options
@@ -299,6 +299,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             ),
             "%{link_flags_dpcc}": get_starlark_list(
                 _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc) +
+                add_compiler_option_if_supported(
+                    repo_ctx,
+                    tools.dpcc,
+                    "-fsycl",
+                ) +
                 add_compiler_option_if_supported(
                     repo_ctx,
                     tools.dpcc,

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -129,7 +129,7 @@ struct get_core_narrow_kernel {
         std::int32_t* cores_ptr = cores.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            cgh.parallel_for(sycl::range<1>{ size_t(block_size) }, [=](sycl::id<1> idx) {
+            cgh.parallel_for(sycl::range<1>{ std::size_t(block_size) }, [=](sycl::id<1> idx) {
                 count_type count = 0;
                 for (std::int64_t j = 0; j < row_count; j++) {
                     Float sum = 0.0;
@@ -227,53 +227,51 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
                                                    const pr::ndview<std::int32_t, 1>& cores,
                                                    pr::ndview<std::int32_t, 1>& responses,
                                                    const bk::event_vector& deps) {
+    using oneapi::dal::backend::operator+;
     ONEDAL_PROFILER_TASK(start_next_cluster, queue);
     ONEDAL_ASSERT(cores.get_dimension(0) > 0);
     ONEDAL_ASSERT(cores.get_dimension(0) == responses.get_dimension(0));
     std::int64_t block_size = cores.get_dimension(0);
 
     auto [start_index, start_index_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, 1, block_size);
-    start_index_event.wait_and_throw();
+        pr::ndarray<std::int32_t, 1>::full(queue, { 1 }, block_size, sycl::usm::alloc::device);
     auto start_index_ptr = start_index.get_mutable_data();
-    start_index_ptr[0] = block_size;
 
     const std::int32_t* cores_ptr = cores.get_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
     std::int64_t wg_size = get_recommended_sg_size(queue);
-    queue
-        .submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.parallel_for(
-                bk::make_multiple_nd_range_2d({ wg_size, 1 }, { wg_size, 1 }),
-                [=](sycl::nd_item<2> item) {
-                    auto sg = item.get_sub_group();
-                    const std::uint32_t sg_id = sg.get_group_id()[0];
-                    if (sg_id > 0)
-                        return;
-                    const std::uint32_t local_id = sg.get_local_id();
-                    const std::uint32_t local_size = sg.get_local_range()[0];
-                    std::int32_t adjusted_block_size =
-                        local_size * (block_size / local_size + bool(block_size % local_size));
+    auto full_deps = deps + bk::event_vector{ start_index_event };
+    auto index_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(full_deps);
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, 1 }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::int32_t local_id = sg.get_local_id();
+                const std::int32_t local_size = sg.get_local_range()[0];
+                std::int32_t adjusted_block_size =
+                    local_size * (block_size / local_size + bool(block_size % local_size));
 
-                    for (int32_t i = local_id; i < adjusted_block_size; i += local_size) {
-                        const bool found =
-                            i < block_size ? cores_ptr[i] == 1 && responses_ptr[i] < 0 : false;
-                        const std::int32_t index =
-                            sycl::reduce_over_group(sg,
-                                                    (std::int32_t)(found ? i : block_size),
-                                                    sycl::ext::oneapi::minimum<std::int32_t>());
-                        if (index < block_size) {
-                            if (local_id == 0) {
-                                start_index_ptr[0] = index;
-                            }
-                            break;
+                for (std::int32_t i = local_id; i < adjusted_block_size; i += local_size) {
+                    const bool found =
+                        i < block_size ? cores_ptr[i] == 1 && responses_ptr[i] < 0 : false;
+                    const std::int32_t index =
+                        sycl::reduce_over_group(sg,
+                                                (std::int32_t)(found ? i : block_size),
+                                                sycl::ext::oneapi::minimum<std::int32_t>());
+                    if (index < block_size) {
+                        if (local_id == 0) {
+                            *start_index_ptr = index;
                         }
+                        break;
                     }
-                });
-        })
-        .wait_and_throw();
-    return *start_index_ptr;
+                }
+            });
+    });
+    return start_index.to_host(queue, { index_event }).at(0);
 }
 
 sycl::event set_queue_ptr(sycl::queue& queue,
@@ -369,7 +367,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                     return;
 
                 for (std::int32_t j = 0; j < algo_queue_size; j++) {
-                    const int32_t index = queue_ptr[j + queue_begin];
+                    const std::int32_t index = queue_ptr[j + queue_begin];
                     Float sum = Float(0);
                     for (std::int64_t i = local_id; i < column_count; i += local_size) {
                         Float val =
@@ -387,11 +385,10 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                     if (cores_ptr[wg_id] == 0)
                         continue;
                     if (local_id == 0) {
-                        sycl::ext::oneapi::atomic_ref<
-                            std::int32_t,
-                            cl::sycl::ext::oneapi::memory_order::relaxed,
-                            cl::sycl::ext::oneapi::memory_scope::device,
-                            cl::sycl::access::address_space::ext_intel_global_device_space>
+                        sycl::atomic_ref<std::int32_t,
+                                         sycl::memory_order::relaxed,
+                                         sycl::memory_scope::device,
+                                         sycl::access::address_space::ext_intel_global_device_space>
                             counter_atomic(queue_front_ptr[0]);
                         std::int32_t new_front = counter_atomic.fetch_add(1);
                         queue_ptr[new_front] = probe;

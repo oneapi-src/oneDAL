@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -80,7 +80,8 @@ void* caching_builder::operator()(std::int64_t block_max_size) {
     if (size < block_max_size) {
         size = block_max_size;
         result_ptr.reset();
-        result_ptr = std::shared_ptr<byte_t>(new byte_t[block_max_size]);
+        result_ptr =
+            std::shared_ptr<byte_t>(new byte_t[block_max_size], std::default_delete<byte_t[]>());
     }
     return static_cast<void*>(result_ptr.get());
 }

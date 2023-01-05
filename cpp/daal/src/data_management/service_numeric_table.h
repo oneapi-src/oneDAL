@@ -1,6 +1,6 @@
 /* file: service_numeric_table.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -948,7 +948,7 @@ public:
     explicit BlockDescriptorArray(size_t nBlocks);
     ~BlockDescriptorArray();
 
-    BlockDescriptorArray(const BlockDescriptorArray &) = delete;
+    BlockDescriptorArray(const BlockDescriptorArray &)             = delete;
     BlockDescriptorArray & operator=(const BlockDescriptorArray &) = delete;
 
     DAAL_FORCEINLINE BlockDescriptor<algorithmFPType> * get() const { return _blocks; }

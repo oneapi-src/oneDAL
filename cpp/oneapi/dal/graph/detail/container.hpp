@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class vector_container;
 
 template <typename T>
 inline void copy(const T* old_begin, const T* old_end, T* new_begin) {
-    const int64_t count = std::distance(old_begin, old_end);
+    const std::int64_t count = std::distance(old_begin, old_end);
     for (std::int64_t i = 0; i < count; i++) {
         new_begin[i] = old_begin[i];
     }
@@ -36,7 +36,7 @@ inline void copy(const T* old_begin, const T* old_end, T* new_begin) {
 
 template <typename T>
 inline void fill(T* begin, T* end, const T& value) {
-    const int64_t count = std::distance(begin, end);
+    const std::int64_t count = std::distance(begin, end);
     for (std::int64_t i = 0; i < count; i++) {
         begin[i] = value;
     }
@@ -51,7 +51,7 @@ template <typename First, typename Second, typename Third>
 inline void copy(const std::tuple<First, Second, Third>* old_begin,
                  const std::tuple<First, Second, Third>* old_end,
                  std::tuple<First, Second, Third>* new_begin) {
-    const int64_t count = std::distance(old_begin, old_end);
+    const std::int64_t count = std::distance(old_begin, old_end);
     for (std::int64_t i = 0; i < count; i++) {
         const auto& b = old_begin[i];
         auto& a = new_begin[i];
@@ -76,7 +76,7 @@ template <typename T, typename Alloc>
 struct construct {
     template <typename T_ = T, std::enable_if_t<!is_trivial<T_>::value, bool> = true>
     void operator()(T* data_ptr, std::int64_t capacity, const Alloc& a) {
-        for (int64_t i = 0; i < capacity; ++i) {
+        for (std::int64_t i = 0; i < capacity; ++i) {
             new (data_ptr + i) T();
         }
     }
@@ -92,7 +92,7 @@ struct construct<vector_container<T, InnerAlloc>, OuterAlloc> {
                     const OuterAlloc& a) {
         using data_t = vector_container<T, InnerAlloc>;
         InnerAlloc inner_a(a);
-        for (int64_t i = 0; i < capacity; ++i) {
+        for (std::int64_t i = 0; i < capacity; ++i) {
             new (data_ptr + i) data_t(inner_a);
         }
     }
@@ -113,11 +113,11 @@ public:
                      destroy_delete<data_t, allocator_type>(capacity_, allocator_));
     }
 
-    vector_container(int64_t count, const allocator_type& a) : vector_container(a) {
+    vector_container(std::int64_t count, const allocator_type& a) : vector_container(a) {
         this->resize(count);
     }
 
-    vector_container(int64_t count) : vector_container(count, allocator_type()) {
+    vector_container(std::int64_t count) : vector_container(count, allocator_type()) {
         this->resize(count);
     }
 
@@ -129,7 +129,7 @@ public:
                      destroy_delete<data_t, allocator_type>(capacity_, allocator_));
     }
 
-    vector_container(int64_t count, const T& value, const allocator_type& a)
+    vector_container(std::int64_t count, const T& value, const allocator_type& a)
             : vector_container(count, a) {
         fill(impl_->get_mutable_data(), impl_->get_mutable_data() + capacity_, value);
     }

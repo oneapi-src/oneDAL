@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ namespace oneapi::dal::preview {
 
 /// The main processing function for vertex partitioning algorithms
 template <typename... Args>
-auto vertex_partitioning(Args &&... args) {
+auto vertex_partitioning(Args &&...args) {
     return detail::vertex_partitioning_dispatch(std::forward<Args>(args)...);
 }
 

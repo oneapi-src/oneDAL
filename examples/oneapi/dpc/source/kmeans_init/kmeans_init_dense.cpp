@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -60,7 +60,9 @@ int main(int argc, char const* argv[]) {
     const auto train_data_file_name = get_data_path("kmeans_init_dense.csv");
 
     for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << '\n' << std::endl;
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << '\n'
+                  << std::endl;
         auto q = sycl::queue{ d };
 
         const auto x_train =

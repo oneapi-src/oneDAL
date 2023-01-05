@@ -22,9 +22,9 @@ If your ODBC connector on Windows\* is installed in a directory different from `
 Before you build the sample, you must set certain environment variables that define the location of related libraries. The oneDAL includes the `vars` scripts that you can run to set environment variables:
 
 - On Windows\*, you can find the `vars.bat` batch file at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:
-vars.bat {ia32|intel64}`
+vars.bat`
 - On Linux\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:
-source vars.sh {ia32|intel64}`
+source vars.sh`
 - On macOS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
 source vars.sh`
 
@@ -37,22 +37,22 @@ To build oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and exe
 ```
 cd <sample_dir>\cpp\mysql
 
-launcher.bat {ia32|intel64} build
+launcher.bat build
 ```
 
-The command creates the `.\_results\ia32` or `.\_results\intel64` directory and builds `*.exe` executables and `*.exe` libraries, as well as creates a log file for build results.
+The command creates the `.\_results\intel64` directory and builds `*.exe` executables and `*.exe` libraries, as well as creates a log file for build results.
 
 To run oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `launcher` command with the `run` parameter:
 
 ```
 cd <sample_dir>\cpp\mysql
 
-launcher.bat {ia32|intel64} run
+launcher.bat run
 ```
 
 Select the same architecture parameter as you provided to the `launcher` command with the `build` parameter.
 
-For each sample, the results are placed into the `.\_results\ia32\<sample name>\.res` or `.\_results\intel64\<sample name>\.res` file, depending on the specified architecture.
+For each sample, the results are placed into the `.\_results\intel64\<sample name>\.res` file, depending on the specified architecture.
 
 ### On Linux\*
 To build oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command:
@@ -60,10 +60,10 @@ To build oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and exe
 ```
 cd <sample_dir>/cpp/mysql
 
-make {libia32|soia32|libintel64|sointel64} compiler={intel|gnu} mode=build
+make {libintel64|sointel64} compiler={intel|gnu} mode=build
 ```
 
-From the `{libia32|soia32|libintel64|sointel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `so` for dynamic executables.
+From the `{libintel64|sointel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `so` for dynamic executables.
 
 The command creates a directory for the chosen compiler, architecture, and library extension (`a` or `so`). For example: `_results/intel_intel64_a`.
 
@@ -83,10 +83,10 @@ To build oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and exe
 ```
 cd <sample_dir>/cpp/mysql
 
-make {libia32|dylibia32|libintel64|dylibintel64} compiler={intel|gnu|clang} mode=build
+make {libintel64|dylibintel64} compiler={intel|gnu|clang} mode=build
 ```
 
-From the `{libia32|dylibia32|libintel64|dylibintel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `dylib` for dynamic executables.
+From the `{libintel64|dylibintel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `dylib` for dynamic executables.
 
 The command creates a directory for the chosen compiler, architecture, and library extension (`a` or `dylib`). For example: `_results/intel_intel64_a`.
 

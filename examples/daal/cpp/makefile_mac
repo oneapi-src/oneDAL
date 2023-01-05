@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2022 Intel Corporation
+# Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 help:
 	@echo "Usage: make {libintel64|dylibintel64|help}"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
@@ -28,8 +28,6 @@ help:
 	@echo "                    Intel(R) C Compiler as default."
 	@echo "                    If compiler=gnu then GNU C compiler will be used."
 	@echo "                    If compiler=clang then Clang C compiler will be used."
-	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
@@ -41,7 +39,7 @@ help:
 ##                                 Intel(R) 64 processor family applications,
 ##                                 static linking
 ##
-## make dylibia32 compiler=clang - build by Clang C++ compiler and
+## make dylibintel64 compiler=clang - build by Clang C++ compiler and
 ##                                 run all examples of Intel(R) oneDAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 dynamic linking
@@ -65,6 +63,8 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
+
 include daal.lst
 
 ifndef example
@@ -85,27 +85,17 @@ endif
 DAAL_PATH = "$(DAALROOT)/lib"
 TBB_PATH = "$(TBBROOT)/lib"
 
-EXT_LIB := -ldl
+DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
 
-ifeq ($(threading),sequential)
-    DAAL_LIB_T := $(DAAL_PATH)/libonedal_sequential.$(RES_EXT)
-    EXT_LIB += -ltbb -ltbbmalloc
-else
-    override threading = parallel
-    DAAL_LIB_T := $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
-    EXT_LIB += -ltbb -ltbbmalloc
-endif
+COPTS := -Wall -w -Wl,-w -I./source/utils
+LOPTS := $(DAAL_LIB) -ldl -ltbb -ltbbmalloc
 
-DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_LIB_T)
-
-COPTS := -Wall -w -Wl,-w -stdlib=libc++ -I./source/utils
-LOPTS := $(DAAL_LIB) $(EXT_LIB)
-
-RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),intel)
     CC = icc
+    COPTS += -stdlib=libc++ -diag-disable=10441
 endif
 
 ifeq ($(compiler),gnu)
@@ -115,7 +105,7 @@ endif
 
 ifeq ($(compiler),clang)
     CC = clang++
-    COPTS += -m64
+    COPTS += -m64 -stdlib=libc++
 endif
 
 RPATH=-Wl,-rpath,$(DAAL_PATH) -Wl,-rpath,$(TBB_PATH)

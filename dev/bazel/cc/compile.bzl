@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,17 +26,13 @@ load("@onedal//dev/bazel/cc:common.bzl",
 # TODO: Replace file sufix to ISA
 _CPU_SUFFIX_TO_ISA_MAP = {
     "_nrh": "sse2",
-    "_mrm": "ssse3",
     "_neh": "sse42",
-    "_snb": "avx",
     "_hsw": "avx2",
     "_skx": "avx512",
 }
 _CPU_SUFFIX_TO_ISA_BACK_MAP = {
     "sse2":       "_nrh",
-    "ssse3":      "_mrm",
     "sse42":      "_neh",
-    "avx":        "_snb",
     "avx2":       "_hsw",
     "avx512":     "_skx",
 }

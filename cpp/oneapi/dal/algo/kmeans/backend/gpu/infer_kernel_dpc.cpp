@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,9 +45,9 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                       input.get_model().get_centroids(),
                                                       sycl::usm::alloc::device);
 
-        std::int64_t block_size_in_rows = std::min(
-            row_count,
-            kernels_fp<float_t>::get_block_size_in_rows(queue, column_count, cluster_count));
+        std::int64_t block_size_in_rows =
+            std::min(row_count,
+                     kernels_fp<Float>::get_block_size_in_rows(queue, column_count, cluster_count));
         dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
         auto arr_distance_block =
             pr::ndarray<Float, 2>::empty(queue,

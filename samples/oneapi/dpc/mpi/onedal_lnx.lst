@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2021-2022 Intel Corporation
+# Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,4 +24,6 @@ MPI  =  basic_statistics_distr_mpi              \
         dbscan_distr_mpi                        \
         decision_forest_cls_hist_distr_mpi      \
         decision_forest_reg_hist_distr_mpi      \
-        kmeans_distr_mpi
+        kmeans_distr_mpi                        \
+        linear_regression_distr_mpi             \
+        pca_distr_mpi

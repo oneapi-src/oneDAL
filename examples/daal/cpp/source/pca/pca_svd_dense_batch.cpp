@@ -1,6 +1,6 @@
 /* file: pca_svd_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,21 +30,21 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-const string dataFileName = "../data/batch/pca_normalized.csv";
-const size_t nVectors     = 1000;
+const std::string dataFileName = "../data/batch/pca_normalized.csv";
+const size_t nVectors = 1000;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &dataFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(dataFileName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock(nVectors);
@@ -55,7 +55,7 @@ int main(int argc, char * argv[])
     /* Set the algorithm input data */
     algorithm.input.set(pca::data, dataSource.getNumericTable());
     algorithm.parameter.resultsToCompute = pca::mean | pca::variance | pca::eigenvalue;
-    algorithm.parameter.isDeterministic  = true;
+    algorithm.parameter.isDeterministic = true;
 
     /* Compute results of the PCA algorithm */
     algorithm.compute();

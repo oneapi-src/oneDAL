@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2021-2022 Intel Corporation
+# Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ includedir=${{prefix}}/include
 #info
 Name: oneDAL
 Description: Intel(R) oneAPI Data Analytics Library
-Version: 2021.6
+Version: 2023.0
 URL: https://software.intel.com/en-us/oneapi/onedal
 #Link line
 Libs: {libs}

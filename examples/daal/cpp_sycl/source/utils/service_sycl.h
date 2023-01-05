@@ -1,6 +1,6 @@
 /* file: service_sycl.h */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,52 +31,51 @@
 
 #include "service.h"
 
-template <typename TSelector>
-std::unique_ptr<cl::sycl::device> makeDevice()
-{
-    try
-    {
-        return std::unique_ptr<cl::sycl::device>(new cl::sycl::device(TSelector()));
+std::unique_ptr<cl::sycl::device> makeDevice(int (*selector)(const sycl::device&)) {
+    try {
+        return std::unique_ptr<cl::sycl::device>(new cl::sycl::device(selector));
     }
-    catch (...)
-    {
+    catch (...) {
         return std::unique_ptr<cl::sycl::device>();
     }
 }
 
-std::list<std::pair<std::string, cl::sycl::device> > getListOfDevices()
-{
+std::list<std::pair<std::string, cl::sycl::device> > getListOfDevices() {
     std::list<std::pair<std::string, cl::sycl::device> > selects;
     std::unique_ptr<cl::sycl::device> device;
 
-    device = makeDevice<cl::sycl::gpu_selector>();
-    if (device) selects.emplace_back("GPU", *device);
+    device = makeDevice(&cl::sycl::gpu_selector_v);
+    if (device)
+        selects.emplace_back("GPU", *device);
 
-    device = makeDevice<cl::sycl::cpu_selector>();
-    if (device) selects.emplace_back("CPU", *device);
-
-    device = makeDevice<cl::sycl::host_selector>();
-    if (device) selects.emplace_back("HOST", *device);
+    device = makeDevice(&cl::sycl::cpu_selector_v);
+    if (device)
+        selects.emplace_back("CPU", *device);
 
     return selects;
 }
 
 template <typename DataType>
-daal::data_management::SyclCSRNumericTablePtr createSyclSparseTable(const std::string & datasetFileName)
-{
+daal::data_management::SyclCSRNumericTablePtr createSyclSparseTable(
+    const std::string& datasetFileName) {
     auto numericTable = createSparseTable<DataType>(datasetFileName);
 
-    DataType * data     = nullptr;
-    size_t * colIndices = nullptr;
-    size_t * rowOffsets = nullptr;
+    DataType* data = nullptr;
+    size_t* colIndices = nullptr;
+    size_t* rowOffsets = nullptr;
     numericTable->getArrays(&data, &colIndices, &rowOffsets);
 
-    auto dataBuff       = cl::sycl::buffer<DataType, 1>(data, numericTable->getDataSize());
+    auto dataBuff = cl::sycl::buffer<DataType, 1>(data, numericTable->getDataSize());
     auto colIndicesBuff = cl::sycl::buffer<size_t, 1>(colIndices, numericTable->getDataSize());
-    auto rowOffsetsBuff = cl::sycl::buffer<size_t, 1>(rowOffsets, numericTable->getNumberOfRows() + 1);
+    auto rowOffsetsBuff =
+        cl::sycl::buffer<size_t, 1>(rowOffsets, numericTable->getNumberOfRows() + 1);
 
     auto syclNumericTable = daal::data_management::SyclCSRNumericTable::create<DataType>(
-        dataBuff, colIndicesBuff, rowOffsetsBuff, numericTable->getNumberOfColumns(), numericTable->getNumberOfRows());
+        dataBuff,
+        colIndicesBuff,
+        rowOffsetsBuff,
+        numericTable->getNumberOfColumns(),
+        numericTable->getNumberOfRows());
 
     return syclNumericTable;
 }

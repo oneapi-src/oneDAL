@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -166,7 +166,7 @@ public:
         return base_t::get_min_observations();
     }
 
-    auto& set_min_observations(int64_t value) {
+    auto& set_min_observations(std::int64_t value) {
         base_t::set_min_observations_impl(value);
         return *this;
     }

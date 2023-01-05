@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,8 +74,8 @@ CpuInfo = provider(
     ],
 )
 
-_ISA_EXTENSIONS = ["sse2", "ssse3", "sse42", "avx", "avx2", "avx512", "avx512_mic"]
-_ISA_EXTENSIONS_MODERN = ["sse2", "avx", "avx2", "avx512"]
+_ISA_EXTENSIONS = ["sse2", "sse42", "avx2", "avx512"]
+_ISA_EXTENSIONS_MODERN = ["sse2", "avx2", "avx512"]
 _ISA_EXTENSION_AUTO_DEFAULT = "avx2"
 
 def _check_cpu_extensions(extensions):
@@ -209,9 +209,9 @@ def _declare_onedal_config_impl(repo_ctx):
         Label("@onedal//dev/bazel/config:config.tpl.BUILD"),
         substitutions = {
             "%{auto_cpu}":         auto_cpu,
-            "%{version_major}":    "2021",
-            "%{version_minor}":    "6",
-            "%{version_update}":   "0",
+            "%{version_major}":    "2023",
+            "%{version_minor}":    "0",
+            "%{version_update}":   "1",
             "%{version_build}":    utils.datestamp(repo_ctx),
             "%{version_buildrev}": "work",
             "%{version_status}":   "P",

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ void memcpy(const default_host_policy&, void* dest, const void* src, std::int64_
     ONEDAL_ASSERT(dest != nullptr);
     ONEDAL_ASSERT(src != nullptr);
 
-    const size_t converted_size = detail::integral_cast<std::size_t>(size);
+    const std::size_t converted_size = detail::integral_cast<std::size_t>(size);
     std::int32_t status =
         daal::services::internal::daal_memcpy_s(dest, converted_size, src, converted_size);
     if (status) {

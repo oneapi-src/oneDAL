@@ -1,6 +1,6 @@
 /* file: kdtree_knn_classification_train_dense_default_impl.i */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -729,7 +729,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         PRAGMA_VECTOR_ALWAYS
         for (;;)
         {
-            while ((left <= right) && (dx[indexes[left]] <= median))
+            while ((left <= right) && (dx[indexes[left]] < median))
             {
                 ++left;
             }
@@ -737,7 +737,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             {
                 --right;
             }
-            if ((left <= right) && (dx[indexes[right]] > median))
+            if ((left <= right) && (dx[indexes[right]] >= median))
             {
                 DAAL_CHECK_BREAK((right == 0));
                 --right;

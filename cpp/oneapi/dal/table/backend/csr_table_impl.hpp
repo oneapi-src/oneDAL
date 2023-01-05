@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@
 #include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/csr_kernels.hpp"
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::backend {
 
-class csr_table_impl : public detail::csr_table_template<csr_table_impl> {
+class csr_table_impl : public detail::csr_table_template<csr_table_impl>,
+                       public ONEDAL_SERIALIZABLE(csr_table_id) {
 public:
     csr_table_impl()
             : col_count_(0),
@@ -60,8 +62,8 @@ public:
             throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
-        const int64_t element_count = row_indices_[row_count] - 1;
-        const int64_t dtype_size = detail::get_data_type_size(dtype);
+        const std::int64_t element_count = row_indices_[row_count] - 1;
+        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
         if (data.get_count() != element_count * dtype_size) {
@@ -145,6 +147,28 @@ public:
                        row_indices_,
                        block,
                        alloc_kind::host);
+    }
+
+    void serialize(detail::output_archive& ar) const override {
+        ar(meta_,
+           data_,
+           column_indices_,
+           row_indices_,
+           row_count_,
+           col_count_,
+           layout_,
+           csr_indexing_);
+    }
+
+    void deserialize(detail::input_archive& ar) override {
+        ar(meta_,
+           data_,
+           column_indices_,
+           row_indices_,
+           row_count_,
+           col_count_,
+           layout_,
+           csr_indexing_);
     }
 
 private:

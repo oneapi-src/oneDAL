@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,26 +24,28 @@ help:
 	@echo
 	@echo "name              - example name. Please see onedal.lst file"
 	@echo
-	@echo "compiler_name     - currently can be dpcpp only that stands
-	@echo "                    for Intel(R) oneAPI DPC++ Compiler."
+	@echo "compiler_name     - currently can be dpcpp only that stands"
+	@echo "                    for Intel(R) oneAPI DPC++/C++ Compiler."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## make lib example=pca_cor_dense_batch   - build by Intel(R) oneAPI DPC++ Compiler (as default)
+## make lib example=pca_cor_dense_batch   - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                          and run pca_cor_dense_batch example, static linking
 ##
-## make so                                - build by Intel(R) oneAPI DPC++ Compiler (as default)
+## make so                                - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                          and run all examples, dynamic linking
 ##
-## make so mode=build                     - build only (not run) by Intel(R) oneAPI DPC++ Compiler
+## make so mode=build                     - build only (not run) by Intel(R) oneAPI DPC++/C++ Compiler
 ##                                          (as default) all examples, dynamic linking
 ##
 ## make help                              - show help
 ##
 ##------------------------------------------------------------------------------
+
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
 
 include onedal.lst
 
@@ -69,22 +71,15 @@ ifndef TBBROOT
 endif
 TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
 
-ifeq ($(threading),sequential)
-    $(error Sequential version is not supported. To run sequential version please refer to 'examples/oneapi/cpp')
-else
-    override threading = parallel
-    THREADING_LIB := onedal_thread
-endif
-
 ifeq ($(RES_EXT),so)
     ONEDAL_LIBS := -lonedal_dpc \
                    -lonedal_core \
-                   -l$(THREADING_LIB) \
+                   -lonedal_thread \
                    "$(DAAL_PATH)"/libonedal_sycl.a
 else
     ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a \
                    "$(DAAL_PATH)"/libonedal_core.a \
-                   "$(DAAL_PATH)"/lib$(THREADING_LIB).a \
+                   "$(DAAL_PATH)"/libonedal_thread.a \
                    "$(DAAL_PATH)"/libonedal_sycl.a
 endif
 
@@ -109,12 +104,12 @@ LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
          $(LIBS)
 
-RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run,$(mode)), $(addsuffix .res,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),dpcpp)
     gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-    CC = dpcpp --gcc-toolchain=$(gcc_toolchain)
+    CC = icpx -fsycl --gcc-toolchain=$(gcc_toolchain)
 endif
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))

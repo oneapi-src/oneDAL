@@ -1,6 +1,6 @@
 /* file: low_order_moments_kernel_distributed_oneapi.h */
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -127,7 +127,7 @@ public:
     LowOrderMomentsDistributedTaskOneAPI(services::internal::sycl::ExecutionContextIface & context,
                                          data_management::DataCollection * partialResultsCollection, PartialResult * partialResult,
                                          services::Status & status);
-    LowOrderMomentsDistributedTaskOneAPI(const LowOrderMomentsDistributedTaskOneAPI &) = delete;
+    LowOrderMomentsDistributedTaskOneAPI(const LowOrderMomentsDistributedTaskOneAPI &)             = delete;
     LowOrderMomentsDistributedTaskOneAPI & operator=(const LowOrderMomentsDistributedTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsDistributedTaskOneAPI();
     Status compute();
@@ -163,7 +163,7 @@ class LowOrderMomentsDistributedFinalizeTaskOneAPI : public TaskInfoDistributed<
 public:
     LowOrderMomentsDistributedFinalizeTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, PartialResult * partialResult,
                                                  Result * result, services::Status & status);
-    LowOrderMomentsDistributedFinalizeTaskOneAPI(const LowOrderMomentsDistributedFinalizeTaskOneAPI &) = delete;
+    LowOrderMomentsDistributedFinalizeTaskOneAPI(const LowOrderMomentsDistributedFinalizeTaskOneAPI &)             = delete;
     LowOrderMomentsDistributedFinalizeTaskOneAPI & operator=(const LowOrderMomentsDistributedFinalizeTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsDistributedFinalizeTaskOneAPI();
     Status compute();

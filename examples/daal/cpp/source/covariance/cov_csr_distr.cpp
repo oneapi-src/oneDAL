@@ -1,6 +1,6 @@
 /* file: cov_csr_distr.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -39,8 +38,10 @@ typedef float algorithmFPType; /* Algorithm floating-point type */
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string datasetFileNames[] = { "../data/distributed/covcormoments_csr_1.csv", "../data/distributed/covcormoments_csr_2.csv",
-                                    "../data/distributed/covcormoments_csr_3.csv", "../data/distributed/covcormoments_csr_4.csv" };
+const std::string datasetFileNames[] = { "../data/distributed/covcormoments_csr_1.csv",
+                                         "../data/distributed/covcormoments_csr_2.csv",
+                                         "../data/distributed/covcormoments_csr_3.csv",
+                                         "../data/distributed/covcormoments_csr_4.csv" };
 
 covariance::PartialResultPtr partialResult[nBlocks];
 covariance::ResultPtr result;
@@ -48,26 +49,32 @@ covariance::ResultPtr result;
 void computestep1Local(size_t i);
 void computeOnMasterNode();
 
-int main(int argc, char * argv[])
-{
-    checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
+int main(int argc, char* argv[]) {
+    checkArguments(argc,
+                   argv,
+                   4,
+                   &datasetFileNames[0],
+                   &datasetFileNames[1],
+                   &datasetFileNames[2],
+                   &datasetFileNames[3]);
 
-    for (size_t i = 0; i < nBlocks; i++)
-    {
+    for (size_t i = 0; i < nBlocks; i++) {
         computestep1Local(i);
     }
 
     computeOnMasterNode();
 
-    printNumericTable(result->get(covariance::covariance), "Covariance matrix (upper left square 10*10) :", 10, 10);
+    printNumericTable(result->get(covariance::covariance),
+                      "Covariance matrix (upper left square 10*10) :",
+                      10,
+                      10);
     printNumericTable(result->get(covariance::mean), "Mean vector:", 1, 10);
 
     return 0;
 }
 
-void computestep1Local(size_t block)
-{
-    CSRNumericTable * dataTable = createSparseTable<float>(datasetFileNames[block]);
+void computestep1Local(size_t block) {
+    CSRNumericTable* dataTable = createSparseTable<float>(datasetFileNames[block]);
 
     /* Create an algorithm to compute a variance-covariance matrix in the distributed processing mode using the default method */
     covariance::Distributed<step1Local, algorithmFPType, covariance::fastCSR> algorithm;
@@ -82,14 +89,12 @@ void computestep1Local(size_t block)
     partialResult[block] = algorithm.getPartialResult();
 }
 
-void computeOnMasterNode()
-{
+void computeOnMasterNode() {
     /* Create an algorithm to compute a variance-covariance matrix in the distributed processing mode using the default method */
     covariance::Distributed<step2Master, algorithmFPType, covariance::fastCSR> algorithm;
 
     /* Set input objects for the algorithm */
-    for (size_t i = 0; i < nBlocks; i++)
-    {
+    for (size_t i = 0; i < nBlocks; i++) {
         algorithm.input.add(covariance::partialResults, partialResult[i]);
     }
 

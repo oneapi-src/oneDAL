@@ -1,6 +1,6 @@
 /* file: cor_csr_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -38,10 +37,9 @@ using namespace daal::data_management;
 /* Input data set parameters
    Input matrix is stored in the compressed sparse row format with one-based indexing
  */
-const string datasetFileName = "../data/batch/covcormoments_csr.csv";
+const std::string datasetFileName = "../data/batch/covcormoments_csr.csv";
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Read datasetFileName from a file and create a numeric table to store input data */
@@ -60,7 +58,10 @@ int main(int argc, char * argv[])
     /* Get the computed correlation matrix */
     covariance::ResultPtr res = algorithm.getResult();
 
-    printNumericTable(res->get(covariance::correlation), "Correlation matrix (upper left square 10*10) :", 10, 10);
+    printNumericTable(res->get(covariance::correlation),
+                      "Correlation matrix (upper left square 10*10) :",
+                      10,
+                      10);
     printNumericTable(res->get(covariance::mean), "Mean vector:", 1, 10);
 
     return 0;

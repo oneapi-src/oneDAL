@@ -1,6 +1,6 @@
 /* file: zscore_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2022 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,19 +28,19 @@
 #include "daal.h"
 #include "service.h"
 
-using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::normalization;
 
 /* Input data set parameters */
-string datasetName = "../data/batch/normalization.csv";
+std::string datasetName = "../data/batch/normalization.csv";
 
-int main()
-{
+int main() {
     /* Retrieve the input data */
-    FileDataSource<CSVFeatureManager> dataSource(datasetName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetName,
+                                                 DataSource::doAllocateNumericTable,
+                                                 DataSource::doDictionaryFromContext);
     dataSource.loadDataBlock();
 
     NumericTablePtr data = dataSource.getNumericTable();
@@ -58,7 +58,9 @@ int main()
     zscore::ResultPtr res = algorithm.getResult();
 
     printNumericTable(data, "First 10 rows of the input data:", 10);
-    printNumericTable(res->get(zscore::normalizedData), "First 10 rows of the z-score normalization result:", 10);
+    printNumericTable(res->get(zscore::normalizedData),
+                      "First 10 rows of the z-score normalization result:",
+                      10);
 
     return 0;
 }

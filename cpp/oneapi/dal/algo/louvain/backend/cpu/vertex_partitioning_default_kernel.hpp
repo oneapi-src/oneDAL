@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -439,7 +439,7 @@ struct louvain_kernel {
 
             if (communities.size() > 0) {
                 deallocate(vertex_allocator, communities[0], vertex_count);
-                for (int64_t iteration = 1; iteration < communities.size(); iteration++) {
+                for (std::int64_t iteration = 1; iteration < communities.size(); iteration++) {
                     deallocate(vertex_allocator,
                                communities[iteration],
                                labels_size[iteration - 1]);

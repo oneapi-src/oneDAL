@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -107,16 +107,17 @@ struct triangle_counting_local {
 
         int64_allocator_type int64_allocator(alloc);
 
-        int64_t* triangles_local =
-            oneapi::dal::preview::detail::allocate(int64_allocator,
-                                                   (int64_t)thread_cnt * (int64_t)vertex_count);
+        std::int64_t* triangles_local = oneapi::dal::preview::detail::allocate(
+            int64_allocator,
+            (std::int64_t)thread_cnt * (std::int64_t)vertex_count);
 
         auto arr_triangles =
             triangle_counting<float, task::local, Topology, automatic>{}(ctx, t, triangles_local);
 
-        oneapi::dal::preview::detail::deallocate(int64_allocator,
-                                                 triangles_local,
-                                                 (int64_t)thread_cnt * (int64_t)vertex_count);
+        oneapi::dal::preview::detail::deallocate(
+            int64_allocator,
+            triangles_local,
+            (std::int64_t)thread_cnt * (std::int64_t)vertex_count);
 
         return arr_triangles;
     }

@@ -1,6 +1,6 @@
 #! /bin/bash
 #===============================================================================
-# Copyright 2020-2021 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ echo "Starting format check..."
 
 RETURN_CODE=0
 
-for sources_path in cpp/daal cpp/oneapi examples/oneapi ; do
+for sources_path in cpp/daal cpp/oneapi examples/oneapi examples/daal samples/oneapi samples/daal; do
     pushd ${sources_path} || exit 1
     for filename in $(find . -type f | grep -P ".*\.(c|cpp|h|hpp|cl|i)$"); do clang-format -style=file -i "${filename}"; done
 

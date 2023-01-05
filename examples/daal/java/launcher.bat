@@ -1,6 +1,6 @@
 @echo off
 rem ============================================================================
-rem Copyright 2014-2022 Intel Corporation
+rem Copyright 2014 Intel Corporation
 rem
 rem Licensed under the Apache License, Version 2.0 (the "License");
 rem you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ echo                 If not specified build and run are performed.
 echo path_to_javac - optional parameter.
 echo                 Specify it in case, if you do not want to use default javac
 echo help          - print this message
-echo Example: launcher.bat ia32 build "C:\Program Files\Java\jdk1.8.0_20" or launcher.bat intel64 run
+echo Example: launcher.bat build "C:\Program Files\Java\jdk1.8.0_20" or launcher.bat run
 echo Be sure, that you put a path to javac into semicolons
 exit /b errorcode
 

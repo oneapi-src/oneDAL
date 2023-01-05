@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020-2022 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,13 +21,11 @@
 help:
 	@echo "Usage: make {lib|dylib|libintel64|dylibintel64|help}"
 	@echo "lib is alias for libintel64, dylib is alias for dylibintel64"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name. Please see onedal.lst file"
 	@echo
 	@echo "compiler_name     - can be intel or clang. Default value is intel."
-	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
@@ -54,22 +52,20 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
+
 include onedal.lst
 
 ifndef example
     example = $(ONEDAL)
 endif
 
-ifneq ($(compiler),clang)
-	override compiler = intel
+ifeq (,$(filter gnu clang,$(compiler)))
+    override compiler = intel
 endif
 
 ifneq ($(mode),build)
     override mode = run
-endif
-
-ifneq ($(threading),sequential)
-    override threading = parallel
 endif
 
 ifndef DAALROOT
@@ -85,21 +81,14 @@ TBB_PATH = $(TBBROOT)/lib
 onedal.dylib := -lonedal
 onedal_core.dylib := -lonedal_core
 onedal_thread.dylib := -lonedal_thread
-onedal_sequential.dylib := -lonedal_sequential
 
 onedal.a := "$(DAAL_PATH)/libonedal.a"
 onedal_core.a := "$(DAAL_PATH)/libonedal_core.a"
 onedal_thread.a := "$(DAAL_PATH)/libonedal_thread.a"
-onedal_sequential.a := "$(DAAL_PATH)/libonedal_sequential.a"
 
 onedal := $(onedal.$(RES_EXT))
 onedal_core := $(onedal_core.$(RES_EXT))
 onedal_thread := $(onedal_thread.$(RES_EXT))
-onedal_sequential := $(onedal_sequential.$(RES_EXT))
-
-onedal_threading.parallel := $(onedal_thread)
-onedal_threading.sequential := $(onedal_sequential)
-onedal_threading := $(onedal_threading.$(threading))
 
 COPTS := -std=c++17 \
          -pedantic \
@@ -107,13 +96,20 @@ COPTS := -std=c++17 \
          -Wextra \
          -Werror \
          -Wno-unused-parameter \
-         -stdlib=libc++ \
          -I./source \
          -I"$(DAALROOT)/include"
 
+ifneq ($(compiler),gnu)
+    COPTS += -stdlib=libc++
+endif
+
+ifeq ($(compiler),intel)
+    COPTS += -diag-disable=10441
+endif
+
 LIBS := $(onedal) \
         $(onedal_core) \
-        $(onedal_threading) \
+        $(onedal_thread) \
         -ltbb \
         -ltbbmalloc \
         -ldl
@@ -122,7 +118,7 @@ LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
          $(LIBS)
 
-RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),intel)
@@ -131,6 +127,10 @@ endif
 
 ifeq ($(compiler),clang)
     CC = clang++
+endif
+
+ifeq ($(compiler),gnu)
+    CC = g++
 endif
 
 RPATH=-Wl,-rpath,$(DAAL_PATH) -Wl,-rpath,$(TBB_PATH)

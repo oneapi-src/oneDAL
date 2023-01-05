@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,8 +21,7 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_cw_naive_local {
-    using acc_t =
-        sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+    using acc_t = sycl::local_accessor<Float, 1>;
 
 public:
     kernel_reduction_rm_cw_naive_local(acc_t cache,
@@ -145,10 +144,7 @@ reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handler&
                                                                   std::int64_t stride,
                                                                   const BinaryOp& binary,
                                                                   const UnaryOp& unary) {
-    sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> local_acc{
-        sycl::range<1>(lm),
-        h
-    };
+    sycl::local_accessor<Float, 1> local_acc{ sycl::range<1>(lm), h };
     return kernel_t{ local_acc,
                      input,
                      output,

@@ -6,66 +6,163 @@
 trigger:
   branches:
     include:
+    - develop
     - master
     - rls/*
-
+  paths:
+    exclude:
+    - docs
+    - .ci/pipeline/docs.yml
 pr:
   branches:
     include:
+    - develop
     - master
     - rls/*
+  paths:
+    exclude:
+    - docs
+    - .ci/pipeline/docs.yml
 
 jobs:
 - job: 'ClangFormat'
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-22.04'
   steps:
     - script: |
-        .ci/env/clang.sh
+        sudo apt-get update && sudo apt-get install -y clang-format-14
+        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 100
+        sudo update-alternatives --set clang-format /usr/bin/clang-format-14
       displayName: 'apt-get'
     - script: |
         .ci/scripts/clang-format.sh
       displayName: 'clang-format check'
       failOnStderr: true
-- job: 'LinuxMake'
+
+- job: 'LinuxMakeGNU'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-22.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
-    displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal
+      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
+    displayName: 'apt-get and conda install'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+      .ci/scripts/build.sh --platform $(platform.type) --compiler gnu --target oneapi_c
     displayName: 'make oneapi_c'
-  - script: |
-      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
-    displayName: 'Copy build'
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) build'
-      targetPath: '$(release.dir)'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Upload build artifacts'
+    continueOnError: true
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
-    displayName: 'examples'
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp --build_system cmake
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface oneapi/cpp --build_system cmake
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build_system make
+    displayName: 'daal/cpp/mpi samples'
+  - script: |
+      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
+      tree -h -I include __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
+    displayName: 'nuget pkg'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) fail'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Uploading on fail'
+    condition: failed()
+    continueOnError: true
+
+- job: 'LinuxMakeDPCPP'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_clang'
+    platform.type : 'lnx32e'
+  pool:
+    vmImage: 'ubuntu-22.04'
+  steps:
+  - script: |
+      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
+      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.7.1 openjdk=17.0.3
+    displayName: 'apt-get and conda install'
+  - script: |
+      wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+      sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+      rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+      echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+      sudo add-apt-repository -y "deb https://apt.repos.intel.com/oneapi all main"
+      sudo apt-get update
+      sudo apt-get install -y intel-dpcpp-cpp-compiler-2023.0.0
+      sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
+      sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
+    displayName: 'dpcpp installation'
+  - script: |
+      source /opt/intel/oneapi/compiler/latest/env/vars.sh
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --conda-env ci-env
+    displayName: 'make daal'
+  - script: |
+      source /opt/intel/oneapi/compiler/latest/env/vars.sh
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target onedal_dpc
+    displayName: 'make onedal_dpc'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) DPC build'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Upload build artifacts'
+    continueOnError: true
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp --build_system cmake
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp --build_system cmake
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --platform $(platform.type) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build_system make
+    displayName: 'daal/cpp/mpi samples'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) DPC fail'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Uploading on fail'
+    condition: failed()
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-22.04'
   variables:
+    platform.type : 'lnx32e'
     BAZEL_VERSION: bazel-4.0.0
     BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
       # Add bazel repository
-      sudo apt install curl gnupg
+      sudo apt install -y curl gnupg
       curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
       sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
       echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
@@ -79,6 +176,9 @@ jobs:
                            $(BAZEL_VERSION)
 
     displayName: 'install-deps'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
 
   - task: Cache@2
     inputs:
@@ -104,38 +204,41 @@ jobs:
       echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
 
       # Display oneDAL build configuration
-      bazel build @config//:dump
+      $(BAZEL_VERSION) build @config//:dump
       echo
       cat bazel-bin/external/config/config.json
       echo
     displayName: 'bazel-configure'
-
   - script: |
-      bazel build :release
+      $(BAZEL_VERSION) build :release
     displayName: 'release'
-
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) Bazel build'
+      targetPath: '$(Build.Repository.LocalPath)/bazel-bin/release'
+    displayName: 'Upload build artifacts'
   - script: |
-      bazel test //examples/oneapi/cpp:all \
+      $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=dev \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-dev'
 
   - script: |
       export DAALROOT=`pwd`/bazel-bin/release/daal/latest
-      bazel test //examples/oneapi/cpp:all \
+      $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=release_static \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-static'
 
   - script: |
       export DAALROOT=`pwd`/bazel-bin/release/daal/latest
-      bazel test //examples/oneapi/cpp:all \
+      $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=release_dynamic \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-dynamic'
 
   - script: |
-      bazel test //cpp/oneapi/dal:tests \
+      $(BAZEL_VERSION) test //cpp/oneapi/dal:tests \
                  --config=host \
                  --test_link_mode=dev \
                  --test_thread_mode=par
@@ -166,14 +269,14 @@ jobs:
       fi
     displayName: 'bazel-cache-limit'
 
-- job: daal4py
-  dependsOn: LinuxMake
+- job: LinuxDaal4py
+  dependsOn: LinuxMakeGNU
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-22.04'
     maxParallel: 2
   strategy:
     matrix:
@@ -184,14 +287,16 @@ jobs:
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
-  - script: sudo apt-get update && sudo apt-get install gcc-7-multilib g++-7-multilib
+  - script: sudo apt-get update && sudo apt-get install -y git gcc-multilib g++-multilib
     displayName: 'apt-get'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
   - script: |
       conda update -y -q conda
       conda create -q -y -n CB -c intel python=$(python.version) tbb
     displayName: 'Conda create'
   - script: |
-      sudo apt-get install git
       git clone https://github.com/intel/scikit-learn-intelex.git daal4py
     displayName: Clone daal4py
   - script: |
@@ -210,6 +315,12 @@ jobs:
       export PYTHON=python
       ./conda-recipe/build.sh
     displayName: daal4py build
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) daal4py build'
+      targetPath: '$(Build.Repository.LocalPath)/daal4py'
+    displayName: 'Upload daal4py build artifacts'
+    continueOnError: true
   - script: |
       . /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
@@ -242,51 +353,117 @@ jobs:
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
     displayName: Conformance tests
-  - script: |
-      cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/_log_* $(Build.ArtifactStagingDirectory)/
-      cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/report.html $(Build.ArtifactStagingDirectory)/
-    displayName: copy report
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) conformance tests report'
-      targetPath: '$(Build.ArtifactStagingDirectory)/'
+      targetPath: '$(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/'
+    displayName: 'Upload conformance tests artifacts'
+    continueOnError: true
 
-- job: 'macOSMake'
+- job: 'macOSMakeClang'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_mac_clang'
     platform.type : 'mac32e'
   pool:
-    vmImage:  'macOS-10.15'
+    vmImage:  'macos-12'
   steps:
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal
+      brew install dos2unix tree
+      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      pip install -q cpufeature
+    displayName: 'brew and conda install'
+  - script: |
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target daal --optimizations "sse2 sse42 avx2 avx512" --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+      .ci/scripts/build.sh --platform $(platform.type) --compiler clang --target oneapi_c --optimizations "sse2 sse42 avx2 avx512"
     displayName: 'make oneapi_c'
-  - script: |
-      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
-    displayName: 'Copy build'
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
-      artifactName: 'Mac build'
-      targetPath: '$(release.dir)'
+      artifactName: '$(platform.type) build'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Upload build artifacts'
+    continueOnError: true
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface daal/cpp --build_system cmake
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type) --compiler clang --interface oneapi/cpp --build_system cmake
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
+      tree -h -I include __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
+    displayName: 'nuget pkg'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) fail'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Uploading on fail'
+    condition: failed()
+    continueOnError: true
 
-#- job: Windows
-#  timeoutInMinutes: 0
-#  pool:
-#    vmImage: 'windows-2019'
-#  steps:
-#  - script: |
-#      java -version
-#      set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
-#      echo "call .ci\env\tbb.bat"
-#      call .ci\env\tbb.bat
-#      echo "call .\dev\download_micromkl.bat"
-#      call .\dev\download_micromkl.bat
-#      echo call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-#      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-#      echo make daal COMPILER=vc PLAT="win32e" REQCPU="avx2"
-#      make daal COMPILER=vc PLAT="win32e" REQCPU="avx2"
-#    displayName: 'Build'
+- job: 'WindowsMakeVC'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_win_vc'
+    platform.type : 'win32e'
+  pool:
+    vmImage: 'windows-2022'
+  steps:
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      pip install cpufeature
+      pacman -S -y --noconfirm zip dos2unix tree
+    displayName: 'pacman'
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      bash .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .\.ci\scripts\build.bat daal vc avx2
+    displayName: 'make daal'
+  - script: |
+      .\.ci\scripts\build.bat oneapi_c vc avx2
+    displayName: 'make oneapi_c'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) build'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Upload build artifacts'
+    continueOnError: true
+  - script: |
+      .\.ci\scripts\test.bat daal\java dll msvs
+    displayName: 'daal/java examples'
+  - script: |
+      .\.ci\scripts\test.bat daal\cpp lib msvs cmake
+      .\.ci\scripts\test.bat daal\cpp dll msvs cmake
+    displayName: 'daal/cpp examples'
+  - script: |
+      .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
+      .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --platform $(platform.type) --build-nupkg yes
+      tree -h -I include __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
+    displayName: 'nuget pkg'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) fail'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Uploading on fail'
+    condition: failed()
+    continueOnError: true

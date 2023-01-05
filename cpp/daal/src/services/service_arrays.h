@@ -1,6 +1,6 @@
 /* file: service_arrays.h */
 /*******************************************************************************
-* Copyright 2015-2022 Intel Corporation
+* Copyright 2015 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public:
         return _data;
     }
 
-    DynamicArray(const DynamicArray &) = delete;
+    DynamicArray(const DynamicArray &)             = delete;
     DynamicArray & operator=(const DynamicArray &) = delete;
 
 private:
@@ -126,7 +126,7 @@ public:
 
     ~StaticallyBufferedDynamicArray() { destroy(); }
 
-    StaticallyBufferedDynamicArray(const StaticallyBufferedDynamicArray &) = delete;
+    StaticallyBufferedDynamicArray(const StaticallyBufferedDynamicArray &)             = delete;
     StaticallyBufferedDynamicArray & operator=(const StaticallyBufferedDynamicArray &) = delete;
 
     inline T * get() { return _data; }

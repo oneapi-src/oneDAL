@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -92,10 +92,7 @@ sycl::event select_indexed_local(sycl::queue& q,
     auto select_event = q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto nd_range = make_multiple_nd_range_2d({ block_count, width }, { 1l, width });
-        sycl::accessor<Type, 1, sycl::access::mode::read_write, sycl::access::target::local> cache{
-            make_range_1d(block),
-            h
-        };
+        sycl::local_accessor<Type, 1> cache{ make_range_1d(block), h };
         h.parallel_for(nd_range, [=](sycl::nd_item<2> it) {
             const auto bid = it.get_global_id(0);
             const std::int32_t from = bid * block;

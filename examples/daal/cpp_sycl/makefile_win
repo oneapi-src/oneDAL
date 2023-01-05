@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2022 Intel Corporation
+# Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ help:
 	@echo
 	@echo "name              - example name."
 	@echo
-	@echo "compiler_name     - the only supported compiler is clang (default value)"
-	@echo "                    Intel(R) oneAPI DPC++ compiler"
+	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
+	@echo "                    Intel(R) oneAPI DPC++/C++ Compiler"
 	@echo
 	@echo "mode_name         - can be build or run. Default is run."
 
@@ -36,19 +36,19 @@ help:
 ##                                                 and run kmeans_dense_batch example for 64-bit
 ##                                                 applications, static linking
 ##
-## nmake dll example=kmeans_dense_batch+         - build by Intel(R) oneAPI Compiler (as default)
+## nmake dll example=kmeans_dense_batch+         - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                                 and run kmeans_dense_batch example for 64-bit
 ##                                                 applications, dynamic linking
 ##
-## nmake dll compiler=clang                      - build by Intel(R) oneAPI Compiler (as default)
+## nmake dll compiler=dpcpp                      - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                                 and run all examples of Intel(R) oneDAL for
 ##                                                 64-bit applications, dynamic linking
 ##
-## nmake dll                                     - build by Intel(R) oneAPI Compiler (as default)
+## nmake dll                                     - build by Intel(R) oneAPI DPC++/C++ Compiler (as default)
 ##                                                 and run all examples for Intel(R) 64 processor
 ##                                                 family applications, dynamic linking
 ##
-## nmake dll mode=build                          - build only (not run) by Intel(R) oneAPI Compiler
+## nmake dll mode=build                          - build only (not run) by Intel(R) oneAPI DPC++/C++ Compiler
 ##                                                 (as default) all examples for Intel(R) 64
 ##                                                 processor family applications, dynamic linking
 ##
@@ -58,20 +58,24 @@ help:
 
 {examples_list}
 
+!MESSAGE =====DAAL SYCL interfaces are depricated, please use oneDAL DPC interfaces====!
+!MESSAGE =====make build system for DAAL in deprecated, please use cmake instead====!
+
 !IFNDEF example
 example = $(EXAMPLES_LIST)
 !ENDIF
 
+!IF ("$(compiler)"=="clang")
+WARNING  clang driver usage has been deprecated. Please use dpcpp
+compiler = dpcpp
+!ENDIF
+
 !IFNDEF compiler
-compiler = clang
+compiler = dpcpp
 !ENDIF
 
 !IFNDEF mode
 mode = run
-!ENDIF
-
-!IFNDEF threading
-threading = parallel
 !ENDIF
 
 !IFNDEF DAALROOT
@@ -88,8 +92,8 @@ RES = $(example:+=.exe)
 RES = $(example:+=.res)
 !ENDIF
 
-!IF ("$(compiler)"=="clang")
-CC=dpcpp
+!IF ("$(compiler)"=="dpcpp")
+CC=icx -fsycl
 COPTS= /EHs -fsycl-device-code-split=per_kernel
 OUT_OPTS=/Fe$(RES_DIR)
 RT_LIB=/link /ignore:4078 OpenCL.lib "$(DAAL_PATH)\onedal_sycl.lib"
@@ -103,26 +107,19 @@ COPTS=-m64 $(COPTS)
 !ENDIF
 
 !IF ("$(RES_EXT)"=="lib")
-!IF ("$(threading)"=="sequential")
-ERROR  Sequential version is not supported. To run sequential version please refer to 'examples/daal/cpp'
+LOPTS = "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_PATH)\onedal_thread.lib" tbb12.lib tbbmalloc.lib $(RT_LIB)
 !ELSE
-threading = parallel
-DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.lib"
-EXT_LIB = tbb12.lib tbbmalloc.lib
+LOPTS = "$(DAAL_PATH)\onedal_core$(EXT)" $(RT_LIB)
 !ENDIF
-!ENDIF
-
-DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" $(DAAL_LIB_T)
 
 COPTS = -MD -Isource\utils $(COPTS) $(OUT_OPTS)
-LOPTS = $(DAAL_LIB) $(EXT_LIB) $(RT_LIB)
-RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES_DIR  =_results\$(compiler)_$(_IA)_$(RES_EXT)
 
 lib libintel64:
-	nmake comm_func $(RES) EXT=.lib _IA=intel64 RES_EXT=lib compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) EXT=.lib _IA=intel64 RES_EXT=lib compiler=$(compiler)
 
 dll dllintel64:
-	nmake comm_func $(RES) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler)
 
 comm_func:
 	if not exist _results md _results

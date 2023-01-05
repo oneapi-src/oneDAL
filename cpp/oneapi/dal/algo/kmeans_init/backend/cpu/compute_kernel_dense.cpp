@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,20 +40,20 @@ template <typename Float, typename Method, typename Task>
 static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                              const detail::descriptor_base<Task>& desc,
                                              const table& data) {
-    const int64_t column_count = data.get_column_count();
-    const int64_t cluster_count = desc.get_cluster_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t cluster_count = desc.get_cluster_count();
 
     daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const size_t len_input = 1;
+    const std::size_t len_input = 1;
     daal::data_management::NumericTable* input[len_input] = { daal_data.get() };
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
     array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
     const auto daal_centroids =
         interop::convert_to_daal_homogen_table(arr_centroids, cluster_count, column_count);
-    const size_t len_output = 1;
+    const std::size_t len_output = 1;
     daal::data_management::NumericTable* output[len_output] = { daal_centroids.get() };
 
     interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {

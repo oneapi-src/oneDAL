@@ -1,6 +1,6 @@
 /* file: low_order_moments_kernel_batch_oneapi.h */
 /*******************************************************************************
-* Copyright 2019-2022 Intel Corporation
+* Copyright 2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -115,7 +115,7 @@ class LowOrderMomentsBatchTaskOneAPI : public TaskInfoBatch<algorithmFPType, sco
 public:
     LowOrderMomentsBatchTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, data_management::NumericTable * dataTable,
                                    Result * result, services::Status & status);
-    LowOrderMomentsBatchTaskOneAPI(const LowOrderMomentsBatchTaskOneAPI &) = delete;
+    LowOrderMomentsBatchTaskOneAPI(const LowOrderMomentsBatchTaskOneAPI &)             = delete;
     LowOrderMomentsBatchTaskOneAPI & operator=(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsBatchTaskOneAPI();
     services::Status compute();

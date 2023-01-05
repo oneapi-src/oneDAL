@@ -1,6 +1,6 @@
 #! /bin/bash
 #===============================================================================
-# Copyright 2019-2021 Intel Corporation
+# Copyright 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,8 +25,14 @@ while [[ $# -gt 0 ]]; do
         --compiler)
         compiler="$2"
         ;;
+        --optimizations)
+        optimizations="$2"
+        ;;
         --target)
         target="$2"
+        ;;
+        --conda-env)
+        conda_env="$2"
         ;;
         *)
         echo "Unknown option: $1"
@@ -39,11 +45,17 @@ done
 
 OS=${platform::3}
 ARCH=${platform:3:3}
-CPU_OPTIMIZATIONS="avx2"
+
+optimizations=${optimizations:-avx2}
+GLOBAL_RETURN=0
 
 if [ "${OS}" == "lnx" ]; then
+    source /usr/share/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" != "" ]; then
+        conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+    fi
     compiler=${compiler:-gnu}
-    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
     java_os_name="linux"
     #gpu support is only for Linux 64 bit
     if [ "${ARCH}" == "32e" ]; then
@@ -52,8 +64,12 @@ if [ "${OS}" == "lnx" ]; then
             with_gpu="false"
     fi
 elif [ "${OS}" == "mac" ]; then
+    source /usr/local/miniconda/etc/profile.d/conda.sh
+    if [ "${conda_env}" != "" ]; then
+        conda activate ${conda_env}
+        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+    fi
     compiler=${compiler:-clang}
-    export JAVA_HOME=$(/usr/libexec/java_home -v 12)
     java_os_name="darwin"
     with_gpu="false"
 else
@@ -78,13 +94,32 @@ if [ "${OS}" == "lnx" ]; then
     export CPATH=$(pwd)/__deps/mklgpufpk/lnx/include:$CPATH
 fi
 
-echo "Set Java PATH and CPATH"
+echo "Set Java PATH and CPATH from JAVA_HOME=${JAVA_HOME}"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
-make ${target:-daal} ${make_op} \
+make ${target:-daal_c} ${make_op} \
     PLAT=${platform} \
     COMPILER=${compiler} \
-    REQCPU="${CPU_OPTIMIZATIONS}"
+    REQCPU="${optimizations}"
+err=$?
 
-exit $?
+if [ ${err} -ne 0 ]; then
+    status_ex="$(date +'%H:%M:%S') BUILD FAILED with errno ${err}"
+    GLOBAL_RETURN=${err}
+fi
+
+cmake_folder="__release_${OS}_${compiler}/daal/latest/lib/cmake/oneDAL"
+if ! [[ -d "${cmake_folder}" ]]; then
+    #generating CMake configs
+    echo "Generating CMake module for build"
+    cmake -DINSTALL_DIR=${cmake_folder} -P cmake/scripts/generate_config.cmake
+    err=$?
+
+    if [ ${err} -ne 0 ]; then
+        status_ex="$(date +'%H:%M:%S') BUILD FAILED with errno ${err}"
+        GLOBAL_RETURN=${err}
+    fi
+fi
+
+exit ${GLOBAL_RETURN}
