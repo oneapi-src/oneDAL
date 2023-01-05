@@ -25,30 +25,33 @@ if(oneDAL_FOUND)
 endif()
 
 # Handle arguments:
-# TARGET_LINK: static | dynamic. Default is dynamic
-# USE_DPCPP: yes | no. Default is yes
-# USE_NEW_IFACES: yes | no. Default is no
-# SET_TBB_MANUALLY: yes | no. Default is no
+# ONEDAL_TARGET_LINK: static | dynamic. Default is dynamic
+# ONEDAL_USE_DPCPP: yes | no. Default is yes
+# ONEDAL_USE_NEW_IFACES: yes | no. Default is no
+# ONEDAL_SET_TBB_MANUALLY: yes | no. Default is no
 unset(DAL_LIBS)
-if ("${TARGET_LINK}" STREQUAL "")
-    set(TARGET_LINK "dynamic")
-elseif (NOT "${TARGET_LINK}" STREQUAL "static" AND NOT "${TARGET_LINK}" STREQUAL "dynamic")
-    message(FATAL_ERROR "TARGET_LINK must be 'static' or 'dynamic'")
+if (NOT "${TARGET_LINK}" STREQUAL "")
+    set(ONEDAL_TARGET_LINK "${TARGET_LINK}")
 endif()
-if ("${USE_DPCPP}" STREQUAL "")
-    set(USE_DPCPP "yes")
-elseif (NOT "${USE_DPCPP}" STREQUAL "yes" AND NOT "${USE_DPCPP}" STREQUAL "no")
-    message(FATAL_ERROR "USE_DPCPP must be 'yes' or 'no'")
+if ("${ONEDAL_TARGET_LINK}" STREQUAL "")
+    set(ONEDAL_TARGET_LINK "dynamic")
+elseif (NOT "${ONEDAL_TARGET_LINK}" STREQUAL "static" AND NOT "${ONEDAL_TARGET_LINK}" STREQUAL "dynamic")
+    message(FATAL_ERROR "ONEDAL_TARGET_LINK must be 'static' or 'dynamic'")
 endif()
-if ("${USE_NEW_IFACES}" STREQUAL "")
-    set(USE_NEW_IFACES "no")
-elseif (NOT "${USE_NEW_IFACES}" STREQUAL "yes" AND NOT "${USE_NEW_IFACES}" STREQUAL "no")
-    message(FATAL_ERROR "USE_NEW_IFACES must be 'yes' or 'no'")
+if ("${ONEDAL_USE_DPCPP}" STREQUAL "")
+    set(ONEDAL_USE_DPCPP "yes")
+elseif (NOT "${ONEDAL_USE_DPCPP}" STREQUAL "yes" AND NOT "${ONEDAL_USE_DPCPP}" STREQUAL "no")
+    message(FATAL_ERROR "ONEDAL_USE_DPCPP must be 'yes' or 'no'")
 endif()
-if ("${SET_TBB_MANUALLY}" STREQUAL "")
-    set(SET_TBB_MANUALLY "no")
-elseif (NOT "${SET_TBB_MANUALLY}" STREQUAL "yes" AND NOT "${SET_TBB_MANUALLY}" STREQUAL "no")
-    message(FATAL_ERROR "SET_TBB_MANUALLY must be 'yes' or 'no'")
+if ("${ONEDAL_USE_NEW_IFACES}" STREQUAL "")
+    set(ONEDAL_USE_NEW_IFACES "no")
+elseif (NOT "${ONEDAL_USE_NEW_IFACES}" STREQUAL "yes" AND NOT "${ONEDAL_USE_NEW_IFACES}" STREQUAL "no")
+    message(FATAL_ERROR "ONEDAL_USE_NEW_IFACES must be 'yes' or 'no'")
+endif()
+if ("${ONEDAL_SET_TBB_MANUALLY}" STREQUAL "")
+    set(ONEDAL_SET_TBB_MANUALLY "no")
+elseif (NOT "${ONEDAL_SET_TBB_MANUALLY}" STREQUAL "yes" AND NOT "${ONEDAL_SET_TBB_MANUALLY}" STREQUAL "no")
+    message(FATAL_ERROR "ONEDAL_SET_TBB_MANUALLY must be 'yes' or 'no'")
 endif()
 if(WIN32 AND CMAKE_BUILD_TYPE MATCHES ".*Debug.*|.*DebInfo.*")
     set(DAL_DEBUG_SUFFIX "d")
@@ -56,10 +59,10 @@ else()
     set(DAL_DEBUG_SUFFIX "")
 endif()
 
-message(STATUS "TARGET_LINK:      ${TARGET_LINK}")
-message(STATUS "USE_DPCPP:        ${USE_DPCPP}")
-message(STATUS "USE_NEW_IFACES:   ${USE_NEW_IFACES}")
-message(STATUS "SET_TBB_MANUALLY: ${SET_TBB_MANUALLY}")
+message(STATUS "ONEDAL_TARGET_LINK:      ${ONEDAL_TARGET_LINK}")
+message(STATUS "ONEDAL_USE_DPCPP:        ${ONEDAL_USE_DPCPP}")
+message(STATUS "ONEDAL_USE_NEW_IFACES:   ${ONEDAL_USE_NEW_IFACES}")
+message(STATUS "ONEDAL_SET_TBB_MANUALLY: ${ONEDAL_SET_TBB_MANUALLY}")
 
 if (NOT DAL_LIBRARIES)
     set(DAL_LIBRARIES "")
@@ -78,11 +81,11 @@ elseif (@VERSIONS_SET@ STREQUAL "FALSE")
     string(REGEX REPLACE ".*#define __INTEL_DAAL_MINOR_BINARY__ ([0-9]+).*" "\\1" _dal_ver_minor_bin "${DAL_VERSION_INFO}")
 endif()
 
-if (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "no")
+if (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_USE_NEW_IFACES STREQUAL "no")
     list(APPEND DAL_LIBS onedal_sycl${DAL_DEBUG_SUFFIX})
-elseif (USE_DPCPP STREQUAL "no" AND USE_NEW_IFACES STREQUAL "yes")
+elseif (ONEDAL_USE_DPCPP STREQUAL "no" AND ONEDAL_USE_NEW_IFACES STREQUAL "yes")
     list(APPEND DAL_LIBS onedal${DAL_DEBUG_SUFFIX})
-elseif (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "yes")
+elseif (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_USE_NEW_IFACES STREQUAL "yes")
     list(APPEND DAL_LIBS onedal_dpc${DAL_DEBUG_SUFFIX} onedal_sycl${DAL_DEBUG_SUFFIX})
 endif()
 
@@ -91,7 +94,7 @@ list(APPEND DAL_LIBS onedal_core${DAL_DEBUG_SUFFIX})
 set(THREADING_TYPE "parallel")
 set(DAL_THREAD_LIBRARY_NAME onedal_thread${DAL_DEBUG_SUFFIX})
 
-if (SET_TBB_MANUALLY STREQUAL "no")
+if (ONEDAL_SET_TBB_MANUALLY STREQUAL "no")
     find_package(TBB REQUIRED tbb tbbmalloc)
     list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
 endif()
@@ -104,7 +107,7 @@ if(UNIX)
     endif()
 endif()
 
-if (UNIX OR TARGET_LINK STREQUAL "static")
+if (UNIX OR ONEDAL_TARGET_LINK STREQUAL "static")
     list(APPEND DAL_LIBS ${DAL_THREAD_LIBRARY_NAME})
 endif()
 
@@ -115,7 +118,7 @@ if(UNIX)
     list(APPEND oneDAL_IMPORTED_TARGETS -ldl)
 endif()
 
-if (USE_DPCPP STREQUAL "yes")
+if (ONEDAL_USE_DPCPP STREQUAL "yes")
     if (UNIX)
         list(APPEND oneDAL_IMPORTED_TARGETS -lOpenCL)
     else()
@@ -124,7 +127,7 @@ if (USE_DPCPP STREQUAL "yes")
     set(CMAKE_CXX_FLAGS "-fsycl -fsycl-device-code-split=per_kernel ${CMAKE_CXX_FLAGS}")
 endif()
 
-if (USE_NEW_IFACES STREQUAL "yes")
+if (ONEDAL_USE_NEW_IFACES STREQUAL "yes")
     if (MSVC)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
     else ()
@@ -159,14 +162,14 @@ foreach (_dal_component ${DAL_LIBS})
 
     set(oneDAL_${_dal_component}_FOUND 0)
 
-    if (${TARGET_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycl")
+    if (${ONEDAL_TARGET_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycl")
         add_library(oneDAL::${_dal_component} STATIC IMPORTED)
         find_library(
             _dal_lib
             NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
             PATH_SUFFIXES "lib/intel64"
             PATHS "${_dal_root}")
-    elseif (${TARGET_LINK} STREQUAL "dynamic")
+    elseif (${ONEDAL_TARGET_LINK} STREQUAL "dynamic")
         add_library(oneDAL::${_dal_component} SHARED IMPORTED)
         find_library(
             _dal_lib
@@ -180,7 +183,7 @@ foreach (_dal_component ${DAL_LIBS})
                             INTERFACE_INCLUDE_DIRECTORIES "${_dal_include_dir}")
     unset(_dal_include_dir)
 
-    if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycl")
+    if (WIN32 AND ${ONEDAL_TARGET_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycl")
         find_file(${_dal_component}_dll ${_dal_component}.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/@DLL_REL_PATH@")
         set_target_properties(oneDAL::${_dal_component} PROPERTIES
                               IMPORTED_LOCATION "${${_dal_component}_dll}"
@@ -207,7 +210,7 @@ list(REMOVE_DUPLICATES oneDAL_IMPORTED_TARGETS)
 
 set(oneDAL_ROOT_DIR "${_dal_root}")
 set(oneDAL_INCLUDE_DIRS "${_dal_root}/@INC_REL_PATH@")
-if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic")
+if (WIN32 AND ${ONEDAL_TARGET_LINK} STREQUAL "dynamic")
     set(oneDAL_DLL_DIR "${_dal_root}/@DLL_REL_PATH@")
 endif()
 
@@ -219,7 +222,7 @@ if(oneDAL_FOUND STREQUAL "FALSE")
 else()
     message(STATUS "oneDAL_ROOT_DIR:         ${_dal_root}")
     message(STATUS "oneDAL_INCLUDE_DIRS:     ${_dal_root}/@INC_REL_PATH@")
-    if (WIN32 AND TARGET_LINK STREQUAL "dynamic")
+    if (WIN32 AND ONEDAL_TARGET_LINK STREQUAL "dynamic")
         message(STATUS "oneDAL_DLL_DIR:          ${_dal_root}/@DLL_REL_PATH@")
     endif()
     message(STATUS "oneDAL_IMPORTED_TARGETS: ${oneDAL_IMPORTED_TARGETS}")

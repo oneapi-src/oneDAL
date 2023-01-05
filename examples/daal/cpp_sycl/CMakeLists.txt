@@ -24,10 +24,8 @@ project(daal_cpp_sycl_examples)
 
 set(CMAKE_BUILD_TYPE Release)
 
-set(USE_DPCPP yes)
-set(USE_NEW_IFACES no)
-
-set(CUSTOM_OPTIONS "")
+set(ONEDAL_USE_DPCPP yes)
+set(ONEDAL_USE_NEW_IFACES no)
 
 set_link_type()
 
