@@ -25,7 +25,7 @@ project(daal_cpp_examples)
 set(CMAKE_BUILD_TYPE Release)
 
 set(ONEDAL_USE_DPCPP no)
-set(ONEDAL_USE_NEW_IFACES no)
+set(ONEDAL_INTERFACE no)
 
 set_link_type()
 

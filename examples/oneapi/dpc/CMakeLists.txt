@@ -25,7 +25,7 @@ project(oneapi_dpc_examples)
 set(CMAKE_BUILD_TYPE Release)
 
 set(ONEDAL_USE_DPCPP yes)
-set(ONEDAL_USE_NEW_IFACES yes)
+set(ONEDAL_INTERFACE yes)
 
 set_link_type()
 
