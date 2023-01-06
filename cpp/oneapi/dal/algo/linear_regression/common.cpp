@@ -111,7 +111,7 @@ const table& model<Task>::get_packed_coefficients() const {
 }
 
 template <typename Task>
-model<Task>& model<Task>::get_packed_coefficients(const table& t) {
+model<Task>& model<Task>::set_packed_coefficients(const table& t) {
     impl_->set_packed_coefficients(t);
     return *this;
 }
