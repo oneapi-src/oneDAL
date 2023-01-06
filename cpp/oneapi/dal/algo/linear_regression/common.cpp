@@ -95,10 +95,10 @@ namespace v1 {
 using detail::v1::model_impl;
 
 template <typename Task>
-model<Task>::model() : impl_(nullptr) {}
+model<Task>::model() : impl_{ std::make_shared<detail::model_impl<Task>>() } {}
 
 template <typename Task>
-model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}
+model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_{ impl } {}
 
 template <typename Task>
 const table& model<Task>::get_betas() const {
