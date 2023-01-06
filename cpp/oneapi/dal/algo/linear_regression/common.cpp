@@ -111,6 +111,12 @@ const table& model<Task>::get_packed_coefficients() const {
 }
 
 template <typename Task>
+model<Task>& model<Task>::get_packed_coefficients(const table& t) {
+    impl_->set_packed_coefficients(t);
+    return *this;
+}
+
+template <typename Task>
 void model<Task>::serialize(dal::detail::output_archive& ar) const {
     dal::detail::serialize_polymorphic_shared(impl_, ar);
 }
