@@ -27,9 +27,9 @@ set(CMAKE_BUILD_TYPE Release)
 set(ONEDAL_USE_DPCPP yes)
 set(ONEDAL_INTERFACE yes)
 
-set_link_type()
-
 find_package(oneDAL REQUIRED)
+
+set_link_type()
 
 include_directories(source)
 
