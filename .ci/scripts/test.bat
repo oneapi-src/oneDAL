@@ -77,8 +77,8 @@ if "%build_system%"=="cmake" (
     md Build
 
     set results_dir=_cmake_results\intel_intel64_%cmake_link_mode_short%\Release
-    echo cmake -B Build -S . -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR%
-    cmake -B Build -S . -DTARGET_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR%
+    echo cmake -B Build -S . -DONEDAL_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR%
+    cmake -B Build -S . -DONEDAL_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR%
     set solution_name=%examples:\=_%
     msbuild.exe "Build\!solution_name!_examples.sln" /p:Configuration=Release
 

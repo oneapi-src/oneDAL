@@ -23,12 +23,12 @@ include(setup_examples)
 project(oneapi_cpp_examples)
 
 set(CMAKE_BUILD_TYPE Release)
-set(USE_DPCPP no)
-set(USE_NEW_IFACES yes)
-
-set_link_type()
+set(ONEDAL_USE_DPCPP no)
+set(ONEDAL_INTERFACE yes)
 
 find_package(oneDAL REQUIRED)
+
+set_link_type()
 
 include_directories(source)
 
