@@ -373,7 +373,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     //init variables
     size_t i;
     const bool bBestFromOtherFeatures      = isPositive<algorithmFPType, cpu>(split.impurityDecrease);        
-    algorightmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : algorithmFPType(-1);
+    algorithmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : algorithmFPType(-1);
     
     bool bFound           = false;
     IndexType iBest       = -1;
@@ -462,6 +462,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(
 {
     //initialize variables
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
+    size_t i;
     _impRight.init(_nClasses);
     _impLeft.init(_nClasses);
     bool bFound                       = false;
@@ -470,6 +471,8 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(
     IndexType iBest                   = -1;
     algorithmFPType leftWeights  = algorithmFPType(0);
     algorithmFPType rightWeights = algorithmFPType(0);
+    algorithmFPType v = algorithmFPType(0);
+    double lW, rW;
     
     //recover best Gini impurity change for current split
     const algorithmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : algorithmFPType(-1);
@@ -485,16 +488,9 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(
         return bFound;
     }
 
-    if(noWeights) //calculate Gini impurity for left and right
-    {
-        calcImpurity<true>(aIdx, i, _impLeft, lW);
-        calcImpurity<true>(aIdx+i, n, _impRight, rW); 
-    } 
-    else
-    {
-        calcImpurity<false>(aIdx, i, _impLeft, lW);
-        calcImpurity<false>(aIdx+i, n, _impRight, rW); //rightWeights is generally unused
-    }
+    calcImpurity<false>(aIdx, i, _impLeft, lW);
+    calcImpurity<false>(aIdx+i, n, _impRight, rW); //rightWeights is generally unused
+    
     leftWeights = lW; //double to float can possibly occur here
     rightWeights = rW;
 
@@ -639,7 +635,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
     //only if split.featureUnordered is False, then a loop needs to start
     if (split.featureUnordered)
     {
-        nLeft = nFeat[idx];
+        nLeft = nFeatIdx[idx];
         leftWeights = featWeights[idx];
 
         PRAGMA_IVDEP
@@ -650,10 +646,10 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
     } 
     else
     {
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for(size_t i=0; i <= idx; ++i) //include idx for the proper split
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
             nLeft += nFeatIdx[i];
             leftWeights += featWeights[i];
         }
@@ -697,7 +693,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
             split.left.var      = sumLeft;
             split.nLeft         = nLeft;
             split.leftWeights   = leftWeights;
-            idxFeatureBestSplit = i;
+            idxFeatureBestSplit = idx;
             bestImpDecrease     = decrease;
         }
     }
@@ -735,9 +731,9 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
     RNGs<size_t, cpu> rng;
     rng.uniform(1, &idx, engineImpl->getState(), nMinSplitPart, n - nMinSplitPart + 1); //NEED TO DOUBLE CHECK ON nDiffFeatMax
 
-    if (split.unorderedFeature)
+    if (split.featureUnordered)
     {
-        if (noweights)
+        if (noWeights)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
@@ -761,13 +757,13 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
     }
     else
     {
-        size_t lim=K*(idx+1) //unrolled 2D to 1D [idx*k+i]
+        size_t lim=K*(idx+1); //unrolled 2D to 1D [idx*k+i]
 
-        if (noweights)
+        if (noWeights)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i; i < lim; ++i)
+            for (size_t i=0; i < lim; ++i)
             {
                 nLeft += nSamplesPerClass[i];
             }
@@ -784,7 +780,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t i =0; i < lim; ++i)
+            for(size_t i =0; i < lim; ++i) 
             {
                 leftWeights += nSamplesPerClass[i];
             }
@@ -815,7 +811,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
             split.left.var      = sumLeft;
             split.nLeft         = nLeft;
             split.leftWeights   = leftWeights;
-            idxFeatureBestSplit = i;
+            idxFeatureBestSplit = idx;
             bestImpDecrease     = decrease;
         }
     }
@@ -839,13 +835,13 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClassesDispatch(i
     DAAL_ASSERT(_nClasses <= _nClassesThreshold);
     switch (_nClasses)
     {
-    case 2: return findBestSplitFewClasses<2, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, _engineImpl);
-    case 3: return findBestSplitFewClasses<3, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, _engineImpl);
-    case 4: return findBestSplitFewClasses<4, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, _engineImpl);
-    case 5: return findBestSplitFewClasses<5, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, _engineImpl);
-    case 6: return findBestSplitFewClasses<6, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, _engineImpl);
-    case 7: return findBestSplitFewClasses<7, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, _engineImpl);
-    case 8: return findBestSplitFewClasses<8, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, _engineImpl);
+    case 2: return findBestSplitFewClasses<2, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+    case 3: return findBestSplitFewClasses<3, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+    case 4: return findBestSplitFewClasses<4, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+    case 5: return findBestSplitFewClasses<5, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+    case 6: return findBestSplitFewClasses<6, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+    case 7: return findBestSplitFewClasses<7, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+    case 8: return findBestSplitFewClasses<8, noWeights>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
     }
     return -1;
 }
