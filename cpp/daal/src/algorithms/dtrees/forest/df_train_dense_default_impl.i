@@ -1124,7 +1124,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
             //index of best feature value in the array of sorted feature values
             const int idxFeatureValue =
                 _helper.findBestSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode, curImpurity, split,
-                                                      _minWeightLeaf, totalWeights, _binIndex + _data->getNumberOfRows() * iFeature);
+                                                      _minWeightLeaf, totalWeights, _binIndex + _data->getNumberOfRows() * iFeature, _engineImpl);
             if (idxFeatureValue < 0) continue;
             iBestSplit = i;
             split.copyTo(bestSplit);
