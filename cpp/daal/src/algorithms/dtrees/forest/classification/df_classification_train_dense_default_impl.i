@@ -735,9 +735,6 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
     RNGs<size_t, cpu> rng;
     rng.uniform(1, &idx, engineImpl->getState(), nMinSplitPart, n - nMinSplitPart + 1); //NEED TO DOUBLE CHECK ON nDiffFeatMax
 
-    algorithmFPType thisNFeatIdx(0);
-    algorithmFPType thisFeatWeights(0);
-
     if (split.unorderedFeature)
     {
         if (noweights)
