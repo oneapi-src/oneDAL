@@ -633,9 +633,8 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
     algorithmFPType leftWeights = 0.;
     int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
 
-    //insert RNG here
     RNGs<size_t, cpu> rng;
-    rng.uniform(1, &idx, engineImpl->getState(), nMinSplitPart, n - nMinSplitPart + 1); //how to call this
+    rng.uniform(1, &idx, engineImpl->getState(), nMinSplitPart, n - nMinSplitPart + 1); //NEED TO DOUBLE CHECK ON nDiffFeatMax
 
     //only if split.featureUnordered is False, then a loop needs to start
     if (split.featureUnordered)
@@ -718,6 +717,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
                                                                        const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
                                                                        engines::internal::BatchBaseImpl * engineImpl) const
 {
+    size_t idx;
     auto nSamplesPerClass = _samplesPerClassBuf.get();
     auto nFeatIdx         = _idxFeatureBuf.get();
 
@@ -730,53 +730,75 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
     size_t nLeft                = 0;
     algorithmFPType leftWeights = 0.;
     int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
-    for (size_t i = 0; i < nDiffFeatMax; ++i)
+
+
+    RNGs<size_t, cpu> rng;
+    rng.uniform(1, &idx, engineImpl->getState(), nMinSplitPart, n - nMinSplitPart + 1); //NEED TO DOUBLE CHECK ON nDiffFeatMax
+
+    algorithmFPType thisNFeatIdx(0);
+    algorithmFPType thisFeatWeights(0);
+
+    if (split.unorderedFeature)
     {
-        algorithmFPType thisNFeatIdx(0);
-        if (noWeights)
+        if (noweights)
         {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
-                thisNFeatIdx += nSamplesPerClass[i * K + iClass];
+                nLeft += nSamplesPerClass[idx * K + iClass];
             }
-        }
-
-        else
-        {
-            thisNFeatIdx = nFeatIdx[i];
-        }
-
-        if (!thisNFeatIdx) continue;
-
-        algorithmFPType thisFeatWeights(0);
-        if (noWeights)
-        {
-            thisFeatWeights = thisNFeatIdx;
+            leftWeights = nLeft;
         }
         else
         {
+            nLeft = nFeatIdx[idx];
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
-                thisFeatWeights += nSamplesPerClass[i * K + iClass];
+                leftWeights += nSamplesPerClass[idx * K + iClass];
+
             }
         }
+    }
+    else
+    {
+        size_t lim=K*(idx+1) //unrolled 2D to 1D [idx*k+i]
 
-        nLeft       = (split.featureUnordered ? thisNFeatIdx : nLeft + thisNFeatIdx);
-        leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
-        if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
-            break;
-
-        if (!split.featureUnordered)
+        if (noweights)
         {
-            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t i; i < lim; ++i)
+            {
+                nLeft += nSamplesPerClass[i];
+            }
+            leftWeights = nLeft;
         }
-        if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf) continue;
+        else
+        {        
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for(size_t i =0; i <= idx; ++i)
+            {
+                nLeft += nFeatIdx[idx];
+            }
 
-        if (split.featureUnordered)
-        {
-            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[i * K + iClass];
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for(size_t i =0; i < lim; ++i)
+            {
+                leftWeights += nSamplesPerClass[i];
+            }
         }
+    }
+
+
+    if ((nLeft == n) || ((n - nLeft) < nMinSplitPart)
+         || ((totalWeights - leftWeights) < minWeightLeaf)
+         || ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf))
+    {
 
         auto histTotal           = curImpurity.hist.get();
         algorithmFPType sumLeft  = 0;
