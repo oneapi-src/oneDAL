@@ -54,25 +54,25 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     using model_t = model<Task>;
     using model_impl_t = detail::model_impl<Task>;
 
-    bool intp = desc.get_compute_intercept();
+    const bool intp = desc.get_compute_intercept();
 
-    const auto f_count = data.get_column_count();
-    const auto r_count = resp.get_column_count();
+    const auto feature_count = data.get_column_count();
+    const auto response_count = resp.get_column_count();
 
-    const auto ext_f_count = f_count + intp;
+    const auto ext_feature_count = feature_count + intp;
 
-    const auto xtx_size = check_mul_overflow(ext_f_count, ext_f_count);
+    const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
     auto xtx_arr = array<Float>::zeros(xtx_size);
 
-    const auto xty_size = check_mul_overflow(r_count, ext_f_count);
+    const auto xty_size = check_mul_overflow(response_count, ext_feature_count);
     auto xty_arr = array<Float>::zeros(xty_size);
 
-    const auto betas_size = check_mul_overflow(r_count, f_count + 1);
+    const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(betas_size);
 
-    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, ext_f_count, ext_f_count);
-    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, r_count, ext_f_count);
-    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, r_count, f_count + 1);
+    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
+    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
+    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
 
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
@@ -102,7 +102,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         interop::status_to_exception(status);
     }
 
-    auto betas_table = homogen_table::wrap(betas_arr, r_count, f_count + 1);
+    auto betas_table = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
 
     const auto model_impl = std::make_shared<model_impl_t>(betas_table);
     const auto model = dal::detail::make_private<model_t>(model_impl);
@@ -110,30 +110,30 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto options = desc.get_result_options();
     auto result = train_result<Task>().set_model(model).set_result_options(options);
 
-    const pr::ndshape<2> betas_shape{ r_count, f_count + 1 };
+    const pr::ndshape<2> betas_shape{ response_count, feature_count + 1 };
     auto betas = pr::ndarray<Float, 2>::wrap(betas_arr, betas_shape);
 
     if (options.test(result_options::intercept)) {
-        auto arr = array<Float>::zeros(r_count);
-        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { 1l, r_count });
+        auto arr = array<Float>::zeros(response_count);
+        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { 1l, response_count });
         const auto src = betas.get_col_slice(0l, 1l).t();
 
         pr::copy(dst, src);
 
-        auto intercept = homogen_table::wrap(arr, 1l, r_count);
+        auto intercept = homogen_table::wrap(arr, 1l, response_count);
         result.set_intercept(intercept);
     }
 
     if (options.test(result_options::coefficients)) {
-        const auto size = check_mul_overflow(r_count, f_count);
+        const auto size = check_mul_overflow(response_count, feature_count);
 
         auto arr = array<Float>::zeros(size);
-        const auto src = betas.get_col_slice(1l, f_count + 1);
-        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { r_count, f_count });
+        const auto src = betas.get_col_slice(1l, feature_count + 1);
+        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { response_count, feature_count });
 
         pr::copy(dst, src);
 
-        auto coefficients = homogen_table::wrap(arr, r_count, f_count);
+        auto coefficients = homogen_table::wrap(arr, response_count, feature_count);
         result.set_coefficients(coefficients);
     }
 
