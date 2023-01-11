@@ -70,9 +70,12 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(betas_size);
 
-    auto xtx_daal_table = interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
-    auto xty_daal_table = interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
-    auto betas_daal_table = interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
+    auto xtx_daal_table =
+        interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
+    auto xty_daal_table =
+        interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
+    auto betas_daal_table =
+        interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
 
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
