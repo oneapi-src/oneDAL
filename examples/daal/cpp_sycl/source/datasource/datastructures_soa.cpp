@@ -66,16 +66,11 @@ int main() {
         SyclSOANumericTablePtr dataTable = SyclSOANumericTable::create(nFeatures, nObservations);
 
         checkPtr(dataTable.get());
-        dataTable->setArray<int>(sycl::buffer<int>(cDataSOA, sycl::range<1>(nObservations)),
-                                 0);
-        dataTable->setArray<float>(
-            sycl::buffer<float>(fDataSOA, sycl::range<1>(nObservations)),
-            1);
-        dataTable->setArray<double>(
-            sycl::buffer<double>(dDataSOA, sycl::range<1>(nObservations)),
-            2);
-        dataTable->setArray<int>(sycl::buffer<int>(iDataSOA, sycl::range<1>(nObservations)),
-                                 3);
+        dataTable->setArray<int>(sycl::buffer<int>(cDataSOA, sycl::range<1>(nObservations)), 0);
+        dataTable->setArray<float>(sycl::buffer<float>(fDataSOA, sycl::range<1>(nObservations)), 1);
+        dataTable->setArray<double>(sycl::buffer<double>(dDataSOA, sycl::range<1>(nObservations)),
+                                    2);
+        dataTable->setArray<int>(sycl::buffer<int>(iDataSOA, sycl::range<1>(nObservations)), 3);
 
         /* Read a block of rows */
         BlockDescriptor<double> doubleBlock;

@@ -151,8 +151,8 @@ public:
     void reset(::sycl::queue & deviceQueue, Status & status)
     {
         cl_device_id clDevice;
-        findDevice(&clDevice, deviceQueue.get_device().get_info<::sycl::info::device::vendor_id>(),
-                   deviceQueue.get_device().get_info<::sycl::info::device::max_clock_frequency>(), status);
+        findDevice(&clDevice, deviceQueue.get_device().get_info< ::sycl::info::device::vendor_id>(),
+                   deviceQueue.get_device().get_info< ::sycl::info::device::max_clock_frequency>(), status);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
         _clDeviceRef.reset(clDevice);
@@ -377,7 +377,7 @@ public:
 
     ::sycl::kernel toSycl(const ::sycl::context & ctx) const DAAL_C11_OVERRIDE
     {
-        return ::sycl::make_kernel<::sycl::backend::opencl>(_clKernelRef.get(), ctx);
+        return ::sycl::make_kernel< ::sycl::backend::opencl>(_clKernelRef.get(), ctx);
     }
 
 private:
@@ -636,8 +636,7 @@ private:
         });
     }
 
-    void passArguments(::sycl::queue & queue, ::sycl::handler & cgh, UsmPointerStorage & storage, const KernelArguments & args,
-                       Status & status) const
+    void passArguments(::sycl::queue & queue, ::sycl::handler & cgh, UsmPointerStorage & storage, const KernelArguments & args, Status & status) const
     {
         for (size_t i = 0; i < args.size(); i++)
         {

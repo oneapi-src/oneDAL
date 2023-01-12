@@ -162,8 +162,8 @@ private:
         desc.pConstants   = nullptr;
         desc.pNext        = nullptr;
 
-        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(::sycl::get_native<::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_context()),
-                                               ::sycl::get_native<::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_device()), &desc,
+        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(::sycl::get_native< ::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_context()),
+                                               ::sycl::get_native< ::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_device()), &desc,
                                                &_moduleLevelZero, nullptr),
                               status);
     }

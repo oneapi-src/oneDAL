@@ -222,11 +222,11 @@ public:
         return create(nativeBufferWithOffset, status);
     }
 
-    SharedPtr<T> getHostRead(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<::sycl::access::mode::read>(status); }
+    SharedPtr<T> getHostRead(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr< ::sycl::access::mode::read>(status); }
 
-    SharedPtr<T> getHostWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<::sycl::access::mode::write>(status); }
+    SharedPtr<T> getHostWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr< ::sycl::access::mode::write>(status); }
 
-    SharedPtr<T> getHostReadWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<::sycl::access::mode::read_write>(status); }
+    SharedPtr<T> getHostReadWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr< ::sycl::access::mode::read_write>(status); }
 
     const BufferType & get() const { return _nativeBuffer; }
 
@@ -235,7 +235,7 @@ private:
 
     explicit SyclBuffer(const BufferType & nativeBuffer, Status & status) : _nativeBuffer(createNativeBuffer(status, nativeBuffer)) {}
 
-    template <::sycl::access::mode mode>
+    template < ::sycl::access::mode mode>
     SharedPtr<T> getHostPtr(Status & status) const
     {
         using DeleterType  = SyclHostDeleter<T, mode>;

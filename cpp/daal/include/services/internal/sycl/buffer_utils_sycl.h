@@ -177,8 +177,7 @@ private:
         size_t srcOffset;
         size_t count;
 
-        explicit Execute(::sycl::queue & queue, UniversalBuffer & dst, size_t desOffset, void * src, size_t srcCount, size_t srcOffset,
-                         size_t count)
+        explicit Execute(::sycl::queue & queue, UniversalBuffer & dst, size_t desOffset, void * src, size_t srcCount, size_t srcOffset, size_t count)
             : queue(queue), dstUnivers(dst), dstOffset(desOffset), srcArray(src), srcCount(srcCount), srcOffset(srcOffset), count(count)
         {}
 

@@ -97,8 +97,8 @@ int main(int argc, char *argv[]) {
 
         /* Allocate shared memory to store input data */
         float *dataDevice = (float *)sycl::malloc_shared(sizeof(float) * nRows * nCols,
-                                                             queue.get_device(),
-                                                             queue.get_context());
+                                                         queue.get_device(),
+                                                         queue.get_context());
         if (!dataDevice) {
             std::cout << "USM allocation failed on " << deviceName << std::endl;
             continue;

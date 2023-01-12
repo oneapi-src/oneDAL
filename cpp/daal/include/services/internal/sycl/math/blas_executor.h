@@ -132,10 +132,10 @@ private:
     };
 
 public:
-    static void run(::sycl::queue & queue, const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n,
-                    const size_t k, const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA,
-                    const UniversalBuffer & b_buffer, const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer,
-                    const size_t ldc, const size_t offsetC, Status & status)
+    static void run(::sycl::queue & queue, const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
+                    const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const UniversalBuffer & b_buffer,
+                    const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC,
+                    Status & status)
     {
         DAAL_ASSERT(!a_buffer.empty());
         DAAL_ASSERT(!b_buffer.empty());
@@ -280,8 +280,8 @@ private:
     };
 
 public:
-    static void run(::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
-                    UniversalBuffer y_buffer, const int incy, Status & status)
+    static void run(::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, UniversalBuffer y_buffer,
+                    const int incy, Status & status)
     {
         DAAL_ASSERT(!x_buffer.empty());
         DAAL_ASSERT(!y_buffer.empty());

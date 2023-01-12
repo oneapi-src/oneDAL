@@ -67,15 +67,15 @@ public:
         if (!res)
         {
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info<::sycl::info::device::opencl_c_version>().empty();
+            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info< ::sycl::info::device::opencl_c_version>().empty();
             if (isOpenCLBackendAvailable)
             {
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
                 // OpenCl branch
-                auto programPtr = OpenClProgramRef::create(::sycl::get_native<::sycl::backend::opencl>(_deviceQueue.get_context()),
-                                                           ::sycl::get_native<::sycl::backend::opencl>(_deviceQueue.get_device()), name, program,
-                                                           options, status);
+                auto programPtr =
+                    OpenClProgramRef::create(::sycl::get_native< ::sycl::backend::opencl>(_deviceQueue.get_context()),
+                                             ::sycl::get_native< ::sycl::backend::opencl>(_deviceQueue.get_device()), name, program, options, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
                 programHashTable.add(key, programPtr, status);
@@ -149,7 +149,7 @@ public:
         {
             KernelPtr kernel;
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info<::sycl::info::device::opencl_c_version>().empty();
+            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info< ::sycl::info::device::opencl_c_version>().empty();
             if (isOpenCLBackendAvailable)
             {
 #endif // DAAL_DISABLE_LEVEL_ZERO
@@ -203,9 +203,9 @@ public:
     {
         const auto & device          = _deviceQueue.get_device();
         _infoDevice.isCpu            = device.is_cpu();
-        _infoDevice.maxWorkGroupSize = device.get_info<::sycl::info::device::max_work_group_size>();
-        _infoDevice.maxMemAllocSize  = device.get_info<::sycl::info::device::max_mem_alloc_size>();
-        _infoDevice.globalMemSize    = device.get_info<::sycl::info::device::global_mem_size>();
+        _infoDevice.maxWorkGroupSize = device.get_info< ::sycl::info::device::max_work_group_size>();
+        _infoDevice.maxMemAllocSize  = device.get_info< ::sycl::info::device::max_mem_alloc_size>();
+        _infoDevice.globalMemSize    = device.get_info< ::sycl::info::device::global_mem_size>();
     }
 
     void run(const KernelRange & range, const KernelPtr & kernel, const KernelArguments & args, Status & status) DAAL_C11_OVERRIDE

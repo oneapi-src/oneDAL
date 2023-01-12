@@ -67,8 +67,7 @@ daal::data_management::SyclCSRNumericTablePtr createSyclSparseTable(
 
     auto dataBuff = sycl::buffer<DataType, 1>(data, numericTable->getDataSize());
     auto colIndicesBuff = sycl::buffer<size_t, 1>(colIndices, numericTable->getDataSize());
-    auto rowOffsetsBuff =
-        sycl::buffer<size_t, 1>(rowOffsets, numericTable->getNumberOfRows() + 1);
+    auto rowOffsetsBuff = sycl::buffer<size_t, 1>(rowOffsets, numericTable->getNumberOfRows() + 1);
 
     auto syclNumericTable = daal::data_management::SyclCSRNumericTable::create<DataType>(
         dataBuff,

@@ -90,8 +90,7 @@ int main(int argc, char* argv[]) {
             logLoss);
 
         /* Set input objects for the the Stochastic gradient descent algorithm */
-        sycl::buffer<float, 1> initialPointBuff(initialPoint,
-                                                    sycl::range<1>(nFeatures + 1));
+        sycl::buffer<float, 1> initialPointBuff(initialPoint, sycl::range<1>(nFeatures + 1));
         sgdAlgorithm.input.set(
             optimization_solver::iterative_solver::inputArgument,
             SyclHomogenNumericTable<>::create(initialPointBuff, 1, nFeatures + 1, &s));

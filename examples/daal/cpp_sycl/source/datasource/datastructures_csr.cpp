@@ -51,12 +51,12 @@ int main() {
         sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        SyclCSRNumericTablePtr dataTable = SyclCSRNumericTable::create<float>(
-            sycl::buffer<float>(values, nNotZeroes),
-            sycl::buffer<size_t>(colIndices, nNotZeroes),
-            sycl::buffer<size_t>(rowOffsets, nObservations + 1),
-            nFeatures,
-            nObservations);
+        SyclCSRNumericTablePtr dataTable =
+            SyclCSRNumericTable::create<float>(sycl::buffer<float>(values, nNotZeroes),
+                                               sycl::buffer<size_t>(colIndices, nNotZeroes),
+                                               sycl::buffer<size_t>(rowOffsets, nObservations + 1),
+                                               nFeatures,
+                                               nObservations);
         checkPtr(dataTable.get());
 
         /* Read block of rows in dense format */
