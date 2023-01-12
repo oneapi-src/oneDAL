@@ -24,7 +24,7 @@
 //--
 */
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
     #include "services/internal/sycl/math/mkl_lapack.h"
@@ -59,12 +59,12 @@ class PotrfExecutor
 private:
     struct Execute
     {
-        cl::sycl::queue & queue;
+        ::sycl::queue & queue;
         const math::UpLo uplo;
         const size_t n;
         UniversalBuffer & a_buffer;
         const size_t lda;
-        explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda)
+        explicit Execute(::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda)
             : queue(queue), uplo(uplo), n(n), a_buffer(a_buffer), lda(lda)
         {}
 
@@ -85,7 +85,7 @@ private:
     };
 
 public:
-    static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda, Status & status)
+    static void run(::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda, Status & status)
     {
         DAAL_ASSERT(!a_buffer.empty());
 
@@ -103,7 +103,7 @@ class PotrsExecutor
 private:
     struct Execute
     {
-        cl::sycl::queue & queue;
+        ::sycl::queue & queue;
         const math::UpLo uplo;
         const size_t n;
         const size_t ny;
@@ -112,7 +112,7 @@ private:
         UniversalBuffer & b_buffer;
         const size_t ldb;
 
-        explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer,
+        explicit Execute(::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer,
                          const size_t lda, UniversalBuffer & b_buffer, const size_t ldb)
             : queue(queue), uplo(uplo), n(n), ny(ny), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb)
         {}
@@ -137,7 +137,7 @@ private:
     };
 
 public:
-    static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer, const size_t lda,
+    static void run(::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer, const size_t lda,
                     UniversalBuffer & b_buffer, const size_t ldb, Status & status)
     {
         DAAL_ASSERT(!a_buffer.empty());

@@ -17,7 +17,7 @@
 #pragma once
 
 #ifdef ONEDAL_DATA_PARALLEL
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #endif
 
 #define ONEDAL_PROFILER_CONCAT2(x, y) x##y

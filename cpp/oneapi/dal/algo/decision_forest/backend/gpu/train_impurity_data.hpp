@@ -31,7 +31,7 @@ namespace de = dal::detail;
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-using alloc = cl::sycl::usm::alloc;
+using alloc = sycl::usm::alloc;
 
 template <typename Float, typename Index, typename Task>
 struct impurity_data;
@@ -45,7 +45,7 @@ struct impurity_data<Float, Index, task::classification> {
 
     impurity_data() = default;
     ~impurity_data() = default;
-    impurity_data(const cl::sycl::queue& q, Index node_count, Index class_count)
+    impurity_data(const sycl::queue& q, Index node_count, Index class_count)
             : imp_list_(
                   pr::ndarray<Float, 1>::empty(q,
                                                { node_count * impl_const_t::node_imp_prop_count_ },
@@ -53,7 +53,7 @@ struct impurity_data<Float, Index, task::classification> {
               class_hist_list_(
                   pr::ndarray<Index, 1>::empty(q, { node_count * class_count }, alloc::device)) {}
 
-    impurity_data(const cl::sycl::queue& q, const context_t& ctx, Index node_count)
+    impurity_data(const sycl::queue& q, const context_t& ctx, Index node_count)
             : imp_list_(
                   pr::ndarray<Float, 1>::empty(q,
                                                { node_count * impl_const_t::node_imp_prop_count_ },
@@ -62,7 +62,7 @@ struct impurity_data<Float, Index, task::classification> {
                                                             { node_count * ctx.class_count_ },
                                                             alloc::device)) {}
 
-    imp_data_t to_host(cl::sycl::queue& q, const dal::backend::event_vector& deps = {}) const {
+    imp_data_t to_host(sycl::queue& q, const dal::backend::event_vector& deps = {}) const {
         imp_data_t imp_data_host;
         imp_data_host.imp_list_ = imp_list_.to_host(q, deps);
         imp_data_host.class_hist_list_ = class_hist_list_.to_host(q);
@@ -82,19 +82,19 @@ struct impurity_data<Float, Index, task::regression> {
 
     impurity_data() = default;
     ~impurity_data() = default;
-    impurity_data(const cl::sycl::queue& q, Index node_count)
+    impurity_data(const sycl::queue& q, Index node_count)
             : imp_list_(
                   pr::ndarray<Float, 1>::empty(q,
                                                { node_count * impl_const_t::node_imp_prop_count_ },
                                                alloc::device)) {}
 
-    impurity_data(const cl::sycl::queue& q, const context_t& ctx, Index node_count)
+    impurity_data(const sycl::queue& q, const context_t& ctx, Index node_count)
             : imp_list_(
                   pr::ndarray<Float, 1>::empty(q,
                                                { node_count * impl_const_t::node_imp_prop_count_ },
                                                alloc::device)) {}
 
-    imp_data_t to_host(cl::sycl::queue& q, const dal::backend::event_vector& deps = {}) const {
+    imp_data_t to_host(sycl::queue& q, const dal::backend::event_vector& deps = {}) const {
         imp_data_t imp_data_host;
         imp_data_host.imp_list_ = imp_list_.to_host(q, deps);
         return imp_data_host;
@@ -169,7 +169,7 @@ struct impurity_data_manager<Float, Index, task::classification> {
     using imp_data_t = impurity_data<Float, Index, task_t>;
     using context_t = train_context<Float, Index, task_t>;
 
-    impurity_data_manager(const cl::sycl::queue& q, const context_t& ctx)
+    impurity_data_manager(const sycl::queue& q, const context_t& ctx)
             : queue_(q),
               class_count_(ctx.class_count_) {}
     ~impurity_data_manager() = default;
@@ -189,7 +189,7 @@ struct impurity_data_manager<Float, Index, task::classification> {
         return level_node_imp_list_[level];
     }
 
-    const cl::sycl::queue& queue_;
+    const sycl::queue& queue_;
     Index class_count_ = 0;
     std::vector<imp_data_t> level_node_imp_list_;
 };
@@ -200,7 +200,7 @@ struct impurity_data_manager<Float, Index, task::regression> {
     using imp_data_t = impurity_data<Float, Index, task_t>;
     using context_t = train_context<Float, Index, task_t>;
 
-    impurity_data_manager(const cl::sycl::queue& q, const context_t& ctx) : queue_(q) {}
+    impurity_data_manager(const sycl::queue& q, const context_t& ctx) : queue_(q) {}
     ~impurity_data_manager() = default;
 
     void init_new_level(Index node_count) {
@@ -218,7 +218,7 @@ struct impurity_data_manager<Float, Index, task::regression> {
         return level_node_imp_list_[level];
     }
 
-    const cl::sycl::queue& queue_;
+    const sycl::queue& queue_;
     std::vector<imp_data_t> level_node_imp_list_;
 };
 

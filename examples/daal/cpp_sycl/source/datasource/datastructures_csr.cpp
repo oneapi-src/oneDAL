@@ -48,13 +48,13 @@ int main() {
     for (const auto& deviceSelector : getListOfDevices()) {
         const auto& nameDevice = deviceSelector.first;
         const auto& device = deviceSelector.second;
-        cl::sycl::queue queue(device);
+        sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
         SyclCSRNumericTablePtr dataTable = SyclCSRNumericTable::create<float>(
-            cl::sycl::buffer<float>(values, nNotZeroes),
-            cl::sycl::buffer<size_t>(colIndices, nNotZeroes),
-            cl::sycl::buffer<size_t>(rowOffsets, nObservations + 1),
+            sycl::buffer<float>(values, nNotZeroes),
+            sycl::buffer<size_t>(colIndices, nNotZeroes),
+            sycl::buffer<size_t>(rowOffsets, nObservations + 1),
             nFeatures,
             nObservations);
         checkPtr(dataTable.get());

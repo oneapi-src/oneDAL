@@ -52,7 +52,7 @@ void trainModel(NumericTablePtr& trainSamples,
 void testModel(bf_knn_classification::training::ResultPtr& trainingResult,
                NumericTablePtr& testSamples,
                bf_knn_classification::prediction::ResultPtr& searchResult);
-void doRegression(cl::sycl::queue& q,
+void doRegression(sycl::queue& q,
                   bf_knn_classification::prediction::ResultPtr& searchResult,
                   NumericTablePtr& trainResponses,
                   NumericTablePtr& testResponses);
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
         const auto& nameDevice = deviceSelector.first;
         const auto& device = deviceSelector.second;
 
-        cl::sycl::queue queue(device);
+        sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
         SyclExecutionContext ctx(queue);
@@ -143,7 +143,7 @@ void testModel(bf_knn_classification::training::ResultPtr& trainingResult,
     searchResult = algorithm.getResult();
 }
 
-void doRegression(cl::sycl::queue& q,
+void doRegression(sycl::queue& q,
                   bf_knn_classification::prediction::ResultPtr& searchResult,
                   NumericTablePtr& trainResponses,
                   NumericTablePtr& testResponses) {
@@ -167,13 +167,13 @@ void doRegression(cl::sycl::queue& q,
         auto trainResponsesSharedPtr =
             trainResponsesBlock.getBuffer().toUSM(q, data_management::readOnly);
         const float kn = static_cast<float>(kNeighbors);
-        q.submit([&](cl::sycl::handler& h) {
+        q.submit([&](sycl::handler& h) {
             auto neighborsIndicesPtr = neighborsIndicesSharedPtr.get();
             auto testResponsesPtr = testResponsesSharedPtr.get();
             auto trainResponsesPtr = trainResponsesSharedPtr.get();
             h.parallel_for<class regressor>(
-                cl::sycl::range<2>(nTestSamples, nResponses),
-                [=](cl::sycl::id<2> idx) {
+                sycl::range<2>(nTestSamples, nResponses),
+                [=](sycl::id<2> idx) {
                     float acc(0);
                     int trIndex;
                     for (size_t i = 0; i < kNeighbors; ++i) {

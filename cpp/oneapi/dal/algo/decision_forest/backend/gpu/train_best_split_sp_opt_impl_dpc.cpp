@@ -169,7 +169,7 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
         const sycl::nd_range<2> nd_range =
             bk::make_multiple_nd_range_2d({ local_size, max_wg_count_ }, { local_size, 1 });
 
-        last_event = queue.submit([&](cl::sycl::handler& cgh) {
+        last_event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.depends_on(fill_aux_ftr_event);
 
@@ -177,7 +177,7 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
 
             cgh.parallel_for(
                 nd_range,
-                [=](cl::sycl::nd_item<2> item) [[intel::reqd_sub_group_size(sbg_size)]] {
+                [=](sycl::nd_item<2> item) [[intel::reqd_sub_group_size(sbg_size)]] {
                     auto sbg = item.get_sub_group();
                     const Index group_id = item.get_group(1);
                     const Index ftr_group_id = group_id % ftr_worker_per_node_count;
@@ -489,13 +489,13 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
         const sycl::nd_range<2> nd_range =
             bk::make_multiple_nd_range_2d({ local_size, max_wg_count_ }, { local_size, 1 });
 
-        last_event = queue.submit([&](cl::sycl::handler& cgh) {
+        last_event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             local_accessor_rw_t<byte_t> local_byte_buf(local_buf_byte_size, cgh);
 
             cgh.parallel_for(
                 nd_range,
-                [=](cl::sycl::nd_item<2> item) [[intel::reqd_sub_group_size(sbg_size)]] {
+                [=](sycl::nd_item<2> item) [[intel::reqd_sub_group_size(sbg_size)]] {
                     auto sbg = item.get_sub_group();
 
                     const Index node_idx = item.get_global_id(1);

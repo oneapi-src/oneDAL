@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
     auto gpus = get_gpus();
 
     auto rank_gpu = gpus[local_rank % gpus.size()];
-    cl::sycl::queue queue(rank_gpu);
+    sycl::queue queue(rank_gpu);
     daal::services::SyclExecutionContext ctx(queue);
     services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 

@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     for (const auto& deviceSelector : getListOfDevices()) {
         const auto& nameDevice = deviceSelector.first;
         const auto& device = deviceSelector.second;
-        cl::sycl::queue queue(device);
+        sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
         SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
@@ -90,8 +90,8 @@ int main(int argc, char* argv[]) {
             logLoss);
 
         /* Set input objects for the the Stochastic gradient descent algorithm */
-        cl::sycl::buffer<float, 1> initialPointBuff(initialPoint,
-                                                    cl::sycl::range<1>(nFeatures + 1));
+        sycl::buffer<float, 1> initialPointBuff(initialPoint,
+                                                    sycl::range<1>(nFeatures + 1));
         sgdAlgorithm.input.set(
             optimization_solver::iterative_solver::inputArgument,
             SyclHomogenNumericTable<>::create(initialPointBuff, 1, nFeatures + 1, &s));

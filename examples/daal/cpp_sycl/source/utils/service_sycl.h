@@ -27,28 +27,28 @@
 #include <memory>
 
 #include <CL/cl.h>
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include "service.h"
 
-std::unique_ptr<cl::sycl::device> makeDevice(int (*selector)(const sycl::device&)) {
+std::unique_ptr<sycl::device> makeDevice(int (*selector)(const sycl::device&)) {
     try {
-        return std::unique_ptr<cl::sycl::device>(new cl::sycl::device(selector));
+        return std::unique_ptr<sycl::device>(new sycl::device(selector));
     }
     catch (...) {
-        return std::unique_ptr<cl::sycl::device>();
+        return std::unique_ptr<sycl::device>();
     }
 }
 
-std::list<std::pair<std::string, cl::sycl::device> > getListOfDevices() {
-    std::list<std::pair<std::string, cl::sycl::device> > selects;
-    std::unique_ptr<cl::sycl::device> device;
+std::list<std::pair<std::string, sycl::device> > getListOfDevices() {
+    std::list<std::pair<std::string, sycl::device> > selects;
+    std::unique_ptr<sycl::device> device;
 
-    device = makeDevice(&cl::sycl::gpu_selector_v);
+    device = makeDevice(&sycl::gpu_selector_v);
     if (device)
         selects.emplace_back("GPU", *device);
 
-    device = makeDevice(&cl::sycl::cpu_selector_v);
+    device = makeDevice(&sycl::cpu_selector_v);
     if (device)
         selects.emplace_back("CPU", *device);
 
@@ -65,10 +65,10 @@ daal::data_management::SyclCSRNumericTablePtr createSyclSparseTable(
     size_t* rowOffsets = nullptr;
     numericTable->getArrays(&data, &colIndices, &rowOffsets);
 
-    auto dataBuff = cl::sycl::buffer<DataType, 1>(data, numericTable->getDataSize());
-    auto colIndicesBuff = cl::sycl::buffer<size_t, 1>(colIndices, numericTable->getDataSize());
+    auto dataBuff = sycl::buffer<DataType, 1>(data, numericTable->getDataSize());
+    auto colIndicesBuff = sycl::buffer<size_t, 1>(colIndices, numericTable->getDataSize());
     auto rowOffsetsBuff =
-        cl::sycl::buffer<size_t, 1>(rowOffsets, numericTable->getNumberOfRows() + 1);
+        sycl::buffer<size_t, 1>(rowOffsets, numericTable->getNumberOfRows() + 1);
 
     auto syclNumericTable = daal::data_management::SyclCSRNumericTable::create<DataType>(
         dataBuff,

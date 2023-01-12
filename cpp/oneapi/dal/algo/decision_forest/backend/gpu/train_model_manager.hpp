@@ -55,7 +55,7 @@ class tree_level_record {
     using imp_data_t = impurity_data<Float, Index, Task>;
 
 public:
-    tree_level_record(cl::sycl::queue& queue,
+    tree_level_record(sycl::queue& queue,
                       dal::backend::primitives::ndarray<Index, 1> node_list,
                       const imp_data_t& imp_data_list,
                       Index node_count,

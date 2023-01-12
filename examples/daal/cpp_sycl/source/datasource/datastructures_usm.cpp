@@ -63,7 +63,7 @@ NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table) {
 #ifdef IS_USM_SUPPORTED
 
 /* Fill the buffer with pseudo random numbers generated with MinStd engine */
-cl::sycl::event generateData(cl::sycl::queue &q, float *deviceData, size_t nRows, size_t nCols) {
+sycl::event generateData(sycl::queue &q, float *deviceData, size_t nRows, size_t nCols) {
     using namespace cl::sycl;
     return q.submit([&](handler &cgh) {
         cgh.parallel_for<class FillTable>(range<1>(nRows), [=](id<1> idx) {
@@ -90,13 +90,13 @@ int main(int argc, char *argv[]) {
         std::cout << "Running on " << deviceName << std::endl << std::endl;
 
         /* Crate SYCL* queue with desired device */
-        cl::sycl::queue queue{ device };
+        sycl::queue queue{ device };
 
         /* Set the queue to default execution context */
         Environment::getInstance()->setDefaultExecutionContext(SyclExecutionContext{ queue });
 
         /* Allocate shared memory to store input data */
-        float *dataDevice = (float *)cl::sycl::malloc_shared(sizeof(float) * nRows * nCols,
+        float *dataDevice = (float *)sycl::malloc_shared(sizeof(float) * nRows * nCols,
                                                              queue.get_device(),
                                                              queue.get_context());
         if (!dataDevice) {
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
         printNumericTable(covariance, "Covariance matrix:");
 
         /* Free USM data */
-        cl::sycl::free(dataDevice, queue.get_context());
+        sycl::free(dataDevice, queue.get_context());
     }
 
     return 0;

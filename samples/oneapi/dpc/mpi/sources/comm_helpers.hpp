@@ -18,7 +18,7 @@
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #include "oneapi/dal/table/row_accessor.hpp"
 
 template <typename Comm, typename D = float>

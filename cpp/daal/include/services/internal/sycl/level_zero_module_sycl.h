@@ -26,7 +26,7 @@
     #error "DAAL_DISABLE_LEVEL_ZERO must be undefined to include this file"
 #endif
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include "services/daal_shared_ptr.h"
 #include "services/internal/dynamic_lib_helper.h"
@@ -111,7 +111,7 @@ typedef SharedPtr<ZeKernel> ZeKernelPtr;
 class ZeModule : public Base
 {
 public:
-    static SharedPtr<ZeModule> create(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status)
+    static SharedPtr<ZeModule> create(::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status)
     {
         auto ptr = new ZeModule(deviceQueue, binarySize, pBinary, status);
         if (!status)
@@ -143,7 +143,7 @@ public:
     ze_module_handle_t get() const { return _moduleLevelZero; }
 
 private:
-    explicit ZeModule(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status)
+    explicit ZeModule(::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status)
     {
         static DynamicLibHelper zeLib(zeLoaderName, libLoadFlags, status);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
@@ -162,8 +162,8 @@ private:
         desc.pConstants   = nullptr;
         desc.pNext        = nullptr;
 
-        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(cl::sycl::get_native<cl::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_context()),
-                                               cl::sycl::get_native<cl::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_device()), &desc,
+        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(::sycl::get_native<::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_context()),
+                                               ::sycl::get_native<::sycl::backend::ext_oneapi_level_zero>(deviceQueue.get_device()), &desc,
                                                &_moduleLevelZero, nullptr),
                               status);
     }
