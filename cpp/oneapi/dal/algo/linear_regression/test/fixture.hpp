@@ -63,6 +63,12 @@ public:
     table compute_responses(const table& beta, const table& bias, const table& data) const {
         const auto s_count = data.get_row_count();
 
+        REQUIRE(beta.get_row_count() == this->r_count_);
+        REQUIRE(beta.get_column_count() == this->f_count_);
+
+        REQUIRE(bias.get_row_count() == std::int64_t(1));
+        REQUIRE(bias.get_column_count() == this->r_count_);
+
         auto res_arr = array<float_t>::zeros(s_count * this->r_count_);
 
         const auto beta_arr = row_accessor<const float_t>(beta).pull({ 0, -1 });
@@ -73,7 +79,7 @@ public:
             for (std::int64_t r = 0; r < this->r_count_; ++r) {
                 for (std::int64_t f = 0; f < this->f_count_; ++f) {
                     const auto& v = data_arr[s * this->f_count_ + f];
-                    const auto& b = beta_arr[f * this->r_count_ + r];
+                    const auto& b = beta_arr[r * this->f_count_ + f];
                     *(res_arr.get_mutable_data() + s * this->r_count_ + r) += v * b;
                 }
             }
@@ -94,7 +100,7 @@ public:
 
         const std::int64_t betas_seed = meta_gen();
         const auto betas_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->f_count_, this->r_count_ }.fill_uniform(-10.1,
+            te::dataframe_builder{ this->r_count_, this->f_count_ }.fill_uniform(-10.1,
                                                                                  10.1,
                                                                                  betas_seed));
         std::get<0>(result) = betas_dataframe.get_table(this->get_homogen_table_id());
@@ -139,22 +145,51 @@ public:
     }
 
     auto get_descriptor() const {
-        return linear_regression::descriptor<float_t, method_t, task_t>(intercept_);
+        result_option_id resopts = result_options::coefficients;
+        if (this->intercept_)
+            resopts = resopts | result_options::intercept;
+        return linear_regression::descriptor<float_t, method_t, task_t>(intercept_)
+            .set_result_options(resopts);
     }
 
-    void check_results(const table& gtr_table, const infer_result<>& res, double tol) {
-        const table& res_table = res.get_responses();
+    void check_if_close(const table& left, const table& right, double tol = 1e-3) {
+        constexpr auto eps = std::numeric_limits<float_t>::epsilon();
 
-        const table scr_table = te::mse_score<float_t>(res_table, gtr_table);
-        const auto score = row_accessor<const float_t>(scr_table).pull({ 0, -1 });
+        const auto c_count = left.get_column_count();
+        const auto r_count = left.get_row_count();
 
-        for (std::int64_t r = 0; r < this->r_count_; ++r) {
-            CAPTURE(intercept_, t_count_, s_count_, f_count_, r_count_);
-            REQUIRE(score[r] < tol);
+        REQUIRE(right.get_column_count() == c_count);
+        REQUIRE(right.get_row_count() == r_count);
+
+        row_accessor<const float_t> lacc(left);
+        row_accessor<const float_t> racc(right);
+
+        const auto larr = lacc.pull({ 0, -1 });
+        const auto rarr = racc.pull({ 0, -1 });
+
+        for (std::int64_t r = 0; r < r_count; ++r) {
+            for (std::int64_t c = 0; c < c_count; ++c) {
+                const auto lval = larr[r * c_count + c];
+                const auto rval = rarr[r * c_count + c];
+
+                CAPTURE(r_count, c_count, r, c, lval, rval);
+
+                const auto aerr = std::abs(lval - rval);
+                if (aerr < tol)
+                    continue;
+
+                const auto den = std::max({ eps, //
+                                            std::abs(lval),
+                                            std::abs(rval) });
+
+                const auto rerr = aerr / den;
+                CAPTURE(aerr, rerr, den, r, c, lval, rval);
+                REQUIRE(rerr < tol);
+            }
         }
     }
 
-    void run_and_check(std::int64_t seed = 888, double tol = 1.e-3) {
+    void run_and_check(std::int64_t seed = 888, double tol = 1e-2) {
         using namespace ::oneapi::dal::detail;
 
         std::mt19937 meta_gen(seed);
@@ -181,9 +216,21 @@ public:
         const auto desc = this->get_descriptor();
         const auto train_res = this->train(desc, x_train, y_train);
 
+        SECTION("Checking intercept values") {
+            if (desc.get_result_options().test(result_options::intercept))
+                check_if_close(train_res.get_intercept(), this->bias_, tol);
+        }
+
+        SECTION("Checking coefficient values") {
+            if (desc.get_result_options().test(result_options::coefficients))
+                check_if_close(train_res.get_coefficients(), this->beta_, tol);
+        }
+
         const auto infer_res = this->infer(desc, x_test, train_res.get_model());
 
-        check_results(y_test, infer_res, tol);
+        SECTION("Checking infer results") {
+            check_if_close(infer_res.get_responses(), y_test, tol);
+        }
     }
 
 protected:

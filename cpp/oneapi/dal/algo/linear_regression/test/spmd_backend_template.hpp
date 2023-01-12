@@ -35,10 +35,10 @@ public:
     using train_result_t = typename base_t::train_result_t;
 
     void generate_dimensions() {
-        this->t_count_ = GENERATE(327, 888, 32777);
-        this->s_count_ = GENERATE(111, 333, 16777);
-        this->f_count_ = GENERATE(2, 17, 99);
-        this->r_count_ = GENERATE(2, 15, 33);
+        this->t_count_ = GENERATE(307, 5097, 17777);
+        this->s_count_ = GENERATE(111, 777, 3737);
+        this->f_count_ = GENERATE(2, 17);
+        this->r_count_ = GENERATE(1, 15);
         this->intercept_ = GENERATE(0, 1);
     }
 

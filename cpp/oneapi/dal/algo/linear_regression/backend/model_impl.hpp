@@ -22,43 +22,33 @@
 
 namespace oneapi::dal::linear_regression {
 
+using norm_eq_proto = ONEDAL_SERIALIZABLE(linear_regression_model_impl_id);
+
 template <typename Task>
-class detail::v1::model_impl : public base {
+class detail::v1::model_impl : public norm_eq_proto {
 public:
     model_impl() = default;
 
-    virtual const table& get_betas() const = 0;
-};
+    model_impl(const table& packed_coefficients) : packed_coefficients_(packed_coefficients) {}
 
-namespace backend {
-
-template <typename Task>
-using model_impl = detail::model_impl<Task>;
-
-using norm_eq_proto = ONEDAL_SERIALIZABLE(linear_regression_norm_eq_model_impl_id);
-
-template <typename Task>
-class norm_eq_model_impl : public norm_eq_proto, public model_impl<Task> {
-public:
-    norm_eq_model_impl() = default;
-
-    norm_eq_model_impl(const table& betas) : betas_(betas) {}
-
-    void serialize(dal::detail::output_archive& ar) const override {
-        ar(betas_);
+    void serialize(dal::detail::output_archive& ar) const {
+        ar(packed_coefficients_);
     }
 
-    void deserialize(dal::detail::input_archive& ar) override {
-        ar(betas_);
+    void deserialize(dal::detail::input_archive& ar) {
+        ar(packed_coefficients_);
     }
 
-    const table& get_betas() const override {
-        return betas_;
+    const table& get_packed_coefficients() const {
+        return packed_coefficients_;
+    }
+
+    void set_packed_coefficients(const table& v) {
+        this->packed_coefficients_ = v;
     }
 
 private:
-    table betas_;
+    table packed_coefficients_;
 };
 
-} // namespace backend
 } // namespace oneapi::dal::linear_regression
