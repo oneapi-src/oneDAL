@@ -122,7 +122,15 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     const size_t nRowsY = algInput->get(Y)->getNumberOfRows();
 
     const int unexpectedLayouts = packed_mask;
-    DAAL_CHECK_STATUS(s, checkNumericTable(get(values).get(), valuesStr(), unexpectedLayouts, 0, 0, nRowsX));
+
+    if (algParameter->computationMode == kernel_function::matrixVector)
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(values).get(), valuesStr(), unexpectedLayouts, 0, 0, nRowsY));
+    }
+    else
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(values).get(), valuesStr(), unexpectedLayouts, 0, 0, nRowsX));
+    }
 
     const size_t nVectorsValues = get(values)->getNumberOfRows();
 
