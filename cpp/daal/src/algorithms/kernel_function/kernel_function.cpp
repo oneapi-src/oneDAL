@@ -118,22 +118,14 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     Input * algInput             = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
     ParameterBase * algParameter = static_cast<ParameterBase *>(const_cast<daal::algorithms::Parameter *>(par));
 
-    const size_t nRowsX = algInput->get(X)->getNumberOfRows();
-    const size_t nRowsY = algInput->get(Y)->getNumberOfRows();
-
-    const int unexpectedLayouts = packed_mask;
-
-    if (algParameter->computationMode == kernel_function::matrixVector)
-    {
-        DAAL_CHECK_STATUS(s, checkNumericTable(get(values).get(), valuesStr(), unexpectedLayouts, 0, 0, nRowsY));
-    }
-    else
-    {
-        DAAL_CHECK_STATUS(s, checkNumericTable(get(values).get(), valuesStr(), unexpectedLayouts, 0, 0, nRowsX));
-    }
-
+    const size_t nRowsX         = algInput->get(X)->getNumberOfRows();
+    const size_t nRowsY         = algInput->get(Y)->getNumberOfRows();
     const size_t nVectorsValues = get(values)->getNumberOfRows();
 
+    if (nVectorsValues != nRowsX && nVectorsValues != nRowsY)
+    {
+        return Status(Error::create(ErrorIncorrectNumberOfRows, ParameterName, valuesStr()));
+    }
     if (algParameter->rowIndexResult >= nVectorsValues)
     {
         return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexResultStr()));
