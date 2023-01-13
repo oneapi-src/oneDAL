@@ -129,7 +129,7 @@ link.dynamic.lnx = $(if $(link.dynamic.lnx.$(COMPILER)),$(link.dynamic.lnx.$(COM
 link.dynamic.win = link $(link.dynamic.win.$(COMPILER)) -WX -nologo -map -dll $(-DEBL) \
                    $(patsubst %_link.txt,@%_link.txt,$(patsubst %.def,-DEF:%.def,$1)) -out:$@
 link.dynamic.mac = $(if $(link.dynamic.mac.$(COMPILER)),$(link.dynamic.mac.$(COMPILER)),$(error link.dynamic.mac.$(COMPILER) must be defined)) \
-                   -undefined dynamic_lookup -dynamiclib -Wl,-flat_namespace -Wl,-install_name,@rpath/$(@F) \
+                   -undefined dynamic_lookup -dynamiclib -Wl,-flat_namespace -Wl,-install_name,@rpath/$(subst .dylib,.$(MAJORBINARY).dylib,$(@F)) \
                    -Wl,-current_version,$(MAJORBINARY).$(MINORBINARY).0 -Wl,-compatibility_version,$(MAJORBINARY).0.0 \
                    -Wl,-headerpad_max_install_names $(patsubst %_link.txt,-filelist %_link.txt,$(patsubst %_link.def,@%_link.def,$1)) -o $@
 link.dynamic.fbsd = $(if $(link.dynamic.fbsd.$(COMPILER)),$(link.dynamic.fbsd.$(COMPILER)),$(error link.dynamic.fbsd.$(COMPILER) must be defined)) \
