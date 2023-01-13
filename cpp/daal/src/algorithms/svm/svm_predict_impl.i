@@ -246,12 +246,9 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
     services::Status computeThreading(const NumericTablePtr & xTable, const NumericTablePtr & svCoeffTable, const NumericTablePtr & svTable,
                                       NumericTable & r, kernel_function::KernelIfacePtr & kernel, const algorithmFPType bias, const size_t nVectors,
-                                      const size_t nSV, const bool isSparse, const size_t nRowsPerBlock, const size_t nBlocks)
+                                      const size_t nSV, const bool isSparse, const size_t nRowsPerBlock, const size_t nBlocks,
+                                      const size_t nSVPerBlock, const size_t nBlocksSV)
     {
-        size_t nSVPerBlock = 0;
-        DAAL_SAFE_CPU_CALL((nSVPerBlock = 128), (nSVPerBlock = nSV));
-        const size_t nBlocksSV = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
-
         /* TLS data initialization */
         daal::tls<TPredictTask *> tlsTask([&]() {
             if (isSparse)
@@ -337,15 +334,19 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const size_t nRowsPerBlock = 128;
         const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
+        size_t nSVPerBlock = 0;
+        DAAL_SAFE_CPU_CALL((nSVPerBlock = 128), (nSVPerBlock = nSV));
+        const size_t nBlocksSV = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
+
         const bool isSparse = xTable->getDataLayout() == NumericTableIface::csrArray;
 
-        if (nBlocks < 4)
+        if (nBlocks * nBlocksSV < 16)
         {
             computeSequential(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse);
         }
         else
         {
-            computeThreading(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse, nRowsPerBlock, nBlocks);
+            computeThreading(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse, nRowsPerBlock, nBlocks, nSVPerBlock, nBlocksSV);
         }
         return services::Status();
     }
