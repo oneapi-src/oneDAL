@@ -79,11 +79,6 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                                                                                                        const NumericTable * a2, NumericTable * r,
                                                                                                        const KernelParameter * par)
 {
-    if (par->kernelType != KernelType::linear)
-    {
-        return computeInternalMatrixMatrix(a2, a1, r, par);
-    }
-
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
     const size_t nFeatures = a1->getNumberOfColumns();
@@ -115,6 +110,14 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
         }
         dataR[i] = k * dataR[i];
         dataR[i] += b;
+    }
+    if (par->kernelType == KernelType::sigmoid)
+    {
+        daal::internal::Math<algorithmFPType, cpu>::vTanh(nVectors1, dataR, dataR);
+    }
+    if (par->kernelType == KernelType::polynomial)
+    {
+        daal::internal::Math<algorithmFPType, cpu>::vPowx(nVectors1, dataR, par->degree, dataR);
     }
 
     return services::Status();
