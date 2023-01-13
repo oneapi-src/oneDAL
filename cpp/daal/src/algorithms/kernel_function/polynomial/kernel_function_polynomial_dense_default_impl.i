@@ -98,16 +98,18 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
     //compute
     const algorithmFPType k = (algorithmFPType)(par->scale);
     const algorithmFPType b = (algorithmFPType)(par->shift);
-    const char trans = 'T';
-    const DAAL_INT m = nFeatures;
-    const DAAL_INT n = nVectors1;
-    const algorithmFPType alpha(k);
-    const DAAL_INT ldA = nFeatures;
-    const DAAL_INT incX(1);
-    const algorithmFPType beta(1.0);
-    const DAAL_INT incY(1);
+
     services::internal::service_memset_seq<algorithmFPType, cpu>(dataR, b, nVectors1);
-    Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, dataA1, &ldA, dataA2, &incX, &beta, dataR, &incY);
+    for (size_t i = 0; i < nVectors1; i++)
+    {
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            dataR[i] += dataA1[i * nFeatures + j] * dataA2[j];
+        }
+        dataR[i] = k * dataR[i];
+    }
 
     if (par->kernelType == KernelType::sigmoid)
     {
