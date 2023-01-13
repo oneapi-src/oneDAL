@@ -634,7 +634,7 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(global_size, local_size);
 
     std::int64_t local_buffer_size = local_size;
-    auto last_event = q_.submit([&](cl::sycl::handler& cgh) {
+    auto last_event = q_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<std::int64_t> lrc_buf(local_buffer_size, cgh);
         local_accessor_rw_t<Float> lmin_buf(local_buffer_size, cgh);
@@ -781,7 +781,7 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
 
     const sycl::range<1> range{ de::integral_cast<std::size_t>(column_count) };
 
-    auto last_event = q_.submit([&](cl::sycl::handler& cgh) {
+    auto last_event = q_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> id) {
             Float mrgsum = Float(0);

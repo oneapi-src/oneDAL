@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         const auto& nameDevice = deviceSelector.first;
         const auto& device = deviceSelector.second;
 
-        cl::sycl::queue queue(device);
+        sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
         SyclExecutionContext ctx(queue);

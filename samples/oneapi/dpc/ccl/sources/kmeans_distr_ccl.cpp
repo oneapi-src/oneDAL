@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #include <iomanip>
 #include <iostream>
 

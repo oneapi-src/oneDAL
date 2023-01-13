@@ -17,7 +17,7 @@
 #ifndef __DAAL_SYCL_H__
 #define __DAAL_SYCL_H__
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #define DAAL_SYCL_INTERFACE
 #include "daal.h"

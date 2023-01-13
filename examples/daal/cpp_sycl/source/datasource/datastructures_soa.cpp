@@ -52,7 +52,7 @@ int main() {
     for (const auto& deviceSelector : getListOfDevices()) {
         const auto& nameDevice = deviceSelector.first;
         const auto& device = deviceSelector.second;
-        cl::sycl::queue queue(device);
+        sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
         SyclExecutionContext ctx(queue);
@@ -66,16 +66,11 @@ int main() {
         SyclSOANumericTablePtr dataTable = SyclSOANumericTable::create(nFeatures, nObservations);
 
         checkPtr(dataTable.get());
-        dataTable->setArray<int>(cl::sycl::buffer<int>(cDataSOA, cl::sycl::range<1>(nObservations)),
-                                 0);
-        dataTable->setArray<float>(
-            cl::sycl::buffer<float>(fDataSOA, cl::sycl::range<1>(nObservations)),
-            1);
-        dataTable->setArray<double>(
-            cl::sycl::buffer<double>(dDataSOA, cl::sycl::range<1>(nObservations)),
-            2);
-        dataTable->setArray<int>(cl::sycl::buffer<int>(iDataSOA, cl::sycl::range<1>(nObservations)),
-                                 3);
+        dataTable->setArray<int>(sycl::buffer<int>(cDataSOA, sycl::range<1>(nObservations)), 0);
+        dataTable->setArray<float>(sycl::buffer<float>(fDataSOA, sycl::range<1>(nObservations)), 1);
+        dataTable->setArray<double>(sycl::buffer<double>(dDataSOA, sycl::range<1>(nObservations)),
+                                    2);
+        dataTable->setArray<int>(sycl::buffer<int>(iDataSOA, sycl::range<1>(nObservations)), 3);
 
         /* Read a block of rows */
         BlockDescriptor<double> doubleBlock;
