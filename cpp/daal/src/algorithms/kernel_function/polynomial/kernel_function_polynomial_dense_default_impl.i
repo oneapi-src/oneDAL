@@ -109,10 +109,6 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
             dataR[i] += dataA1[i * nFeatures + j] * dataA2[j];
         }
         dataR[i] = k * dataR[i];
-        if (dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold())
-        {
-            dataR[i] = Math<algorithmFPType, cpu>::vExpThreshold();
-        }
     }
     if (par->kernelType == KernelType::sigmoid)
     {
