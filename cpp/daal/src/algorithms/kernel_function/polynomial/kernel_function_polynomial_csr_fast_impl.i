@@ -69,11 +69,6 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
                                                                                                   NumericTable * r, const KernelParameter * par)
 {
-    if (par->kernelType != KernelType::linear)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
-
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
 
@@ -98,6 +93,14 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
         dataR[i] = computeDotProduct(rowOffsetsA1[i] - 1, rowOffsetsA1[i + 1] - 1, mtA1.values(), mtA1.cols(), rowOffsetsA2[0] - 1,
                                      rowOffsetsA2[1] - 1, mtA2.values(), mtA2.cols());
         dataR[i] = dataR[i] * k + b;
+    }
+    if (par->kernelType == KernelType::sigmoid)
+    {
+        daal::internal::Math<algorithmFPType, cpu>::vTanh(nVectors1, dataR, dataR);
+    }
+    if (par->kernelType == KernelType::polynomial)
+    {
+        daal::internal::Math<algorithmFPType, cpu>::vPowx(nVectors1, dataR, par->degree, dataR);
     }
 
     return services::Status();
