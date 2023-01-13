@@ -43,7 +43,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
 {
     if (par->kernelType != KernelType::linear)
     {
-        return services::ErrorMethodNotImplemented;
+        return computeInternalMatrixMatrix(a1, a2, r, par);
     }
 
     //prepareData
@@ -81,7 +81,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
 {
     if (par->kernelType != KernelType::linear)
     {
-        return services::ErrorMethodNotImplemented;
+        return computeInternalMatrixMatrix(a1, a2, r, par);
     }
 
     //prepareData
@@ -103,11 +103,12 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
     //compute
     algorithmFPType k = (algorithmFPType)(par->scale);
     algorithmFPType b = (algorithmFPType)(par->shift);
+
+    PRAGMA_IVDEP
+    PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < nVectors1; i++)
     {
         dataR[i] = 0.0;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < nFeatures; j++)
         {
             dataR[i] += dataA1[i * nFeatures + j] * dataA2[j];
