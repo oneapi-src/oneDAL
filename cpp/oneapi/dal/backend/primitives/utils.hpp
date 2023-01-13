@@ -19,6 +19,7 @@
 #include <variant>
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/common.hpp"
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -153,6 +154,47 @@ inline ndarray<Type, 1> table2ndarray_1d(sycl::queue& q,
     row_accessor<const Type> accessor{ table };
     const auto data = accessor.pull(q, { 0, -1 }, alloc);
     return ndarray<Type, 1>::wrap(data, { data.get_count() });
+}
+
+std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(pr::ndarray<std::int64_t, 1> sample_counts, std::int64_t block_size) {
+    std::vector<std::int32_t> nodes;
+    std::vector<std::int64_t> boundaries;
+    std::int64_t global_bias = 0;
+    for(std::int32_t i = 0; i < sample_counts.get_dimension(0); i++) {
+        auto s = sample_counts.at(i);
+        auto block_counting = uniform_blocking(s, block_size);
+        auto block_count = block_counting.get_block_count();
+        for(std::int32_t block_index = 0; block_index < block_count; block_index++) {
+            nodes.push_back(i);
+            auto local = std::min(s, block_index * block_size);
+            auto biased = local + global_bias;
+            boundaries.push_back(biased);
+        }
+        global_bias = global_bias + s;
+    }
+    boundaries.push_back(global_bias);
+    return std::tuple<bounds, nodes>;
+}
+
+template <ndorder torder>
+std::queue<ndview<Float, 2, torder>> split_dataset(const /*TODO: table instead*/ ndview<Float, 2, torder>& train, std::int64_t block_size) {
+    std::queue<ndview<Float, 2, torder>> train_block_queue; //may require some revision - may want to use table, row_accessor
+    const auto train_count = train.get_dimension(0);
+    const auto feature_count = train.get_dimension(1);
+
+    auto block_counting = uniform_blocking(train_count, block_size);
+    
+    for(std::int32_t block_index = 0; block_index < block_counting.get_block_count(); block_index++) {
+        auto slice = train.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index));
+        //TODO: ensure slice is uniform size (ie conditional when last slice)
+        /*
+        check if last block, if size not equal to size of others
+        fill remaining with ~inf - can use fill function
+        */
+        train_block_queue.emplace_back(slice);
+    }
+
+    return train_block_queue;
 }
 #endif
 

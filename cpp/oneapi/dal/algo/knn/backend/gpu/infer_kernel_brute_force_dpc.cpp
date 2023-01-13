@@ -78,6 +78,8 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
                                  bk::communicator<spmd::device_memory_access::usm> comm) {
     using res_t = response_t<Task, Float>;
 
+    const bool distr_mode = comm.get_rank_count() > 1;
+
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
         throw internal_error{ de::error_messages::unknown_distance_type() };
@@ -115,6 +117,23 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
         arr_indices = array<idx_t>::empty(queue, length, sycl::usm::alloc::device);
         wrapped_indices = pr::ndview<idx_t, 2>::wrap_mutable(arr_indices, { infer_row_count, neighbor_count });
     }
+    if (distr_mode) {
+        auto part_distances = array<Float>{};
+        auto wrapped_part_distances = pr::ndview<Float, 2>{};
+        if (desc.get_result_options().test(result_options::distances) ||
+            (desc.get_voting_mode() == voting_t::distance)) {
+            const auto part_length = de::check_mul_overflow(2 * infer_row_count, neighbor_count);
+            part_distances = array<Float>::empty(queue, part_length, sycl::usm::alloc::device);
+            wrapped_part_distances = pr::ndview<Float, 2>::wrap_mutable(part_distances, { 2 * infer_row_count, neighbor_count });
+        }
+        auto part_indices = array<idx_t>{};
+        auto wrapped_part_indices = pr::ndview<idx_t, 2>{};
+        if (desc.get_result_options().test(result_options::indices)) {
+            const auto part_length = de::check_mul_overflow(2 * infer_row_count, neighbor_count);
+            part_indices = array<idx_t>::empty(queue, part_length, sycl::usm::alloc::device);
+            wrapped_part_indices = pr::ndview<idx_t, 2>::wrap_mutable(part_indices, { 2 * infer_row_count, neighbor_count });
+        }
+    }
 
     using train_t = ndarray_t<Float, cm_train>;
     auto train_var = pr::table2ndarray_variant<Float>(queue, train, sycl::usm::alloc::device);
@@ -129,8 +148,14 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
         responses_data = pr::table2ndarray_1d<res_t>(queue, resps, sycl::usm::alloc::device);
     }
 
-    bf_kernel(queue, comm, desc, train_data, query_data, responses_data, wrapped_distances, wrapped_indices, wrapped_responses)
-        .wait_and_throw();
+    if (distr_mode) {
+        bf_kernel_distr(queue, comm, desc, train_data, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
+            .wait_and_throw();
+    }
+    else {
+        bf_kernel(queue, comm, desc, train_data, query_data, responses_data, wrapped_distances, wrapped_indices, wrapped_responses)
+            .wait_and_throw();
+    }
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 

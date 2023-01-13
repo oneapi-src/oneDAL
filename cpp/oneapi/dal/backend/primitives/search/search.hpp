@@ -25,6 +25,8 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+std::int64_t get_block_size();
+
 template <typename Float>
 std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width);
 
@@ -70,7 +72,7 @@ protected:
     using event_ptr_t = std::shared_ptr<sycl::event>;
     using selc_t = kselect_by_rows<Float>;
 
-    constexpr static inline std::int64_t selection_sub_blocks = 31;
+    constexpr static inline std::int64_t selection_sub_blocks = 31;  //TODO: this may require change, replace with function call
 
 public:
     search_engine_base(sycl::queue& queue, const ndview<Float, 2, torder>& train_data);
@@ -83,6 +85,9 @@ public:
                        const ndview<Float, 2, torder>& train_data,
                        std::int64_t train_block,
                        const Distance& distance_instance);
+
+    auto& reset_train_data(const ndview<Float, 2, torder>& new_train_data,
+                                 std::int64_t new_train_block);
 
     template <ndorder qorder, typename CallbackImpl>
     sycl::event operator()(const ndview<Float, 2, qorder>& query_data,

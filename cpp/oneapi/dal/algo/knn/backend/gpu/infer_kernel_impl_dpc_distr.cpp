@@ -69,7 +69,7 @@ inline sycl::event copy_with_sqrt(sycl::queue& q,
 template <typename Float, typename Task>
 class knn_callback {
     using dst_t = Float;
-    using idx_t = std::int32_t;
+    using idx_t = std::int64_t;
     using res_t = response_t<Task, Float>;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
 
@@ -151,6 +151,15 @@ public:
         return *this;
     }
 
+    auto& set_part_indices(const pr::ndview<idx_t, 2>& part_indices) {
+        if (result_options_.test(result_options::indices)) {
+            ONEDAL_ASSERT(indices.get_dimension(0) == 2 * query_length_);
+            ONEDAL_ASSERT(indices.get_dimension(1) == k_neighbors_);
+            this->part_indices_ = part_indices;
+        }
+        return *this;
+    }
+
     auto& set_distances(const pr::ndview<dst_t, 2>& distances) {
         if (result_options_.test(result_options::distances)) {
             ONEDAL_ASSERT(distances.get_dimension(0) == query_length_);
@@ -160,14 +169,38 @@ public:
         return *this;
     }
 
-    // Note: `inp_distances` can be modified if
-    // metric is Euclidean
-    sycl::event operator()(std::int64_t qb_id,
+    auto& set_part_distances(const pr::ndview<dst_t, 2>& part_distances) {
+        if (result_options_.test(result_options::distances)) {
+            ONEDAL_ASSERT(distances.get_dimension(0) == 2 * query_length_);
+            ONEDAL_ASSERT(distances.get_dimension(1) == k_neighbors_);
+            this->part_distances_ = part_distances;
+        }
+        return *this;
+    }
+
+    sycl::event reset_dists_inds(const event_vector& deps) const {
+        constexpr auto default_dst_value = detail::limits<Float>::max();
+        constexpr auto default_idx_value = -1;
+        auto out_dsts = fill(this->queue_, this->distances_, default_dst_value, deps);
+        auto out_idcs = fill(this->queue_, this->indices_, default_idx_value, out_dsts);
+        return out_idcs
+    }
+
+    auto& set_global_index_offset(int64_t offset) {
+        global_index_offset_ = offset;
+        return *this;
+    }
+
+    auto& set_last_iteration(bool last_iteration) {
+        this->last_iteration_ = last_iteration;
+        return *this;
+    }
+
+    sycl::event finalize()(std::int64_t qb_id,
                            pr::ndview<idx_t, 2>& inp_indices,
                            pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
-        sycl::event copy_indices, copy_distances, comp_responses;
-        
+        //TODO: figure out how to handle this function (inputs, etc.)
         const auto bounds = this->block_bounds(qb_id);
 
         if (result_options_.test(result_options::indices)) {
@@ -177,7 +210,6 @@ public:
         if (result_options_.test(result_options::distances)) {
             copy_distances = this->output_distances(bounds, inp_distances, deps);
         }
-
         if (result_options_.test(result_options::responses)) {
             using namespace bk;
             const auto ndeps = deps + copy_indices + copy_distances;
@@ -186,6 +218,53 @@ public:
 
         sycl::event::wait_and_throw({ copy_indices, copy_distances, comp_responses });
         return sycl::event();
+    }
+
+    sycl::event operator()(std::int64_t qb_id,
+                           pr::ndview<idx_t, 2>& inp_indices,
+                           pr::ndview<Float, 2>& inp_distances,
+                           const bk::event_vector& deps = {}) {
+        sycl::event copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event;
+        const auto& [first, last] = this->block_bounds(qb_id);
+
+        auto start_index = 2 * first;
+        auto middle_index = start_index + (last - first);
+        auto end_index = 2 * last;
+
+        //TODO: add assertions/checks - mostly related to ensuring things are size k
+        kselect_by_rows<Float> select = create_selection_objects(2 * k_neighbors_, k_neighbors_);
+        //TODO: how to handle setting responses (first thought is have flag in this function if last iter) - use select_indexed()
+        auto min_dist_dest = distances_.get_row_slice(first, last);
+        auto min_indc_dest = indices_.get_row_slice(first, last);
+
+        // add global offset value to input indices
+        ONEDAL_ASSERT(global_index_offset_ != -1);
+        auto treat_event = treat_indices(inp_indices, global_index_offset_, deps);
+
+        auto actual_min_dist_copy_dest = part_distances_.get_row_slice(start_index, middle_index);
+        auto current_min_dist_dest = part_distances_.get_row_slice(middle_index, end_index);
+        copy_actual_dist_event = pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, treat_event);
+        copy_current_dist_event = pr::copy(queue_, current_min_dist_dest, inp_distances, treat_event);
+        
+        auto actual_min_indc_copy_dest = part_indices_.get_row_slice(start_index, middle_index);
+        auto current_min_indc_dest = part_indices_.get_row_slice(middle_index, end_index);
+        copy_actual_indc_event = pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, treat_event);
+        copy_current_indc_event = pr::copy(queue_, current_min_indc_dest, inp_indices, treat_event);
+
+        auto kselect_block = part_distances_.get_row_slice(first, last);
+        auto selt_event = select(queue_,
+                                kselect_block,
+                                k_neighbors,
+                                min_dist_dest,
+                                min_indc_dest,
+                                { copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event });
+        auto final_event = select_indexed(part_indices_,
+                                         min_indc_dest,
+                                         { selt_event });
+        if (last_iteration_) { //calls same methods as original operator, using already set indices_ and distances_
+            final_event = finalize(qb_id, indices_, distances_, { final_event })
+        }
+        return final_event;
     }
 
 protected:
@@ -370,23 +449,29 @@ private:
     pr::ndarray<res_t, 2> temp_resp_;
     pr::ndview<res_t, 1> responses_;
     pr::ndview<Float, 2> distances_;
+    pr::ndview<Float, 2> part_distances_;
     pr::ndview<idx_t, 2> indices_;
+    pr::ndview<Float, 2> part_indices_;
+    int64_t global_index_offset_ = -1;
     uniform_voting_t uniform_voting_;
     distance_voting_t distance_voting_;
     uniform_regression_t uniform_regression_;
     distance_regression_t distance_regression_;
     bool compute_sqrt_ = false;
+    bool last_iteration_ = false;
 };
 
 template <typename Task, typename Float, pr::ndorder torder, pr::ndorder qorder, typename RespT>
-sycl::event bf_kernel(sycl::queue& queue,
+sycl::event bf_kernel_distr(sycl::queue& queue,
                       bk::communicator<spmd::device_memory_access::usm> comm,
                       const descriptor_t<Task>& desc,
                       const pr::ndview<Float, 2, torder>& train,
                       const pr::ndview<Float, 2, qorder>& query,
                       const pr::ndview<RespT, 1>& tresps,
                       pr::ndview<Float, 2>& distances,
+                      pr::ndview<Float, 2>& part_distances,
                       pr::ndview<idx_t, 2>& indices,
+                      pr::ndview<idx_t, 2>& part_indices,
                       pr::ndview<RespT, 1>& qresps,
                       const bk::event_vector& deps) {
     using res_t = response_t<Task, Float>;
@@ -419,16 +504,35 @@ sycl::event bf_kernel(sycl::queue& queue,
         ONEDAL_ASSERT(kcount == distances.get_dimension(1));
     }
 
-    // Callback preparation
+    auto block_size = get_block_size();
+    auto rank_count = comm.get_rank_count();
+    auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
+    // ONEDAL_PROFILER_TASK needed?
+    comm.allgather(tcount, node_sample_counts.flatten()).wait();
+
+    auto current_rank = comm.get_rank();
+    auto prev_node = (current_rank - 1) % rank_count;
+    auto next_node = (current_rank + 1) % rank_count;
+
+    auto [boundaries, nodes] = get_boundary_indices(node_sample_counts, block_size);
+
+    auto block_count = nodes.size();
+
+    auto train_block_queue = split_dataset(train, block_size);
+
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
 
     knn_callback<Float, Task> callback(queue, comm, ropts, qbcount, qcount, kcount);
-
+    
     callback.set_inp_responses(tresps);
     callback.set_distances(distances);
+    callback.set_part_distances(part_distances);
     callback.set_responses(qresps);
     callback.set_indices(indices);
+    callback.set_part_indices(part_indices);
+
+    auto next_event = callback.reset_dists_inds(deps);
 
     if constexpr (std::is_same_v<Task, task::classification>) {
         if (desc.get_result_options().test(result_options::responses) &&
@@ -457,7 +561,6 @@ sycl::event bf_kernel(sycl::queue& queue,
         }
     }
 
-    // Actual search
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
         throw internal_error{ de::error_messages::unknown_distance_type() };
@@ -473,15 +576,12 @@ sycl::event bf_kernel(sycl::queue& queue,
     const bool is_euclidean_distance =
         is_minkowski_distance && (distance_impl->get_degree() == 2.0);
 
-    sycl::event search_event;
-
     if (is_cosine_distance) {
         using dst_t = pr::cosine_distance<Float>;
         using search_t = pr::search_engine<Float, dst_t, torder>;
 
         const dst_t dist{ queue };
         const search_t search{ queue, train, tbcount, dist };
-        search_event = search(query, callback, qbcount, kcount);
     }
 
     if (is_chebyshev_distance) {
@@ -490,7 +590,6 @@ sycl::event bf_kernel(sycl::queue& queue,
 
         const dst_t dist{ queue };
         const search_t search{ queue, train, tbcount, dist };
-        search_event = search(query, callback, qbcount, kcount);
     }
 
     if (is_euclidean_distance) {
@@ -501,7 +600,6 @@ sycl::event bf_kernel(sycl::queue& queue,
 
         const dst_t dist{ queue };
         const search_t search{ queue, train, tbcount, dist };
-        search_event = search(query, callback, qbcount, kcount);
     }
     else if (is_minkowski_distance) {
         using met_t = pr::lp_metric<Float>;
@@ -510,20 +608,46 @@ sycl::event bf_kernel(sycl::queue& queue,
 
         const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
         const search_t search{ queue, train, tbcount, dist };
-        search_event = search(query, callback, qbcount, kcount);
     }
 
-    return search_event;
+    const auto first_block_index = std::find(nodes.begin(), nodes.end(), current_rank);
+    ONEDAL_ASSERT(first_block_index != nodes.end());
+    
+    for(std::int32_t block_number = 0; block_number < block_count; block_number++) {
+        // TODO: revise variable names? specifically block_count, block_index, block_number, block_size, is it ok to just use next_event?
+        auto current_block = train_block_queue.pop_front();
+        auto block_index = (block_number + first_block_index) % block_count;
+        auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
+
+        auto sc = current_block.get_dimension(0);
+        ONEDAL_ASSERT(sc >= actual_rows_in_block);
+        auto curr_k = std::min(actual_rows_in_block, k);
+        auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
+
+        callback.set_global_index_offset(boundaries.at(block_index));
+        if (block_number == block_count - 1) { // If last iteration, need to do logic from original callback
+            callback.set_last_iteration(true);
+        }
+        
+        search.reset_train_data(actual_current_block, tbcount);
+        next_event = search(query, callback, qbcount, kcount, { next_event });
+    
+        comm.sendrecv_replace(current_block, block_size, Float, prev_node, next_node);
+    }
+
+    return next_event;
 }
 
 #define INSTANTIATE(T, I, R, F, A, B)                                                       \
-    template sycl::event bf_kernel(sycl::queue&,                                            \
-                                   bk::communicator<spmd::device_memory_access::usm>, \
+    template sycl::event bf_kernel_distr(sycl::queue&,                                      \
+                                   bk::communicator<spmd::device_memory_access::usm>,       \
                                    const descriptor_t<T>&,                                  \
                                    const pr::ndview<F, 2, A>&,                              \
                                    const pr::ndview<F, 2, B>&,                              \
                                    const pr::ndview<R, 1>&,                                 \
                                    pr::ndview<F, 2>&,                                       \
+                                   pr::ndview<F, 2>&,                                       \
+                                   pr::ndview<I, 2>&,                                       \
                                    pr::ndview<I, 2>&,                                       \
                                    pr::ndview<R, 1>&,                                       \
                                    const bk::event_vector&);
