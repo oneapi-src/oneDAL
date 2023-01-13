@@ -350,7 +350,8 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         }
         else
         {
-            st |= computeThreading(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse, nRowsPerBlock, nBlocks, nSVPerBlock, nBlocksSV);
+            st |= computeThreading(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse, nRowsPerBlock, nBlocks, nSVPerBlock,
+                                   nBlocksSV);
         }
         return st;
     }
