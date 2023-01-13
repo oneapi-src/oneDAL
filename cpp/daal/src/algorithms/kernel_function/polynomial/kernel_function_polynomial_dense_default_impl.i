@@ -43,7 +43,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
 {
     if (par->kernelType != KernelType::linear)
     {
-        return computeInternalMatrixMatrix(a1, a2, r, par);
+        return services::ErrorMethodNotImplemented;
     }
 
     //prepareData
@@ -81,7 +81,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
 {
     if (par->kernelType != KernelType::linear)
     {
-        return computeInternalMatrixMatrix(a1, a2, r, par);
+        return computeInternalMatrixMatrix(a2, a1, r, par);
     }
 
     //prepareData
