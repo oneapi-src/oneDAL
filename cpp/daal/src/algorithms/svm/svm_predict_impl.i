@@ -340,7 +340,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
         const bool isSparse = xTable->getDataLayout() == NumericTableIface::csrArray;
 
-        if (nBlocks * nBlocksSV < 16)
+        if (nBlocks == 1 || nBlocks * nBlocksSV < 16)
         {
             computeSequential(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse);
         }
