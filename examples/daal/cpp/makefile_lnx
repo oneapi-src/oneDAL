@@ -56,6 +56,8 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
+
 include daal.lst
 
 ifndef example
@@ -115,7 +117,7 @@ endif
 
 ifeq ($(compiler),icx)
     gcc_toolchain := $(realpath $(dir $(shell which g++))/..)
-    CC = icx --gcc-toolchain=$(gcc_toolchain)
+    CC = icpx --gcc-toolchain=$(gcc_toolchain)
     COPTS += -Wno-deprecated-copy -m64 -lstdc++
 endif
 

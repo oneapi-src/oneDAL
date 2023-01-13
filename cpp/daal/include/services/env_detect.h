@@ -131,8 +131,7 @@ public:
      */
     enum LibraryThreadingType
     {
-        MultiThreaded  = 0, /*!< Multi-threaded mode */
-        SingleThreaded = 1  /*!< Single-threaded mode */
+        MultiThreaded = 0 /*!< Multi-threaded mode */
     };
 
     /**

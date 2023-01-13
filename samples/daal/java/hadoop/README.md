@@ -5,7 +5,7 @@ Hadoop\* samples for the Intel(R) oneAPI Data Analytics Library (oneDAL) are des
 Unzip the archive with oneDAL samples to your working directory (`<sample_dir>`).
 
 ## System Requirements
-You can use oneDAL Hadoop samples on Linux\* and macOS\* operating systems. For a list of oneDAL hardware and software requirements, refer to release notes for the version of oneDAL you are using.
+You can use oneDAL Hadoop samples on Linux\* operating systems. For a list of oneDAL hardware and software requirements, refer to release notes for the version of oneDAL you are using.
 
 ### Hadoop implementations against which oneDAL has been validated:
 - Hadoop 2.6.0
@@ -17,21 +17,19 @@ You can use oneDAL Hadoop samples on Linux\* and macOS\* operating systems. For 
 Before you build the sample, you must set certain environment variables that define the location of related libraries. oneDAL includes the `vars` scripts that you can run to set environment variables:
 
 - On Linux\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:
-source vars.s {ia32|intel64}`
-- On macOS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
-source vars.sh`
+source vars.s`
 
 For more information about setting environment variables and configuring oneDAL, refer to Getting Started guides for the library.
 
 ## Build and Run Instructions
-### On Linux\* and macOS\*
+### On Linux\*
 To build oneDAL Hadoop Java samples, go to the Java Hadoop samples directory:
 
 ```
 cd <sample_dir>/java/hadoop
 ```
 
-Execute the `./launcher.sh {ia32|intel64}` script to run the following algorithms on your Hadoop cluster:
+Execute the `./launcher.sh` script to run the following algorithms on your Hadoop cluster:
 
 - Correlation and variance-covariance matrices;
 - Correlation and variance-covariance matrices using CSR numeric tables;
@@ -51,8 +49,6 @@ Execute the `./launcher.sh {ia32|intel64}` script to run the following algorithm
 - Singular value decomposition (SVD).
 
 You can manage the list of running samples by changing the `Hadoop_samples_list` variable in the `./launcher.sh` script.
-
-From the `{ia32|intel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script. If no parameters are defined, the Intel(R) 64 architecture is used by default.
 
 The command creates the `/Hadoop/<sample_name>` and `/Hadoop/Libraries` directories, builds and runs `<sample_name>.class` executables.
 

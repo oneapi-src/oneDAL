@@ -39,7 +39,7 @@ help:
 ##                                 Intel(R) 64 processor family applications,
 ##                                 static linking
 ##
-## make dylibia32 compiler=clang - build by Clang C++ compiler and
+## make dylibintel64 compiler=clang - build by Clang C++ compiler and
 ##                                 run all examples of Intel(R) oneDAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 dynamic linking
@@ -62,6 +62,8 @@ help:
 ## make help                     - show help
 ##
 ##------------------------------------------------------------------------------
+
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
 
 include daal.lst
 
@@ -93,7 +95,7 @@ RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(
 
 ifeq ($(compiler),intel)
     CC = icc
-    COPTS += -stdlib=libc++
+    COPTS += -stdlib=libc++ -diag-disable=10441
 endif
 
 ifeq ($(compiler),gnu)

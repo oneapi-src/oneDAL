@@ -27,14 +27,6 @@
 #  export CLASSPATH=/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.5.1.jar:/usr/local/hadoop/share/hadoop/common/hadoop-common-2.5.1.jar:/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.5.1.jar:/usr/local/spark/core/target/spark-core_2.10-1.1.0.jar:/usr/local/spark/mllib/target/spark-mllib_2.10-1.1.0.jar:${DAALROOT}/lib/onedal.jar
 #  export SCALA_JARS=/tmp/scala-library-2.10.4.jar
 #
-# macOS*:
-#  export JAVA_HOME=$(/usr/libexec/java_home)
-#  export PATH=/usr/local/hadoop/bin:/usr/local/spark-1.1.1/bin:$PATH
-#  export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/
-#  export DAALROOT=${PWD}/../../../daal
-#  export CLASSPATH=/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.7.0.jar:/usr/local/hadoop/share/hadoop/common/hadoop-common-2.7.0.jar:/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.7.0.jar:/usr/local/spark-1.1.1/core/target/spark-core_2.10-1.1.1.jar:/usr/local/spark-1.1.1/mllib/target/spark-mllib_2.10-1.1.1.jar:${DAALROOT}/lib/onedal.jar
-#  export SCALA_JARS=/usr/local/scala-2.10.4/lib/scala-library.jar
-
 help_message() {
     echo "Usage: launcher.sh [help]"
     echo "help          - print this message"
@@ -60,72 +52,36 @@ export CLASSPATH=${SCALA_JARS}:$CLASSPATH
 
 # Setting paths by OS
 os_name=$(uname -s)
-if [ "${os_name}" == "Darwin" ]; then
-    export DYLD_LIBRARY_PATH=${DAALROOT}/lib/:${TBBROOT}/lib/:$DYLD_LIBRARY_PATH
-    export LIBJAVAAPI=libJavaAPI.dylib
+export LIBJAVAAPI=libJavaAPI.so
 
-    TBBLIBS=
-    if [ -d "${TBBROOT}/lib" ]; then TBBLIBS=${TBBROOT}/lib; fi
-    if [ "${TBBROOT}" ] && [ -d "${TBBROOT}/lib" ]; then TBBLIBS=${TBBROOT}/lib; fi
-    if [ -z "${TBBLIBS}" ]; then
-        echo Can not find TBB runtimes
-        exit 1
-    fi
+TBBLIBS=
+if [ -d "${TBBROOT}/lib/intel64/gcc4.8" ]; then TBBLIBS=${TBBROOT}/lib/intel64/gcc4.8; fi
+if [ -z "${TBBLIBS}" ]; then
+    echo Can not find TBB runtimes
+    exit 1
+fi
 
-    #Comma-separated list of shared libs
-    export SHAREDLIBS=${DAALROOT}/lib/${LIBJAVAAPI}
+#Comma-separated list of shared libs
+export SHAREDLIBS=${DAALROOT}/lib/intel64/${LIBJAVAAPI}
 
-    if [ -f "${TBBLIBS}/libtbb.dylib" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.dylib
-    fi
-    if [ -f "${TBBLIBS}/libtbb.2.dylib" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.2.dylib
-    fi
-    if [ -f "${TBBLIBS}/libtbb.12.dylib" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.12.dylib
-    fi
+if [ -f "${TBBLIBS}/libtbb.so" ]; then
+    SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.so
+fi
+if [ -f "${TBBLIBS}/libtbb.so.2" ]; then
+    SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.so.2
+fi
+if [ -f "${TBBLIBS}/libtbb.so.12" ]; then
+    SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.so.12
+fi
 
-    if [ -f "${TBBLIBS}/libtbbmalloc.dylib" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.dylib
-    fi
-    if [ -f "${TBBLIBS}/libtbbmalloc.2.dylib" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.2.dylib
-    fi
-    if [ -f "${TBBLIBS}/libtbbmalloc.12.dylib" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.12.dylib
-    fi
-else
-    export LIBJAVAAPI=libJavaAPI.so
-
-    TBBLIBS=
-    if [ -d "${TBBROOT}/lib/intel64/gcc4.8" ]; then TBBLIBS=${TBBROOT}/lib/intel64/gcc4.8; fi
-    if [ -z "${TBBLIBS}" ]; then
-        echo Can not find TBB runtimes
-        exit 1
-    fi
-
-    #Comma-separated list of shared libs
-    export SHAREDLIBS=${DAALROOT}/lib/intel64/${LIBJAVAAPI}
-
-    if [ -f "${TBBLIBS}/libtbb.so" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.so
-    fi
-    if [ -f "${TBBLIBS}/libtbb.so.2" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.so.2
-    fi
-    if [ -f "${TBBLIBS}/libtbb.so.12" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.so.12
-    fi
-
-    if [ -f "${TBBLIBS}/libtbbmalloc.so" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.so
-    fi
-    if [ -f "${TBBLIBS}/libtbbmalloc.so.2" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.so.2
-    fi
-    if [ -f "${TBBLIBS}/libtbbmalloc.so.12" ]; then
-        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.so.12
-    fi
+if [ -f "${TBBLIBS}/libtbbmalloc.so" ]; then
+    SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.so
+fi
+if [ -f "${TBBLIBS}/libtbbmalloc.so.2" ]; then
+    SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.so.2
+fi
+if [ -f "${TBBLIBS}/libtbbmalloc.so.12" ]; then
+    SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.so.12
 fi
 
 # Setting list of Spark samples to process

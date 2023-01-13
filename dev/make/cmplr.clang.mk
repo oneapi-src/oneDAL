@@ -19,7 +19,7 @@
 #  Clang defenitions for makefile
 #--
 
-PLATs.clang = lnx32e mac32e fbsd32e
+PLATs.clang = lnx32e mac32e
 
 CMPLRDIRSUFF.clang = _clang
 
@@ -28,17 +28,13 @@ CORE.SERV.COMPILER.clang = generic
 -Zl.clang =
 -DEBC.clang = -g
 
-COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.14 -fwrapv \
+COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.15 -fwrapv \
                      -Werror -Wreturn-type
-COMPILER.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) -fgnu-runtime -Wno-inconsistent-missing-override -nostdinc++ \
-                      -I/usr/include/c++/v1 -I/usr/local/include \
-                      -Werror -Wreturn-type
-COMPILER.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) \
+COMPILER.lnx.clang = clang++ -m64 \
                      -Werror -Wreturn-type
 
 link.dynamic.mac.clang = clang++ -m64
-link.dynamic.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
-link.dynamic.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.lnx.clang = clang++ -m64
 
 pedantic.opts.clang = -pedantic \
                       -Wall \
@@ -49,8 +45,6 @@ pedantic.opts.mac.clang = $(pedantic.opts.clang)
 pedantic.opts.lnx.clang = $(pedantic.opts.clang)
 
 p4_OPT.clang   = $(-Q)march=nocona
-mc_OPT.clang   = $(-Q)march=core2
-mc3_OPT.clang  = $(-Q)march=nehalem
-avx_OPT.clang  = $(-Q)march=sandybridge
+mc3_OPT.clang  = $(-Q)$(if $(OS_is_mac),march=nocona,march=nehalem) $(if $(OS_is_mac),$(-Q)mtune=nehalem)
 avx2_OPT.clang = $(-Q)march=haswell
 skx_OPT.clang  = $(-Q)march=skx

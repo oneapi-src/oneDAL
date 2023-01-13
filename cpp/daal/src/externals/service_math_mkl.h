@@ -36,83 +36,35 @@
 #define VMLFN(f_cpu, f_name, f_suff)       __DAAL_CONCAT5(fpk_vml_, f_name, _, f_cpu, f_suff)
 #define VMLFN_CALL(f_name, f_suff, f_args) VMLFN_CALL1(f_name, f_suff, f_args)
 
-#if defined(_WIN64) || defined(__x86_64__)
-
-    #if defined(__APPLE__)
-        #define __DAAL_MKLVML_SSE2  H8
-        #define __DAAL_MKLVML_SSSE3 H8
-    #else
-        #define __DAAL_MKLVML_SSE2  EX
-        #define __DAAL_MKLVML_SSSE3 U8
-    #endif
-
-    #define VMLFN_CALL1(f_name, f_suff, f_args)                \
-        if (avx512 == cpu)                                     \
-        {                                                      \
-            VMLFN(Z0, f_name, f_suff) f_args;                  \
-            return;                                            \
-        }                                                      \
-        if (avx2 == cpu)                                       \
-        {                                                      \
-            VMLFN(L9, f_name, f_suff) f_args;                  \
-            return;                                            \
-        }                                                      \
-        if (avx == cpu)                                        \
-        {                                                      \
-            VMLFN(E9, f_name, f_suff) f_args;                  \
-            return;                                            \
-        }                                                      \
-        if (sse42 == cpu)                                      \
-        {                                                      \
-            VMLFN(H8, f_name, f_suff) f_args;                  \
-            return;                                            \
-        }                                                      \
-        if (ssse3 == cpu)                                      \
-        {                                                      \
-            VMLFN(__DAAL_MKLVML_SSSE3, f_name, f_suff) f_args; \
-            return;                                            \
-        }                                                      \
-        if (sse2 == cpu)                                       \
-        {                                                      \
-            VMLFN(__DAAL_MKLVML_SSE2, f_name, f_suff) f_args;  \
-            return;                                            \
-        }
-
+#if defined(__APPLE__)
+    #define __DAAL_MKLVML_SSE2  E9
+    #define __DAAL_MKLVML_SSE42 E9
 #else
-
-    #define VMLFN_CALL1(f_name, f_suff, f_args) \
-        if (avx512 == cpu)                      \
-        {                                       \
-            VMLFN(X0, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (avx2 == cpu)                        \
-        {                                       \
-            VMLFN(S9, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (avx == cpu)                         \
-        {                                       \
-            VMLFN(G9, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (sse42 == cpu)                       \
-        {                                       \
-            VMLFN(N8, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (ssse3 == cpu)                       \
-        {                                       \
-            VMLFN(V8, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (sse2 == cpu)                        \
-        {                                       \
-            VMLFN(W7, f_name, f_suff) f_args;   \
-            return;                             \
-        }
-
+    #define __DAAL_MKLVML_SSE2  EX
+    #define __DAAL_MKLVML_SSE42 H8
 #endif
+
+#define VMLFN_CALL1(f_name, f_suff, f_args)                \
+    if (avx512 == cpu)                                     \
+    {                                                      \
+        VMLFN(Z0, f_name, f_suff) f_args;                  \
+        return;                                            \
+    }                                                      \
+    if (avx2 == cpu)                                       \
+    {                                                      \
+        VMLFN(L9, f_name, f_suff) f_args;                  \
+        return;                                            \
+    }                                                      \
+    if (sse42 == cpu)                                      \
+    {                                                      \
+        VMLFN(__DAAL_MKLVML_SSE42, f_name, f_suff) f_args; \
+        return;                                            \
+    }                                                      \
+    if (sse2 == cpu)                                       \
+    {                                                      \
+        VMLFN(__DAAL_MKLVML_SSE2, f_name, f_suff) f_args;  \
+        return;                                            \
+    }
 
 namespace daal
 {

@@ -25,6 +25,13 @@ namespace oneapi::dal::detail {
 
 #ifdef _GLIBCXX_OSTREAM
 
+template <typename Float>
+inline auto& print_array_shape(std::ostream& s, const array<Float>& a) {
+    const auto c = a.get_count();
+
+    return s << "Array of size " << c << "\n";
+}
+
 inline auto& print_table_shape(std::ostream& s, const table& t) {
     const auto h = t.get_row_count();
     const auto w = t.get_column_count();
@@ -32,28 +39,47 @@ inline auto& print_table_shape(std::ostream& s, const table& t) {
     return s << "Table with shape height,width=" << h << ',' << w << "\n";
 }
 
-template <typename Float = float>
-inline auto& print_table_content(std::ostream& s, const table& t) {
-    const auto h = t.get_row_count();
-    const auto w = t.get_column_count();
+template <typename Float>
+inline auto& print_array_content(std::ostream& s, const array<Float>& arr) {
+    const auto c = arr.get_count();
 
 #ifdef _GLIBCXX_IOMANIP
     const auto init_flags = s.flags();
     s << std::scientific << std::setprecision(4);
 #endif
 
-    row_accessor<const Float> accessor(t);
-    for (std::int64_t r = 0; r < h; ++r) {
-        auto row = accessor.pull({ r, r + 1 });
-        for (std::int64_t c = 0; c < w; ++c) {
-            s << "\t " << row[c];
-        }
-        s << "\t: r" << r << '\n';
+    for (std::int64_t i = 0; i < c; ++i) {
+        s << "\t " << arr[i];
     }
+
 #ifdef _GLIBCXX_IOMANIP
     s.setf(init_flags);
 #endif
+
     return s;
+}
+
+template <typename Float = float>
+inline auto& print_table_content(std::ostream& s, const table& t) {
+    [[maybe_unused]] const auto w = t.get_column_count();
+    const auto h = t.get_row_count();
+
+    row_accessor<const Float> accessor(t);
+    for (std::int64_t r = 0; r < h; ++r) {
+        auto row = accessor.pull({ r, r + 1 });
+        ONEDAL_ASSERT(w == row.get_count());
+        print_array_content(s, row);
+        s << "\t: r" << r << '\n';
+    }
+
+    return s;
+}
+
+template <typename Float>
+inline std::ostream& operator<<(std::ostream& s, const array<Float>& arr) {
+    print_array_shape(s, arr);
+    print_array_content<Float>(s, arr);
+    return s << std::endl;
 }
 
 template <typename Float = float>

@@ -228,6 +228,9 @@ public:
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
 
+    /* Linear Regression */
+    MSG(intercept_result_option_requires_intercept_flag);
+
     /* Louvain */
     MSG(negative_resolution);
     MSG(input_initial_partition_table_rc_neq_vertex_count);

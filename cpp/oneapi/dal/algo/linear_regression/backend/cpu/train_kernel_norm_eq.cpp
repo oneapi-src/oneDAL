@@ -35,6 +35,7 @@ using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace be = dal::backend;
+namespace pr = be::primitives;
 namespace interop = dal::backend::interop;
 namespace daal_lr = daal::algorithms::linear_regression;
 
@@ -51,9 +52,9 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     using dal::detail::check_mul_overflow;
 
     using model_t = model<Task>;
-    using model_impl_t = backend::norm_eq_model_impl<Task>;
+    using model_impl_t = detail::model_impl<Task>;
 
-    bool intp = desc.get_compute_intercept();
+    const bool intp = desc.get_compute_intercept();
 
     const auto feature_count = data.get_column_count();
     const auto response_count = resp.get_column_count();
@@ -104,11 +105,40 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         interop::status_to_exception(status);
     }
 
-    auto betas = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
+    auto betas_table = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
 
-    const auto model_impl = std::make_shared<model_impl_t>(betas);
+    const auto model_impl = std::make_shared<model_impl_t>(betas_table);
     const auto model = dal::detail::make_private<model_t>(model_impl);
-    auto result = train_result<Task>().set_model(model);
+
+    const auto options = desc.get_result_options();
+    auto result = train_result<Task>().set_model(model).set_result_options(options);
+
+    const pr::ndshape<2> betas_shape{ response_count, feature_count + 1 };
+    auto betas = pr::ndarray<Float, 2>::wrap(betas_arr, betas_shape);
+
+    if (options.test(result_options::intercept)) {
+        auto arr = array<Float>::zeros(response_count);
+        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { 1l, response_count });
+        const auto src = betas.get_col_slice(0l, 1l).t();
+
+        pr::copy(dst, src);
+
+        auto intercept = homogen_table::wrap(arr, 1l, response_count);
+        result.set_intercept(intercept);
+    }
+
+    if (options.test(result_options::coefficients)) {
+        const auto size = check_mul_overflow(response_count, feature_count);
+
+        auto arr = array<Float>::zeros(size);
+        const auto src = betas.get_col_slice(1l, feature_count + 1);
+        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { response_count, feature_count });
+
+        pr::copy(dst, src);
+
+        auto coefficients = homogen_table::wrap(arr, response_count, feature_count);
+        result.set_coefficients(coefficients);
+    }
 
     return result;
 }

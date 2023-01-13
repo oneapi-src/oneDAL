@@ -27,10 +27,10 @@ CORE.SERV.COMPILER.gnu = generic
 -Zl.gnu =
 -DEBC.gnu = -g
 
-COMPILER.all.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
+COMPILER.all.gnu =  ${CXX} -m64 -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
                     -Werror -Wreturn-type
 
-link.dynamic.all.gnu = ${CXX} $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.all.gnu = ${CXX} -m64
 
 pedantic.opts.all.gnu = -pedantic \
                         -Wall \
@@ -45,9 +45,7 @@ COMPILER.mac.gnu = $(COMPILER.all.gnu)
 link.dynamic.mac.gnu = $(link.dynamic.all.gnu)
 pedantic.opts.mac.gnu = $(pedantic.opts.all.gnu)
 
-p4_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)
-mc_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)
+p4_OPT.gnu   = $(-Q)march=nocona
 mc3_OPT.gnu  = $(-Q)march=corei7
-avx_OPT.gnu  = $(-Q)march=sandybridge
 avx2_OPT.gnu = $(-Q)march=haswell
 skx_OPT.gnu  = $(-Q)march=haswell

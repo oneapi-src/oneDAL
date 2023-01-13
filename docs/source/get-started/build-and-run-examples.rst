@@ -104,8 +104,10 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
            # Navigate to examples directory and build examples
            cd /examples/oneapi/dpc
-           make so example=svm_two_class_thunder_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
-           make so mode=build			   # This will compile all the examples
+           cmake -G "Unix Makefiles⁮" -DEXAMPLES_LIST=svm_two_class_thunder # This would generate makefiles for all svm examples matching passed name
+           make               # This will compile and run generated svm examples
+           cmake -G "Unix Makefiles⁮" -DONEDAL_LINK=static # This wouldgenerate make for static version
+           make               # This will compile and run all the examples
 
       .. group-tab:: Windows
 
@@ -113,10 +115,11 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
             # Navigate to examples directory and build examples
             cd /examples/oneapi/dpc
-            nmake dll example=svm_two_class_thunder_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
-            nmake dll mode=build			     # This will compile all the examples
+           cmake  -G "NMake Makefiles" -DEXAMPLES_LIST=svm_two_class_thunder # This would generate makefiles for all svm examples matching passed name
+           nmake             # This will compile and run generated svm examples
+           cmake  -G "NMake Makefiles" -DONEDAL_LINK=static # This wouldgenerate make for static version
+           nmake              # This will compile and run all the examples
 
-   To see all available parameters of the build procedure, type ``make`` on Linux\* or ``nmake`` on Windows\*.
 
 #. The resulting example binaries and log files are written into the :file:`_results` directory.
 

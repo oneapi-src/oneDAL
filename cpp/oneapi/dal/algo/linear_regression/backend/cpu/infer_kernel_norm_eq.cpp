@@ -49,8 +49,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const model<Task>& m) {
     using dal::detail::check_mul_overflow;
 
-    const auto& betas = m.get_betas();
-    bool intp = desc.get_compute_intercept();
+    const auto& betas = m.get_packed_coefficients();
+    const bool intp = desc.get_compute_intercept();
 
     const auto sample_count = infer.get_row_count();
     const auto response_count = betas.get_row_count();

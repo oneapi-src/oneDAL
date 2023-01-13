@@ -22,22 +22,24 @@
 namespace oneapi::dal::linear_regression::detail {
 namespace v1 {
 
-using dal::detail::data_parallel_policy;
-
-template <typename Float, typename Method, typename Task>
-struct infer_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
-    infer_result<Task> operator()(const data_parallel_policy& ctx,
+template <typename Policy, typename Float, typename Method, typename Task>
+struct infer_ops_dispatcher<Policy, Float, Method, Task> {
+    infer_result<Task> operator()(const Policy& ctx,
                                   const descriptor_base<Task>& params,
                                   const infer_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::infer_kernel_cpu<Float, Method, Task>),
-            KERNEL_SINGLE_NODE_GPU(backend::infer_kernel_gpu<Float, Method, Task>)>;
+            KERNEL_UNIVERSAL_SPMD_GPU(backend::infer_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
-#define INSTANTIATE(F, M, T) \
-    template struct ONEDAL_EXPORT infer_ops_dispatcher<data_parallel_policy, F, M, T>;
+#define INSTANTIATE(F, M, T)                                              \
+    template struct ONEDAL_EXPORT                                         \
+        infer_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>; \
+                                                                          \
+    template struct ONEDAL_EXPORT                                         \
+        infer_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::norm_eq, task::regression)
 INSTANTIATE(double, method::norm_eq, task::regression)
