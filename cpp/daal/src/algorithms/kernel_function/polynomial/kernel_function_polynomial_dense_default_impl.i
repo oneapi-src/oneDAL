@@ -99,22 +99,17 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
     algorithmFPType k = (algorithmFPType)(par->scale);
     algorithmFPType b = (algorithmFPType)(par->shift);
 
-    for (size_t i = 0; i < nVectors1; i++)
-    {
-        dataR[i] = 0.0;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < nFeatures; j++)
-        {
-            dataR[i] += dataA1[i * nFeatures + j] * dataA2[j];
-        }
-        dataR[i] = k * dataR[i];
-        dataR[i] += b;
-        if (dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold())
-        {
-            dataR[i] = Math<algorithmFPType, cpu>::vExpThreshold();
-        }
-    }
+    char notrans = 'N';
+    const algorithmFPType alpha(k);
+    const algorithmFPType beta(1.0);
+    DAAL_INT incX(1);
+    DAAL_INT incY(1);
+    DAAL_INT m(nVectors1);
+    DAAL_INT n(nFeatures);
+
+    services::internal::service_memset_seq<algorithmFPType, cpu>(dataR, b, nVectors1);
+    Blas<algorithmFPType, cpu>::xxgemv(&notrans, &m, &n, &alpha, dataA1, &m, dataA2, &incX, &beta, dataR, &incY);
+
     if (par->kernelType == KernelType::sigmoid)
     {
         daal::internal::Math<algorithmFPType, cpu>::vTanh(nVectors1, dataR, dataR);
