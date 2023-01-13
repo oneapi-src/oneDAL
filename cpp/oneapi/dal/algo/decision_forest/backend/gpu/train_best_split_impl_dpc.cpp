@@ -636,10 +636,10 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
 
     sycl::event last_event;
 
-    last_event = queue.submit([&](cl::sycl::handler& cgh) {
+    last_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<hist_type_t> local_hist_buf(local_hist_buf_size, cgh);
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
                 return;
@@ -926,10 +926,10 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
 
     constexpr Index buff_size = impl_const_t::private_hist_buff_size;
 
-    last_event = queue.submit([&](cl::sycl::handler& cgh) {
+    last_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<hist_type_t> local_hist_buf(local_hist_buf_size, cgh);
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
                 return;

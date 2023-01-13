@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Running on " << deviceName << std::endl << std::endl;
 
         /* Create SYCL* queue with desired device */
-        cl::sycl::queue queue{ device };
+        sycl::queue queue{ device };
 
         /* Set the queue to default execution context */
         Environment::getInstance()->setDefaultExecutionContext(SyclExecutionContext{ queue });

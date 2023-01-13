@@ -65,14 +65,14 @@ public:
      *  \param[in]  buffer  SYCL* buffer
      *  \param[out] status  Status of operation
      */
-    Buffer(const cl::sycl::buffer<T, 1> & buffer, Status & status) : _impl(internal::SyclBuffer<T>::create(buffer, status)) {}
+    Buffer(const ::sycl::buffer<T, 1> & buffer, Status & status) : _impl(internal::SyclBuffer<T>::create(buffer, status)) {}
 
     #ifndef DAAL_NOTHROW_EXCEPTIONS
     /**
      *  Creates a Buffer object referencing a SYCL* buffer
      *  Does not copy the data from the SYCL* buffer
      */
-    Buffer(const cl::sycl::buffer<T, 1> & buffer)
+    Buffer(const ::sycl::buffer<T, 1> & buffer)
     {
         Status status;
         _impl.reset(internal::SyclBuffer<T>::create(buffer, status));
@@ -90,7 +90,7 @@ public:
      *  \param[in] queue      The SYCL* queue object
      *  \param[out] status    Status of operation
      */
-    Buffer(T * usmData, size_t size, const cl::sycl::queue & queue, Status & status)
+    Buffer(T * usmData, size_t size, const ::sycl::queue & queue, Status & status)
         : _impl(internal::UsmBuffer<T>::create(usmData, size, queue, status))
     {}
 
@@ -102,7 +102,7 @@ public:
      *  \param[in] size       Number of elements of type T stored in USM memory block
      *  \param[in] queue      The SYCL* queue object
      */
-    Buffer(T * usmData, size_t size, const cl::sycl::queue & queue)
+    Buffer(T * usmData, size_t size, const ::sycl::queue & queue)
     {
         Status status;
         _impl.reset(internal::UsmBuffer<T>::create(usmData, size, queue, status));
@@ -120,7 +120,7 @@ public:
      *  \param[in] queue      The SYCL* queue object
      *  \param[out] status    Status of operation
      */
-    Buffer(const SharedPtr<T> & usmData, size_t size, const cl::sycl::queue & queue, Status & status)
+    Buffer(const SharedPtr<T> & usmData, size_t size, const ::sycl::queue & queue, Status & status)
         : _impl(internal::UsmBuffer<T>::create(usmData, size, queue, status))
     {}
 
@@ -132,7 +132,7 @@ public:
      *  \param[in] size       Number of elements of type T stored in USM block
      *  \param[in] queue      The SYCL* queue object
      */
-    Buffer(const SharedPtr<T> & usmData, size_t size, const cl::sycl::queue & queue)
+    Buffer(const SharedPtr<T> & usmData, size_t size, const ::sycl::queue & queue)
     {
         Status status;
         _impl.reset(internal::UsmBuffer<T>::create(usmData, size, queue, status));
@@ -238,12 +238,12 @@ public:
      *  \param[out] status  Status of operation
      *  \return one-dimensional SYCL* buffer
      */
-    cl::sycl::buffer<T, 1> toSycl(Status & status) const
+    ::sycl::buffer<T, 1> toSycl(Status & status) const
     {
         if (!_impl)
         {
             status |= ErrorEmptyBuffer;
-            return cl::sycl::buffer<T, 1>(cl::sycl::range<1>(1));
+            return ::sycl::buffer<T, 1>(::sycl::range<1>(1));
         }
         return internal::SyclBufferConverter<T>().toSycl(*_impl, status);
     }
@@ -253,10 +253,10 @@ public:
      *  Converts buffer to the SYCL* buffer, throws exception if conversion fails
      *  \return one-dimensional SYCL* buffer
      */
-    cl::sycl::buffer<T, 1> toSycl() const
+    ::sycl::buffer<T, 1> toSycl() const
     {
         Status status;
-        const cl::sycl::buffer<T, 1> buffer = toSycl(status);
+        const ::sycl::buffer<T, 1> buffer = toSycl(status);
         throwIfPossible(status);
         return buffer;
     }
@@ -271,7 +271,7 @@ public:
      *  \param[out] status Status of operation
      *  \return USM shared pointer
      */
-    SharedPtr<T> toUSM(cl::sycl::queue & queue, const data_management::ReadWriteMode & rwFlag, Status & status) const
+    SharedPtr<T> toUSM(::sycl::queue & queue, const data_management::ReadWriteMode & rwFlag, Status & status) const
     {
         if (!_impl)
         {
@@ -288,7 +288,7 @@ public:
      *  \param[in] rwFlag  Flag specifying read/write access to the buffer
      *  \return USM shared pointer
      */
-    SharedPtr<T> toUSM(cl::sycl::queue & queue, const data_management::ReadWriteMode & rwFlag) const
+    SharedPtr<T> toUSM(::sycl::queue & queue, const data_management::ReadWriteMode & rwFlag) const
     {
         Status status;
         const SharedPtr<T> ptr = toUSM(queue, rwFlag, status);

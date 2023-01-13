@@ -23,7 +23,7 @@
 #endif
 
 #include <CL/cl.h>
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include "services/error_handling.h"
 #ifndef DAAL_DISABLE_LEVEL_ZERO
