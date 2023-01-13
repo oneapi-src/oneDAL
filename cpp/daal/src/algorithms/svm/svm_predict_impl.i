@@ -206,6 +206,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
                                        NumericTable & r, kernel_function::KernelIfacePtr & kernel, const algorithmFPType bias, const size_t nVectors,
                                        const size_t nSV, const bool isSparse)
     {
+        services::Status st;
         TArray<algorithmFPType, cpu> distances(nVectors);
         TPredictTask * prTask;
         if (isSparse)
@@ -216,7 +217,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         {
             prTask = PredictTaskDense<algorithmFPType, cpu>::create(nVectors, nSV, xTable, svTable, kernel);
         }
-        prTask->kernelCompute(0, nVectors, 0, nSV);
+        st |= prTask->kernelCompute(0, nVectors, 0, nSV);
         const algorithmFPType * const buffBlock = prTask->getBuff();
 
         char trans = 'T';
@@ -229,9 +230,10 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         DAAL_INT incY(1);
 
         ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
-        DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
         const algorithmFPType * const svCoeff = mtSVCoeff.get();
         algorithmFPType * const distanceSV    = distances.get();
+        DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
+        DAAL_CHECK_MALLOC(distanceSV);
 
         Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
 
@@ -241,7 +243,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         service_memset_seq<algorithmFPType, cpu>(distanceBlock, bias, nVectors);
         Blas<algorithmFPType, cpu>::xxaxpy(&n, &alpha, distanceSV, &incX, distanceBlock, &incY);
 
-        return services::Status();
+        return st;
     }
 
     services::Status computeThreading(const NumericTablePtr & xTable, const NumericTablePtr & svCoeffTable, const NumericTablePtr & svTable,
@@ -320,6 +322,8 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
     services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par)
     {
+        services::Status st;
+
         kernel_function::KernelIfacePtr kernel = par->kernel->clone();
         DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
 
@@ -342,13 +346,13 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
         if (nBlocks == 1 || nBlocks * nBlocksSV < 16)
         {
-            computeSequential(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse);
+            st |= computeSequential(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse);
         }
         else
         {
-            computeThreading(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse, nRowsPerBlock, nBlocks, nSVPerBlock, nBlocksSV);
+            st |= computeThreading(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse, nRowsPerBlock, nBlocks, nSVPerBlock, nBlocksSV);
         }
-        return services::Status();
+        return st;
     }
 };
 
