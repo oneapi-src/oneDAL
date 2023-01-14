@@ -23,7 +23,7 @@ template <typename Task>
 class detail::v1::compute_input_impl : public base {
 public:
     compute_input_impl(const table& data) : data(data) {}
-    table data;
+    table data, weights;
 };
 
 template <typename Task>
@@ -57,8 +57,18 @@ const table& compute_input<Task>::get_data() const {
 }
 
 template <typename Task>
+const table& compute_input<Task>::get_weights() const {
+    return impl_->weights;
+}
+
+template <typename Task>
 void compute_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
+}
+
+template <typename Task>
+void compute_input<Task>::set_weights_impl(const table& value) {
+    impl_->weights = value;
 }
 
 using msg = dal::detail::error_messages;

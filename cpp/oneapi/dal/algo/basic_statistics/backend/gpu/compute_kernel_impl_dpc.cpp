@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#include <limits>
+#include <algorithm>
+#include <type_traits>
 
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/compute_kernel_dense_impl.hpp"
 #include "oneapi/dal/backend/common.hpp"
@@ -180,10 +184,12 @@ inline void single_pass_block_processor(const Float* data_ptr,
         Float sum2 = Float(0);
         Float sum2cent = Float(0);
         Float mean = Float(0);
+        Float weight = Float(1);
 
         for (std::int64_t row = 0; row < row_block_size; ++row) {
             const std::int64_t y = row * column_count;
-            const Float el = data_ptr[y + x];
+            //if constexpr (use_weights) weight = weights_ptr[row];
+            const Float el = data_ptr[y + x] * weight;
             Float inv_n = Float(1) / (row + 1);
             Float delta = el - mean;
 
@@ -237,75 +243,112 @@ inline void single_pass_block_processor(const Float* data_ptr,
     }
 }
 
-/* block processing kernel for device execution */
-template <typename Float, bs_list List>
-inline void block_processor(const Float* data_ptr,
-                            std::int64_t* brc_ptr,
-                            Float* bmin_ptr,
-                            Float* bmax_ptr,
-                            Float* bsum_ptr,
-                            Float* bsum2_ptr,
-                            Float* bsum2cent_ptr,
-                            std::int64_t row_count,
-                            std::int64_t row_block_idx,
-                            std::int64_t row_block_count,
-                            std::int64_t column_count,
-                            std::int64_t column_block_idx,
-                            std::int64_t column_block_count,
-                            std::int64_t tid,
-                            std::int64_t tnum) {
-    const std::int64_t col_offset = column_block_idx * tnum;
-    const std::int64_t x = tid + col_offset;
+template <typename Float, bs_list params, bool weights = false>
+struct block_processor_kernel {
+    struct empty {};
 
-    if (x < column_count) {
-        std::int64_t row_block_size = (row_count + row_block_count - 1) / row_block_count;
-        const std::int64_t row_offset = row_block_size * row_block_idx;
+    std::conditional_t<weights, const Float*, empty> weights_ptr;
 
-        if (row_block_size + row_offset > row_count) {
-            row_block_size = row_count - row_offset;
-        }
+    constexpr static bool compute_min = check_mask_flag(bs_list::min, params);
+    std::conditional_t<compute_min, Float*, empty> min_ptr;
 
-        Float min = data_ptr[row_offset * column_count + x];
-        Float max = data_ptr[row_offset * column_count + x];
-        Float sum = Float(0);
-        Float sum2 = Float(0);
-        Float sum2cent = Float(0);
-        Float mean = Float(0);
+    constexpr static bool compute_max = check_mask_flag(bs_list::max, params);
+    std::conditional_t<compute_max, Float*, empty> max_ptr;
 
-        for (std::int64_t row = 0; row < row_block_size; ++row) {
-            const std::int64_t y = (row + row_offset) * column_count;
-            const Float el = data_ptr[y + x];
-            Float inv_n = Float(1) / (row + 1);
-            Float delta = el - mean;
+    constexpr static auto sum2_cond = bs_list::sum2 | bs_list::sorm;
+    constexpr static bool compute_sum2 = check_mask_flag(sum2_cond, params);
+    std::conditional_t<compute_sum2, Float*, empty> sum2_ptr;
 
-            min = sycl::fmin(el, min);
-            max = sycl::fmax(el, max);
-            sum += el;
-            sum2 += el * el;
-            mean += delta * inv_n;
-            sum2cent += delta * (el - mean);
-        }
+    constexpr static auto sum_cond = bs_list::sum | bs_list::mean | sum2cent_based_stat;
+    constexpr static bool compute_sum = check_mask_flag(sum_cond, params);
+    std::conditional_t<compute_sum, Float*, empty> sum_ptr;
 
-        if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
-            brc_ptr[x * row_block_count + row_block_idx] = row_block_size;
-        }
-        if constexpr (check_mask_flag(bs_list::min, List)) {
-            bmin_ptr[x * row_block_count + row_block_idx] = min;
-        }
-        if constexpr (check_mask_flag(bs_list::max, List)) {
-            bmax_ptr[x * row_block_count + row_block_idx] = max;
-        }
-        if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | sum2cent_based_stat, List)) {
-            bsum_ptr[x * row_block_count + row_block_idx] = sum;
-        }
-        if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
-            bsum2_ptr[x * row_block_count + row_block_idx] = sum2;
-        }
-        if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
-            bsum2cent_ptr[x * row_block_count + row_block_idx] = sum2cent;
-        }
+    constexpr static bool compute_sum2cent = check_mask_flag(sum2cent_based_stat, params);
+    std::conditional_t<compute_sum2cent, Float*, empty> sum2cent_ptr;
+
+    constexpr static auto brc_cond = bs_list::mean | sum2cent_based_stat;
+    constexpr static bool compute_brc = check_mask_flag(brc_cond, params);
+    std::conditional_t<compute_brc, std::int64_t*, empty> brc_ptr;
+
+    block_processor_kernel(const Float* data,
+                           std::int64_t stride,
+                           std::int64_t row_count,
+                           std::int64_t column_count,
+                           std::int64_t row_block_size)
+        : data_ptr{ data },
+          stride{ stride },
+          row_count{ row_count },
+          column_count{ column_count },
+          row_block_size{ row_block_size } {
+        ONEDAL_ASSERT(row_count >= column_count);
     }
-}
+
+    void operator() (sycl::nd_item<2> item) const {
+        constexpr Float zero = 0, one = 1;
+        using limits_t = std::numeric_limits<Float>;
+        constexpr Float maximum = limits_t::max();
+        constexpr Float minimum = limits_t::min();
+
+        const auto col = item.get_global_id(1);
+        const auto row_block = item.get_global_id(0);
+
+        if (column_count <= std::int64_t(col)) return;
+
+        std::conditional_t<compute_min, Float, empty> min;
+        if constexpr (compute_min) min = maximum;
+
+        std::conditional_t<compute_max, Float, empty> max;
+        if constexpr (compute_max) max = minimum;
+
+        std::conditional_t<compute_sum, Float, empty> sum;
+        if constexpr (compute_sum) sum = zero;
+
+        std::conditional_t<compute_sum2, Float, empty> sum2;
+        if constexpr (compute_sum2) sum2 = zero;
+
+        std::conditional_t<compute_sum2cent, Float, empty> mean;
+        if constexpr (compute_sum2cent) mean = zero;
+
+        std::conditional_t<compute_sum2cent, Float, empty> sum2cent;
+        if constexpr (compute_sum2cent) sum2cent = zero;
+
+        const std::int64_t f_row = row_block_size * row_block;
+        const auto l_row = std::min(row_count, f_row + row_block_size);
+
+        for(auto row = f_row; row < l_row; ++row) {
+            Float val = data_ptr[row * stride + col];
+            if constexpr (weights) val *= weights_ptr[row];
+
+            if constexpr (compute_sum) sum += val;
+            if constexpr (compute_sum2) sum2 += (val * val);
+            if constexpr (compute_min) min = sycl::fmin(min, val);
+            if constexpr (compute_max) max = sycl::fmax(max, val);
+
+            if constexpr (compute_sum2cent) {
+                const Float delta = val - mean;
+                const Float inv_n = one / (row - f_row + 1);
+
+                mean += delta * inv_n;
+                sum2cent += delta * (val - mean);
+            }
+        }
+
+        const auto row_block_count = row_count / row_block_size //
+                                 + bool(row_count % row_block_size);
+        const auto idx = col * row_block_count + row_block; 
+        if constexpr (compute_sum) sum_ptr[idx] = sum;
+        if constexpr (compute_min) min_ptr[idx] = min;
+        if constexpr (compute_max) max_ptr[idx] = max;
+        if constexpr (compute_sum2) sum2_ptr[idx] = sum2;
+        if constexpr (compute_brc) brc_ptr[idx] = (l_row - f_row);
+        if constexpr (compute_sum2cent) sum2cent_ptr[idx] = sum2cent;
+    }
+
+private:
+    const Float* const data_ptr;
+    const std::int64_t stride, row_count, //
+                column_count, row_block_size;
+};
 
 /* block processing kernel for device execution */
 template <typename Float, bs_list List, bool DefferedFin>
@@ -538,6 +581,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         }
     }
 }
+
 
 template <typename Float, bs_list List>
 std::tuple<local_result<Float, List>, sycl::event>
@@ -853,7 +897,7 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
 
 template <typename Float, bs_list List>
 std::tuple<local_result<Float, List>, sycl::event>
-compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Float, 2> data) {
+compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Float, 2>& data) {
     ONEDAL_PROFILER_TASK(process_single_block, q_);
 
     ONEDAL_ASSERT(data.has_data());
@@ -987,15 +1031,16 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndarray<Fl
 
 template <typename Float, bs_list List>
 std::tuple<local_result<Float, List>, sycl::event>
-compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Float, 2> data,
+compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndview<Float, 2>& data,
                                                           std::int64_t row_block_count) {
     ONEDAL_ASSERT(data.has_data());
 
-    std::int64_t row_count = data.get_dimension(0);
-    std::int64_t column_count = data.get_dimension(1);
+    const auto row_count = data.get_dimension(0);
+    const auto column_count = data.get_dimension(1);
+    const auto stride = data.get_leading_stride();
 
-    const auto column_block_count = get_column_block_count(column_count);
-    const auto aux_buf_size = de::check_mul_overflow(row_block_count, column_count);
+    [[maybe_unused]] const auto column_block_count = get_column_block_count(column_count);
+    [[maybe_unused]] const auto aux_buf_size = de::check_mul_overflow(row_block_count, column_count);
 
     auto ndbuf = local_buffer_list<Float, List>::empty(q_, aux_buf_size);
 
@@ -1024,43 +1069,31 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndarray<Floa
                ndbuf.get_sum2().get_mutable_data())
     DECLSET_IF(Float*, asum2cent_ptr, sum2cent_based_stat, ndbuf.get_sum2cent().get_mutable_data())
 
-    auto data_ptr = data.get_data();
+    const auto* data_ptr = data.get_data();
+    const auto wg_size = be::device_max_wg_size(this->q_);
+    const auto local_size = (wg_size < column_count) ? wg_size : column_count;
 
-    std::int64_t max_work_group_size =
-        q_.get_device().get_info<sycl::info::device::max_work_group_size>();
-    auto local_size = (max_work_group_size < column_count) ? max_work_group_size : column_count;
-    auto global_size = de::check_mul_overflow(row_block_count * column_block_count, local_size);
+    const auto row_block_size = (row_count + row_block_count - 1) / row_block_count;
 
-    const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(global_size, local_size);
+    const auto nd_range = bk::make_multiple_nd_range_2d( //
+            {row_block_count, column_count}, {1l, local_size});
 
     sycl::event last_event;
     {
         ONEDAL_PROFILER_TASK(process_blocks, q_);
+        
         last_event = q_.submit([&](sycl::handler& cgh) {
-            cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
-                const std::int64_t tid = item.get_local_id()[0];
-                const std::int64_t tnum = item.get_local_range()[0];
-                const std::int64_t gid = item.get_group().get_group_id(0);
+            using kernel_t = block_processor_kernel<Float, List>;
+            kernel_t kernel(data_ptr, stride, row_count, column_count, row_block_size);
 
-                const std::int64_t row_block_idx = gid / column_block_count;
-                const std::int64_t col_block_idx = gid - row_block_idx * column_block_count;
-
-                block_processor<Float, List>(data_ptr,
-                                             ablock_rc_ptr,
-                                             amin_ptr,
-                                             amax_ptr,
-                                             asum_ptr,
-                                             asum2_ptr,
-                                             asum2cent_ptr,
-                                             row_count,
-                                             row_block_idx,
-                                             row_block_count,
-                                             column_count,
-                                             col_block_idx,
-                                             column_block_count,
-                                             tid,
-                                             tnum);
-            });
+            if constexpr (kernel_t::compute_min) kernel.min_ptr = amin_ptr;
+            if constexpr (kernel_t::compute_max) kernel.max_ptr = amax_ptr;
+            if constexpr (kernel_t::compute_sum) kernel.sum_ptr = asum_ptr;
+            if constexpr (kernel_t::compute_sum2) kernel.sum2_ptr = asum2_ptr;
+            if constexpr (kernel_t::compute_brc) kernel.brc_ptr = ablock_rc_ptr;
+            if constexpr (kernel_t::compute_sum2cent) kernel.sum2cent_ptr = asum2cent_ptr;
+            
+            cgh.parallel_for(nd_range, kernel);
         });
     }
 

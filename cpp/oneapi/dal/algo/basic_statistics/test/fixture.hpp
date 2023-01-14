@@ -16,7 +16,11 @@
 
 #pragma once
 
+#include <limits>
+
 #include "oneapi/dal/algo/basic_statistics/compute.hpp"
+
+#include "oneapi/dal/detail/debug.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
@@ -102,17 +106,58 @@ public:
         }
     }
 
+    void check_if_close(const table& left, const table& right, double tol = 1e-3) {
+        constexpr auto eps = std::numeric_limits<float_t>::epsilon();
+
+        const auto c_count = left.get_column_count();
+        const auto r_count = left.get_row_count();
+
+        REQUIRE(right.get_column_count() == c_count);
+        REQUIRE(right.get_row_count() == r_count);
+
+        row_accessor<const float_t> lacc(left);
+        row_accessor<const float_t> racc(right);
+
+        const auto larr = lacc.pull({ 0, -1 });
+        const auto rarr = racc.pull({ 0, -1 });
+
+        for (std::int64_t r = 0; r < r_count; ++r) {
+            for (std::int64_t c = 0; c < c_count; ++c) {
+                const auto lval = larr[r * c_count + c];
+                const auto rval = rarr[r * c_count + c];
+
+                CAPTURE(r_count, c_count, r, c, lval, rval);
+
+                const auto aerr = std::abs(lval - rval);
+                if (aerr < tol)
+                    continue;
+
+                const auto den = std::max({ eps, //
+                                            std::abs(lval),
+                                            std::abs(rval) });
+
+                const auto rerr = aerr / den;
+                CAPTURE(aerr, rerr, den, r, c, lval, rval);
+                REQUIRE(rerr < tol);
+            }
+        }
+    }
+
     void check_vs_reference(bs::result_option_id compute_mode,
                             const table& data,
                             const result_t& result) {
+        using limits_t = std::numeric_limits<double>;
+        constexpr auto maximum = limits_t::max();
+        constexpr auto minimum = limits_t::min();
+
         CAPTURE(compute_mode);
         CAPTURE(data.get_row_count());
         CAPTURE(data.get_column_count());
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto row_count = data_matrix.get_row_count();
         const auto column_count = data_matrix.get_column_count();
-        auto ref_min = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_max = la::matrix<double>::full({ 1, column_count }, 0.0);
+        auto ref_min = la::matrix<double>::full({ 1, column_count }, maximum);
+        auto ref_max = la::matrix<double>::full({ 1, column_count }, minimum);
         auto ref_sum = la::matrix<double>::full({ 1, column_count }, 0.0);
         auto ref_sum2 = la::matrix<double>::full({ 1, column_count }, 0.0);
         auto ref_sum2cent = la::matrix<double>::full({ 1, column_count }, 0.0);
@@ -156,40 +201,44 @@ public:
         }
 
         if (compute_mode.test(result_options::min)) {
-            check_arr_vs_ref(ref_min, la::matrix<double>::wrap(result.get_min()), "Min");
+            const table ref = homogen_table::wrap(ref_min.get_array(), 1l, column_count);
+            check_if_close(result.get_min(), ref);
         }
         if (compute_mode.test(result_options::max)) {
-            check_arr_vs_ref(ref_max, la::matrix<double>::wrap(result.get_max()), "Max");
+            const table ref = homogen_table::wrap(ref_max.get_array(), 1l, column_count);
+            check_if_close(result.get_max(), ref);
         }
         if (compute_mode.test(result_options::sum)) {
-            check_arr_vs_ref(ref_sum, la::matrix<double>::wrap(result.get_sum()), "Sum");
+            const table ref = homogen_table::wrap(ref_sum.get_array(), 1l, column_count);
+            check_if_close(result.get_sum(), ref);
         }
         if (compute_mode.test(result_options::sum_squares)) {
-            check_arr_vs_ref(ref_sum2, la::matrix<double>::wrap(result.get_sum_squares()), "Sum2");
+            const table ref = homogen_table::wrap(ref_sum2.get_array(), 1l, column_count);
+            check_if_close(result.get_sum_squares(), ref);
         }
         if (compute_mode.test(result_options::sum_squares_centered)) {
-            check_arr_vs_ref(ref_sum2cent,
-                             la::matrix<double>::wrap(result.get_sum_squares_centered()),
-                             "Sum2Cent");
+            const table ref = homogen_table::wrap(ref_sum2cent.get_array(), 1l, column_count);
+            check_if_close(result.get_sum_squares_centered(), ref);
         }
         if (compute_mode.test(result_options::mean)) {
-            check_arr_vs_ref(ref_mean, la::matrix<double>::wrap(result.get_mean()), "Mean");
+            const table ref = homogen_table::wrap(ref_mean.get_array(), 1l, column_count);
+            check_if_close(result.get_mean(), ref);
         }
         if (compute_mode.test(result_options::second_order_raw_moment)) {
-            check_arr_vs_ref(ref_sorm,
-                             la::matrix<double>::wrap(result.get_second_order_raw_moment()),
-                             "SORM");
+            const table ref = homogen_table::wrap(ref_sorm.get_array(), 1l, column_count);
+            check_if_close(result.get_second_order_raw_moment(), ref);
         }
         if (compute_mode.test(result_options::variance)) {
-            check_arr_vs_ref(ref_varc, la::matrix<double>::wrap(result.get_variance()), "Varc");
+            const table ref = homogen_table::wrap(ref_varc.get_array(), 1l, column_count);
+            check_if_close(result.get_variance(), ref);
         }
         if (compute_mode.test(result_options::standard_deviation)) {
-            check_arr_vs_ref(ref_stdev,
-                             la::matrix<double>::wrap(result.get_standard_deviation()),
-                             "StDev");
+            const table ref = homogen_table::wrap(ref_stdev.get_array(), 1l, column_count);
+            check_if_close(result.get_standard_deviation(), ref);
         }
         if (compute_mode.test(result_options::variation)) {
-            check_arr_vs_ref(ref_vart, la::matrix<double>::wrap(result.get_variation()), "Vart");
+            const table ref = homogen_table::wrap(ref_vart.get_array(), 1l, column_count);
+            check_if_close(result.get_variation(), ref);
         }
     }
 
@@ -227,19 +276,10 @@ public:
         }
     }
 
-    void check_arr_vs_ref(const la::matrix<double>& ref,
-                          const la::matrix<double>& res,
-                          std::string info = "") {
-        CAPTURE(info);
-        const double tol = 1e-1;
-        const double diff = te::rel_error(ref, res, 0.0);
-        CHECK(diff < tol);
-    }
-
 private:
-    bs::result_option_id res_min_max = result_options::min | result_options::max;
-    bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    bs::result_option_id res_all = bs::result_option_id(dal::result_option_id_base(mask_full));
+    const bs::result_option_id res_min_max = result_options::min | result_options::max;
+    const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
+    const bs::result_option_id res_all = bs::result_option_id(dal::result_option_id_base(mask_full));
 };
 
 using basic_statistics_types = COMBINE_TYPES((float, double), (basic_statistics::method::dense));

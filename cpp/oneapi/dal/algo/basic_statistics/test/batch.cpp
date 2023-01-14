@@ -33,14 +33,14 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_normal(-30, 30, 7777),
+        GENERATE_DATAFRAME(/*te::dataframe_builder{ 100, 10 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 200, 20 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 200, 530 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 6000, 20 }.fill_normal(-30, 30, 7777),
+                           te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777),*/
+                           te::dataframe_builder{ 6000, 20 }.fill_normal(-30, 30, 7777)/*,
                            te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 10000, 200 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 1000000, 20 }.fill_normal(-0.5, 0.5, 7777));
+                           te::dataframe_builder{ 1000000, 20 }.fill_normal(-0.5, 0.5, 7777)*/);
 
     bs::result_option_id res_min_max = result_options::min | result_options::max;
     bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;

@@ -51,8 +51,8 @@ public:
 private:
     std::int64_t get_row_block_count(std::int64_t row_count);
     std::int64_t get_column_block_count(std::int64_t column_count);
-    std::tuple<local_result_t, sycl::event> compute_single_pass(const pr::ndarray<Float, 2> data);
-    std::tuple<local_result_t, sycl::event> compute_by_blocks(const pr::ndarray<Float, 2> data,
+    std::tuple<local_result_t, sycl::event> compute_single_pass(const pr::ndview<Float, 2>& data);
+    std::tuple<local_result_t, sycl::event> compute_by_blocks(const pr::ndview<Float, 2>& data,
                                                               std::int64_t row_block_count);
     std::tuple<local_result_t, sycl::event> merge_blocks(local_buffer_list_t&& ndbuf,
                                                          std::int64_t column_count,

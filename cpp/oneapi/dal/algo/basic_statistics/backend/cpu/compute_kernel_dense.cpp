@@ -37,8 +37,12 @@ namespace daal_lom = daal::algorithms::low_order_moments;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_lom_kernel_t =
+using daal_lom_batch_kernel_t =
     daal_lom::internal::LowOrderMomentsBatchKernel<Float, daal_lom::defaultDense, Cpu>;
+
+template <typename Float, daal::CpuType Cpu>
+using daal_lom_online_kernel_t =
+    daal_lom::internal::LowOrderMomentsOnlineKernel<Float, daal_lom::defaultDense, Cpu>;
 
 template <typename Method>
 constexpr daal_lom::Method get_daal_method() {
@@ -61,7 +65,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
 
     interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_lom_kernel_t>(ctx,
+        interop::call_daal_kernel<Float, daal_lom_batch_kernel_t>(ctx,
                                                             daal_data.get(),
                                                             &daal_result,
                                                             &daal_parameter));
