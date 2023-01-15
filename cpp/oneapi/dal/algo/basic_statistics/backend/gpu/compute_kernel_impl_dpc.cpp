@@ -92,8 +92,7 @@ std::int64_t compute_kernel_dense_impl<Float, List>::get_column_block_count(
     std::int64_t column_count) {
     ONEDAL_ASSERT(column_count > 0);
 
-    std::int64_t max_work_group_size =
-        q_.get_device().get_info<sycl::info::device::max_work_group_size>();
+    const auto max_work_group_size = be::device_max_wg_size(q_);
     return (column_count + max_work_group_size - 1) / max_work_group_size;
 }
 
@@ -155,96 +154,124 @@ result_t compute_kernel_dense_impl<Float, List>::get_result(const descriptor_t& 
     return res;
 }
 
-/* single pass kernel for device execution */
-template <typename Float, bs_list List, bool DefferedFin>
-inline void single_pass_block_processor(const Float* data_ptr,
-                                        Float* rmin_ptr,
-                                        Float* rmax_ptr,
-                                        Float* rsum_ptr,
-                                        Float* rsum2_ptr,
-                                        Float* rsum2cent_ptr,
-                                        Float* rmean_ptr,
-                                        Float* rsorm_ptr,
-                                        Float* rvarc_ptr,
-                                        Float* rstdev_ptr,
-                                        Float* rvart_ptr,
-                                        std::int64_t row_count,
-                                        std::int64_t column_count,
-                                        std::int64_t col_block_idx,
-                                        std::int64_t column_block_count,
-                                        std::int64_t tid,
-                                        std::int64_t tnum) {
-    const std::int64_t col_offset = col_block_idx * tnum;
-    const std::int64_t x = tid + col_offset;
+template <typename Float, bs_list params, bool DefferedFin, bool weights = false>
+struct singlepass_processor_kernel {
+    struct empty {};
 
-    if (x < column_count) {
-        std::int64_t row_block_size = row_count;
+    std::conditional_t<weights, const Float*, empty> weights_ptr;
 
-        Float min = data_ptr[x];
-        Float max = data_ptr[x];
+    constexpr static bool compute_min = check_mask_flag(bs_list::min, params);
+    std::conditional_t<compute_min, Float*, empty> min_ptr;
 
-        Float sum = Float(0);
-        Float sum2 = Float(0);
-        Float sum2cent = Float(0);
-        Float mean = Float(0);
-        Float weight = Float(1);
+    constexpr static bool compute_max = check_mask_flag(bs_list::max, params);
+    std::conditional_t<compute_max, Float*, empty> max_ptr;
 
-        for (std::int64_t row = 0; row < row_block_size; ++row) {
-            const std::int64_t y = row * column_count;
-            //if constexpr (use_weights) weight = weights_ptr[row];
-            const Float el = data_ptr[y + x] * weight;
-            Float inv_n = Float(1) / (row + 1);
-            Float delta = el - mean;
+    constexpr static auto sum2_cond = bs_list::sum2 | bs_list::sorm;
+    constexpr static bool compute_sum2 = check_mask_flag(sum2_cond, params);
+    std::conditional_t<compute_sum2, Float*, empty> sum2_ptr;
 
-            min = sycl::fmin(el, min);
-            max = sycl::fmax(el, max);
-            sum += el;
-            sum2 += el * el;
-            mean += delta * inv_n;
-            sum2cent += delta * (el - mean);
-        }
+    constexpr static bool compute_sum = check_mask_flag(bs_list::sum, params) && //
+        (DefferedFin && check_mask_flag(bs_list::mean | sum2cent_based_stat, params));
+    std::conditional_t<compute_sum, Float*, empty> sum_ptr;
 
-        if constexpr (check_mask_flag(bs_list::min, List)) {
-            rmin_ptr[x] = min;
-        }
-        if constexpr (check_mask_flag(bs_list::max, List)) {
-            rmax_ptr[x] = max;
-        }
-        if constexpr (check_mask_flag(bs_list::sum, List) ||
-                      (DefferedFin && check_mask_flag(bs_list::mean | sum2cent_based_stat, List))) {
-            rsum_ptr[x] = sum;
-        }
-        if constexpr (check_mask_flag(bs_list::sum2 | bs_list::sorm, List)) {
-            rsum2_ptr[x] = sum2;
-        }
-        if constexpr (check_mask_flag(bs_list::sum2cent, List) ||
-                      (DefferedFin &&
-                       check_mask_flag(bs_list::varc | bs_list::stdev | bs_list::vart, List))) {
-            rsum2cent_ptr[x] = sum2cent;
-        }
+    constexpr static bool compute_sorm = !DefferedFin && check_mask_flag(bs_list::sorm, params);
+    std::conditional_t<compute_sorm, Float*, empty> sorm_ptr;
 
-        // common vars calculation
-        Float variance = sum2cent / (row_block_size - Float(1));
-        Float stdev = (Float)sqrt(variance);
+    constexpr static bool compute_varc = !DefferedFin && check_mask_flag(bs_list::varc, params);
+    std::conditional_t<compute_varc, Float*, empty> varc_ptr;
 
-        // output assignment
-        if constexpr (!DefferedFin && check_mask_flag(bs_list::mean, List)) {
-            rmean_ptr[x] = mean;
-        }
-        if constexpr (!DefferedFin && check_mask_flag(bs_list::sorm, List)) {
-            rsorm_ptr[x] = sum2 / row_block_size;
-        }
-        if constexpr (!DefferedFin && check_mask_flag(bs_list::varc, List)) {
-            rvarc_ptr[x] = variance;
-        }
-        if constexpr (!DefferedFin && check_mask_flag(bs_list::stdev, List)) {
-            rstdev_ptr[x] = stdev;
-        }
-        if constexpr (!DefferedFin && check_mask_flag(bs_list::vart, List)) {
-            rvart_ptr[x] = stdev / mean;
-        }
+    constexpr static bool compute_vart = !DefferedFin && check_mask_flag(bs_list::vart, params);
+    std::conditional_t<compute_vart, Float*, empty> vart_ptr;
+
+    constexpr static bool compute_stdev = !DefferedFin && check_mask_flag(bs_list::stdev, params);
+    std::conditional_t<compute_stdev, Float*, empty> stdev_ptr;
+
+    constexpr static bool compute_sum2cent = check_mask_flag(bs_list::sum2cent, params) && //
+        (DefferedFin && check_mask_flag(bs_list::varc | bs_list::stdev | bs_list::vart, params));
+    std::conditional_t<compute_sum2cent, Float*, empty> sum2cent_ptr;
+
+    constexpr static bool compute_mean = !DefferedFin && check_mask_flag(bs_list::mean, params);
+    std::conditional_t<compute_mean, Float*, empty> mean_ptr;
+
+    singlepass_processor_kernel(const Float* data,
+                                std::int64_t stride,
+                                std::int64_t row_count,
+                                std::int64_t column_count)
+        : data_ptr{ data },
+          stride{ stride },
+          row_count{ row_count },
+          column_count{ column_count } {
+        ONEDAL_ASSERT(row_count >= column_count);
     }
-}
+
+    void operator() (sycl::id<1> idx) const {
+        constexpr Float zero = 0, one = 1;
+        using limits_t = std::numeric_limits<Float>;
+        constexpr Float maximum = limits_t::max();
+        constexpr Float minimum = limits_t::min();
+
+        const auto col = std::size_t(idx);
+
+        if (column_count <= std::int64_t(col)) return;
+
+        std::conditional_t<compute_min, Float, empty> min;
+        if constexpr (compute_min) min = maximum;
+
+        std::conditional_t<compute_max, Float, empty> max;
+        if constexpr (compute_max) max = minimum;
+
+        std::conditional_t<compute_sum, Float, empty> sum;
+        if constexpr (compute_sum) sum = zero;
+
+        std::conditional_t<compute_sum2, Float, empty> sum2;
+        if constexpr (compute_sum2) sum2 = zero;
+
+        std::conditional_t<compute_sum2cent || compute_vart, Float, empty> mean;
+        if constexpr (compute_sum2cent || compute_vart) mean = zero;
+
+        std::conditional_t<compute_sum2cent || compute_varc, Float, empty> sum2cent;
+        if constexpr (compute_sum2cent || compute_varc) sum2cent = zero;
+
+        for(std::int64_t row = 0; row < row_count; ++row) {
+            Float val = data_ptr[row * stride + col];
+            if constexpr (weights) val *= weights_ptr[row];
+
+            if constexpr (compute_sum) sum += val;
+            if constexpr (compute_sum2) sum2 += (val * val);
+            if constexpr (compute_min) min = sycl::fmin(min, val);
+            if constexpr (compute_max) max = sycl::fmax(max, val);
+
+            if constexpr (compute_sum2cent) {
+                const Float delta = val - mean;
+                const Float inv_n = one / (row + one);
+
+                mean += delta * inv_n;
+                sum2cent += delta * (val - mean);
+            }
+        }
+
+        if constexpr (compute_sum) sum_ptr[col] = sum;
+        if constexpr (compute_min) min_ptr[col] = min;
+        if constexpr (compute_max) max_ptr[col] = max;
+        if constexpr (compute_sum2) sum2_ptr[col] = sum2;
+        if constexpr (compute_sorm) sorm_ptr[col] = sum2 / row_count;
+        if constexpr (compute_sum2cent) sum2cent_ptr[col] = sum2cent;
+
+        std::conditional_t<compute_varc, Float, empty> variance;
+        if constexpr (compute_varc) variance = sum2cent / (row_count - one);
+
+        std::conditional_t<compute_stdev, Float, empty> stdev;
+        if constexpr (compute_stdev) stdev = sycl::sqrt(variance);
+
+        if constexpr (compute_vart) vart_ptr[col] = stdev / mean;
+        if constexpr (compute_varc) varc_ptr[col] = variance;
+        if constexpr (compute_stdev) stdev_ptr[col] = stdev;
+    }
+
+private:
+    const Float* const data_ptr;
+    const std::int64_t stride, row_count, column_count;
+};
 
 template <typename Float, bs_list params, bool weights = false>
 struct block_processor_kernel {
@@ -906,11 +933,9 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Flo
 
     ONEDAL_ASSERT(data.has_data());
 
-    constexpr bool deffered_fin_true = true;
-    constexpr bool deffered_fin_false = false;
-
-    std::int64_t row_count = data.get_dimension(0);
-    std::int64_t column_count = data.get_dimension(1);
+    const auto row_count = data.get_dimension(0);
+    const auto column_count = data.get_dimension(1);
+    const auto stride = data.get_leading_stride();
 
     const bool distr_mode = comm_.get_rank_count() > 1;
 
@@ -938,9 +963,7 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Flo
     ASSERT_IF(bs_list::stdev, ndres.get_stdev().get_count() == column_count);
     ASSERT_IF(bs_list::vart, ndres.get_vart().get_count() == column_count);
 
-    const auto column_block_count = get_column_block_count(column_count);
-
-    auto data_ptr = data.get_data();
+    const auto* const data_ptr = data.get_data();
 
     DECLSET_IF(Float*, rmin_ptr, bs_list::min, ndres.get_min().get_mutable_data())
     DECLSET_IF(Float*, rmax_ptr, bs_list::max, ndres.get_max().get_mutable_data())
@@ -973,61 +996,37 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Flo
     DECLSET_IF(Float*, rstdev_ptr, bs_list::stdev, ndres.get_stdev().get_mutable_data())
     DECLSET_IF(Float*, rvart_ptr, bs_list::vart, ndres.get_vart().get_mutable_data())
 
-    std::int64_t max_work_group_size =
-        q_.get_device().get_info<sycl::info::device::max_work_group_size>();
-    auto local_size = (max_work_group_size < column_count) ? max_work_group_size : column_count;
-    auto global_size = de::check_mul_overflow(column_block_count, local_size);
-
-    const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(global_size, local_size);
+    const auto nd_range = bk::make_range_1d(column_count);
 
     auto last_event = q_.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
-            const std::int64_t tid = item.get_local_id()[0];
-            const std::int64_t tnum = item.get_local_range()[0];
-            const std::int64_t gid = item.get_group().get_group_id(0);
+        if (distr_mode) {
+            using kernel_t = singlepass_processor_kernel<Float, List, true>;
+            kernel_t kernel(data_ptr, stride, row_count, column_count);
 
-            const std::int64_t row_block_idx = gid / column_block_count;
-            const std::int64_t col_block_idx = gid - row_block_idx * column_block_count;
+            if constexpr (kernel_t::compute_min) kernel.min_ptr = rmin_ptr;
+            if constexpr (kernel_t::compute_max) kernel.max_ptr = rmax_ptr;
+            if constexpr (kernel_t::compute_sum) kernel.sum_ptr = rsum_ptr;
+            if constexpr (kernel_t::compute_sum2) kernel.sum2_ptr = rsum2_ptr;
+            if constexpr (kernel_t::compute_varc) kernel.varc_ptr = rvarc_ptr;
+            if constexpr (kernel_t::compute_vart) kernel.vart_ptr = rvart_ptr;
+            if constexpr (kernel_t::compute_sum2cent) kernel.sum2cent_ptr = rsum2cent_ptr;
 
-            if (distr_mode) {
-                single_pass_block_processor<Float, List, deffered_fin_true>(data_ptr,
-                                                                            rmin_ptr,
-                                                                            rmax_ptr,
-                                                                            rsum_ptr,
-                                                                            rsum2_ptr,
-                                                                            rsum2cent_ptr,
-                                                                            rmean_ptr,
-                                                                            rsorm_ptr,
-                                                                            rvarc_ptr,
-                                                                            rstdev_ptr,
-                                                                            rvart_ptr,
-                                                                            row_count,
-                                                                            column_count,
-                                                                            col_block_idx,
-                                                                            column_block_count,
-                                                                            tid,
-                                                                            tnum);
-            }
-            else {
-                single_pass_block_processor<Float, List, deffered_fin_false>(data_ptr,
-                                                                             rmin_ptr,
-                                                                             rmax_ptr,
-                                                                             rsum_ptr,
-                                                                             rsum2_ptr,
-                                                                             rsum2cent_ptr,
-                                                                             rmean_ptr,
-                                                                             rsorm_ptr,
-                                                                             rvarc_ptr,
-                                                                             rstdev_ptr,
-                                                                             rvart_ptr,
-                                                                             row_count,
-                                                                             column_count,
-                                                                             col_block_idx,
-                                                                             column_block_count,
-                                                                             tid,
-                                                                             tnum);
-            }
-        });
+            cgh.parallel_for(nd_range, kernel);
+        } 
+        else {
+            using kernel_t = singlepass_processor_kernel<Float, List, false>;
+            kernel_t kernel(data_ptr, stride, row_count, column_count);
+
+            if constexpr (kernel_t::compute_min) kernel.min_ptr = rmin_ptr;
+            if constexpr (kernel_t::compute_max) kernel.max_ptr = rmax_ptr;
+            if constexpr (kernel_t::compute_sum) kernel.sum_ptr = rsum_ptr;
+            if constexpr (kernel_t::compute_sum2) kernel.sum2_ptr = rsum2_ptr;
+            if constexpr (kernel_t::compute_varc) kernel.varc_ptr = rvarc_ptr;
+            if constexpr (kernel_t::compute_vart) kernel.vart_ptr = rvart_ptr;
+            if constexpr (kernel_t::compute_sum2cent) kernel.sum2cent_ptr = rsum2cent_ptr;
+
+            cgh.parallel_for(nd_range, kernel);
+        }
     });
 
     return std::make_tuple(std::move(ndres), last_event);
@@ -1158,9 +1157,9 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
             comm_.allreduce(ndres.get_sum2().flatten(q_, deps), spmd::reduce_op::sum).wait();
         }
 
-        pr::ndarray<std::int64_t, 1> com_row_count;
         pr::ndarray<Float, 1> com_sum;
         pr::ndarray<Float, 1> com_sum2cent;
+        pr::ndarray<std::int64_t, 1> com_row_count;
 
         if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
             auto com_row_count_host =

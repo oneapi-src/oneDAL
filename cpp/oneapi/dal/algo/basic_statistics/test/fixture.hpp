@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #pragma once
-
+#include <iostream>
 #include <limits>
 
 #include "oneapi/dal/algo/basic_statistics/compute.hpp"
@@ -138,6 +138,9 @@ public:
 
                 const auto rerr = aerr / den;
                 CAPTURE(aerr, rerr, den, r, c, lval, rval);
+                using oneapi::dal::detail::operator<<;
+                if(rerr >= tol) std::cout << ' ' << left << std::endl;
+                if(rerr >= tol) std::cout << ' ' << right << std::endl;
                 REQUIRE(rerr < tol);
             }
         }
