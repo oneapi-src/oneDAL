@@ -18,6 +18,9 @@
 #include <algorithm>
 #include <type_traits>
 
+#include <iostream>
+#include "oneapi/dal/backend/primitives/debug.hpp"
+
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/compute_kernel_dense_impl.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
@@ -315,7 +318,7 @@ struct block_processor_kernel {
         const std::int64_t f_row = row_block_size * row_block;
         const auto l_row = std::min(row_count, f_row + row_block_size);
 
-        for(auto row = f_row; row < l_row; ++row) {
+        for(std::int64_t row = f_row; row < l_row; ++row) {
             Float val = data_ptr[row * stride + col];
             if constexpr (weights) val *= weights_ptr[row];
 
@@ -326,7 +329,8 @@ struct block_processor_kernel {
 
             if constexpr (compute_sum2cent) {
                 const Float delta = val - mean;
-                const Float inv_n = one / (row - f_row + 1);
+                const Float rel_row = row - f_row;
+                const Float inv_n = one / (rel_row + one);
 
                 mean += delta * inv_n;
                 sum2cent += delta * (val - mean);
@@ -1039,9 +1043,7 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndview<Float
     const auto column_count = data.get_dimension(1);
     const auto stride = data.get_leading_stride();
 
-    [[maybe_unused]] const auto column_block_count = get_column_block_count(column_count);
-    [[maybe_unused]] const auto aux_buf_size = de::check_mul_overflow(row_block_count, column_count);
-
+    const auto aux_buf_size = de::check_mul_overflow(row_block_count, column_count);
     auto ndbuf = local_buffer_list<Float, List>::empty(q_, aux_buf_size);
 
     // ndbuf asserts
@@ -1079,11 +1081,11 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndview<Float
             {row_block_count, column_count}, {1l, local_size});
 
     sycl::event last_event;
+    using kernel_t = block_processor_kernel<Float, List>;
     {
         ONEDAL_PROFILER_TASK(process_blocks, q_);
         
         last_event = q_.submit([&](sycl::handler& cgh) {
-            using kernel_t = block_processor_kernel<Float, List>;
             kernel_t kernel(data_ptr, stride, row_count, column_count, row_block_size);
 
             if constexpr (kernel_t::compute_min) kernel.min_ptr = amin_ptr;
@@ -1096,6 +1098,16 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndview<Float
             cgh.parallel_for(nd_range, kernel);
         });
     }
+
+    //std::cout << "Custom new kernel" << std::endl;
+    //std::cerr << "Custom new kernel" << std::endl;
+
+    //if constexpr (kernel_t::compute_min) std::cout << "Min " << ndbuf.get_min() << std::endl;
+    //if constexpr (kernel_t::compute_max) std::cout << "Max " << ndbuf.get_max() << std::endl;
+    //if constexpr (kernel_t::compute_sum) std::cout << "Sum " << ndbuf.get_sum() << std::endl;
+    //if constexpr (kernel_t::compute_sum2) std::cout << "Sum2 " << ndbuf.get_sum2() << std::endl;
+    //if constexpr (kernel_t::compute_brc) std::cout << "Brc " << ndbuf.get_rc_list() << std::endl;
+    //if constexpr (kernel_t::compute_sum2cent) std::cout << "Sum2cent" << ndbuf.get_sum2cent() << std::endl;
 
     auto [ndres, merge_event] =
         merge_blocks(std::move(ndbuf), column_count, row_block_count, { last_event });
