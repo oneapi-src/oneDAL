@@ -33,7 +33,8 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 10, 10 }.fill_normal(0, 1, 777),
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 10 }.fill_normal(0, 1, 777),
+                           te::dataframe_builder{ 10, 10 }.fill_normal(-1, 1, 777),
                            te::dataframe_builder{ 100, 10 }.fill_normal(-30, 30, 777),
                            te::dataframe_builder{ 200, 20 }.fill_normal(-30, 30, 777),
                            te::dataframe_builder{ 200, 530 }.fill_normal(-30, 30, 777),

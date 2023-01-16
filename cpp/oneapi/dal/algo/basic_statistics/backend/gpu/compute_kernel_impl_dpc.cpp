@@ -200,25 +200,22 @@ struct singlepass_processor_kernel {
         : data_ptr{ data },
           stride{ stride },
           row_count{ row_count },
-          column_count{ column_count } {
-        ONEDAL_ASSERT(row_count >= column_count);
-    }
+          column_count{ column_count } {}
 
     void operator() (sycl::id<1> idx) const {
         constexpr Float zero = 0, one = 1;
         using limits_t = std::numeric_limits<Float>;
         constexpr Float maximum = limits_t::max();
-        constexpr Float minimum = limits_t::min();
 
         const auto col = std::size_t(idx);
 
         if (column_count <= std::int64_t(col)) return;
 
         std::conditional_t<compute_min, Float, empty> min;
-        if constexpr (compute_min) min = maximum;
+        if constexpr (compute_min) min = +maximum;
 
         std::conditional_t<compute_max, Float, empty> max;
-        if constexpr (compute_max) max = minimum;
+        if constexpr (compute_max) max = -maximum;
 
         std::conditional_t<compute_sum, Float, empty> sum;
         if constexpr (compute_sum) sum = zero;
@@ -310,14 +307,13 @@ struct block_processor_kernel {
           row_count{ row_count },
           column_count{ column_count },
           row_block_size{ row_block_size } {
-        ONEDAL_ASSERT(row_count >= column_count);
+        ONEDAL_ASSERT(row_count >= row_block_size);
     }
 
     void operator() (sycl::nd_item<2> item) const {
         constexpr Float zero = 0, one = 1;
         using limits_t = std::numeric_limits<Float>;
         constexpr Float maximum = limits_t::max();
-        constexpr Float minimum = limits_t::min();
 
         const auto col = item.get_global_id(1);
         const auto row_block = item.get_global_id(0);
@@ -325,10 +321,10 @@ struct block_processor_kernel {
         if (column_count <= std::int64_t(col)) return;
 
         std::conditional_t<compute_min, Float, empty> min;
-        if constexpr (compute_min) min = maximum;
+        if constexpr (compute_min) min = +maximum;
 
         std::conditional_t<compute_max, Float, empty> max;
-        if constexpr (compute_max) max = minimum;
+        if constexpr (compute_max) max = -maximum;
 
         std::conditional_t<compute_sum, Float, empty> sum;
         if constexpr (compute_sum) sum = zero;
@@ -998,18 +994,27 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Flo
 
     const auto nd_range = bk::make_range_1d(column_count);
 
+    const auto setup_kernel = [=](auto& kernel) -> void {
+        using kernel_t = std::remove_cv_t< //
+            std::remove_reference_t<decltype(kernel)> >;
+
+        if constexpr (kernel_t::compute_min) kernel.min_ptr = rmin_ptr;
+        if constexpr (kernel_t::compute_max) kernel.max_ptr = rmax_ptr;
+        if constexpr (kernel_t::compute_sum) kernel.sum_ptr = rsum_ptr;
+        if constexpr (kernel_t::compute_sum2) kernel.sum2_ptr = rsum2_ptr;
+        if constexpr (kernel_t::compute_sorm) kernel.sorm_ptr = rsorm_ptr;
+        if constexpr (kernel_t::compute_varc) kernel.varc_ptr = rvarc_ptr;
+        if constexpr (kernel_t::compute_vart) kernel.vart_ptr = rvart_ptr;
+        if constexpr (kernel_t::compute_stdev) kernel.stdev_ptr = rstdev_ptr;
+        if constexpr (kernel_t::compute_sum2cent) kernel.sum2cent_ptr = rsum2cent_ptr;
+    };
+
     auto last_event = q_.submit([&](sycl::handler& cgh) {
         if (distr_mode) {
             using kernel_t = singlepass_processor_kernel<Float, List, true>;
             kernel_t kernel(data_ptr, stride, row_count, column_count);
 
-            if constexpr (kernel_t::compute_min) kernel.min_ptr = rmin_ptr;
-            if constexpr (kernel_t::compute_max) kernel.max_ptr = rmax_ptr;
-            if constexpr (kernel_t::compute_sum) kernel.sum_ptr = rsum_ptr;
-            if constexpr (kernel_t::compute_sum2) kernel.sum2_ptr = rsum2_ptr;
-            if constexpr (kernel_t::compute_varc) kernel.varc_ptr = rvarc_ptr;
-            if constexpr (kernel_t::compute_vart) kernel.vart_ptr = rvart_ptr;
-            if constexpr (kernel_t::compute_sum2cent) kernel.sum2cent_ptr = rsum2cent_ptr;
+            setup_kernel(kernel);
 
             cgh.parallel_for(nd_range, kernel);
         } 
@@ -1017,14 +1022,8 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Flo
             using kernel_t = singlepass_processor_kernel<Float, List, false>;
             kernel_t kernel(data_ptr, stride, row_count, column_count);
 
-            if constexpr (kernel_t::compute_min) kernel.min_ptr = rmin_ptr;
-            if constexpr (kernel_t::compute_max) kernel.max_ptr = rmax_ptr;
-            if constexpr (kernel_t::compute_sum) kernel.sum_ptr = rsum_ptr;
-            if constexpr (kernel_t::compute_sum2) kernel.sum2_ptr = rsum2_ptr;
-            if constexpr (kernel_t::compute_varc) kernel.varc_ptr = rvarc_ptr;
-            if constexpr (kernel_t::compute_vart) kernel.vart_ptr = rvart_ptr;
-            if constexpr (kernel_t::compute_sum2cent) kernel.sum2cent_ptr = rsum2cent_ptr;
-
+            setup_kernel(kernel);
+            
             cgh.parallel_for(nd_range, kernel);
         }
     });
@@ -1220,8 +1219,8 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
                                                             const input_t& input) {
     const auto data = input.get_data();
 
-    std::int64_t row_count = data.get_row_count();
-    std::int64_t column_count = data.get_column_count();
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
