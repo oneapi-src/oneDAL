@@ -21,8 +21,6 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <iomanip>
-#include <chrono>
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -37,28 +35,34 @@ using c_order = order_tag<ndorder::c>;
 using f_order = order_tag<ndorder::f>;
 
 template <typename Param>
-class logloss_test : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
+class logloss_test : public te::float_algo_fixture<Param> {
 public:
-    using float_t = std::tuple_element_t<0, Param>;
+    using float_t = Param; // std::tuple_element_t<0, Param>;
+
+    void check_val(float_t real, float_t expected, float_t eps) {
+        if (sizeof(float_t) >= 8) {
+            REQUIRE(abs(real - expected) < eps); // absolute error
+        }
+        else {
+            REQUIRE(abs(real - expected) / std::max(std::abs(expected), (float_t)1.0) <
+                    eps); // approximation error
+        }
+    }
 
     void generate_input(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
-            this->n_ = GENERATE(3, 1024, 1027, 13);
-            this->p_ = GENERATE(4, 10, 17, 131, 1026);
+            this->n_ = GENERATE(7, 1024, 1027, 13, 216);
+            this->p_ = GENERATE(4, 17, 41, 512, 131, 1001);
         }
         else {
             this->n_ = n;
             this->p_ = p;
         }
-        std::cout << "Size: " << n_ << " " << p_ << std::endl;
 
         const auto dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_uniform(-0.5, 0.5));
         const auto parameters =
             GENERATE_DATAFRAME(te::dataframe_builder{ 1, p_ + 1 }.fill_uniform(-1, 1));
-        //const auto dataframe = GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_uniform(-10, 10));
-        //const auto parameters = GENERATE_DATAFRAME(te::dataframe_builder{ 1, p_ + 1}.fill_uniform(-2, 2));
-        // const auto labels =
         this->data_ = dataframe.get_table(this->get_homogen_table_id());
         this->params_ = parameters.get_table(this->get_homogen_table_id());
         this->labels_ =
@@ -80,133 +84,7 @@ public:
         auto param_array = row_accessor<const float_t>{ this->params_ }.pull(this->get_queue());
         auto params_host = ndarray<float_t, 1>::wrap(param_array.get_data(), { p_ + 1 });
 
-        test_input(data_host, params_host, this->labels_, L1, L2, false);
-
-        SUCCEED();
-    }
-    void benchmark() {
-        float_t L1 = 1.2;
-        float_t L2 = 0.7;
-
-        auto data_array = row_accessor<const float_t>{ this->data_ }.pull(this->get_queue());
-        auto data_host = ndarray<float_t, 2>::wrap(data_array.get_data(), { n_, p_ });
-
-        auto param_array = row_accessor<const float_t>{ this->params_ }.pull(this->get_queue());
-        auto params_host = ndarray<float_t, 1>::wrap(param_array.get_data(), { p_ + 1 });
-
-        auto data_gpu = data_host.to_device(this->get_queue());
-        auto labels_gpu = this->labels_.to_device(this->get_queue());
-        auto params_gpu = params_host.to_device(this->get_queue());
-
-        auto out_predictions =
-            ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::device);
-
-        auto p_event =
-            compute_probabilities(this->get_queue(), params_gpu, data_gpu, out_predictions, {});
-        p_event.wait_and_throw();
-
-        auto [out_logloss, out_e] =
-            ndarray<float_t, 1>::zeros(this->get_queue(), { 1 }, sycl::usm::alloc::device);
-        auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
-        auto [out_derivative, out_der_e] =
-            ndarray<float_t, 1>::zeros(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::device);
-
-        auto logloss_event_der = compute_logloss_with_der(this->get_queue(),
-                                                          params_gpu,
-                                                          data_gpu,
-                                                          labels_gpu,
-                                                          out_predictions,
-                                                          out_logloss,
-                                                          out_derivative,
-                                                          L1,
-                                                          L2,
-                                                          { fill_event, out_der_e });
-        logloss_event_der.wait_and_throw();
-
-        BENCHMARK("Measure time") {
-            auto [out_hessian, out_hess_e] = ndarray<float_t, 2>::zeros(this->get_queue(),
-                                                                        { p_ + 1, p_ + 1 },
-                                                                        sycl::usm::alloc::device);
-            auto hess_event = compute_hessian(this->get_queue(),
-                                              params_gpu,
-                                              data_gpu,
-                                              labels_gpu,
-                                              out_predictions,
-                                              out_hessian,
-                                              L1,
-                                              L2,
-                                              { out_hess_e });
-            hess_event.wait_and_throw();
-        };
-    }
-    void measure_time() {
-        float_t L1 = 1.2;
-        float_t L2 = 0.7;
-
-        auto data_array = row_accessor<const float_t>{ this->data_ }.pull(this->get_queue());
-        auto data_host = ndarray<float_t, 2>::wrap(data_array.get_data(), { n_, p_ });
-
-        auto param_array = row_accessor<const float_t>{ this->params_ }.pull(this->get_queue());
-        auto params_host = ndarray<float_t, 1>::wrap(param_array.get_data(), { p_ + 1 });
-
-        auto data_gpu = data_host.to_device(this->get_queue());
-        auto labels_gpu = this->labels_.to_device(this->get_queue());
-        auto params_gpu = params_host.to_device(this->get_queue());
-
-        std::chrono::steady_clock::time_point tm1 = std::chrono::steady_clock::now();
-        auto out_predictions =
-            ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::device);
-
-        auto p_event =
-            compute_probabilities(this->get_queue(), params_gpu, data_gpu, out_predictions, {});
-        p_event.wait_and_throw();
-
-        std::chrono::steady_clock::time_point tm2 = std::chrono::steady_clock::now();
-        std::cout << "Compute probabilities: "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(tm2 - tm1).count()
-                  << "ms" << std::endl;
-
-        auto [out_logloss, out_e] =
-            ndarray<float_t, 1>::zeros(this->get_queue(), { 1 }, sycl::usm::alloc::device);
-        auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
-        auto [out_derivative, out_der_e] =
-            ndarray<float_t, 1>::zeros(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::device);
-
-        auto logloss_event_der = compute_logloss_with_der(this->get_queue(),
-                                                          params_gpu,
-                                                          data_gpu,
-                                                          labels_gpu,
-                                                          out_predictions,
-                                                          out_logloss,
-                                                          out_derivative,
-                                                          L1,
-                                                          L2,
-                                                          { fill_event, out_der_e });
-        logloss_event_der.wait_and_throw();
-
-        std::chrono::steady_clock::time_point tm3 = std::chrono::steady_clock::now();
-        std::cout << "Compute logloss and derivative: "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(tm3 - tm2).count()
-                  << "ms" << std::endl;
-
-        auto [out_hessian, out_hess_e] = ndarray<float_t, 2>::zeros(this->get_queue(),
-                                                                    { p_ + 1, p_ + 1 },
-                                                                    sycl::usm::alloc::device);
-        auto hess_event = compute_hessian(this->get_queue(),
-                                          params_gpu,
-                                          data_gpu,
-                                          labels_gpu,
-                                          out_predictions,
-                                          out_hessian,
-                                          L1,
-                                          L2,
-                                          { out_hess_e });
-        hess_event.wait_and_throw();
-
-        std::chrono::steady_clock::time_point tm4 = std::chrono::steady_clock::now();
-        std::cout << "Compute hessian: "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(tm4 - tm3).count()
-                  << "ms" << std::endl;
+        test_input(data_host, params_host, this->labels_, L1, L2);
 
         SUCCEED();
     }
@@ -222,14 +100,14 @@ public:
         const std::int32_t labels[n] = { 0, 1, 1, 0, 1 };
         const float_t L1 = 2.3456;
         const float_t L2 = 3.123;
-        // const float_t real_predictions[n] = {0.09928262 ,0.38057336, 1.53682325, -0.90213211, -1.54867588};
+        // real_predictions[n] = {0.09928262 ,0.38057336, 1.53682325, -0.90213211, -1.54867588};
         const float_t cur_param[p + 1] = { -0.2, 0.1, -1, 0.4 };
 
         auto data_host = ndarray<float_t, 2>::wrap(data, { n, p });
         auto labels_host = ndarray<std::int32_t, 1>::wrap(labels, n);
         auto params_host = ndarray<float_t, 1>::wrap(cur_param, p + 1);
 
-        test_input(data_host, params_host, labels_host, L1, L2, true);
+        test_input(data_host, params_host, labels_host, L1, L2);
 
         SUCCEED();
     }
@@ -238,25 +116,10 @@ public:
                     const ndarray<float_t, 1>& params_host,
                     const ndarray<std::int32_t, 1>& labels_host,
                     const float_t L1,
-                    const float_t L2,
-                    const bool verbose = false) {
-        if (verbose) {
-            std::cout << std::setprecision(10);
-            std::cout << std::fixed;
-        }
-
-        constexpr float_t eps = 1e-4;
+                    const float_t L2) {
+        constexpr float_t eps = sizeof(float_t) >= 8 ? 1e-6 : 1e-4; //1e-4;
         std::int64_t n = data_host.get_dimension(0);
         std::int64_t p = data_host.get_dimension(1);
-
-        if (verbose) {
-            std::cout << "Data" << std::endl;
-            std::cout << data_host;
-            std::cout << "Parameters" << std::endl;
-            std::cout << params_host;
-            std::cout << "Labels" << std::endl;
-            std::cout << labels_host;
-        }
 
         auto data_gpu = data_host.to_device(this->get_queue());
         auto labels_gpu = labels_host.to_device(this->get_queue());
@@ -270,17 +133,14 @@ public:
         p_event.wait_and_throw();
 
         auto predictions_host = out_predictions.to_host(this->get_queue(), {});
-        if (verbose) {
-            std::cout << "Predictions" << std::endl;
-            std::cout << predictions_host;
-        }
 
         float_t logloss = test_predictions_and_logloss(data_host,
                                                        params_host,
                                                        labels_host,
                                                        predictions_host,
                                                        L1,
-                                                       L2);
+                                                       L2,
+                                                       eps);
 
         auto [out_logloss, out_e] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { 1 }, sycl::usm::alloc::device);
@@ -295,7 +155,7 @@ public:
         logloss_event.wait_and_throw();
         float_t val_logloss = out_logloss.to_host(this->get_queue(), {}).at(0);
 
-        REQUIRE(abs(val_logloss - logloss) < eps);
+        check_val(val_logloss, logloss, eps);
 
         auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
         auto [out_derivative, out_der_e] =
@@ -313,12 +173,7 @@ public:
         logloss_event_der.wait_and_throw();
         auto out_derivative_host = out_derivative.to_host(this->get_queue());
         val_logloss = out_logloss.to_host(this->get_queue(), {}).at(0);
-
-        REQUIRE(abs(val_logloss - logloss) < eps);
-        if (verbose) {
-            std::cout << "Derivative" << std::endl;
-            std::cout << out_derivative_host;
-        }
+        check_val(val_logloss, logloss, eps);
 
         auto [out_derivative2, out_der_e2] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { p + 1 }, sycl::usm::alloc::device);
@@ -352,18 +207,15 @@ public:
                                           { out_hess_e });
 
         auto hessian_host = out_hessian.to_host(this->get_queue(), { hess_event });
-        if (verbose) {
-            std::cout << "Hessian" << std::endl;
-            std::cout << hessian_host;
-        }
-        if (sizeof(logloss) >= 8) {
+        if (sizeof(logloss) >= 4) {
             test_derivative_and_hessian(data_gpu,
                                         labels_gpu,
                                         out_derivative_host,
                                         hessian_host,
                                         params_host,
                                         L1,
-                                        L2);
+                                        L2,
+                                        eps * 100);
         }
     }
 
@@ -432,12 +284,12 @@ public:
         const std::int64_t n = data.get_dimension(0);
         const std::int64_t p = data.get_dimension(1);
         constexpr std::int64_t MAXN = 2000;
-        constexpr float_t step = 1e-4;
+        constexpr float_t step = sizeof(float_t) >= 8 ? 1e-4 : 1e-3;
 
         const auto data_host = data.to_host(this->get_queue());
         const auto labels_host = labels.to_host(this->get_queue());
 
-        float_t cur_param[MAXN]; /// ????
+        float_t cur_param[MAXN];
         for (std::int64_t i = 0; i <= p; ++i) {
             cur_param[i] = params_host.at(i);
         }
@@ -477,7 +329,7 @@ public:
                                          L2,
                                          { fill_event_1, fill_event_2, pred_up_event });
             der_event_up.wait_and_throw();
-            float_t logloss_up = out_logloss.to_host(this->get_queue(), {}).at(0);
+            long double logloss_up = naive_logloss(data_host, params_host_up, labels_host, L1, L2);
             auto der_up_host = out_derivative_up.to_host(this->get_queue(), {});
 
             cur_param[i] = params_host.at(i) - step;
@@ -505,18 +357,18 @@ public:
                                          { fill_event_3, fill_event_4, pred_down_event });
             der_event_down.wait_and_throw();
 
-            float_t logloss_down = out_logloss.to_host(this->get_queue(), {}).at(0);
-            //long double logloss_down = naive_logloss(data_host, params_host_down, labels_host, L1, L2);
+            long double logloss_down =
+                naive_logloss(data_host, params_host_down, labels_host, L1, L2);
             auto der_down_host = out_derivative_down.to_host(this->get_queue(), {});
             // Check condition: (logloss(w_i + eps) - logloss(w_i - eps)) / 2eps ~ d logloss / dw_i
-            REQUIRE(abs((logloss_up - logloss_down) / (2 * step) - derivative.at(i)) < eps);
-
-            for (std::int64_t j = 0; j <= p; ++j) {
-                // Check condition (d logloss(w_i + eps) / d w_j - d logloss(w_i - eps) / d w_j) / 2eps ~ h_i,j
-                // due to lack of precision this condition is not checked for 32-bit floating point numbers
-                if (sizeof(float_t) >= 8) {
-                    REQUIRE(abs((der_up_host.at(j) - der_down_host.at(j)) / (2 * step) -
-                                hessian.at(i, j)) < eps);
+            check_val(derivative.at(i), (logloss_up - logloss_down) / (2 * step), eps);
+            if (sizeof(float_t) >= 8) {
+                for (std::int64_t j = 0; j <= p; ++j) {
+                    // Check condition (d logloss(w_i + eps) / d w_j - d logloss(w_i - eps) / d w_j) / 2eps ~ h_i,j
+                    // due to lack of precision this condition is not checked for 32-bit floating point numbers
+                    check_val(hessian.at(i, j),
+                              (der_up_host.at(j) - der_down_host.at(j)) / (2 * step),
+                              eps);
                 }
             }
             cur_param[i] += step;
@@ -531,13 +383,19 @@ private:
     ndarray<std::int32_t, 1> labels_;
 };
 
-using logloss_types = COMBINE_TYPES((double, float));
-
-TEMPLATE_TEST_M(logloss_test, "gold input test", "[logloss]", logloss_types) {
+TEMPLATE_TEST_M(logloss_test, "gold input test - double", "[logloss]", double) {
+    this->test_gold_input();
+}
+TEMPLATE_TEST_M(logloss_test, "gold input test - float", "[logloss]", float) {
     this->test_gold_input();
 }
 
-TEMPLATE_TEST_M(logloss_test, "test random input", "[logloss]", logloss_types) {
+TEMPLATE_TEST_M(logloss_test, "test random input - double", "[logloss]", double) {
+    this->generate_input();
+    this->run_test();
+}
+
+TEMPLATE_TEST_M(logloss_test, "test random input - float", "[logloss]", float) {
     this->generate_input();
     this->run_test();
 }

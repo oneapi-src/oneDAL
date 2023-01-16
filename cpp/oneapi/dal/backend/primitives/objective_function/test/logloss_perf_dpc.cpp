@@ -21,8 +21,6 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <iomanip>
-#include <chrono>
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -37,14 +35,13 @@ using c_order = order_tag<ndorder::c>;
 using f_order = order_tag<ndorder::f>;
 
 template <typename Param>
-class logloss_perf_test : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
+class logloss_perf_test : public te::float_algo_fixture<Param> {
 public:
-    using float_t = std::tuple_element_t<0, Param>;
+    using float_t = Param;
 
     void generate_input(std::int64_t n, std::int64_t p) {
         this->n_ = n;
         this->p_ = p;
-        std::cout << "Size: " << n_ << " " << p_ << std::endl;
 
         const auto dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_uniform(-0.5, 0.5));
@@ -128,28 +125,17 @@ private:
     ndarray<std::int32_t, 1> labels_;
 };
 
-using logloss_types = COMBINE_TYPES((double, float));
-
-TEMPLATE_TEST_M(logloss_perf_test,
-                "perfomance test square",
-                "[logloss][5000*5000]",
-                logloss_types) {
+TEMPLATE_TEST_M(logloss_perf_test, "perfomance test square", "[logloss][5000*5000]", double) {
     this->generate_input(5000, 5000);
     this->measure_time();
 }
 
-TEMPLATE_TEST_M(logloss_perf_test,
-                "perfomance test small p",
-                "[logloss][10000*100]",
-                logloss_types) {
+TEMPLATE_TEST_M(logloss_perf_test, "perfomance test small p", "[logloss][10000*100]", double) {
     this->generate_input(100000, 100);
     this->measure_time();
 }
 
-TEMPLATE_TEST_M(logloss_perf_test,
-                "perfomance test small n",
-                "[logloss][100 * 1000]",
-                logloss_types) {
+TEMPLATE_TEST_M(logloss_perf_test, "perfomance test small n", "[logloss][100 * 1000]", double) {
     this->generate_input(100, 7000);
     this->measure_time();
 }

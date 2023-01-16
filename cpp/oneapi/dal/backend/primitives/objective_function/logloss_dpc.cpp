@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2022 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,10 +29,16 @@ sycl::event compute_probabilities(sycl::queue& q,
                                   const ndview<Float, 2>& data,
                                   ndview<Float, 1>& probabilities,
                                   const event_vector& deps) {
+    const std::int64_t n = data.get_dimension(0);
+    const std::int64_t p = data.get_dimension(1);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(parameters.has_data());
+    ONEDAL_ASSERT(probabilities.has_mutable_data());
+    ONEDAL_ASSERT(parameters.get_dimension(0) == p + 1);
+    ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
+
     auto fill_event = fill<Float>(q, probabilities, Float(1), {});
     using oneapi::dal::backend::operator+;
-
-    const std::int64_t n = data.get_dimension(0);
 
     auto param_arr = ndarray<Float, 1>::wrap(parameters.get_data(), 1);
     Float w0 = param_arr.to_host(q, deps).at(0); // Poor perfomance
@@ -44,7 +50,7 @@ sycl::event compute_probabilities(sycl::queue& q,
                       Float(1),
                       w0,
                       { fill_event });
-    auto prob_ptr = probabilities.get_mutable_data();
+    auto* const prob_ptr = probabilities.get_mutable_data();
 
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(event);
@@ -70,14 +76,16 @@ sycl::event compute_logloss(sycl::queue& q,
     const std::int64_t p = data.get_dimension(1);
     ONEDAL_ASSERT(parameters.get_dimension(0) == p + 1);
     ONEDAL_ASSERT(labels.get_dimension(0) == n);
+    ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
     ONEDAL_ASSERT(labels.has_data());
     ONEDAL_ASSERT(parameters.has_data());
     ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(probabilities.has_data());
 
-    auto labels_ptr = labels.get_data();
-    auto prob_ptr = probabilities.get_data();
+    const auto* const labels_ptr = labels.get_data();
+    const auto* const prob_ptr = probabilities.get_data();
 
-    auto out_ptr = out.get_mutable_data();
+    auto* const out_ptr = out.get_mutable_data();
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
         const auto range = make_range_1d(n);
@@ -96,10 +104,10 @@ sycl::event compute_logloss(sycl::queue& q,
     });
 
     auto [out_reg, out_reg_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
-    auto reg_ptr = out_reg.get_mutable_data();
+    auto* const reg_ptr = out_reg.get_mutable_data();
     event_vector vector_out_reg = { out_reg_e };
 
-    auto param_ptr = parameters.get_data();
+    const auto* const param_ptr = parameters.get_data();
 
     auto reg_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(vector_out_reg);
@@ -170,18 +178,28 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
 
+    ONEDAL_ASSERT(parameters.get_dimension(0) == p + 1);
+    ONEDAL_ASSERT(labels.get_dimension(0) == n);
+    ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
     ONEDAL_ASSERT(out.get_count() == 1);
     ONEDAL_ASSERT(out_derivative.get_count() == p + 1);
+
+    ONEDAL_ASSERT(labels.has_data());
+    ONEDAL_ASSERT(parameters.has_data());
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(probabilities.has_data());
+    ONEDAL_ASSERT(out.has_mutable_data());
+    ONEDAL_ASSERT(out_derivative.has_mutable_data());
 
     // d loss_i / d pred_i
     auto derivative_object = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
 
-    auto der_obj_ptr = derivative_object.get_mutable_data();
-    auto proba_ptr = probabilities.get_data();
-    auto labels_ptr = labels.get_data();
-    auto param_ptr = parameters.get_data();
-    auto out_ptr = out.get_mutable_data();
-    auto out_derivative_ptr = out_derivative.get_mutable_data();
+    auto* const der_obj_ptr = derivative_object.get_mutable_data();
+    const auto* const proba_ptr = probabilities.get_data();
+    const auto* const labels_ptr = labels.get_data();
+    const auto* const param_ptr = parameters.get_data();
+    auto* const out_ptr = out.get_mutable_data();
+    auto* const out_derivative_ptr = out_derivative.get_mutable_data();
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
         using oneapi::dal::backend::operator+;
@@ -223,7 +241,6 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
         cgh.depends_on(vec + der_event);
         const auto range = make_range_1d(p + 1);
         auto sumReduction = sycl::reduction(reg_ptr, sycl::plus<>());
-        sycl::stream ss(16384, 16, cgh);
         cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx];
             sum += L1 * sycl::abs(param) + L2 * param * param;
@@ -262,16 +279,25 @@ sycl::event compute_derivative(sycl::queue& q,
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
 
+    ONEDAL_ASSERT(parameters.get_dimension(0) == p + 1);
+    ONEDAL_ASSERT(labels.get_dimension(0) == n);
+    ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
     ONEDAL_ASSERT(out_derivative.get_count() == p + 1);
+
+    ONEDAL_ASSERT(labels.has_data());
+    ONEDAL_ASSERT(parameters.has_data());
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(probabilities.has_data());
+    ONEDAL_ASSERT(out_derivative.has_mutable_data());
 
     // d loss_i / d pred_i
     auto derivative_object = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
 
-    auto der_obj_ptr = derivative_object.get_mutable_data();
-    auto proba_ptr = probabilities.get_data();
-    auto labels_ptr = labels.get_data();
-    auto param_ptr = parameters.get_data();
-    auto out_derivative_ptr = out_derivative.get_mutable_data();
+    auto* const der_obj_ptr = derivative_object.get_mutable_data();
+    const auto* const proba_ptr = probabilities.get_data();
+    const auto* const labels_ptr = labels.get_data();
+    const auto* const param_ptr = parameters.get_data();
+    auto* const out_derivative_ptr = out_derivative.get_mutable_data();
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
         using oneapi::dal::backend::operator+;
@@ -330,20 +356,29 @@ sycl::event compute_hessian(sycl::queue& q,
     const int64_t n = data.get_dimension(0);
     const int64_t p = data.get_dimension(1);
 
+    ONEDAL_ASSERT(parameters.get_dimension(0) == p + 1);
+    ONEDAL_ASSERT(labels.get_dimension(0) == n);
+    ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
     ONEDAL_ASSERT(out_hessian.get_dimension(0) == (p + 1));
     ONEDAL_ASSERT(out_hessian.get_dimension(1) == (p + 1));
 
-    auto data_ptr = data.get_data();
-    auto hes_ptr = out_hessian.get_mutable_data();
-    auto proba_ptr = probabilities.get_mutable_data();
+    ONEDAL_ASSERT(labels.has_data());
+    ONEDAL_ASSERT(parameters.has_data());
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(probabilities.has_data());
+    ONEDAL_ASSERT(out_hessian.has_mutable_data());
+
+    const auto* const data_ptr = data.get_data();
+    auto* const hes_ptr = out_hessian.get_mutable_data();
+    const auto* const proba_ptr = probabilities.get_data();
 
     const auto max_wg = device_max_wg_size(q);
     const auto wg = std::min(p + 1, max_wg);
     const auto inp_str = data.get_leading_stride();
     const auto out_str = out_hessian.get_leading_stride();
 
-    const std::int64_t block_size = 32;
-    const auto num_blocks = (n + block_size - 1) / block_size;
+    constexpr std::int64_t block_size = 32;
+    const std::int64_t num_blocks = (n + block_size - 1) / block_size;
     const auto range = make_multiple_nd_range_3d({ num_blocks, p + 1, wg }, { 1, 1, wg });
 
     auto hes_event = q.submit([&](sycl::handler& cgh) {
@@ -355,8 +390,8 @@ sycl::event compute_hessian(sycl::queue& q,
             Float val = 0;
             for (auto k = param_ind_2; k <= j; k += wg) {
                 val = 0;
-                for (auto i = obj_ind * block_size; i < std::min((obj_ind + 1) * block_size, n);
-                     ++i) {
+                const std::int64_t last_ind = std::min((obj_ind + 1) * block_size, n);
+                for (auto i = obj_ind * block_size; i < last_ind; ++i) {
                     Float x1 = j > 0 ? data_ptr[i * inp_str + (j - 1)] : 1;
                     Float x2 = k > 0 ? data_ptr[i * inp_str + (k - 1)] : 1;
                     auto prob = proba_ptr[i] * (1 - proba_ptr[i]);
