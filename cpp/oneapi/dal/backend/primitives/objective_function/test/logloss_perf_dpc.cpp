@@ -24,7 +24,6 @@
 #include <iomanip>
 #include <chrono>
 
-
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
@@ -43,16 +42,18 @@ public:
     using float_t = std::tuple_element_t<0, Param>;
 
     void generate_input(std::int64_t n, std::int64_t p) {
-        
         this->n_ = n;
         this->p_ = p;
         std::cout << "Size: " << n_ << " " << p_ << std::endl;
 
-        const auto dataframe = GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_uniform(-0.5, 0.5));
-        const auto parameters = GENERATE_DATAFRAME(te::dataframe_builder{ 1, p_ + 1}.fill_uniform(-1, 1));
+        const auto dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_uniform(-0.5, 0.5));
+        const auto parameters =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, p_ + 1 }.fill_uniform(-1, 1));
         this->data_ = dataframe.get_table(this->get_homogen_table_id());
         this->params_ = parameters.get_table(this->get_homogen_table_id());
-        this->labels_ = ndarray<std::int32_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
+        this->labels_ =
+            ndarray<std::int32_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
 
         std::srand(2007 + n_);
         auto ptr_lab = this->labels_.get_mutable_data();
@@ -67,7 +68,7 @@ public:
 
         auto data_array = row_accessor<const float_t>{ this->data_ }.pull(this->get_queue());
         auto data_host = ndarray<float_t, 2>::wrap(data_array.get_data(), { n_, p_ });
-        
+
         auto param_array = row_accessor<const float_t>{ this->params_ }.pull(this->get_queue());
         auto params_host = ndarray<float_t, 1>::wrap(param_array.get_data(), { p_ + 1 });
 
@@ -75,14 +76,13 @@ public:
         auto labels_gpu = this->labels_.to_device(this->get_queue());
         auto params_gpu = params_host.to_device(this->get_queue());
 
-            
         auto out_predictions =
             ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::device);
 
         auto p_event =
             compute_probabilities(this->get_queue(), params_gpu, data_gpu, out_predictions, {});
         p_event.wait_and_throw();
-        
+
         BENCHMARK("Derivative computation") {
             auto [out_logloss, out_e] =
                 ndarray<float_t, 1>::zeros(this->get_queue(), { 1 }, sycl::usm::alloc::device);
@@ -91,33 +91,32 @@ public:
                 ndarray<float_t, 1>::zeros(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::device);
 
             auto logloss_event_der = compute_logloss_with_der(this->get_queue(),
-                                                            params_gpu,
-                                                            data_gpu,
-                                                            labels_gpu,
-                                                            out_predictions,
-                                                            out_logloss,
-                                                            out_derivative,
-                                                            L1,
-                                                            L2,
-                                                            { fill_event, out_der_e });
+                                                              params_gpu,
+                                                              data_gpu,
+                                                              labels_gpu,
+                                                              out_predictions,
+                                                              out_logloss,
+                                                              out_derivative,
+                                                              L1,
+                                                              L2,
+                                                              { fill_event, out_der_e });
             logloss_event_der.wait_and_throw();
         };
 
         BENCHMARK("Hessian computation") {
             auto [out_hessian, out_hess_e] = ndarray<float_t, 2>::zeros(this->get_queue(),
-                                                                    { p_ + 1, p_ + 1 },
-                                                                    sycl::usm::alloc::device);
+                                                                        { p_ + 1, p_ + 1 },
+                                                                        sycl::usm::alloc::device);
             auto hess_event = compute_hessian(this->get_queue(),
-                                            params_gpu,
-                                            data_gpu,
-                                            labels_gpu,
-                                            out_predictions,
-                                            out_hessian,
-                                            L1,
-                                            L2,
-                                            { out_hess_e });
+                                              params_gpu,
+                                              data_gpu,
+                                              labels_gpu,
+                                              out_predictions,
+                                              out_hessian,
+                                              L1,
+                                              L2,
+                                              { out_hess_e });
             hess_event.wait_and_throw();
-
         };
     }
 
@@ -127,22 +126,30 @@ private:
     table data_;
     table params_;
     ndarray<std::int32_t, 1> labels_;
-  
 };
 
 using logloss_types = COMBINE_TYPES((double, float));
 
-TEMPLATE_TEST_M(logloss_perf_test, "perfomance test square", "[logloss][5000*5000]", logloss_types) {
+TEMPLATE_TEST_M(logloss_perf_test,
+                "perfomance test square",
+                "[logloss][5000*5000]",
+                logloss_types) {
     this->generate_input(5000, 5000);
     this->measure_time();
 }
 
-TEMPLATE_TEST_M(logloss_perf_test, "perfomance test small p", "[logloss][10000*100]", logloss_types) {
+TEMPLATE_TEST_M(logloss_perf_test,
+                "perfomance test small p",
+                "[logloss][10000*100]",
+                logloss_types) {
     this->generate_input(100000, 100);
     this->measure_time();
 }
 
-TEMPLATE_TEST_M(logloss_perf_test, "perfomance test small n", "[logloss][100 * 1000]", logloss_types) {
+TEMPLATE_TEST_M(logloss_perf_test,
+                "perfomance test small n",
+                "[logloss][100 * 1000]",
+                logloss_types) {
     this->generate_input(100, 7000);
     this->measure_time();
 }
