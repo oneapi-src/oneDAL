@@ -207,17 +207,18 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
                                        const size_t nSV, const bool isSparse)
     {
         services::Status st;
-        TArray<algorithmFPType, cpu> distances(nVectors);
-        TPredictTask * prTask;
+        services::SharedPtr<TPredictTask> prTask;
         if (isSparse)
         {
-            prTask = PredictTaskCSR<algorithmFPType, cpu>::create(nVectors, nSV, xTable, svTable, kernel);
+            prTask.reset(PredictTaskCSR<algorithmFPType, cpu>::create(nVectors, nSV, xTable, svTable, kernel));
         }
         else
         {
-            prTask = PredictTaskDense<algorithmFPType, cpu>::create(nVectors, nSV, xTable, svTable, kernel);
+            prTask.reset(PredictTaskDense<algorithmFPType, cpu>::create(nVectors, nSV, xTable, svTable, kernel));
         }
+        DAAL_CHECK_MALLOC(prTask.get());
         st |= prTask->kernelCompute(0, nVectors, 0, nSV);
+        DAAL_CHECK_STATUS_VAR(st);
         const algorithmFPType * const buffBlock = prTask->getBuff();
 
         char trans = 'T';
@@ -229,11 +230,12 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         algorithmFPType beta(0.0);
         DAAL_INT incY(1);
 
-        ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
-        const algorithmFPType * const svCoeff = mtSVCoeff.get();
-        algorithmFPType * const distanceSV    = distances.get();
-        DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
+        TArray<algorithmFPType, cpu> distances(nVectors);
+        algorithmFPType * const distanceSV = distances.get();
         DAAL_CHECK_MALLOC(distanceSV);
+        ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
+        DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
+        const algorithmFPType * const svCoeff = mtSVCoeff.get();
 
         Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
 
