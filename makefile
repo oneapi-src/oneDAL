@@ -18,6 +18,10 @@
 # Common macros
 #===============================================================================
 
+ifeq ($(PLAT),)
+    PLAT:=$(shell bash dev/make/identify_os.sh)
+endif
+
 ifeq (help,$(MAKECMDGOALS))
     PLAT:=win32e
 endif
@@ -1113,9 +1117,13 @@ endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
 
+#----- cmake configs generation
+_release_cmake_configs:
+	$(if $(shell bash -c "command -v cmake"),cmake -DINSTALL_DIR=$(RELEASEDIR.lib)/cmake/oneDAL -P cmake/scripts/generate_config.cmake,echo 'cmake configs generation skipped')
+
 #----- nuspecs generation
 _release_common: _release_nuspec
-_release_nuspec: update_headers_version
+_release_nuspec: update_headers_version _release_cmake_configs
 	mkdir -p $(RELEASEDIR.nuspec)
 	bash ./deploy/nuget/prepare_dal_nuget.sh --release-dir $(RELEASEDIR) --platform $(PLAT)
 

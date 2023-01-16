@@ -124,7 +124,6 @@ create_package() {
         # -- nuspec
         cp ${rls_dir}/daal/latest/nuspec/inteldal.${distr_type}.${platform}.nuspec ${pkg_path}
         # -- cmake configs
-        cmake -DINSTALL_DIR=${rls_prefix}/lib/cmake/oneDAL -P cmake/scripts/generate_config.cmake
         mkdir -p ${dal_root_prefix}/lib/cmake/oneDAL
         cp ${rls_prefix}/lib/cmake/oneDAL/* ${dal_root_prefix}/lib/cmake/oneDAL
         # -- interfaces
