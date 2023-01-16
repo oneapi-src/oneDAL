@@ -25,9 +25,6 @@ while [[ $# -gt 0 ]]; do
         --build-dir)
         BUILD_DIR="$2"
         ;;
-        --platform)
-        platform="$2"
-        ;;
         --compiler)
         compiler="$2"
         ;;
@@ -51,8 +48,9 @@ done
 
 #Global exit code for testing script
 TESTING_RETURN=0
-OS=${platform::3}
-ARCH=${platform:3:3}
+PLATFORM=$(bash dev/make/identify_os.sh)
+OS=${PLATFORM::3}
+ARCH=${PLATFORM:3:3}
 full_arch=intel64
 build_system=${build_system:-cmake}
 

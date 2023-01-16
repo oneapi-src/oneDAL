@@ -1125,7 +1125,7 @@ _release_cmake_configs:
 _release_common: _release_nuspec
 _release_nuspec: update_headers_version _release_cmake_configs
 	mkdir -p $(RELEASEDIR.nuspec)
-	bash ./deploy/nuget/prepare_dal_nuget.sh --release-dir $(RELEASEDIR) --platform $(PLAT)
+	bash ./deploy/nuget/prepare_dal_nuget.sh --release-dir $(RELEASEDIR)
 
 #===============================================================================
 # Miscellaneous stuff
