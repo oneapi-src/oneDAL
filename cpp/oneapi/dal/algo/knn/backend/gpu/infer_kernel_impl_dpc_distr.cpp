@@ -153,8 +153,8 @@ public:
 
     auto& set_part_indices(const pr::ndview<idx_t, 2>& part_indices) {
         if (result_options_.test(result_options::indices)) {
-            ONEDAL_ASSERT(indices.get_dimension(0) == 2 * query_length_);
-            ONEDAL_ASSERT(indices.get_dimension(1) == k_neighbors_);
+            ONEDAL_ASSERT(part_indices.get_dimension(0) == 2 * query_length_);
+            ONEDAL_ASSERT(part_indices.get_dimension(1) == k_neighbors_);
             this->part_indices_ = part_indices;
         }
         return *this;
@@ -171,19 +171,19 @@ public:
 
     auto& set_part_distances(const pr::ndview<dst_t, 2>& part_distances) {
         if (result_options_.test(result_options::distances)) {
-            ONEDAL_ASSERT(distances.get_dimension(0) == 2 * query_length_);
-            ONEDAL_ASSERT(distances.get_dimension(1) == k_neighbors_);
+            ONEDAL_ASSERT(part_distances.get_dimension(0) == 2 * query_length_);
+            ONEDAL_ASSERT(part_distances.get_dimension(1) == k_neighbors_);
             this->part_distances_ = part_distances;
         }
         return *this;
     }
 
-    sycl::event reset_dists_inds(const event_vector& deps) const {
-        constexpr auto default_dst_value = detail::limits<Float>::max();
+    sycl::event reset_dists_inds(const bk::event_vector& deps) const {
+        constexpr auto default_dst_value = limits<Float>::max();
         constexpr auto default_idx_value = -1;
         auto out_dsts = fill(this->queue_, this->distances_, default_dst_value, deps);
         auto out_idcs = fill(this->queue_, this->indices_, default_idx_value, out_dsts);
-        return out_idcs
+        return out_idcs;
     }
 
     auto& set_global_index_offset(int64_t offset) {
@@ -196,10 +196,10 @@ public:
         return *this;
     }
 
-    sycl::event finalize()(std::int64_t qb_id,
-                           pr::ndview<idx_t, 2>& inp_indices,
-                           pr::ndview<Float, 2>& inp_distances,
-                           const bk::event_vector& deps = {}) {
+    sycl::event finalize(std::int64_t qb_id,
+                         pr::ndview<idx_t, 2>& inp_indices,
+                         pr::ndview<Float, 2>& inp_distances,
+                         const bk::event_vector& deps = {}) {
         //TODO: figure out how to handle this function (inputs, etc.)
         const auto bounds = this->block_bounds(qb_id);
 

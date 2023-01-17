@@ -156,7 +156,7 @@ inline ndarray<Type, 1> table2ndarray_1d(sycl::queue& q,
     return ndarray<Type, 1>::wrap(data, { data.get_count() });
 }
 
-std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(pr::ndarray<std::int64_t, 1> sample_counts, std::int64_t block_size) {
+std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(ndarray<std::int64_t, 1> sample_counts, std::int64_t block_size) {
     std::vector<std::int32_t> nodes;
     std::vector<std::int64_t> boundaries;
     std::int64_t global_bias = 0;
