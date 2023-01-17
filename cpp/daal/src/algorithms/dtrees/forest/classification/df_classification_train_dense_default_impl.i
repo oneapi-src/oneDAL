@@ -30,7 +30,7 @@
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/classification/df_classification_training_types_result.h"
-#include <iostream>
+//#include <iostream>
 
 #define OOBClassificationData size_t
 
@@ -788,9 +788,6 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         }
     }
 
-    ::std::cout << "\n" << "leftWeights " << leftWeights << " nLeft " << nLeft << ::std::endl;
-
-
     if (!((nLeft == n) || ((n - nLeft) < nMinSplitPart)
          || ((totalWeights - leftWeights) < minWeightLeaf)
          || ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf)))
@@ -813,7 +810,6 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
 
         }
 
-        ::std::cout << "if statement runs\n";
         auto histTotal           = curImpurity.hist.get();
         algorithmFPType sumLeft  = 0;
         algorithmFPType sumRight = 0;
@@ -828,7 +824,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         const algorithmFPType decrease = sumLeft / leftWeights + sumRight / (totalWeights - leftWeights);
         if (decrease > bestImpDecrease)
         {
-            ::std::cout << "outputs!\n" ;
+
             split.left.hist     = _histLeft;
             split.left.var      = sumLeft;
             split.nLeft         = nLeft;
