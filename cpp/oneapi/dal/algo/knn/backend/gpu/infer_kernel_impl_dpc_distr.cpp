@@ -451,7 +451,7 @@ private:
     pr::ndview<Float, 2> distances_;
     pr::ndview<Float, 2> part_distances_;
     pr::ndview<idx_t, 2> indices_;
-    pr::ndview<Float, 2> part_indices_;
+    pr::ndview<idx_t, 2> part_indices_;
     int64_t global_index_offset_ = -1;
     uniform_voting_t uniform_voting_;
     distance_voting_t distance_voting_;
@@ -632,7 +632,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         search.reset_train_data(actual_current_block, tbcount);
         next_event = search(query, callback, qbcount, kcount, { next_event });
     
-        comm.sendrecv_replace(current_block, block_size, Float, prev_node, next_node);
+        comm.sendrecv_replace(current_block, prev_node, next_node)//.wait_ something;
     }
 
     return next_event;
