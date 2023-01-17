@@ -30,6 +30,7 @@
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/classification/df_classification_training_types_result.h"
+#include <iostream>
 
 #define OOBClassificationData size_t
 
@@ -729,14 +730,14 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
 
 
     RNGs<size_t, cpu> rng;
-    rng.uniform(1, &idx, engineImpl->getState(), nMinSplitPart, n - nMinSplitPart + 1); //NEED TO DOUBLE CHECK ON nDiffFeatMax
+    rng.uniform(1, &idx, engineImpl->getState(), 0, nDiffFeatMax - 1); //NEED TO DOUBLE CHECK ON nDiffFeatMax
 
     if (split.featureUnordered)
     {
         if (noWeights)
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            //PRAGMA_IVDEP
+            //PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
                 nLeft += nSamplesPerClass[idx * K + iClass];
@@ -746,8 +747,8 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         else
         {
             nLeft = nFeatIdx[idx];
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            //PRAGMA_IVDEP
+            //PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
                 leftWeights += nSamplesPerClass[idx * K + iClass];
@@ -761,8 +762,8 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
 
         if (noWeights)
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            //PRAGMA_IVDEP
+            //PRAGMA_VECTOR_ALWAYS
             for (size_t i=0; i < lim; ++i)
             {
                 nLeft += nSamplesPerClass[i];
@@ -771,15 +772,15 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         }
         else
         {        
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            //PRAGMA_IVDEP
+            //PRAGMA_VECTOR_ALWAYS
             for(size_t i =0; i <= idx; ++i)
             {
                 nLeft += nFeatIdx[idx];
             }
 
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            //PRAGMA_IVDEP
+            //PRAGMA_VECTOR_ALWAYS
             for(size_t i =0; i < lim; ++i) 
             {
                 leftWeights += nSamplesPerClass[i];
@@ -787,12 +788,32 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         }
     }
 
+    ::std::cout << "\n" << "leftWeights " << leftWeights << " nLeft " << nLeft << ::std::endl;
 
-    if ((nLeft == n) || ((n - nLeft) < nMinSplitPart)
+
+    if (!((nLeft == n) || ((n - nLeft) < nMinSplitPart)
          || ((totalWeights - leftWeights) < minWeightLeaf)
-         || ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf))
+         || ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf)))
     {
 
+        if(split.featureUnordered)
+        {
+            //PRAGMA_IVDEP
+            //PRAGMA_VECTOR_ALWAYS
+            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[idx*K + iClass];
+        }
+        else
+        {
+            for(size_t i=0; i <= idx; ++i)
+            {
+                //PRAGMA_IVDEP
+                //PRAGMA_VECTOR_ALWAYS
+                for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i*K + iClass];
+            }
+
+        }
+
+        ::std::cout << "if statement runs\n";
         auto histTotal           = curImpurity.hist.get();
         algorithmFPType sumLeft  = 0;
         algorithmFPType sumRight = 0;
@@ -807,6 +828,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         const algorithmFPType decrease = sumLeft / leftWeights + sumRight / (totalWeights - leftWeights);
         if (decrease > bestImpDecrease)
         {
+            ::std::cout << "outputs!\n" ;
             split.left.hist     = _histLeft;
             split.left.var      = sumLeft;
             split.nLeft         = nLeft;
