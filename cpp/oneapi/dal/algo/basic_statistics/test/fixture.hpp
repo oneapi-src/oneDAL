@@ -197,11 +197,15 @@ public:
                 ref_sum2.set(0, clmn) += data_matrix.get(row, clmn) * data_matrix.get(row, clmn);
                 ref_sum2cent.set(0, clmn) += (data_matrix.get(row, clmn) - ref_mean.get(0, clmn)) *
                                              (data_matrix.get(row, clmn) - ref_mean.get(0, clmn));
-                ref_sorm.set(0, clmn) = ref_sum2.get(0, clmn) / float_t(row);
-                ref_varc.set(0, clmn) = ref_sum2cent.get(0, clmn) / float_t(row - 1);
-                ref_stdev.set(0, clmn) = std::sqrt(ref_varc.get(0, clmn));
-                ref_vart.set(0, clmn) = ref_stdev.get(0, clmn) / ref_mean.get(0, clmn);
+
             }
+        }
+
+        for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
+            ref_sorm.set(0, clmn) = ref_sum2.get(0, clmn) / float_t(row_count);
+            ref_varc.set(0, clmn) = ref_sum2cent.get(0, clmn) / float_t(row_count - 1);
+            ref_stdev.set(0, clmn) = std::sqrt(ref_varc.get(0, clmn));
+            ref_vart.set(0, clmn) = ref_stdev.get(0, clmn) / ref_mean.get(0, clmn);
         }
 
         if (compute_mode.test(result_options::min)) {
