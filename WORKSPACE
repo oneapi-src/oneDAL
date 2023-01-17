@@ -77,10 +77,10 @@ ccl_repo(
     name = "ccl",
     root_env_var = "CCL_ROOT",
     urls = [
-        "https://files.pythonhosted.org/packages/ea/d9/3cb54d9b31aea0db527fc3480fc2e92438602ed53de3e45993c0643cf68f/oneccl_devel-2021.3.0-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/38/66/889fa7f40d4142194414efb3f79379ff2830e554d99eef49ac4d8e739245/oneccl_devel-2021.8.0-py2.py3-none-manylinux1_x86_64.whl",
     ],
     sha256s = [
-        "d6cf242f7c6d4bc86cf6ec38c416b5ad569d3a0bd2d5258ae5e271027a7e6518",
+        "58995b5dd38f92034be7c7c2da51f531b6df4ef36b09fb648757ae0a7832f802",
     ],
 )
 
