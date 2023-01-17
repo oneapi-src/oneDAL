@@ -971,8 +971,10 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
 }
 
 template <typename Float, bs_list List>
+template <bool use_weights>
 std::tuple<local_result<Float, List>, sycl::event>
-compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Float, 2>& data) {
+compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Float, 2>& data,
+                                                            const pr::ndview<Float, 2>& weights) {
     ONEDAL_PROFILER_TASK(process_single_block, q_);
 
     ONEDAL_ASSERT(data.has_data());
@@ -1047,6 +1049,14 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Flo
         using kernel_t = std::remove_cv_t< //
             std::remove_reference_t<decltype(kernel)> >;
 
+        if constexpr (use_weights) {
+            ONEDAL_ASSERT(weights.has_data());
+            ONEDAL_ASSERT(row_count == weights.get_dimension(0));
+            ONEDAL_ASSERT(std::int64_t(1) == weights.get_dimension(1));
+
+            kernel.weights_ptr = weights.get_data();
+        }
+
         if constexpr (kernel_t::output_min) kernel.min_ptr = rmin_ptr;
         if constexpr (kernel_t::output_max) kernel.max_ptr = rmax_ptr;
         if constexpr (kernel_t::output_sum) kernel.sum_ptr = rsum_ptr;
@@ -1061,7 +1071,8 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Flo
 
     auto last_event = q_.submit([&](sycl::handler& cgh) {
         if (distr_mode) {
-            using kernel_t = singlepass_processor_kernel<Float, List, true>;
+            using kernel_t = singlepass_processor_kernel<Float, List, //
+                                                    true, use_weights>;
             kernel_t kernel(data_ptr, stride, row_count, column_count);
 
             setup_kernel(kernel);
@@ -1071,7 +1082,8 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Flo
             cgh.parallel_for(nd_range, kernel);
         } 
         else {
-            using kernel_t = singlepass_processor_kernel<Float, List, false>;
+            using kernel_t = singlepass_processor_kernel<Float, List, //
+                                                    false, use_weights>;
             kernel_t kernel(data_ptr, stride, row_count, column_count);
 
             setup_kernel(kernel);
@@ -1086,9 +1098,11 @@ compute_kernel_dense_impl<Float, List>::compute_single_pass(const pr::ndview<Flo
 }
 
 template <typename Float, bs_list List>
+template <bool use_weights>
 std::tuple<local_result<Float, List>, sycl::event>
 compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndview<Float, 2>& data,
-                                                          std::int64_t row_block_count) {
+                                                          std::int64_t row_block_count,
+                                                          const pr::ndview<Float, 2>& weights) {
     ONEDAL_ASSERT(data.has_data());
 
     const auto row_count = data.get_dimension(0);
@@ -1137,8 +1151,16 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndview<Float
         ONEDAL_PROFILER_TASK(process_blocks, q_);
         
         last_event = q_.submit([&](sycl::handler& cgh) {
-            using kernel_t = block_processor_kernel<Float, List>;
+            using kernel_t = block_processor_kernel<Float, List, use_weights>;
             kernel_t kernel(data_ptr, stride, row_count, column_count, row_block_size);
+
+            if constexpr (use_weights) {
+                ONEDAL_ASSERT(weights.has_data());
+                ONEDAL_ASSERT(row_count == weights.get_dimension(0));
+                ONEDAL_ASSERT(std::int64_t(1) == weights.get_dimension(1));
+
+                kernel.weights_ptr = weights.get_data();
+            }
 
             if constexpr (kernel_t::compute_min) kernel.min_ptr = amin_ptr;
             if constexpr (kernel_t::compute_max) kernel.max_ptr = amax_ptr;
@@ -1261,7 +1283,8 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
 template <typename Float, bs_list List>
 result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& desc,
                                                             const input_t& input) {
-    const auto data = input.get_data();
+    const auto& data = input.get_data();
+    const auto& weights = input.get_weights();
 
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
@@ -1270,8 +1293,19 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
 
     const auto row_block_count = get_row_block_count(row_count);
 
-    auto [ndres, last_event] = (row_block_count > 1) ? compute_by_blocks(data_nd, row_block_count)
-                                                     : compute_single_pass(data_nd);
+    local_result<Float, List> ndres; 
+    sycl::event last_event;
+
+    if (weights.has_data()) {
+        const auto weights_nd = pr::table2ndarray<Float>(q_, weights, alloc::device);
+        std::tie(ndres, last_event) = (row_block_count > 1) 
+                                        ? compute_by_blocks<true>(data_nd, row_block_count, weights_nd)
+                                        : compute_single_pass<true>(data_nd, weights_nd);
+    } else {
+        std::tie(ndres, last_event) = (row_block_count > 1) 
+                                        ? compute_by_blocks<false>(data_nd, row_block_count)
+                                        : compute_single_pass<false>(data_nd);
+    }
 
     std::tie(ndres, last_event) =
         finalize(std::move(ndres), row_count, column_count, { last_event });
