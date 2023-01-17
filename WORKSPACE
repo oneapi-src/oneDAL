@@ -34,24 +34,24 @@ load("@onedal//dev/bazel/deps:micromkl.bzl", "micromkl_repo", "micromkl_dpc_repo
 micromkl_repo(
     name = "micromkl",
     root_env_var = "MKLFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklfpk_lnx_20210426.tgz",
-    sha256 = "5f87df20db0923f7e1819e2fcfaf60dd749408dca8a094e6713f275fb15ad77b",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklfpk_lnx_20221214.tgz",
+    sha256 = "34001657cfe7127ff0de9d6bf0cb4d9fc4d0be1037e5615f8c899c7193a8be8b",
 )
 
 micromkl_dpc_repo(
     name = "micromkl_dpc",
     root_env_var = "MKLGPUFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_2021-11-11.tgz",
-    sha256 = "9ab148c1d75cbd317f3d9c695b0e0cc699d907d2407723612990a4fe1171d940",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20221214.tgz",
+    sha256 = "1bd9e3ef850d95d1ee00e0f04943c8ed2490175fca6a7b331cab91a124ab301e",
 )
 
 load("@onedal//dev/bazel/deps:tbb.bzl", "tbb_repo")
 tbb_repo(
     name = "tbb",
     root_env_var = "TBBROOT",
-    url = "https://github.com/oneapi-src/oneTBB/releases/download/v2021.2.0/oneapi-tbb-2021.2.0-lin.tgz",
-    sha256 = "bcaa0aa7c0d2851a730cb0f64ad120f06a7b63811c8cc49e51ea8e1579f51b05",
-    strip_prefix = "oneapi-tbb-2021.2.0",
+    url = "https://github.com/oneapi-src/oneTBB/releases/download/v2021.7.0/oneapi-tbb-2021.7.0-lin.tgz",
+    sha256 = "3c2b3287c595e2bb833c025fcd271783963b7dfae8dc681440ea6afe5d550e6a",
+    strip_prefix = "oneapi-tbb-2021.7.0",
 )
 
 load("@onedal//dev/bazel/deps:mpi.bzl", "mpi_repo")
