@@ -79,11 +79,6 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                                                                                                        const NumericTable * a2, NumericTable * r,
                                                                                                        const KernelParameter * par)
 {
-    if (par->kernelType != KernelType::linear)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
-
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
     const size_t nFeatures = a1->getNumberOfColumns();
@@ -101,11 +96,12 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
     algorithmFPType * dataR = mtR.get();
 
     //compute
-    algorithmFPType k = (algorithmFPType)(par->scale);
-    algorithmFPType b = (algorithmFPType)(par->shift);
+    const algorithmFPType k = (algorithmFPType)(par->scale);
+    const algorithmFPType b = (algorithmFPType)(par->shift);
+
+    services::internal::service_memset_seq<algorithmFPType, cpu>(dataR, b, nVectors1);
     for (size_t i = 0; i < nVectors1; i++)
     {
-        dataR[i] = 0.0;
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < nFeatures; j++)
@@ -113,7 +109,15 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
             dataR[i] += dataA1[i * nFeatures + j] * dataA2[j];
         }
         dataR[i] = k * dataR[i];
-        dataR[i] += b;
+    }
+
+    if (par->kernelType == KernelType::sigmoid)
+    {
+        daal::internal::Math<algorithmFPType, cpu>::vTanh(nVectors1, dataR, dataR);
+    }
+    if (par->kernelType == KernelType::polynomial)
+    {
+        daal::internal::Math<algorithmFPType, cpu>::vPowx(nVectors1, dataR, par->degree, dataR);
     }
 
     return services::Status();
