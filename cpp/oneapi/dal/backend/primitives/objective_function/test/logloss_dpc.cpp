@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2022 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -100,7 +100,6 @@ public:
         const std::int32_t labels[n] = { 0, 1, 1, 0, 1 };
         const float_t L1 = 2.3456;
         const float_t L2 = 3.123;
-        // real_predictions[n] = {0.09928262 ,0.38057336, 1.53682325, -0.90213211, -1.54867588};
         const float_t cur_param[p + 1] = { -0.2, 0.1, -1, 0.4 };
 
         auto data_host = ndarray<float_t, 2>::wrap(data, { n, p });

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2022 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,10 +16,6 @@
 
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
-#include "oneapi/dal/backend/primitives/loops.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include <sycl/ext/oneapi/experimental/builtins.hpp>
-#include "oneapi/dal/backend/primitives/debug.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -230,27 +226,22 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
     auto out_der_suffix = out_derivative.get_slice(1, p + 1);
 
     auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
-
+    if (L1 == 0 && L2 == 0) {
+        return der_event;
+    }
     auto [reg_val, reg_val_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
 
-    event_vector vec = { reg_val_e };
-    auto reg_ptr = reg_val.get_mutable_data();
+    const event_vector reg_deps = { reg_val_e, der_event };
+    auto* const reg_ptr = reg_val.get_mutable_data();
 
     auto reg_event = q.submit([&](sycl::handler& cgh) {
-        using oneapi::dal::backend::operator+;
-        cgh.depends_on(vec + der_event);
+        cgh.depends_on(reg_deps);
         const auto range = make_range_1d(p + 1);
         auto sumReduction = sycl::reduction(reg_ptr, sycl::plus<>());
         cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx];
             sum += L1 * sycl::abs(param) + L2 * param * param;
-            out_derivative_ptr[idx] += L2 * 2 * param;
-            if (param > 0) {
-                out_derivative_ptr[idx] += L1;
-            }
-            else if (param < 0) {
-                out_derivative_ptr[idx] -= L1;
-            }
+            out_derivative_ptr[idx] += sycl::copysign(L1, param) + L2 * 2 * param;
         });
     });
 
@@ -300,7 +291,6 @@ sycl::event compute_derivative(sycl::queue& q,
     auto* const out_derivative_ptr = out_derivative.get_mutable_data();
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
-        using oneapi::dal::backend::operator+;
         using sycl::reduction;
 
         cgh.depends_on(deps);
@@ -323,19 +313,17 @@ sycl::event compute_derivative(sycl::queue& q,
 
     auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
 
+    if (L1 == 0 && L2 == 0) {
+        return der_event;
+    }
+
     auto reg_event = q.submit([&](sycl::handler& cgh) {
         using oneapi::dal::backend::operator+;
         cgh.depends_on({ der_event });
         const auto range = make_range_1d(p + 1);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
             const Float param = param_ptr[idx];
-            out_derivative_ptr[idx] += L2 * 2 * param;
-            if (param > 0) {
-                out_derivative_ptr[idx] += L1;
-            }
-            else if (param < 0) {
-                out_derivative_ptr[idx] -= L1;
-            }
+            out_derivative_ptr[idx] += sycl::copysign(L1, param) + L2 * 2 * param;
         });
     });
 
@@ -388,13 +376,13 @@ sycl::event compute_hessian(sycl::queue& q,
             const auto j = item.get_global_id(1);
             const auto param_ind_2 = item.get_global_id(2);
             Float val = 0;
-            for (auto k = param_ind_2; k <= j; k += wg) {
+            for (auto k = param_ind_2; k < j + 1; k += wg) {
                 val = 0;
                 const std::int64_t last_ind = std::min((obj_ind + 1) * block_size, n);
                 for (auto i = obj_ind * block_size; i < last_ind; ++i) {
-                    Float x1 = j > 0 ? data_ptr[i * inp_str + (j - 1)] : 1;
-                    Float x2 = k > 0 ? data_ptr[i * inp_str + (k - 1)] : 1;
-                    auto prob = proba_ptr[i] * (1 - proba_ptr[i]);
+                    const Float x1 = j > 0 ? data_ptr[i * inp_str + (j - 1)] : 1;
+                    const Float x2 = k > 0 ? data_ptr[i * inp_str + (k - 1)] : 1;
+                    const Float prob = proba_ptr[i] * (1 - proba_ptr[i]);
                     val += x1 * x2 * prob;
                 }
                 Float& out = hes_ptr[j * out_str + k];
@@ -407,7 +395,7 @@ sycl::event compute_hessian(sycl::queue& q,
         });
     });
 
-    auto copy_event = q.submit([&](sycl::handler& cgh) {
+    auto make_symmetric = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on({ hes_event });
         const auto range = make_range_2d(p + 1, p + 1);
         cgh.parallel_for(range, [=](sycl::id<2> idx) {
@@ -416,13 +404,13 @@ sycl::event compute_hessian(sycl::queue& q,
             if (j > k) {
                 hes_ptr[k * out_str + j] = hes_ptr[j * out_str + k];
             }
-            if (j == k) {
+            else if (j == k) {
                 hes_ptr[j * out_str + j] += 2 * L2;
             }
         });
     });
 
-    return copy_event;
+    return make_symmetric;
 }
 
 #define INSTANTIATE(F)                                                               \
