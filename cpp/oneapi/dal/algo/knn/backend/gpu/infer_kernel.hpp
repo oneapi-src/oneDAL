@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/knn/infer_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::knn::backend {
 
