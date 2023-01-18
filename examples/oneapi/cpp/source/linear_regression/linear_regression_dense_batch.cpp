@@ -21,6 +21,7 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
+namespace result_options = dal::linear_regression::result_options;
 
 void run() {
     const auto train_data_file_name = get_data_path("linear_regression_train_data.csv");
