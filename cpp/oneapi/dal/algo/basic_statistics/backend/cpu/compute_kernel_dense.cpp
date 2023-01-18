@@ -49,10 +49,47 @@ constexpr daal_lom::Method get_daal_method() {
     return daal_lom::defaultDense;
 }
 
+template<typename Float> 
+std::int64_t propose_block_size(std::int64_t row_count, 
+                                std::int64_t col_count) {
+    ONEDAL_ASSERT(row_count > 0);
+    ONEDAL_ASSERT(col_count > 0);
+
+    
+}
+
 template <typename Float>
-static result_t call_daal_kernel(const context_cpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& data) {
+result_t call_daal_kernel_with_weights(const context_cpu& ctx,
+                                       const descriptor_t& desc,
+                                       const table& data,
+                                       const table& weights) {
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+
+    auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
+    auto daal_input = daal_lom::Input();
+    auto daal_result = daal_lom::Result();
+
+    daal_input.set(daal_lom::InputId::data, daal_data);
+
+    interop::status_to_exception(
+        daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
+
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_lom_batch_kernel_t>(ctx,
+                                                            daal_data.get(),
+                                                            &daal_result,
+                                                            &daal_parameter));
+
+    auto result =
+        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
+
+    return result;
+}
+
+template <typename Float>
+result_t call_daal_batch_kernel(const context_cpu& ctx,
+                                const descriptor_t& desc,
+                                const table& data) {
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
@@ -78,7 +115,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
 template <typename Float>
 static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+    if (input.get_weights().has_data()) {
+        return call_daal_batch_kernel_with_weights<Float>(ctx, desc, input.get_data(), input.get_weights());
+    } else {
+        return call_daal_batch_kernel<Float>(ctx, desc, input.get_data());
+    }
 }
 
 template <typename Float>

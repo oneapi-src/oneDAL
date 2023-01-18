@@ -18,9 +18,6 @@
 #include <algorithm>
 #include <type_traits>
 
-#include <iostream>
-#include "oneapi/dal/backend/primitives/debug.hpp"
-
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/compute_kernel_dense_impl.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
