@@ -24,8 +24,10 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#include <queue>
+
 namespace oneapi::dal::backend::primitives {
-    
+
 namespace bk = ::oneapi::dal::backend;
 namespace pr = ::oneapi::dal::backend::primitives;
 
@@ -176,16 +178,14 @@ std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_in
         global_bias = global_bias + s;
     }
     boundaries.push_back(global_bias);
-    return std::tuple<bounds, nodes>;
+    return { boundaries, nodes };
 }
 
 template <ndorder torder, typename Task, typename Float, bool cm_train>
 std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& train, std::int64_t block_size, const bk::event_vector& deps = {}) {
     std::queue<ndarray<Float, 2, torder>> train_block_queue;
-    const auto train_count = train.get_dimension(0);
-    const auto feature_count = train.get_dimension(1);
-
-    using train_t = ndarray_t<Float, cm_train>;
+    const auto train_count = train.get_row_count();
+    const auto feature_count = train.get_column_count();
 
     auto block_counting = uniform_blocking(train_count, block_size);
 
@@ -199,8 +199,8 @@ std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& 
         auto slice = row_accessor<Float>(train).pull({ block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) });
 
         // convert table slice from row_accessor into ndarray
-        auto train_var = pr::table2ndarray_variant<Float>(queue, slice, sycl::usm::alloc::device);
-        const train_t& actual_block = std::get<train_t>(train_var);
+        auto actual_block = pr::table2ndarray_variant<Float>(queue, slice, sycl::usm::alloc::device);
+        // TODO: any reason to convert this into ndview? const train_t& actual_block = std::get<train_t>(train_var);
 
         // copy table slice into current block storage, wait for event to finish before adding to queue
         copy_event = pr::copy(q, current_block.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index)), actual_block, copy_event).wait_and_throw();
