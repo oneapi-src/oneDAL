@@ -178,7 +178,7 @@ std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_in
         global_bias = global_bias + s;
     }
     boundaries.push_back(global_bias);
-    return std::make_tuple(boundaries, nodes);
+    return std::make_tuple(nodes, boundaries);
 }
 
 template <ndorder torder, typename Task, typename Float, bool cm_train>
@@ -199,7 +199,7 @@ std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& 
         auto slice = row_accessor<Float>(train).pull({ block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) });
 
         // convert table slice from row_accessor into ndarray
-        auto actual_block = pr::table2ndarray_variant<Float>(queue, slice, sycl::usm::alloc::device);
+        auto actual_block = pr::table2ndarray_variant<Float>(q, slice, sycl::usm::alloc::device);
         // TODO: any reason to convert this into ndview? const train_t& actual_block = std::get<train_t>(train_var);
 
         // copy table slice into current block storage, wait for event to finish before adding to queue
