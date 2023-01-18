@@ -326,14 +326,14 @@ public:
     }
 
     void test_formula_derivative(const ndarray<float_t, 2>& data,
-                         const ndarray<float_t, 1>& probabilities,
-                         const ndarray<float_t, 1>& params,
-                         const ndarray<std::int32_t, 1>& labels,
-                         const ndarray<float_t, 1>& derivative,
-                         const float_t L1,
-                         const float_t L2,
-                         const float_t rtol = 1e-3,
-                         const float_t atol = 1e-3) {
+                                 const ndarray<float_t, 1>& probabilities,
+                                 const ndarray<float_t, 1>& params,
+                                 const ndarray<std::int32_t, 1>& labels,
+                                 const ndarray<float_t, 1>& derivative,
+                                 const float_t L1,
+                                 const float_t L2,
+                                 const float_t rtol = 1e-3,
+                                 const float_t atol = 1e-3) {
         const std::int64_t p = data.get_dimension(1);
         auto out_derivative =
             ndarray<long double, 1>::empty(this->get_queue(), { p + 1 }, sycl::usm::alloc::host);
@@ -346,11 +346,11 @@ public:
     }
 
     void test_formula_hessian(const ndarray<float_t, 2>& data,
-                      const ndarray<float_t, 1>& probabilities,
-                      const ndarray<float_t, 2>& hessian,
-                      const float_t L2,
-                      const float_t rtol = 1e-3,
-                      const float_t atol = 1e-3) {
+                              const ndarray<float_t, 1>& probabilities,
+                              const ndarray<float_t, 2>& hessian,
+                              const float_t L2,
+                              const float_t rtol = 1e-3,
+                              const float_t atol = 1e-3) {
         const std::int64_t p = data.get_dimension(1);
         auto out_hessian = ndarray<long double, 2>::empty(this->get_queue(),
                                                           { p + 1, p + 1 },
