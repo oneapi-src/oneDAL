@@ -21,6 +21,8 @@
 
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/gpu/infer_kernel_impl_dpc.hpp"
+#include "oneapi/dal/algo/knn/backend/gpu/infer_kernel_impl_dpc_distr.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
