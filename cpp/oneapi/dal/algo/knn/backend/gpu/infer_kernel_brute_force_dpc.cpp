@@ -149,14 +149,14 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
         responses_data = pr::table2ndarray_1d<res_t>(queue, resps, sycl::usm::alloc::device);
     }
 
-    if (distr_mode) {
-        bf_kernel_distr(queue, comm, desc, train, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
+    // if (distr_mode) {
+    //     bf_kernel_distr(queue, comm, desc, train, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
+    //         .wait_and_throw();
+    // }
+    // else {
+    bf_kernel(queue, comm, desc, train_data, query_data, responses_data, wrapped_distances, wrapped_indices, wrapped_responses)
             .wait_and_throw();
-    }
-    else {
-        bf_kernel(queue, comm, desc, train_data, query_data, responses_data, wrapped_distances, wrapped_indices, wrapped_responses)
-            .wait_and_throw();
-    }
+    // }
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 
