@@ -461,11 +461,11 @@ private:
     bool last_iteration_ = false;
 };
 
-template <typename Task, typename Float, pr::ndorder torder, pr::ndorder qorder, typename RespT>
+template <typename Task, typename Float, pr::ndorder torder, pr::ndorder qorder, typename RespT, bool cm_train>
 sycl::event bf_kernel_distr(sycl::queue& queue,
                       bk::communicator<spmd::device_memory_access::usm> comm,
                       const descriptor_t<Task>& desc,
-                      const pr::ndview<Float, 2, torder>& train,
+                      const table& train,
                       const pr::ndview<Float, 2, qorder>& query,
                       const pr::ndview<RespT, 1>& tresps,
                       pr::ndview<Float, 2>& distances,
@@ -479,9 +479,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     // Input arrays test section
     ONEDAL_ASSERT(train.has_data());
     ONEDAL_ASSERT(query.has_data());
-    [[maybe_unused]] const auto tcount = train.get_dimension(0);
+    [[maybe_unused]] const auto tcount = train.get_row_count();
     const auto qcount = query.get_dimension(0);
-    const auto fcount = train.get_dimension(1);
+    const auto fcount = train.get_column_count();
     ONEDAL_ASSERT(fcount == query.get_dimension(1));
 
     // Output arrays test section
@@ -518,7 +518,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     auto block_count = nodes.size();
 
-    auto train_block_queue = split_dataset(train, block_size);
+    auto train_block_queue = split_dataset(queue, train, block_size, deps);
 
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
@@ -581,7 +581,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         using search_t = pr::search_engine<Float, dst_t, torder>;
 
         const dst_t dist{ queue };
-        const search_t search{ queue, train, tbcount, dist };
+        const search_t search{ queue, dist };
     }
 
     if (is_chebyshev_distance) {
@@ -589,7 +589,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         using search_t = pr::search_engine<Float, dst_t, torder>;
 
         const dst_t dist{ queue };
-        const search_t search{ queue, train, tbcount, dist };
+        const search_t search{ queue, dist };
     }
 
     if (is_euclidean_distance) {
@@ -599,7 +599,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         callback.set_euclidean_distance(true);
 
         const dst_t dist{ queue };
-        const search_t search{ queue, train, tbcount, dist };
+        const search_t search{ queue, dist };
     }
     else if (is_minkowski_distance) {
         using met_t = pr::lp_metric<Float>;
@@ -607,14 +607,14 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         using search_t = pr::search_engine<Float, dst_t, torder>;
 
         const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
-        const search_t search{ queue, train, tbcount, dist };
+        const search_t search{ queue, dist };
     }
 
     const auto first_block_index = std::find(nodes.begin(), nodes.end(), current_rank);
     ONEDAL_ASSERT(first_block_index != nodes.end());
     
     for(std::int32_t block_number = 0; block_number < block_count; block_number++) {
-        // TODO: revise variable names? specifically block_count, block_index, block_number, block_size, is it ok to just use next_event?
+        // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
         auto current_block = train_block_queue.pop_front();
         auto block_index = (block_number + first_block_index) % block_count;
         auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
@@ -625,14 +625,14 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
 
         callback.set_global_index_offset(boundaries.at(block_index));
-        if (block_number == block_count - 1) { // If last iteration, need to do logic from original callback
+        if (block_number == block_count - 1) {
             callback.set_last_iteration(true);
         }
         
         search.reset_train_data(actual_current_block, tbcount);
         next_event = search(query, callback, qbcount, kcount, { next_event });
     
-        comm.sendrecv_replace(current_block, prev_node, next_node)//.wait_ something;
+        comm.sendrecv_replace(current_block, prev_node, next_node).wait();
     }
 
     return next_event;

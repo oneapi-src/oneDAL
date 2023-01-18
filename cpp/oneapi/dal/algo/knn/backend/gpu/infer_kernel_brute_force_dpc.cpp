@@ -135,6 +135,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
         }
     }
 
+    // only doing this in single gpu (not in distributed)
     using train_t = ndarray_t<Float, cm_train>;
     auto train_var = pr::table2ndarray_variant<Float>(queue, train, sycl::usm::alloc::device);
     const train_t& train_data = std::get<train_t>(train_var);
@@ -149,7 +150,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
     }
 
     if (distr_mode) {
-        bf_kernel_distr(queue, comm, desc, train_data, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
+        bf_kernel_distr(queue, comm, desc, train, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
             .wait_and_throw();
     }
     else {

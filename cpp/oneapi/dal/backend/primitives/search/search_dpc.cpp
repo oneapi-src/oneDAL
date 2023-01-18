@@ -293,6 +293,13 @@ search_engine_base<Float, Distance, Impl, torder>::search_engine_base(
           selection_blocking_(train_blocking_.get_block_count(), selection_sub_blocks) {}
 
 template <typename Float, typename Distance, typename Impl, ndorder torder>
+search_engine_base<Float, Distance, Impl, torder>::search_engine_base(
+    sycl::queue& queue,
+    const Distance& distance_instance)
+        : queue_(queue),
+          distance_instance_(distance_instance) {}
+
+template <typename Float, typename Distance, typename Impl, ndorder torder>
 auto& search_engine_base<Float, Distance, Impl, torder>::reset_train_data(
     const ndview<Float, 2, torder>& new_train_data,
     std::int64_t new_train_block) {

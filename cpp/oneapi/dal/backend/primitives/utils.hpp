@@ -25,6 +25,9 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::backend::primitives {
+    
+namespace bk = ::oneapi::dal::backend;
+namespace pr = ::oneapi::dal::backend::primitives;
 
 template <typename Type>
 inline ndarray<Type, 2> table2ndarray(const table& table) {
@@ -176,22 +179,33 @@ std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_in
     return std::tuple<bounds, nodes>;
 }
 
-template <ndorder torder>
-std::queue<ndview<Float, 2, torder>> split_dataset(const /*TODO: table instead*/ ndview<Float, 2, torder>& train, std::int64_t block_size) {
-    std::queue<ndview<Float, 2, torder>> train_block_queue; //may require some revision - may want to use table, row_accessor
+template <ndorder torder, typename Task, typename Float, bool cm_train>
+std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& train, std::int64_t block_size, const bk::event_vector& deps = {}) {
+    std::queue<ndarray<Float, 2, torder>> train_block_queue;
     const auto train_count = train.get_dimension(0);
     const auto feature_count = train.get_dimension(1);
 
+    using train_t = ndarray_t<Float, cm_train>;
+
     auto block_counting = uniform_blocking(train_count, block_size);
+
+    sycl::event::wait_and_throw(deps);
+    auto copy_event = sycl::event();
     
     for(std::int32_t block_index = 0; block_index < block_counting.get_block_count(); block_index++) {
-        auto slice = train.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index));
-        //TODO: ensure slice is uniform size (ie conditional when last slice)
-        /*
-        check if last block, if size not equal to size of others
-        fill remaining with ~inf - can use fill function
-        */
-        train_block_queue.emplace_back(slice);
+        // allocate ndarray of proper size + fill with standard value (ie inf, dead beef)
+        auto current_block = pr::ndarray<Float, 2, torder>::full(q, { block_size, feature_count }, 0xDEADBEEF, sycl::usm::alloc::device);
+        // use row accessor
+        auto slice = row_accessor<Float>(train).pull({ block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) });
+
+        // convert table slice from row_accessor into ndarray
+        auto train_var = pr::table2ndarray_variant<Float>(queue, slice, sycl::usm::alloc::device);
+        const train_t& actual_block = std::get<train_t>(train_var);
+
+        // copy table slice into current block storage, wait for event to finish before adding to queue
+        copy_event = pr::copy(q, current_block.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index)), actual_block, copy_event).wait_and_throw();
+
+        train_block_queue.emplace_back(current_block);
     }
 
     return train_block_queue;
