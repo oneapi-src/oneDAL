@@ -91,6 +91,10 @@ public:
 
     // auto& reset_train_data(const ndview<Float, 2, torder>& new_train_data,
     //                              std::int64_t new_train_block);
+    sycl::event treat_indices(ndview<std::int32_t, 2>& indices,
+                              std::int64_t start_index,
+                              const event_vector& deps) const;
+    selc_t create_selection_objects(std::int64_t query_block, std::int64_t k_neighbors) const;
 
     template <ndorder qorder, typename CallbackImpl>
     sycl::event operator()(const ndview<Float, 2, qorder>& query_data,
@@ -128,10 +132,6 @@ public:
             *last_event = callback(qb_id, out_indices, out_distances, { search_event });
         }
         return *last_event;
-    sycl::event treat_indices(ndview<std::int32_t, 2>& indices,
-                              std::int64_t start_index,
-                              const event_vector& deps) const;
-    selc_t create_selection_objects(std::int64_t query_block, std::int64_t k_neighbors) const;
     }
 
 protected:
