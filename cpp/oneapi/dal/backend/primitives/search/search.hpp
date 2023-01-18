@@ -163,9 +163,9 @@ protected:
 
     sycl::queue& queue_;
     const Distance distance_instance_;
-    const ndview<Float, 2, torder>& train_data_;
-    const uniform_blocking train_blocking_;
-    const uniform_blocking selection_blocking_;
+    ndview<Float, 2, torder>& train_data_;
+    uniform_blocking train_blocking_;
+    uniform_blocking selection_blocking_;
 };
 
 template <typename Float, typename Distance, ndorder torder = ndorder::c>
