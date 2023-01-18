@@ -72,6 +72,7 @@ class knn_callback_distr {
     using idx_t = std::int64_t;
     using res_t = response_t<Task, Float>;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
+    using selc_t = kselect_by_rows<Float>;
 
     using uniform_voting_t = std::unique_ptr<pr::uniform_voting<res_t>>;
     using distance_voting_t = std::unique_ptr<pr::distance_voting<dst_t>>;
@@ -179,7 +180,7 @@ public:
     }
 
     sycl::event reset_dists_inds(const bk::event_vector& deps) const {
-        constexpr auto default_dst_value = limits<Float>::max();
+        constexpr auto default_dst_value = 0xDEADBEEF;
         constexpr auto default_idx_value = -1;
         auto out_dsts = fill(this->queue_, this->distances_, default_dst_value, deps);
         auto out_idcs = fill(this->queue_, this->indices_, default_idx_value, out_dsts);
@@ -200,7 +201,8 @@ public:
                          pr::ndview<idx_t, 2>& inp_indices,
                          pr::ndview<Float, 2>& inp_distances,
                          const bk::event_vector& deps = {}) {
-        //TODO: figure out how to handle this function (inputs, etc.)
+        sycl::event copy_indices, copy_distances, comp_responses;
+
         const auto bounds = this->block_bounds(qb_id);
 
         if (result_options_.test(result_options::indices)) {
@@ -210,6 +212,7 @@ public:
         if (result_options_.test(result_options::distances)) {
             copy_distances = this->output_distances(bounds, inp_distances, deps);
         }
+
         if (result_options_.test(result_options::responses)) {
             using namespace bk;
             const auto ndeps = deps + copy_indices + copy_distances;
@@ -232,14 +235,14 @@ public:
         auto end_index = 2 * last;
 
         //TODO: add assertions/checks - mostly related to ensuring things are size k
-        kselect_by_rows<Float> select = create_selection_objects(2 * k_neighbors_, k_neighbors_);
+        selc_t select = pr::create_selection_objects(2 * k_neighbors_, k_neighbors_);
         //TODO: how to handle setting responses (first thought is have flag in this function if last iter) - use select_indexed()
         auto min_dist_dest = distances_.get_row_slice(first, last);
         auto min_indc_dest = indices_.get_row_slice(first, last);
 
         // add global offset value to input indices
         ONEDAL_ASSERT(global_index_offset_ != -1);
-        auto treat_event = treat_indices(inp_indices, global_index_offset_, deps);
+        auto treat_event = pr::treat_indices(inp_indices, global_index_offset_, deps);
 
         auto actual_min_dist_copy_dest = part_distances_.get_row_slice(start_index, middle_index);
         auto current_min_dist_dest = part_distances_.get_row_slice(middle_index, end_index);
@@ -254,7 +257,7 @@ public:
         auto kselect_block = part_distances_.get_row_slice(first, last);
         auto selt_event = select(queue_,
                                 kselect_block,
-                                k_neighbors,
+                                k_neighbors_,
                                 min_dist_dest,
                                 min_indc_dest,
                                 { copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event });
@@ -262,7 +265,7 @@ public:
                                          min_indc_dest,
                                          { selt_event });
         if (last_iteration_) { //calls same methods as original operator, using already set indices_ and distances_
-            final_event = finalize(qb_id, indices_, distances_, { final_event })
+            final_event = finalize(qb_id, indices_, distances_, { final_event });
         }
         return final_event;
     }
@@ -504,7 +507,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         ONEDAL_ASSERT(kcount == distances.get_dimension(1));
     }
 
-    auto block_size = get_block_size();
+    auto block_size = pr::get_block_size();
     auto rank_count = comm.get_rank_count();
     auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
     // ONEDAL_PROFILER_TASK needed?
@@ -516,9 +519,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     auto [nodes, boundaries] = get_boundary_indices(node_sample_counts, block_size);
 
-    auto block_count = nodes.size();
+    std::int32_t block_count = nodes.size();
 
-    auto train_block_queue = split_dataset(queue, train, block_size, deps);
+    auto train_block_queue = pr::split_dataset(queue, train, block_size, deps);
 
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
@@ -610,7 +613,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         //const search_t search{ queue, dist };
     }
 
-    const auto first_block_index = std::find(nodes.begin(), nodes.end(), current_rank);
+    const std::int32_t first_block_index = std::find(nodes.begin(), nodes.end(), current_rank);
     ONEDAL_ASSERT(first_block_index != nodes.end());
     
     for(std::int32_t block_number = 0; block_number < block_count; block_number++) {
