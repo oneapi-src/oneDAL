@@ -33,8 +33,8 @@ void run() {
     const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
-    const auto lr_desc = dal::linear_regression::descriptor<>()
-        .set_result_options(result_options::coefficients | result_options::intercept);
+    const auto lr_desc = dal::linear_regression::descriptor<>().set_result_options(
+        result_options::coefficients | result_options::intercept);
 
     const auto train_result = dal::train(lr_desc, x_train, y_train);
 
