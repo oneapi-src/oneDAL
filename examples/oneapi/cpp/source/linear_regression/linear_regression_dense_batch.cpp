@@ -30,18 +30,22 @@ void run() {
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
     const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_response_file_name });
-
-    const auto lr_desc = dal::linear_regression::descriptor<>();
-
     const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
+    const auto lr_desc = dal::linear_regression::descriptor<>()
+        .set_result_options(result_options::coefficients | result_options::intercept);
+
     const auto train_result = dal::train(lr_desc, x_train, y_train);
+
+    std::cout << "Coefficients:\n" << train_result.get_coefficients() << std::endl;
+    std::cout << "Intercept:\n" << train_result.get_intercept() << std::endl;
+
     const auto lr_model = train_result.get_model();
 
-    const auto test_result_uniform = dal::infer(lr_desc, x_test, lr_model);
+    const auto test_result = dal::infer(lr_desc, x_test, lr_model);
 
-    std::cout << "Test results:\n" << test_result_uniform.get_responses() << std::endl;
+    std::cout << "Test results:\n" << test_result.get_responses() << std::endl;
     std::cout << "True responses:\n" << y_test << std::endl;
 }
 
