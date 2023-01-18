@@ -25,7 +25,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-// std::int64_t get_block_size();
+std::int64_t get_block_size();
 
 template <typename Float>
 std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width);
@@ -163,9 +163,9 @@ protected:
 
     sycl::queue& queue_;
     const Distance distance_instance_;
-    ndview<Float, 2, torder>& train_data_;
-    uniform_blocking train_blocking_;
-    uniform_blocking selection_blocking_;
+    const ndview<Float, 2, torder>& train_data_;
+    const uniform_blocking train_blocking_;
+    const uniform_blocking selection_blocking_;
 };
 
 template <typename Float, typename Distance, ndorder torder = ndorder::c>

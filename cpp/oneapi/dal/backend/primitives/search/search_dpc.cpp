@@ -28,10 +28,10 @@
 namespace oneapi::dal::backend::primitives {
 
 // // TODO: figure out this function
-// std::int64_t get_block_size() {
-//     std::int64_t block_size = 1024;
-//     return block_size;
-// }
+std::int64_t get_block_size() {
+    std::int64_t block_size = 1024;
+    return block_size;
+}
 
 // TODO: figure out this function
 template <typename Float>
