@@ -53,15 +53,15 @@ public:
             ndarray<std::int32_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
 
         std::srand(2007 + n_);
-        auto ptr_lab = this->labels_.get_mutable_data();
-        for (auto i = 0; i < n_; ++i) {
+        auto* const ptr_lab = this->labels_.get_mutable_data();
+        for (std::int64_t i = 0; i < n_; ++i) {
             ptr_lab[i] = std::rand() % 2;
         }
     }
 
     void measure_time() {
-        float_t L1 = 1.2;
-        float_t L2 = 0.7;
+        constexpr float_t L1 = 1.2;
+        constexpr float_t L2 = 0.7;
 
         auto data_array = row_accessor<const float_t>{ this->data_ }.pull(this->get_queue());
         auto data_host = ndarray<float_t, 2>::wrap(data_array.get_data(), { n_, p_ });
@@ -80,12 +80,15 @@ public:
             compute_probabilities(this->get_queue(), params_gpu, data_gpu, out_predictions, {});
         p_event.wait_and_throw();
 
+        auto out_logloss =
+            ndarray<float_t, 1>::empty(this->get_queue(), { 1 }, sycl::usm::alloc::device);
+
+        auto out_derivative =
+            ndarray<float_t, 1>::empty(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::device);
+
         BENCHMARK("Derivative computation") {
-            auto [out_logloss, out_e] =
-                ndarray<float_t, 1>::zeros(this->get_queue(), { 1 }, sycl::usm::alloc::device);
-            auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
-            auto [out_derivative, out_der_e] =
-                ndarray<float_t, 1>::zeros(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::device);
+            auto fill_event1 = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
+            auto fill_event2 = fill<float_t>(this->get_queue(), out_derivative, float_t(0), {});
 
             auto logloss_event_der = compute_logloss_with_der(this->get_queue(),
                                                               params_gpu,
@@ -96,14 +99,16 @@ public:
                                                               out_derivative,
                                                               L1,
                                                               L2,
-                                                              { fill_event, out_der_e });
+                                                              { fill_event1, fill_event2 });
             logloss_event_der.wait_and_throw();
         };
 
+        auto out_hessian = ndarray<float_t, 2>::empty(this->get_queue(),
+                                                      { p_ + 1, p_ + 1 },
+                                                      sycl::usm::alloc::device);
+
         BENCHMARK("Hessian computation") {
-            auto [out_hessian, out_hess_e] = ndarray<float_t, 2>::zeros(this->get_queue(),
-                                                                        { p_ + 1, p_ + 1 },
-                                                                        sycl::usm::alloc::device);
+            auto fill_event = fill<float_t>(this->get_queue(), out_hessian, float_t(0), {});
             auto hess_event = compute_hessian(this->get_queue(),
                                               params_gpu,
                                               data_gpu,
@@ -112,7 +117,7 @@ public:
                                               out_hessian,
                                               L1,
                                               L2,
-                                              { out_hess_e });
+                                              { fill_event });
             hess_event.wait_and_throw();
         };
     }

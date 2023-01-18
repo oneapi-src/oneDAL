@@ -303,7 +303,7 @@ sycl::event compute_derivative(sycl::queue& q,
             if (idx >= std::size_t(n))
                 return;
             const Float prob = proba_ptr[idx];
-            const float label = labels_ptr[idx];
+            const Float label = labels_ptr[idx];
             der_obj_ptr[idx] = prob - label;
             sum_Dw0 += der_obj_ptr[idx];
         });
