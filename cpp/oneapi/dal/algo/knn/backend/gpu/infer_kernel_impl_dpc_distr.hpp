@@ -624,7 +624,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
         auto sc = current_block.get_dimension(0);
         ONEDAL_ASSERT(sc >= actual_rows_in_block);
-        auto curr_k = std::min(actual_rows_in_block, k);
+        auto curr_k = std::min(actual_rows_in_block, kcount);
         auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
 
         callback.set_global_index_offset(boundaries.at(block_index));
@@ -632,7 +632,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             callback.set_last_iteration(true);
         }
         
-        search_t search{ queue, train, tbcount, dist };
+        const search_t search{ queue, train, tbcount, dist };
         //search.reset_train_data(actual_current_block, tbcount);
         next_event = search(query, callback, qbcount, kcount, { next_event });
     
