@@ -72,7 +72,7 @@ class knn_callback_distr {
     using idx_t = std::int64_t;
     using res_t = response_t<Task, Float>;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
-    using selc_t = kselect_by_rows<Float>;
+    using selc_t = pr::kselect_by_rows<Float>;
 
     using uniform_voting_t = std::unique_ptr<pr::uniform_voting<res_t>>;
     using distance_voting_t = std::unique_ptr<pr::distance_voting<dst_t>>;
@@ -519,9 +519,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     auto [nodes, boundaries] = get_boundary_indices(node_sample_counts, block_size);
 
-    std::int32_t block_count = nodes.size();
+    auto block_count = nodes.size();
 
-    auto train_block_queue = pr::split_dataset(queue, train, block_size, deps);
+    auto train_block_queue = split_dataset(queue, train, block_size, deps);
 
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
@@ -579,42 +579,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     const bool is_euclidean_distance =
         is_minkowski_distance && (distance_impl->get_degree() == 2.0);
 
-    if (is_cosine_distance) {
-        using dst_t = pr::cosine_distance<Float>;
-        using search_t = pr::search_engine<Float, dst_t, torder>;
-
-        const dst_t dist{ queue };
-        //const search_t search{ queue, dist };
-    }
-
-    if (is_chebyshev_distance) {
-        using dst_t = pr::chebyshev_distance<Float>;
-        using search_t = pr::search_engine<Float, dst_t, torder>;
-
-        const dst_t dist{ queue };
-        //const search_t search{ queue, dist };
-    }
-
-    if (is_euclidean_distance) {
-        using dst_t = pr::squared_l2_distance<Float>;
-        using search_t = pr::search_engine<Float, dst_t, torder>;
-
-        callback.set_euclidean_distance(true);
-
-        const dst_t dist{ queue };
-        //const search_t search{ queue, dist };
-    }
-    else if (is_minkowski_distance) {
-        using met_t = pr::lp_metric<Float>;
-        using dst_t = pr::lp_distance<Float>;
-        using search_t = pr::search_engine<Float, dst_t, torder>;
-
-        const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
-        //const search_t search{ queue, dist };
-    }
-
-    const std::int32_t first_block_index = std::find(nodes.begin(), nodes.end(), current_rank);
-    ONEDAL_ASSERT(first_block_index != nodes.end());
+    const auto it = std::find(nodes.begin(), nodes.end(), current_rank);
+    auto first_block_index = std::distance(nodes.begin(), it);
+    ONEDAL_ASSERT(it != nodes.end());
     
     for(std::int32_t block_number = 0; block_number < block_count; block_number++) {
         // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
@@ -630,6 +597,48 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         callback.set_global_index_offset(boundaries.at(block_index));
         if (block_number == block_count - 1) {
             callback.set_last_iteration(true);
+        }
+
+        if (is_cosine_distance) {
+            using dst_t = pr::cosine_distance<Float>;
+            using search_t = pr::search_engine<Float, dst_t, torder>;
+
+            const dst_t dist{ queue };
+            const search_t search{ queue, train, tbcount, dist };
+            //search.reset_train_data(actual_current_block, tbcount);
+            next_event = search(query, callback, qbcount, kcount, { next_event });
+        }
+
+        if (is_chebyshev_distance) {
+            using dst_t = pr::chebyshev_distance<Float>;
+            using search_t = pr::search_engine<Float, dst_t, torder>;
+
+            const dst_t dist{ queue };
+            const search_t search{ queue, train, tbcount, dist };
+            //search.reset_train_data(actual_current_block, tbcount);
+            next_event = search(query, callback, qbcount, kcount, { next_event });
+        }
+
+        if (is_euclidean_distance) {
+            using dst_t = pr::squared_l2_distance<Float>;
+            using search_t = pr::search_engine<Float, dst_t, torder>;
+
+            callback.set_euclidean_distance(true);
+
+            const dst_t dist{ queue };
+            const search_t search{ queue, train, tbcount, dist };
+            //search.reset_train_data(actual_current_block, tbcount);
+            next_event = search(query, callback, qbcount, kcount, { next_event });
+        }
+        else if (is_minkowski_distance) {
+            using met_t = pr::lp_metric<Float>;
+            using dst_t = pr::lp_distance<Float>;
+            using search_t = pr::search_engine<Float, dst_t, torder>;
+
+            const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
+            const search_t search{ queue, train, tbcount, dist };
+            //search.reset_train_data(actual_current_block, tbcount);
+            next_event = search(query, callback, qbcount, kcount, { next_event });
         }
         
         const search_t search{ queue, train, tbcount, dist };
