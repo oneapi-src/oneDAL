@@ -178,7 +178,7 @@ std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_in
         global_bias = global_bias + s;
     }
     boundaries.push_back(global_bias);
-    return { boundaries, nodes };
+    return std::make_tuple(boundaries, nodes);
 }
 
 template <ndorder torder, typename Task, typename Float, bool cm_train>
