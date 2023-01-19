@@ -33,6 +33,10 @@ std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width);
 template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width);
 
+sycl::event treat_indices(ndview<std::int32_t, 2>& indices,
+                              std::int64_t start_index,
+                              const event_vector& deps) const;
+
 template <typename Float, typename Impl>
 class callback_base {
 public:
@@ -154,9 +158,6 @@ protected:
                          const ndview<Float, 2, torder>& train,
                          ndview<Float, 2>& distances,
                          const event_vector& deps) const;
-    sycl::event treat_indices(ndview<std::int32_t, 2>& indices,
-                              std::int64_t start_index,
-                              const event_vector& deps) const;
     sycl::event select_indexed(const ndview<std::int32_t, 2>& src,
                                ndview<std::int32_t, 2>& dst,
                                const event_vector& deps) const;
