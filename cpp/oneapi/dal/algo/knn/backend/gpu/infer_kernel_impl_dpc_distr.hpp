@@ -464,7 +464,7 @@ private:
     bool last_iteration_ = false;
 };
 
-template <typename Task, typename Float, pr::ndorder torder, pr::ndorder qorder, typename RespT, bool cm_train>
+template <typename Task, typename Float, pr::ndorder torder, pr::ndorder qorder, typename RespT>
 sycl::event bf_kernel_distr(sycl::queue& queue,
                       bk::communicator<spmd::device_memory_access::usm> comm,
                       const descriptor_t<Task>& desc,
@@ -650,8 +650,8 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     return next_event;
 }
-/*
-#define INSTANTIATE_DISTR(T, I, R, F, A, B, C)                                              \
+
+#define INSTANTIATE_DISTR(T, I, R, F, A, B)                                              \
     template sycl::event bf_kernel_distr(sycl::queue&,                                      \
                                    bk::communicator<spmd::device_memory_access::usm>,       \
                                    const descriptor_t<T>&,                                  \
@@ -665,13 +665,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                                    pr::ndview<R, 1>&,                                       \
                                    const bk::event_vector&);
 
-#define INSTANTIATE_C_DISTR(T, I, R, F, A, B) \
-    INSTANTIATE_DISTR(T, I, R, F, A, B, true) \
-    INSTANTIATE_DISTR(T, I, R, F, A, B, false)
-
 #define INSTANTIATE_B_DISTR(T, I, R, F, A)            \
-    INSTANTIATE_C_DISTR(T, I, R, F, A, pr::ndorder::c) \
-    INSTANTIATE_C_DISTR(T, I, R, F, A, pr::ndorder::f)
+    INSTANTIATE_DISTR(T, I, R, F, A, pr::ndorder::c) \
+    INSTANTIATE_DISTR(T, I, R, F, A, pr::ndorder::f)
 
 #define INSTANTIATE_A_DISTR(T, I, R, F)             \
     INSTANTIATE_B_DISTR(T, I, R, F, pr::ndorder::c) \
@@ -687,5 +683,5 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     INSTANTIATE_T_DISTR(I, double)
 
 INSTANTIATE_F_DISTR(std::int32_t)
-*/
+
 } // namespace oneapi::dal::knn::backend
