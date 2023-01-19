@@ -87,11 +87,11 @@ training::ResultPtr trainModel() {
     algorithm.parameter().minWeightFractionInLeafNode = minWeightFractionInLeafNode;
     algorithm.parameter().minImpurityDecreaseInSplitNode = minImpurityDecreaseInSplitNode;
     algorithm.parameter().varImportance = algorithms::decision_forest::training::MDI;
-    algorithm.parameter().resultsToCompute = 1;
+    algorithm.parameter().resultsToCompute = 0;
     //    algorithms::decision_forest::training::computeOutOfBagError;
     algorithm.parameter().maxBins = maxBins;
     algorithm.parameter().minBinSize = minBinSize;
-    //algorithm.parameter().bootstrap = boot;
+    algorithm.parameter().bootstrap = boot;
 
     /* Build the decision forest classification model */
     algorithm.compute();
@@ -100,7 +100,7 @@ training::ResultPtr trainModel() {
     training::ResultPtr trainingResult = algorithm.getResult();
     printNumericTable(trainingResult->get(training::variableImportance),
                       "Variable importance results: ");
-    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
+    //printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
     return trainingResult;
 }
 
