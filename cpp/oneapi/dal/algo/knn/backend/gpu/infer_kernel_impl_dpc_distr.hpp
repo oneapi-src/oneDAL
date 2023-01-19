@@ -24,7 +24,7 @@
 
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
-#include "oneapi/dal/detail/policy.hpp"
+
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/regression.hpp"
@@ -583,7 +583,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto first_block_index = std::distance(nodes.begin(), it);
     ONEDAL_ASSERT(it != nodes.end());
     
-    for(std::int32_t block_number = 0; block_number < block_count; block_number++) {
+    for(auto block_number = 0; block_number < block_count; block_number++) {
         // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
         auto current_block = train_block_queue.pop_front();
         auto block_index = (block_number + first_block_index) % block_count;
@@ -641,7 +641,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             next_event = search(query, callback, qbcount, kcount, { next_event });
         }
         
-        const search_t search{ queue, train, tbcount, dist };
+        //const search_t search{ queue, train, tbcount, dist };
         //search.reset_train_data(actual_current_block, tbcount);
         next_event = search(query, callback, qbcount, kcount, { next_event });
     
