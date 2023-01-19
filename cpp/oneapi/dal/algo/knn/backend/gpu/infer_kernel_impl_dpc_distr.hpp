@@ -650,12 +650,12 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     return next_event;
 }
-
-#define INSTANTIATE(T, I, R, F, A, B, C)                                                       \
+/*
+#define INSTANTIATE_DISTR(T, I, R, F, A, B, C)                                              \
     template sycl::event bf_kernel_distr(sycl::queue&,                                      \
                                    bk::communicator<spmd::device_memory_access::usm>,       \
                                    const descriptor_t<T>&,                                  \
-                                   const pr::ndview<F, 2, A>&,                              \
+                                   const table&,                                            \
                                    const pr::ndview<F, 2, B>&,                              \
                                    const pr::ndview<R, 1>&,                                 \
                                    pr::ndview<F, 2>&,                                       \
@@ -665,27 +665,27 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                                    pr::ndview<R, 1>&,                                       \
                                    const bk::event_vector&);
 
-#define INSTANTIATE_C(T, I, R, F, A, B)           \
-    INSTANTIATE(T, I, R, F, A, B, true) \
-    INSTANTIATE(T, I, R, F, A, B, false)
+#define INSTANTIATE_C_DISTR(T, I, R, F, A, B) \
+    INSTANTIATE_DISTR(T, I, R, F, A, B, true) \
+    INSTANTIATE_DISTR(T, I, R, F, A, B, false)
 
-#define INSTANTIATE_B(T, I, R, F, A)           \
-    INSTANTIATE_C(T, I, R, F, A, pr::ndorder::c) \
-    INSTANTIATE_C(T, I, R, F, A, pr::ndorder::f)
+#define INSTANTIATE_B_DISTR(T, I, R, F, A)            \
+    INSTANTIATE_C_DISTR(T, I, R, F, A, pr::ndorder::c) \
+    INSTANTIATE_C_DISTR(T, I, R, F, A, pr::ndorder::f)
 
-#define INSTANTIATE_A(T, I, R, F)             \
-    INSTANTIATE_B(T, I, R, F, pr::ndorder::c) \
-    INSTANTIATE_B(T, I, R, F, pr::ndorder::f)
+#define INSTANTIATE_A_DISTR(T, I, R, F)             \
+    INSTANTIATE_B_DISTR(T, I, R, F, pr::ndorder::c) \
+    INSTANTIATE_B_DISTR(T, I, R, F, pr::ndorder::f)
 
-#define INSTANTIATE_T(I, F)                                 \
-    INSTANTIATE_A(task::classification, I, std::int32_t, F) \
-    INSTANTIATE_A(task::regression, I, float, F)            \
-    INSTANTIATE_A(task::search, I, int, F)
+#define INSTANTIATE_T_DISTR(I, F)                                 \
+    INSTANTIATE_A_DISTR(task::classification, I, std::int32_t, F) \
+    INSTANTIATE_A_DISTR(task::regression, I, float, F)            \
+    INSTANTIATE_A_DISTR(task::search, I, int, F)
 
-#define INSTANTIATE_F(I)    \
-    INSTANTIATE_T(I, float) \
-    INSTANTIATE_T(I, double)
+#define INSTANTIATE_F_DISTR(I)    \
+    INSTANTIATE_T_DISTR(I, float) \
+    INSTANTIATE_T_DISTR(I, double)
 
-INSTANTIATE_F(std::int32_t)
-
+INSTANTIATE_F_DISTR(std::int32_t)
+*/
 } // namespace oneapi::dal::knn::backend
