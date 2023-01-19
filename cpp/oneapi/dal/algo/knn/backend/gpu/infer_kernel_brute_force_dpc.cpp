@@ -119,6 +119,21 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
         arr_indices = array<idx_t>::empty(queue, length, sycl::usm::alloc::device);
         wrapped_indices = pr::ndview<idx_t, 2>::wrap_mutable(arr_indices, { infer_row_count, neighbor_count });
     }
+
+    // only doing this in single gpu (not in distributed)
+    using train_t = ndarray_t<Float, cm_train>;
+    auto train_var = pr::table2ndarray_variant<Float>(queue, train, sycl::usm::alloc::device);
+    const train_t& train_data = std::get<train_t>(train_var);
+
+    using query_t = ndarray_t<Float, cm_query>;
+    auto query_var = pr::table2ndarray_variant<Float>(queue, infer, sycl::usm::alloc::device);
+    const query_t& query_data = std::get<query_t>(query_var);
+
+    auto responses_data = pr::ndarray<res_t, 1>{};
+    if (desc.get_result_options().test(result_options::responses)) {
+        responses_data = pr::table2ndarray_1d<res_t>(queue, resps, sycl::usm::alloc::device);
+    }
+
     if (distr_mode) {
         auto part_distances = array<Float>{};
         auto wrapped_part_distances = pr::ndview<Float, 2>{};
@@ -135,30 +150,13 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             part_indices = array<idx_t>::empty(queue, part_length, sycl::usm::alloc::device);
             wrapped_part_indices = pr::ndview<idx_t, 2>::wrap_mutable(part_indices, { 2 * infer_row_count, neighbor_count });
         }
-    }
-
-    // only doing this in single gpu (not in distributed)
-    using train_t = ndarray_t<Float, cm_train>;
-    auto train_var = pr::table2ndarray_variant<Float>(queue, train, sycl::usm::alloc::device);
-    const train_t& train_data = std::get<train_t>(train_var);
-
-    using query_t = ndarray_t<Float, cm_query>;
-    auto query_var = pr::table2ndarray_variant<Float>(queue, infer, sycl::usm::alloc::device);
-    const query_t& query_data = std::get<query_t>(query_var);
-
-    auto responses_data = pr::ndarray<res_t, 1>{};
-    if (desc.get_result_options().test(result_options::responses)) {
-        responses_data = pr::table2ndarray_1d<res_t>(queue, resps, sycl::usm::alloc::device);
-    }
-
-    // if (distr_mode) {
-    //     bf_kernel_distr(queue, comm, desc, train, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
-    //         .wait_and_throw();
-    // }
-    // else {
-    bf_kernel(queue, comm, desc, train_data, query_data, responses_data, wrapped_distances, wrapped_indices, wrapped_responses)
+        bf_kernel_distr(queue, comm, desc, train, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
             .wait_and_throw();
-    // }
+    }
+    else {
+        bf_kernel(queue, comm, desc, train_data, query_data, responses_data, wrapped_distances, wrapped_indices, wrapped_responses)
+                .wait_and_throw();
+    }
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 
