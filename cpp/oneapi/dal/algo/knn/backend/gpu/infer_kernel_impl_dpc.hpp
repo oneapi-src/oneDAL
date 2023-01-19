@@ -515,7 +515,7 @@ sycl::event bf_kernel(sycl::queue& queue,
 
     return search_event;
 }
-
+/*
 #define INSTANTIATE(T, I, R, F, A, B)                                                       \
     template sycl::event bf_kernel(sycl::queue&,                                            \
                                    bk::communicator<spmd::device_memory_access::usm>, \
@@ -546,5 +546,5 @@ sycl::event bf_kernel(sycl::queue& queue,
     INSTANTIATE_T(I, double)
 
 INSTANTIATE_F(std::int32_t)
-
+*/
 } // namespace oneapi::dal::knn::backend

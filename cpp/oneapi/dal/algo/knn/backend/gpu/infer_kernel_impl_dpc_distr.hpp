@@ -242,7 +242,7 @@ public:
 
         // add global offset value to input indices
         ONEDAL_ASSERT(global_index_offset_ != -1);
-        auto treat_event = pr::treat_indices(inp_indices, global_index_offset_, deps);
+        auto treat_event = pr::treat_indices(queue_, inp_indices, global_index_offset_, deps);
 
         auto actual_min_dist_copy_dest = part_distances_.get_row_slice(start_index, middle_index);
         auto current_min_dist_dest = part_distances_.get_row_slice(middle_index, end_index);
@@ -519,7 +519,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     auto [nodes, boundaries] = get_boundary_indices(node_sample_counts, block_size);
 
-    auto block_count = nodes.size();
+    std::int32_t block_count = nodes.size();
 
     auto train_block_queue = split_dataset(queue, train, block_size, deps);
 
@@ -655,7 +655,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     template sycl::event bf_kernel_distr(sycl::queue&,                                      \
                                    bk::communicator<spmd::device_memory_access::usm>,       \
                                    const descriptor_t<T>&,                                  \
-                                   const pr::ndview<F, 2, A>&,                              \
+                                   const table&,                              \
                                    const pr::ndview<F, 2, B>&,                              \
                                    const pr::ndview<R, 1>&,                                 \
                                    pr::ndview<F, 2>&,                                       \

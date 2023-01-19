@@ -46,15 +46,16 @@ std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width) {
     return result;
 }
 
-sycl::event treat_indices(ndview<std::int32_t, 2>& indices,
+sycl::event treat_indices(sycl::queue& q,
+			  ndview<std::int32_t, 2>& indices,
                           std::int64_t start_index,
-                          const event_vector& deps) const {
+                          const event_vector& deps) {
     ONEDAL_ASSERT(indices.has_mutable_data());
     auto* const ids_ptr = indices.get_mutable_data();
     const auto ids_str = indices.get_leading_stride();
     const ndshape<2> ids_shape = indices.get_shape();
     const auto tr_range = make_range_2d(ids_shape[0], ids_shape[1]);
-    return get_queue().submit([&](sycl::handler& h) {
+    return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         h.parallel_for(tr_range, [=](sycl::id<2> idx) {
             *(ids_ptr + ids_str * idx[0] + idx[1]) += start_index;
@@ -488,7 +489,7 @@ sycl::event search_engine_base<Float, Distance, Impl, torder>::do_search(
                 select(get_queue(), dists, k_neighbors, part_dsts, part_inds, { dist_event });
 
             const auto st_idx = get_train_blocking().get_block_start_index(tb_id);
-            last_event = treat_indices(part_inds, st_idx, { selt_event });
+            last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
         }
         dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
         const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
@@ -604,7 +605,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
                                                   { ip_event, qevent, tevent });
 
             const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
-            last_event = treat_indices(part_inds, st_idx, { selt_event });
+            last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
         }
         dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
         const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
@@ -711,7 +712,7 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
                 select(this->get_queue(), dists, k_neighbors, part_dsts, part_inds, { dist_event });
 
             const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
-            last_event = treat_indices(part_inds, st_idx, { selt_event });
+            last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
         }
         dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
         const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
