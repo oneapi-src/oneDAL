@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
 #include "oneapi/dal/algo/basic_statistics/backend/cpu/apply_weights.hpp"
 
 namespace oneapi::dal::basic_statistics::backend {
@@ -28,5 +26,26 @@ void apply_weights_single_thread(const dal::backend::context_cpu& context,
         return apply_weights_single_thread<decltype(cpu), Float>(weights, samples);
     });
 }
+
+template<typename Float> 
+void apply_weights(const dal::backend::context_cpu& context,
+                   const pr::ndview<Float, 1>& weights,
+                   pr::ndview<Float, 2>& samples) {
+    return dal::backend::dispatch_by_cpu(context, [&](auto cpu) {
+        return apply_weights<decltype(cpu), Float>(weights, samples);
+    });
+}
+
+#define INSTANTIATE(F) \
+    template void apply_weights_single_thread(                    \
+                                const dal::backend::context_cpu&, \
+                                const pr::ndview<F, 1>&,          \
+                                pr::ndview<F, 2>&);               \
+    template void apply_weights(const dal::backend::context_cpu&, \
+                                const pr::ndview<F, 1>&,          \
+                                pr::ndview<F, 2>&);
+
+INSTANTIATE(float)
+INSTANTIATE(double)
 
 } // namespace oneapi::dal::basic_statistics::backend

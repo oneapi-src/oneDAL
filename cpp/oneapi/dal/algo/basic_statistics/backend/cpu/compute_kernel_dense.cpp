@@ -14,11 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/algo/basic_statistics/backend/cpu/apply_weights.hpp"
 #include "oneapi/dal/algo/basic_statistics/backend/cpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/basic_statistics/backend/basic_statistics_interop.hpp"
+
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/algo/basic_statistics/backend/basic_statistics_interop.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -54,8 +56,22 @@ std::int64_t propose_block_size(std::int64_t row_count,
                                 std::int64_t col_count) {
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(col_count > 0);
+    constexpr std::int64_t max_block_mem_size = 128 * 1024 * 1024;
+    const std::int64_t block = max_block_mem_size / (col_count * sizeof(Float)); 
+    return std::max(std::min(row_count, 1024l), block);
+}
 
-    
+template<typename Float>
+array<Float> copy_immutable(const array<Float>&& inp) {
+    if (inp.has_mutable_data()) {
+        return inp;
+    } 
+    else {
+        const auto count = inp.get_count(); 
+        auto res = array<Float>::empty(count);
+        bk::copy(res.get_mutable_data(), inp.get_data(), count);
+        return res;
+    }
 }
 
 template <typename Float>
@@ -63,31 +79,49 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
                                        const descriptor_t& desc,
                                        const table& data,
                                        const table& weights) {
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(weights.has_data());
+
+    const auto sample_count = data.get_row_count();
+    const auto feature_count = data.get_column_count();
+
+    ONEDAL_ASSERT(weights.get_row_count() == sample_count);
+    ONEDAL_ASSERT(weights.get_column_count() == std::int64_t(1));
+
+    row_accessor<const Float> data_accessor(data);
+    row_accessor<const Float> weights_acessor(weights);
+
+    const auto block = propose_block_size<Float>(sample_count, feature_count);
+    const bk::uniform_blocking blocking(sample_count, block);
 
     auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
-    auto daal_input = daal_lom::Input();
-    auto daal_result = daal_lom::Result();
 
-    daal_input.set(daal_lom::InputId::data, daal_data);
+    const auto block_count = blocking.get_block_count();
+    for (std::int64_t b = 0; b < block_count; ++b) {
+        const auto f_row = blocking.get_block_start_index(b);
+        const auto l_row = blocking.get_block_end_index(b);
+        const std::int64_t len = l_row - f_row;
+        ONEDAL_ASSERT(l_row > f_row);
 
-    interop::status_to_exception(
-        daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
+        auto weights_arr = weights_accessor.pull({f_row, l_row});
+        auto gen_data_block = data_accessor.pull({f_row, l_row});
+        auto data_arr = copy_immutable(std::move(gen_data_block));
+        
+        auto data_ndarr = pr::ndarray<Float, 2>::wrap(data_arr, {len, feature_count});
+        auto weights_ndarr = pr::ndarray<Float, 1>::wrap(weights_arr, len);
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_lom_batch_kernel_t>(ctx,
-                                                            daal_data.get(),
-                                                            &daal_result,
-                                                            &daal_parameter));
+        apply_weights(ctx, weights_ndarr, data_ndarr);
 
-    auto result =
-        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
+        
+
+
+    }
 
     return result;
 }
 
 template <typename Float>
-result_t call_daal_batch_kernel(const context_cpu& ctx,
+result_t call_daal_kernel_without_weights(const context_cpu& ctx,
                                 const descriptor_t& desc,
                                 const table& data) {
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
@@ -116,9 +150,9 @@ result_t call_daal_batch_kernel(const context_cpu& ctx,
 template <typename Float>
 static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     if (input.get_weights().has_data()) {
-        return call_daal_batch_kernel_with_weights<Float>(ctx, desc, input.get_data(), input.get_weights());
+        return call_daal_kernel_with_weights<Float>(ctx, desc, input.get_data(), input.get_weights());
     } else {
-        return call_daal_batch_kernel<Float>(ctx, desc, input.get_data());
+        return call_daal_kernel_without_weights<Float>(ctx, desc, input.get_data());
     }
 }
 

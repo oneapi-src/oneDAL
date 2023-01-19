@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/util/common.hpp"
 
@@ -27,12 +27,25 @@ namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 template<typename Cpu, typename Float> 
+std::int64_t propose_threading_block(std::int64_t row_count, 
+                                     std::int64_t col_count);
+
+template<typename Cpu, typename Float> 
 void apply_weights_single_thread(const pr::ndview<Float, 1>& weights,
                                  pr::ndview<Float, 2>& samples);
+
+template<typename Cpu, typename Float> 
+void apply_weights(const pr::ndview<Float, 1>& weights,
+                   pr::ndview<Float, 2>& samples);
 
 template<typename Float> 
 void apply_weights_single_thread(const dal::backend::context_cpu& context,
                                  const pr::ndview<Float, 1>& weights,
                                  pr::ndview<Float, 2>& samples);
+
+template<typename Float> 
+void apply_weights(const dal::backend::context_cpu& context,
+                   const pr::ndview<Float, 1>& weights,
+                   pr::ndview<Float, 2>& samples);
 
 } // namespace oneapi::dal::basic_statistics::backend
