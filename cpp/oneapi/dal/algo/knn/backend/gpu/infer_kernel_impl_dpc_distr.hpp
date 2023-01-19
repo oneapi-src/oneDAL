@@ -476,7 +476,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                       pr::ndview<idx_t, 2>& indices,
                       pr::ndview<idx_t, 2>& part_indices,
                       pr::ndview<RespT, 1>& qresps,
-                      const bk::event_vector& deps) {
+                      const bk::event_vector& deps = {}) {
     using res_t = response_t<Task, Float>;
 
     // Input arrays test section

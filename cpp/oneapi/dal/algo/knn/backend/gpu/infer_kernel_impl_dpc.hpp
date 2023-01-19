@@ -388,7 +388,7 @@ sycl::event bf_kernel(sycl::queue& queue,
                       pr::ndview<Float, 2>& distances,
                       pr::ndview<idx_t, 2>& indices,
                       pr::ndview<RespT, 1>& qresps,
-                      const bk::event_vector& deps) {
+                      const bk::event_vector& deps = {}) {
     using res_t = response_t<Task, Float>;
 
     // Input arrays test section
