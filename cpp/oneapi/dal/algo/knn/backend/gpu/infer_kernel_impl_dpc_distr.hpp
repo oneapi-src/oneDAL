@@ -651,11 +651,11 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     return next_event;
 }
 
-#define INSTANTIATE(T, I, R, F, A, B)                                                       \
+#define INSTANTIATE(T, I, R, F, A, B, C)                                                       \
     template sycl::event bf_kernel_distr(sycl::queue&,                                      \
                                    bk::communicator<spmd::device_memory_access::usm>,       \
                                    const descriptor_t<T>&,                                  \
-                                   const table&,                              \
+                                   const pr::ndview<F, 2, A>&,                              \
                                    const pr::ndview<F, 2, B>&,                              \
                                    const pr::ndview<R, 1>&,                                 \
                                    pr::ndview<F, 2>&,                                       \
@@ -665,9 +665,13 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                                    pr::ndview<R, 1>&,                                       \
                                    const bk::event_vector&);
 
+#define INSTANTIATE_C(T, I, R, F, A, B)           \
+    INSTANTIATE(T, I, R, F, A, B, true) \
+    INSTANTIATE(T, I, R, F, A, B, false)
+
 #define INSTANTIATE_B(T, I, R, F, A)           \
-    INSTANTIATE(T, I, R, F, A, pr::ndorder::c) \
-    INSTANTIATE(T, I, R, F, A, pr::ndorder::f)
+    INSTANTIATE_C(T, I, R, F, A, pr::ndorder::c) \
+    INSTANTIATE_C(T, I, R, F, A, pr::ndorder::f)
 
 #define INSTANTIATE_A(T, I, R, F)             \
     INSTANTIATE_B(T, I, R, F, pr::ndorder::c) \
