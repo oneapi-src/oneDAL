@@ -258,21 +258,21 @@ public:
         return logloss;
     }
 
-    long double naive_logloss(const ndarray<float_t, 2>& data_host,
-                              const ndarray<float_t, 1>& params_host,
-                              const ndarray<std::int32_t, 1>& labels_host,
-                              const float_t L1,
-                              const float_t L2) {
+    double naive_logloss(const ndarray<float_t, 2>& data_host,
+                         const ndarray<float_t, 1>& params_host,
+                         const ndarray<std::int32_t, 1>& labels_host,
+                         const float_t L1,
+                         const float_t L2) {
         const std::int64_t n = data_host.get_dimension(0);
         const std::int64_t p = data_host.get_dimension(1);
 
-        long double logloss = 0;
+        double logloss = 0;
         for (std::int64_t i = 0; i < n; ++i) {
-            long double pred = 0;
+            double pred = 0;
             for (std::int64_t j = 0; j < p; ++j) {
-                pred += (long double)params_host.at(j + 1) * (long double)data_host.at(i, j);
+                pred += (double)params_host.at(j + 1) * (double)data_host.at(i, j);
             }
-            pred += (long double)params_host.at(0);
+            pred += (double)params_host.at(0);
             logloss += std::log(1 + std::exp(-(2 * labels_host.at(i) - 1) * pred));
         }
         for (std::int64_t i = 0; i <= p; ++i) {
@@ -286,19 +286,19 @@ public:
                           const ndarray<float_t, 1>& probabilities,
                           const ndarray<float_t, 1>& params,
                           const ndarray<std::int32_t, 1>& labels,
-                          ndarray<long double, 1>& out_der,
+                          ndarray<double, 1>& out_der,
                           float_t L1,
                           float_t L2) {
         const std::int64_t n = data.get_dimension(0);
         const std::int64_t p = data.get_dimension(1);
         for (std::int64_t j = 0; j <= p; ++j) {
-            long double val = 0;
+            double val = 0;
             for (std::int64_t i = 0; i < n; ++i) {
-                long double x1 = j > 0 ? data.at(i, j - 1) : 1;
-                long double prob = probabilities.at(i);
+                double x1 = j > 0 ? data.at(i, j - 1) : 1;
+                double prob = probabilities.at(i);
                 val += (prob - labels.at(i)) * x1;
             }
-            long double param = params.at(j);
+            double param = params.at(j);
             val += L2 * 2 * param + std::copysign(L1, param);
             out_der.at(j) = val;
         }
@@ -306,17 +306,17 @@ public:
 
     void naive_hessian(const ndarray<float_t, 2>& data_host,
                        const ndarray<float_t, 1>& probabilities_host,
-                       ndarray<long double, 2>& out_hessian,
+                       ndarray<double, 2>& out_hessian,
                        float_t L2) {
         const std::int64_t n = data_host.get_dimension(0);
         const std::int64_t p = data_host.get_dimension(1);
         for (std::int64_t j = 0; j <= p; ++j) {
             for (std::int64_t k = 0; k <= p; ++k) {
-                long double val = 0;
+                double val = 0;
                 for (std::int64_t i = 0; i < n; ++i) {
-                    long double x1 = j > 0 ? data_host.at(i, j - 1) : 1;
-                    long double x2 = k > 0 ? data_host.at(i, k - 1) : 1;
-                    long double prob = probabilities_host.at(i);
+                    double x1 = j > 0 ? data_host.at(i, j - 1) : 1;
+                    double x2 = k > 0 ? data_host.at(i, k - 1) : 1;
+                    double prob = probabilities_host.at(i);
                     val += x1 * x2 * (1 - prob) * prob;
                 }
                 out_hessian.at(j, k) = val;
@@ -336,7 +336,7 @@ public:
                                  const float_t atol = 1e-3) {
         const std::int64_t p = data.get_dimension(1);
         auto out_derivative =
-            ndarray<long double, 1>::empty(this->get_queue(), { p + 1 }, sycl::usm::alloc::host);
+            ndarray<double, 1>::empty(this->get_queue(), { p + 1 }, sycl::usm::alloc::host);
 
         naive_derivative(data, probabilities, params, labels, out_derivative, L1, L2);
 
@@ -352,9 +352,8 @@ public:
                               const float_t rtol = 1e-3,
                               const float_t atol = 1e-3) {
         const std::int64_t p = data.get_dimension(1);
-        auto out_hessian = ndarray<long double, 2>::empty(this->get_queue(),
-                                                          { p + 1, p + 1 },
-                                                          sycl::usm::alloc::host);
+        auto out_hessian =
+            ndarray<double, 2>::empty(this->get_queue(), { p + 1, p + 1 }, sycl::usm::alloc::host);
 
         naive_hessian(data, probabilities, out_hessian, L2);
 
@@ -376,13 +375,13 @@ public:
                                      const float_t atol = 1e-3) {
         const std::int64_t n = data.get_dimension(0);
         const std::int64_t p = data.get_dimension(1);
-        constexpr std::int64_t MAXN = 2000;
+        constexpr std::int64_t max_n = 2000;
         constexpr float_t step = sizeof(float_t) > 4 ? 1e-4 : 1e-3;
 
         const auto data_host = data.to_host(this->get_queue());
         const auto labels_host = labels.to_host(this->get_queue());
 
-        float_t cur_param[MAXN];
+        std::array<float_t, max_n> cur_param;
         for (std::int64_t i = 0; i < p + 1; ++i) {
             cur_param[i] = params_host.at(i);
         }
@@ -403,7 +402,7 @@ public:
                 fill<float_t>(this->get_queue(), out_derivative_down, float_t(0), {});
 
             cur_param[i] = params_host.at(i) + step;
-            auto params_host_up = ndarray<float_t, 1>::wrap(cur_param, p + 1);
+            auto params_host_up = ndarray<float_t, 1>::wrap(cur_param.begin(), p + 1);
             auto params_gpu_up = params_host_up.to_device(this->get_queue());
 
             // Compute logloss and derivative with params [w0, w1, ... w_i + eps, ...., w_p]
@@ -422,12 +421,12 @@ public:
                                          L2,
                                          { fill_event_1, fill_event_2, pred_up_event });
             der_event_up.wait_and_throw();
-            long double logloss_up = naive_logloss(data_host, params_host_up, labels_host, L1, L2);
+            double logloss_up = naive_logloss(data_host, params_host_up, labels_host, L1, L2);
             auto der_up_host = out_derivative_up.to_host(this->get_queue(), {});
 
             cur_param[i] = params_host.at(i) - step;
 
-            auto params_host_down = ndarray<float_t, 1>::wrap(cur_param, p + 1);
+            auto params_host_down = ndarray<float_t, 1>::wrap(cur_param.begin(), p + 1);
             auto params_gpu_down = params_host_down.to_device(this->get_queue());
             auto fill_event_4 = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
 
@@ -450,8 +449,7 @@ public:
                                          { fill_event_3, fill_event_4, pred_down_event });
             der_event_down.wait_and_throw();
 
-            long double logloss_down =
-                naive_logloss(data_host, params_host_down, labels_host, L1, L2);
+            double logloss_down = naive_logloss(data_host, params_host_down, labels_host, L1, L2);
             auto der_down_host = out_derivative_down.to_host(this->get_queue(), {});
             // Check condition: (logloss(w_i + eps) - logloss(w_i - eps)) / 2eps ~ d logloss / dw_i
             check_val(derivative.at(i), (logloss_up - logloss_down) / (2 * step), rtol, atol);

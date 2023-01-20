@@ -101,7 +101,7 @@ sycl::event compute_logloss(sycl::queue& q,
 
     auto [out_reg, out_reg_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
     auto* const reg_ptr = out_reg.get_mutable_data();
-    event_vector vector_out_reg = { out_reg_e };
+    const event_vector vector_out_reg = { out_reg_e };
 
     const auto* const param_ptr = parameters.get_data();
 
@@ -331,7 +331,6 @@ sycl::event compute_derivative(sycl::queue& q,
 }
 
 template <typename Float>
-
 sycl::event compute_hessian(sycl::queue& q,
                             const ndview<Float, 1>& parameters,
                             const ndview<Float, 2>& data,
