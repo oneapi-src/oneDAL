@@ -181,7 +181,7 @@ std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_in
     return std::make_tuple(nodes, boundaries);
 }
 
-template <typename Task, typename Float, ndorder torder>
+template <typename Float, ndorder torder>
 std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& train, std::int64_t block_size, const bk::event_vector& deps = {}) {
     std::queue<ndarray<Float, 2, torder>> train_block_queue;
     const auto train_count = train.get_row_count();

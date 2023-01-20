@@ -236,7 +236,8 @@ public:
 
         //TODO: add assertions/checks - mostly related to ensuring things are size k
         //TODO: make sure all these numbers and functionality works as intended
-        const ndshape<2> typical_blocking(last - first, 2 * k_neighbors_);
+        //TODO: figure out about int type variation
+        const pr::ndshape<2> typical_blocking(last - first, 2 * k_neighbors_);
         auto select = selc_t(queue_, typical_blocking, k_neighbors_);
 
         auto min_dist_dest = distances_.get_row_slice(first, last);
@@ -519,11 +520,11 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto prev_node = (current_rank - 1) % rank_count;
     auto next_node = (current_rank + 1) % rank_count;
 
-    auto [nodes, boundaries] = get_boundary_indices(node_sample_counts, block_size);
+    auto [nodes, boundaries] = pr::get_boundary_indices(node_sample_counts, block_size);
 
     std::int32_t block_count = nodes.size();
 
-    auto train_block_queue = split_dataset(queue, train, block_size, deps);
+    auto train_block_queue = pr::split_dataset(queue, train, block_size, deps);
 
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
