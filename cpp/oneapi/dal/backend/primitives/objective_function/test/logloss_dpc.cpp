@@ -431,6 +431,7 @@ public:
             auto fill_event_4 = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
 
             // Compute logloss and derivative with params [w0, w1, ... w_i - eps, ...., w_p]
+
             sycl::event pred_down_event = compute_probabilities(this->get_queue(),
                                                                 params_gpu_down,
                                                                 data,
