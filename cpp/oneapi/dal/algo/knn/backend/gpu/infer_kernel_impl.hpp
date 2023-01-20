@@ -74,40 +74,39 @@ using response_t = typename task_to_response_map<Task, Float>::type;
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Task,
-          typename Float,
-          pr::ndorder torder,
-          pr::ndorder qorder,
-          typename RespT = response_t<Task, Float>>
-sycl::event bf_kernel(sycl::queue& queue,
-                      comm_t comm,
-                      const descriptor_t<Task>& desc,
-                      const pr::ndview<Float, 2, torder>& train,
-                      const pr::ndview<Float, 2, qorder>& query,
-                      const pr::ndview<RespT, 1>& tresps,
-                      pr::ndview<Float, 2>& distances,
-                      pr::ndview<idx_t, 2>& indices,
-                      pr::ndview<RespT, 1>& qresps,
-                      const bk::event_vector& deps = {});
+// template <typename Task,
+//           typename Float,
+//           pr::ndorder torder,
+//           pr::ndorder qorder,
+//           typename RespT = response_t<Task, Float>>
+// sycl::event bf_kernel(sycl::queue& queue,
+//                       comm_t comm,
+//                       const descriptor_t<Task>& desc,
+//                       const pr::ndview<Float, 2, torder>& train,
+//                       const pr::ndview<Float, 2, qorder>& query,
+//                       const pr::ndview<RespT, 1>& tresps,
+//                       pr::ndview<Float, 2>& distances,
+//                       pr::ndview<idx_t, 2>& indices,
+//                       pr::ndview<RespT, 1>& qresps,
+//                       const bk::event_vector& deps = {});
 
-template <typename Task,
-          typename Float,
-          pr::ndorder torder,
-          pr::ndorder qorder,
-          typename RespT = response_t<Task, Float>,
-          bool cm_train>
-sycl::event bf_kernel_distr(sycl::queue& queue,
-                      comm_t comm,
-                      const descriptor_t<Task>& desc,
-                      const table& train,
-                      const pr::ndview<Float, 2, qorder>& query,
-                      const pr::ndview<RespT, 1>& tresps,
-                      pr::ndview<Float, 2>& distances,
-                      pr::ndview<Float, 2>& part_distances,
-                      pr::ndview<idx_t, 2>& indices,
-                      pr::ndview<idx_t, 2>& part_indices,
-                      pr::ndview<RespT, 1>& qresps,
-                      const bk::event_vector& deps = {});
+// template <typename Task,
+//           typename Float,
+//           pr::ndorder torder,
+//           pr::ndorder qorder,
+//           typename RespT = response_t<Task, Float>>
+// sycl::event bf_kernel_distr(sycl::queue& queue,
+//                       comm_t comm,
+//                       const descriptor_t<Task>& desc,
+//                       const table& train,
+//                       const pr::ndview<Float, 2, qorder>& query,
+//                       const pr::ndview<RespT, 1>& tresps,
+//                       pr::ndview<Float, 2>& distances,
+//                       pr::ndview<Float, 2>& part_distances,
+//                       pr::ndview<idx_t, 2>& indices,
+//                       pr::ndview<idx_t, 2>& part_indices,
+//                       pr::ndview<RespT, 1>& qresps,
+//                       const bk::event_vector& deps = {});
 
 #endif // ONEDAL_DATA_PARALLEL
 
