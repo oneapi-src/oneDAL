@@ -235,8 +235,10 @@ public:
         auto end_index = 2 * last;
 
         //TODO: add assertions/checks - mostly related to ensuring things are size k
-        selc_t select = pr::create_selection_objects(2 * k_neighbors_, k_neighbors_);
-        //TODO: how to handle setting responses (first thought is have flag in this function if last iter) - use select_indexed()
+        //TODO: make sure all these numbers and functionality works as intended
+        const ndshape<2> typical_blocking(last - first, 2 * k_neighbors_);
+        auto select = selc_t(queue_, typical_blocking, k_neighbors_);
+
         auto min_dist_dest = distances_.get_row_slice(first, last);
         auto min_indc_dest = indices_.get_row_slice(first, last);
 
