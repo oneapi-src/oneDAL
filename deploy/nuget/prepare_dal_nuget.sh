@@ -26,9 +26,6 @@ create_package() {
             --release-dir)
             rls_dir="$2"
             ;;
-            --platform)
-            platform="$2"
-            ;;
             --build-nupkg)
             build_nupkg="$2"
             ;;
@@ -54,6 +51,7 @@ create_package() {
     dal_version=${major_version}.${minor_version}.${patch_version}
 
     # platform specific
+    platform=$(bash $(dirname "$0")/../../dev/make/identify_os.sh)
     if [ ${platform} = "lnx32e" ]; then
         platform=linux-x64
         tbb_platform=linux
@@ -124,7 +122,9 @@ create_package() {
         # -- nuspec
         cp ${rls_dir}/daal/latest/nuspec/inteldal.${distr_type}.${platform}.nuspec ${pkg_path}
         # -- cmake configs
-        cmake -DINSTALL_DIR=${rls_prefix}/lib/cmake/oneDAL -P cmake/scripts/generate_config.cmake
+        if [ ! -d ${rls_prefix}/lib/cmake/oneDAL ]; then
+            cmake -DINSTALL_DIR=${rls_prefix}/lib/cmake/oneDAL -P cmake/scripts/generate_config.cmake
+        fi
         mkdir -p ${dal_root_prefix}/lib/cmake/oneDAL
         cp ${rls_prefix}/lib/cmake/oneDAL/* ${dal_root_prefix}/lib/cmake/oneDAL
         # -- interfaces
