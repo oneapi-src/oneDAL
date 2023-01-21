@@ -18,7 +18,7 @@
 
 namespace oneapi::dal::basic_statistics::backend {
 
-template<typename Float> 
+template <typename Float>
 void apply_weights_single_thread(const dal::backend::context_cpu& context,
                                  const pr::ndview<Float, 1>& weights,
                                  pr::ndview<Float, 2>& samples) {
@@ -27,7 +27,7 @@ void apply_weights_single_thread(const dal::backend::context_cpu& context,
     });
 }
 
-template<typename Float> 
+template <typename Float>
 void apply_weights(const dal::backend::context_cpu& context,
                    const pr::ndview<Float, 1>& weights,
                    pr::ndview<Float, 2>& samples) {
@@ -36,13 +36,12 @@ void apply_weights(const dal::backend::context_cpu& context,
     });
 }
 
-#define INSTANTIATE(F) \
-    template void apply_weights_single_thread(                    \
-                                const dal::backend::context_cpu&, \
-                                const pr::ndview<F, 1>&,          \
-                                pr::ndview<F, 2>&);               \
-    template void apply_weights(const dal::backend::context_cpu&, \
-                                const pr::ndview<F, 1>&,          \
+#define INSTANTIATE(F)                                                          \
+    template void apply_weights_single_thread(const dal::backend::context_cpu&, \
+                                              const pr::ndview<F, 1>&,          \
+                                              pr::ndview<F, 2>&);               \
+    template void apply_weights(const dal::backend::context_cpu&,               \
+                                const pr::ndview<F, 1>&,                        \
                                 pr::ndview<F, 2>&);
 
 INSTANTIATE(float)

@@ -29,7 +29,8 @@ template <typename Float>
 inline auto& print_array_shape(std::ostream& s, const array<Float>& a) {
     const auto c = a.get_count();
 
-    if (c == 0) return s << "Empty array \n";
+    if (c == 0)
+        return s << "Empty array \n";
 
     return s << "Array of size " << c << "\n";
 }
@@ -38,7 +39,8 @@ inline auto& print_table_shape(std::ostream& s, const table& t) {
     const auto h = t.get_row_count();
     const auto w = t.get_column_count();
 
-    if (h * w == 0) return s << "Empty table \n";
+    if (h * w == 0)
+        return s << "Empty table \n";
 
     return s << "Table with shape height,width=" << h << ',' << w << "\n";
 }

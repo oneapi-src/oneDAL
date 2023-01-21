@@ -65,7 +65,8 @@ public:
         if (use_weights) {
             weights = weights_fr->get_table(this->get_policy(), data_table_id);
             compute_result = this->compute(bs_desc, data, weights);
-        } else {
+        }
+        else {
             compute_result = this->compute(bs_desc, data);
         }
 
@@ -114,7 +115,10 @@ public:
         }
     }
 
-    void check_if_close(const table& left, const table& right, std::string name = "", double tol = 1e-2) {
+    void check_if_close(const table& left,
+                        const table& right,
+                        std::string name = "",
+                        double tol = 1e-2) {
         constexpr auto eps = std::numeric_limits<float_t>::epsilon();
 
         const auto c_count = left.get_column_count();
@@ -164,15 +168,16 @@ public:
         CAPTURE(data.get_column_count());
 
         const auto data_matrix = la::matrix<double>::wrap(data);
-        
+
         const auto row_count = data_matrix.get_row_count();
         const auto column_count = data_matrix.get_column_count();
 
         la::matrix<double> weights_matrix;
         if (weights.has_data()) {
             weights_matrix = la::matrix<double>::wrap(weights);
-        } else {
-            weights_matrix = la::matrix<double>::full({row_count, 1}, one);
+        }
+        else {
+            weights_matrix = la::matrix<double>::full({ row_count, 1 }, one);
         }
 
         auto ref_sum2cent = la::matrix<double>::full({ 1, column_count }, zero);
@@ -189,8 +194,7 @@ public:
         // calc mean
         for (std::int64_t row = 0; row < row_count; row++) {
             for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
-                ref_mean.set(0, clmn) += 
-                    (data_matrix.get(row, clmn) * weights_matrix.get(row, 0));
+                ref_mean.set(0, clmn) += (data_matrix.get(row, clmn) * weights_matrix.get(row, 0));
             }
         }
 
@@ -209,7 +213,6 @@ public:
                 ref_sum2.set(0, clmn) += (elem * weight * elem * weight);
                 ref_sum2cent.set(0, clmn) += (elem * weight - ref_mean.get(0, clmn)) *
                                              (elem * weight - ref_mean.get(0, clmn));
-
             }
         }
 
@@ -299,7 +302,8 @@ public:
 private:
     const bs::result_option_id res_min_max = result_options::min | result_options::max;
     const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    const bs::result_option_id res_all = bs::result_option_id(dal::result_option_id_base(mask_full));
+    const bs::result_option_id res_all =
+        bs::result_option_id(dal::result_option_id_base(mask_full));
 };
 
 using basic_statistics_types = COMBINE_TYPES((float, double), (basic_statistics::method::dense));

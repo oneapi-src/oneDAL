@@ -101,7 +101,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_spmd_test,
                            te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 10000, 200 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 1000000, 20 }.fill_normal(-0.5, 0.5, 7777));
-    
+
     this->set_rank_count(GENERATE(2, 3));
 
     std::shared_ptr<te::dataframe> weights;
@@ -110,13 +110,13 @@ TEMPLATE_LIST_TEST_M(basic_statistics_spmd_test,
     if (use_weights) {
         const auto row_count = data.get_row_count();
         weights = std::make_shared<te::dataframe>(
-                    te::dataframe_builder{row_count, 1}
-                        .fill_normal(0, 1, 777).build());
-    }       
+            te::dataframe_builder{ row_count, 1 }.fill_normal(0, 1, 777).build());
+    }
 
     const bs::result_option_id res_min_max = result_options::min | result_options::max;
     const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    const bs::result_option_id res_all = bs::result_option_id(dal::result_option_id_base(mask_full));
+    const bs::result_option_id res_all =
+        bs::result_option_id(dal::result_option_id_base(mask_full));
 
     const bs::result_option_id compute_mode = GENERATE_COPY(res_min_max, res_mean_varc, res_all);
 

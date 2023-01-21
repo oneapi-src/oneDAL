@@ -64,7 +64,7 @@ class local_result {
 
 public:
     local_result() = default;
-    
+
     static own_t empty(sycl::queue& q, std::int64_t count, bool deffered_fin = false) {
         own_t res;
         if constexpr (check_mask_flag(bs_list::min, List)) {

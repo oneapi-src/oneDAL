@@ -20,20 +20,19 @@
 
 namespace oneapi::dal::basic_statistics::backend {
 
-template<typename Cpu, typename Float> 
-std::int64_t propose_threading_block_size(std::int64_t row_count, 
-                                          std::int64_t col_count) {
+template <typename Cpu, typename Float>
+std::int64_t propose_threading_block_size(std::int64_t row_count, std::int64_t col_count) {
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(col_count > 0);
     constexpr std::int64_t max_block_mem_size = 2 * 1024 * 1024;
-    const std::int64_t block = max_block_mem_size / (col_count * sizeof(Float)); 
+    const std::int64_t block = max_block_mem_size / (col_count * sizeof(Float));
     return std::max(std::min(row_count, 128l), block);
 }
 
-template<typename Cpu, typename Float>
+template <typename Cpu, typename Float>
 std::pair<std::int64_t, std::int64_t> extract_and_check_dimensions(
-        const pr::ndview<Float, 1>& weights,
-        pr::ndview<Float, 2>& samples) {
+    const pr::ndview<Float, 1>& weights,
+    pr::ndview<Float, 2>& samples) {
     ONEDAL_ASSERT(weights.has_data());
     ONEDAL_ASSERT(samples.has_mutable_data());
 
@@ -44,34 +43,30 @@ std::pair<std::int64_t, std::int64_t> extract_and_check_dimensions(
     return { r_count, c_count };
 }
 
-template<typename Cpu, typename Float> 
+template <typename Cpu, typename Float>
 void apply_weights_single_thread(const pr::ndview<Float, 1>& weights,
                                  pr::ndview<Float, 2>& samples) {
-    const auto [r_count, c_count] = 
-        extract_and_check_dimensions<Cpu, Float>(weights, samples);
+    const auto [r_count, c_count] = extract_and_check_dimensions<Cpu, Float>(weights, samples);
 
     const auto* const weights_ptr = weights.get_data();
     auto* const samples_ptr = samples.get_mutable_data();
     const auto samples_str = samples.get_leading_stride();
 
-    for(std::int64_t r = 0; r < r_count; ++r) {
+    for (std::int64_t r = 0; r < r_count; ++r) {
         const auto weight = weights_ptr[r];
         auto* const row = samples_ptr + r * samples_str;
 
-        for(std::int64_t c = 0; c < c_count; ++c) {
+        for (std::int64_t c = 0; c < c_count; ++c) {
             row[c] *= weight;
         }
     }
 }
 
-template<typename Cpu, typename Float> 
-void apply_weights(const pr::ndview<Float, 1>& weights,
-                   pr::ndview<Float, 2>& samples) {
-    const auto [r_count, c_count] = 
-        extract_and_check_dimensions<Cpu, Float>(weights, samples);
+template <typename Cpu, typename Float>
+void apply_weights(const pr::ndview<Float, 1>& weights, pr::ndview<Float, 2>& samples) {
+    const auto [r_count, c_count] = extract_and_check_dimensions<Cpu, Float>(weights, samples);
 
-    const auto threading_block = 
-        propose_threading_block_size<Cpu, Float>(r_count, c_count);
+    const auto threading_block = propose_threading_block_size<Cpu, Float>(r_count, c_count);
 
     const bk::uniform_blocking blocking(r_count, threading_block);
     const auto block_count = blocking.get_block_count();
@@ -87,13 +82,12 @@ void apply_weights(const pr::ndview<Float, 1>& weights,
     });
 }
 
-#define INSTANTIATE(F)                                                              \
-template std::int64_t propose_threading_block_size<__CPU_TAG__, F>( \
-    std::int64_t, std::int64_t); \
-template void apply_weights<__CPU_TAG__>(const pr::ndview<F, 1>&,    \
-                                         pr::ndview<F, 2>&);         \
-template void apply_weights_single_thread<__CPU_TAG__>(const pr::ndview<F, 1>&,    \
-                                                       pr::ndview<F, 2>&);  
+#define INSTANTIATE(F)                                                                    \
+    template std::int64_t propose_threading_block_size<__CPU_TAG__, F>(std::int64_t,      \
+                                                                       std::int64_t);     \
+    template void apply_weights<__CPU_TAG__>(const pr::ndview<F, 1>&, pr::ndview<F, 2>&); \
+    template void apply_weights_single_thread<__CPU_TAG__>(const pr::ndview<F, 1>&,       \
+                                                           pr::ndview<F, 2>&);
 
 INSTANTIATE(float)
 INSTANTIATE(double)
