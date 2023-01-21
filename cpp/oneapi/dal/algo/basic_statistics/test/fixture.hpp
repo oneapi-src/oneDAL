@@ -20,8 +20,6 @@
 
 #include "oneapi/dal/algo/basic_statistics/compute.hpp"
 
-#include "oneapi/dal/detail/debug.hpp"
-
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
@@ -53,28 +51,38 @@ public:
     }
 
     void general_checks(const te::dataframe& data_fr,
-                        bs::result_option_id compute_mode,
-                        const te::table_id& data_table_id) {
-        CAPTURE(compute_mode);
-        const table data = data_fr.get_table(this->get_policy(), data_table_id);
+                        std::shared_ptr<te::dataframe> weights_fr,
+                        bs::result_option_id compute_mode) {
+        const auto use_weights = bool(weights_fr);
+        CAPTURE(use_weights, compute_mode);
 
         const auto bs_desc = get_descriptor(compute_mode);
+        const auto data_table_id = this->get_homogen_table_id();
 
-        const auto compute_result = this->compute(bs_desc, data);
+        table weights, data = data_fr.get_table(this->get_policy(), data_table_id);
 
-        check_compute_result(compute_mode, data, compute_result);
+        bs::compute_result<> compute_result;
+        if (use_weights) {
+            weights = weights_fr->get_table(this->get_policy(), data_table_id);
+            compute_result = this->compute(bs_desc, data, weights);
+        } else {
+            compute_result = this->compute(bs_desc, data);
+        }
+
+        check_compute_result(compute_mode, data, weights, compute_result);
         check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
     void check_compute_result(bs::result_option_id compute_mode,
                               const table& data,
+                              const table& weights,
                               const result_t& result) {
         SECTION("result tables' shape is expected") {
             check_result_shape(compute_mode, data, result);
         }
 
         SECTION("check results against reference") {
-            check_vs_reference(compute_mode, data, result);
+            check_vs_reference(compute_mode, data, weights, result);
         }
     }
 
@@ -138,9 +146,6 @@ public:
 
                 const auto rerr = aerr / den;
                 CAPTURE(aerr, rerr, den, r, c, lval, rval);
-                using oneapi::dal::detail::operator<<;
-                if(rerr >= tol) std::cout << ' ' << left << std::endl;
-                if(rerr >= tol) std::cout << ' ' << right << std::endl;
                 REQUIRE(rerr < tol);
             }
         }
@@ -148,39 +153,44 @@ public:
 
     void check_vs_reference(bs::result_option_id compute_mode,
                             const table& data,
+                            const table& weights,
                             const result_t& result) {
         using limits_t = std::numeric_limits<double>;
         constexpr auto maximum = limits_t::max();
-        constexpr auto minimum = limits_t::min();
-        constexpr double zero = 0;
+        constexpr double zero = 0.0, one = 1.0;
 
         CAPTURE(compute_mode);
         CAPTURE(data.get_row_count());
         CAPTURE(data.get_column_count());
+
         const auto data_matrix = la::matrix<double>::wrap(data);
+        
         const auto row_count = data_matrix.get_row_count();
         const auto column_count = data_matrix.get_column_count();
-        auto ref_min = la::matrix<double>::full({ 1, column_count }, maximum);
-        auto ref_max = la::matrix<double>::full({ 1, column_count }, minimum);
-        auto ref_sum = la::matrix<double>::full({ 1, column_count }, zero);
-        auto ref_sum2 = la::matrix<double>::full({ 1, column_count }, zero);
+
+        la::matrix<double> weights_matrix;
+        if (weights.has_data()) {
+            weights_matrix = la::matrix<double>::wrap(weights);
+        } else {
+            weights_matrix = la::matrix<double>::full({row_count, 1}, one);
+        }
+
         auto ref_sum2cent = la::matrix<double>::full({ 1, column_count }, zero);
+        auto ref_min = la::matrix<double>::full({ 1, column_count }, +maximum);
+        auto ref_max = la::matrix<double>::full({ 1, column_count }, -maximum);
+        auto ref_stdev = la::matrix<double>::full({ 1, column_count }, zero);
+        auto ref_sum2 = la::matrix<double>::full({ 1, column_count }, zero);
         auto ref_mean = la::matrix<double>::full({ 1, column_count }, zero);
         auto ref_sorm = la::matrix<double>::full({ 1, column_count }, zero);
         auto ref_varc = la::matrix<double>::full({ 1, column_count }, zero);
-        auto ref_stdev = la::matrix<double>::full({ 1, column_count }, zero);
         auto ref_vart = la::matrix<double>::full({ 1, column_count }, zero);
-
-        //init min max
-        for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
-            ref_min.set(0, clmn) = data_matrix.get(0, clmn);
-            ref_max.set(0, clmn) = data_matrix.get(0, clmn);
-        }
+        auto ref_sum = la::matrix<double>::full({ 1, column_count }, zero);
 
         // calc mean
         for (std::int64_t row = 0; row < row_count; row++) {
             for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
-                ref_mean.set(0, clmn) += data_matrix.get(row, clmn);
+                ref_mean.set(0, clmn) += 
+                    (data_matrix.get(row, clmn) * weights_matrix.get(row, 0));
             }
         }
 
@@ -191,12 +201,14 @@ public:
 
         for (std::int64_t row = 0; row < row_count; row++) {
             for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
-                ref_min.set(0, clmn) = std::min(ref_min.get(0, clmn), data_matrix.get(row, clmn));
-                ref_max.set(0, clmn) = std::max(ref_max.get(0, clmn), data_matrix.get(row, clmn));
-                ref_sum.set(0, clmn) += data_matrix.get(row, clmn);
-                ref_sum2.set(0, clmn) += data_matrix.get(row, clmn) * data_matrix.get(row, clmn);
-                ref_sum2cent.set(0, clmn) += (data_matrix.get(row, clmn) - ref_mean.get(0, clmn)) *
-                                             (data_matrix.get(row, clmn) - ref_mean.get(0, clmn));
+                const auto elem = data_matrix.get(row, clmn);
+                const auto weight = weights_matrix.get(row, 0);
+                ref_min.set(0, clmn) = std::min(ref_min.get(0, clmn), elem * weight);
+                ref_max.set(0, clmn) = std::max(ref_max.get(0, clmn), elem * weight);
+                ref_sum.set(0, clmn) += elem * weight;
+                ref_sum2.set(0, clmn) += (elem * weight * elem * weight);
+                ref_sum2cent.set(0, clmn) += (elem * weight - ref_mean.get(0, clmn)) *
+                                             (elem * weight - ref_mean.get(0, clmn));
 
             }
         }

@@ -33,13 +33,13 @@ std::int64_t propose_threading_block_size(std::int64_t row_count,
 template<typename Cpu, typename Float>
 std::pair<std::int64_t, std::int64_t> extract_and_check_dimensions(
         const pr::ndview<Float, 1>& weights,
-        const pr::ndview<Float, 2>& samples) {
+        pr::ndview<Float, 2>& samples) {
     ONEDAL_ASSERT(weights.has_data());
     ONEDAL_ASSERT(samples.has_mutable_data());
 
     const auto r_count = samples.get_dimension(0);
     const auto c_count = samples.get_dimension(1);
-    ONEDAL_ASSERT(samples.get_count() == r_count);
+    ONEDAL_ASSERT(weights.get_count() == r_count);
 
     return { r_count, c_count };
 }
