@@ -1,5 +1,6 @@
+#!/bin/bash
 #===============================================================================
-# Copyright 2021 Intel Corporation
+# Copyright 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +15,13 @@
 # limitations under the License.
 #===============================================================================
 
-list(APPEND EXAMPLES pca_cor_dense_batch)
-
-add_examples(${EXAMPLES})
+os=$(uname)
+if [ "${os}" = "Linux" ]; then
+  echo lnx32e
+elif [ "${os}" = "Darwin" ]; then
+  echo mac32e
+elif [[ "${os}" =~ "MSYS" || "${os}" =~ "CYGWIN" ]]; then
+  echo win32e
+else
+  echo "UnknownOS"
+fi

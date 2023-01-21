@@ -55,6 +55,8 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
+!MESSAGE =====make build system for DAAL in deprecated, please use cmake instead====!
+
 {examples_list}
 
 !IFNDEF example
@@ -101,6 +103,7 @@ CC=icl
 
 !IF ("$(compiler)"=="msvs")
 CC=cl
+LOPTS = /wd4996
 !ENDIF
 
 !IF ("$(compiler)"=="icx")
@@ -118,9 +121,9 @@ COPTS=-W3 -EHsc $(COPTS)
 !ENDIF
 
 !IF ("$(RES_EXT)"=="lib")
-LOPTS = "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_PATH)\onedal_thread.lib" tbb12.lib tbbmalloc.lib
+LOPTS = "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_PATH)\onedal_thread.lib" $(LOPTS) tbb12.lib tbbmalloc.lib
 !ELSE
-LOPTS = "$(DAAL_PATH)\onedal_core$(EXT)"
+LOPTS = "$(DAAL_PATH)\onedal_core$(EXT)" $(LOPTS)
 !ENDIF
 
 COPTS = -MD -Isource\utils $(COPTS) $(OUT_OPTS)

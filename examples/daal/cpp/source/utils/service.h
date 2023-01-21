@@ -37,19 +37,6 @@
 
 #include "error_handling.h"
 
-/* Link sequential verison for Intel DAAL for dynamic version on Windows */
-#ifdef _WINDOWS_SEQUENTIAL_DYNAMIC_VERSION
-
-class WindowsThreadingSetter {
-public:
-    WindowsThreadingSetter() {
-        daal::services::Environment::getInstance()->setDynamicLibraryThreadingTypeOnWindows(
-            daal::services::Environment::SingleThreaded);
-    }
-} windowsThreadingSetter;
-
-#endif
-
 size_t readTextFile(const std::string &datasetFileName, daal::byte **data) {
     std::ifstream file(datasetFileName.c_str(), std::ios::binary | std::ios::ate);
     if (!file.is_open()) {

@@ -45,6 +45,16 @@ struct SVMPredictImpl : public Kernel
 {
     services::Status compute(const data_management::NumericTablePtr & xTable, Model * model, data_management::NumericTable & r,
                              const svm::Parameter * par);
+
+    services::Status computeSequential(const data_management::NumericTablePtr & xTable, const data_management::NumericTablePtr & svCoeffTable,
+                                       const data_management::NumericTablePtr & svTable, data_management::NumericTable & r,
+                                       kernel_function::KernelIfacePtr & kernel, const algorithmFPType bias, const size_t nVectors, const size_t nSV,
+                                       const bool isSparse);
+
+    services::Status computeThreading(const data_management::NumericTablePtr & xTable, const data_management::NumericTablePtr & svCoeffTable,
+                                      const data_management::NumericTablePtr & svTable, data_management::NumericTable & r,
+                                      kernel_function::KernelIfacePtr & kernel, const algorithmFPType bias, const size_t nVectors, const size_t nSV,
+                                      const bool isSparse, const size_t nRowsPerBlock, const size_t nBlocks);
 };
 
 } // namespace internal

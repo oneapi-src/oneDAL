@@ -28,13 +28,13 @@ CORE.SERV.COMPILER.dpcpp = generic
 -Zl.dpcpp =
 -DEBC.dpcpp = -g
 
-COMPILER.lnx.dpcpp = icpx -fsycl $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv \
+COMPILER.lnx.dpcpp = icpx -fsycl -m64 -stdlib=libstdc++ -fgnu-runtime -fwrapv \
                      -Werror -Wreturn-type -fsycl-device-code-split=per_kernel
 COMPILER.win.dpcpp = icx -fsycl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX \
                      -Wno-deprecated-declarations -fsycl-device-code-split=per_kernel
 
-link.dynamic.lnx.dpcpp = icpx -fsycl $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
-link.dynamic.win.dpcpp = icx -fsycl $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
+link.dynamic.lnx.dpcpp = icpx -fsycl -m64 -fsycl-device-code-split=per_kernel
+link.dynamic.win.dpcpp = icx -fsycl -m64 -fsycl-device-code-split=per_kernel
 
 pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wall \
@@ -42,8 +42,6 @@ pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wno-unused-parameter
 
 p4_OPT.dpcpp   = -march=nocona
-mc_OPT.dpcpp   = -march=core2
 mc3_OPT.dpcpp  = -march=nehalem
-avx_OPT.dpcpp  = -march=sandybridge
 avx2_OPT.dpcpp = -march=haswell
 skx_OPT.dpcpp  = -march=skx

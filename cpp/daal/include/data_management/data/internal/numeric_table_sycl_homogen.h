@@ -19,7 +19,7 @@
 #define __SYCL_HOMOGEN_NUMERIC_TABLE_H__
 
 #ifdef DAAL_SYCL_INTERFACE
-    #include <CL/sycl.hpp>
+    #include <sycl/sycl.hpp>
 #endif
 
 #include "data_management/data/internal/numeric_table_sycl.h"
@@ -72,7 +72,7 @@ public:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(const services::SharedPtr<DataType> & usmData, size_t nColumns,
-                                                                          size_t nRows, const cl::sycl::queue & queue, services::Status * stat = NULL)
+                                                                          size_t nRows, const ::sycl::queue & queue, services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
 
@@ -91,7 +91,7 @@ public:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(DataType * usmData, size_t nColumns, size_t nRows,
-                                                                          const cl::sycl::queue & queue, services::Status * stat = NULL)
+                                                                          const ::sycl::queue & queue, services::Status * stat = NULL)
     {
         const auto overflow_status = checkSizeOverflow(nRows, nColumns);
         if (!overflow_status)

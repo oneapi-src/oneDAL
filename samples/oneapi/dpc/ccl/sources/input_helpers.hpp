@@ -20,7 +20,7 @@
 #include <string>
 #include <fstream>
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace dal = oneapi::dal;

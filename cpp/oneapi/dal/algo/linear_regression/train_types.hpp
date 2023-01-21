@@ -98,8 +98,46 @@ public:
         return *this;
     }
 
+    /// Table of Linear regression intercept
+    const table& get_intercept() const;
+
+    auto& set_intercept(const table& value) {
+        set_intercept_impl(value);
+        return *this;
+    }
+
+    /// Table of Linear regression coefficients
+    const table& get_coefficients() const;
+
+    auto& set_coefficients(const table& value) {
+        set_coefficients_impl(value);
+        return *this;
+    }
+
+    /// Table of Linear regression coefficients with intercept
+    const table& get_packed_coefficients() const;
+
+    auto& set_packed_coefficients(const table& value) {
+        set_packed_coefficients_impl(value);
+        return *this;
+    }
+
+    /// Result options that indicates availability of the properties
+    const result_option_id& get_result_options() const;
+
+    auto& set_result_options(const result_option_id& value) {
+        set_result_options_impl(value);
+        return *this;
+    }
+
 protected:
     void set_model_impl(const model<Task>&);
+
+    void set_intercept_impl(const table&);
+    void set_coefficients_impl(const table&);
+    void set_packed_coefficients_impl(const table&);
+
+    void set_result_options_impl(const result_option_id&);
 
 private:
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;

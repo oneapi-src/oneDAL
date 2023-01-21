@@ -16,7 +16,7 @@
 
 #include <iomanip>
 #include <iostream>
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL

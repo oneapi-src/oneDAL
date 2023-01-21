@@ -749,7 +749,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_imp
             }
 
             node_ptr[impl_const_t::ind_win] = win_cls;
-            node_imp_ptr[0] = cl::sycl::max(imp, Float(0));
+            node_imp_ptr[0] = sycl::max(imp, Float(0));
         }
         imp_data_list.imp_list_.assign_from_host(queue_, imp_list_host).wait_and_throw();
         node_list.assign_from_host(queue_, node_list_host).wait_and_throw();

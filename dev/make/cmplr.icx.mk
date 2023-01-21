@@ -18,7 +18,7 @@
 #  Intel compiler defenitions for makefile
 #--
 
-PLATs.icx = lnx32e mac32e fbsd32e
+PLATs.icx = lnx32e mac32e
 
 CMPLRDIRSUFF.icx = _icx
 
@@ -27,11 +27,11 @@ CORE.SERV.COMPILER.icx = generic
 -Zl.icx =  -no-intel-lib=libirc
 -DEBC.icx = -g
 
-COMPILER.lnx.icx = icpx $(if $(IA_is_ia32),-m32,-m64) \
+COMPILER.lnx.icx = icpx -m64 \
                      -Werror -Wreturn-type
 
 
-link.dynamic.lnx.icx = icpx $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.lnx.icx = icpx -m64
 
 pedantic.opts.icx = -pedantic \
                       -Wall \
@@ -41,8 +41,6 @@ pedantic.opts.icx = -pedantic \
 pedantic.opts.lnx.icx = $(pedantic.opts.icx)
 
 p4_OPT.icx   = $(-Q)march=nocona
-mc_OPT.icx   = $(-Q)march=core2
 mc3_OPT.icx  = $(-Q)march=nehalem
-avx_OPT.icx  = $(-Q)march=sandybridge
 avx2_OPT.icx = $(-Q)march=haswell
 skx_OPT.icx  = $(-Q)march=skx

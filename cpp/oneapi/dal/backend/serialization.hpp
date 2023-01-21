@@ -187,7 +187,7 @@ public:
     ID(6040000000, decision_forest_model_interop_impl_reg_id);
 
     // Algorithms - Linear Regression
-    ID(7010000000, linear_regression_norm_eq_model_impl_id);
+    ID(7010000000, linear_regression_model_impl_id);
 };
 
 #undef ID

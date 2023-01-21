@@ -17,7 +17,7 @@
 #pragma once
 
 #ifdef ONEDAL_DATA_PARALLEL
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #endif
 
 #include <memory>

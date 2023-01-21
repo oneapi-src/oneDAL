@@ -41,6 +41,7 @@ compute_result<Task> compute_kernel_distr<Float, Method, Task>::operator()(
 
     const auto sample_count = data_table.get_row_count();
     const auto cluster_count = params.get_cluster_count();
+    const auto seed = params.get_seed();
     const auto feature_count = data_table.get_column_count();
 
     ONEDAL_ASSERT(0 < cluster_count);
@@ -53,7 +54,8 @@ compute_result<Task> compute_kernel_distr<Float, Method, Task>::operator()(
     auto ress =
         pr::ndview<Float, 2>::wrap(resa.get_mutable_data(), { cluster_count, feature_count });
 
-    const auto indices = misc::generate_random_indices_distr(ctx, cluster_count, sample_count);
+    const auto indices =
+        misc::generate_random_indices_distr(ctx, cluster_count, sample_count, seed);
     const auto ndids =
         pr::ndarray<std::int64_t, 1>::wrap(indices.get_data(), { cluster_count }).to_device(queue);
 

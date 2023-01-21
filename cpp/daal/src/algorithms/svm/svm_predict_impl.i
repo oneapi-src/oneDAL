@@ -66,9 +66,18 @@ public:
         DAAL_CHECK_STATUS_VAR(status);
 
         _shRes->set(kernel_function::values, shResNT);
-        _kernel->getInput()->set(kernel_function::X, xBlockNT);
-        _kernel->getInput()->set(kernel_function::Y, svBlockNT);
-        _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
+        if (nRows == 1)
+        {
+            _kernel->getInput()->set(kernel_function::X, svBlockNT);
+            _kernel->getInput()->set(kernel_function::Y, xBlockNT);
+            _kernel->getParameter()->computationMode = kernel_function::matrixVector;
+        }
+        else
+        {
+            _kernel->getInput()->set(kernel_function::X, xBlockNT);
+            _kernel->getInput()->set(kernel_function::Y, svBlockNT);
+            _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
+        }
 
         return _kernel->computeNoThrow();
     }
@@ -191,30 +200,60 @@ private:
 template <typename algorithmFPType, CpuType cpu>
 struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 {
-    services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par)
+    using TPredictTask = PredictTask<algorithmFPType, cpu>;
+
+    services::Status computeSequential(const NumericTablePtr & xTable, const NumericTablePtr & svCoeffTable, const NumericTablePtr & svTable,
+                                       NumericTable & r, kernel_function::KernelIfacePtr & kernel, const algorithmFPType bias, const size_t nVectors,
+                                       const size_t nSV, const bool isSparse)
     {
-        kernel_function::KernelIfacePtr kernel = par->kernel->clone();
-        DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
+        services::Status st;
+        services::SharedPtr<TPredictTask> prTask;
+        if (isSparse)
+        {
+            prTask.reset(PredictTaskCSR<algorithmFPType, cpu>::create(nVectors, nSV, xTable, svTable, kernel));
+        }
+        else
+        {
+            prTask.reset(PredictTaskDense<algorithmFPType, cpu>::create(nVectors, nSV, xTable, svTable, kernel));
+        }
+        DAAL_CHECK_MALLOC(prTask.get());
+        st |= prTask->kernelCompute(0, nVectors, 0, nSV);
+        DAAL_CHECK_STATUS_VAR(st);
+        const algorithmFPType * const buffBlock = prTask->getBuff();
 
-        const NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
-        const NumericTablePtr svTable      = model->getSupportVectors();
+        char trans = 'T';
+        DAAL_INT m = nSV;
+        DAAL_INT n = nVectors;
+        algorithmFPType alpha(1.0);
+        DAAL_INT ldA = nSV;
+        DAAL_INT incX(1);
+        algorithmFPType beta(0.0);
+        DAAL_INT incY(1);
 
-        const algorithmFPType bias(model->getBias());
+        TArray<algorithmFPType, cpu> distances(nVectors);
+        algorithmFPType * const distanceSV = distances.get();
+        DAAL_CHECK_MALLOC(distanceSV);
+        ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
+        DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
+        const algorithmFPType * const svCoeff = mtSVCoeff.get();
 
-        const size_t nVectors = xTable->getNumberOfRows();
-        const size_t nSV      = svTable->getNumberOfRows();
+        Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
 
-        const size_t nRowsPerBlock = 128;
-        const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
+        WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, 0, nVectors);
+        DAAL_CHECK_BLOCK_STATUS(mtR);
+        algorithmFPType * const distanceBlock = mtR.get();
+        service_memset_seq<algorithmFPType, cpu>(distanceBlock, bias, nVectors);
+        Blas<algorithmFPType, cpu>::xxaxpy(&n, &alpha, distanceSV, &incX, distanceBlock, &incY);
 
-        size_t nSVPerBlock = 0;
-        DAAL_SAFE_CPU_CALL((nSVPerBlock = 128), (nSVPerBlock = nSV));
-        const size_t nBlocksSV = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
+        return st;
+    }
 
-        const bool isSparse = xTable->getDataLayout() == NumericTableIface::csrArray;
-
+    services::Status computeThreading(const NumericTablePtr & xTable, const NumericTablePtr & svCoeffTable, const NumericTablePtr & svTable,
+                                      NumericTable & r, kernel_function::KernelIfacePtr & kernel, const algorithmFPType bias, const size_t nVectors,
+                                      const size_t nSV, const bool isSparse, const size_t nRowsPerBlock, const size_t nBlocks,
+                                      const size_t nSVPerBlock, const size_t nBlocksSV)
+    {
         /* TLS data initialization */
-        using TPredictTask = PredictTask<algorithmFPType, cpu>;
         daal::tls<TPredictTask *> tlsTask([&]() {
             if (isSparse)
             {
@@ -281,6 +320,42 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
         tlsTask.reduce([](PredictTask<algorithmFPType, cpu> * local) { delete local; });
         return safeStat.detach();
+    }
+
+    services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par)
+    {
+        services::Status st;
+
+        kernel_function::KernelIfacePtr kernel = par->kernel->clone();
+        DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
+
+        const NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
+        const NumericTablePtr svTable      = model->getSupportVectors();
+
+        const algorithmFPType bias(model->getBias());
+
+        const size_t nVectors = xTable->getNumberOfRows();
+        const size_t nSV      = svTable->getNumberOfRows();
+
+        const size_t nRowsPerBlock = 128;
+        const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
+
+        size_t nSVPerBlock = 0;
+        DAAL_SAFE_CPU_CALL((nSVPerBlock = 128), (nSVPerBlock = nSV));
+        const size_t nBlocksSV = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
+
+        const bool isSparse = xTable->getDataLayout() == NumericTableIface::csrArray;
+
+        if (nBlocks == 1 || nBlocks * nBlocksSV < 16)
+        {
+            st |= computeSequential(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse);
+        }
+        else
+        {
+            st |= computeThreading(xTable, svCoeffTable, svTable, r, kernel, bias, nVectors, nSV, isSparse, nRowsPerBlock, nBlocks, nSVPerBlock,
+                                   nBlocksSV);
+        }
+        return st;
     }
 };
 

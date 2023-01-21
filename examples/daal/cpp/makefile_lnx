@@ -56,6 +56,8 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
+
 include daal.lst
 
 ifndef example

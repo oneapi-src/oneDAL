@@ -30,9 +30,9 @@ CORE.SERV.COMPILER.icc = generic
 
 COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -qopenmp-simd \
                     -Werror -Wreturn-type
-COMPILER.lnx.icc += $(if $(COVFILE), $(if $(IA_is_ia32), $(-Q)m32, $(-Q)m64))
+COMPILER.lnx.icc += $(if $(COVFILE), $(-Q)m64)
 COMPILER.win.icc = icl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Qopenmp-simd
-COMPILER.mac.icc = icc -stdlib=libc++ -mmacosx-version-min=10.14 \
+COMPILER.mac.icc = icc -stdlib=libc++ -mmacosx-version-min=10.15 \
 				   -Werror -Wreturn-type -falign-functions=16
 
 # icc 16 does not support -qopenmp-simd option on macOS*
@@ -51,12 +51,8 @@ pedantic.opts.lnx.icc = -pedantic \
 daaldep.lnx32e.rt.icc = -static-intel
 daaldep.lnx32.rt.icc  = -static-intel
 
-# p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSSE3,xSSE2)
-p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSE4.2,xSSE2)
-# mc_OPT.icc   = $(-Q)xSSSE3
-mc_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSE4.2,xSSE3)
-mc3_OPT.icc  = $(-Q)xSSE4.2
-avx_OPT.icc  = $(-Q)xAVX
+p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xCORE-AVX2,xSSE2)
+mc3_OPT.icc  = $(-Q)$(if $(OS_is_mac),xCORE-AVX2,xSSE4.2)
 avx2_OPT.icc = $(-Q)xCORE-AVX2
 skx_OPT.icc  = $(-Q)xCORE-AVX512 $(-Qopt)zmm-usage=high
 #TODO add march opts in GCC style
