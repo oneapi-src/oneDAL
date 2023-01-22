@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
+
 #include "oneapi/dal/algo/basic_statistics/backend/cpu/apply_weights.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/backend/common.hpp"
@@ -22,11 +24,12 @@ namespace oneapi::dal::basic_statistics::backend {
 
 template <typename Cpu, typename Float>
 std::int64_t propose_threading_block_size(std::int64_t row_count, std::int64_t col_count) {
+    using idx_t = std::int64_t;
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(col_count > 0);
-    constexpr std::int64_t max_block_mem_size = 2 * 1024 * 1024;
-    const std::int64_t block = max_block_mem_size / (col_count * sizeof(Float));
-    return std::max(std::min(row_count, 128l), block);
+    constexpr idx_t max_block_mem_size = 512 * 1024;
+    const idx_t block = max_block_mem_size / (col_count * sizeof(Float));
+    return std::max<idx_t>(std::min<idx_t>(row_count, 128l), block);
 }
 
 template <typename Cpu, typename Float>

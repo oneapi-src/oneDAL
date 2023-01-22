@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
+
 #include "oneapi/dal/algo/basic_statistics/backend/cpu/apply_weights.hpp"
 
 namespace oneapi::dal::basic_statistics::backend {

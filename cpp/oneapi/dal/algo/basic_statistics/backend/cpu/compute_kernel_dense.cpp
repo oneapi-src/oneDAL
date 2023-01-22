@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
+
 #include "oneapi/dal/algo/basic_statistics/backend/cpu/apply_weights.hpp"
 #include "oneapi/dal/algo/basic_statistics/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/basic_statistics/backend/basic_statistics_interop.hpp"
@@ -54,11 +56,12 @@ constexpr daal_lom::Method get_daal_method() {
 
 template <typename Float>
 std::int64_t propose_block_size(std::int64_t row_count, std::int64_t col_count) {
+    using idx_t = std::int64_t;
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(col_count > 0);
-    constexpr std::int64_t max_block_mem_size = 128 * 1024 * 1024;
-    const std::int64_t block = max_block_mem_size / (col_count * sizeof(Float));
-    return std::max(std::min(row_count, 1024l), block);
+    constexpr idx_t max_block_mem_size = 32 * 1024 * 1024;
+    const idx_t block = max_block_mem_size / (col_count * sizeof(Float));
+    return std::max<idx_t>(std::min<idx_t>(row_count, 1024l), block);
 }
 
 template <typename Float>
