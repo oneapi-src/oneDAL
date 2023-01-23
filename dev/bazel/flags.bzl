@@ -71,7 +71,7 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         sse42 = ["-xSSE4.2"]
         avx2 = ["-xCORE-AVX2"]
         avx512 = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
-    elif compiler_id == "icpx" or compiler_id == "icpx":
+    elif compiler_id in ["icpx", "icpx"]:
         sse2 = ["-march=nocona"]
         sse42 = ["-march=nehalem"]
         avx2 = ["-march=haswell"]
