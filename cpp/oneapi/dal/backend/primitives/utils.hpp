@@ -190,11 +190,10 @@ std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& 
     auto block_counting = uniform_blocking(train_count, block_size);
 
     sycl::event::wait_and_throw(deps);
-    auto copy_event = sycl::event();
     
     for(std::int32_t block_index = 0; block_index < block_counting.get_block_count(); block_index++) {
         // allocate ndarray of proper size + fill with standard value (ie inf, dead beef)
-        auto [ fill_array, fill_event ] = pr::ndview<Float, 2, torder>::full(q, { block_size, feature_count }, -1.0, sycl::usm::alloc::device, { copy_event });
+        auto [ fill_array, fill_event ] = pr::ndarray<Float, 2, torder>::full(q, { block_size, feature_count }, -1.0, sycl::usm::alloc::device);
         sycl::event::wait_and_throw({fill_event});
         // use row accessor
         auto slice = row_accessor<const Float>(train).pull({ block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) });
@@ -203,11 +202,11 @@ std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& 
         //auto actual_block = pr::table2ndarray_variant<Float>(q, slice, sycl::usm::alloc::device);
         auto actual_block = pr::ndview<Float, 2, torder>::wrap(slice, { block_counting.get_block_length(block_index), feature_count });
         //const ndview<Float, 2, torder>& train_data = std::get<ndarray<Float, 2, torder>>(train_var);
-        // TODO: any reason to convert this into ndview? const train_t& actual_block = std::get<train_t>(train_var);
 
         // copy table slice into current block storage, wait for event to finish before adding to queue
         auto current_block = fill_array.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index))
-        copy_event = pr::copy(q, current_block, actual_block/*, { fill_event }*/).wait_and_throw();
+        copy_event = pr::copy(q, current_block, actual_block);
+        sycl::event::wait_and_throw({copy_event});
 
         train_block_queue.emplace(current_block);
     }
