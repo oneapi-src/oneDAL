@@ -608,7 +608,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             using search_t = pr::search_engine<Float, dst_t, torder>;
 
             const dst_t dist{ queue };
-            const search_t search{ queue, train, tbcount, dist };
+            const search_t search{ queue, current_block, tbcount, dist };
             //search.reset_train_data(actual_current_block, tbcount);
             next_event = search(query, callback, qbcount, kcount, { next_event });
         }
@@ -618,7 +618,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             using search_t = pr::search_engine<Float, dst_t, torder>;
 
             const dst_t dist{ queue };
-            const search_t search{ queue, train, tbcount, dist };
+            const search_t search{ queue, current_block, tbcount, dist };
             //search.reset_train_data(actual_current_block, tbcount);
             next_event = search(query, callback, qbcount, kcount, { next_event });
         }
@@ -630,7 +630,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             callback.set_euclidean_distance(true);
 
             const dst_t dist{ queue };
-            const search_t search{ queue, train, tbcount, dist };
+            const search_t search{ queue, current_block, tbcount, dist };
             //search.reset_train_data(actual_current_block, tbcount);
             next_event = search(query, callback, qbcount, kcount, { next_event });
         }
@@ -640,14 +640,14 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             using search_t = pr::search_engine<Float, dst_t, torder>;
 
             const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
-            const search_t search{ queue, train, tbcount, dist };
+            const search_t search{ queue, current_block, tbcount, dist };
             //search.reset_train_data(actual_current_block, tbcount);
             next_event = search(query, callback, qbcount, kcount, { next_event });
         }
         
         //const search_t search{ queue, train, tbcount, dist };
         //search.reset_train_data(actual_current_block, tbcount);
-        next_event = search(query, callback, qbcount, kcount, { next_event });
+        //next_event = search(query, callback, qbcount, kcount, { next_event });
     
         comm.sendrecv_replace(current_block, prev_node, next_node).wait();
     }
