@@ -182,7 +182,7 @@ std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_in
 }
 
 template <typename Float, ndorder torder>
-std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& train, std::int64_t block_size, const bk::event_vector& deps = {}) {
+std::queue<ndarray<Float, 2, torder>> split_dataset(sycl::queue& q, const table& train, std::int64_t block_size, const bk::event_vector& deps = {}) {
     std::queue<ndarray<Float, 2, torder>> train_block_queue;
     const auto train_count = train.get_row_count();
     const auto feature_count = train.get_column_count();
@@ -200,7 +200,7 @@ std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& 
 
         // convert table slice from row_accessor into ndarray
         auto actual_block = pr::table2ndarray_variant<Float>(q, slice, sycl::usm::alloc::device);
-        const ndview<Float, 2, torder>& train_data = std::get<ndarray<Float, 2, torder>>(train_var);
+        //const ndview<Float, 2, torder>& train_data = std::get<ndarray<Float, 2, torder>>(train_var);
         // TODO: any reason to convert this into ndview? const train_t& actual_block = std::get<train_t>(train_var);
 
         // copy table slice into current block storage, wait for event to finish before adding to queue
