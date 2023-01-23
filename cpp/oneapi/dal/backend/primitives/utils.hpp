@@ -194,7 +194,7 @@ std::queue<ndarray<Float, 2, torder>> split_dataset(sycl::queue& q, const table&
     
     for(std::int32_t block_index = 0; block_index < block_counting.get_block_count(); block_index++) {
         // allocate ndarray of proper size + fill with standard value (ie inf, dead beef)
-        auto current_block = pr::ndarray<Float, 2, torder>::full(q, { block_size, feature_count }, 0xDEADBEEF, sycl::usm::alloc::device);
+        auto current_block = pr::ndarray<Float, 2, torder>::full(q, { block_size, feature_count }, -1.0, sycl::usm::alloc::device);
         // use row accessor
         auto slice = row_accessor<const Float>(train).pull({ block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) });
 

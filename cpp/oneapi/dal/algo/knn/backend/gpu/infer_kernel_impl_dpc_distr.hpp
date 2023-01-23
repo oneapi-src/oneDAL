@@ -486,7 +486,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     // Input arrays test section
     ONEDAL_ASSERT(train.has_data());
     ONEDAL_ASSERT(query.has_data());
-    [[maybe_unused]] const auto tcount = train.get_row_count();
+    [[maybe_unused]] auto tcount = train.get_row_count();
     const auto qcount = query.get_dimension(0);
     const auto fcount = train.get_column_count();
     ONEDAL_ASSERT(fcount == query.get_dimension(1));
