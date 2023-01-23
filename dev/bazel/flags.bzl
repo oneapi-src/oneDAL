@@ -37,11 +37,11 @@ lnx_cc_flags = {
     "pedantic": lnx_cc_pedantic_flags,
 }
 
-def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
+def get_default_flags(arch_id, os_id, compiler_id, compiler_vendor, category = "common"):
     _check_flag_category(category)
     if os_id == "lnx":
         flags = lnx_cc_flags[category]
-        if compiler_id == "icx" and category == "common":
+        if compiler_vendor == "intel" and category == "common":
             flags = flags + [
                 "-qopenmp-simd",
                 "-no-intel-lib=libirc",
@@ -66,12 +66,12 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         sse42 = ["-march=corei7"]
         avx2 = ["-march=haswell"]
         avx512 = ["-march=haswell"]
-    elif compiler_id == "icx":
+    elif compiler_id == "icc":
         sse2 = ["-xSSE2"]
         sse42 = ["-xSSE4.2"]
         avx2 = ["-xCORE-AVX2"]
         avx512 = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
-    elif compiler_id == "icpx":
+    elif compiler_id == "icpx" or compiler_id == "icpx":
         sse2 = ["-march=nocona"]
         sse42 = ["-march=nehalem"]
         avx2 = ["-march=haswell"]

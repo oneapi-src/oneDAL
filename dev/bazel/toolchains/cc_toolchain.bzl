@@ -14,7 +14,7 @@
 # limitations under the License.
 #===============================================================================
 
-load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler")
+load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler", "check_compiler_vendor")
 load("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.bzl", "configure_cc_toolchain_lnx", "find_tool")
 
 def _detect_requirements(repo_ctx):
@@ -23,9 +23,11 @@ def _detect_requirements(repo_ctx):
     dpc_compiler_id = "icpx"
     dpcc_path, dpcpp_found = find_tool(repo_ctx, dpc_compiler_id, mandatory = False)
     dpc_compiler_version = _detect_compiler_version(repo_ctx, dpcc_path) if dpcpp_found else "local"
+    compiler_vendor = check_compiler_vendor(repo_ctx, compiler_id)
     return struct(
         os_id = os_id,
         compiler_id = compiler_id,
+        compiler_vendor = compiler_vendor, 
 
         libc_version = "local",
         libc_abi_version = "local",

@@ -67,6 +67,12 @@ def detect_compiler(repo_ctx, os_id):
     elif "icc" in compiler_path:
         return "icc"
 
+def check_compiler_vendor(repo_ctx, compiler_id):
+    if compiler_id == "icx" or compiler_id == "icc":
+        return "intel"
+    else:
+        return ""
+
 def get_starlark_dict(dictionary):
     entries = [ "\"{}\":\"{}\"".format(k, v) for k, v in dictionary.items() ]
     return ",\n    ".join(entries)
@@ -160,7 +166,7 @@ def get_cpu_specific_options(reqs, is_dpcc=False):
 
 def _get_unfiltered_default_compiler_options(reqs, is_dpcc, category):
     compiler_id = reqs.dpc_compiler_id if is_dpcc else reqs.compiler_id
-    return get_default_flags(reqs.target_arch_id, reqs.os_id, compiler_id, category)
+    return get_default_flags(reqs.target_arch_id, reqs.os_id, compiler_id, reqs.compiler_vendor, category)
 
 def _filter_out_unsupported_compiler_options(repo_ctx, cc, options):
     filtered_options = []
