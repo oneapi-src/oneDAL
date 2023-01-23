@@ -41,6 +41,8 @@ public:
     table value;
     table gradient;
     table hessian;
+    table packed_gradient;
+    table packed_hessian;
     result_option_id options;
 };
 
@@ -112,6 +114,34 @@ void compute_input<Task>::set_packed_hessian_placeholder_impl(homogen_table_buil
 
 template <typename Task>
 compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
+
+template <typename Task>
+const table& compute_result<Task>::get_value() const {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::value)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->value;
+}
+
+template <typename Task>
+const table& compute_result<Task>::get_gradient() const {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::gradient)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->gradient;
+}
+
+
+template <typename Task>
+const table& compute_result<Task>::get_hessian() const {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::hessian)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->hessian;
+}
 
 template <typename Task>
 const table& compute_result<Task>::get_value() const {

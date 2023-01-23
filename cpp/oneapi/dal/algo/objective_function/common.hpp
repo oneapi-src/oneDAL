@@ -22,7 +22,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/common.hpp"
 
-namespace oneapi::dal::objective_function {
+namespace oneapi::dal::logloss_objective {
 
 namespace task {
     struct logloss{};
