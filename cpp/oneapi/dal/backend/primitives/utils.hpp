@@ -200,7 +200,7 @@ std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& 
 
         // convert table slice from row_accessor into ndarray
         auto actual_block = pr::table2ndarray_variant<Float>(q, slice, sycl::usm::alloc::device);
-        const auto train_data = std::get<ndarray<Float, 2, torder>>(train_var);
+        const ndview<Float, 2, torder>& train_data = std::get<ndarray<Float, 2, torder>>(train_var);
         // TODO: any reason to convert this into ndview? const train_t& actual_block = std::get<train_t>(train_var);
 
         // copy table slice into current block storage, wait for event to finish before adding to queue
