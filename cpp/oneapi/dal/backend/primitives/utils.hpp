@@ -213,6 +213,7 @@ std::queue<ndarray<Float, 2, torder>> split_dataset(sycl::queue& q, const table&
 }
 #endif
 
-template std::queue<ndview<double, 2, ndorder::c>> split_dataset(sycl::queue&, const table&, std::int64_t, const bk::event_vector&);
+template std::queue<ndarray<double, 2, ndorder::c>> split_dataset(sycl::queue&, const table&, std::int64_t, const bk::event_vector&);
+template std::queue<ndarray<float, 2, ndorder::c>> split_dataset(sycl::queue&, const table&, std::int64_t, const bk::event_vector&);
 
 } // namespace oneapi::dal::backend::primitives
