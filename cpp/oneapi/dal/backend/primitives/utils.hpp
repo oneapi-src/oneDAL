@@ -207,7 +207,7 @@ std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& 
         // copy table slice into current block storage, wait for event to finish before adding to queue
         copy_event = pr::copy(q, current_block.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index)), actual_block, copy_event).wait_and_throw();
 
-        train_block_queue.emplace_back(current_block);
+        train_block_queue.emplace(current_block);
     }
 
     return train_block_queue;
