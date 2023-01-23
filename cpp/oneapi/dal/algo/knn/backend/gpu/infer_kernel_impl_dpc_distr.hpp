@@ -667,18 +667,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                                    pr::ndview<I, 2>&,                                       \
                                    pr::ndview<I, 2>&,                                       \
                                    pr::ndview<R, 1>&,                                       \
-                                   const bk::event_vector&);                                \
-    template sycl::event bf_kernel_distr(sycl::queue&,                                      \
-                                   bk::communicator<spmd::device_memory_access::usm>,       \
-                                   const descriptor_t<T>&,                                  \
-                                   const table&,                                            \
-                                   const pr::ndview<F, 2, A>&,                              \
-                                   const pr::ndview<R, 1>&,                                 \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<R, 1>&);
+                                   const bk::event_vector&);
 
 #define INSTANTIATE_A_DISTR(T, I, R, F)             \
     INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::c) \
