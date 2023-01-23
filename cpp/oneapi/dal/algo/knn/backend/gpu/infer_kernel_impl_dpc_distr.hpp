@@ -467,7 +467,7 @@ private:
     bool last_iteration_ = false;
 };
 
-template <typename Task, typename Float, pr::ndorder torder, pr::ndorder qorder, typename RespT>
+template <typename Task, typename Float, pr::ndorder qorder, typename RespT>
 sycl::event bf_kernel_distr(sycl::queue& queue,
                       bk::communicator<spmd::device_memory_access::usm> comm,
                       const descriptor_t<Task>& desc,
@@ -481,6 +481,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                       pr::ndview<RespT, 1>& qresps,
                       const bk::event_vector& deps = {}) {
     using res_t = response_t<Task, Float>;
+    constexpr auto torder = pr::ndorder::c;
 
     // Input arrays test section
     ONEDAL_ASSERT(train.has_data());
@@ -653,13 +654,13 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     return next_event;
 }
-
-#define INSTANTIATE_DISTR(T, I, R, F, A, B)                                              \
+// TODO update instantiate A (remove it)
+#define INSTANTIATE_DISTR(T, I, R, F, A)                                              \
     template sycl::event bf_kernel_distr(sycl::queue&,                                      \
                                    bk::communicator<spmd::device_memory_access::usm>,       \
                                    const descriptor_t<T>&,                                  \
                                    const table&,                                            \
-                                   const pr::ndview<F, 2, B>&,                              \
+                                   const pr::ndview<F, 2, A>&,                              \
                                    const pr::ndview<R, 1>&,                                 \
                                    pr::ndview<F, 2>&,                                       \
                                    pr::ndview<F, 2>&,                                       \
@@ -668,13 +669,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                                    pr::ndview<R, 1>&,                                       \
                                    const bk::event_vector&);
 
-#define INSTANTIATE_B_DISTR(T, I, R, F, A)            \
-    INSTANTIATE_DISTR(T, I, R, F, A, pr::ndorder::c) \
-    INSTANTIATE_DISTR(T, I, R, F, A, pr::ndorder::f)
-
 #define INSTANTIATE_A_DISTR(T, I, R, F)             \
-    INSTANTIATE_B_DISTR(T, I, R, F, pr::ndorder::c) \
-    INSTANTIATE_B_DISTR(T, I, R, F, pr::ndorder::f)
+    INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::c) \
+    INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::f)
 
 #define INSTANTIATE_T_DISTR(I, F)                                 \
     INSTANTIATE_A_DISTR(task::classification, I, std::int32_t, F) \

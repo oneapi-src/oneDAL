@@ -46,8 +46,9 @@ std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width) {
     return result;
 }
 
+template <typename Index>
 sycl::event treat_indices(sycl::queue& q,
-			  ndview<std::int32_t, 2>& indices,
+			  ndview<Index, 2>& indices,
                           std::int64_t start_index,
                           const event_vector& deps) {
     ONEDAL_ASSERT(indices.has_mutable_data());
@@ -823,6 +824,9 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
 
 INSTANTIATE_F(float)
 INSTANTIATE_F(double)
+
+template sycl::event treat_indices(sycl::queue&, ndview<std::int64_t, 2>&, std::int64_t, const event_vector&);
+template sycl::event treat_indices(sycl::queue&, ndview<std::int32_t, 2>&, std::int64_t, const event_vector&);
 
 #undef INSTANTIATE
 
