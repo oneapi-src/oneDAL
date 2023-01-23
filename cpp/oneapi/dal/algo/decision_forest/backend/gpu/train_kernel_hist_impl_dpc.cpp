@@ -2877,7 +2877,9 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
             if (ctx.mdi_required_) {
                 node_imp_decrease_list =
-                    pr::ndarray<Float, 1>::empty(queue_, { node_count * ctx.tree_count_ }, alloc::device);
+                    pr::ndarray<Float, 1>::empty(queue_,
+                                                 { node_count * ctx.tree_count_ },
+                                                 alloc::device);
             }
 
             last_event = compute_best_split(ctx,
