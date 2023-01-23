@@ -193,14 +193,14 @@ std::queue<ndview<Float, 2, ndorder::c>> split_dataset(sycl::queue& q, const tab
     
     for(std::int32_t block_index = 0; block_index < block_counting.get_block_count(); block_index++) {
         // allocate ndarray of proper size + fill with standard value (ie inf, dead beef)
-        auto [ fill_array, fill_event ] = pr::ndarray<Float, 2, torder>::full(q, { block_size, feature_count }, -1.0, sycl::usm::alloc::device);
+        auto [ fill_array, fill_event ] = pr::ndarray<Float, 2, ndorder::c>::full(q, { block_size, feature_count }, -1.0, sycl::usm::alloc::device);
         sycl::event::wait_and_throw({fill_event});
         // use row accessor
         auto slice = row_accessor<const Float>(train).pull({ block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) });
 
         // convert table slice from row_accessor into ndarray
         //auto actual_block = pr::table2ndarray_variant<Float>(q, slice, sycl::usm::alloc::device);
-        auto actual_block = pr::ndview<Float, 2, torder>::wrap(slice, { block_counting.get_block_length(block_index), feature_count });
+        auto actual_block = pr::ndview<Float, 2, ndorder::c>::wrap(slice, { block_counting.get_block_length(block_index), feature_count });
         //const ndview<Float, 2, torder>& train_data = std::get<ndarray<Float, 2, torder>>(train_var);
 
         // copy table slice into current block storage, wait for event to finish before adding to queue
