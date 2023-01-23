@@ -29,7 +29,7 @@ sphinx-notfound-page==0.8.3
 sphinx-prompt==1.5.0
 Sphinx-Substitution-Extensions==2022.2.16
 sphinx-tabs==3.4.1
-sphinxcontrib-applehelp==1.0.2
+sphinxcontrib-applehelp==1.0.4
 sphinxcontrib-devhelp==1.0.2
 sphinxcontrib-htmlhelp==2.0.0
 sphinxcontrib-jsmath==1.0.1
