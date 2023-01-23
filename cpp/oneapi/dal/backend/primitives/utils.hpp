@@ -204,8 +204,8 @@ std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& 
         //const ndview<Float, 2, torder>& train_data = std::get<ndarray<Float, 2, torder>>(train_var);
 
         // copy table slice into current block storage, wait for event to finish before adding to queue
-        auto current_block = fill_array.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index))
-        copy_event = pr::copy(q, current_block, actual_block);
+        auto current_block = fill_array.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index));
+        auto copy_event = pr::copy(q, current_block, actual_block);
         sycl::event::wait_and_throw({copy_event});
 
         train_block_queue.emplace(current_block);
