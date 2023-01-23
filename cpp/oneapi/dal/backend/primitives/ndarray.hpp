@@ -602,9 +602,10 @@ public:
         sycl::queue& q,
         const shape_t& shape,
         const T& value,
-        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared,
+        const event_vector& deps = {}) {
         auto ary = empty(q, shape, alloc_kind);
-        auto event = ary.fill(q, value);
+        auto event = ary.fill(q, value, deps);
         return { ary, event };
     }
 #endif
