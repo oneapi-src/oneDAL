@@ -181,9 +181,9 @@ std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_in
     return std::make_tuple(nodes, boundaries);
 }
 
-template <typename Float>
-std::queue<ndview<Float, 2, ndorder::c>> split_dataset(sycl::queue& q, const table& train, std::int64_t block_size, const bk::event_vector& deps = {}) {
-    std::queue<ndview<Float, 2, ndorder::c>> train_block_queue;
+template <typename Float, ndorder torder>
+std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& train, std::int64_t block_size, const bk::event_vector& deps = {}) {
+    std::queue<ndview<Float, 2, torder>> train_block_queue;
     const auto train_count = train.get_row_count();
     const auto feature_count = train.get_column_count();
 
@@ -193,14 +193,14 @@ std::queue<ndview<Float, 2, ndorder::c>> split_dataset(sycl::queue& q, const tab
     
     for(std::int32_t block_index = 0; block_index < block_counting.get_block_count(); block_index++) {
         // allocate ndarray of proper size + fill with standard value (ie inf, dead beef)
-        auto [ fill_array, fill_event ] = pr::ndarray<Float, 2, ndorder::c>::full(q, { block_size, feature_count }, -1.0, sycl::usm::alloc::device);
+        auto [ fill_array, fill_event ] = pr::ndarray<Float, 2, torder>::full(q, { block_size, feature_count }, -1.0, sycl::usm::alloc::device);
         sycl::event::wait_and_throw({fill_event});
         // use row accessor
         auto slice = row_accessor<const Float>(train).pull({ block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) });
 
         // convert table slice from row_accessor into ndarray
         //auto actual_block = pr::table2ndarray_variant<Float>(q, slice, sycl::usm::alloc::device);
-        auto actual_block = pr::ndview<Float, 2, ndorder::c>::wrap(slice, { block_counting.get_block_length(block_index), feature_count });
+        auto actual_block = pr::ndview<Float, 2, torder>::wrap(slice, { block_counting.get_block_length(block_index), feature_count });
         //const ndview<Float, 2, torder>& train_data = std::get<ndarray<Float, 2, torder>>(train_var);
 
         // copy table slice into current block storage, wait for event to finish before adding to queue
@@ -215,7 +215,9 @@ std::queue<ndview<Float, 2, ndorder::c>> split_dataset(sycl::queue& q, const tab
 }
 #endif
 
-template std::queue<ndview<double, 2, ndorder::c>> split_dataset(sycl::queue&, const table&, std::int64_t, const bk::event_vector&);
-template std::queue<ndview<float, 2, ndorder::c>> split_dataset(sycl::queue&, const table&, std::int64_t, const bk::event_vector&);
+//template std::queue<ndview<double, 2, ndorder::c>> split_dataset(sycl::queue&, const table&, std::int64_t, const bk::event_vector&);
+//template std::queue<ndview<float, 2, ndorder::c>> split_dataset(sycl::queue&, const table&, std::int64_t, const bk::event_vector&);
+template std::queue<ndview<double, 2, ndorder::c>> split_dataset<double, ndorder::c>;
+template std::queue<ndview<float, 2, ndorder::c>> split_dataset<double, ndorder::c>;
 
 } // namespace oneapi::dal::backend::primitives
