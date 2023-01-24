@@ -654,34 +654,34 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     return next_event;
 }
-// TODO update instantiate A (remove it)
-#define INSTANTIATE_DISTR(T, I, R, F, A)                                              \
-    template sycl::event bf_kernel_distr(sycl::queue&,                                      \
-                                   bk::communicator<spmd::device_memory_access::usm>,       \
-                                   const descriptor_t<T>&,                                  \
-                                   const table&,                                            \
-                                   const pr::ndview<F, 2, A>&,                              \
-                                   const pr::ndview<R, 1>&,                                 \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<R, 1>&,                                       \
-                                   const bk::event_vector&);
 
-#define INSTANTIATE_A_DISTR(T, I, R, F)             \
-    INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::c) \
-    INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::f)
+// #define INSTANTIATE_DISTR(T, I, R, F, A)                                              \
+//     template sycl::event bf_kernel_distr(sycl::queue&,                                      \
+//                                    bk::communicator<spmd::device_memory_access::usm>,       \
+//                                    const descriptor_t<T>&,                                  \
+//                                    const table&,                                            \
+//                                    const pr::ndview<F, 2, A>&,                              \
+//                                    const pr::ndview<R, 1>&,                                 \
+//                                    pr::ndview<F, 2>&,                                       \
+//                                    pr::ndview<F, 2>&,                                       \
+//                                    pr::ndview<I, 2>&,                                       \
+//                                    pr::ndview<I, 2>&,                                       \
+//                                    pr::ndview<R, 1>&,                                       \
+//                                    const bk::event_vector&);
 
-#define INSTANTIATE_T_DISTR(I, F)                                 \
-    INSTANTIATE_A_DISTR(task::classification, I, std::int32_t, F) \
-    INSTANTIATE_A_DISTR(task::regression, I, float, F)            \
-    INSTANTIATE_A_DISTR(task::search, I, int, F)
+// #define INSTANTIATE_A_DISTR(T, I, R, F)             \
+//     INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::c) \
+//     INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::f)
 
-#define INSTANTIATE_F_DISTR(I)    \
-    INSTANTIATE_T_DISTR(I, float) \
-    INSTANTIATE_T_DISTR(I, double)
+// #define INSTANTIATE_T_DISTR(I, F)                                 \
+//     INSTANTIATE_A_DISTR(task::classification, I, std::int32_t, F) \
+//     INSTANTIATE_A_DISTR(task::regression, I, float, F)            \
+//     INSTANTIATE_A_DISTR(task::search, I, int, F)
 
-INSTANTIATE_F_DISTR(std::int32_t)
+// #define INSTANTIATE_F_DISTR(I)    \
+//     INSTANTIATE_T_DISTR(I, float) \
+//     INSTANTIATE_T_DISTR(I, double)
+
+// INSTANTIATE_F_DISTR(std::int32_t)
 
 } // namespace oneapi::dal::knn::backend

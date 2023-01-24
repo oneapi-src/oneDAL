@@ -188,20 +188,21 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     auto& q = ctx.get_queue();
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
     const auto train = trained_model->get_data();
-    const bool cm_train = is_col_major(train);
-    const bool cm_query = is_col_major(infer);
-    if (cm_train) {
-        if (cm_query)
-            return kernel<Float, Task, true, true>(desc, infer, m, q, c);
-        else
-            return kernel<Float, Task, true, false>(desc, infer, m, q, c);
-    }
-    else {
-        if (cm_query)
-            return kernel<Float, Task, false, true>(desc, infer, m, q, c);
-        else
-            return kernel<Float, Task, false, false>(desc, infer, m, q, c);
-    }
+    // const bool cm_train = is_col_major(train);
+    // const bool cm_query = is_col_major(infer);
+    // if (cm_train) {
+    //     if (cm_query)
+    //         return kernel<Float, Task, true, true>(desc, infer, m, q, c);
+    //     else
+    //         return kernel<Float, Task, true, false>(desc, infer, m, q, c);
+    // }
+    // else {
+    //     if (cm_query)
+    //         return kernel<Float, Task, false, true>(desc, infer, m, q, c);
+    //     else
+    //         return kernel<Float, Task, false, false>(desc, infer, m, q, c);
+    // }
+    return kernel<Float, Task, false, false>(desc, infer, m, q, c);
 }
 
 template <typename Float, typename Task>
@@ -226,5 +227,48 @@ template struct infer_kernel_gpu<float, method::brute_force, task::regression>;
 template struct infer_kernel_gpu<double, method::brute_force, task::regression>;
 template struct infer_kernel_gpu<float, method::brute_force, task::search>;
 template struct infer_kernel_gpu<double, method::brute_force, task::search>;
+
+#define INSTANTIATE(T, I, R, F, A, B)                                                       \
+    template sycl::event bf_kernel(sycl::queue&,                                            \
+                                   bk::communicator<spmd::device_memory_access::usm>, \
+                                   const descriptor_t<T>&,                                  \
+                                   const pr::ndview<F, 2, A>&,                              \
+                                   const pr::ndview<F, 2, B>&,                              \
+                                   const pr::ndview<R, 1>&,                                 \
+                                   pr::ndview<F, 2>&,                                       \
+                                   pr::ndview<I, 2>&,                                       \
+                                   pr::ndview<R, 1>&,                                       \
+                                   const bk::event_vector&);
+
+#define INSTANTIATE_B(T, I, R, F, A)           \
+    INSTANTIATE(T, I, R, F, A, pr::ndorder::c) \
+    INSTANTIATE(T, I, R, F, A, pr::ndorder::f) \
+    template sycl::event bf_kernel_distr(sycl::queue&,                                      \
+                                   bk::communicator<spmd::device_memory_access::usm>,       \
+                                   const descriptor_t<T>&,                                  \
+                                   const table&,                                            \
+                                   const pr::ndview<F, 2, A>&,                              \
+                                   const pr::ndview<R, 1>&,                                 \
+                                   pr::ndview<F, 2>&,                                       \
+                                   pr::ndview<F, 2>&,                                       \
+                                   pr::ndview<I, 2>&,                                       \
+                                   pr::ndview<I, 2>&,                                       \
+                                   pr::ndview<R, 1>&,                                       \
+                                   const bk::event_vector&);
+
+#define INSTANTIATE_A(T, I, R, F)             \
+    INSTANTIATE_B(T, I, R, F, pr::ndorder::c) \
+    INSTANTIATE_B(T, I, R, F, pr::ndorder::f)
+
+#define INSTANTIATE_T(I, F)                                 \
+    INSTANTIATE_A(task::classification, I, std::int32_t, F) \
+    INSTANTIATE_A(task::regression, I, float, F)            \
+    INSTANTIATE_A(task::search, I, int, F)
+
+#define INSTANTIATE_F(I)    \
+    INSTANTIATE_T(I, float) \
+    INSTANTIATE_T(I, double)
+
+INSTANTIATE_F(std::int32_t)
 
 } // namespace oneapi::dal::knn::backend
