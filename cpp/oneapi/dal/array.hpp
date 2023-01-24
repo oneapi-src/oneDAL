@@ -432,6 +432,11 @@ public:
         return mutable_data_ptr_ != nullptr;
     }
 
+    /// Returns whether array contains data or not
+    bool has_data() const noexcept {
+        return data_ptr_ != nullptr;
+    }
+
     /// Returns mutable_data, if array contains it. Otherwise, allocates a
     /// memory block for mutable data and fills it with the data stored at :literal:`data`.
     /// Creates the ownership structure for allocated memory block and stores
