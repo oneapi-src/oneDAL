@@ -228,47 +228,4 @@ template struct infer_kernel_gpu<double, method::brute_force, task::regression>;
 template struct infer_kernel_gpu<float, method::brute_force, task::search>;
 template struct infer_kernel_gpu<double, method::brute_force, task::search>;
 
-#define INSTANTIATE(T, I, R, F, A, B)                                                       \
-    template sycl::event bf_kernel(sycl::queue&,                                            \
-                                   bk::communicator<spmd::device_memory_access::usm>, \
-                                   const descriptor_t<T>&,                                  \
-                                   const pr::ndview<F, 2, A>&,                              \
-                                   const pr::ndview<F, 2, B>&,                              \
-                                   const pr::ndview<R, 1>&,                                 \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<R, 1>&,                                       \
-                                   const bk::event_vector&);
-
-#define INSTANTIATE_B(T, I, R, F, A)           \
-    INSTANTIATE(T, I, R, F, A, pr::ndorder::c) \
-    INSTANTIATE(T, I, R, F, A, pr::ndorder::f) \
-    template sycl::event bf_kernel_distr(sycl::queue&,                                      \
-                                   bk::communicator<spmd::device_memory_access::usm>,       \
-                                   const descriptor_t<T>&,                                  \
-                                   const table&,                                            \
-                                   const pr::ndview<F, 2, A>&,                              \
-                                   const pr::ndview<R, 1>&,                                 \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<R, 1>&,                                       \
-                                   const bk::event_vector&);
-
-#define INSTANTIATE_A(T, I, R, F)             \
-    INSTANTIATE_B(T, I, R, F, pr::ndorder::c) \
-    INSTANTIATE_B(T, I, R, F, pr::ndorder::f)
-
-#define INSTANTIATE_T(I, F)                                 \
-    INSTANTIATE_A(task::classification, I, std::int32_t, F) \
-    INSTANTIATE_A(task::regression, I, float, F)            \
-    INSTANTIATE_A(task::search, I, int, F)
-
-#define INSTANTIATE_F(I)    \
-    INSTANTIATE_T(I, float) \
-    INSTANTIATE_T(I, double)
-
-INSTANTIATE_F(std::int32_t)
-
 } // namespace oneapi::dal::knn::backend
