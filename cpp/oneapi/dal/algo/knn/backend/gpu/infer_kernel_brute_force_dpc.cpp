@@ -150,7 +150,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             part_indices = array<idx_t>::empty(queue, part_length, sycl::usm::alloc::device);
             wrapped_part_indices = pr::ndview<idx_t, 2>::wrap_mutable(part_indices, { 2 * infer_row_count, neighbor_count });
         }
-        bf_kernel_distr(/*queue, comm, desc, train, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses*/)
+        bf_kernel_distr(queue, comm, desc, train, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
             .wait_and_throw();
     }
     else {
