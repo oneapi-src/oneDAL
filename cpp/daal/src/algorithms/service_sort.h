@@ -28,7 +28,7 @@
 #include "src/algorithms/service_heap.h"
 #include "services/collection.h"
 
-#if defined(__INTEL_COMPILER_BUILD_DATE)
+#if defined(__INTEL_COMPILER_BUILD_DATE) || defined(__INTEL_LLVM_COMPILER)
     #include <immintrin.h>
 #endif
 
@@ -571,7 +571,7 @@ void indexBubbleSortDesc(services::Collection<algorithmFPtype> & x, services::Co
     }
 }
 
-#if defined(__INTEL_COMPILER_BUILD_DATE)
+#if defined(__INTEL_COMPILER_BUILD_DATE) || defined(__INTEL_LLVM_COMPILER)
     #define __RADIX_SORT_CAST32(x) (_castf32_u32(x))
     #define __RADIX_SORT_CAST64(x) (_castf64_u64(x))
 #else
