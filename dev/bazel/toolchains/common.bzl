@@ -49,7 +49,6 @@ def detect_default_compiler(repo_ctx, os_id):
             "mac": "clang",
             "win": "cl",
         }[os_id]
-    print("Comliler is defined as", default, "by default")
     return default
 
 def detect_compiler(repo_ctx, os_id):
