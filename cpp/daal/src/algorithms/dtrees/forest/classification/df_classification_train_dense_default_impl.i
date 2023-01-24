@@ -613,7 +613,6 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
                                                                           const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
                                                                           engines::internal::BatchBaseImpl * engineImpl) const
 {
-    size_t idx;
     auto nFeatIdx         = _idxFeatureBuf.get();
     auto featWeights      = _weightsFeatureBuf.get();
     auto nSamplesPerClass = _samplesPerClassBuf.get();
@@ -628,46 +627,56 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
     algorithmFPType leftWeights = 0.;
     int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
 
+
+    size_t minidx = 0;
+    size_t maxidx = nDiffFeatMax - 1;
+
+    while((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx])) minidx++;
+
+    while((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx])) maxidx--;
+
+
+    DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
+
+    //randomly select a histogram split index
+    size_t idx;
+    int outidx = minidx;
     RNGs<size_t, cpu> rng;
-    rng.uniform(1, &idx, engineImpl->getState(), 0, nDiffFeatMax - 1); //NEED TO DOUBLE CHECK ON nDiffFeatMax
+    rng.uniform(1, &idx, engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
 
-    //only if split.featureUnordered is False, then a loop needs to start
-    if (split.featureUnordered)
+    for (size_t i = minidx; i <= idx; ++i)
     {
-        nLeft       = nFeatIdx[idx];
-        leftWeights = featWeights[idx];
+        if (!nFeatIdx[i]) continue;
+        outidx = i; //insures that if the histogram at idx is zero, that a split point for the data can still be used in df_train_dense_default_impl.i
+        algorithmFPType thisFeatWeights = featWeights[i];
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        //one against others
-        for (size_t iClass = 0; iClass < _nClasses; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * _nClasses + iClass];
-    }
-    else
-    {
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i <= idx; ++i) //include idx for the proper split
+        nLeft       = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
+        leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
+        if ((nLeft == n) //last split
+            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
+            break;
+
+        if (!split.featureUnordered)
         {
-            nLeft += nFeatIdx[i];
-            leftWeights += featWeights[i];
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t iClass = 0; iClass < _nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * _nClasses + iClass];
         }
-        //split of for loop is to insure vectorization above
-        for (size_t i = 0; i <= idx; ++i) //include idx for the proper split
+        if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf) continue;
+
+        if (split.featureUnordered)
         {
-            // if statement is in the case of sparsity
-            if (nFeatIdx[i] > 0)
-            {
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t iClass = 0; iClass < _nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * _nClasses + iClass];
-            }
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            //one against others
+            for (size_t iClass = 0; iClass < _nClasses; ++iClass) histLeft[iClass] = nSamplesPerClass[i * _nClasses + iClass];
         }
     }
 
-    if (!((nLeft == n) || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf)
-          || ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf)))
-    {
-        auto histTotal           = curImpurity.hist.get(); //there is no reason to have this in the for loop
+    if(!((nLeft == n) //last split
+            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart) || (leftWeights < minWeightLeaf)))
+
+        auto histTotal           = curImpurity.hist.get();
         algorithmFPType sumLeft  = 0;
         algorithmFPType sumRight = 0;
         PRAGMA_IVDEP
@@ -686,7 +695,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
             split.left.var      = sumLeft;
             split.nLeft         = nLeft;
             split.leftWeights   = leftWeights;
-            idxFeatureBestSplit = idx;
+            idxFeatureBestSplit = outidx;
             bestImpDecrease     = decrease;
         }
     }
@@ -697,6 +706,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
     }
 
     return idxFeatureBestSplit;
+
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -795,7 +805,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
     size_t idx;
     int outidx = minidx;
     RNGs<size_t, cpu> rng;
-    rng.uniform(1, &idx, engineImpl->getState(), minidx, maxidx); //find random index between minidx-1 and maxidx
+    rng.uniform(1, &idx, engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
 
     for (size_t i = minidx + 1; i <= idx; ++i) //loop necessary even for an unorderedFeature, as max non-zero histogram bin needs to be found
     {
@@ -913,9 +923,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
                                                                              const algorithmFPType totalWeights, const BinIndexType * binIndex,
                                                                              engines::internal::BatchBaseImpl * engineImpl) const
 {
-    //::std::cout << "Sorted\n";
     const auto nDiffFeatMax = this->indexedFeatures().numIndices(iFeature);
-    //::std::cout << nDiffFeatMax << ::std::endl;
     _samplesPerClassBuf.setValues(nClasses() * nDiffFeatMax, 0);
 
     int idxFeatureBestSplit = -1; //index of best feature value in the array of sorted feature values
