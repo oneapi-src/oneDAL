@@ -37,11 +37,17 @@ lnx_cc_flags = {
     "pedantic": lnx_cc_pedantic_flags,
 }
 
-def get_default_flags(arch_id, os_id, compiler_id, compiler_vendor, category = "common"):
+def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
     _check_flag_category(category)
     if os_id == "lnx":
         flags = lnx_cc_flags[category]
-        if compiler_vendor == "intel" and category == "common":
+        if compiler_id == "icc" and category == "common":
+            flags = flags + [
+                "-qopenmp-simd",
+                "-mGLOB_freestanding=TRUE",
+                "-mCG_no_libirc=TRUE",
+            ]
+        if compiler_id == "icx" and category == "common":
             flags = flags + [
                 "-qopenmp-simd",
                 "-no-intel-lib=libirc",
@@ -53,6 +59,8 @@ def get_default_flags(arch_id, os_id, compiler_id, compiler_vendor, category = "
             flags = flags + ["-Wno-unused-command-line-argument"]
         if compiler_id == "gcc" or compiler_id == "icpx":
             flags = flags + ["-Wno-gnu-zero-variadic-macro-arguments"]
+        if compiler_id not in ["icx", "icpx"]:
+            flags = flags + ["-fno-strict-overflow"]
         return flags
     fail("Unsupported OS")
 
