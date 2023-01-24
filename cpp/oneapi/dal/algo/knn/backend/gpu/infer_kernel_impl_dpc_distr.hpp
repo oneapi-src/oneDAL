@@ -468,7 +468,7 @@ private:
 };
 
 template <typename Task, typename Float, pr::ndorder qorder, typename RespT>
-sycl::event bf_kernel_distr(sycl::queue& queue,
+sycl::event bf_kernel_distr(/*sycl::queue& queue,
                       bk::communicator<spmd::device_memory_access::usm> comm,
                       const descriptor_t<Task>& desc,
                       const table& train,
@@ -479,184 +479,184 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                       pr::ndview<idx_t, 2>& indices,
                       pr::ndview<idx_t, 2>& part_indices,
                       pr::ndview<RespT, 1>& qresps,
-                      const bk::event_vector& deps = {}) {
-    using res_t = response_t<Task, Float>;
-    constexpr auto torder = pr::ndorder::c;
+                      const bk::event_vector& deps = {}*/) {
+    // using res_t = response_t<Task, Float>;
+    // constexpr auto torder = pr::ndorder::c;
 
-    // Input arrays test section
-    ONEDAL_ASSERT(train.has_data());
-    ONEDAL_ASSERT(query.has_data());
-    [[maybe_unused]] auto tcount = train.get_row_count();
-    const auto qcount = query.get_dimension(0);
-    const auto fcount = train.get_column_count();
-    ONEDAL_ASSERT(fcount == query.get_dimension(1));
+    // // Input arrays test section
+    // ONEDAL_ASSERT(train.has_data());
+    // ONEDAL_ASSERT(query.has_data());
+    // [[maybe_unused]] auto tcount = train.get_row_count();
+    // const auto qcount = query.get_dimension(0);
+    // const auto fcount = train.get_column_count();
+    // ONEDAL_ASSERT(fcount == query.get_dimension(1));
 
-    // Output arrays test section
-    const auto& ropts = desc.get_result_options();
-    if (ropts.test(result_options::responses)) {
-        ONEDAL_ASSERT(tresps.has_data());
-        ONEDAL_ASSERT(qresps.has_mutable_data());
-        ONEDAL_ASSERT(tcount == tresps.get_count());
-        ONEDAL_ASSERT(qcount == qresps.get_count());
-    }
-    const auto kcount = desc.get_neighbor_count();
-    if (ropts.test(result_options::indices)) {
-        ONEDAL_ASSERT(indices.has_mutable_data());
-        ONEDAL_ASSERT(qcount == indices.get_dimension(0));
-        ONEDAL_ASSERT(kcount == indices.get_dimension(1));
-    }
-    if (ropts.test(result_options::distances)) {
-        ONEDAL_ASSERT(distances.has_mutable_data());
-        ONEDAL_ASSERT(qcount == distances.get_dimension(0));
-        ONEDAL_ASSERT(kcount == distances.get_dimension(1));
-    }
+    // // Output arrays test section
+    // const auto& ropts = desc.get_result_options();
+    // if (ropts.test(result_options::responses)) {
+    //     ONEDAL_ASSERT(tresps.has_data());
+    //     ONEDAL_ASSERT(qresps.has_mutable_data());
+    //     ONEDAL_ASSERT(tcount == tresps.get_count());
+    //     ONEDAL_ASSERT(qcount == qresps.get_count());
+    // }
+    // const auto kcount = desc.get_neighbor_count();
+    // if (ropts.test(result_options::indices)) {
+    //     ONEDAL_ASSERT(indices.has_mutable_data());
+    //     ONEDAL_ASSERT(qcount == indices.get_dimension(0));
+    //     ONEDAL_ASSERT(kcount == indices.get_dimension(1));
+    // }
+    // if (ropts.test(result_options::distances)) {
+    //     ONEDAL_ASSERT(distances.has_mutable_data());
+    //     ONEDAL_ASSERT(qcount == distances.get_dimension(0));
+    //     ONEDAL_ASSERT(kcount == distances.get_dimension(1));
+    // }
 
-    auto block_size = pr::get_block_size();
-    auto rank_count = comm.get_rank_count();
-    auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
-    // ONEDAL_PROFILER_TASK needed?
-    comm.allgather(tcount, node_sample_counts.flatten()).wait();
+    // auto block_size = pr::get_block_size();
+    // auto rank_count = comm.get_rank_count();
+    // auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
+    // // ONEDAL_PROFILER_TASK needed?
+    // comm.allgather(tcount, node_sample_counts.flatten()).wait();
 
-    auto current_rank = comm.get_rank();
-    auto prev_node = (current_rank - 1) % rank_count;
-    auto next_node = (current_rank + 1) % rank_count;
+    // auto current_rank = comm.get_rank();
+    // auto prev_node = (current_rank - 1) % rank_count;
+    // auto next_node = (current_rank + 1) % rank_count;
 
-    auto [nodes, boundaries] = pr::get_boundary_indices(node_sample_counts, block_size);
+    // auto [nodes, boundaries] = pr::get_boundary_indices(node_sample_counts, block_size);
 
-    std::int32_t block_count = nodes.size();
+    // std::int32_t block_count = nodes.size();
 
-    auto train_block_queue = pr::split_dataset(queue, train, block_size, deps);
+    // auto train_block_queue = pr::split_dataset(queue, train, block_size, deps);
 
-    const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
-    const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
+    // const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
+    // const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
 
-    knn_callback_distr<Float, Task> callback(queue, comm, ropts, qbcount, qcount, kcount);
+    // knn_callback_distr<Float, Task> callback(queue, comm, ropts, qbcount, qcount, kcount);
     
-    callback.set_inp_responses(tresps);
-    callback.set_distances(distances);
-    callback.set_part_distances(part_distances);
-    callback.set_responses(qresps);
-    callback.set_indices(indices);
-    callback.set_part_indices(part_indices);
+    // callback.set_inp_responses(tresps);
+    // callback.set_distances(distances);
+    // callback.set_part_distances(part_distances);
+    // callback.set_responses(qresps);
+    // callback.set_indices(indices);
+    // callback.set_part_indices(part_indices);
 
-    auto next_event = callback.reset_dists_inds(deps);
+    // auto next_event = callback.reset_dists_inds(deps);
 
-    if constexpr (std::is_same_v<Task, task::classification>) {
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::uniform)) {
-            callback.set_uniform_voting(std::move(pr::make_uniform_voting(queue, qbcount, kcount)));
-        }
+    // if constexpr (std::is_same_v<Task, task::classification>) {
+    //     if (desc.get_result_options().test(result_options::responses) &&
+    //         (desc.get_voting_mode() == voting_mode::uniform)) {
+    //         callback.set_uniform_voting(std::move(pr::make_uniform_voting(queue, qbcount, kcount)));
+    //     }
 
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::distance)) {
-            callback.set_distance_voting(
-                std::move(pr::make_distance_voting<Float>(queue, qbcount, kcount)));
-        }
-    }
+    //     if (desc.get_result_options().test(result_options::responses) &&
+    //         (desc.get_voting_mode() == voting_mode::distance)) {
+    //         callback.set_distance_voting(
+    //             std::move(pr::make_distance_voting<Float>(queue, qbcount, kcount)));
+    //     }
+    // }
 
-    if constexpr (std::is_same_v<Task, task::regression>) {
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::uniform)) {
-            callback.set_uniform_regression(
-                std::move(pr::make_uniform_regression<res_t>(queue, qbcount, kcount)));
-        }
+    // if constexpr (std::is_same_v<Task, task::regression>) {
+    //     if (desc.get_result_options().test(result_options::responses) &&
+    //         (desc.get_voting_mode() == voting_mode::uniform)) {
+    //         callback.set_uniform_regression(
+    //             std::move(pr::make_uniform_regression<res_t>(queue, qbcount, kcount)));
+    //     }
 
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::distance)) {
-            callback.set_distance_regression(
-                std::move(pr::make_distance_regression<Float>(queue, qbcount, kcount)));
-        }
-    }
+    //     if (desc.get_result_options().test(result_options::responses) &&
+    //         (desc.get_voting_mode() == voting_mode::distance)) {
+    //         callback.set_distance_regression(
+    //             std::move(pr::make_distance_regression<Float>(queue, qbcount, kcount)));
+    //     }
+    // }
 
-    auto distance_impl = detail::get_distance_impl(desc);
-    if (!distance_impl) {
-        throw internal_error{ de::error_messages::unknown_distance_type() };
-    }
+    // auto distance_impl = detail::get_distance_impl(desc);
+    // if (!distance_impl) {
+    //     throw internal_error{ de::error_messages::unknown_distance_type() };
+    // }
 
-    using daal_distance_t = decltype(distance_impl->get_daal_distance_type());
-    const bool is_minkowski_distance =
-        distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
-    const bool is_chebyshev_distance =
-        distance_impl->get_daal_distance_type() == daal_distance_t::chebyshev;
-    const bool is_cosine_distance =
-        distance_impl->get_daal_distance_type() == daal_distance_t::cosine;
-    const bool is_euclidean_distance =
-        is_minkowski_distance && (distance_impl->get_degree() == 2.0);
+    // using daal_distance_t = decltype(distance_impl->get_daal_distance_type());
+    // const bool is_minkowski_distance =
+    //     distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
+    // const bool is_chebyshev_distance =
+    //     distance_impl->get_daal_distance_type() == daal_distance_t::chebyshev;
+    // const bool is_cosine_distance =
+    //     distance_impl->get_daal_distance_type() == daal_distance_t::cosine;
+    // const bool is_euclidean_distance =
+    //     is_minkowski_distance && (distance_impl->get_degree() == 2.0);
 
-    const auto it = std::find(nodes.begin(), nodes.end(), current_rank);
-    auto first_block_index = std::distance(nodes.begin(), it);
-    ONEDAL_ASSERT(it != nodes.end());
+    // const auto it = std::find(nodes.begin(), nodes.end(), current_rank);
+    // auto first_block_index = std::distance(nodes.begin(), it);
+    // ONEDAL_ASSERT(it != nodes.end());
     
-    for(auto block_number = 0; block_number < block_count; block_number++) {
-        // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
-        auto current_block = train_block_queue.pop_front();
-        auto block_index = (block_number + first_block_index) % block_count;
-        auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
+    // for(auto block_number = 0; block_number < block_count; block_number++) {
+    //     // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
+    //     auto current_block = train_block_queue.pop_front();
+    //     auto block_index = (block_number + first_block_index) % block_count;
+    //     auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
 
-        auto sc = current_block.get_dimension(0);
-        ONEDAL_ASSERT(sc >= actual_rows_in_block);
-        auto curr_k = std::min(actual_rows_in_block, kcount);
-        auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
+    //     auto sc = current_block.get_dimension(0);
+    //     ONEDAL_ASSERT(sc >= actual_rows_in_block);
+    //     auto curr_k = std::min(actual_rows_in_block, kcount);
+    //     auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
 
-        callback.set_global_index_offset(boundaries.at(block_index));
-        if (block_number == block_count - 1) {
-            callback.set_last_iteration(true);
-        }
+    //     callback.set_global_index_offset(boundaries.at(block_index));
+    //     if (block_number == block_count - 1) {
+    //         callback.set_last_iteration(true);
+    //     }
 
-        if (is_cosine_distance) {
-            using dst_t = pr::cosine_distance<Float>;
-            using search_t = pr::search_engine<Float, dst_t, torder>;
+    //     if (is_cosine_distance) {
+    //         using dst_t = pr::cosine_distance<Float>;
+    //         using search_t = pr::search_engine<Float, dst_t, torder>;
 
-            const dst_t dist{ queue };
-            const search_t search{ queue, current_block, tbcount, dist };
-            //search.reset_train_data(actual_current_block, tbcount);
-            next_event = search(query, callback, qbcount, kcount, { next_event });
-        }
+    //         const dst_t dist{ queue };
+    //         const search_t search{ queue, current_block, tbcount, dist };
+    //         //search.reset_train_data(actual_current_block, tbcount);
+    //         next_event = search(query, callback, qbcount, kcount, { next_event });
+    //     }
 
-        if (is_chebyshev_distance) {
-            using dst_t = pr::chebyshev_distance<Float>;
-            using search_t = pr::search_engine<Float, dst_t, torder>;
+    //     if (is_chebyshev_distance) {
+    //         using dst_t = pr::chebyshev_distance<Float>;
+    //         using search_t = pr::search_engine<Float, dst_t, torder>;
 
-            const dst_t dist{ queue };
-            const search_t search{ queue, current_block, tbcount, dist };
-            //search.reset_train_data(actual_current_block, tbcount);
-            next_event = search(query, callback, qbcount, kcount, { next_event });
-        }
+    //         const dst_t dist{ queue };
+    //         const search_t search{ queue, current_block, tbcount, dist };
+    //         //search.reset_train_data(actual_current_block, tbcount);
+    //         next_event = search(query, callback, qbcount, kcount, { next_event });
+    //     }
 
-        if (is_euclidean_distance) {
-            using dst_t = pr::squared_l2_distance<Float>;
-            using search_t = pr::search_engine<Float, dst_t, torder>;
+    //     if (is_euclidean_distance) {
+    //         using dst_t = pr::squared_l2_distance<Float>;
+    //         using search_t = pr::search_engine<Float, dst_t, torder>;
 
-            callback.set_euclidean_distance(true);
+    //         callback.set_euclidean_distance(true);
 
-            const dst_t dist{ queue };
-            const search_t search{ queue, current_block, tbcount, dist };
-            //search.reset_train_data(actual_current_block, tbcount);
-            next_event = search(query, callback, qbcount, kcount, { next_event });
-        }
-        else if (is_minkowski_distance) {
-            using met_t = pr::lp_metric<Float>;
-            using dst_t = pr::lp_distance<Float>;
-            using search_t = pr::search_engine<Float, dst_t, torder>;
+    //         const dst_t dist{ queue };
+    //         const search_t search{ queue, current_block, tbcount, dist };
+    //         //search.reset_train_data(actual_current_block, tbcount);
+    //         next_event = search(query, callback, qbcount, kcount, { next_event });
+    //     }
+    //     else if (is_minkowski_distance) {
+    //         using met_t = pr::lp_metric<Float>;
+    //         using dst_t = pr::lp_distance<Float>;
+    //         using search_t = pr::search_engine<Float, dst_t, torder>;
 
-            const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
-            const search_t search{ queue, current_block, tbcount, dist };
-            //search.reset_train_data(actual_current_block, tbcount);
-            next_event = search(query, callback, qbcount, kcount, { next_event });
-        }
+    //         const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
+    //         const search_t search{ queue, current_block, tbcount, dist };
+    //         //search.reset_train_data(actual_current_block, tbcount);
+    //         next_event = search(query, callback, qbcount, kcount, { next_event });
+    //     }
         
-        //const search_t search{ queue, train, tbcount, dist };
-        //search.reset_train_data(actual_current_block, tbcount);
-        //next_event = search(query, callback, qbcount, kcount, { next_event });
+    //     //const search_t search{ queue, train, tbcount, dist };
+    //     //search.reset_train_data(actual_current_block, tbcount);
+    //     //next_event = search(query, callback, qbcount, kcount, { next_event });
     
-        comm.sendrecv_replace(current_block, prev_node, next_node).wait();
-    }
-
+    //     comm.sendrecv_replace(current_block, prev_node, next_node).wait();
+    // }
+    sycl::event next_event;
     return next_event;
 }
 
 #define INSTANTIATE_DISTR(T, I, R, F, A)                                              \
-    template sycl::event bf_kernel_distr(sycl::queue&,                                      \
+    template sycl::event bf_kernel_distr(/*sycl::queue&,                                      \
                                    bk::communicator<spmd::device_memory_access::usm>,       \
                                    const descriptor_t<T>&,                                  \
                                    const table&,                                            \
@@ -667,7 +667,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                                    pr::ndview<I, 2>&,                                       \
                                    pr::ndview<I, 2>&,                                       \
                                    pr::ndview<R, 1>&,                                       \
-                                   const bk::event_vector&);
+                                   const bk::event_vector&*/);
 
 #define INSTANTIATE_A_DISTR(T, I, R, F)             \
     INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::c) \
