@@ -467,7 +467,7 @@ private:
     bool last_iteration_ = false;
 };
 
-template <typename Task, typename Float, pr::ndorder qorder, typename RespT>
+//template <typename Task, typename Float, pr::ndorder qorder, typename RespT>
 sycl::event bf_kernel_distr(/*sycl::queue& queue,
                       bk::communicator<spmd::device_memory_access::usm> comm,
                       const descriptor_t<Task>& desc,
@@ -654,34 +654,34 @@ sycl::event bf_kernel_distr(/*sycl::queue& queue,
     sycl::event next_event;
     return next_event;
 }
+template sycl::event bf_kernel_distr();
+// #define INSTANTIATE_DISTR(T, I, R, F, A)                                              \
+//     template sycl::event bf_kernel_distr(/*sycl::queue&,                                      \
+//                                    bk::communicator<spmd::device_memory_access::usm>,       \
+//                                    const descriptor_t<T>&,                                  \
+//                                    const table&,                                            \
+//                                    const pr::ndview<F, 2, A>&,                              \
+//                                    const pr::ndview<R, 1>&,                                 \
+//                                    pr::ndview<F, 2>&,                                       \
+//                                    pr::ndview<F, 2>&,                                       \
+//                                    pr::ndview<I, 2>&,                                       \
+//                                    pr::ndview<I, 2>&,                                       \
+//                                    pr::ndview<R, 1>&,                                       \
+//                                    const bk::event_vector&*/);
 
-#define INSTANTIATE_DISTR(T, I, R, F, A)                                              \
-    template sycl::event bf_kernel_distr(/*sycl::queue&,                                      \
-                                   bk::communicator<spmd::device_memory_access::usm>,       \
-                                   const descriptor_t<T>&,                                  \
-                                   const table&,                                            \
-                                   const pr::ndview<F, 2, A>&,                              \
-                                   const pr::ndview<R, 1>&,                                 \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<R, 1>&,                                       \
-                                   const bk::event_vector&*/);
+// #define INSTANTIATE_A_DISTR(T, I, R, F)             \
+//     INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::c) \
+//     INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::f)
 
-#define INSTANTIATE_A_DISTR(T, I, R, F)             \
-    INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::c) \
-    INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::f)
+// #define INSTANTIATE_T_DISTR(I, F)                                 \
+//     INSTANTIATE_A_DISTR(task::classification, I, std::int32_t, F) \
+//     INSTANTIATE_A_DISTR(task::regression, I, float, F)            \
+//     INSTANTIATE_A_DISTR(task::search, I, int, F)
 
-#define INSTANTIATE_T_DISTR(I, F)                                 \
-    INSTANTIATE_A_DISTR(task::classification, I, std::int32_t, F) \
-    INSTANTIATE_A_DISTR(task::regression, I, float, F)            \
-    INSTANTIATE_A_DISTR(task::search, I, int, F)
+// #define INSTANTIATE_F_DISTR(I)    \
+//     INSTANTIATE_T_DISTR(I, float) \
+//     INSTANTIATE_T_DISTR(I, double)
 
-#define INSTANTIATE_F_DISTR(I)    \
-    INSTANTIATE_T_DISTR(I, float) \
-    INSTANTIATE_T_DISTR(I, double)
-
-INSTANTIATE_F_DISTR(std::int32_t)
+// INSTANTIATE_F_DISTR(std::int32_t)
 
 } // namespace oneapi::dal::knn::backend
