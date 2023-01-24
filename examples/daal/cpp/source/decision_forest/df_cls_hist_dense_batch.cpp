@@ -51,7 +51,7 @@ const double minImpurityDecreaseInSplitNode = 0.0; /* It must be greater than or
 const size_t maxBins = 256; /* Default value */
 const size_t minBinSize = 5; /* Default value */
 const size_t nClasses = 5; /* Number of classes */
-const bool boot=false;
+const bool boot = false;
 
 training::ResultPtr trainModel();
 void testModel(const training::ResultPtr& res);
