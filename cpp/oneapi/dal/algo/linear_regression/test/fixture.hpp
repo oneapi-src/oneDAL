@@ -184,7 +184,6 @@ public:
 
                 const auto rerr = aerr / den;
                 CAPTURE(aerr, rerr, den, r, c, lval, rval);
-
                 REQUIRE(rerr < tol);
             }
         }
