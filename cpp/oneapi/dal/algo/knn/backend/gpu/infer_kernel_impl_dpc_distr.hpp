@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -650,7 +650,8 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         //search.reset_train_data(actual_current_block, tbcount);
         //next_event = search(query, callback, qbcount, kcount, { next_event });
     
-        comm.sendrecv_replace(current_block, prev_node, next_node).wait();
+        comm.sendrecv_replace(current_block.get_mutable_data(), current_block.get_count(),  prev_node, next_node).wait();
+	//TODO: add back to queue
     }
 
     return next_event;

@@ -34,7 +34,7 @@ template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width);
 
 template <typename Index>
-sycl::event treat_indices(const sycl::queue& q,
+sycl::event treat_indices(sycl::queue& q,
 			  ndview<Index, 2>& indices,
                           std::int64_t start_index,
                           const event_vector& deps);
