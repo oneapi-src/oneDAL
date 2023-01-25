@@ -179,11 +179,11 @@ public:
         return *this;
     }
 
-    sycl::event reset_dists_inds(const bk::event_vector& deps) const {
-        constexpr auto default_dst_value = 0xDEADBEEF;
-        constexpr auto default_idx_value = -1;
-        auto out_dsts = fill(this->queue_, this->distances_, default_dst_value, deps);
-        auto out_idcs = fill(this->queue_, this->indices_, default_idx_value, out_dsts);
+    sycl::event reset_dists_inds(const bk::event_vector& deps) {
+        constexpr Float default_dst_value = -1.0;
+        constexpr idx_t default_idx_value = -1;
+        auto out_dsts = pr::fill(this->queue_, this->distances_, default_dst_value, deps);
+        auto out_idcs = pr::fill(this->queue_, this->indices_, default_idx_value, {out_dsts});
         return out_idcs;
     }
 
@@ -264,7 +264,7 @@ public:
                                 min_dist_dest,
                                 min_indc_dest,
                                 { copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event });
-        auto final_event = select_indexed(part_indices_,
+        auto final_event = select_indexed(queue_, min_indc_dest, part_indices_,
                                          min_indc_dest,
                                          { selt_event });
         if (last_iteration_) { //calls same methods as original operator, using already set indices_ and distances_
