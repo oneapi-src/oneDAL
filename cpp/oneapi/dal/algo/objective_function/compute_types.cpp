@@ -28,11 +28,6 @@ public:
     table data;
     table parameters;
     table responses;
-    homogen_table_builder value_placeholder;
-    homogen_table_builder gradient_placeholder;
-    homogen_table_builder hessian_placeholder;
-    homogen_table_builder packed_gradient_placeholder;
-    homogen_table_builder packed_hessian_placeholder;
 };
 
 template <typename Task>
@@ -86,31 +81,6 @@ void compute_input<Task>::set_responses_impl(const table& value) {
     impl_->responses = value;
 }
 
-template<typename Task>
-void compute_input<Task>::set_value_placeholder_impl(homogen_table_builder& placeholder) {
-    impl_->value_placeholder = placeholder;
-}
-
-template<typename Task>
-void compute_input<Task>::set_gradient_placeholder_impl(homogen_table_builder& placeholder) {
-    impl_->gradient_placeholder = placeholder;
-}
-
-template<typename Task>
-void compute_input<Task>::set_hessian_placeholder_impl(homogen_table_builder& placeholder) {
-    impl_->hessian_placeholder = placeholder;
-}
-
-template<typename Task>
-void compute_input<Task>::set_packed_gradient_placeholder_impl(homogen_table_builder& placeholder) {
-    impl_->packed_gradient_placeholder = placeholder;
-}
-
-template<typename Task>
-void compute_input<Task>::set_packed_hessian_placeholder_impl(homogen_table_builder& placeholder) {
-    impl_->packed_hessian_placeholder = placeholder;
-}
-
 
 template <typename Task>
 compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
@@ -144,57 +114,68 @@ const table& compute_result<Task>::get_hessian() const {
 }
 
 template <typename Task>
-const table& compute_result<Task>::get_value() const {
+const table& compute_result<Task>::get_packed_gradient() const {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::packed_gradient)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->packed_gradient;
+}
+
+template <typename Task>
+const table& compute_result<Task>::get_packed_hessian() const {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::packed_hessian)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->packed_hessian;
+}
+
+template <typename Task>
+void compute_result<Task>::set_value_impl(const table& value) {
     using msg = dal::detail::error_messages;
     if (!get_result_options().test(result_options::value)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    return impl_->value;
+    impl_->value = value;
 }
 
 template <typename Task>
-void compute_result<Task>::set_cov_matrix_impl(const table& value) {
+void compute_result<Task>::set_gradient_impl(const table& value) {
     using msg = dal::detail::error_messages;
-    if (!get_result_options().test(result_options::cov_matrix)) {
+    if (!get_result_options().test(result_options::gradient)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    impl_->cov_matrix = value;
-}
-template <typename Task>
-const table& compute_result<Task>::get_cor_matrix() const {
-    using msg = dal::detail::error_messages;
-    if (!get_result_options().test(result_options::cor_matrix)) {
-        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
-    }
-    return impl_->cor_matrix;
+    impl_->gradient = value;
 }
 
 template <typename Task>
-void compute_result<Task>::set_cor_matrix_impl(const table& value) {
+void compute_result<Task>::set_hessian_impl(const table& value) {
     using msg = dal::detail::error_messages;
-    if (!get_result_options().test(result_options::cor_matrix)) {
+    if (!get_result_options().test(result_options::hessian)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    impl_->cor_matrix = value;
+    impl_->hessian = value;
 }
 
 template <typename Task>
-const table& compute_result<Task>::get_means() const {
+void compute_result<Task>::set_packed_gradient_impl(const table& value) {
     using msg = dal::detail::error_messages;
-    if (!get_result_options().test(result_options::means)) {
+    if (!get_result_options().test(result_options::packed_gradient)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    return impl_->means;
+    impl_->packed_gradient = value;
 }
 
 template <typename Task>
-void compute_result<Task>::set_means_impl(const table& value) {
+void compute_result<Task>::set_packed_hessian_impl(const table& value) {
     using msg = dal::detail::error_messages;
-    if (!get_result_options().test(result_options::means)) {
+    if (!get_result_options().test(result_options::packed_hessian)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    impl_->means = value;
+    impl_->packed_hessian = value;
 }
+
 
 template <typename Task>
 const result_option_id& compute_result<Task>::get_result_options() const {
@@ -206,8 +187,8 @@ void compute_result<Task>::set_result_options_impl(const result_option_id& value
     impl_->options = value;
 }
 
-template class ONEDAL_EXPORT compute_input<task::compute>;
-//template class ONEDAL_EXPORT compute_result<task::compute>;
+template class ONEDAL_EXPORT compute_input<task::logloss>;
+template class ONEDAL_EXPORT compute_result<task::logloss>;
 
 } // namespace v1
 } // namespace oneapi::dal::covariance

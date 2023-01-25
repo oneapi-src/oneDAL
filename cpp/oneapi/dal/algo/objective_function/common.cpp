@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/objective_function/common.hpp"
+#include "oneapi/dal/algo/logloss_objective/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::objective_function::detail {
@@ -49,4 +50,49 @@ result_option_id get_default_result_options<task::logloss>() {
     return get_packed_hessian_id();
 }
 
-// namespace oneapi::dal::objective_function::detail
+namespace v1 {
+
+template <typename Task, typename Objective>
+class descriptor_impl : public base {
+public:
+    explicit descriptor_impl() : desc_(new Objective()) {}
+
+    result_option_id result_options = get_default_result_options<Task>();
+    dal::detail::pimpl<Objective> desc_;
+};
+
+template <typename Task, typename Objective>
+descriptor_base<Task, Objective>::descriptor_base() : impl_(new descriptor_impl<Task, Objective>{}) {}
+
+template <typename Task, typename Objective>
+result_option_id descriptor_base<Task, Objective>::get_result_options() const {
+    return impl_->result_options;
+}
+
+template <typename Task, typename Objective>
+void descriptor_base<Task, Objective>::set_result_options_impl(const result_option_id& value) {
+    using msg = dal::detail::error_messages;
+    if (!bool(value)) {
+        throw domain_error(msg::empty_set_of_result_options());
+    }
+    impl_->result_options = value;
+}
+
+
+template<typename Task, typename Objective>
+const auto descriptor_base<Task, Objective>::get_descriptor() const {
+    return impl_->desc_;
+}
+
+template<typename Task, typename Objective>
+void descriptor_base<Task, Objective>::set_descriptor_impl(const objective_t& descriptor) const {
+    return impl_->desc_ = std::make_shared<Objective>(descriptor);
+}
+
+
+template class ONEDAL_EXPORT descriptor_base<task::logloss, logloss_objective::descriptor<float>>;
+template class ONEDAL_EXPORT descriptor_base<task::logloss, logloss_objective::descriptor<double>>;
+
+} // namespace v1
+
+} // namespace oneapi::dal::objective_function::detail

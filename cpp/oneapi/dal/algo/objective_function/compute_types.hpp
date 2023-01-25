@@ -72,38 +72,12 @@ public:
         return *this;
     }
 
-    auto& set_value_placeholder(homogen_table_builder& placeholder) {
-        set_value_placeholder_impl(placeholder);
-        return *this;
-    }
-    auto& set_gradient_placeholder(homogen_table_builder& placeholder) {
-        set_gradient_placeholder_impl(placeholder);
-        return *this;
-    }
-    auto& set_hessian_placeholder(homogen_table_builder& placeholder) {
-        set_hessian_placeholder_impl(placeholder);
-        return *this;
-    }
-    auto& set_packed_gradient_placeholder(homogen_table_builder& placeholder) {
-        set_packed_gradient_placeholder_impl(placeholder);
-        return *this;
-    }
-    auto& set_packed_hessian_placeholder(homogen_table_builder& placeholder) {
-        set_packed_hessian_placeholder_impl(placeholder);
-        return *this;
-    }
+    
 
 protected:
     void set_data_impl(const table& value);
     void set_parameters_impl(const table& value);
     void set_responses_impl(const table& value);
-
-    void set_value_placeholder_impl(homogen_table_builder& placeholder);
-    void set_gradient_placeholder_impl(homogen_table_builder& placeholder);
-    void set_hessian_placeholder_impl(homogen_table_builder& placeholder);
-    void set_packed_gradient_placeholder_impl(homogen_table_builder& placeholder);
-    void set_packed_hessian_placeholder_impl(homogen_table_builder& placeholder);
-
 
 private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
@@ -127,6 +101,31 @@ public:
     const table& get_hessian() const;
     const table& get_packed_gradient() const;
     const table& get_packed_hessian() const;
+
+    auto& set_value(const table& value) {
+        set_value_impl(value);
+        return *this;
+    }
+
+    auto& set_gradient(const table& value) {
+        set_gradient_impl(value);
+        return *this;
+    }
+
+    auto& set_hessian(const table& value) {
+        set_hessian_impl(value);
+        return *this;
+    }
+
+    auto& set_packed_gradient(const table& value) {
+        set_packed_gradient_impl(value);
+        return *this;
+    }
+
+    auto& set_packed_hessian(const table& value) {
+        set_packed_hessian_impl(value);
+        return *this;
+    }
 
     
     const result_option_id& get_result_options() const;
