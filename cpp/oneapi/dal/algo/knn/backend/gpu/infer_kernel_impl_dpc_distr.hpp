@@ -69,7 +69,7 @@ namespace oneapi::dal::knn::backend {
 template <typename Float, typename Task>
 class knn_callback_distr {
     using dst_t = Float;
-    using idx_t = std::int64_t;
+    using idx_t = std::int32_t; //TODO
     using res_t = response_t<Task, Float>;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
     using selc_t = pr::kselect_by_rows<Float>;
@@ -249,13 +249,13 @@ public:
 
         auto actual_min_dist_copy_dest = part_distances_.get_row_slice(start_index, middle_index);
         auto current_min_dist_dest = part_distances_.get_row_slice(middle_index, end_index);
-        copy_actual_dist_event = pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, treat_event);
-        copy_current_dist_event = pr::copy(queue_, current_min_dist_dest, inp_distances, treat_event);
+        copy_actual_dist_event = pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, {treat_event});
+        copy_current_dist_event = pr::copy(queue_, current_min_dist_dest, inp_distances, {treat_event});
         
         auto actual_min_indc_copy_dest = part_indices_.get_row_slice(start_index, middle_index);
         auto current_min_indc_dest = part_indices_.get_row_slice(middle_index, end_index);
-        copy_actual_indc_event = pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, treat_event);
-        copy_current_indc_event = pr::copy(queue_, current_min_indc_dest, inp_indices, treat_event);
+        copy_actual_indc_event = pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, {treat_event});
+        copy_current_indc_event = pr::copy(queue_, current_min_indc_dest, inp_indices, {treat_event});
 
         auto kselect_block = part_distances_.get_row_slice(first, last);
         auto selt_event = select(queue_,
@@ -525,7 +525,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     std::int32_t block_count = nodes.size();
 
-    auto train_block_queue = pr::split_dataset(queue, train, block_size, deps);
+    auto train_block_queue = pr::split_dataset<Float, torder>(queue, train, block_size, deps);
 
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
@@ -589,7 +589,8 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     
     for(auto block_number = 0; block_number < block_count; block_number++) {
         // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
-        auto current_block = train_block_queue.pop_front();
+        auto current_block = train_block_queue.front();
+	train_block_queue.pop();
         auto block_index = (block_number + first_block_index) % block_count;
         auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
 
@@ -608,9 +609,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             using search_t = pr::search_engine<Float, dst_t, torder>;
 
             const dst_t dist{ queue };
-            const search_t search{ queue, current_block, tbcount, dist };
+            const search_t search{ queue, actual_current_block, tbcount, dist };
             //search.reset_train_data(actual_current_block, tbcount);
-            next_event = search(query, callback, qbcount, kcount, { next_event });
+            next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
 
         if (is_chebyshev_distance) {
@@ -618,9 +619,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             using search_t = pr::search_engine<Float, dst_t, torder>;
 
             const dst_t dist{ queue };
-            const search_t search{ queue, current_block, tbcount, dist };
+            const search_t search{ queue, actual_current_block, tbcount, dist };
             //search.reset_train_data(actual_current_block, tbcount);
-            next_event = search(query, callback, qbcount, kcount, { next_event });
+            next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
 
         if (is_euclidean_distance) {
@@ -630,9 +631,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             callback.set_euclidean_distance(true);
 
             const dst_t dist{ queue };
-            const search_t search{ queue, current_block, tbcount, dist };
+            const search_t search{ queue, actual_current_block, tbcount, dist };
             //search.reset_train_data(actual_current_block, tbcount);
-            next_event = search(query, callback, qbcount, kcount, { next_event });
+            next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
         else if (is_minkowski_distance) {
             using met_t = pr::lp_metric<Float>;
@@ -640,9 +641,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             using search_t = pr::search_engine<Float, dst_t, torder>;
 
             const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
-            const search_t search{ queue, current_block, tbcount, dist };
+            const search_t search{ queue, actual_current_block, tbcount, dist };
             //search.reset_train_data(actual_current_block, tbcount);
-            next_event = search(query, callback, qbcount, kcount, { next_event });
+            next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
         
         //const search_t search{ queue, train, tbcount, dist };
