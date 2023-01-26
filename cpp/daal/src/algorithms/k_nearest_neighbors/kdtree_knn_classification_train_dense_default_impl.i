@@ -610,8 +610,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                                                                                         size_t subSampleCount16,
                                                                                                         algorithmFpType value)
 {
-#if (__CPUID__(DAAL_CPU) >= __avx__) && (__FPTYPE__(DAAL_FPTYPE) == __float__) \
-    && (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) \
+#if (__CPUID__(DAAL_CPU) >= __avx__) && (__FPTYPE__(DAAL_FPTYPE) == __float__) && (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) \
     && !defined(SYCL_LANGUAGE_VERSION)
 
     __m256 vValue = _mm256_set1_ps(value);
