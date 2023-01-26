@@ -293,6 +293,9 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     "-pass-exit-codes",
                 ) +
                 (
+                    ["-no-cilk", "-static-intel"] if reqs.compiler_id == "icc" else []
+                ) +
+                (
                     ["-static-intel"] if reqs.compiler_id in ["icx", "icpx"] else []
                 ) +
                 bin_search_flag_cc + link_opts,
