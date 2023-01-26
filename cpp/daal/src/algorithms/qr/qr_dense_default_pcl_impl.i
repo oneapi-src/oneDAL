@@ -24,7 +24,7 @@
 #ifndef __QR_KERNEL_DEFAULT_PCL_IMPL_I__
 #define __QR_KERNEL_DEFAULT_PCL_IMPL_I__
 
-#if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+#if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
 
     #include "immintrin.h"
 

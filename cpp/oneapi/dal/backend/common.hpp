@@ -23,7 +23,7 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-#if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) & !defined(SYCL_LANGUAGE_VERSION)
+#if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
 #define PRAGMA_IVDEP         _Pragma("ivdep")
 #define PRAGMA_VECTOR_ALWAYS _Pragma("vector always")
 #else

@@ -24,7 +24,7 @@
 #include "tsne_gradient_descent_kernel.h"
 #include "tsne_gradient_descent_impl.i"
 
-#if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+#if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
     #if (__CPUID__(DAAL_CPU) == __avx512__)
 
         #include <immintrin.h>
