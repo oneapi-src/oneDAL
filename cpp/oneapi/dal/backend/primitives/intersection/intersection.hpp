@@ -43,7 +43,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
     return total;
 }
 
-#if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+#if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) & !defined(SYCL_LANGUAGE_VERSION)
 ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     return _popcnt32(x);
 }
