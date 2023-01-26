@@ -17,7 +17,6 @@
 lnx_cc_common_flags = [
     "-fwrapv",
     "-fstack-protector-strong",
-    "-fno-strict-overflow",
     "-fno-delete-null-pointer-checks",
     "-Werror",
     "-Wformat",
@@ -48,6 +47,11 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
                 "-mGLOB_freestanding=TRUE",
                 "-mCG_no_libirc=TRUE",
             ]
+        if compiler_id == "icx" and category == "common":
+            flags = flags + [
+                "-qopenmp-simd",
+                "-no-intel-lib=libirc",
+            ]
         if compiler_id == "icpx":
             flags = flags + ["-fsycl"]
         if compiler_id == "icpx" and category == "pedantic":
@@ -55,6 +59,8 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
             flags = flags + ["-Wno-unused-command-line-argument"]
         if compiler_id == "gcc" or compiler_id == "icpx":
             flags = flags + ["-Wno-gnu-zero-variadic-macro-arguments"]
+        if compiler_id not in ["icx", "icpx"]:
+            flags = flags + ["-fno-strict-overflow"]
         return flags
     fail("Unsupported OS")
 
@@ -73,7 +79,7 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         sse42 = ["-xSSE4.2"]
         avx2 = ["-xCORE-AVX2"]
         avx512 = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
-    elif compiler_id == "icpx":
+    elif compiler_id in ["icx", "icpx"]:
         sse2 = ["-march=nocona"]
         sse42 = ["-march=nehalem"]
         avx2 = ["-march=haswell"]
