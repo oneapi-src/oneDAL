@@ -369,63 +369,80 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
                                                                             const algorithmFPType minWeightLeaf, algorithmFPType totalWeights,
                                                                             engines::internal::BatchBaseImpl * engineImpl) const
 {
-    //init variables
-    //::std::cout << "Ordered\n";
-    size_t i;
+    _impLeft.init(_nClasses);
+    _impRight = curImpurity;
+
     const bool bBestFromOtherFeatures      = isPositive<algorithmFPType, cpu>(split.impurityDecrease);
     algorithmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : algorithmFPType(-1);
 
-    bool bFound                  = false;
-    IndexType iBest              = -1;
-    algorithmFPType leftWeights  = algorithmFPType(0);
-    algorithmFPType rightWeights = algorithmFPType(0);
-    algorithmFPType v            = algorithmFPType(0);
-    double lW, rW; //needed to interface with calcImpurity without changing it...
+    bool bFound                 = false;
+    IndexType iBest             = -1;
+    algorithmFPType leftWeights = algorithmFPType(0);
+    algorithmFPType v           = algorithmFPType(0);
+    algorithmFPType idx;
+    size_t i;
+    //  double lW, rW; //needed to interface with calcImpurity without changing it...
 
     //select random split index
-    if (n - nMinSplitPart + 1 >= nMinSplitPart)
+    if (featureVal[n - nMinSplitPart] > featureVal[nMinSplitPart])
     {
-        RNGs<size_t, cpu> rng;
-        rng.uniform(1, &i, engineImpl->getState(), nMinSplitPart, n - nMinSplitPart + 1); //how to call this
+        RNGs<algorithmFPType, cpu> rng;
+        rng.uniform(1, &idx, engineImpl->getState(), featureVal[nMinSplitPart],
+                    featureVal[n - nMinSplitPart]); //find random value between minimum split parts
+        //DAAL_ASSERT(idx >= featureVal[nMinSplitPart]);
+        //DAAL_ASSERT(idx < featureVal[n-nMinSplitPart]);
     }
     else
     {
         return bFound;
     }
 
-    if (noWeights) //calculate Gini impurity for left and right
+    if (noWeights)
     {
-        calcImpurity<true>(aIdx, i, _impLeft, lW);
-        calcImpurity<true>(aIdx + i, n, _impRight, rW);
+        PRAGMA_VECTOR_ALWAYS
+        for (i = 0; featureVal[i] <= idx;
+             ++i) //maybe the featureVal[i] < idx becomes an expensive op, maybe the index for switch should be found via binary search before
+        {
+            const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
+            _impLeft.hist[iClass] += algorithmFPType(1);
+            _impRight.hist[iClass] -= algorithmFPType(1);
+        }
+        leftWeights = double(i);
     }
     else
     {
-        calcImpurity<false>(aIdx, i, _impLeft, lW);
-        calcImpurity<false>(aIdx + i, n, _impRight, rW); //rightWeights is generally unused
+        PRAGMA_VECTOR_ALWAYS
+        for (i = 0; featureVal[i] <= idx; ++i)
+        {
+            const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
+            _impLeft.hist[iClass] += this->_aWeights[aIdx[i]].val;
+            _impRight.hist[iClass] -= this->_aWeights[aIdx[i]].val;
+            leftWeights += this->_aWeights[aIdx[i]].val;
+        }
     }
-    leftWeights  = lW; //double to float can possibly occur here
-    rightWeights = rW;
+    calcGini(leftWeights, _impLeft);
+    calcGini(totalWeights - leftWeights, _impRight);
 
 #ifdef DEBUG_CHECK_IMPURITY
     checkImpurity(aIdx, leftWeights, _impLeft);
-    checkImpurity(aIdx + i, totalWeights - leftWeights, _impRight);
+    checkImpurity(aIdx + idx, totalWeights - leftWeights, _impRight);
 #endif
     //check minWeightLeaf conditions for left and right
-    if ((leftWeights > minWeightLeaf) && (rightWeights > minWeightLeaf)) //it is a valid split with enought leaf weights
+    if ((leftWeights > minWeightLeaf) && ((totalWeights - leftWeights) > minWeightLeaf)) //it is a valid split with enought leaf weights
     {
         //check if bFound condition below
         if (!isPositive<algorithmFPType, cpu>(_impLeft.var)) _impLeft.var = 0;   //set left impurity to 0 if negative
         if (!isPositive<algorithmFPType, cpu>(_impRight.var)) _impRight.var = 0; //set right impurity to 0 if negative
 
-        v = leftWeights * _impLeft.var + rightWeights * _impRight.var; //calculate overall weighted Gini index
+        v = leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var; //calculate overall weighted Gini index
 
         if (isGreater<algorithmFPType, cpu>(vBestFromOtherFeatures, v)) //if it has a better weighted gini overwite parameters
         {
             bFound             = true;
             split.left.var     = _impLeft.var;
             split.left.hist    = _impLeft.hist;
-            iBest              = i;
-            split.nLeft        = i;
+            iBest              = i; //because of the for loop i = idx + 1. (from the last i++)
+            split.nLeft        = i; //meaning that nLeft is correct, and split.featureValue will be set correctly
             split.leftWeights  = leftWeights;
             split.totalWeights = totalWeights;
         }
@@ -627,14 +644,12 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
     algorithmFPType leftWeights = 0.;
     int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
 
-
     size_t minidx = 0;
     size_t maxidx = nDiffFeatMax - 1;
 
-    while((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx])) minidx++;
+    while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx])) minidx++;
 
-    while((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx])) maxidx--;
-
+    while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx])) maxidx--;
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
 
@@ -673,9 +688,10 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
         }
     }
 
-    if(!((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart) || (leftWeights < minWeightLeaf)))
-
+    if (!((nLeft == n) //last split
+          || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
+          || (leftWeights < minWeightLeaf)))
+    {
         auto histTotal           = curImpurity.hist.get();
         algorithmFPType sumLeft  = 0;
         algorithmFPType sumRight = 0;
@@ -706,7 +722,6 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
     }
 
     return idxFeatureBestSplit;
-
 }
 
 template <typename algorithmFPType, CpuType cpu>

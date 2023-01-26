@@ -43,11 +43,12 @@ const size_t categoricalFeaturesIndices[] = { 2 };
 const size_t nFeatures = 3; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
-const size_t nTrees = 10;
+const size_t nTrees = 30;
 const size_t minObservationsInLeafNode = 8;
 const size_t minObservationsInSplitNode = 16;
 const double minWeightFractionInLeafNode = 0.0; /* It must be in segment [0.0, 0.5] */
 const double minImpurityDecreaseInSplitNode = 0.0; /* It must be greater than or equal to 0.0 */
+const bool boot = false;
 
 const size_t nClasses = 5; /* Number of classes */
 
@@ -85,8 +86,9 @@ training::ResultPtr trainModel() {
     algorithm.parameter().minWeightFractionInLeafNode = minWeightFractionInLeafNode;
     algorithm.parameter().minImpurityDecreaseInSplitNode = minImpurityDecreaseInSplitNode;
     algorithm.parameter().varImportance = algorithms::decision_forest::training::MDI;
-    algorithm.parameter().resultsToCompute =
-        algorithms::decision_forest::training::computeOutOfBagError;
+    //algorithm.parameter().resultsToCompute =
+    //    algorithms::decision_forest::training::computeOutOfBagError;
+    algorithm.parameter().bootstrap = boot;
 
     /* Build the decision forest classification model */
     algorithm.compute();
@@ -95,7 +97,7 @@ training::ResultPtr trainModel() {
     training::ResultPtr trainingResult = algorithm.getResult();
     printNumericTable(trainingResult->get(training::variableImportance),
                       "Variable importance results: ");
-    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
+    //printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
     return trainingResult;
 }
 
