@@ -465,18 +465,18 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
         {
             if (bBestFromOtherFeatures && isGreater<algorithmFPType, cpu>(v, vBestFromOtherFeatures))
             {
-                ::std::cout << "Vnope ";
+                //::std::cout << "Vnope ";
                 if (featureVal[i] < last) continue;
                 break;
             }
         }
         else if (isGreater<algorithmFPType, cpu>(v, vBest))
         {
-            ::std::cout << "nopee ";
+            //::std::cout << "nopee ";
             if (featureVal[i] < last) continue;
             break;
         }
-        std::cout << "test ";
+        //std::cout << "test ";
         bFound             = true;
         vBest              = v;
         split.left.var     = _impLeft.var;
@@ -487,6 +487,13 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
         split.totalWeights = totalWeights;
         if (featureVal[i] < last) continue;
     }
+
+    algorithmFPType fl, lW, tW, fr;
+    fl = _impLeft.var;
+    fr = _impRight.var;
+    lW = leftWeights;
+    tW = totalWeights;
+
 
     if (bFound)
     {
@@ -503,9 +510,9 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
         DAAL_ASSERT((n - split.nLeft) >= nMinSplitPart);
         DAAL_ASSERT(split.leftWeights >= minWeightLeaf);
         DAAL_ASSERT((split.totalWeights - split.leftWeights) >= minWeightLeaf);
-    }*/
-    //return bFound;
-   
+    }
+    //return bFound;*/
+    
     _impLeft.init(_nClasses);
     _impRight = curImpurity;
 
@@ -518,16 +525,16 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     algorithmFPType v           = algorithmFPType(0);
     algorithmFPType idx;
     leftWeights = 0;
-    
+
     size_t i;
     //  double lW, rW; //needed to interface with calcImpurity without changing it...
 
     //select random split index
-    if (featureVal[n - nMinSplitPart - 1] > featureVal[nMinSplitPart])
+    if (featureVal[n - nMinSplitPart] > featureVal[nMinSplitPart])
     {
         RNGs<algorithmFPType, cpu> rng;
         rng.uniform(1, &idx, engineImpl->getState(), featureVal[nMinSplitPart],
-                    featureVal[n - nMinSplitPart-1]); //find random value between minimum split parts
+                    featureVal[n - nMinSplitPart]); //find random value between minimum split parts
         //DAAL_ASSERT(idx >= featureVal[nMinSplitPart]);
         //DAAL_ASSERT(idx < featureVal[n-nMinSplitPart]);
     }
@@ -544,7 +551,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
         {
             const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
             _impLeft.hist[iClass] += algorithmFPType(1);
-            _impRight.hist[iClass] -= algorithmFPType(1);
+            //_impRight.hist[iClass] -= algorithmFPType(1);
         }
         leftWeights = i;
     }
@@ -555,10 +562,15 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
         {
             const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
             _impLeft.hist[iClass] += this->_aWeights[aIdx[i]].val;
-            _impRight.hist[iClass] -= this->_aWeights[aIdx[i]].val;
+            //_impRight.hist[iClass] -= this->_aWeights[aIdx[i]].val;
             leftWeights += this->_aWeights[aIdx[i]].val;
         }
     }
+
+    for(size_t iClass=0; iClass < _nClasses; ++iClass){
+        _impRight.hist[iClass] -= _impLeft.hist[iClass];
+    }
+
     calcGini(leftWeights, _impLeft);
     calcGini(totalWeights - leftWeights, _impRight);
 
@@ -568,18 +580,24 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     checkImpurity(aIdx + i-1, totalWeights - leftWeights, _impRight);
 #endif
     //check minWeightLeaf conditions for left and right
-    if ((leftWeights > minWeightLeaf) && ((totalWeights - leftWeights) > minWeightLeaf)) //it is a valid split with enought leaf weights
+    //bool bFound2 = false;
+    //DAAL_ASSERT(i2 == i);
+    if ((leftWeights >= minWeightLeaf) && ((totalWeights - leftWeights) >= minWeightLeaf)) //it is a valid split with enought leaf weights
     {
         //check if bFound condition below
         if (!isPositive<algorithmFPType, cpu>(_impLeft.var)) _impLeft.var = 0;   //set left impurity to 0 if negative
         if (!isPositive<algorithmFPType, cpu>(_impRight.var)) _impRight.var = 0; //set right impurity to 0 if negative
 
-        algorithmFPType v = leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var; //calculate overall weighted Gini index
-        //std::cout << v2-v << " " << idx << " " << featureVal[i] << " " << featureVal[i-1] << " " << featureVal[i2] << " " << featureVal[i2-1] << std::endl;
-        //DAAL_ASSERT(i2 == i);
+        algorithmFPType v2 = leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var; //calculate overall weighted Gini index
+        //std::cout << v << " " << v2 << vBestFromOtherFeatures << std::endl;// << idx << " " << featureVal[i] << " " << featureVal[i-1] << " " << featureVal[i2] << " " << featureVal[i2-1] << std::endl;
+        //if( isZero<algorithmFPType,cpu>(vBestFromOtherFeatures-v)) std::cout << vBestFromOtherFeatures << " " << "HELLO????\n";
 
-        if (!bBestFromOtherFeatures || isGreater<algorithmFPType, cpu>(vBestFromOtherFeatures, v)) //if it has a better weighted gini overwite parameters
-        {   //std::cout << "active\n";
+        if (!(bBestFromOtherFeatures && isGreater<algorithmFPType, cpu>(v, vBestFromOtherFeatures))) //if it has a better weighted gini overwite parameters
+        {   //std::cout << split.leftWeights - leftWeights << std::endl;
+            //if(!bFound){
+
+            //    std::cout << "t" << v - v2 << std::endl;
+            //}
             bFound             = true;
             split.left.var     = _impLeft.var;
             split.left.hist    = _impLeft.hist;
@@ -588,8 +606,24 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
             split.leftWeights  = leftWeights;
             split.totalWeights = totalWeights;
         }
+        //else
+        //{   if(bFound)
+            //{
+            //    std::cout << "f" << v -( leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var) << std::endl;
+            //}
+            //DAAL_ASSERT(bFound==false);
+        //}
     }
 
+    //DAAL_ASSERT(bFound2 == bFound)
+    //DAAL_ASSERT(((fr-_impRight.var) < .001 ) && ((fr-_impRight.var) > -.001 ));
+    //DAAL_ASSERT(((fl-_impLeft.var) < .001 ) && ((fl-_impLeft.var) > -.001 ));
+    //DAAL_ASSERT(((lW-leftWeights) < .001) && ((lW-leftWeights) > -.001));
+    //DAAL_ASSERT(((tW-totalWeights) < .001) && ((tW-totalWeights) > -.001));
+    
+
+
+    
     if (bFound) //if new best found
     {
         DAAL_ASSERT(iBest > 0);
