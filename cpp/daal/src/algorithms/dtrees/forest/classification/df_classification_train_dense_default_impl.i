@@ -25,8 +25,6 @@
 #ifndef __DF_CLASSIFICATION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __DF_CLASSIFICATION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-
-
 #include "src/algorithms/dtrees/forest/df_train_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/classification/df_classification_train_kernel.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
@@ -370,7 +368,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
                                                                             const ImpurityData & curImpurity, TSplitData & split,
                                                                             const algorithmFPType minWeightLeaf, algorithmFPType totalWeights,
                                                                             engines::internal::BatchBaseImpl * engineImpl) const
-{    
+{
     _impLeft.init(_nClasses);
     _impRight = curImpurity;
 
@@ -382,7 +380,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     algorithmFPType leftWeights = algorithmFPType(0);
     algorithmFPType v           = algorithmFPType(0);
     algorithmFPType idx;
-    
+
     size_t i;
     //  double lW, rW; //needed to interface with calcImpurity without changing it...
 
@@ -391,13 +389,12 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     rng.uniform(1, &idx, engineImpl->getState(), featureVal[0],
                 featureVal[n - 1]); //this strategy follows sklearn's implementation
 
-
-    if (idx >= featureVal[n - nMinSplitPart] || idx < featureVal[nMinSplitPart-1]) //check if sufficient samples will exist, and not a constant feature
+    if (idx >= featureVal[n - nMinSplitPart]
+        || idx < featureVal[nMinSplitPart - 1]) //check if sufficient samples will exist, and not a constant feature
     {
         return bFound;
     }
-        //place binary search here
-
+    //place binary search here
 
     if (noWeights)
     {
@@ -421,17 +418,17 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
         }
     }
 
-    for(size_t iClass=0; iClass < _nClasses; ++iClass){
+    for (size_t iClass = 0; iClass < _nClasses; ++iClass)
+    {
         _impRight.hist[iClass] -= _impLeft.hist[iClass];
     }
 
     calcGini(leftWeights, _impLeft);
     calcGini(totalWeights - leftWeights, _impRight);
 
-
 #ifdef DEBUG_CHECK_IMPURITY
     checkImpurity(aIdx, leftWeights, _impLeft);
-    checkImpurity(aIdx + i-1, totalWeights - leftWeights, _impRight);
+    checkImpurity(aIdx + i - 1, totalWeights - leftWeights, _impRight);
 #endif
 
     if ((leftWeights >= minWeightLeaf) && ((totalWeights - leftWeights) >= minWeightLeaf)) //it is a valid split with enought leaf weights
@@ -442,8 +439,9 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
 
         v = leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var; //calculate overall weighted Gini index
 
-        if (!(bBestFromOtherFeatures && isGreater<algorithmFPType, cpu>(v, vBestFromOtherFeatures))) //if it has a better weighted gini overwite parameters
-        {   
+        if (!(bBestFromOtherFeatures
+              && isGreater<algorithmFPType, cpu>(v, vBestFromOtherFeatures))) //if it has a better weighted gini overwite parameters
+        {
             bFound             = true;
             split.left.var     = _impLeft.var;
             split.left.hist    = _impLeft.hist;
@@ -453,7 +451,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
             split.totalWeights = totalWeights;
         }
     }
-    
+
     if (bFound) //if new best found
     {
         DAAL_ASSERT(iBest > 0);
@@ -481,22 +479,21 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(
                                                                                 const algorithmFPType totalWeights,
                                                                                 engines::internal::BatchBaseImpl * engineImpl) const
 {
-    
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     _impRight.init(_nClasses);
     bool bFound                       = false;
     const bool bBestFromOtherFeatures = !(split.impurityDecrease < 0);
     algorithmFPType vBest             = -1;
     IndexType iBest                   = -1;
-    algorithmFPType min = featureVal[0];
-    algorithmFPType max = featureVal[0];
+    algorithmFPType min               = featureVal[0];
+    algorithmFPType max               = featureVal[0];
     algorithmFPType idx;
     algorithmFPType first;
 
-    for(size_t i = 1; i < n; ++i)
+    for (size_t i = 1; i < n; ++i)
     {
-         max = featureVal[i] > max ? featureVal[i] : max;
-         min = featureVal[i] < min ? featureVal[i] : min;
+        max = featureVal[i] > max ? featureVal[i] : max;
+        min = featureVal[i] < min ? featureVal[i] : min;
     }
 
     first = min;
@@ -504,16 +501,16 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(
     RNGs<algorithmFPType, cpu> rng;
     rng.uniform(1, &idx, engineImpl->getState(), min, max); //this strategy follows sklearn's implementation
 
-    for(size_t i = 1; i < n; ++i)
+    for (size_t i = 1; i < n; ++i)
     {
-         first = featureVal[i] < idx && featureVal[i] > first ? featureVal[i] : first;
+        first = featureVal[i] < idx && featureVal[i] > first ? featureVal[i] : first;
     }
     //first is the closest categorical feature less than the idx O(n) computation as ordering of featureVal is unknown.
 
     const algorithmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : -1;
     for (size_t i = 0; i < n - nMinSplitPart;)
     {
-        if(!(featureVal[i] == first))
+        if (featureVal[i] != first)
         {
             i++;
             continue;
@@ -529,7 +526,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(
         //there is an ordering to categorical features shown here that isn't described
         //its not clear if featureVal[i] == first will occur at a later point
         //but the for loop assumes that they could be grouped together in the array
-        for (++i; (i < n) && (featureVal[i] == first); ++count, ++i) 
+        for (++i; (i < n) && (featureVal[i] == first); ++count, ++i)
         {
             weights = this->_aWeights[aIdx[i]].val;
             xi      = this->_aResponse[aIdx[i]].val;
