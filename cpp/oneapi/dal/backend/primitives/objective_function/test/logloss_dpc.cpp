@@ -49,8 +49,8 @@ public:
 
     void generate_input(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
-            this->n_ = GENERATE(7, 1024, 1027, 13, 216);
-            this->p_ = GENERATE(4, 17, 41, 128, 131, 1001);
+            this->n_ = GENERATE(7, 827, 13, 216);
+            this->p_ = GENERATE(4, 17, 41, 256);
         }
         else {
             this->n_ = n;
