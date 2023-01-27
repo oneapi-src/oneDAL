@@ -10,7 +10,8 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
-        "@onedal//cpp/oneapi/dal/backend/primitives:objective_function",
+        "@onedal//cpp/oneapi/dal/algo:logloss_objective",
+        #"@onedal//cpp/oneapi/dal/backend/primitives:objective_function",
     ],
     # extra_deps = [
     #    "@onedal//cpp/daal/src/algorithms/objective_function:kernel",
@@ -30,6 +31,19 @@ dal_test_suite(
     ],
 )
 '''
+
+dal_test_suite(
+    name = "tests",
+    private = True,
+    framework = "catch2",
+    #compile_as = [ "dpc++" ],
+    srcs = glob([
+        "test/*.cpp",
+    ]),
+    dal_deps = [
+        ":objective_function",
+    ],
+)
 
 dal_test_suite(
     name = "gpu_tests",

@@ -66,7 +66,7 @@ template <typename Method>
 constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense_batch>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::logloss>;
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::compute>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {

@@ -22,8 +22,8 @@
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 // #include "oneapi/dal/backend/primitives/objective_function.hpp"
-#include "oneapi/dal/backend/primitives/stat.hpp"
-#include "oneapi/dal/backend/primitives/blas.hpp"
+// #include "oneapi/dal/backend/primitives/stat.hpp"
+// #include "oneapi/dal/backend/primitives/blas.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -66,7 +66,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(const detail::descri
     auto result = compute_result<task_t>.set_result_options(desc.get_result_options());
 
     auto probabilities = ndarray<float_t, 1>::empty(q_, {n + 1}, sycl::usm::alloc::device);
-
+    /*
     sycl::event prob_e = compute_probabilities(q_, params_nd, data_nd, probabilities, {});
 
     if (desc.get_result_options().test(result_options::hessian)) {
@@ -83,6 +83,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(const detail::descri
         result.set_hessian(homogen_table::wrap(out_hessian.flatten(q_, { hes_event }), p + 1, p + 1));
     }
     return result;
+    */
 }
 
 template class compute_kernel_dense_impl<float>;

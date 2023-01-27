@@ -67,7 +67,7 @@ template <typename Method>
 constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense_batch>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::logloss>;
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::compute>;
 
 template <typename Objective>
 constexpr bool is_valid_objective_v = dal::detail::is_one_of_v<Objective, logloss_objective::descriptor<float>, logloss_objective::descriptor<double>>;
@@ -133,6 +133,11 @@ public:
     using task_t = Task;
     using objective_t = Objective;
 
+    explicit descriptor(const Objective& desc) {
+        set_descriptor(desc);
+    }
+
+
     /// Choose which results should be computed and returned.
     result_option_id get_result_options() const {
         return base_t::get_result_options();
@@ -141,56 +146,19 @@ public:
     auto& set_result_options(const result_option_id& value) {
         base_t::set_result_options_impl(value);
         return *this;
+    }
+
+    auto& set_descriptor(const Objective& value) {
+        base_t::set_descriptor_impl(value);
+        return *this;
+    }
+
+    Objective get_descriptor() {
+        return base_t::get_descriptor();
     } 
 };
 
 
-template <typename Float = float,
-          typename Method = method::by_default,
-          typename Task = task::by_default,
-          typename Objective = logloss_objective::descriptor<Float>>
-
-
-class descriptor : public detail::descriptor_base<Task, Objective> {
-    static_assert(detail::is_valid_float_v<Float>);
-    static_assert(detail::is_valid_method_v<Method>);
-    static_assert(detail::is_valid_task_v<Task>);
-
-    
-
-public:
-    using float_t = Float;
-    using method_t = Method;
-    using task_t = Task;
-
-    /// Creates a new instance of the class with the default property values.
-    explicit descriptor(double l1_regularization_coefficient = 0.0, 
-                        double l2_regularization_coefficient = 0.0) {
-        set_l1_regularization_coefficient(l1_regularization_coefficient);
-        set_l2_regularization_coefficient(l2_regularization_coefficient);
-
-    }
-
-    double get_l1_regularization_coefficient() const {
-        return base_t::get_l1_regularization_coefficient();
-    }
-
-    double get_l2_regularization_coefficient() const {
-        return base_t::get_l2_regularization_coefficient();
-    }
-
-    auto& set_l1_regularization_coefficient(double value) {
-        base_t::set_l1_regularization_coefficient_impl(value);
-        return *this;
-    }
-    
-    auto& set_l2_regularization_coefficient(double value) {
-        base_t::set_l2_regularization_coefficient_impl(value);
-        return *this;
-    }
-
-      
-};
 
 } // namespace v1
 

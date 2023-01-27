@@ -24,7 +24,7 @@ namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
-    explicit descriptor_impl(double l1_regularization_coefficient = 0
+    explicit descriptor_impl(double l1_regularization_coefficient = 0,
                              double l2_regularization_coefficient = 0) : 
                              l1_regularization_coefficient(l1_regularization_coefficient),
                              l2_regularization_coefficient(l2_regularization_coefficient) {}
