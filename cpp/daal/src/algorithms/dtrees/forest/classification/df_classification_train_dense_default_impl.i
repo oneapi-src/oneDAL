@@ -503,7 +503,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(
 
     for (size_t i = 1; i < n; ++i)
     {
-        first = featureVal[i] < idx && featureVal[i] > first ? featureVal[i] : first;
+        first = featureVal[i] <= idx && featureVal[i] > first ? featureVal[i] : first;
     }
     //first is the closest categorical feature less than the idx O(n) computation as ordering of featureVal is unknown.
 
