@@ -633,6 +633,21 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
 
     const sycl::nd_range<2> nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
+    
+    auto ftr_random_select = pr::ndarray<Index, 1>::empty({ 2 * selected_ftr_count });
+    auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
+
+    pr::rng<Index> rn_gen;
+    rn_gen.uniform_without_replacement( // Select bin treshold randomly
+        selected_ftr_count,
+        ftr_random_select_ptr,
+        ftr_random_select_ptr + selected_ftr_count,
+        0,
+        0,
+        selected_ftr_count);
+
+    auto ftr_rnd_trshld = ftr_random_select.to_device(queue);
+    auto ft_rnd_ptr = ftr_rnd_trshld.get_data();
 
     sycl::event last_event;
 
@@ -705,7 +720,9 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
                 Float ts_right_imp = Float(0);
                 Float ts_imp_dec = Float(0);
 
-                for (Index ts_ftr_bin = 0; ts_ftr_bin < ts_ftr_bin_count; ++ts_ftr_bin) {
+                Index ts_ftr_bin = ft_rnd_ptr[ftr_idx] % ts_ftr_bin_count; // Select Randomly bin 
+
+                // for (Index ts_ftr_bin = 0; ts_ftr_bin < ts_ftr_bin_count; ++ts_ftr_bin) {
                     const Index bin_ofs = ts_ftr_bin * hist_prop_count;
 
                     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -778,7 +795,7 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
                                                  imp_threshold,
                                                  min_obs_leaf);
                     }
-                }
+                // }
             }
 
             if constexpr (std::is_same_v<Task, task::classification>) {
