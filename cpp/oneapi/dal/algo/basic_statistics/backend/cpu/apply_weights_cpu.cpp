@@ -28,8 +28,8 @@ std::int64_t propose_threading_block_size(std::int64_t row_count, std::int64_t c
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(col_count > 0);
     constexpr idx_t max_block_mem_size = 512 * 1024;
-    const idx_t block = max_block_mem_size / (col_count * sizeof(Float));
-    return std::max<idx_t>(std::min<idx_t>(row_count, 128l), block);
+    const idx_t block_of_rows_size = max_block_mem_size / (col_count * sizeof(Float));
+    return std::max<idx_t>(std::min<idx_t>(row_count, idx_t(128l)), block_of_rows_size);
 }
 
 template <typename Cpu, typename Float>
