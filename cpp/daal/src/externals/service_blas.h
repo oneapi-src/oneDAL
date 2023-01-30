@@ -50,7 +50,7 @@ void Helper<fpType, cpu>::copy(fpType * dsc, const fpType * src, const size_t n)
     }
 }
 
-#if defined(__AVX512F__)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <>
 void Helper<float, avx512>::copy(float * dsc, const float * src, const size_t n)

@@ -335,6 +335,7 @@ Common definitions
   defined(__ICL) // defined for Intel compiler. Has numeric value.
   defined(__INTEL_COMPILER) // defined for Intel compiler. Has numeric value.
   defined(__INTEL_LLVM_COMPILER) // defined for Intel LLVM compiler
+  defined(DAAL_INTEL_CPP_COMPILER) // defined for all Intel C++ compilers
   defined(_MSC_VER) // defined for Intel and MS compilers. Has numeric value.
 
 Statements

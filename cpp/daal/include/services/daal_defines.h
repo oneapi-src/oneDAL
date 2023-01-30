@@ -28,6 +28,10 @@
 
 #include <cstddef> // for size_t
 
+#if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
+    #define DAAL_INTEL_CPP_COMPILER
+#endif
+
 #if !(defined(_MSC_VER) || defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER))
     #define __int32 int
     #define __int64 long long int
