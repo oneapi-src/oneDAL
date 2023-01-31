@@ -174,6 +174,9 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     ctx.bootstrap_ = desc.get_bootstrap();
     ctx.max_tree_depth_ = desc.get_max_tree_depth();
 
+    ctx.splitter_mode_value = desc.get_splitter_mode();
+    ctx.seed = desc.get_seed();
+
     if constexpr (std::is_same_v<Task, task::classification>) {
         ctx.selected_ftr_count_ = desc.get_features_per_node() ? desc.get_features_per_node()
                                                                : std::sqrt(ctx.column_count_);
