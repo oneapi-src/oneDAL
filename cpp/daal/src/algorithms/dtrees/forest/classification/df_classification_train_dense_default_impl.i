@@ -382,7 +382,6 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     algorithmFPType idx;
 
     size_t i;
-    //  double lW, rW; //needed to interface with calcImpurity without changing it...
 
     //select random split index
     RNGs<algorithmFPType, cpu> rng;
@@ -394,13 +393,29 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     {
         return bFound;
     }
-    //place binary search here
+
+    //binary search to reduce computation, rather than O(n) vector lookups, we do a O(log(n)) index find
+    size_t mid;
+    size_t l = 0;
+    size_t r = n - 1;
+
+    while (l < r)
+    {
+        mid = l + (r - l) / 2;
+        if (featureVal[mid] > idx)
+        {
+            r = mid;
+        }
+        else
+        {
+            l = mid + 1;
+        }
+    }
 
     if (noWeights)
     {
         PRAGMA_VECTOR_ALWAYS
-        for (i = 0; featureVal[i] <= idx;
-             ++i) //maybe the featureVal[i] < idx becomes an expensive op, maybe the index for switch should be found via binary search before
+        for (i = 0; i < r; ++i)
         {
             const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
             _impLeft.hist[iClass] += algorithmFPType(1);
@@ -410,7 +425,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     else
     {
         PRAGMA_VECTOR_ALWAYS
-        for (i = 0; featureVal[i] <= idx; ++i)
+        for (i = 0; i < r; ++i)
         {
             const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
             _impLeft.hist[iClass] += this->_aWeights[aIdx[i]].val;
