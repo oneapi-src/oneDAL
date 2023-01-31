@@ -166,6 +166,9 @@ private:
 };
 
 template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
+class ndarray;
+
+template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
 class ndview : public ndarray_base<axis_count, order> {
     static_assert(!std::is_const_v<T>, "T must be non-const");
 
@@ -296,6 +299,11 @@ public:
     ndview get_col_slice(std::int64_t from_col, std::int64_t to_col) const {
         return this->t().get_row_slice(from_col, to_col).t();
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    ndarray<T, axis_count, order> to_host(sycl::queue& q, const event_vector& deps = {}) const;
+    ndarray<T, axis_count, order> to_device(sycl::queue& q, const event_vector& deps = {}) const;
+#endif
 
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event prefetch(sycl::queue& queue) const {
@@ -475,7 +483,7 @@ inline sycl::event fill(sycl::queue& q,
 }
 #endif
 
-template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
+template <typename T, std::int64_t axis_count, ndorder order>
 class ndarray : public ndview<T, axis_count, order> {
     template <typename, std::int64_t, ndorder>
     friend class ndarray;
@@ -750,30 +758,6 @@ public:
     }
 #endif
 
-#ifdef ONEDAL_DATA_PARALLEL
-    ndarray to_host(sycl::queue& q, const event_vector& deps = {}) const {
-        T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
-        dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps)
-            .wait_and_throw();
-        return wrap(host_ptr,
-                    this->get_shape(),
-                    dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
-    }
-#endif
-
-#ifdef ONEDAL_DATA_PARALLEL
-    ndarray to_device(sycl::queue& q, const event_vector& deps = {}) const {
-        ndarray dev = empty(q, this->get_shape(), sycl::usm::alloc::device);
-        dal::backend::copy_host2usm(q,
-                                    dev.get_mutable_data(),
-                                    this->get_data(),
-                                    this->get_count(),
-                                    deps)
-            .wait_and_throw();
-        return dev;
-    }
-#endif
-
     ndarray slice(std::int64_t offset, std::int64_t count, std::int64_t axis = 0) const {
         ONEDAL_ASSERT(order == ndorder::c, "Only C-order is supported");
         ONEDAL_ASSERT(axis == 0, "Non-zero axis is not supported");
@@ -848,6 +832,37 @@ private:
 
     shared_t data_;
 };
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename T, std::int64_t axis_count, ndorder order>
+ndarray<T, axis_count, order> ndview<T, axis_count, order>::to_host(
+    sycl::queue& q,
+    const event_vector& deps) const {
+    T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
+    dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps)
+        .wait_and_throw();
+    return ndarray<T, axis_count, order>::wrap(
+        host_ptr,
+        this->get_shape(),
+        dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
+}
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename T, std::int64_t axis_count, ndorder order>
+ndarray<T, axis_count, order> ndview<T, axis_count, order>::to_device(
+    sycl::queue& q,
+    const event_vector& deps) const {
+    auto dev = ndarray<T, axis_count, order>::empty(q, this->get_shape(), sycl::usm::alloc::device);
+    dal::backend::copy_host2usm(q,
+                                dev.get_mutable_data(),
+                                this->get_data(),
+                                this->get_count(),
+                                deps)
+        .wait_and_throw();
+    return dev;
+}
+#endif
 
 #ifdef ONEDAL_DATA_PARALLEL
 
