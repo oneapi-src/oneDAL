@@ -30,7 +30,6 @@
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/classification/df_classification_training_types_result.h"
-#include <iostream>
 
 #define OOBClassificationData size_t
 
@@ -100,7 +99,6 @@ public:
                                  const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
                                  engines::internal::BatchBaseImpl * engineImpl) const
     {
-        //::std::cout << "Feature\n";
         const bool noWeights = !this->_weights;
         if (noWeights)
         {
@@ -414,6 +412,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
 
     if (noWeights)
     {
+        PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (i = 0; i < r; ++i)
         {
@@ -424,6 +423,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     }
     else
     {
+        PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (i = 0; i < r; ++i)
         {
