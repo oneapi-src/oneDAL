@@ -38,7 +38,7 @@ template class OnlineContainer<DAAL_FPTYPE, sumDense, DAAL_CPU>;
 }
 namespace internal
 {
-template class LowOrderMomentsOnlineKernel<DAAL_FPTYPE, sumDense, DAAL_CPU>;
+template class DAAL_EXPORT LowOrderMomentsOnlineKernel<DAAL_FPTYPE, sumDense, DAAL_CPU>;
 }
 } // namespace low_order_moments
 } // namespace algorithms
