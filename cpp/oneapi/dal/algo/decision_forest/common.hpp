@@ -127,7 +127,7 @@ enum class voting_mode {
 /// Splitting strategy for decision forest
 enum class splitter_mode {
     best,
-    rendom
+    random
 };
 
 inline infer_mode operator|(infer_mode value_left, infer_mode value_right) {
