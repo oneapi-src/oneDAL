@@ -49,19 +49,15 @@ public:
 
     void general_checks(const te::dataframe& input_data, 
                         const te::dataframe& input_params, 
-                        const te::dataframe& input_responses, const te::table_id& data_table_id) {
+                        const te::dataframe& input_responses, const te::table_id& data_table_id,
+                        const obj_fun::result_option_id& compute_mode, double L1 = 0, double L2 = 0) {
         const table data = input_data.get_table(this->get_policy(), data_table_id);
         const table params = input_params.get_table(this->get_policy(), data_table_id);
         const table responses = input_responses.get_table(this->get_policy(), data_table_id);
 
         INFO("create descriptor hessian");
-        auto desc = get_descriptor(obj_fun::result_options::hessian, 1.1, 2.3);
+        auto desc = get_descriptor(obj_fun::result_options::hessian, L1, L2);
 
-        //auto logloss_desc = logloss_objective::descriptor<Float>{1.0, 2.0};
-        //auto desc =
-        //    obj_fun::descriptor<Float, Method, obj_fun::task::compute, logloss_objective::descriptor<Float>>{logloss_desc}.set_result_options(
-        //        obj_fun::result_options::hessian);
-        // desc.set_l1_regularization_coefficient(1.0).set_l2_regularization_coefficient(2.0);
         INFO("run compute hessian");
         auto compute_result = this->compute(desc, data, params, responses);
         // check_compute_result(data, compute_result);
@@ -89,11 +85,11 @@ TEMPLATE_LIST_TEST_M(logloss_test,
 
     // const obj_fun::result_option_id compute_mode = obj::fun::result_optionmhessian;
 
-   //  const obj_fun::result_option_id compute_mode = obj_fun::result_options::hessian;
+    const obj_fun::result_option_id compute_mode = obj_fun::result_options::hessian;
 
     const auto data_table_id = this->get_homogen_table_id();
 
-    this->general_checks(data, params, responses, data_table_id);
+    this->general_checks(data, params, responses, data_table_id, compute_mode, 1.1, 2.3);
 }
 
 } // namespace oneapi::dal::covariance::test
