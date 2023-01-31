@@ -187,8 +187,8 @@ void compute_result<Task>::set_result_options_impl(const result_option_id& value
     impl_->options = value;
 }
 
-template class ONEDAL_EXPORT compute_input<task::logloss>;
-template class ONEDAL_EXPORT compute_result<task::logloss>;
+template class ONEDAL_EXPORT compute_input<task::compute>;
+template class ONEDAL_EXPORT compute_result<task::compute>;
 
 } // namespace v1
 } // namespace oneapi::dal::covariance

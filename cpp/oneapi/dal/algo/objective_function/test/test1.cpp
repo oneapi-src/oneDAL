@@ -29,15 +29,15 @@ namespace te = dal::test::engine;
 namespace obj_fun = oneapi::dal::objective_function;
 namespace lgloss = oneapi::dal::logloss_objective;
 
-template <typename TestType, typename Derived>
-class logloss_test : public te::crtp_algo_fixture<TestType, Derived> {
+template <typename TestType>
+class logloss_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
     using input_t = obj_fun::compute_input<>;
     using result_t = obj_fun::compute_result<>;
     using descriptor_t = obj_fun::descriptor<Float, Method>;
-    using objective_t = lgloss::descriptor<Float>;
+    using objective_t = logloss_objective::descriptor<Float>;
 
     auto get_descriptor(obj_fun::result_option_id compute_mode, double L1 = 0, double L2 = 0) const {
         return descriptor_t(objective_t{L1, L2}).set_result_options(compute_mode);
@@ -49,15 +49,19 @@ public:
 
     void general_checks(const te::dataframe& input_data, 
                         const te::dataframe& input_params, 
-                        const te::dataframe& intput_responses, const te::table_id& data_table_id) {
+                        const te::dataframe& input_responses, const te::table_id& data_table_id) {
         const table data = input_data.get_table(this->get_policy(), data_table_id);
         const table params = input_params.get_table(this->get_policy(), data_table_id);
         const table responses = input_responses.get_table(this->get_policy(), data_table_id);
 
-        INFO("create descriptor hessian")
-        auto desc =
-            obj_fun::descriptor<Float, Method, covariance::task::compute, lgloss::descriptor<Float>>().set_result_options(
-                obj_fun::result_options::hessian);
+        INFO("create descriptor hessian");
+        auto desc = get_descriptor(obj_fun::result_options::hessian, 1.1, 2.3);
+
+        //auto logloss_desc = logloss_objective::descriptor<Float>{1.0, 2.0};
+        //auto desc =
+        //    obj_fun::descriptor<Float, Method, obj_fun::task::compute, logloss_objective::descriptor<Float>>{logloss_desc}.set_result_options(
+        //        obj_fun::result_options::hessian);
+        // desc.set_l1_regularization_coefficient(1.0).set_l2_regularization_coefficient(2.0);
         INFO("run compute hessian");
         auto compute_result = this->compute(desc, data, params, responses);
         // check_compute_result(data, compute_result);
@@ -70,7 +74,7 @@ public:
 
 };
 
-using logloss_types = COMBINE_TYPES((float, double), (obj_fun::method::dense_batch));
+using logloss_types = COMBINE_TYPES((float, double), (obj_fun::method::dense));
 
 TEMPLATE_LIST_TEST_M(logloss_test,
                      "logloss hessian",
@@ -79,19 +83,13 @@ TEMPLATE_LIST_TEST_M(logloss_test,
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
-    const te::dataframe data = te::dataframe_builder{ 20, 10 }.fill_normal(-0.5, 0.5, 7777);
-    const te::dataframe params = te::dataframe_builder{ 1, 11 }.fill_normal(-0.5, 0.5, 7777);
-    const te::dataframe responses = te::dataframe_builder{ 1, 20 }.fill_normal(-0.5, 0.5, 7777);
-    this->set_rank_count(GENERATE(2, 4));
+    const te::dataframe data = GENERATE_DATAFRAME(te::dataframe_builder{ 20, 10 }.fill_normal(-0.5, 0.5, 7777));
+    const te::dataframe params = GENERATE_DATAFRAME(te::dataframe_builder{ 1, 11 }.fill_normal(-0.5, 0.5, 7777));
+    const te::dataframe responses = GENERATE_DATAFRAME(te::dataframe_builder{ 1, 20 }.fill_normal(-0.5, 0.5, 7777));
 
+    // const obj_fun::result_option_id compute_mode = obj::fun::result_optionmhessian;
 
-    const cov::result_option_id compute_mode = GENERATE_COPY(mode_mean,
-                                                             mode_cor,
-                                                             mode_cov,
-                                                             mode_cor_mean,
-                                                             mode_cov_mean,
-                                                             mode_cov_cor,
-                                                             res_all);
+   //  const obj_fun::result_option_id compute_mode = obj_fun::result_options::hessian;
 
     const auto data_table_id = this->get_homogen_table_id();
 

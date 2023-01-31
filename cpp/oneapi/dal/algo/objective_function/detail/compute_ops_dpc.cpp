@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-// #include "oneapi/dal/algo/objective_function/backend/cpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/objective_function/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/objective_function/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/objective_function/detail/compute_ops.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -32,6 +32,7 @@ struct compute_ops_dispatcher<Policy, Float, Method, Task> {
         //    KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>),
         //    KERNEL_UNIVERSAL_SPMD_GPU(backend::compute_kernel_gpu<Float, Method, Task>)>;
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
+            KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>),
             KERNEL_UNIVERSAL_SPMD_GPU(backend::compute_kernel_gpu<Float, Method, Task>)>;
 
         
@@ -45,8 +46,8 @@ struct compute_ops_dispatcher<Policy, Float, Method, Task> {
     template struct ONEDAL_EXPORT                                           \
         compute_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, M, T>;
 
-INSTANTIATE(float, method::dense_batch, task::logloss)
-INSTANTIATE(double, method::dense_batch, task::logloss)
+INSTANTIATE(float, method::dense, task::compute)
+INSTANTIATE(double, method::dense, task::compute)
 
 } // namespace v1
 } // namespace oneapi::dal::objective_function::detail

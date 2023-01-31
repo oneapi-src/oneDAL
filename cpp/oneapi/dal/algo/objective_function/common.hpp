@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/logloss_objective/common.hpp"
+#include "oneapi/dal/algo/objective_function/detail/objective.hpp"
 #include "oneapi/dal/util/result_option_id.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/serialization.hpp"
@@ -24,6 +25,33 @@
 #include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::objective_function {
+
+namespace task {
+namespace v1 {
+
+struct compute {};
+
+/// Alias tag-type for compute task.
+using by_default = compute;
+} // namespace v1
+
+using v1::compute;
+using v1::by_default;
+
+} // namespace task
+
+namespace method {
+namespace v1 {
+
+struct dense {};
+using by_default = dense;
+
+} // namespace v1
+
+using v1::dense;
+using v1::by_default;
+
+}
 
 
 class result_option_id : public result_option_id_base {
@@ -57,14 +85,14 @@ namespace v1 {
 
 struct descriptor_tag {};
 
-template <typename Task, typename Objective>
+template <typename Task>
 class descriptor_impl;
 
 template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense_batch>;
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::compute>;
@@ -72,33 +100,34 @@ constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::compute>;
 template <typename Objective>
 constexpr bool is_valid_objective_v = dal::detail::is_one_of_v<Objective, logloss_objective::descriptor<float>, logloss_objective::descriptor<double>>;
 
-template <typename Task = task::by_default, typename Objective = logloss_objective::descriptor<float>>
+template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
-    static_assert(is_valid_objective_v<Objective>);
+    friend detail::objective_accessor;
 
 public:
     using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
-    using objective_t = Objective;
+    using objective_t = logloss_objective::descriptor<float_t>;
 
     descriptor_base();
 
     // double get_l1_regularization_coefficient() const;
     // double get_l2_regularization_coefficient() const;
     result_option_id get_result_options() const;
-    const auto get_descriptor() const;
+    // const auto get_descriptor() const;
 
 protected:
+    explicit descriptor_base(const detail::objective_ptr& objective);
+
     void set_result_options_impl(const result_option_id& value);
-    void set_descriptor_impl(const objective_t& descriptor);
-    // void set_l1_regularization_coefficient_impl(double l1_coef);
-    // void set_l2_regularization_coefficient_impl(double l2_coef);
+    const detail::objective_ptr& get_objective_impl() const;
+    void set_objective_impl(const detail::objective_ptr& objective);
 
 private:
-    dal::detail::pimpl<descriptor_impl<Task, Objective>> impl_;
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
 } // namespace v1
@@ -110,6 +139,7 @@ using v1::descriptor_base;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
+using v1::is_valid_objective_v;
 
 } // namespace detail
 
@@ -120,12 +150,12 @@ template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
           typename Objective = logloss_objective::descriptor<Float>>
-class descriptor : public detail::descriptor_base<Task, Objective> {
+class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
     static_assert(detail::is_valid_objective_v<Objective>);
-    using base_t = detail::descriptor_base<Task, Objective>;
+    using base_t = detail::descriptor_base<Task>;
 
 public:
     using float_t = Float;
@@ -133,8 +163,14 @@ public:
     using task_t = Task;
     using objective_t = Objective;
 
-    explicit descriptor(const Objective& desc) {
-        set_descriptor(desc);
+
+    explicit descriptor() : 
+    base_t(std::make_shared<detail::objective<objective_t>>
+    (objective_t{})) {
+    }
+
+    explicit descriptor(const objective_t& obj) {
+        set_objective(obj);
     }
 
 
@@ -148,13 +184,15 @@ public:
         return *this;
     }
 
-    auto& set_descriptor(const Objective& value) {
-        base_t::set_descriptor_impl(value);
+    auto& set_objective(const objective_t& obj) {
+        base_t::set_objective_impl(
+            std::make_shared<detail::objective<objective_t>>(obj));
         return *this;
     }
 
-    Objective get_descriptor() {
-        return base_t::get_descriptor();
+    const objective_t& get_objective() {
+        const auto obj = std::static_pointer_cast<objective_t>(base_t::get_objective_impl());
+        return obj;
     } 
 };
 

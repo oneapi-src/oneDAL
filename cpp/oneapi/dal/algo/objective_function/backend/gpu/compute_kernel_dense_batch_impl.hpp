@@ -30,7 +30,7 @@ namespace bk = dal::backend;
 
 template <typename Float>
 class compute_kernel_dense_batch_impl {
-    using task_t = task::logloss;
+    using task_t = task::compute;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
     using input_t = compute_input<task_t>;
     using result_t = compute_result<task_t>;

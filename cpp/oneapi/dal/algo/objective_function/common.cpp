@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/objective_function/common.hpp"
-#include "oneapi/dal/algo/logloss_objective/common.hpp"
+// #include "oneapi/dal/algo/logloss_objective/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::objective_function::detail {
@@ -46,31 +46,49 @@ result_option_id get_default_result_options() {
 }
 
 template <>
-result_option_id get_default_result_options<task::logloss>() {
+result_option_id get_default_result_options<task::compute>() {
     return get_packed_hessian_id();
 }
 
 namespace v1 {
 
-template <typename Task, typename Objective>
+template <typename Task>
 class descriptor_impl : public base {
 public:
-    explicit descriptor_impl() : desc_(new Objective()) {}
+    explicit descriptor_impl(const detail::objective_ptr& obj) : objective(obj) {}
 
     result_option_id result_options = get_default_result_options<Task>();
-    dal::detail::pimpl<Objective> desc_;
+    detail::objective_ptr objective;
 };
 
-template <typename Task, typename Objective>
-descriptor_base<Task, Objective>::descriptor_base() : impl_(new descriptor_impl<Task, Objective>{}) {}
+template <typename Task>
+descriptor_base<Task>::descriptor_base() :
+ impl_(new descriptor_impl<Task>{std::make_shared<
+ detail::objective<oneapi::dal::logloss_objective::descriptor<float_t>>>(
+    oneapi::dal::logloss_objective::descriptor<float_t>(0, 0))}) {}
 
-template <typename Task, typename Objective>
-result_option_id descriptor_base<Task, Objective>::get_result_options() const {
+template<typename Task>
+descriptor_base<Task>::descriptor_base(const detail::objective_ptr& objective)
+        : impl_(new descriptor_impl<Task>{ objective }) {}
+
+
+template<typename Task>
+const detail::objective_ptr& descriptor_base<Task>::get_objective_impl() const {
+    return impl_->objective;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_objective_impl(const detail::objective_ptr& objective) {
+    impl_->objective = objective;
+}
+
+template <typename Task>
+result_option_id descriptor_base<Task>::get_result_options() const {
     return impl_->result_options;
 }
 
-template <typename Task, typename Objective>
-void descriptor_base<Task, Objective>::set_result_options_impl(const result_option_id& value) {
+template <typename Task>
+void descriptor_base<Task>::set_result_options_impl(const result_option_id& value) {
     using msg = dal::detail::error_messages;
     if (!bool(value)) {
         throw domain_error(msg::empty_set_of_result_options());
@@ -79,19 +97,7 @@ void descriptor_base<Task, Objective>::set_result_options_impl(const result_opti
 }
 
 
-template<typename Task, typename Objective>
-const auto descriptor_base<Task, Objective>::get_descriptor() const {
-    return impl_->desc_;
-}
-
-template<typename Task, typename Objective>
-void descriptor_base<Task, Objective>::set_descriptor_impl(const objective_t& descriptor) const {
-    return impl_->desc_ = std::make_shared<Objective>(descriptor);
-}
-
-
-template class ONEDAL_EXPORT descriptor_base<task::logloss, logloss_objective::descriptor<float>>;
-template class ONEDAL_EXPORT descriptor_base<task::logloss, logloss_objective::descriptor<double>>;
+template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
 } // namespace v1
 

@@ -41,6 +41,14 @@ struct compute_ops {
     void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
 
+        // std::cout << "Input: " << input.get_data().get_row_count() << " " << input.get_data().get_column_count() << std::endl; 
+
+        // std::cout << "Responses: " << input.get_responses().get_row_count() << " " << input.get_responses().get_column_count() << std::endl; 
+
+        // std::cout << "Parameters: " << input.get_parameters().get_row_count() << " " << input.get_parameters().get_column_count() << std::endl; 
+
+
+
         if (!input.get_data().has_data()) {
             throw domain_error(msg::input_data_is_empty());
         }
@@ -50,10 +58,10 @@ struct compute_ops {
         if (!input.get_responses().has_data()) {
             throw domain_error(msg::input_data_is_empty());
         }
-        if (input.get_data().get_row_count() != input.get_responses().count()) {
+        if (input.get_data().get_row_count() != input.get_responses().get_column_count()) {
             throw domain_error(msg::input_data_rc_neq_input_responses_rc());
         }
-        if (input.get_data().get_column_count() != input.get_parameters().count() + 1) {
+        if (input.get_data().get_column_count() + 1 != input.get_parameters().get_column_count()) {
             throw domain_error(msg::input_data_rc_neq_input_weights_rc());
         }
     }
