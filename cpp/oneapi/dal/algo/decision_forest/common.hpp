@@ -124,6 +124,12 @@ enum class voting_mode {
     unweighted
 };
 
+/// Splitting strategy for decision forest
+enum class splitter {
+    best,
+    rendom
+};
+
 inline infer_mode operator|(infer_mode value_left, infer_mode value_right) {
     return bitwise_or(value_left, value_right);
 }
@@ -166,6 +172,7 @@ using v1::variable_importance_mode;
 using v1::error_metric_mode;
 using v1::infer_mode;
 using v1::voting_mode;
+using v1::splitter;
 
 namespace detail {
 namespace v1 {
@@ -220,6 +227,7 @@ public:
     std::int64_t get_min_bin_size() const;
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
+    splitter get_splitter() const;
     error_metric_mode get_error_metric_mode() const;
     variable_importance_mode get_variable_importance_mode() const;
 
@@ -255,6 +263,7 @@ protected:
     void set_min_bin_size_impl(std::int64_t value);
     void set_memory_saving_mode_impl(bool value);
     void set_bootstrap_impl(bool value);
+    void set_splitter_impl(splitter value);
     void set_error_metric_mode_impl(error_metric_mode value);
     void set_variable_importance_mode_impl(variable_importance_mode value);
     void set_class_count_impl(std::int64_t value);
@@ -508,6 +517,17 @@ public:
 
     auto& set_bootstrap(bool value) {
         base_t::set_bootstrap_impl(value);
+        return *this;
+    }
+
+    /// Splitter strategy, if 'best', best treshold for each will
+    /// be selected. If 'random', trashold will be selected randomly.
+    splitter get_splitter() const {
+        return base_t::get_splitter();
+    }
+
+    auto& set_splitter(splitter value) {
+        base_t::set_splitter_impl(value);
         return *this;
     }
 
