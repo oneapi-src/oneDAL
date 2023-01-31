@@ -637,13 +637,13 @@ train_best_split_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_sp
     auto ftr_random_select = pr::ndarray<Index, 1>::empty({ 2 * selected_ftr_count });
     auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
 
-    if (ctx.splitter_mode_value == splitter_mode::best) {
+    if (ctx.splitter_mode_value == splitter_mode::random) {
         pr::rng<Index> rn_gen;
         rn_gen.uniform_without_replacement( // Select bin treshold randomly
             selected_ftr_count,
             ftr_random_select_ptr,
             ftr_random_select_ptr + selected_ftr_count,
-            0, // TODO: should be random state
+            0,
             0,
             selected_ftr_count // TODO: change this parameter 
             ); 
