@@ -137,6 +137,8 @@ struct train_context {
     bool use_private_mem_buf_ = true; // valuable for classification only
         // for switching between private mem and other buffers(local, global) for storing class hist
 
+    splitter_mode splitter_mode_value;
+    Index seed;
     Index total_bin_count_ = 0;
     Index max_bin_count_among_ftrs_ = 0;
 
