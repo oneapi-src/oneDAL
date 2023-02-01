@@ -22,8 +22,8 @@
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_sp_opt_impl.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_helpers.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_splitter_sp_opt_impl.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_splitter_helpers.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -39,8 +39,8 @@ using sycl::ext::oneapi::minimum;
 using sycl::ext::oneapi::maximum;
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
-    compute_best_split_single_pass_large(sycl::queue& queue,
+sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
+    compute_split_single_pass_large(sycl::queue& queue,
                                          const context_t& ctx,
                                          const pr::ndarray<Bin, 2>& data,
                                          const pr::ndview<Float, 1>& response,
@@ -162,6 +162,30 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
     ONEDAL_ASSERT(device_has_enough_local_mem(queue, local_buf_byte_size));
     // TODO: add separate branch to process situation when there isn't enough local mem
 
+
+    // Random splitting helpers
+    auto ftr_random_select = pr::ndarray<Index, 1>::empty({ selected_ftr_count });
+    auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
+
+    if (ctx.splitter_mode_value == splitter_mode::random) {
+        pr::engine_collection collection(1, ctx.seed);
+        std::vector<pr::engine> engine_arr = collection([&](std::size_t i, std::size_t j) {
+            j = i;
+        });
+        pr::rng<Index> rn_gen;
+        rn_gen.uniform( // Select bin treshold randomly
+            selected_ftr_count,
+            ftr_random_select_ptr,
+            engine_arr[0].get_state(),
+            0,
+            index_max
+            ); 
+    }
+    
+    auto ftr_rnd_trshld = ftr_random_select.to_device(queue);
+    auto ft_rnd_ptr = ftr_rnd_trshld.get_data();
+    // Random splitting helpers end 
+
     for (Index processed_node_cnt = 0; processed_node_cnt < node_count;
          processed_node_cnt += node_in_block_count, node_ind_ofs += node_in_block_count) {
         auto fill_aux_ftr_event = global_aux_ftr_buf_int.fill(queue, 0);
@@ -226,11 +250,18 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
                         Index response_int = (i < row_count) ? static_cast<Index>(response) : -1;
 
                         ts.ftr_bin = -1;
-
-                        ts.ftr_bin = sycl::reduce_over_group(item.get_group(),
-                                                             bin > ts.ftr_bin ? bin : index_max,
-                                                             minimum<Index>());
-                        while (ts.ftr_bin < index_max) {
+                        if (ctx.splitter_mode_value == splitter_mode::best) {
+                            ts.ftr_bin = sycl::reduce_over_group(item.get_group(),
+                                                                bin > ts.ftr_bin ? bin : index_max,
+                                                                minimum<Index>());
+                        }
+                        else {
+                            ts.ftr_bin = ft_rnd_ptr[ftr_idx] % index_max;
+                        }
+                        bool compute_once = true;
+                        while (ts.ftr_bin < index_max && 
+                            (ctx.splitter_mode_value == splitter_mode::best || compute_once)) {
+                            compute_once = false;
                             const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
 
                             if constexpr (std::is_same_v<Task, task::classification>) {
@@ -375,8 +406,8 @@ sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
 
 //// new single pass
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_best_split_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
-    compute_best_split_single_pass_small(sycl::queue& queue,
+sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
+    compute_split_single_pass_small(sycl::queue& queue,
                                          const context_t& ctx,
                                          const pr::ndarray<Bin, 2>& data,
                                          const pr::ndview<Float, 1>& response,
