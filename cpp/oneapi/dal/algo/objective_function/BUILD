@@ -11,7 +11,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/algo:logloss_objective",
-        #"@onedal//cpp/oneapi/dal/backend/primitives:objective_function",
+        "@onedal//cpp/oneapi/dal/backend/primitives:objective_function",
     ],
     # extra_deps = [
     #    "@onedal//cpp/daal/src/algorithms/objective_function:kernel",

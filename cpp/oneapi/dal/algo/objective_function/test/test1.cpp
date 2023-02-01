@@ -18,16 +18,23 @@
 
 #include "oneapi/dal/algo/objective_function/compute.hpp"
 
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 namespace oneapi::dal::objective_function::test {
 
+namespace pr = dal::backend::primitives;
 namespace te = dal::test::engine;
+namespace de = dal::detail;
 namespace obj_fun = oneapi::dal::objective_function;
-namespace lgloss = oneapi::dal::logloss_objective;
+namespace lg = oneapi::dal::logloss_objective;
 
 template <typename TestType>
 class logloss_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
@@ -37,7 +44,7 @@ public:
     using input_t = obj_fun::compute_input<>;
     using result_t = obj_fun::compute_result<>;
     using descriptor_t = obj_fun::descriptor<Float, Method>;
-    using objective_t = logloss_objective::descriptor<Float>;
+    using objective_t = lg::descriptor<Float>;
 
     auto get_descriptor(obj_fun::result_option_id compute_mode, double L1 = 0, double L2 = 0) const {
         return descriptor_t(objective_t{L1, L2}).set_result_options(compute_mode);
@@ -49,11 +56,11 @@ public:
 
     void general_checks(const te::dataframe& input_data, 
                         const te::dataframe& input_params, 
-                        const te::dataframe& input_responses, const te::table_id& data_table_id,
+                        const table& responses, const te::table_id& data_table_id,
                         const obj_fun::result_option_id& compute_mode, double L1 = 0, double L2 = 0) {
         const table data = input_data.get_table(this->get_policy(), data_table_id);
         const table params = input_params.get_table(this->get_policy(), data_table_id);
-        const table responses = input_responses.get_table(this->get_policy(), data_table_id);
+        //const table responses = input_responses.get_table(this->get_policy(), data_table_id);
 
         INFO("create descriptor hessian");
         auto desc = get_descriptor(obj_fun::result_options::hessian, L1, L2);
@@ -79,9 +86,16 @@ TEMPLATE_LIST_TEST_M(logloss_test,
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
-    const te::dataframe data = GENERATE_DATAFRAME(te::dataframe_builder{ 20, 10 }.fill_normal(-0.5, 0.5, 7777));
-    const te::dataframe params = GENERATE_DATAFRAME(te::dataframe_builder{ 1, 11 }.fill_normal(-0.5, 0.5, 7777));
-    const te::dataframe responses = GENERATE_DATAFRAME(te::dataframe_builder{ 1, 20 }.fill_normal(-0.5, 0.5, 7777));
+    const std::int64_t n = 20;
+    const std::int64_t p = 10; 
+    auto q = this->get_queue();
+
+    const te::dataframe data = GENERATE_DATAFRAME(te::dataframe_builder{ n, p }.fill_normal(-0.5, 0.5, 7777));
+    const te::dataframe params = GENERATE_DATAFRAME(te::dataframe_builder{ 1, p + 1 }.fill_normal(-0.5, 0.5, 7777));
+    auto resp = array<std::int32_t>::zeros(n);
+    // auto resp_ptr = resp.get_mutable_data();
+    const table responses = de::homogen_table_builder{}.reset(resp, 1, n).build();
+    //const te::dataframe responses = homogen_table::wrap(resp_gpu.flatten(this->get_queue(), {}), 1, 20);
 
     // const obj_fun::result_option_id compute_mode = obj::fun::result_optionmhessian;
 
