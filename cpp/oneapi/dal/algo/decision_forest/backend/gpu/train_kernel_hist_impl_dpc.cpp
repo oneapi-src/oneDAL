@@ -1179,8 +1179,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                       node_count * ctx.class_count_);
     }
 
-    using bs_kernels_prv_t = train_best_split_impl<Float, Bin, Index, Task, true>;
-    using bs_kernels_loc_t = train_best_split_impl<Float, Bin, Index, Task, false>;
+    using bs_kernels_prv_t = train_splitter_impl<Float, Bin, Index, Task, true>;
+    using bs_kernels_loc_t = train_splitter_impl<Float, Bin, Index, Task, false>;
     using bs_kernels_opt_t = train_best_split_sp_opt_impl<Float, Bin, Index, Task>;
     // no overflow check is required because of ctx.node_group_count_ and ctx.node_group_prop_count_ are small constants
 
@@ -1281,7 +1281,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
 
                 {
                     if (ctx.use_private_mem_buf_) {
-                        last_event = bs_kernels_prv_t::compute_best_split_by_histogram(
+                        last_event = bs_kernels_prv_t::compute_split_by_histogram(
                             queue_,
                             ctx,
                             node_hist_list,
@@ -1298,7 +1298,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                             { last_event });
                     }
                     else {
-                        last_event = bs_kernels_loc_t::compute_best_split_by_histogram(
+                        last_event = bs_kernels_loc_t::compute_split_by_histogram(
                             queue_,
                             ctx,
                             node_hist_list,
