@@ -19,6 +19,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/backend/primitives/rng/rng_engine_collection.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
@@ -39,7 +40,7 @@ template <typename Float,
           typename Index = std::int32_t,
           typename Task = task::by_default,
           Index sbg_size = 32>
-class train_best_split_sp_opt_impl {
+class train_splitter_sp_opt_impl {
     static_assert(std::is_signed_v<Index>);
     static_assert(std::is_integral_v<Index>);
     static_assert(sbg_size > 8);
@@ -56,10 +57,10 @@ class train_best_split_sp_opt_impl {
     using node_group_view_t = node_group_view<Index>;
 
 public:
-    train_best_split_sp_opt_impl() = default;
-    ~train_best_split_sp_opt_impl() = default;
+    train_splitter_sp_opt_impl() = default;
+    ~train_splitter_sp_opt_impl() = default;
 
-    static sycl::event compute_best_split_single_pass_large(
+    static sycl::event compute_split_single_pass_large(
         sycl::queue& queue,
         const context_t& ctx,
         const pr::ndarray<Bin, 2>& data,
@@ -77,7 +78,7 @@ public:
         Index node_count,
         const bk::event_vector& deps = {});
 
-    static sycl::event compute_best_split_single_pass_small(
+    static sycl::event compute_split_single_pass_small(
         sycl::queue& queue,
         const context_t& ctx,
         const pr::ndarray<Bin, 2>& data,
