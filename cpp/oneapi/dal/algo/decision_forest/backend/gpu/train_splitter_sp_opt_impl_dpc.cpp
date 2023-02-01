@@ -696,7 +696,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
     return last_event;
 }
 
-#define INSTANTIATE(F, B, I, T) template class train_best_split_sp_opt_impl<F, B, I, T>;
+#define INSTANTIATE(F, B, I, T) template class train_splitter_sp_opt_impl<F, B, I, T>;
 
 INSTANTIATE(float, std::uint32_t, std::int32_t, task::classification);
 INSTANTIATE(float, std::uint32_t, std::int32_t, task::regression);

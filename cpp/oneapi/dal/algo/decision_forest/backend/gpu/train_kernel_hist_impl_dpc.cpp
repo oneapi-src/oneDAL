@@ -1181,7 +1181,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
 
     using bs_kernels_prv_t = train_splitter_impl<Float, Bin, Index, Task, true>;
     using bs_kernels_loc_t = train_splitter_impl<Float, Bin, Index, Task, false>;
-    using bs_kernels_opt_t = train_best_split_sp_opt_impl<Float, Bin, Index, Task>;
+    using bs_kernels_opt_t = train_splitter_sp_opt_impl<Float, Bin, Index, Task>;
     // no overflow check is required because of ctx.node_group_count_ and ctx.node_group_prop_count_ are small constants
 
     node_list_t node_list_wrap(queue_, node_list, node_count);
@@ -1322,7 +1322,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
             Index max_row_count = node_group.get_max_row_count();
             if (max_row_count > node_t::get_elementary_node_max_row_count()) {
                 last_event =
-                    bs_kernels_opt_t::compute_best_split_single_pass_large(queue_,
+                    bs_kernels_opt_t::compute_split_single_pass_large(queue_,
                                                                            ctx,
                                                                            data,
                                                                            response,
@@ -1342,7 +1342,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
             }
             else {
                 last_event =
-                    bs_kernels_opt_t::compute_best_split_single_pass_small(queue_,
+                    bs_kernels_opt_t::compute_split_single_pass_small(queue_,
                                                                            ctx,
                                                                            data,
                                                                            response,
