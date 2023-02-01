@@ -28,7 +28,7 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_feature_type.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_model_manager.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_impl.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_splitter_impl.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_sp_opt_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
