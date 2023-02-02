@@ -537,102 +537,95 @@ struct split_smp {
     }
 
     // Bin processing
-    inline void process_bin(
-        Index& ts_ftr_bin,
-        Index& ts_left_count,
-        hist_type_t* ts_left_hist,
-        const hist_type_t* ftr_hist_ptr,
-        Index hist_prop_count,
-        Index& ts_right_count,
-        Float& ts_left_imp,
-        Float& ts_right_imp,
-        Float& ts_imp_dec,
-        Index* node_ptr,
-        const Float* node_imp_list_ptr,
-        const Index* class_hist_list_ptr,
-        Index class_count,
-        Index node_id,
-        Index& bs_ftr_id,
-        Index& bs_ftr_bin,
-        Index& bs_left_count,
-        Float& bs_left_imp,
-        Float& bs_imp_dec,
-        hist_type_t* bs_left_hist,
-        const Index& ts_ftr_id,
-        Float imp_threshold,
-        Index min_obs_leaf,
-        Index buff_size
-    ){
+    inline void process_bin(Index& ts_ftr_bin,
+                            Index& ts_left_count,
+                            hist_type_t* ts_left_hist,
+                            const hist_type_t* ftr_hist_ptr,
+                            Index hist_prop_count,
+                            Index& ts_right_count,
+                            Float& ts_left_imp,
+                            Float& ts_right_imp,
+                            Float& ts_imp_dec,
+                            Index* node_ptr,
+                            const Float* node_imp_list_ptr,
+                            const Index* class_hist_list_ptr,
+                            Index class_count,
+                            Index node_id,
+                            Index& bs_ftr_id,
+                            Index& bs_ftr_bin,
+                            Index& bs_left_count,
+                            Float& bs_left_imp,
+                            Float& bs_imp_dec,
+                            hist_type_t* bs_left_hist,
+                            const Index& ts_ftr_id,
+                            Float imp_threshold,
+                            Index min_obs_leaf,
+                            Index buff_size) {
         const Index bin_ofs = ts_ftr_bin * hist_prop_count;
         if constexpr (std::is_same_v<Task, task::classification>) {
-            merge_bin_hist(ts_left_count,
-                            ts_left_hist,
-                            ftr_hist_ptr + bin_ofs,
-                            hist_prop_count);
+            merge_bin_hist(ts_left_count, ts_left_hist, ftr_hist_ptr + bin_ofs, hist_prop_count);
         }
         else {
-            merge_bin_hist(ts_left_hist,
-                            ftr_hist_ptr + bin_ofs,
-                            hist_prop_count);
+            merge_bin_hist(ts_left_hist, ftr_hist_ptr + bin_ofs, hist_prop_count);
         }
 
         if constexpr (std::is_same_v<Task, task::classification>) {
             calc_imp_dec(ts_right_count,
-                                ts_left_imp,
-                                ts_right_imp,
-                                ts_imp_dec,
-                                ts_left_count,
-                                node_ptr,
-                                node_imp_list_ptr,
-                                class_hist_list_ptr,
-                                ts_left_hist,
-                                class_count,
-                                node_id);
+                         ts_left_imp,
+                         ts_right_imp,
+                         ts_imp_dec,
+                         ts_left_count,
+                         node_ptr,
+                         node_imp_list_ptr,
+                         class_hist_list_ptr,
+                         ts_left_hist,
+                         class_count,
+                         node_id);
 
             choose_best_split(bs_ftr_id,
-                                        bs_ftr_bin,
-                                        bs_left_count,
-                                        bs_left_imp,
-                                        bs_imp_dec,
-                                        bs_left_hist,
-                                        ts_ftr_id,
-                                        ts_ftr_bin,
-                                        ts_left_count,
-                                        ts_right_count,
-                                        ts_left_imp,
-                                        ts_imp_dec,
-                                        ts_left_hist,
-                                        node_imp_list_ptr,
-                                        class_count,
-                                        node_id,
-                                        imp_threshold,
-                                        min_obs_leaf);
+                              bs_ftr_bin,
+                              bs_left_count,
+                              bs_left_imp,
+                              bs_imp_dec,
+                              bs_left_hist,
+                              ts_ftr_id,
+                              ts_ftr_bin,
+                              ts_left_count,
+                              ts_right_count,
+                              ts_left_imp,
+                              ts_imp_dec,
+                              ts_left_hist,
+                              node_imp_list_ptr,
+                              class_count,
+                              node_id,
+                              imp_threshold,
+                              min_obs_leaf);
         }
         else {
             calc_imp_dec(ts_left_count,
-                                ts_right_count,
-                                ts_imp_dec,
-                                node_ptr,
-                                node_imp_list_ptr,
-                                ts_left_hist,
-                                node_id);
+                         ts_right_count,
+                         ts_imp_dec,
+                         node_ptr,
+                         node_imp_list_ptr,
+                         ts_left_hist,
+                         node_id);
 
             choose_best_split(bs_ftr_id,
-                                        bs_ftr_bin,
-                                        bs_left_count,
-                                        bs_imp_dec,
-                                        bs_left_hist,
-                                        ts_ftr_id,
-                                        ts_ftr_bin,
-                                        ts_left_count,
-                                        ts_right_count,
-                                        ts_imp_dec,
-                                        ts_left_hist,
-                                        node_imp_list_ptr,
-                                        buff_size,
-                                        node_id,
-                                        imp_threshold,
-                                        min_obs_leaf);
+                              bs_ftr_bin,
+                              bs_left_count,
+                              bs_imp_dec,
+                              bs_left_hist,
+                              ts_ftr_id,
+                              ts_ftr_bin,
+                              ts_left_count,
+                              ts_right_count,
+                              ts_imp_dec,
+                              ts_left_hist,
+                              node_imp_list_ptr,
+                              buff_size,
+                              node_id,
+                              imp_threshold,
+                              min_obs_leaf);
         }
     }
 };
@@ -733,7 +726,7 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
 
     const sycl::nd_range<2> nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
-    
+
     auto ftr_random_select = pr::ndarray<Index, 1>::empty({ selected_ftr_count });
     auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
 
@@ -748,13 +741,11 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
             ftr_random_select_ptr,
             engine_arr[0].get_state(),
             0,
-            max_bin_count_among_ftrs
-            ); 
+            max_bin_count_among_ftrs);
     }
-    
+
     auto ftr_rnd_trshld = ftr_random_select.to_device(queue);
     auto ft_rnd_ptr = ftr_rnd_trshld.get_data();
-
 
     sycl::event last_event;
 
@@ -828,65 +819,61 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
                 Float ts_imp_dec = Float(0);
 
                 if (ctx.splitter_mode_value == splitter_mode::random) {
-                    Index ts_ftr_bin = ft_rnd_ptr[ftr_idx] % ts_ftr_bin_count; // Select Randomly bin 
-                    sp_hlp.process_bin(
-                        ts_ftr_bin,
-                        ts_left_count,
-                        ts_left_hist,
-                        ftr_hist_ptr,
-                        hist_prop_count,
-                        ts_right_count,
-                        ts_left_imp,
-                        ts_right_imp,
-                        ts_imp_dec,
-                        node_ptr,
-                        node_imp_list_ptr,
-                        class_hist_list_ptr,
-                        class_count,
-                        node_id,
-                        bs_ftr_id,
-                        bs_ftr_bin,
-                        bs_left_count,
-                        bs_left_imp,
-                        bs_imp_dec,
-                        bs_left_hist,
-                        ts_ftr_id,
-                        imp_threshold,
-                        min_obs_leaf,
-                        buff_size
-                    );
+                    Index ts_ftr_bin =
+                        ft_rnd_ptr[ftr_idx] % ts_ftr_bin_count; // Select Randomly bin
+                    sp_hlp.process_bin(ts_ftr_bin,
+                                       ts_left_count,
+                                       ts_left_hist,
+                                       ftr_hist_ptr,
+                                       hist_prop_count,
+                                       ts_right_count,
+                                       ts_left_imp,
+                                       ts_right_imp,
+                                       ts_imp_dec,
+                                       node_ptr,
+                                       node_imp_list_ptr,
+                                       class_hist_list_ptr,
+                                       class_count,
+                                       node_id,
+                                       bs_ftr_id,
+                                       bs_ftr_bin,
+                                       bs_left_count,
+                                       bs_left_imp,
+                                       bs_imp_dec,
+                                       bs_left_hist,
+                                       ts_ftr_id,
+                                       imp_threshold,
+                                       min_obs_leaf,
+                                       buff_size);
                 }
                 else {
                     for (Index ts_ftr_bin = 0; ts_ftr_bin < ts_ftr_bin_count; ++ts_ftr_bin) {
-                        sp_hlp.process_bin(
-                            ts_ftr_bin,
-                            ts_left_count,
-                            ts_left_hist,
-                            ftr_hist_ptr,
-                            hist_prop_count,
-                            ts_right_count,
-                            ts_left_imp,
-                            ts_right_imp,
-                            ts_imp_dec,
-                            node_ptr,
-                            node_imp_list_ptr,
-                            class_hist_list_ptr,
-                            class_count,
-                            node_id,
-                            bs_ftr_id,
-                            bs_ftr_bin,
-                            bs_left_count,
-                            bs_left_imp,
-                            bs_imp_dec,
-                            bs_left_hist,
-                            ts_ftr_id,
-                            imp_threshold,
-                            min_obs_leaf,
-                            buff_size
-                        );
+                        sp_hlp.process_bin(ts_ftr_bin,
+                                           ts_left_count,
+                                           ts_left_hist,
+                                           ftr_hist_ptr,
+                                           hist_prop_count,
+                                           ts_right_count,
+                                           ts_left_imp,
+                                           ts_right_imp,
+                                           ts_imp_dec,
+                                           node_ptr,
+                                           node_imp_list_ptr,
+                                           class_hist_list_ptr,
+                                           class_count,
+                                           node_id,
+                                           bs_ftr_id,
+                                           bs_ftr_bin,
+                                           bs_left_count,
+                                           bs_left_imp,
+                                           bs_imp_dec,
+                                           bs_left_hist,
+                                           ts_ftr_id,
+                                           imp_threshold,
+                                           min_obs_leaf,
+                                           buff_size);
                     }
                 }
-                
             }
 
             if constexpr (std::is_same_v<Task, task::classification>) {

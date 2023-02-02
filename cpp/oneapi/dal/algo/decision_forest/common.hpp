@@ -125,10 +125,7 @@ enum class voting_mode {
 };
 
 /// Splitting strategy for decision forest
-enum class splitter_mode {
-    best,
-    random
-};
+enum class splitter_mode { best, random };
 
 inline infer_mode operator|(infer_mode value_left, infer_mode value_right) {
     return bitwise_or(value_left, value_right);
