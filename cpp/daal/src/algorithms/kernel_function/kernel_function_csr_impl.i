@@ -74,7 +74,7 @@ algorithmFPType KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct(const
     return computeDotProductBaseline<algorithmFPType, cpu>(startIndexA, endIndexA, valuesA, indicesA, startIndexB, endIndexB, valuesB, indicesB);
 }
 
-#if defined(DAAL_INTEL_CPP_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
     #undef __DAAL_IA32e
 
