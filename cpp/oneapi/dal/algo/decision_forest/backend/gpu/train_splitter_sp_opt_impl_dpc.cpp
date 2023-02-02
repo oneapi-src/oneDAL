@@ -39,23 +39,24 @@ using sycl::ext::oneapi::minimum;
 using sycl::ext::oneapi::maximum;
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
-    compute_split_single_pass_large(sycl::queue& queue,
-                                         const context_t& ctx,
-                                         const pr::ndarray<Bin, 2>& data,
-                                         const pr::ndview<Float, 1>& response,
-                                         const pr::ndarray<Index, 1>& tree_order,
-                                         const pr::ndarray<Index, 1>& selected_ftr_list,
-                                         const pr::ndarray<Index, 1>& bin_offset_list,
-                                         const imp_data_t& imp_data_list,
-                                         const pr::ndarray<Index, 1>& node_ind_list,
-                                         Index node_ind_ofs,
-                                         pr::ndarray<Index, 1>& node_list,
-                                         imp_data_t& left_child_imp_data_list,
-                                         pr::ndarray<Float, 1>& node_imp_dec_list,
-                                         bool update_imp_dec_required,
-                                         Index node_count,
-                                         const bk::event_vector& deps) {
+sycl::event
+train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_single_pass_large(
+    sycl::queue& queue,
+    const context_t& ctx,
+    const pr::ndarray<Bin, 2>& data,
+    const pr::ndview<Float, 1>& response,
+    const pr::ndarray<Index, 1>& tree_order,
+    const pr::ndarray<Index, 1>& selected_ftr_list,
+    const pr::ndarray<Index, 1>& bin_offset_list,
+    const imp_data_t& imp_data_list,
+    const pr::ndarray<Index, 1>& node_ind_list,
+    Index node_ind_ofs,
+    pr::ndarray<Index, 1>& node_list,
+    imp_data_t& left_child_imp_data_list,
+    pr::ndarray<Float, 1>& node_imp_dec_list,
+    bool update_imp_dec_required,
+    Index node_count,
+    const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(compute_best_split_single_pass, queue);
 
     using split_smp_t = split_smp<Float, Index, Task>;
@@ -162,7 +163,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
     ONEDAL_ASSERT(device_has_enough_local_mem(queue, local_buf_byte_size));
     // TODO: add separate branch to process situation when there isn't enough local mem
 
-
     // Random splitting helpers
     auto ftr_random_select = pr::ndarray<Index, 1>::empty({ selected_ftr_count });
     auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
@@ -178,13 +178,12 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
             ftr_random_select_ptr,
             engine_arr[0].get_state(),
             0,
-            index_max
-            ); 
+            index_max);
     }
-    
+
     auto ftr_rnd_trshld = ftr_random_select.to_device(queue);
     auto ft_rnd_ptr = ftr_rnd_trshld.get_data();
-    // Random splitting helpers end 
+    // Random splitting helpers end
 
     for (Index processed_node_cnt = 0; processed_node_cnt < node_count;
          processed_node_cnt += node_in_block_count, node_ind_ofs += node_in_block_count) {
@@ -252,16 +251,19 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
                         ts.ftr_bin = -1;
                         if (ctx.splitter_mode_value == splitter_mode::best) {
                             ts.ftr_bin = sycl::reduce_over_group(item.get_group(),
-                                                                bin > ts.ftr_bin ? bin : index_max,
-                                                                minimum<Index>());
+                                                                 bin > ts.ftr_bin ? bin : index_max,
+                                                                 minimum<Index>());
                         }
                         else {
                             ts.ftr_bin = ft_rnd_ptr[ftr_idx] % index_max;
                         }
-                        bool compute_once = true;
-                        while (ts.ftr_bin < index_max && 
-                            (ctx.splitter_mode_value == splitter_mode::best || compute_once)) {
-                            compute_once = false;
+                        bool computed_once = true;
+
+                        // Compute once with random selected bin OR compute for all bins
+                        // Depending on ctx.splitter_mode_value
+                        while (ts.ftr_bin < index_max &&
+                               (ctx.splitter_mode_value == splitter_mode::best || computed_once)) {
+                            computed_once = false;
                             const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
 
                             if constexpr (std::is_same_v<Task, task::classification>) {
@@ -406,21 +408,22 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
 
 //// new single pass
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::
-    compute_split_single_pass_small(sycl::queue& queue,
-                                         const context_t& ctx,
-                                         const pr::ndarray<Bin, 2>& data,
-                                         const pr::ndview<Float, 1>& response,
-                                         const pr::ndarray<Index, 1>& tree_order,
-                                         const pr::ndarray<Index, 1>& selected_ftr_list,
-                                         const pr::ndarray<Index, 1>& bin_offset_list,
-                                         const imp_data_t& imp_data_list,
-                                         const node_group_view_t& node_group,
-                                         node_list_t& level_node_list,
-                                         imp_data_t& left_child_imp_data_list,
-                                         pr::ndarray<Float, 1>& node_imp_dec_list,
-                                         bool update_imp_dec_required,
-                                         const bk::event_vector& deps) {
+sycl::event
+train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_single_pass_small(
+    sycl::queue& queue,
+    const context_t& ctx,
+    const pr::ndarray<Bin, 2>& data,
+    const pr::ndview<Float, 1>& response,
+    const pr::ndarray<Index, 1>& tree_order,
+    const pr::ndarray<Index, 1>& selected_ftr_list,
+    const pr::ndarray<Index, 1>& bin_offset_list,
+    const imp_data_t& imp_data_list,
+    const node_group_view_t& node_group,
+    node_list_t& level_node_list,
+    imp_data_t& left_child_imp_data_list,
+    pr::ndarray<Float, 1>& node_imp_dec_list,
+    bool update_imp_dec_required,
+    const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(compute_best_split_single_pass_small, queue);
 
     using split_smp_t = split_smp<Float, Index, Task>;
