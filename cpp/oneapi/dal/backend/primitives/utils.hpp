@@ -19,10 +19,13 @@
 #include <variant>
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/backend/common.hpp"
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+
+#include "oneapi/dal/table/common.hpp"
 
 #include <queue>
 
@@ -181,35 +184,52 @@ std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_in
     return std::make_tuple(nodes, boundaries);
 }
 
-template <typename Float, ndorder torder>
+template <typename Float, ndorder torder /*TODO: remove torder*/>
 std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& train, std::int64_t block_size, const bk::event_vector& deps = {}) {
     std::queue<ndview<Float, 2, torder>> train_block_queue;
     const auto train_count = train.get_row_count();
     const auto feature_count = train.get_column_count();
 
     auto block_counting = uniform_blocking(train_count, block_size);
-
     sycl::event::wait_and_throw(deps);
-    
+    sycl::event copy_event;//sycl::event::wait_and_throw(deps);
+    std::cout << "UTILS - block count, train_count, block_size, start index, end index: " << block_counting.get_block_count() << " " << train_count << " " << block_size << block_counting.get_block_start_index(0) << " " << block_counting.get_block_end_index(0) << std::endl;    
+    //TODO: create variables before loop
     for(std::int32_t block_index = 0; block_index < block_counting.get_block_count(); block_index++) {
         // allocate ndarray of proper size + fill with standard value (ie inf, dead beef)
-        auto [ fill_array, fill_event ] = pr::ndarray<Float, 2, torder>::full(q, { block_size, feature_count }, -1.0, sycl::usm::alloc::device);
-        sycl::event::wait_and_throw({fill_event});
-        // use row accessor
-        auto slice = row_accessor<const Float>(train).pull({ block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) });
-
+	// if (block_index) {for (auto index=0; index < block_size; index++) {for (auto index2=0; index2 < feature_count; index2++) {std::cout << "uno FIRST ELEM, i1, i2, and value: " << " " << index << " " << index2 << " " << pr::ndarray<Float, 2>::wrap(train_block_queue.front().get_data(), train_block_queue.front().get_shape()).to_host(q).at(index, index2) << std::endl;
+    //     }}}
+        auto& fill_array = train_block_queue.emplace(ndarray<Float, 2, torder>::empty(q, { block_size, feature_count }, 
+            sycl::usm::alloc::device));
+        //auto [ fill_array, fill_event ] = pr::ndarray<Float, 2, torder>::full(q, { block_size, feature_count },
+        //    detail::limits<Float>::max(), sycl::usm::alloc::device, {copy_event});
+        auto fill_event = fill(q, fill_array, detail::limits<Float>::max());
+        //sycl::event::wait_and_throw({fill_event});
+        // if (block_index) {for (auto index=0; index < block_size; index++) {for (auto index2=0; index2 < feature_count; index2++) {std::cout << "dos FIRST ELEM, i1, i2, and value: " << " " << index << " " << index2 << " " << pr::ndarray<Float, 2>::wrap(train_block_queue.front().get_mutable_data(), train_block_queue.front().get_shape()).to_host(q).at(index, index2) << std::endl;
+        //         }}}
+        auto slice = row_accessor<const Float>(train).pull(q,
+            { block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) }, 
+                sycl::usm::alloc::device);
         // convert table slice from row_accessor into ndarray
-        //auto actual_block = pr::table2ndarray_variant<Float>(q, slice, sycl::usm::alloc::device);
-        auto actual_block = pr::ndview<Float, 2, torder>::wrap(slice, { block_counting.get_block_length(block_index), feature_count });
+        auto actual_block = pr::ndarray<Float, 2, torder>::wrap(slice,
+            { block_counting.get_block_length(block_index), feature_count });
         //const ndview<Float, 2, torder>& train_data = std::get<ndarray<Float, 2, torder>>(train_var);
-
         // copy table slice into current block storage, wait for event to finish before adding to queue
-        auto current_block = fill_array.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index));
-        auto copy_event = pr::copy(q, current_block, actual_block);
+        auto current_block = fill_array.get_row_slice(block_counting.get_block_start_index(block_index),
+            block_counting.get_block_end_index(block_index));
+	//std::cout << fill_array.to_host(q).get_data() << " " << actual_block.get_data() << "yeet" << std::endl;
+        copy_event = pr::copy(q, current_block, actual_block/*.to_device(q)*/, {fill_event});
         sycl::event::wait_and_throw({copy_event});
-
-        train_block_queue.emplace(current_block);
+        //train_block_queue.emplace(std::move(fill_array)/*pr::ndview<Float, 2, torder>::wrap(fill_array.get_data(), fill_array.get_shape())*/);
+        std::cout << "added to block queue in iteration " << block_index << ":" << std::endl;
+		std::cout << pr::ndarray<Float, 2>::wrap(fill_array.get_data(), fill_array.get_shape()).to_host(q) << std::endl;
     }
+    sycl::event::wait_and_throw({copy_event});
+    std::cout << "Loop complete." << std::endl;
+    std::cout << "front block of queue: " << std::endl;
+    std::cout << pr::ndarray<Float, 2>::wrap(train_block_queue.front().get_data(), train_block_queue.front().get_shape()).to_host(q) << std::endl;
+    std::cout << "back block of queue: " << std::endl;
+    std::cout << pr::ndarray<Float, 2>::wrap(train_block_queue.back().get_data(), train_block_queue.back().get_shape()).to_host(q) << std::endl;
 
     return train_block_queue;
 }

@@ -180,7 +180,7 @@ public:
     }
 
     sycl::event reset_dists_inds(const bk::event_vector& deps) {
-        constexpr Float default_dst_value = -1.0;
+        constexpr Float default_dst_value = de::limits<Float>::max();
         constexpr idx_t default_idx_value = -1;
         auto out_dsts = pr::fill(this->queue_, this->distances_, default_dst_value, deps);
         auto out_idcs = pr::fill(this->queue_, this->indices_, default_idx_value, {out_dsts});
@@ -230,9 +230,12 @@ public:
         sycl::event copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event;
         const auto& [first, last] = this->block_bounds(qb_id);
 
-        auto start_index = 2 * first;
-        auto middle_index = start_index + (last - first);
-        auto end_index = 2 * last;
+        // std::cout << "in operator, bounds and k_neighbors:: " << first << " " << last << " " << k_neighbors_ << std::endl;
+        // for (auto index = 0; index < last - first; index++) {
+        //     for (auto index2 = 0; index2 < k_neighbors_; index2++) {
+        //         std::cout << "input indices and distances at locations: " << index << " " << index2 << " " << pr::ndarray<idx_t, 2>::wrap(inp_indices.get_data(), inp_indices.get_shape()).to_host(queue_).at(index, index2) << " " << pr::ndarray<Float, 2>::wrap(inp_distances.get_data(), inp_distances.get_shape()).to_host(queue_).at(index, index2) << std::endl;
+        //     }
+        // }
 
         //TODO: add assertions/checks - mostly related to ensuring things are size k
         //TODO: make sure all these numbers and functionality works as intended
@@ -247,16 +250,16 @@ public:
         ONEDAL_ASSERT(global_index_offset_ != -1);
         auto treat_event = pr::treat_indices(queue_, inp_indices, global_index_offset_, deps);
 
-        auto actual_min_dist_copy_dest = part_distances_.get_row_slice(start_index, middle_index);
-        auto current_min_dist_dest = part_distances_.get_row_slice(middle_index, end_index);
-        copy_actual_dist_event = pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, {treat_event});
-        copy_current_dist_event = pr::copy(queue_, current_min_dist_dest, inp_distances, {treat_event});
+        auto actual_min_dist_copy_dest = part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);//get_row_slice(start_index, middle_index);
+        auto current_min_dist_dest = part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);//get_row_slice(middle_index, end_index);
+        copy_actual_dist_event = pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, deps);
+        copy_current_dist_event = pr::copy(queue_, current_min_dist_dest, inp_distances, deps);
         
-        auto actual_min_indc_copy_dest = part_indices_.get_row_slice(start_index, middle_index);
-        auto current_min_indc_dest = part_indices_.get_row_slice(middle_index, end_index);
-        copy_actual_indc_event = pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, {treat_event});
-        copy_current_indc_event = pr::copy(queue_, current_min_indc_dest, inp_indices, {treat_event});
-
+        auto actual_min_indc_copy_dest = part_indices_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);//get_row_slice(start_index, middle_index);
+        auto current_min_indc_dest = part_indices_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);//get_row_slice(middle_index, end_index);
+        copy_actual_indc_event = pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, deps);
+        copy_current_indc_event = pr::copy(queue_, current_min_indc_dest, inp_indices, deps);
+        //std::cout << "in operator: " << pr::ndarray<Float, 2>::wrap(actual_min_dist_copy_dest.get_data(), actual_min_dist_copy_dest.get_shape()).to_host(queue_).at(0,0) << std::endl;
         auto kselect_block = part_distances_.get_row_slice(first, last);
         auto selt_event = select(queue_,
                                 kselect_block,
@@ -490,7 +493,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     const auto qcount = query.get_dimension(0);
     const auto fcount = train.get_column_count();
     ONEDAL_ASSERT(fcount == query.get_dimension(1));
-
     // Output arrays test section
     const auto& ropts = desc.get_result_options();
     if (ropts.test(result_options::responses)) {
@@ -518,7 +520,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     comm.allgather(tcount, node_sample_counts.flatten()).wait();
 
     auto current_rank = comm.get_rank();
-    auto prev_node = (current_rank - 1) % rank_count;
+    auto prev_node = (current_rank - 1 + rank_count) % rank_count;
     auto next_node = (current_rank + 1) % rank_count;
 
     auto [nodes, boundaries] = pr::get_boundary_indices(node_sample_counts, block_size);
@@ -526,7 +528,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     std::int32_t block_count = nodes.size();
 
     auto train_block_queue = pr::split_dataset<Float, torder>(queue, train, block_size, deps);
-
+    std::cout << "rank: " << current_rank << std::endl;
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
 
@@ -590,7 +592,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     for(auto block_number = 0; block_number < block_count; block_number++) {
         // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
         auto current_block = train_block_queue.front();
-	train_block_queue.pop();
+	    train_block_queue.pop();
         auto block_index = (block_number + first_block_index) % block_count;
         auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
 
@@ -603,7 +605,11 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         if (block_number == block_count - 1) {
             callback.set_last_iteration(true);
         }
-
+        // for (auto index = 0; index < actual_rows_in_block; index++) {
+        //     for (auto index2 = 0; index2 < fcount; index2 ++) {
+        //     std::cout << "block number, block index, block count, index, index2, and value in block: " << block_number << " " << block_index << " " << block_count << " " << index << " " << index2 << " " << pr::ndarray<Float, 2>::wrap(actual_current_block.get_data(), actual_current_block.get_shape()).to_host(queue).at(index, index2) << std::endl;
+        //     }
+        // }
         if (is_cosine_distance) {
             using dst_t = pr::cosine_distance<Float>;
             using search_t = pr::search_engine<Float, dst_t, torder>;
@@ -649,9 +655,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         //const search_t search{ queue, train, tbcount, dist };
         //search.reset_train_data(actual_current_block, tbcount);
         //next_event = search(query, callback, qbcount, kcount, { next_event });
-    
-        comm.sendrecv_replace(current_block.get_mutable_data(), current_block.get_count(),  prev_node, next_node).wait();
-	//TODO: add back to queue
+
+        comm.sendrecv_replace(array<Float>::wrap(queue, current_block.get_mutable_data(), current_block.get_count(), {next_event}), prev_node, next_node).wait();
+        train_block_queue.emplace(current_block);
     }
 
     return next_event;

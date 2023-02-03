@@ -29,21 +29,23 @@ namespace oneapi::dal::backend::primitives {
 
 // // TODO: figure out this function
 std::int64_t get_block_size() {
-    std::int64_t block_size = 1024;
+    std::int64_t block_size = 5;
     return block_size;
 }
 
 // TODO: figure out this function
 template <typename Float>
 std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width) {
-    constexpr std::int64_t result = 4096 * 8 / sizeof(Float);
-    return result;
+    //constexpr std::int64_t result = 4096 * 8 / sizeof(Float);
+    //return result;
+    return 5;
 }
 
 template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width) {
-    constexpr std::int64_t result = 8192 * 8 / sizeof(Float);
-    return result;
+    //constexpr std::int64_t result = 8192 * 8 / sizeof(Float);
+    //return result;
+    return 5;
 }
 
 template <typename Index>
