@@ -732,7 +732,7 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
 
     if (ctx.splitter_mode_value == splitter_mode::random) {
         pr::engine_collection collection(1, ctx.seed);
-        std::vector<pr::engine> engine_arr = collection([&](std::size_t i, std::size_t j) {
+        std::vector<pr::engine> engine_arr = collection([&](std::size_t i, std::size_t& j) {
             j = i;
         });
         pr::rng<Index> rn_gen;
