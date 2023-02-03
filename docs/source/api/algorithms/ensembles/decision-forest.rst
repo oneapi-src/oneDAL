@@ -92,6 +92,15 @@ voting_mode::weighted
 voting_mode::unweighted
    The final prediction is combined through a simple majority voting.
 
+`splitter_mode`
+~~~~~~~~~~~~~
+
+splitter_mode::best
+   Best splitter will be used while building trees.
+
+splitter_mode::random
+   Random spliiter will be used while building trees.
+
 Descriptor
 ++++++++++
 .. onedal_class:: oneapi::dal::decision_forest::descriptor
