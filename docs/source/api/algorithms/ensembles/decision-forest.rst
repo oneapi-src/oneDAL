@@ -96,10 +96,12 @@ voting_mode::unweighted
 ~~~~~~~~~~~~~
 
 splitter_mode::best
-   Best splitter will be used while building trees.
+   Best splitting strategy chooses best treshold for each feature while building trees 
+   in terms of impurity among all histogram bins and feature subset.
 
 splitter_mode::random
-   Random spliiter will be used while building trees.
+   Random splitting strategy chooses random treshold for each while building trees
+   and selects best feature in terms of impurity among all historgram bins and feature subset.
 
 Descriptor
 ++++++++++
