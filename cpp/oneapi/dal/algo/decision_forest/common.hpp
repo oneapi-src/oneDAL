@@ -124,8 +124,13 @@ enum class voting_mode {
     unweighted
 };
 
-/// Splitting strategy for decision forest
-enum class splitter_mode { best, random };
+/// Available splitting strategies for building trees
+enum class splitter_mode {
+    /// Treshold for node is chosen as best among all bins
+    best,
+    /// Treshold for node is chosen as random treshold
+    random
+};
 
 inline infer_mode operator|(infer_mode value_left, infer_mode value_right) {
     return bitwise_or(value_left, value_right);
