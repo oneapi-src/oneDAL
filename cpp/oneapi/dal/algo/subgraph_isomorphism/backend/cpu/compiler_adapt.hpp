@@ -49,7 +49,7 @@ ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32(std::uint32_t a) {
 
 template <typename Cpu>
 ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64(std::uint64_t a) {
-#if defined(DAAL_INTEL_CPP_COMPILER)
+#if defined(__AVX__) && defined(DAAL_INTEL_CPP_COMPILER)
     return _lzcnt_u64(a);
 #else
     if (a == 0)
@@ -66,7 +66,7 @@ ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64(std::uint64_t a) {
 
 template <typename Cpu>
 ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
-#if defined(DAAL_INTEL_CPP_COMPILER)
+#if defined(__AVX__) && defined(DAAL_INTEL_CPP_COMPILER)
     return _popcnt64(a);
 #else
     if (a == 0)
