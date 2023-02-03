@@ -93,7 +93,7 @@ voting_mode::unweighted
    The final prediction is combined through a simple majority voting.
 
 `splitter_mode`
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 splitter_mode::best
    Best splitting strategy chooses best treshold for each feature while building trees 
