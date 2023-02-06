@@ -171,8 +171,9 @@ void pull_column_indices_impl(const Policy& policy,
 ///
 /// @param[in] policy                   Execution policy.
 /// @param[in] origin_row_offsets       `row_offsets` array in the CSR table.
-/// @param[in] block_info               Number of elemenst of the `column_indices` array in CSR table
-///                                     to be pulled.
+/// @param[in] block_info               Information about the block of rows requested by the pull method.
+///                                     Contains: layout, number of rows, information about data type,
+///                                     indexing, etc.
 /// @param[in] indices_offset           The offset between the indices in the CSR table and the indices
 ///                                     requested by the pull method:
 ///                                         0, if the indexing is the same in the table
@@ -181,7 +182,7 @@ void pull_column_indices_impl(const Policy& policy,
 ///                                            and pull method resuests one=based indexing;
 ///                                        -1, if the table has one-based indexing
 ///                                            and pull method resuests zero=based indexing.
-/// @param[out] column_indices      Array that stores the block of rows of `column_indices` array pulled
+/// @param[out] row_offsets         Array that stores the block of values of `row_offsets` array pulled
 ///                                 from the CSR table.
 /// @param[in] kind                 The requested kind of USM in the returned block.
 /// @param[in] preserve_mutability  True if the mutability should be preserved in the output array.
