@@ -42,9 +42,9 @@ public:
     }
 
     csr_block<data_t> pull(const range& row_range = { 0, -1 },
-                           const csr_indexing indexing = csr_indexing::one_based) const {
+                           const sparse_indexing indexing = sparse_indexing::one_based) const {
         csr_block<data_t> block;
-        pull_iface_->pull_csr_block(detail::default_host_policy{}, block, indexing, row_range);
+        pull_iface_->pull_csr_block(detail::default_host_policy{}, block.data, block.column_indices, block.row_indices, indexing, row_range);
         return block;
     }
 

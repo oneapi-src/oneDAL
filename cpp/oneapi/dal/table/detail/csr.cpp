@@ -38,7 +38,7 @@ const std::int64_t* csr_table::get_column_indices() const {
 
 const std::int64_t* csr_table::get_row_indices() const {
     const auto& impl = detail::cast_impl<detail::csr_table_iface>(*this);
-    return impl.get_row_indices().get_data();
+    return impl.get_row_offsets().get_data();
 }
 
 std::int64_t csr_table::get_non_zero_count() const {
@@ -53,12 +53,11 @@ void csr_table::init_impl(std::int64_t column_count,
                           const dal::array<std::int64_t>& column_indices,
                           const dal::array<std::int64_t>& row_indices,
                           const data_type& dtype,
-                          csr_indexing indexing) {
-    table::init_impl(new backend::csr_table_impl(column_count,
-                                                 row_count,
-                                                 data,
+                          sparse_indexing indexing) {
+    table::init_impl(new backend::csr_table_impl(data,
                                                  column_indices,
                                                  row_indices,
+                                                 column_count,
                                                  dtype,
                                                  indexing));
 }

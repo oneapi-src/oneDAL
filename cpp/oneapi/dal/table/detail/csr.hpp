@@ -46,14 +46,14 @@ public:
     /// @param row_indices    The array of row indices in the CSR layout.
     /// @param row_count      The number of rows in the corresponding dense table.
     /// @param column_count   The number of columns in the corresponding dense table.
-    /// @param indexing       The indexing scheme used to access data in the CSR layout. Support only :literal:`csr_indexing::one_based`.
+    /// @param indexing       The indexing scheme used to access data in the CSR layout. Support only :literal:`sparse_indexing::one_based`.
     template <typename Data>
     csr_table(const dal::array<Data>& data,
               const dal::array<std::int64_t>& column_indices,
               const dal::array<std::int64_t>& row_indices,
               std::int64_t row_count,
               std::int64_t column_count,
-              csr_indexing indexing = csr_indexing::one_based) {
+              sparse_indexing indexing = sparse_indexing::one_based) {
         init_impl(data, column_indices, row_indices, row_count, column_count, indexing);
     }
 
@@ -90,11 +90,11 @@ private:
                        const std::int64_t column_count,
                        const std::int64_t* row_indices,
                        const std::int64_t* column_indices,
-                       const csr_indexing indexing) const {
+                       const sparse_indexing indexing) const {
         using error_msg = dal::detail::error_messages;
-        const std::int64_t min_value = (indexing == csr_indexing::zero_based) ? 0 : 1;
+        const std::int64_t min_value = (indexing == sparse_indexing::zero_based) ? 0 : 1;
         const std::int64_t max_value =
-            (indexing == csr_indexing::zero_based) ? column_count - 1 : column_count;
+            (indexing == sparse_indexing::zero_based) ? column_count - 1 : column_count;
         const std::int64_t element_count = row_indices[row_count] - row_indices[0];
         const std::int64_t last_value = row_indices[row_count];
 
@@ -106,20 +106,20 @@ private:
             throw dal::domain_error(error_msg::cc_leq_zero());
         }
 
-        if (indexing != csr_indexing::one_based) {
+        if (indexing != sparse_indexing::one_based) {
             throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
         if (element_count < 0) {
-            throw dal::domain_error(error_msg::row_indices_lt_min_value());
+            throw dal::domain_error(error_msg::row_offsets_lt_min_value());
         }
 
         for (std::int64_t i = 0; i <= row_count; i++) {
             if (row_indices[i] < min_value) {
-                throw dal::domain_error(error_msg::row_indices_lt_min_value());
+                throw dal::domain_error(error_msg::row_offsets_lt_min_value());
             }
             if (row_indices[i] > last_value) {
-                throw dal::domain_error(error_msg::row_indices_gt_max_value());
+                throw dal::domain_error(error_msg::row_offsets_gt_max_value());
             }
         }
 
@@ -139,7 +139,7 @@ private:
                    const dal::array<std::int64_t>& row_indices,
                    std::int64_t row_count,
                    std::int64_t column_count,
-                   csr_indexing indexing) {
+                   sparse_indexing indexing) {
         check_indices(row_count,
                       column_count,
                       row_indices.get_data(),
@@ -161,7 +161,7 @@ private:
                    const dal::array<std::int64_t>& column_indices,
                    const dal::array<std::int64_t>& row_indices,
                    const data_type& dtype,
-                   csr_indexing indexing);
+                   sparse_indexing indexing);
 };
 
 } // namespace v1
