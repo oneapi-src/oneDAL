@@ -250,13 +250,11 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_sin
 
                         ts.ftr_bin = -1;
                         if (ctx.splitter_mode_value == splitter_mode::best) {
-                            ts.ftr_bin = sycl::reduce_over_group(item.get_group(),
-                                                                 bin > ts.ftr_bin ? bin : index_max,
-                                                                 minimum<Index>());
-                        }
-                        else {
                             ts.ftr_bin = ft_rnd_ptr[ftr_idx] % index_max;
                         }
+                        ts.ftr_bin = sycl::reduce_over_group(item.get_group(),
+                                                             bin > ts.ftr_bin ? bin : index_max,
+                                                             minimum<Index>());
                         bool computed_once = true;
 
                         // Compute once with random selected bin OR compute for all bins
