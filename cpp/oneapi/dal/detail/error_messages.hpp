@@ -228,6 +228,9 @@ public:
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
 
+    /* Linear Regression */
+    MSG(intercept_result_option_requires_intercept_flag);
+
     /* Louvain */
     MSG(negative_resolution);
     MSG(input_initial_partition_table_rc_neq_vertex_count);
@@ -280,7 +283,7 @@ public:
     MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);
 
-    /* DBSCAN */
+    /* DBSCAN & Basic Statistics*/
     MSG(weight_dimension_doesnt_match_data_dimension);
     MSG(weights_column_count_ne_1);
 

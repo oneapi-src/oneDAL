@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::linear_regression {
 
@@ -33,6 +34,11 @@ public:
 template <typename Task>
 class detail::v1::train_result_impl : public base {
 public:
+    table intercept;
+    table coefficients;
+
+    result_option_id options;
+
     model<Task> trained_model;
 };
 
@@ -79,6 +85,62 @@ const model<Task>& train_result<Task>::get_model() const {
 template <typename Task>
 void train_result<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
+}
+
+template <typename Task>
+const table& train_result<Task>::get_intercept() const {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::intercept)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->intercept;
+}
+
+template <typename Task>
+void train_result<Task>::set_intercept_impl(const table& value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::intercept)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    impl_->intercept = value;
+}
+
+template <typename Task>
+const table& train_result<Task>::get_coefficients() const {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::coefficients)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->coefficients;
+}
+
+template <typename Task>
+void train_result<Task>::set_coefficients_impl(const table& value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::coefficients)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    impl_->coefficients = value;
+}
+
+template <typename Task>
+const table& train_result<Task>::get_packed_coefficients() const {
+    return impl_->trained_model.get_packed_coefficients();
+}
+
+template <typename Task>
+void train_result<Task>::set_packed_coefficients_impl(const table& value) {
+    impl_->trained_model.set_packed_coefficients(value);
+}
+
+template <typename Task>
+const result_option_id& train_result<Task>::get_result_options() const {
+    return impl_->options;
+}
+
+template <typename Task>
+void train_result<Task>::set_result_options_impl(const result_option_id& value) {
+    impl_->options = value;
 }
 
 template class ONEDAL_EXPORT train_input<task::regression>;

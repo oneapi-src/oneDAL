@@ -63,6 +63,8 @@ class local_result {
     using own_t = local_result<Float, List>;
 
 public:
+    local_result() = default;
+
     static own_t empty(sycl::queue& q, std::int64_t count, bool deffered_fin = false) {
         own_t res;
         if constexpr (check_mask_flag(bs_list::min, List)) {
@@ -134,8 +136,6 @@ public:
     }
 
 private:
-    local_result() = default;
-
     pr::ndarray<Float, 1> rmin_;
     pr::ndarray<Float, 1> rmax_;
     pr::ndarray<Float, 1> rsum_;

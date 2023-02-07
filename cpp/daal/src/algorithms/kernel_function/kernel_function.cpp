@@ -114,31 +114,31 @@ void Result::set(ResultId id, const NumericTablePtr & ptr)
 */
 Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    Status s;
+    Status st;
     Input * algInput             = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
     ParameterBase * algParameter = static_cast<ParameterBase *>(const_cast<daal::algorithms::Parameter *>(par));
 
-    const size_t nRowsX = algInput->get(X)->getNumberOfRows();
-    const size_t nRowsY = algInput->get(Y)->getNumberOfRows();
-
-    const int unexpectedLayouts = packed_mask;
-    DAAL_CHECK_STATUS(s, checkNumericTable(get(values).get(), valuesStr(), unexpectedLayouts, 0, 0, nRowsX));
-
+    const size_t nRowsX         = algInput->get(X)->getNumberOfRows();
+    const size_t nRowsY         = algInput->get(Y)->getNumberOfRows();
     const size_t nVectorsValues = get(values)->getNumberOfRows();
 
+    if (nVectorsValues != nRowsX && nVectorsValues != nRowsY)
+    {
+        st.add(Error::create(ErrorIncorrectNumberOfRows, ParameterName, valuesStr()));
+    }
     if (algParameter->rowIndexResult >= nVectorsValues)
     {
-        return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexResultStr()));
+        st.add(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexResultStr()));
     }
     if (algParameter->rowIndexX >= nRowsX)
     {
-        return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexXStr()));
+        st.add(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexXStr()));
     }
     if (algParameter->rowIndexY >= nRowsY)
     {
-        return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexYStr()));
+        st.add(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexYStr()));
     }
-    return s;
+    return st;
 }
 
 } // namespace interface1

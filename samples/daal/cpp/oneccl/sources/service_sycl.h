@@ -27,7 +27,7 @@
 #include <memory>
 
 #include <CL/cl.h>
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include "service.h"
 

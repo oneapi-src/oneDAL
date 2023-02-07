@@ -85,7 +85,7 @@ endif
 
 ifeq ($(compiler),gnu)
     CC = g++
-    COPTS += $(if $(filter ia32, intel64), -m32, -m64)
+    COPTS += -m64
 endif
 
 

@@ -17,7 +17,7 @@
 #pragma once
 
 #include <vector>
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 void try_add_device(std::vector<sycl::device>& devices, int (*selector)(const sycl::device&)) {
     try {

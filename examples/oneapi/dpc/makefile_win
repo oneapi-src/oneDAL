@@ -46,6 +46,8 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
+!MESSAGE =====make build system for DAAL in deprecated, please use cmake instead====!
+
 {examples_list}
 
 !IFNDEF example

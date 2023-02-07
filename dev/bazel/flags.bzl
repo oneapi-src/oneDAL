@@ -17,7 +17,6 @@
 lnx_cc_common_flags = [
     "-fwrapv",
     "-fstack-protector-strong",
-    "-fno-strict-overflow",
     "-fno-delete-null-pointer-checks",
     "-Werror",
     "-Wformat",
@@ -48,6 +47,11 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
                 "-mGLOB_freestanding=TRUE",
                 "-mCG_no_libirc=TRUE",
             ]
+        if compiler_id == "icx" and category == "common":
+            flags = flags + [
+                "-qopenmp-simd",
+                "-no-intel-lib=libirc",
+            ]
         if compiler_id == "icpx":
             flags = flags + ["-fsycl"]
         if compiler_id == "icpx" and category == "pedantic":
@@ -55,42 +59,34 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
             flags = flags + ["-Wno-unused-command-line-argument"]
         if compiler_id == "gcc" or compiler_id == "icpx":
             flags = flags + ["-Wno-gnu-zero-variadic-macro-arguments"]
+        if compiler_id not in ["icx", "icpx"]:
+            flags = flags + ["-fno-strict-overflow"]
         return flags
     fail("Unsupported OS")
 
 def get_cpu_flags(arch_id, os_id, compiler_id):
     sse2 = []
-    ssse3 = []
     sse42 = []
-    avx = []
     avx2 = []
     avx512 = []
     if compiler_id == "gcc":
-        sse2 = ["-march={}".format("pentium4" if arch_id == "ia32" else "nocona")]
-        ssse3 = ["-march={}".format("pentium4" if arch_id == "ia32" else "nocona")]
+        sse2 = ["-march=nocona"]
         sse42 = ["-march=corei7"]
-        avx = ["-march=sandybridge"]
         avx2 = ["-march=haswell"]
         avx512 = ["-march=haswell"]
     elif compiler_id == "icc":
         sse2 = ["-xSSE2"]
-        ssse3 = ["-xSSE3"]
         sse42 = ["-xSSE4.2"]
-        avx = ["-xAVX"]
         avx2 = ["-xCORE-AVX2"]
         avx512 = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
-    elif compiler_id == "icpx":
+    elif compiler_id in ["icx", "icpx"]:
         sse2 = ["-march=nocona"]
-        ssse3 = ["-march=core2"]
         sse42 = ["-march=nehalem"]
-        avx = ["-march=sandybridge"]
         avx2 = ["-march=haswell"]
         avx512 = ["-march=skx"]
     return {
         "sse2": sse2,
-        "ssse3": ssse3,
         "sse42": sse42,
-        "avx": avx,
         "avx2": avx2,
         "avx512": avx512,
     }

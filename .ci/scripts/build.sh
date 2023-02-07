@@ -19,9 +19,6 @@ while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-        --platform)
-        platform="$2"
-        ;;
         --compiler)
         compiler="$2"
         ;;
@@ -43,10 +40,12 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-OS=${platform::3}
-ARCH=${platform:3:3}
+PLATFORM=$(bash dev/make/identify_os.sh)
+OS=${PLATFORM::3}
+ARCH=${PLATFORM:3:3}
 
 optimizations=${optimizations:-avx2}
+GLOBAL_RETURN=0
 
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
@@ -92,8 +91,13 @@ export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
 make ${target:-daal_c} ${make_op} \
-    PLAT=${platform} \
     COMPILER=${compiler} \
     REQCPU="${optimizations}"
+err=$?
 
-exit $?
+if [ ${err} -ne 0 ]; then
+    status_ex="$(date +'%H:%M:%S') BUILD FAILED with errno ${err}"
+    GLOBAL_RETURN=${err}
+fi
+
+exit ${GLOBAL_RETURN}

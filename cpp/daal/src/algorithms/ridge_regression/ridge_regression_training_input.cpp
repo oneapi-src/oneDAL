@@ -93,7 +93,8 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     size_t nRowsInData              = dataTable->getNumberOfRows();
     size_t nColumnsInData           = dataTable->getNumberOfColumns();
 
-    DAAL_CHECK(nRowsInData >= nColumnsInData, ErrorIncorrectNumberOfObservations);
+    DAAL_CHECK(nRowsInData > 0, ErrorIncorrectNumberOfObservations);
+    DAAL_CHECK(nColumnsInData > 0, ErrorIncorrectNumberOfFeatures);
 
     const NumericTablePtr dependentVariableTable = get(dependentVariables);
     const size_t nColumnsInDepVariable           = dependentVariableTable->getNumberOfColumns();

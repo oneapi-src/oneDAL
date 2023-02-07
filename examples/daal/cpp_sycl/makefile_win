@@ -58,6 +58,9 @@ help:
 
 {examples_list}
 
+!MESSAGE =====DAAL SYCL interfaces are depricated, please use oneDAL DPC interfaces====!
+!MESSAGE =====make build system for DAAL in deprecated, please use cmake instead====!
+
 !IFNDEF example
 example = $(EXAMPLES_LIST)
 !ENDIF

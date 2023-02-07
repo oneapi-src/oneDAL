@@ -51,6 +51,8 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
+$(info =====make build system for DAAL in deprecated, please use cmake instead====)
+
 include onedal.lst
 
 ifndef example
@@ -137,7 +139,7 @@ endif
 
 ifeq ($(compiler),icx)
     gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-    CC = icx --gcc-toolchain=$(gcc_toolchain)
+    CC = icpx --gcc-toolchain=$(gcc_toolchain)
     COPTS += -lstdc++
 endif
 
