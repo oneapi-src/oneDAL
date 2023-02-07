@@ -19,10 +19,13 @@
 #include <variant>
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/backend/common.hpp"
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+
+#include "oneapi/dal/table/common.hpp"
 
 #include <queue>
 
@@ -160,62 +163,6 @@ inline ndarray<Type, 1> table2ndarray_1d(sycl::queue& q,
     const auto data = accessor.pull(q, { 0, -1 }, alloc);
     return ndarray<Type, 1>::wrap(data, { data.get_count() });
 }
-
-std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(ndarray<std::int64_t, 1> sample_counts, std::int64_t block_size) {
-    std::vector<std::int32_t> nodes;
-    std::vector<std::int64_t> boundaries;
-    std::int64_t global_bias = 0;
-    for(std::int32_t i = 0; i < sample_counts.get_dimension(0); i++) {
-        auto s = sample_counts.at(i);
-        auto block_counting = uniform_blocking(s, block_size);
-        auto block_count = block_counting.get_block_count();
-        for(std::int32_t block_index = 0; block_index < block_count; block_index++) {
-            nodes.push_back(i);
-            auto local = std::min(s, block_index * block_size);
-            auto biased = local + global_bias;
-            boundaries.push_back(biased);
-        }
-        global_bias = global_bias + s;
-    }
-    boundaries.push_back(global_bias);
-    return std::make_tuple(nodes, boundaries);
-}
-
-template <typename Float, ndorder torder>
-std::queue<ndview<Float, 2, torder>> split_dataset(sycl::queue& q, const table& train, std::int64_t block_size, const bk::event_vector& deps = {}) {
-    std::queue<ndview<Float, 2, torder>> train_block_queue;
-    const auto train_count = train.get_row_count();
-    const auto feature_count = train.get_column_count();
-
-    auto block_counting = uniform_blocking(train_count, block_size);
-
-    sycl::event::wait_and_throw(deps);
-    
-    for(std::int32_t block_index = 0; block_index < block_counting.get_block_count(); block_index++) {
-        // allocate ndarray of proper size + fill with standard value (ie inf, dead beef)
-        auto [ fill_array, fill_event ] = pr::ndarray<Float, 2, torder>::full(q, { block_size, feature_count }, -1.0, sycl::usm::alloc::device);
-        sycl::event::wait_and_throw({fill_event});
-        // use row accessor
-        auto slice = row_accessor<const Float>(train).pull({ block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index) });
-
-        // convert table slice from row_accessor into ndarray
-        //auto actual_block = pr::table2ndarray_variant<Float>(q, slice, sycl::usm::alloc::device);
-        auto actual_block = pr::ndview<Float, 2, torder>::wrap(slice, { block_counting.get_block_length(block_index), feature_count });
-        //const ndview<Float, 2, torder>& train_data = std::get<ndarray<Float, 2, torder>>(train_var);
-
-        // copy table slice into current block storage, wait for event to finish before adding to queue
-        auto current_block = fill_array.get_row_slice(block_counting.get_block_start_index(block_index), block_counting.get_block_end_index(block_index));
-        auto copy_event = pr::copy(q, current_block, actual_block);
-        sycl::event::wait_and_throw({copy_event});
-
-        train_block_queue.emplace(current_block);
-    }
-
-    return train_block_queue;
-}
 #endif
-
-template std::queue<ndview<double, 2, ndorder::c>> split_dataset(sycl::queue&, const table&, std::int64_t, const bk::event_vector&);
-template std::queue<ndview<float, 2, ndorder::c>> split_dataset(sycl::queue&, const table&, std::int64_t, const bk::event_vector&);
 
 } // namespace oneapi::dal::backend::primitives

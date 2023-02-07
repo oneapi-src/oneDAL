@@ -141,16 +141,27 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             (desc.get_voting_mode() == voting_t::distance)) {
             const auto part_length = de::check_mul_overflow(2 * infer_row_count, neighbor_count);
             part_distances = array<Float>::empty(queue, part_length, sycl::usm::alloc::device);
-            wrapped_part_distances = pr::ndview<Float, 2>::wrap_mutable(part_distances, { 2 * infer_row_count, neighbor_count });
+            wrapped_part_distances = pr::ndview<Float, 2>::wrap_mutable(part_distances, { infer_row_count, 2 * neighbor_count });
         }
         auto part_indices = array<idx_t>{};
         auto wrapped_part_indices = pr::ndview<idx_t, 2>{};
         if (desc.get_result_options().test(result_options::indices)) {
             const auto part_length = de::check_mul_overflow(2 * infer_row_count, neighbor_count);
             part_indices = array<idx_t>::empty(queue, part_length, sycl::usm::alloc::device);
-            wrapped_part_indices = pr::ndview<idx_t, 2>::wrap_mutable(part_indices, { 2 * infer_row_count, neighbor_count });
+            wrapped_part_indices = pr::ndview<idx_t, 2>::wrap_mutable(part_indices, { infer_row_count, 2 * neighbor_count });
         }
-        bf_kernel_distr(queue, comm, desc, train, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
+        auto part_responses = array<res_t>{};
+        auto wrapped_part_responses = pr::ndview<res_t, 2>{};
+        auto intermediate_responses = array<res_t>{};
+        auto wrapped_intermediate_responses = pr::ndview<res_t, 2>{};
+        if (desc.get_result_options().test(result_options::responses)) {
+            const auto part_length = de::check_mul_overflow(2 * infer_row_count, neighbor_count);
+            part_responses = array<res_t>::empty(queue, part_length, sycl::usm::alloc::device);
+            wrapped_part_responses = pr::ndview<res_t, 2>::wrap_mutable(part_responses, { infer_row_count, 2 * neighbor_count });
+            intermediate_responses = array<res_t>::empty(queue, infer_row_count * neighbor_count, sycl::usm::alloc::device);
+            wrapped_intermediate_responses = pr::ndview<res_t, 2>::wrap_mutable(intermediate_responses, { infer_row_count, neighbor_count });
+        }
+        bf_kernel_distr(queue, comm, desc, train, query_data, resps, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses, wrapped_part_responses, wrapped_intermediate_responses)
             .wait_and_throw();
     }
     else {
@@ -188,21 +199,20 @@ static infer_result<Task> call_kernel(const context_gpu& ctx,
     auto& q = ctx.get_queue();
     const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
     const auto train = trained_model->get_data();
-    // const bool cm_train = is_col_major(train);
-    // const bool cm_query = is_col_major(infer);
-    // if (cm_train) {
-    //     if (cm_query)
-    //         return kernel<Float, Task, true, true>(desc, infer, m, q, c);
-    //     else
-    //         return kernel<Float, Task, true, false>(desc, infer, m, q, c);
-    // }
-    // else {
-    //     if (cm_query)
-    //         return kernel<Float, Task, false, true>(desc, infer, m, q, c);
-    //     else
-    //         return kernel<Float, Task, false, false>(desc, infer, m, q, c);
-    // }
-    return kernel<Float, Task, false, false>(desc, infer, m, q, c);
+    const bool cm_train = is_col_major(train);
+    const bool cm_query = is_col_major(infer);
+    if (cm_train) {
+        if (cm_query)
+            return kernel<Float, Task, true, true>(desc, infer, m, q, c);
+        else
+            return kernel<Float, Task, true, false>(desc, infer, m, q, c);
+    }
+    else {
+        if (cm_query)
+            return kernel<Float, Task, false, true>(desc, infer, m, q, c);
+        else
+            return kernel<Float, Task, false, false>(desc, infer, m, q, c);
+    }
 }
 
 template <typename Float, typename Task>
