@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <limits>
+
 #include "oneapi/dal/algo/basic_statistics/compute.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -49,28 +51,39 @@ public:
     }
 
     void general_checks(const te::dataframe& data_fr,
-                        bs::result_option_id compute_mode,
-                        const te::table_id& data_table_id) {
-        CAPTURE(compute_mode);
-        const table data = data_fr.get_table(this->get_policy(), data_table_id);
+                        std::shared_ptr<te::dataframe> weights_fr,
+                        bs::result_option_id compute_mode) {
+        const auto use_weights = bool(weights_fr);
+        CAPTURE(use_weights, compute_mode);
 
         const auto bs_desc = get_descriptor(compute_mode);
+        const auto data_table_id = this->get_homogen_table_id();
 
-        const auto compute_result = this->compute(bs_desc, data);
+        table weights, data = data_fr.get_table(this->get_policy(), data_table_id);
 
-        check_compute_result(compute_mode, data, compute_result);
+        bs::compute_result<> compute_result;
+        if (use_weights) {
+            weights = weights_fr->get_table(this->get_policy(), data_table_id);
+            compute_result = this->compute(bs_desc, data, weights);
+        }
+        else {
+            compute_result = this->compute(bs_desc, data);
+        }
+
+        check_compute_result(compute_mode, data, weights, compute_result);
         check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
     void check_compute_result(bs::result_option_id compute_mode,
                               const table& data,
+                              const table& weights,
                               const result_t& result) {
         SECTION("result tables' shape is expected") {
             check_result_shape(compute_mode, data, result);
         }
 
         SECTION("check results against reference") {
-            check_vs_reference(compute_mode, data, result);
+            check_vs_reference(compute_mode, data, weights, result);
         }
     }
 
@@ -102,36 +115,86 @@ public:
         }
     }
 
+    void check_if_close(const table& left,
+                        const table& right,
+                        std::string name = "",
+                        double tol = 1e-2) {
+        constexpr auto eps = std::numeric_limits<float_t>::epsilon();
+
+        const auto c_count = left.get_column_count();
+        const auto r_count = left.get_row_count();
+
+        REQUIRE(right.get_column_count() == c_count);
+        REQUIRE(right.get_row_count() == r_count);
+
+        row_accessor<const float_t> lacc(left);
+        row_accessor<const float_t> racc(right);
+
+        const auto larr = lacc.pull({ 0, -1 });
+        const auto rarr = racc.pull({ 0, -1 });
+
+        for (std::int64_t r = 0; r < r_count; ++r) {
+            for (std::int64_t c = 0; c < c_count; ++c) {
+                const auto lval = larr[r * c_count + c];
+                const auto rval = rarr[r * c_count + c];
+
+                CAPTURE(name, r_count, c_count, r, c, lval, rval);
+
+                const auto aerr = std::abs(lval - rval);
+                if (aerr < tol)
+                    continue;
+
+                const auto den = std::max({ eps, //
+                                            std::abs(lval),
+                                            std::abs(rval) });
+
+                const auto rerr = aerr / den;
+                CAPTURE(aerr, rerr, den, r, c, lval, rval);
+                REQUIRE(rerr < tol);
+            }
+        }
+    }
+
     void check_vs_reference(bs::result_option_id compute_mode,
                             const table& data,
+                            const table& weights,
                             const result_t& result) {
+        using limits_t = std::numeric_limits<double>;
+        constexpr auto maximum = limits_t::max();
+        constexpr double zero = 0.0, one = 1.0;
+
         CAPTURE(compute_mode);
         CAPTURE(data.get_row_count());
         CAPTURE(data.get_column_count());
+
         const auto data_matrix = la::matrix<double>::wrap(data);
+
         const auto row_count = data_matrix.get_row_count();
         const auto column_count = data_matrix.get_column_count();
-        auto ref_min = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_max = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_sum = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_sum2 = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_sum2cent = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_mean = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_sorm = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_varc = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_stdev = la::matrix<double>::full({ 1, column_count }, 0.0);
-        auto ref_vart = la::matrix<double>::full({ 1, column_count }, 0.0);
 
-        //init min max
-        for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
-            ref_min.set(0, clmn) = data_matrix.get(0, clmn);
-            ref_max.set(0, clmn) = data_matrix.get(0, clmn);
+        la::matrix<double> weights_matrix;
+        if (weights.has_data()) {
+            weights_matrix = la::matrix<double>::wrap(weights);
         }
+        else {
+            weights_matrix = la::matrix<double>::full({ row_count, 1 }, one);
+        }
+
+        auto ref_sum2cent = la::matrix<double>::full({ 1, column_count }, zero);
+        auto ref_min = la::matrix<double>::full({ 1, column_count }, +maximum);
+        auto ref_max = la::matrix<double>::full({ 1, column_count }, -maximum);
+        auto ref_stdev = la::matrix<double>::full({ 1, column_count }, zero);
+        auto ref_sum2 = la::matrix<double>::full({ 1, column_count }, zero);
+        auto ref_mean = la::matrix<double>::full({ 1, column_count }, zero);
+        auto ref_sorm = la::matrix<double>::full({ 1, column_count }, zero);
+        auto ref_varc = la::matrix<double>::full({ 1, column_count }, zero);
+        auto ref_vart = la::matrix<double>::full({ 1, column_count }, zero);
+        auto ref_sum = la::matrix<double>::full({ 1, column_count }, zero);
 
         // calc mean
         for (std::int64_t row = 0; row < row_count; row++) {
             for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
-                ref_mean.set(0, clmn) += data_matrix.get(row, clmn);
+                ref_mean.set(0, clmn) += (data_matrix.get(row, clmn) * weights_matrix.get(row, 0));
             }
         }
 
@@ -142,54 +205,63 @@ public:
 
         for (std::int64_t row = 0; row < row_count; row++) {
             for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
-                ref_min.set(0, clmn) = std::min(ref_min.get(0, clmn), data_matrix.get(row, clmn));
-                ref_max.set(0, clmn) = std::max(ref_max.get(0, clmn), data_matrix.get(row, clmn));
-                ref_sum.set(0, clmn) += data_matrix.get(row, clmn);
-                ref_sum2.set(0, clmn) += data_matrix.get(row, clmn) * data_matrix.get(row, clmn);
-                ref_sum2cent.set(0, clmn) += (data_matrix.get(row, clmn) - ref_mean.get(0, clmn)) *
-                                             (data_matrix.get(row, clmn) - ref_mean.get(0, clmn));
-                ref_sorm.set(0, clmn) = ref_sum2.get(0, clmn) / float_t(row);
-                ref_varc.set(0, clmn) = ref_sum2cent.get(0, clmn) / float_t(row - 1);
-                ref_stdev.set(0, clmn) = std::sqrt(ref_varc.get(0, clmn));
-                ref_vart.set(0, clmn) = ref_stdev.get(0, clmn) / ref_mean.get(0, clmn);
+                const auto elem = data_matrix.get(row, clmn);
+                const auto weight = weights_matrix.get(row, 0);
+                ref_min.set(0, clmn) = std::min(ref_min.get(0, clmn), elem * weight);
+                ref_max.set(0, clmn) = std::max(ref_max.get(0, clmn), elem * weight);
+                ref_sum.set(0, clmn) += elem * weight;
+                ref_sum2.set(0, clmn) += (elem * weight * elem * weight);
+                ref_sum2cent.set(0, clmn) += (elem * weight - ref_mean.get(0, clmn)) *
+                                             (elem * weight - ref_mean.get(0, clmn));
             }
         }
 
+        for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
+            ref_sorm.set(0, clmn) = ref_sum2.get(0, clmn) / float_t(row_count);
+            ref_varc.set(0, clmn) = ref_sum2cent.get(0, clmn) / float_t(row_count - 1);
+            ref_stdev.set(0, clmn) = std::sqrt(ref_varc.get(0, clmn));
+            ref_vart.set(0, clmn) = ref_stdev.get(0, clmn) / ref_mean.get(0, clmn);
+        }
+
         if (compute_mode.test(result_options::min)) {
-            check_arr_vs_ref(ref_min, la::matrix<double>::wrap(result.get_min()), "Min");
+            const table ref = homogen_table::wrap(ref_min.get_array(), 1l, column_count);
+            check_if_close(result.get_min(), ref, "Min");
         }
         if (compute_mode.test(result_options::max)) {
-            check_arr_vs_ref(ref_max, la::matrix<double>::wrap(result.get_max()), "Max");
+            const table ref = homogen_table::wrap(ref_max.get_array(), 1l, column_count);
+            check_if_close(result.get_max(), ref, "Max");
         }
         if (compute_mode.test(result_options::sum)) {
-            check_arr_vs_ref(ref_sum, la::matrix<double>::wrap(result.get_sum()), "Sum");
+            const table ref = homogen_table::wrap(ref_sum.get_array(), 1l, column_count);
+            check_if_close(result.get_sum(), ref, "Sum");
         }
         if (compute_mode.test(result_options::sum_squares)) {
-            check_arr_vs_ref(ref_sum2, la::matrix<double>::wrap(result.get_sum_squares()), "Sum2");
+            const table ref = homogen_table::wrap(ref_sum2.get_array(), 1l, column_count);
+            check_if_close(result.get_sum_squares(), ref, "Sum squares");
         }
         if (compute_mode.test(result_options::sum_squares_centered)) {
-            check_arr_vs_ref(ref_sum2cent,
-                             la::matrix<double>::wrap(result.get_sum_squares_centered()),
-                             "Sum2Cent");
+            const table ref = homogen_table::wrap(ref_sum2cent.get_array(), 1l, column_count);
+            check_if_close(result.get_sum_squares_centered(), ref, "Sum squares centered");
         }
         if (compute_mode.test(result_options::mean)) {
-            check_arr_vs_ref(ref_mean, la::matrix<double>::wrap(result.get_mean()), "Mean");
+            const table ref = homogen_table::wrap(ref_mean.get_array(), 1l, column_count);
+            check_if_close(result.get_mean(), ref, "Mean");
         }
         if (compute_mode.test(result_options::second_order_raw_moment)) {
-            check_arr_vs_ref(ref_sorm,
-                             la::matrix<double>::wrap(result.get_second_order_raw_moment()),
-                             "SORM");
+            const table ref = homogen_table::wrap(ref_sorm.get_array(), 1l, column_count);
+            check_if_close(result.get_second_order_raw_moment(), ref, "SORM");
         }
         if (compute_mode.test(result_options::variance)) {
-            check_arr_vs_ref(ref_varc, la::matrix<double>::wrap(result.get_variance()), "Varc");
+            const table ref = homogen_table::wrap(ref_varc.get_array(), 1l, column_count);
+            check_if_close(result.get_variance(), ref, "Variance");
         }
         if (compute_mode.test(result_options::standard_deviation)) {
-            check_arr_vs_ref(ref_stdev,
-                             la::matrix<double>::wrap(result.get_standard_deviation()),
-                             "StDev");
+            const table ref = homogen_table::wrap(ref_stdev.get_array(), 1l, column_count);
+            check_if_close(result.get_standard_deviation(), ref, "Std");
         }
         if (compute_mode.test(result_options::variation)) {
-            check_arr_vs_ref(ref_vart, la::matrix<double>::wrap(result.get_variation()), "Vart");
+            const table ref = homogen_table::wrap(ref_vart.get_array(), 1l, column_count);
+            check_if_close(result.get_variation(), ref, "Variation");
         }
     }
 
@@ -227,19 +299,11 @@ public:
         }
     }
 
-    void check_arr_vs_ref(const la::matrix<double>& ref,
-                          const la::matrix<double>& res,
-                          std::string info = "") {
-        CAPTURE(info);
-        const double tol = 1e-1;
-        const double diff = te::rel_error(ref, res, 0.0);
-        CHECK(diff < tol);
-    }
-
 private:
-    bs::result_option_id res_min_max = result_options::min | result_options::max;
-    bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    bs::result_option_id res_all = bs::result_option_id(dal::result_option_id_base(mask_full));
+    const bs::result_option_id res_min_max = result_options::min | result_options::max;
+    const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
+    const bs::result_option_id res_all =
+        bs::result_option_id(dal::result_option_id_base(mask_full));
 };
 
 using basic_statistics_types = COMBINE_TYPES((float, double), (basic_statistics::method::dense));
