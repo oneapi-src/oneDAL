@@ -19,20 +19,11 @@
 #include <variant>
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/debug.hpp"
-#include "oneapi/dal/backend/common.hpp"
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include "oneapi/dal/table/common.hpp"
-
-#include <queue>
-
 namespace oneapi::dal::backend::primitives {
-
-namespace bk = ::oneapi::dal::backend;
-namespace pr = ::oneapi::dal::backend::primitives;
 
 template <typename Type>
 inline ndarray<Type, 2> table2ndarray(const table& table) {

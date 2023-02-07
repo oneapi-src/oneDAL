@@ -448,24 +448,6 @@ sycl::event search_engine_base<Float, Distance, Impl, torder>::reset(
     return fill(get_queue(), tmp_objs->get_distances(), default_dst_value, fill_events);
 }
 
-// template <typename Float, typename Distance, typename Impl, ndorder torder>
-// sycl::event search_engine_base<Float, Distance, Impl, torder>::treat_indices(
-//     ndview<std::int32_t, 2>& indices,
-//     std::int64_t start_index,
-//     const event_vector& deps) const {
-//     ONEDAL_ASSERT(indices.has_mutable_data());
-//     auto* const ids_ptr = indices.get_mutable_data();
-//     const auto ids_str = indices.get_leading_stride();
-//     const ndshape<2> ids_shape = indices.get_shape();
-//     const auto tr_range = make_range_2d(ids_shape[0], ids_shape[1]);
-//     return get_queue().submit([&](sycl::handler& h) {
-//         h.depends_on(deps);
-//         h.parallel_for(tr_range, [=](sycl::id<2> idx) {
-//             *(ids_ptr + ids_str * idx[0] + idx[1]) += start_index;
-//         });
-//     });
-// }
-
 template <typename Float, typename Distance, typename Impl, ndorder torder>
 sycl::event search_engine_base<Float, Distance, Impl, torder>::select_indexed(
     const ndview<std::int32_t, 2>& src,

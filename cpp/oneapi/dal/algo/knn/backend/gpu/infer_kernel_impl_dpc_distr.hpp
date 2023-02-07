@@ -41,32 +41,6 @@
 
 namespace oneapi::dal::knn::backend {
 
-// template <typename T1, typename T2>
-// inline sycl::event copy_with_sqrt(sycl::queue& q,
-//                            const pr::ndview<T2, 2>& src,
-//                            pr::ndview<T1, 2>& dst,
-//                            const bk::event_vector& deps = {}) {
-//     static_assert(de::is_floating_point<T1>());
-//     static_assert(de::is_floating_point<T2>());
-//     ONEDAL_ASSERT(src.has_data());
-//     ONEDAL_ASSERT(dst.has_mutable_data());
-//     const pr::ndshape<2> dst_shape = dst.get_shape();
-//     ONEDAL_ASSERT(dst_shape == src.get_shape());
-//     T1* const dst_ptr = dst.get_mutable_data();
-//     const T2* const src_ptr = src.get_data();
-//     const auto dst_stride = dst.get_leading_stride();
-//     const auto src_stride = src.get_leading_stride();
-//     const auto cp_range = bk::make_range_2d(dst_shape[0], dst_shape[1]);
-//     return q.submit([&](sycl::handler& h) {
-//         h.depends_on(deps);
-//         h.parallel_for(cp_range, [=](sycl::id<2> idx) {
-//             T1& dst_ref = *(dst_ptr + idx[0] * dst_stride + idx[1]);
-//             const T2& val_ref = *(src_ptr + idx[0] * src_stride + idx[1]);
-//             dst_ref = sycl::sqrt(val_ref);
-//         });
-//     });
-// }
-
 template <typename Float, typename Task>
 class knn_callback_distr {
     using dst_t = Float;
@@ -258,8 +232,6 @@ public:
             pr::select_indexed(queue_, inp_indices, train_responses_, inp_responses, deps);
 
         //TODO: add assertions/checks - mostly related to ensuring things are size k
-        //TODO: make sure all these numbers and functionality works as intended
-        //TODO: figure out about int type variation
         const pr::ndshape<2> typical_blocking(last - first, 2 * k_neighbors_);
         auto select = selc_t(queue_, typical_blocking, k_neighbors_);
 

@@ -17,8 +17,8 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel_impl_dpc.hpp"
@@ -34,6 +34,7 @@
 #include "oneapi/dal/backend/communicator.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
+
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::knn::backend {

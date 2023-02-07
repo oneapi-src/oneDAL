@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -110,7 +110,6 @@ public:
 
     infer_result_t merge_infer_result_override(const std::vector<infer_result_t>& results) {
         // Responses are distributed accross the ranks, we combine them into one table;
-        // Model, iteration_count, objective_function_value are the same for all ranks
         std::vector<table> responses;
         for (const auto& r : results) {
             responses.push_back(r.get_responses());
@@ -184,13 +183,11 @@ KNN_SPMD_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     constexpr std::int64_t train_element_count = train_row_count * column_count;
     constexpr std::int64_t infer_element_count = infer_row_count * column_count;
 
-    constexpr std::array<float, train_element_count> train = {
-        -1.f, 0.f, 1.f, 3.f, 5.f, 10.f, 20.f, 100.f, 1000.f
-    }; //{ 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 30.f, 100.f, 1000.f };
+    constexpr std::array<float, train_element_count> train = { -1.f, 0.f,  1.f,   3.f,   5.f,
+                                                               10.f, 20.f, 100.f, 1000.f };
 
-    constexpr std::array<float, infer_element_count> infer = {
-        -10.f, 0.f, 0.6f, 0.6f, 40.f, 1000.f, 999.f, -0.4f, 0.6f
-    }; //{ -1.f, 2.49f, 3.1f, 5.1f, -100.f, 11.1f, 11.9f, 11.9f, 20.f, 100.f };
+    constexpr std::array<float, infer_element_count> infer = { -10.f,  0.f,   0.6f,  0.6f, 40.f,
+                                                               1000.f, 999.f, -0.4f, 0.6f };
 
     const auto x_train_table = homogen_table::wrap(train.data(), train_row_count, column_count);
     const auto x_infer_table = homogen_table::wrap(infer.data(), infer_row_count, column_count);
