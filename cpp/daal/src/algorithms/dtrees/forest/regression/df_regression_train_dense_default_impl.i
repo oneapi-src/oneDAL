@@ -29,6 +29,7 @@
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/regression/df_regression_training_types_result.h"
+#include <iostream>
 
 namespace daal
 {
@@ -509,31 +510,83 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitByHist(size_t nDiffFea
     algorithmFPType leftWeights = 0.;
     intermSummFPType sumLeft    = 0;
     int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
-    for (size_t i = 0; i < nDiffFeatMax; ++i)
+
+    size_t minidx = 0;
+    size_t maxidx = nDiffFeatMax - 1;
+
+    while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx])) minidx++;
+
+    while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx])) maxidx--;
+
+    DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
+    if(minidx == maxidx){
+        return idxFeatureBestSplit;
+    }
+
+    //randomly select a histogram split index
+    size_t idx;
+    RNGs<size_t, cpu> rng;
+    rng.uniform(1, &idx, engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
+
+    while (isZero<IndexType, cpu>(nFeatIdx[idx])){idx--;}
+
+    if(noWeights){
+
+        if(featureUnordered){
+            nLeft = nFeatIdx[idx];
+            sumLeft = buf[idx];
+            leftWeights = nFeatIdx[idx];
+        }
+        else
+        {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for(size_t i=minidx; i <= idx; ++i)
+            {
+                nLeft += nFeatIdx[i];
+                sumLeft += buf[i];
+            }
+            leftWeights = nLeft;   
+
+        }
+    }
+    else
     {
-        if (!nFeatIdx[i]) continue;
+        if(featureUnordered){
+            nLeft = nFeatIdx[idx];
+            sumLeft = buf[idx];
+            leftWeights = featWeights[idx];
+        }
+        else
+        {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for(size_t i=minidx; i <= idx; ++i)
+            {
+                nLeft += nFeatIdx[i];
+                sumLeft += buf[i];
+                leftWeights += featWeights[i];
+            }
+        }
+    }
 
-        algorithmFPType thisFeatWeights = noWeights ? nFeatIdx[i] : featWeights[i];
-
-        nLeft       = (featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
-        leftWeights = (featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
-        if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
-            break;
-        sumLeft = (featureUnordered ? buf[i] : sumLeft + buf[i]);
-        if ((nLeft < nMinSplitPart) || (leftWeights < minWeightLeaf)) continue;
+    if (!(((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart) || (leftWeights < minWeightLeaf)))
+    {
         intermSummFPType sumRight = sumTotal - sumLeft;
         //the part of the impurity decrease dependent on split itself
         const intermSummFPType impDecreasePart = sumLeft * sumLeft / leftWeights + sumRight * sumRight / (totalWeights - leftWeights);
+
         if (impDecreasePart > bestImpDecreasePart)
         {
             split.left.mean     = algorithmFPType(sumLeft);
             split.nLeft         = nLeft;
             split.leftWeights   = leftWeights;
-            idxFeatureBestSplit = i;
+            idxFeatureBestSplit = idx;
             bestImpDecreasePart = impDecreasePart;
         }
+
     }
+
     if (idxFeatureBestSplit >= 0)
     {
         split.totalWeights     = totalWeights;
