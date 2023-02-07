@@ -42,9 +42,9 @@ namespace oneapi::dal::knn::backend {
 
 template <typename T1, typename T2>
 inline sycl::event copy_with_sqrt(sycl::queue& q,
-                           const pr::ndview<T2, 2>& src,
-                           pr::ndview<T1, 2>& dst,
-                           const bk::event_vector& deps = {}) {
+                                  const pr::ndview<T2, 2>& src,
+                                  pr::ndview<T1, 2>& dst,
+                                  const bk::event_vector& deps = {}) {
     static_assert(de::is_floating_point<T1>());
     static_assert(de::is_floating_point<T2>());
     ONEDAL_ASSERT(src.has_data());
@@ -167,7 +167,7 @@ public:
                            pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
         sycl::event copy_indices, copy_distances, comp_responses;
-        
+
         const auto bounds = this->block_bounds(qb_id);
 
         if (result_options_.test(result_options::indices)) {
@@ -516,16 +516,16 @@ sycl::event bf_kernel(sycl::queue& queue,
     return search_event;
 }
 
-#define INSTANTIATE(T, I, R, F, A, B)                                                       \
-    template sycl::event bf_kernel(sycl::queue&,                                            \
+#define INSTANTIATE(T, I, R, F, A, B)                                                 \
+    template sycl::event bf_kernel(sycl::queue&,                                      \
                                    bk::communicator<spmd::device_memory_access::usm>, \
-                                   const descriptor_t<T>&,                                  \
-                                   const pr::ndview<F, 2, A>&,                              \
-                                   const pr::ndview<F, 2, B>&,                              \
-                                   const pr::ndview<R, 1>&,                                 \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<R, 1>&,                                       \
+                                   const descriptor_t<T>&,                            \
+                                   const pr::ndview<F, 2, A>&,                        \
+                                   const pr::ndview<F, 2, B>&,                        \
+                                   const pr::ndview<R, 1>&,                           \
+                                   pr::ndview<F, 2>&,                                 \
+                                   pr::ndview<I, 2>&,                                 \
+                                   pr::ndview<R, 1>&,                                 \
                                    const bk::event_vector&);
 
 #define INSTANTIATE_B(T, I, R, F, A)           \

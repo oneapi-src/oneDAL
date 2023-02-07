@@ -171,7 +171,7 @@ public:
             const auto te_indices_row = row_accessor<const float_t>(responses).pull({ j, j + 1 });
             const auto l = gt_indices_row[0];
             const auto r = te_indices_row[0];
-	        if (l != r) {
+            if (l != r) {
                 CAPTURE(j, l, r);
                 FAIL("Indices of nearest neighbors are unequal");
             }
@@ -252,9 +252,17 @@ public:
 
 // using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree));
 // using knn_bf_types = COMBINE_TYPES((float, double), (knn::method::brute_force));
-using knn_cls_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree), (knn::task::classification));
-using knn_cls_bf_types = COMBINE_TYPES((float, double), (knn::method::brute_force), (knn::task::classification));
-using knn_reg_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree), (knn::task::regression));
-using knn_reg_bf_types = COMBINE_TYPES((float, double), (knn::method::brute_force), (knn::task::regression));
+using knn_cls_types = COMBINE_TYPES((float, double),
+                                    (knn::method::brute_force, knn::method::kd_tree),
+                                    (knn::task::classification));
+using knn_cls_bf_types = COMBINE_TYPES((float, double),
+                                       (knn::method::brute_force),
+                                       (knn::task::classification));
+using knn_reg_types = COMBINE_TYPES((float, double),
+                                    (knn::method::brute_force, knn::method::kd_tree),
+                                    (knn::task::regression));
+using knn_reg_bf_types = COMBINE_TYPES((float, double),
+                                       (knn::method::brute_force),
+                                       (knn::task::regression));
 
 } // namespace oneapi::dal::knn::test

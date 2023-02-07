@@ -36,16 +36,19 @@ void run(sycl::queue& queue) {
     const auto test_data_file_name = get_data_path("k_nearest_neighbors_test_data.csv");
     const auto test_response_file_name = get_data_path("k_nearest_neighbors_test_label.csv");
 
-    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
-    const auto y_train = dal::read<dal::table>(queue, dal::csv::data_source{train_response_file_name});
-    const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
-    const auto y_test = dal::read<dal::table>(queue, dal::csv::data_source{test_response_file_name});
+    const auto x_train =
+        dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
+    const auto y_train =
+        dal::read<dal::table>(queue, dal::csv::data_source{ train_response_file_name });
+    const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{ test_data_file_name });
+    const auto y_test =
+        dal::read<dal::table>(queue, dal::csv::data_source{ test_response_file_name });
 
     auto x_train_vec = split_table_by_rows<float>(queue, x_train, rank_count);
     auto y_train_vec = split_table_by_rows<float>(queue, y_train, rank_count);
     auto x_test_vec = split_table_by_rows<float>(queue, x_test, rank_count);
     auto y_test_vec = split_table_by_rows<float>(queue, y_test, rank_count);
-    
+
     auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(queue);
     auto rank_id = comm.get_rank();
     auto rank_count = comm.get_rank_count();
@@ -53,19 +56,20 @@ void run(sycl::queue& queue) {
     // First value is number of classes, second is number of neighbors
     // Voting mode and distance impl should resort to default
     const auto knn_desc = dal::knn::descriptor(5, 1)
-                                    //.set_voting_mode(dal::knn::voting_mode::uniform)
-                                    //.set_distance_impl(dal::knn::daal_distance_t::cosine)
+        //.set_voting_mode(dal::knn::voting_mode::uniform)
+        //.set_distance_impl(dal::knn::daal_distance_t::cosine)
 
-    dal::knn::train_input local_input_train { x_train_vec[rank_id], y_train_vec[rank_id] };
+        dal::knn::train_input local_input_train{ x_train_vec[rank_id], y_train_vec[rank_id] };
 
     const auto result_train = dal::preview::train(comm, knn_desc, local_input_train);
-    const auto result_infer = dal::preview::infer(comm, knn_desc, x_test_vec[rank_id], result_train.get_model());
-    if(comm.get_rank() == 0) {
+    const auto result_infer =
+        dal::preview::infer(comm, knn_desc, x_test_vec[rank_id], result_train.get_model());
+    if (comm.get_rank() == 0) {
         std::cout << "Responses: " << result_infer.get_responses() << std::endl;
     }
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* argv[]) {
     int status = MPI_Init(nullptr, nullptr);
     if (status != MPI_SUCCESS) {
         throw std::runtime_error{ "Problem occurred during MPI init" };

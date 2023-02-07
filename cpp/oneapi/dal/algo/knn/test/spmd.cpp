@@ -48,7 +48,10 @@ public:
     }
 
     template <typename Descriptor, typename... Args>
-    infer_result_t train_and_infer_spmd(const Descriptor& knn_desc, const table& x_train_table, const table& y_train_table, const table& x_infer_table) {
+    infer_result_t train_and_infer_spmd(const Descriptor& knn_desc,
+                                        const table& x_train_table,
+                                        const table& y_train_table,
+                                        const table& x_infer_table) {
         auto train_result = this->train_override(knn_desc, x_train_table, y_train_table);
         auto infer_result = this->infer(knn_desc, x_infer_table, train_result);
         return infer_result;
@@ -87,7 +90,10 @@ public:
     }
 
     template <typename... Args>
-    std::vector<infer_input_t> split_infer_input_override(std::int64_t split_count, const table& x_infer_table, const std::vector<train_result_t>& results) {
+    std::vector<infer_input_t> split_infer_input_override(
+        std::int64_t split_count,
+        const table& x_infer_table,
+        const std::vector<train_result_t>& results) {
         const auto split_data =
             te::split_table_by_rows<float_t>(this->get_policy(), x_infer_table, split_count);
 
@@ -120,47 +126,45 @@ private:
     std::int64_t rank_count_ = 1;
 };
 
-
-
-#define KNN_SPMD_SMALL_TEST(name)                                               \
+#define KNN_SPMD_SMALL_TEST(name)                                         \
     TEMPLATE_LIST_TEST_M(knn_spmd_test,                                   \
-                         name,                                             \
+                         name,                                            \
                          "[small-dataset][knn][integration][spmd][test]", \
                          knn_cls_types)
 
-#define KNN_SPMD_CLS_SYNTHETIC_TEST(name)                                               \
+#define KNN_SPMD_CLS_SYNTHETIC_TEST(name)                                     \
     TEMPLATE_LIST_TEST_M(knn_spmd_test,                                       \
-                         name,                                                 \
+                         name,                                                \
                          "[synthetic-dataset][knn][integration][spmd][test]", \
                          knn_cls_types)
 
-#define KNN_SPMD_CLS_EXTERNAL_TEST(name)                                               \
+#define KNN_SPMD_CLS_EXTERNAL_TEST(name)                                     \
     TEMPLATE_LIST_TEST_M(knn_spmd_test,                                      \
-                         name,                                                \
+                         name,                                               \
                          "[external-dataset][knn][integration][spmd][test]", \
                          knn_cls_types)
 
-#define KNN_SPMD_CLS_BF_EXTERNAL_TEST(name)                                            \
+#define KNN_SPMD_CLS_BF_EXTERNAL_TEST(name)                                  \
     TEMPLATE_LIST_TEST_M(knn_spmd_test,                                      \
-                         name,                                                \
+                         name,                                               \
                          "[external-dataset][knn][integration][spmd][test]", \
                          knn_cls_bf_types)
 
-#define KNN_SPMD_REG_SYNTHETIC_TEST(name)                                               \
+#define KNN_SPMD_REG_SYNTHETIC_TEST(name)                                     \
     TEMPLATE_LIST_TEST_M(knn_spmd_test,                                       \
-                         name,                                                 \
+                         name,                                                \
                          "[synthetic-dataset][knn][integration][spmd][test]", \
                          knn_reg_types)
 
-#define KNN_SPMD_REG_EXTERNAL_TEST(name)                                               \
+#define KNN_SPMD_REG_EXTERNAL_TEST(name)                                     \
     TEMPLATE_LIST_TEST_M(knn_spmd_test,                                      \
-                         name,                                                \
+                         name,                                               \
                          "[external-dataset][knn][integration][spmd][test]", \
                          knn_reg_types)
 
-#define KNN_SPMD_REG_BF_EXTERNAL_TEST(name)                                            \
+#define KNN_SPMD_REG_BF_EXTERNAL_TEST(name)                                  \
     TEMPLATE_LIST_TEST_M(knn_spmd_test,                                      \
-                         name,                                                \
+                         name,                                               \
                          "[external-dataset][knn][integration][spmd][test]", \
                          knn_reg_bf_types)
 
@@ -180,9 +184,13 @@ KNN_SPMD_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     constexpr std::int64_t train_element_count = train_row_count * column_count;
     constexpr std::int64_t infer_element_count = infer_row_count * column_count;
 
-    constexpr std::array<float, train_element_count> train = { -1.f, 0.f, 1.f, 3.f, 5.f, 10.f, 20.f, 100.f, 1000.f };//{ 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 30.f, 100.f, 1000.f };
+    constexpr std::array<float, train_element_count> train = {
+        -1.f, 0.f, 1.f, 3.f, 5.f, 10.f, 20.f, 100.f, 1000.f
+    }; //{ 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 30.f, 100.f, 1000.f };
 
-    constexpr std::array<float, infer_element_count> infer = {-10.f, 0.f, 0.6f, 0.6f, 40.f, 1000.f, 999.f, -0.4f, 0.6f };//{ -1.f, 2.49f, 3.1f, 5.1f, -100.f, 11.1f, 11.9f, 11.9f, 20.f, 100.f };
+    constexpr std::array<float, infer_element_count> infer = {
+        -10.f, 0.f, 0.6f, 0.6f, 40.f, 1000.f, 999.f, -0.4f, 0.6f
+    }; //{ -1.f, 2.49f, 3.1f, 5.1f, -100.f, 11.1f, 11.9f, 11.9f, 20.f, 100.f };
 
     const auto x_train_table = homogen_table::wrap(train.data(), train_row_count, column_count);
     const auto x_infer_table = homogen_table::wrap(infer.data(), infer_row_count, column_count);
@@ -190,7 +198,8 @@ KNN_SPMD_SMALL_TEST("knn nearest points test predefined 7x5x2") {
 
     const auto knn_desc = this->get_descriptor(train_row_count, 1);
 
-    auto infer_result = this->train_and_infer_spmd(knn_desc, x_train_table, y_train_table, x_infer_table);
+    auto infer_result =
+        this->train_and_infer_spmd(knn_desc, x_train_table, y_train_table, x_infer_table);
 
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
@@ -220,12 +229,14 @@ KNN_SPMD_CLS_SYNTHETIC_TEST("distributed knn nearest points test random uniform 
 
     const auto knn_desc = this->get_descriptor(train_row_count, 1);
 
-    auto infer_result = this->train_and_infer_spmd(knn_desc, x_train_table, y_train_table, x_infer_table);
+    auto infer_result =
+        this->train_and_infer_spmd(knn_desc, x_train_table, y_train_table, x_infer_table);
 
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_SPMD_REG_SYNTHETIC_TEST("distributed knn nearest points test random uniform using regression 513x301x17") {
+KNN_SPMD_REG_SYNTHETIC_TEST(
+    "distributed knn nearest points test random uniform using regression 513x301x17") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
@@ -255,7 +266,8 @@ KNN_SPMD_REG_SYNTHETIC_TEST("distributed knn nearest points test random uniform 
 
     const auto knn_desc = this->get_descriptor(train_row_count, 1, distance_desc, voting, task);
 
-    auto infer_result = this->train_and_infer_spmd(knn_desc, x_train_table, y_train_table, x_infer_table);
+    auto infer_result =
+        this->train_and_infer_spmd(knn_desc, x_train_table, y_train_table, x_infer_table);
 
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
@@ -285,7 +297,8 @@ KNN_SPMD_CLS_SYNTHETIC_TEST("distributed knn nearest points test random uniform 
 
     const auto knn_desc = this->get_descriptor(train_row_count, 1);
 
-    auto infer_result = this->train_and_infer_spmd(knn_desc, x_train_table, y_train_table, x_infer_table);
+    auto infer_result =
+        this->train_and_infer_spmd(knn_desc, x_train_table, y_train_table, x_infer_table);
 
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
@@ -586,4 +599,3 @@ KNN_SPMD_CLS_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k wi
 }
 */
 } // namespace oneapi::dal::knn::test
-

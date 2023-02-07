@@ -32,7 +32,7 @@ struct infer_ops_dispatcher<Policy, Float, Method, Task> {
     }
 };
 
-#define INSTANTIATE(F, M, T)                                                                 \
+#define INSTANTIATE(F, M, T)                                                               \
     template struct ONEDAL_EXPORT infer_ops_dispatcher<dal::detail::host_policy, F, M, T>; \
     template struct ONEDAL_EXPORT infer_ops_dispatcher<dal::detail::spmd_host_policy, F, M, T>;
 

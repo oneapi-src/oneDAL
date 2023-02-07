@@ -82,11 +82,11 @@ class knn_callback_distr {
 
 public:
     knn_callback_distr(sycl::queue& q,
-                 comm_t c,
-                 result_option_id results,
-                 std::int64_t query_block,
-                 std::int64_t query_length,
-                 std::int64_t k_neighbors)
+                       comm_t c,
+                       result_option_id results,
+                       std::int64_t query_block,
+                       std::int64_t query_length,
+                       std::int64_t k_neighbors)
             : queue_(q),
               comm_(c),
               result_options_(results),
@@ -202,7 +202,7 @@ public:
         constexpr Float default_dst_value = de::limits<Float>::max();
         constexpr idx_t default_idx_value = -1;
         auto out_dsts = pr::fill(this->queue_, this->distances_, default_dst_value, deps);
-        auto out_idcs = pr::fill(this->queue_, this->indices_, default_idx_value, {out_dsts});
+        auto out_idcs = pr::fill(this->queue_, this->indices_, default_idx_value, { out_dsts });
         return out_idcs;
     }
 
@@ -246,14 +246,16 @@ public:
                            pr::ndview<idx_t, 2>& inp_indices,
                            pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
-        sycl::event copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event, copy_actual_resp_event, copy_current_resp_event;
+        sycl::event copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event,
+            copy_current_indc_event, copy_actual_resp_event, copy_current_resp_event;
         const auto& [first, last] = this->block_bounds(qb_id);
         const auto len = last - first;
         ONEDAL_ASSERT(last > first);
 
         auto inp_responses = this->temp_resp_.get_row_slice(0, len);
 
-        auto select_inp_resp_event = pr::select_indexed(queue_, inp_indices, train_responses_, inp_responses, deps);
+        auto select_inp_resp_event =
+            pr::select_indexed(queue_, inp_indices, train_responses_, inp_responses, deps);
 
         //TODO: add assertions/checks - mostly related to ensuring things are size k
         //TODO: make sure all these numbers and functionality works as intended
@@ -267,36 +269,52 @@ public:
 
         // add global offset value to input indices
         ONEDAL_ASSERT(global_index_offset_ != -1);
-        auto treat_event = pr::treat_indices(queue_, inp_indices, global_index_offset_, {select_inp_resp_event});
+        auto treat_event =
+            pr::treat_indices(queue_, inp_indices, global_index_offset_, { select_inp_resp_event });
 
-        auto actual_min_dist_copy_dest = part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-        auto current_min_dist_dest = part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
-        copy_actual_dist_event = pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, {treat_event});
-        copy_current_dist_event = pr::copy(queue_, current_min_dist_dest, inp_distances, {treat_event});
-        
-        auto actual_min_indc_copy_dest = part_indices_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-        auto current_min_indc_dest = part_indices_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
-        copy_actual_indc_event = pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, {treat_event});
-        copy_current_indc_event = pr::copy(queue_, current_min_indc_dest, inp_indices, {treat_event});
-        
-        auto actual_min_resp_copy_dest = part_responses_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-        auto current_min_resp_dest = part_responses_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
-        copy_actual_resp_event = pr::copy(queue_, actual_min_resp_copy_dest, min_resp_dest, {treat_event});
-        copy_current_resp_event = pr::copy(queue_, current_min_resp_dest, inp_responses, {treat_event});
+        auto actual_min_dist_copy_dest =
+            part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+        auto current_min_dist_dest = part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
+                                         .get_row_slice(first, last);
+        copy_actual_dist_event =
+            pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, { treat_event });
+        copy_current_dist_event =
+            pr::copy(queue_, current_min_dist_dest, inp_distances, { treat_event });
+
+        auto actual_min_indc_copy_dest =
+            part_indices_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+        auto current_min_indc_dest =
+            part_indices_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
+        copy_actual_indc_event =
+            pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, { treat_event });
+        copy_current_indc_event =
+            pr::copy(queue_, current_min_indc_dest, inp_indices, { treat_event });
+
+        auto actual_min_resp_copy_dest =
+            part_responses_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+        auto current_min_resp_dest = part_responses_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
+                                         .get_row_slice(first, last);
+        copy_actual_resp_event =
+            pr::copy(queue_, actual_min_resp_copy_dest, min_resp_dest, { treat_event });
+        copy_current_resp_event =
+            pr::copy(queue_, current_min_resp_dest, inp_responses, { treat_event });
 
         auto kselect_block = part_distances_.get_row_slice(first, last);
         auto selt_event = select(queue_,
-                                kselect_block,
-                                k_neighbors_,
-                                min_dist_dest,
-                                min_indc_dest,
-                                { copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event, copy_actual_resp_event, copy_current_resp_event });
-        auto resps_event = select_indexed(queue_, min_indc_dest, part_responses_,
-                                         min_resp_dest,
-                                         { selt_event });
-        auto final_event = select_indexed(queue_, min_indc_dest, part_indices_,
-                                         min_indc_dest,
-                                         { resps_event });
+                                 kselect_block,
+                                 k_neighbors_,
+                                 min_dist_dest,
+                                 min_indc_dest,
+                                 { copy_actual_dist_event,
+                                   copy_current_dist_event,
+                                   copy_actual_indc_event,
+                                   copy_current_indc_event,
+                                   copy_actual_resp_event,
+                                   copy_current_resp_event });
+        auto resps_event =
+            select_indexed(queue_, min_indc_dest, part_responses_, min_resp_dest, { selt_event });
+        auto final_event =
+            select_indexed(queue_, min_indc_dest, part_indices_, min_indc_dest, { resps_event });
         if (last_iteration_) { //calls same methods as original operator, using already set indices_ and distances_
             final_event = finalize(qb_id, indices_, distances_, { final_event });
         }
@@ -496,19 +514,19 @@ private:
 
 template <typename Task, typename Float, pr::ndorder qorder, typename RespT>
 sycl::event bf_kernel_distr(sycl::queue& queue,
-                      bk::communicator<spmd::device_memory_access::usm> comm,
-                      const descriptor_t<Task>& desc,
-                      const table& train,
-                      const pr::ndview<Float, 2, qorder>& query,
-                      const table& tresps,
-                      pr::ndview<Float, 2>& distances,
-                      pr::ndview<Float, 2>& part_distances,
-                      pr::ndview<idx_t, 2>& indices,
-                      pr::ndview<idx_t, 2>& part_indices,
-                      pr::ndview<RespT, 1>& qresps,
-                      pr::ndview<RespT, 2>& part_responses,
-                      pr::ndview<RespT, 2>& intermediate_responses,
-                      const bk::event_vector& deps = {}) {
+                            bk::communicator<spmd::device_memory_access::usm> comm,
+                            const descriptor_t<Task>& desc,
+                            const table& train,
+                            const pr::ndview<Float, 2, qorder>& query,
+                            const table& tresps,
+                            pr::ndview<Float, 2>& distances,
+                            pr::ndview<Float, 2>& part_distances,
+                            pr::ndview<idx_t, 2>& indices,
+                            pr::ndview<idx_t, 2>& part_indices,
+                            pr::ndview<RespT, 1>& qresps,
+                            pr::ndview<RespT, 2>& part_responses,
+                            pr::ndview<RespT, 2>& intermediate_responses,
+                            const bk::event_vector& deps = {}) {
     using res_t = response_t<Task, Float>;
     constexpr auto torder = pr::ndorder::c;
 
@@ -560,7 +578,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
 
     knn_callback_distr<Float, Task> callback(queue, comm, ropts, qbcount, qcount, kcount);
-    
+
     callback.set_distances(distances);
     callback.set_part_distances(part_distances);
     callback.set_responses(qresps);
@@ -616,14 +634,15 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     const auto it = std::find(nodes.begin(), nodes.end(), current_rank);
     auto first_block_index = std::distance(nodes.begin(), it);
     ONEDAL_ASSERT(it != nodes.end());
-    
-    for(auto block_number = 0; block_number < block_count; block_number++) {
+
+    for (auto block_number = 0; block_number < block_count; block_number++) {
         // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
         auto current_block = train_block_queue.front();
-	    train_block_queue.pop_front();
+        train_block_queue.pop_front();
         auto current_tresps = tresps_queue.front();
-        auto current_tresps_1d = pr::ndview<RespT, 1>::wrap(current_tresps.get_mutable_data(), {current_tresps.get_count()});
-	    tresps_queue.pop_front();
+        auto current_tresps_1d = pr::ndview<RespT, 1>::wrap(current_tresps.get_mutable_data(),
+                                                            { current_tresps.get_count() });
+        tresps_queue.pop_front();
         auto block_index = (block_number + first_block_index) % block_count;
         auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
 
@@ -678,36 +697,48 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             //search.reset_train_data(actual_current_block, tbcount);
             next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
-        
+
         //const search_t search{ queue, train, tbcount, dist };
         //search.reset_train_data(actual_current_block, tbcount);
         //next_event = search(query, callback, qbcount, kcount, { next_event });
 
-        comm.sendrecv_replace(array<Float>::wrap(queue, current_block.get_mutable_data(), current_block.get_count(), {next_event}), prev_node, next_node).wait();
+        comm.sendrecv_replace(array<Float>::wrap(queue,
+                                                 current_block.get_mutable_data(),
+                                                 current_block.get_count(),
+                                                 { next_event }),
+                              prev_node,
+                              next_node)
+            .wait();
         train_block_queue.emplace_back(current_block);
-        comm.sendrecv_replace(array<RespT>::wrap(queue, current_tresps.get_mutable_data(), current_tresps.get_count(), {next_event}), prev_node, next_node).wait();
+        comm.sendrecv_replace(array<RespT>::wrap(queue,
+                                                 current_tresps.get_mutable_data(),
+                                                 current_tresps.get_count(),
+                                                 { next_event }),
+                              prev_node,
+                              next_node)
+            .wait();
         tresps_queue.emplace_back(current_tresps);
     }
 
     return next_event;
 }
-#define INSTANTIATE_DISTR(T, I, R, F, A)                                              \
+#define INSTANTIATE_DISTR(T, I, R, F, A)                                                    \
     template sycl::event bf_kernel_distr(sycl::queue&,                                      \
-                                   bk::communicator<spmd::device_memory_access::usm>,       \
-                                   const descriptor_t<T>&,                                  \
-                                   const table&,                                            \
-                                   const pr::ndview<F, 2, A>&,                              \
-                                   const table&,                                 \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<F, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<I, 2>&,                                       \
-                                   pr::ndview<R, 1>&,                                       \
-                                   pr::ndview<R, 2>&,                                       \
-                                   pr::ndview<R, 2>&,                                       \
-                                   const bk::event_vector&);
+                                         bk::communicator<spmd::device_memory_access::usm>, \
+                                         const descriptor_t<T>&,                            \
+                                         const table&,                                      \
+                                         const pr::ndview<F, 2, A>&,                        \
+                                         const table&,                                      \
+                                         pr::ndview<F, 2>&,                                 \
+                                         pr::ndview<F, 2>&,                                 \
+                                         pr::ndview<I, 2>&,                                 \
+                                         pr::ndview<I, 2>&,                                 \
+                                         pr::ndview<R, 1>&,                                 \
+                                         pr::ndview<R, 2>&,                                 \
+                                         pr::ndview<R, 2>&,                                 \
+                                         const bk::event_vector&);
 
-#define INSTANTIATE_A_DISTR(T, I, R, F)             \
+#define INSTANTIATE_A_DISTR(T, I, R, F)           \
     INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::c) \
     INSTANTIATE_DISTR(T, I, R, F, pr::ndorder::f)
 

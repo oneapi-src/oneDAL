@@ -34,12 +34,13 @@ std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width);
 template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width);
 
-std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(ndarray<std::int64_t, 1> sample_counts,
-                                                                                      std::int64_t block_size);
+std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(
+    ndarray<std::int64_t, 1> sample_counts,
+    std::int64_t block_size);
 
 template <typename Index>
 sycl::event treat_indices(sycl::queue& q,
-			  ndview<Index, 2>& indices,
+                          ndview<Index, 2>& indices,
                           std::int64_t start_index,
                           const event_vector& deps);
 
@@ -82,7 +83,8 @@ protected:
     using event_ptr_t = std::shared_ptr<sycl::event>;
     using selc_t = kselect_by_rows<Float>;
 
-    constexpr static inline std::int64_t selection_sub_blocks = 31;  //TODO: this may require change, replace with function call
+    constexpr static inline std::int64_t selection_sub_blocks =
+        31; //TODO: this may require change, replace with function call
 
 public:
     search_engine_base(sycl::queue& queue, const ndview<Float, 2, torder>& train_data);

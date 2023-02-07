@@ -265,9 +265,7 @@ public:
     }
 
     template <typename Descriptor, typename... Args>
-    auto infer_via_spmd_threads(std::int64_t thread_count,
-                                  const Descriptor& desc,
-                                  Args&&... args) {
+    auto infer_via_spmd_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
         ONEDAL_ASSERT(thread_count > 0);
 
         CAPTURE(thread_count);
@@ -286,9 +284,9 @@ public:
 
         const auto results = comm.map([&](std::int64_t rank) {
             return dal::test::engine::spmd_infer(this->get_policy(),
-                                                   comm,
-                                                   desc,
-                                                   input_per_rank[rank]);
+                                                 comm,
+                                                 desc,
+                                                 input_per_rank[rank]);
         });
         ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
 
@@ -297,8 +295,8 @@ public:
 
     template <typename Descriptor, typename... Args>
     auto infer_via_spmd_threads_and_merge(std::int64_t thread_count,
-                                            const Descriptor& desc,
-                                            Args&&... args) {
+                                          const Descriptor& desc,
+                                          Args&&... args) {
         const auto results = this->infer_via_spmd_threads( //
             thread_count,
             desc,
@@ -372,8 +370,7 @@ public:
         ONEDAL_ASSERT(input_per_rank.size() ==
                       dal::detail::integral_cast<std::size_t>(comm.get_rank_count()));
 
-        const auto local_result =
-            dal::preview::infer(comm, desc, input_per_rank[comm.get_rank()]);
+        const auto local_result = dal::preview::infer(comm, desc, input_per_rank[comm.get_rank()]);
         return local_result;
     }
 

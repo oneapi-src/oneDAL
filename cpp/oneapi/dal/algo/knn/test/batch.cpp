@@ -27,37 +27,37 @@ class knn_batch_test : public knn_test<TestType, knn_batch_test<TestType>> {};
                          "[small-dataset][knn][integration][batch][test]", \
                          knn_cls_types)
 
-#define KNN_CLS_SYNTHETIC_TEST(name)                                               \
+#define KNN_CLS_SYNTHETIC_TEST(name)                                           \
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                       \
                          name,                                                 \
                          "[synthetic-dataset][knn][integration][batch][test]", \
                          knn_cls_types)
 
-#define KNN_CLS_EXTERNAL_TEST(name)                                               \
+#define KNN_CLS_EXTERNAL_TEST(name)                                           \
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                      \
                          name,                                                \
                          "[external-dataset][knn][integration][batch][test]", \
                          knn_cls_types)
 
-#define KNN_CLS_BF_EXTERNAL_TEST(name)                                            \
+#define KNN_CLS_BF_EXTERNAL_TEST(name)                                        \
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                      \
                          name,                                                \
                          "[external-dataset][knn][integration][batch][test]", \
                          knn_cls_bf_types)
 
-#define KNN_REG_SYNTHETIC_TEST(name)                                               \
+#define KNN_REG_SYNTHETIC_TEST(name)                                           \
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                       \
                          name,                                                 \
                          "[synthetic-dataset][knn][integration][batch][test]", \
                          knn_reg_types)
 
-#define KNN_REG_EXTERNAL_TEST(name)                                               \
+#define KNN_REG_EXTERNAL_TEST(name)                                           \
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                      \
                          name,                                                \
                          "[external-dataset][knn][integration][batch][test]", \
                          knn_reg_types)
 
-#define KNN_REG_BF_EXTERNAL_TEST(name)                                            \
+#define KNN_REG_BF_EXTERNAL_TEST(name)                                        \
     TEMPLATE_LIST_TEST_M(knn_batch_test,                                      \
                          name,                                                \
                          "[external-dataset][knn][integration][batch][test]", \

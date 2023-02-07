@@ -25,9 +25,13 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename T, ndorder order = ndorder::c, typename Container = std::deque<ndarray<T, 2, order>>>
-inline auto& split_table_inplace(const table& input, std::int64_t block, Container& container, 
-                                                T default_value = std::numeric_limits<T>::max()) {
+template <typename T,
+          ndorder order = ndorder::c,
+          typename Container = std::deque<ndarray<T, 2, order>>>
+inline auto& split_table_inplace(const table& input,
+                                 std::int64_t block,
+                                 Container& container,
+                                 T default_value = std::numeric_limits<T>::max()) {
     static_assert(std::is_same_v<typename Container::value_type, ndarray<T, 2, order>>);
 
     ONEDAL_ASSERT(input.has_data());
@@ -37,18 +41,18 @@ inline auto& split_table_inplace(const table& input, std::int64_t block, Contain
 
     uniform_blocking blocking{ row_count, block };
     const auto blk_count = blocking.get_block_count();
-    for(std::int64_t b = 0; b < blk_count; ++b) {
+    for (std::int64_t b = 0; b < blk_count; ++b) {
         const auto f_row = blocking.get_block_start_index(b);
         const auto l_row = blocking.get_block_end_index(b);
         const auto len = l_row - f_row;
 
-        const auto raw_array = accessor.pull({f_row, l_row});
-        const auto raw_view = ndview<T, 2>::wrap(
-                raw_array.get_data(), {len, col_count});
+        const auto raw_array = accessor.pull({ f_row, l_row });
+        const auto raw_view = ndview<T, 2>::wrap(raw_array.get_data(), { len, col_count });
 
         auto tmp = ndarray<T, 2, order>::empty({ block, col_count });
         auto tmp_slice = tmp.get_row_slice(0, len);
-        if (len != block) tmp.fill(default_value);
+        if (len != block)
+            tmp.fill(default_value);
 
         copy(tmp_slice, raw_view);
 
@@ -58,8 +62,12 @@ inline auto& split_table_inplace(const table& input, std::int64_t block, Contain
     return container;
 }
 
-template <typename T, ndorder order = ndorder::c, typename Container = std::deque<ndarray<T, 2, order>>>
-inline auto split_table(const table& input, std::int64_t block, T default_value = std::numeric_limits<T>::max()) {
+template <typename T,
+          ndorder order = ndorder::c,
+          typename Container = std::deque<ndarray<T, 2, order>>>
+inline auto split_table(const table& input,
+                        std::int64_t block,
+                        T default_value = std::numeric_limits<T>::max()) {
     Container result;
     split_table_inplace<T, order>(input, block, result, default_value);
     return result;
@@ -67,10 +75,15 @@ inline auto split_table(const table& input, std::int64_t block, T default_value 
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename T, ndorder order = ndorder::c, typename Container = std::deque<ndarray<T, 2, order>>>
-inline auto& split_table_inplace(sycl::queue& queue, const table& input, std::int64_t block, 
-                        Container& container, T default_value = std::numeric_limits<T>::max(),
-                        sycl::usm::alloc kind = sycl::usm::alloc::device) {
+template <typename T,
+          ndorder order = ndorder::c,
+          typename Container = std::deque<ndarray<T, 2, order>>>
+inline auto& split_table_inplace(sycl::queue& queue,
+                                 const table& input,
+                                 std::int64_t block,
+                                 Container& container,
+                                 T default_value = std::numeric_limits<T>::max(),
+                                 sycl::usm::alloc kind = sycl::usm::alloc::device) {
     static_assert(std::is_same_v<typename Container::value_type, ndarray<T, 2, order>>);
 
     ONEDAL_ASSERT(input.has_data());
@@ -82,20 +95,20 @@ inline auto& split_table_inplace(sycl::queue& queue, const table& input, std::in
     const auto blk_count = blocking.get_block_count();
 
     event_vector events(blk_count);
-    for(std::int64_t b = 0; b < blk_count; ++b) {
+    for (std::int64_t b = 0; b < blk_count; ++b) {
         const auto f_row = blocking.get_block_start_index(b);
         const auto l_row = blocking.get_block_end_index(b);
         const auto len = l_row - f_row;
 
-        const auto raw_array = accessor.pull(queue, {f_row, l_row}, kind);
-        const auto raw_view = ndview<T, 2>::wrap(
-                raw_array.get_data(), {len, col_count});
+        const auto raw_array = accessor.pull(queue, { f_row, l_row }, kind);
+        const auto raw_view = ndview<T, 2>::wrap(raw_array.get_data(), { len, col_count });
 
         auto tmp = ndarray<T, 2, order>::empty(queue, { block, col_count }, kind);
         auto tmp_slice = tmp.get_row_slice(0, len);
-        
-        sycl::event fevent; 
-        if (len != block) fevent = fill(queue, tmp, default_value, { fevent });
+
+        sycl::event fevent;
+        if (len != block)
+            fevent = fill(queue, tmp, default_value, { fevent });
 
         events.at(b) = copy(queue, tmp_slice, raw_view);
 
@@ -107,9 +120,14 @@ inline auto& split_table_inplace(sycl::queue& queue, const table& input, std::in
     return container;
 }
 
-template <typename T, ndorder order = ndorder::c, typename Container = std::deque<ndarray<T, 2, order>>>
-inline auto split_table(sycl::queue& queue, const table& input, std::int64_t block, 
-        T default_value = std::numeric_limits<T>::max(), sycl::usm::alloc kind = sycl::usm::alloc::device) {
+template <typename T,
+          ndorder order = ndorder::c,
+          typename Container = std::deque<ndarray<T, 2, order>>>
+inline auto split_table(sycl::queue& queue,
+                        const table& input,
+                        std::int64_t block,
+                        T default_value = std::numeric_limits<T>::max(),
+                        sycl::usm::alloc kind = sycl::usm::alloc::device) {
     Container result;
     split_table_inplace<T, order>(queue, input, block, result, default_value, kind);
     return result;
