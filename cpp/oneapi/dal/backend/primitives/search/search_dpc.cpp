@@ -28,24 +28,23 @@
 namespace oneapi::dal::backend::primitives {
 
 // // TODO: figure out this function
+template <typename Float>
 std::int64_t get_block_size() {
-    std::int64_t block_size = 5;
-    return block_size;
+    constexpr std::int64_t result = 128 * 4096 * 8 / sizeof(Float);
+    return result;
 }
 
 // TODO: figure out this function
 template <typename Float>
 std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width) {
-    //constexpr std::int64_t result = 4096 * 8 / sizeof(Float);
-    //return result;
-    return 5;
+    constexpr std::int64_t result = 4096 * 8 / sizeof(Float);
+    return result;
 }
 
 template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width) {
-    //constexpr std::int64_t result = 8192 * 8 / sizeof(Float);
-    //return result;
-    return 5;
+    constexpr std::int64_t result = 8192 * 8 / sizeof(Float);
+    return result;
 }
 
 template <typename Index>
@@ -813,6 +812,7 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
 #define INSTANTIATE_F(F)                                                             \
     INSTANTIATE_B(F, ndorder::c)                                                     \
     INSTANTIATE_B(F, ndorder::f)                                                     \
+    template std::int64_t get_block_size<F>();  \
     template std::int64_t propose_train_block<F>(const sycl::queue&, std::int64_t);  \
     template std::int64_t propose_query_block<F>(const sycl::queue&, std::int64_t);  \
     template class search_temp_objects<F, distance<F, lp_metric<F>>>;                \

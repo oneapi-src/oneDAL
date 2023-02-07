@@ -80,7 +80,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
                                  bk::communicator<spmd::device_memory_access::usm> comm) {
     using res_t = response_t<Task, Float>;
 
-    const bool distr_mode = comm.get_rank_count();// > 1; TODO: temporary for distr logic testing
+    const bool distr_mode = comm.get_rank_count() > 1;
 
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
@@ -150,7 +150,18 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             part_indices = array<idx_t>::empty(queue, part_length, sycl::usm::alloc::device);
             wrapped_part_indices = pr::ndview<idx_t, 2>::wrap_mutable(part_indices, { infer_row_count, 2 * neighbor_count });
         }
-        bf_kernel_distr(queue, comm, desc, train, query_data, responses_data, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses)
+        auto part_responses = array<res_t>{};
+        auto wrapped_part_responses = pr::ndview<res_t, 2>{};
+        auto intermediate_responses = array<res_t>{};
+        auto wrapped_intermediate_responses = pr::ndview<res_t, 2>{};
+        if (desc.get_result_options().test(result_options::responses)) {
+            const auto part_length = de::check_mul_overflow(2 * infer_row_count, neighbor_count);
+            part_responses = array<res_t>::empty(queue, part_length, sycl::usm::alloc::device);
+            wrapped_part_responses = pr::ndview<res_t, 2>::wrap_mutable(part_responses, { infer_row_count, 2 * neighbor_count });
+            intermediate_responses = array<res_t>::empty(queue, infer_row_count * neighbor_count, sycl::usm::alloc::device);
+            wrapped_intermediate_responses = pr::ndview<res_t, 2>::wrap_mutable(intermediate_responses, { infer_row_count, neighbor_count });
+        }
+        bf_kernel_distr(queue, comm, desc, train, query_data, resps, wrapped_distances, wrapped_part_distances, wrapped_indices, wrapped_part_indices, wrapped_responses, wrapped_part_responses, wrapped_intermediate_responses)
             .wait_and_throw();
     }
     else {

@@ -50,8 +50,10 @@ public:
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using task_t = std::tuple_element_t<2, TestType>;
-    using result_t = infer_result<task_t>; //not sure about this
-    using input_t = infer_input<task_t>; //not sure about this
+    using train_result_t = train_result<task_t>;
+    using train_input_t = train_input<task_t>;
+    using infer_result_t = infer_result<task_t>;
+    using infer_input_t = infer_input<task_t>;
 
     using default_distance_t = oneapi::dal::minkowski_distance::descriptor<>;
 
@@ -169,7 +171,7 @@ public:
             const auto te_indices_row = row_accessor<const float_t>(responses).pull({ j, j + 1 });
             const auto l = gt_indices_row[0];
             const auto r = te_indices_row[0];
-            if (l != r) {
+	        if (l != r) {
                 CAPTURE(j, l, r);
                 FAIL("Indices of nearest neighbors are unequal");
             }

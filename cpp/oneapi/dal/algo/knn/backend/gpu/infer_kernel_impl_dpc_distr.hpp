@@ -32,6 +32,7 @@
 #include "oneapi/dal/backend/primitives/selection.hpp"
 #include "oneapi/dal/backend/primitives/voting.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/backend/primitives/split_table.hpp"
 #include "oneapi/dal/backend/communicator.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -104,9 +105,9 @@ public:
         return *this;
     }
 
-    auto& set_inp_responses(const pr::ndview<res_t, 1>& inp_responses) {
+    auto& set_train_responses(const pr::ndview<res_t, 1>& train_responses) {
         if (result_options_.test(result_options::responses)) {
-            this->inp_responses_ = inp_responses;
+            this->train_responses_ = train_responses;
         }
         return *this;
     }
@@ -143,6 +144,24 @@ public:
         return *this;
     }
 
+    auto& set_part_responses(const pr::ndview<res_t, 2>& part_responses) {
+        if (result_options_.test(result_options::responses)) {
+            ONEDAL_ASSERT(part_responses.get_dimension(0) == query_length_);
+            ONEDAL_ASSERT(part_responses.get_dimension(1) == 2 * k_neighbors_);
+            this->part_responses_ = part_responses;
+        }
+        return *this;
+    }
+
+    auto& set_intermediate_responses(const pr::ndview<res_t, 2>& intermediate_responses) {
+        if (result_options_.test(result_options::responses)) {
+            ONEDAL_ASSERT(intermediate_responses.get_dimension(0) == query_length_);
+            ONEDAL_ASSERT(intermediate_responses.get_dimension(1) == k_neighbors_);
+            this->intermediate_responses_ = intermediate_responses;
+        }
+        return *this;
+    }
+
     auto& set_indices(const pr::ndview<idx_t, 2>& indices) {
         if (result_options_.test(result_options::indices)) {
             ONEDAL_ASSERT(indices.get_dimension(0) == query_length_);
@@ -154,8 +173,8 @@ public:
 
     auto& set_part_indices(const pr::ndview<idx_t, 2>& part_indices) {
         if (result_options_.test(result_options::indices)) {
-            ONEDAL_ASSERT(part_indices.get_dimension(0) == 2 * query_length_);
-            ONEDAL_ASSERT(part_indices.get_dimension(1) == k_neighbors_);
+            ONEDAL_ASSERT(part_indices.get_dimension(0) == query_length_);
+            ONEDAL_ASSERT(part_indices.get_dimension(1) == 2 * k_neighbors_);
             this->part_indices_ = part_indices;
         }
         return *this;
@@ -172,8 +191,8 @@ public:
 
     auto& set_part_distances(const pr::ndview<dst_t, 2>& part_distances) {
         if (result_options_.test(result_options::distances)) {
-            ONEDAL_ASSERT(part_distances.get_dimension(0) == 2 * query_length_);
-            ONEDAL_ASSERT(part_distances.get_dimension(1) == k_neighbors_);
+            ONEDAL_ASSERT(part_distances.get_dimension(0) == query_length_);
+            ONEDAL_ASSERT(part_distances.get_dimension(1) == 2 * k_neighbors_);
             this->part_distances_ = part_distances;
         }
         return *this;
@@ -227,15 +246,14 @@ public:
                            pr::ndview<idx_t, 2>& inp_indices,
                            pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
-        sycl::event copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event;
+        sycl::event copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event, copy_actual_resp_event, copy_current_resp_event;
         const auto& [first, last] = this->block_bounds(qb_id);
+        const auto len = last - first;
+        ONEDAL_ASSERT(last > first);
 
-        // std::cout << "in operator, bounds and k_neighbors:: " << first << " " << last << " " << k_neighbors_ << std::endl;
-        // for (auto index = 0; index < last - first; index++) {
-        //     for (auto index2 = 0; index2 < k_neighbors_; index2++) {
-        //         std::cout << "input indices and distances at locations: " << index << " " << index2 << " " << pr::ndarray<idx_t, 2>::wrap(inp_indices.get_data(), inp_indices.get_shape()).to_host(queue_).at(index, index2) << " " << pr::ndarray<Float, 2>::wrap(inp_distances.get_data(), inp_distances.get_shape()).to_host(queue_).at(index, index2) << std::endl;
-        //     }
-        // }
+        auto inp_responses = this->temp_resp_.get_row_slice(0, len);
+
+        auto select_inp_resp_event = pr::select_indexed(queue_, inp_indices, train_responses_, inp_responses, deps);
 
         //TODO: add assertions/checks - mostly related to ensuring things are size k
         //TODO: make sure all these numbers and functionality works as intended
@@ -245,31 +263,40 @@ public:
 
         auto min_dist_dest = distances_.get_row_slice(first, last);
         auto min_indc_dest = indices_.get_row_slice(first, last);
+        auto min_resp_dest = intermediate_responses_.get_row_slice(first, last);
 
         // add global offset value to input indices
         ONEDAL_ASSERT(global_index_offset_ != -1);
-        auto treat_event = pr::treat_indices(queue_, inp_indices, global_index_offset_, deps);
+        auto treat_event = pr::treat_indices(queue_, inp_indices, global_index_offset_, {select_inp_resp_event});
 
-        auto actual_min_dist_copy_dest = part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);//get_row_slice(start_index, middle_index);
-        auto current_min_dist_dest = part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);//get_row_slice(middle_index, end_index);
-        copy_actual_dist_event = pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, deps);
-        copy_current_dist_event = pr::copy(queue_, current_min_dist_dest, inp_distances, deps);
+        auto actual_min_dist_copy_dest = part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+        auto current_min_dist_dest = part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
+        copy_actual_dist_event = pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, {treat_event});
+        copy_current_dist_event = pr::copy(queue_, current_min_dist_dest, inp_distances, {treat_event});
         
-        auto actual_min_indc_copy_dest = part_indices_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);//get_row_slice(start_index, middle_index);
-        auto current_min_indc_dest = part_indices_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);//get_row_slice(middle_index, end_index);
-        copy_actual_indc_event = pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, deps);
-        copy_current_indc_event = pr::copy(queue_, current_min_indc_dest, inp_indices, deps);
-        //std::cout << "in operator: " << pr::ndarray<Float, 2>::wrap(actual_min_dist_copy_dest.get_data(), actual_min_dist_copy_dest.get_shape()).to_host(queue_).at(0,0) << std::endl;
+        auto actual_min_indc_copy_dest = part_indices_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+        auto current_min_indc_dest = part_indices_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
+        copy_actual_indc_event = pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, {treat_event});
+        copy_current_indc_event = pr::copy(queue_, current_min_indc_dest, inp_indices, {treat_event});
+        
+        auto actual_min_resp_copy_dest = part_responses_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+        auto current_min_resp_dest = part_responses_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
+        copy_actual_resp_event = pr::copy(queue_, actual_min_resp_copy_dest, min_resp_dest, {treat_event});
+        copy_current_resp_event = pr::copy(queue_, current_min_resp_dest, inp_responses, {treat_event});
+
         auto kselect_block = part_distances_.get_row_slice(first, last);
         auto selt_event = select(queue_,
                                 kselect_block,
                                 k_neighbors_,
                                 min_dist_dest,
                                 min_indc_dest,
-                                { copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event });
+                                { copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event, copy_current_indc_event, copy_actual_resp_event, copy_current_resp_event });
+        auto resps_event = select_indexed(queue_, min_indc_dest, part_responses_,
+                                         min_resp_dest,
+                                         { selt_event });
         auto final_event = select_indexed(queue_, min_indc_dest, part_indices_,
                                          min_indc_dest,
-                                         { selt_event });
+                                         { resps_event });
         if (last_iteration_) { //calls same methods as original operator, using already set indices_ and distances_
             final_event = finalize(qb_id, indices_, distances_, { final_event });
         }
@@ -416,33 +443,28 @@ protected:
         ONEDAL_ASSERT(this->result_options_.test(result_options::responses));
 
         const auto& [first, last] = bnds;
-        const auto len = last - first;
         ONEDAL_ASSERT(last > first);
-        auto& queue = this->queue_;
 
-        auto tmp_rps = this->temp_resp_.get_row_slice(0, len);
-
-        const auto& inp_rps = this->inp_responses_;
-        auto s_evt = pr::select_indexed(queue, inp_ids, inp_rps, tmp_rps, deps);
+        auto tmp_rps = this->intermediate_responses_.get_row_slice(first, last);
 
         if constexpr (std::is_same_v<Task, task::classification>) {
             const auto ucls = bool(this->uniform_voting_);
             if (ucls)
-                return this->do_ucls(bnds, tmp_rps, { s_evt });
+                return this->do_ucls(bnds, tmp_rps, deps);
 
             const auto dcls = bool(this->distance_voting_);
             if (dcls)
-                return this->do_dcls(bnds, tmp_rps, inp_dts, { s_evt });
+                return this->do_dcls(bnds, tmp_rps, inp_dts, deps);
         }
 
         if constexpr (std::is_same_v<Task, task::regression>) {
             const auto ureg = bool(this->uniform_regression_);
             if (ureg)
-                return this->do_ureg(bnds, tmp_rps, { s_evt });
+                return this->do_ureg(bnds, tmp_rps, deps);
 
             const auto dreg = bool(this->distance_regression_);
             if (dreg)
-                return this->do_dreg(bnds, tmp_rps, inp_dts, { s_evt });
+                return this->do_dreg(bnds, tmp_rps, inp_dts, deps);
         }
 
         ONEDAL_ASSERT(false);
@@ -454,9 +476,11 @@ private:
     comm_t comm_;
     const result_option_id result_options_;
     const std::int64_t query_block_, query_length_, k_neighbors_;
-    pr::ndview<res_t, 1> inp_responses_;
+    pr::ndview<res_t, 1> train_responses_;
     pr::ndarray<res_t, 2> temp_resp_;
     pr::ndview<res_t, 1> responses_;
+    pr::ndview<res_t, 2> part_responses_;
+    pr::ndview<res_t, 2> intermediate_responses_;
     pr::ndview<Float, 2> distances_;
     pr::ndview<Float, 2> part_distances_;
     pr::ndview<idx_t, 2> indices_;
@@ -476,12 +500,14 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                       const descriptor_t<Task>& desc,
                       const table& train,
                       const pr::ndview<Float, 2, qorder>& query,
-                      const pr::ndview<RespT, 1>& tresps,
+                      const table& tresps,
                       pr::ndview<Float, 2>& distances,
                       pr::ndview<Float, 2>& part_distances,
                       pr::ndview<idx_t, 2>& indices,
                       pr::ndview<idx_t, 2>& part_indices,
                       pr::ndview<RespT, 1>& qresps,
+                      pr::ndview<RespT, 2>& part_responses,
+                      pr::ndview<RespT, 2>& intermediate_responses,
                       const bk::event_vector& deps = {}) {
     using res_t = response_t<Task, Float>;
     constexpr auto torder = pr::ndorder::c;
@@ -498,7 +524,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     if (ropts.test(result_options::responses)) {
         ONEDAL_ASSERT(tresps.has_data());
         ONEDAL_ASSERT(qresps.has_mutable_data());
-        ONEDAL_ASSERT(tcount == tresps.get_count());
+        ONEDAL_ASSERT(tcount == tresps.get_row_count());
         ONEDAL_ASSERT(qcount == qresps.get_count());
     }
     const auto kcount = desc.get_neighbor_count();
@@ -513,7 +539,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         ONEDAL_ASSERT(kcount == distances.get_dimension(1));
     }
 
-    auto block_size = pr::get_block_size();
+    auto block_size = pr::get_block_size<Float>();
     auto rank_count = comm.get_rank_count();
     auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
     // ONEDAL_PROFILER_TASK needed?
@@ -527,17 +553,19 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     std::int32_t block_count = nodes.size();
 
-    auto train_block_queue = pr::split_dataset<Float, torder>(queue, train, block_size, deps);
-    std::cout << "rank: " << current_rank << std::endl;
+    auto train_block_queue = pr::split_table<Float>(queue, train, block_size); //deps?
+    auto tresps_queue = pr::split_table<RespT>(queue, tresps, block_size);
+
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
 
     knn_callback_distr<Float, Task> callback(queue, comm, ropts, qbcount, qcount, kcount);
     
-    callback.set_inp_responses(tresps);
     callback.set_distances(distances);
     callback.set_part_distances(part_distances);
     callback.set_responses(qresps);
+    callback.set_part_responses(part_responses);
+    callback.set_intermediate_responses(intermediate_responses);
     callback.set_indices(indices);
     callback.set_part_indices(part_indices);
 
@@ -592,7 +620,10 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     for(auto block_number = 0; block_number < block_count; block_number++) {
         // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
         auto current_block = train_block_queue.front();
-	    train_block_queue.pop();
+	    train_block_queue.pop_front();
+        auto current_tresps = tresps_queue.front();
+        auto current_tresps_1d = pr::ndview<RespT, 1>::wrap(current_tresps.get_mutable_data(), {current_tresps.get_count()});
+	    tresps_queue.pop_front();
         auto block_index = (block_number + first_block_index) % block_count;
         auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
 
@@ -602,14 +633,10 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
 
         callback.set_global_index_offset(boundaries.at(block_index));
+        callback.set_train_responses(current_tresps_1d);
         if (block_number == block_count - 1) {
             callback.set_last_iteration(true);
         }
-        // for (auto index = 0; index < actual_rows_in_block; index++) {
-        //     for (auto index2 = 0; index2 < fcount; index2 ++) {
-        //     std::cout << "block number, block index, block count, index, index2, and value in block: " << block_number << " " << block_index << " " << block_count << " " << index << " " << index2 << " " << pr::ndarray<Float, 2>::wrap(actual_current_block.get_data(), actual_current_block.get_shape()).to_host(queue).at(index, index2) << std::endl;
-        //     }
-        // }
         if (is_cosine_distance) {
             using dst_t = pr::cosine_distance<Float>;
             using search_t = pr::search_engine<Float, dst_t, torder>;
@@ -657,7 +684,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         //next_event = search(query, callback, qbcount, kcount, { next_event });
 
         comm.sendrecv_replace(array<Float>::wrap(queue, current_block.get_mutable_data(), current_block.get_count(), {next_event}), prev_node, next_node).wait();
-        train_block_queue.emplace(current_block);
+        train_block_queue.emplace_back(current_block);
+        comm.sendrecv_replace(array<RespT>::wrap(queue, current_tresps.get_mutable_data(), current_tresps.get_count(), {next_event}), prev_node, next_node).wait();
+        tresps_queue.emplace_back(current_tresps);
     }
 
     return next_event;
@@ -668,12 +697,14 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                                    const descriptor_t<T>&,                                  \
                                    const table&,                                            \
                                    const pr::ndview<F, 2, A>&,                              \
-                                   const pr::ndview<R, 1>&,                                 \
+                                   const table&,                                 \
                                    pr::ndview<F, 2>&,                                       \
                                    pr::ndview<F, 2>&,                                       \
                                    pr::ndview<I, 2>&,                                       \
                                    pr::ndview<I, 2>&,                                       \
                                    pr::ndview<R, 1>&,                                       \
+                                   pr::ndview<R, 2>&,                                       \
+                                   pr::ndview<R, 2>&,                                       \
                                    const bk::event_vector&);
 
 #define INSTANTIATE_A_DISTR(T, I, R, F)             \

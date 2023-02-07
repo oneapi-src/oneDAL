@@ -25,6 +25,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+template <typename Float>
 std::int64_t get_block_size();
 
 template <typename Float>
