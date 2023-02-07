@@ -47,6 +47,26 @@ std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width) {
     return result;
 }
 
+std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(ndarray<std::int64_t, 1> sample_counts, std::int64_t block_size) {
+    std::vector<std::int32_t> nodes;
+    std::vector<std::int64_t> boundaries;
+    std::int64_t global_bias = 0;
+    for(std::int32_t i = 0; i < sample_counts.get_dimension(0); i++) {
+        auto s = sample_counts.at(i);
+        auto block_counting = uniform_blocking(s, block_size);
+        auto block_count = block_counting.get_block_count();
+        for(std::int32_t block_index = 0; block_index < block_count; block_index++) {
+            nodes.push_back(i);
+            auto local = std::min(s, block_index * block_size);
+            auto biased = local + global_bias;
+            boundaries.push_back(biased);
+        }
+        global_bias = global_bias + s;
+    }
+    boundaries.push_back(global_bias);
+    return std::make_tuple(nodes, boundaries);
+}
+
 template <typename Index>
 sycl::event treat_indices(sycl::queue& q,
 			  ndview<Index, 2>& indices,
