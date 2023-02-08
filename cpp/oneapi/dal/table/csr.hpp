@@ -240,13 +240,16 @@ private:
             throw dal::domain_error(error_msg::invalid_first_row_offset());
         }
 
-        for (std::int64_t i = 0; i <= row_count; i++) {
-            if (row_offsets[i] < min_index) {
-                throw dal::domain_error(error_msg::row_offsets_lt_min_value());
+        if (row_offsets[0] < min_index) {
+            throw dal::domain_error(error_msg::row_offsets_lt_min_value());
+        }
+        for (std::int64_t i = 1; i <= row_count; i++) {
+            if (row_offsets[i-1] > row_offsets[i]) {
+                throw dal::domain_error(error_msg::row_offsets_not_ascending());
             }
-            if (row_offsets[i] > max_row_offset) {
-                throw dal::domain_error(error_msg::row_offsets_gt_max_value());
-            }
+        }
+        if (row_offsets[row_count] > max_row_offset) {
+            throw dal::domain_error(error_msg::row_offsets_gt_max_value());
         }
 
         for (std::int64_t i = 0; i < element_count; i++) {
