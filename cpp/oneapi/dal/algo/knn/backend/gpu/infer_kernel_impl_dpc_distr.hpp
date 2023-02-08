@@ -628,8 +628,8 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         ONEDAL_ASSERT(current_block.has_data());
         auto current_tresps = tresps_queue.front();
         ONEDAL_ASSERT(current_tresps.has_data());
-        auto current_tresps_1d = pr::ndview<res_t, 1>::wrap(current_tresps.get_data(),
-                                                            { current_tresps.get_count() });
+        auto current_tresps_1d =
+            pr::ndview<res_t, 1>::wrap(current_tresps.get_data(), { current_tresps.get_count() });
         tresps_queue.pop_front();
 
         auto block_index = (block_number + first_block_index) % block_count;
