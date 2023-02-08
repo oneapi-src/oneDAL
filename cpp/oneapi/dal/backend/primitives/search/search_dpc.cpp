@@ -50,11 +50,13 @@ std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width) {
 std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(
     ndarray<std::int64_t, 1> sample_counts,
     std::int64_t block_size) {
+    ONEDAL_ASSERT(sample_counts.has_mutable_data());
     std::vector<std::int32_t> nodes;
     std::vector<std::int64_t> boundaries;
     std::int64_t global_bias = 0;
     for (std::int32_t i = 0; i < sample_counts.get_dimension(0); i++) {
         auto s = sample_counts.at(i);
+        ONEDAL_ASSERT(s >= 0);
         auto block_counting = uniform_blocking(s, block_size);
         auto block_count = block_counting.get_block_count();
         for (std::int32_t block_index = 0; block_index < block_count; block_index++) {

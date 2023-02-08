@@ -42,14 +42,14 @@ void run(sycl::queue& queue) {
     const auto y_test =
         dal::read<dal::table>(queue, dal::csv::data_source{ test_response_file_name });
 
+    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(queue);
+    auto rank_id = comm.get_rank();
+    auto rank_count = comm.get_rank_count();
+
     auto x_train_vec = split_table_by_rows<float>(queue, x_train, rank_count);
     auto y_train_vec = split_table_by_rows<float>(queue, y_train, rank_count);
     auto x_test_vec = split_table_by_rows<float>(queue, x_test, rank_count);
     auto y_test_vec = split_table_by_rows<float>(queue, y_test, rank_count);
-
-    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(queue);
-    auto rank_id = comm.get_rank();
-    auto rank_count = comm.get_rank_count();
 
     // First value is number of classes, second is number of neighbors
     // Voting mode and distance impl should resort to default

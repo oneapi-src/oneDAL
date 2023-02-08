@@ -180,7 +180,7 @@ public:
         return out_idcs;
     }
 
-    auto& set_global_index_offset(int64_t offset) {
+    auto& set_global_index_offset(std::int64_t offset) {
         global_index_offset_ = offset;
         return *this;
     }
@@ -225,13 +225,16 @@ public:
         const auto& [first, last] = this->block_bounds(qb_id);
         const auto len = last - first;
         ONEDAL_ASSERT(last > first);
+        ONEDAL_ASSERT(inp_indices.get_dimension(0) == len);
+        ONEDAL_ASSERT(inp_indices.get_dimension(1) == k_neighbors_);
+        ONEDAL_ASSERT(inp_distances.get_dimension(0) == len);
+        ONEDAL_ASSERT(inp_distances.get_dimension(1) == k_neighbors_);
 
         auto inp_responses = this->temp_resp_.get_row_slice(0, len);
 
         auto select_inp_resp_event =
             pr::select_indexed(queue_, inp_indices, train_responses_, inp_responses, deps);
 
-        //TODO: add assertions/checks - mostly related to ensuring things are size k
         const pr::ndshape<2> typical_blocking(last - first, 2 * k_neighbors_);
         auto select = selc_t(queue_, typical_blocking, k_neighbors_);
 
@@ -508,6 +511,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     [[maybe_unused]] auto tcount = train.get_row_count();
     const auto qcount = query.get_dimension(0);
     const auto fcount = train.get_column_count();
+    const auto kcount = desc.get_neighbor_count();
     ONEDAL_ASSERT(fcount == query.get_dimension(1));
     // Output arrays test section
     const auto& ropts = desc.get_result_options();
@@ -516,17 +520,24 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         ONEDAL_ASSERT(qresps.has_mutable_data());
         ONEDAL_ASSERT(tcount == tresps.get_row_count());
         ONEDAL_ASSERT(qcount == qresps.get_count());
+        ONEDAL_ASSERT(qcount == part_responses.get_dimension(0));
+        ONEDAL_ASSERT(2 * kcount == part_responses.get_dimension(1));
+        ONEDAL_ASSERT(qcount == intermediate_responses.get_dimension(0));
+        ONEDAL_ASSERT(kcount == intermediate_responses.get_dimension(1));
     }
-    const auto kcount = desc.get_neighbor_count();
     if (ropts.test(result_options::indices)) {
         ONEDAL_ASSERT(indices.has_mutable_data());
         ONEDAL_ASSERT(qcount == indices.get_dimension(0));
         ONEDAL_ASSERT(kcount == indices.get_dimension(1));
+        ONEDAL_ASSERT(qcount == part_indices.get_dimension(0));
+        ONEDAL_ASSERT(2 * kcount == part_indices.get_dimension(1));
     }
     if (ropts.test(result_options::distances)) {
         ONEDAL_ASSERT(distances.has_mutable_data());
         ONEDAL_ASSERT(qcount == distances.get_dimension(0));
         ONEDAL_ASSERT(kcount == distances.get_dimension(1));
+        ONEDAL_ASSERT(qcount == part_distances.get_dimension(0));
+        ONEDAL_ASSERT(2 * kcount == part_distances.get_dimension(1));
     }
 
     auto block_size = pr::get_block_size<Float>();
@@ -538,13 +549,16 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto current_rank = comm.get_rank();
     auto prev_node = (current_rank - 1 + rank_count) % rank_count;
     auto next_node = (current_rank + 1) % rank_count;
+    ONEDAL_ASSERT(prev_node >= 0);
 
     auto [nodes, boundaries] = pr::get_boundary_indices(node_sample_counts, block_size);
-
-    std::int32_t block_count = nodes.size();
+    auto block_count = nodes.size();
+    ONEDAL_ASSERT(block_count + 1 == boundaries.size());
 
     auto train_block_queue = pr::split_table<Float>(queue, train, block_size); //deps?
-    auto tresps_queue = pr::split_table<RespT>(queue, tresps, block_size);
+    auto tresps_queue = pr::split_table<res_t>(queue, tresps, block_size);
+    ONEDAL_ASSERT(train_block_queue.size() <= block_count);
+    ONEDAL_ASSERT(tresps_queue.size() == train_block_queue.size());
 
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
@@ -607,15 +621,19 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto first_block_index = std::distance(nodes.begin(), it);
     ONEDAL_ASSERT(it != nodes.end());
 
-    for (auto block_number = 0; block_number < block_count; block_number++) {
+    for (unsigned long block_number = 0; block_number < block_count; block_number++) {
         // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
         auto current_block = train_block_queue.front();
         train_block_queue.pop_front();
+        ONEDAL_ASSERT(current_block.has_data());
         auto current_tresps = tresps_queue.front();
-        auto current_tresps_1d = pr::ndview<RespT, 1>::wrap(current_tresps.get_mutable_data(),
+        ONEDAL_ASSERT(current_tresps.has_data());
+        auto current_tresps_1d = pr::ndview<res_t, 1>::wrap(current_tresps.get_data(),
                                                             { current_tresps.get_count() });
         tresps_queue.pop_front();
+
         auto block_index = (block_number + first_block_index) % block_count;
+        ONEDAL_ASSERT(block_index + 1 < boundaries.size());
         auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
 
         auto sc = current_block.get_dimension(0);
@@ -682,7 +700,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
                               next_node)
             .wait();
         train_block_queue.emplace_back(current_block);
-        comm.sendrecv_replace(array<RespT>::wrap(queue,
+        comm.sendrecv_replace(array<res_t>::wrap(queue,
                                                  current_tresps.get_mutable_data(),
                                                  current_tresps.get_count(),
                                                  { next_event }),
