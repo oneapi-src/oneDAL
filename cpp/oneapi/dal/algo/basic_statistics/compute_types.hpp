@@ -48,6 +48,7 @@ public:
     /// Creates a new instance of the class with the given :literal:`data`
     /// property value
     compute_input(const table& data);
+    compute_input(const table& data, const table& weights);
 
     /// An $n \\times p$ table with the training data, where each row stores one
     /// feature vector.
@@ -59,8 +60,16 @@ public:
         return *this;
     }
 
+    const table& get_weights() const;
+
+    auto& set_weights(const table& weights) {
+        set_weights_impl(weights);
+        return *this;
+    }
+
 protected:
     void set_data_impl(const table& data);
+    void set_weights_impl(const table& weights);
 
 private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
