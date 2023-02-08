@@ -55,12 +55,36 @@ public:
             throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
-        const std::int64_t element_count = row_offsets_[get_row_count()] - 1;
+        const std::int64_t row_count = (row_offsets.get_count() ? row_offsets.get_count() - 1 : 0);
+        const std::int64_t element_count = row_offsets_[row_count] - row_offsets_[0];
         const std::int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
         if (data.get_count() != element_count * dtype_size) {
             throw dal::domain_error(error_msg::invalid_data_block_size());
+        }
+
+        for (std::int64_t i = 1; i <= row_count; i++) {
+            if (row_offsets[i-1] > row_offsets[i]) {
+                throw dal::domain_error(error_msg::row_offsets_not_ascending());
+            }
+        }
+
+        if (column_indices.get_count() != element_count) {
+            throw dal::domain_error(error_msg::invalid_column_indices_block_size());
+        }
+
+        const std::int64_t min_index = (indexing == sparse_indexing::zero_based) ? 0 : 1;
+        const std::int64_t max_index =
+            (indexing == sparse_indexing::zero_based) ? column_count - 1 : column_count;
+
+        for (std::int64_t i = 0; i < element_count; i++) {
+            if (column_indices[i] < min_index) {
+                throw dal::domain_error(error_msg::column_indices_lt_min_value());
+            }
+            if (column_indices[i] > max_index) {
+                throw dal::domain_error(error_msg::column_indices_gt_max_value());
+            }
         }
     }
 

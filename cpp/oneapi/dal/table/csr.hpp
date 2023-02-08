@@ -216,16 +216,12 @@ public:
 private:
     explicit csr_table(detail::csr_table_iface* impl) : table(impl) {}
 
-    void check_indices(const std::int64_t* column_indices,
-                       const std::int64_t* row_offsets,
+    void check_indices(const std::int64_t* row_offsets,
                        const std::int64_t row_count,
                        const std::int64_t column_count,
                        const sparse_indexing indexing) const {
         using error_msg = dal::detail::error_messages;
         const std::int64_t min_index = (indexing == sparse_indexing::zero_based) ? 0 : 1;
-        const std::int64_t max_column_index =
-            (indexing == sparse_indexing::zero_based) ? column_count - 1 : column_count;
-        const std::int64_t element_count = row_offsets[row_count] - row_offsets[0];
         const std::int64_t max_row_offset = row_offsets[row_count];
 
         if (row_count <= 0) {
@@ -240,25 +236,8 @@ private:
             throw dal::domain_error(error_msg::invalid_first_row_offset());
         }
 
-        if (row_offsets[0] < min_index) {
-            throw dal::domain_error(error_msg::row_offsets_lt_min_value());
-        }
-        for (std::int64_t i = 1; i <= row_count; i++) {
-            if (row_offsets[i-1] > row_offsets[i]) {
-                throw dal::domain_error(error_msg::row_offsets_not_ascending());
-            }
-        }
         if (row_offsets[row_count] > max_row_offset) {
             throw dal::domain_error(error_msg::row_offsets_gt_max_value());
-        }
-
-        for (std::int64_t i = 0; i < element_count; i++) {
-            if (column_indices[i] < min_index) {
-                throw dal::domain_error(error_msg::column_indices_lt_min_value());
-            }
-            if (column_indices[i] > max_column_index) {
-                throw dal::domain_error(error_msg::column_indices_gt_max_value());
-            }
         }
     }
 
@@ -277,7 +256,7 @@ private:
                    ConstColumnIndicesDeleter&& column_indices_deleter,
                    ConstRowOffsetsDeleter&& row_offsets_deleter,
                    sparse_indexing indexing) {
-        check_indices(column_indices_pointer, row_offsets_pointer, row_count, column_count, indexing);
+        check_indices(row_offsets_pointer, row_count, column_count, indexing);
         const std::int64_t element_count = row_offsets_pointer[row_count] - row_offsets_pointer[0];
 
         const auto data = detail::array_via_policy<Data>::wrap(
@@ -315,8 +294,7 @@ private:
                    sparse_indexing indexing) {
         std::int64_t row_count = row_offsets.get_count();
         row_count = (row_count ? row_count - 1 : std::int64_t(0));
-        check_indices(column_indices.get_data(),
-                      row_offsets.get_data(),
+        check_indices(row_offsets.get_data(),
                       row_count,
                       column_count,
                       indexing);

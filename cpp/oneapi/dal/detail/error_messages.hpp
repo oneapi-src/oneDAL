@@ -67,6 +67,7 @@ public:
     MSG(feature_index_is_out_of_range);
     MSG(incompatible_array_reinterpret_cast_types);
     MSG(invalid_data_block_size);
+    MSG(invalid_column_indices_block_size);
     MSG(method_not_implemented);
     MSG(only_homogen_table_is_supported);
     MSG(overflow_found_in_multiplication_of_two_values);

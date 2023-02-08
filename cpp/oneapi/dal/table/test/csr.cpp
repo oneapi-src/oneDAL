@@ -18,6 +18,7 @@
 #include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/linalg.hpp"
+#include "oneapi/dal/test/engine/tables.hpp"
 
 namespace oneapi::dal::test {
 
@@ -131,11 +132,8 @@ TEST("can construct table reference") {
     const auto& m2 = t2.get_metadata();
 
     REQUIRE(t1.get_indexing() == t2.get_indexing());
-    // TODO: replace with metadata objects comparison
-    for (std::int64_t i = 0; i < t1.get_column_count(); i++) {
-        REQUIRE(m1.get_data_type(i) == m2.get_data_type(i));
-        REQUIRE(m1.get_feature_type(i) == m2.get_feature_type(i));
-    }
+
+    te::check_if_metadata_equal(m1, m2);
 }
 
 TEST("can construct table with move") {
@@ -214,6 +212,8 @@ TEST("can assign two table references") {
     REQUIRE(t2.get_data<std::int32_t>() == data2);
     REQUIRE(t2.get_column_indices() == column_indices2);
     REQUIRE(t2.get_row_offsets() == row_offsets2);
+
+    te::check_if_metadata_equal(t1.get_metadata(), t2.get_metadata());
 }
 
 TEST("can move assigned table reference") {
