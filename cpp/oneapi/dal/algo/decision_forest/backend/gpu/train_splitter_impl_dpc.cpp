@@ -562,14 +562,9 @@ struct split_smp {
                             Index min_obs_leaf,
                             Index buff_size) {
         const Index bin_ofs = ts_ftr_bin * hist_prop_count;
-        if constexpr (std::is_same_v<Task, task::classification>) {
-            merge_bin_hist(ts_left_count, ts_left_hist, ftr_hist_ptr + bin_ofs, hist_prop_count);
-        }
-        else {
-            merge_bin_hist(ts_left_hist, ftr_hist_ptr + bin_ofs, hist_prop_count);
-        }
 
         if constexpr (std::is_same_v<Task, task::classification>) {
+            merge_bin_hist(ts_left_count, ts_left_hist, ftr_hist_ptr + bin_ofs, hist_prop_count);
             calc_imp_dec(ts_right_count,
                          ts_left_imp,
                          ts_right_imp,
@@ -602,6 +597,7 @@ struct split_smp {
                               min_obs_leaf);
         }
         else {
+            merge_bin_hist(ts_left_hist, ftr_hist_ptr + bin_ofs, hist_prop_count);
             calc_imp_dec(ts_left_count,
                          ts_right_count,
                          ts_imp_dec,
@@ -731,15 +727,12 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
     auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
 
     if (ctx.splitter_mode_value == splitter_mode::random) {
-        pr::engine_collection collection(1, ctx.seed);
-        std::vector<pr::engine> engine_arr = collection([&](std::size_t i, std::size_t& j) {
-            j = i;
-        });
+        pr::engine random_engine = pr::engine(ctx.seed);
         pr::rng<Index> rn_gen;
         rn_gen.uniform( // Select bin treshold randomly
             selected_ftr_count,
             ftr_random_select_ptr,
-            engine_arr[0].get_state(),
+            random_engine.get_state(),
             0,
             max_bin_count_among_ftrs);
     }
