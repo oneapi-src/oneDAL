@@ -528,7 +528,7 @@ public:
         return base_t::get_splitter_mode();
     }
 
-    auto& set_splitter(splitter_mode value) {
+    auto& set_splitter_mode(splitter_mode value) {
         base_t::set_splitter_mode_impl(value);
         return *this;
     }

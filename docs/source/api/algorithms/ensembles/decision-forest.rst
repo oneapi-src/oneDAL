@@ -100,8 +100,9 @@ splitter_mode::best
    in terms of impurity among all histogram bins and feature subset.
 
 splitter_mode::random
-   Random splitting strategy chooses random treshold for each while building trees
-   and selects best feature in terms of impurity among all historgram bins and feature subset.
+   Random splitting strategy chooses random treshold for each feature while building trees
+   and and selects the best feature in terms of impurity
+   computed for that random split from the feature subset.
 
 Descriptor
 ++++++++++

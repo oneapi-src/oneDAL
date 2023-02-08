@@ -168,15 +168,12 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_sin
     auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
 
     if (ctx.splitter_mode_value == splitter_mode::random) {
-        pr::engine_collection collection(1, ctx.seed);
-        std::vector<pr::engine> engine_arr = collection([&](std::size_t i, std::size_t& j) {
-            j = i;
-        });
+        pr::engine random_engine = pr::engine(ctx.seed);
         pr::rng<Index> rn_gen;
         rn_gen.uniform( // Select bin treshold randomly
             selected_ftr_count,
             ftr_random_select_ptr,
-            engine_arr[0].get_state(),
+            random_engine.get_state(),
             0,
             index_max);
     }

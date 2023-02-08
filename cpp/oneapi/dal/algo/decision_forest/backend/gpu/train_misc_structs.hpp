@@ -138,7 +138,7 @@ struct train_context {
         // for switching between private mem and other buffers(local, global) for storing class hist
 
     splitter_mode splitter_mode_value;
-    Index seed;
+    std::uint64_t seed;
     Index total_bin_count_ = 0;
     Index max_bin_count_among_ftrs_ = 0;
 
