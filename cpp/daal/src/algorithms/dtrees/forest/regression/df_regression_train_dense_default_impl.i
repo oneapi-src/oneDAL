@@ -766,15 +766,43 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(co
     ImpurityData right;
     algorithmFPType vBest;
     bool bFound               = false;
-    size_t nDiffFeatureValues = 0;
+    //size_t nDiffFeatureValues = 0;
     auto aResponse            = this->_aResponse.get();
     auto aWeights             = this->_aWeights.get();
+    algorithmFPType min               = featureVal[0];
+    algorithmFPType max               = featureVal[0];
+    algorithmFPType idx;
+    algorithmFPType firstVal;
+
+    for (size_t i = 1; i < n; ++i)
+    {
+        max = featureVal[i] > max ? featureVal[i] : max;
+        min = featureVal[i] < min ? featureVal[i] : min;
+    }
+
+    firstVal = min;
+
+    RNGs<algorithmFPType, cpu> rng;
+    rng.uniform(1, &idx, engineImpl->getState(), min, max); //this strategy follows sklearn's implementation
+
+    for (size_t i = 1; i < n; ++i)
+    {
+        firstVal = featureVal[i] <= idx && featureVal[i] > firstVal ? featureVal[i] : firstVal;
+    }
+    //first is the closest categorical feature less than the idx O(n) computation as ordering of featureVal is unknown.
+
+
 
     for (size_t i = 0; i < n - nMinSplitPart;)
     {
-        ++nDiffFeatureValues;
+        //++nDiffFeatureValues;
+        if (featureVal[i] != firstVal)
+        {
+            i++;
+            continue;
+        }
         size_t count                   = 1;
-        const algorithmFPType firstVal = featureVal[i];
+        firstVal = featureVal[i];
         const size_t iStart            = i;
         algorithmFPType leftWeights    = aWeights[aIdx[i]].val;
         for (++i; (i < n) && (featureVal[i] == firstVal); ++count, ++i)
@@ -785,7 +813,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(co
             || ((totalWeights - leftWeights) < minWeightLeaf))
             continue;
 
-        if ((i == n) && (nDiffFeatureValues == 2) && bFound) break; //only 2 feature values, one possible split, already found
+        //if ((i == n) && (nDiffFeatureValues == 2) && bFound) break; //only 2 feature values, one possible split, already found
 
         double weights = double(0);
         calcImpurity<noWeights>(aIdx + iStart, count, left, weights);
