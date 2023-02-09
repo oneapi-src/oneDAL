@@ -167,8 +167,8 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_sin
     auto ftr_random_select = pr::ndarray<Index, 1>::empty({ selected_ftr_count });
     auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
 
-    if (ctx.splitter_mode_value == splitter_mode::random) {
-        pr::engine random_engine = pr::engine(ctx.seed);
+    if (ctx.splitter_mode_value_ == splitter_mode::random) {
+        pr::engine random_engine = pr::engine(ctx.seed_);
         pr::rng<Index> rn_gen;
         rn_gen.uniform( // Select bin treshold randomly
             selected_ftr_count,
@@ -246,7 +246,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_sin
                         Index response_int = (i < row_count) ? static_cast<Index>(response) : -1;
 
                         ts.ftr_bin = -1;
-                        if (ctx.splitter_mode_value == splitter_mode::best) {
+                        if (ctx.splitter_mode_value_ == splitter_mode::random) {
                             ts.ftr_bin = ft_rnd_ptr[ftr_idx] % index_max;
                         }
                         ts.ftr_bin = sycl::reduce_over_group(item.get_group(),
@@ -257,7 +257,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_sin
                         // Compute once with random selected bin OR compute for all bins
                         // Depending on ctx.splitter_mode_value
                         while (ts.ftr_bin < index_max &&
-                               (ctx.splitter_mode_value == splitter_mode::best || computed_once)) {
+                               (ctx.splitter_mode_value_ == splitter_mode::best || computed_once)) {
                             computed_once = false;
                             const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
 

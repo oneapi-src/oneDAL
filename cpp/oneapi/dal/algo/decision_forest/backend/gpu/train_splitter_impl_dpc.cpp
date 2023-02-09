@@ -726,8 +726,8 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
     auto ftr_random_select = pr::ndarray<Index, 1>::empty({ selected_ftr_count });
     auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
 
-    if (ctx.splitter_mode_value == splitter_mode::random) {
-        pr::engine random_engine = pr::engine(ctx.seed);
+    if (ctx.splitter_mode_value_ == splitter_mode::random) {
+        pr::engine random_engine = pr::engine(ctx.seed_);
         pr::rng<Index> rn_gen;
         rn_gen.uniform( // Select bin treshold randomly
             selected_ftr_count,
@@ -811,7 +811,7 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
                 Float ts_right_imp = Float(0);
                 Float ts_imp_dec = Float(0);
 
-                if (ctx.splitter_mode_value == splitter_mode::random) {
+                if (ctx.splitter_mode_value_ == splitter_mode::random) {
                     Index ts_ftr_bin =
                         ft_rnd_ptr[ftr_idx] % ts_ftr_bin_count; // Select Randomly bin
                     sp_hlp.process_bin(ts_ftr_bin,
