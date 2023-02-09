@@ -36,6 +36,9 @@ dal_test_suite(
     name = "tests",
     private = True,
     framework = "catch2",
+    hdrs = glob([
+        "test/*.hpp",
+    ]),
     #compile_as = [ "dpc++" ],
     srcs = glob([
         "test/*.cpp",

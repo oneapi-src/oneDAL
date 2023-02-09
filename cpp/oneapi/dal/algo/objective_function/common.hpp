@@ -66,8 +66,8 @@ namespace detail {
 ONEDAL_EXPORT result_option_id get_value_id();
 ONEDAL_EXPORT result_option_id get_gradient_id();
 ONEDAL_EXPORT result_option_id get_hessian_id();
-ONEDAL_EXPORT result_option_id get_packed_gradient_id();
-ONEDAL_EXPORT result_option_id get_packed_hessian_id();
+// ONEDAL_EXPORT result_option_id get_packed_gradient_id();
+// ONEDAL_EXPORT result_option_id get_packed_hessian_id();
 
 } // namespace detail
 
@@ -75,8 +75,8 @@ namespace result_options {
     const inline auto value = detail::get_value_id();
     const inline auto gradient = detail::get_gradient_id();
     const inline auto hessian = detail::get_hessian_id();
-    const inline auto packed_gradient = detail::get_packed_gradient_id();
-    const inline auto packed_hessian = detail::get_packed_hessian_id();
+    // const inline auto packed_gradient = detail::get_packed_gradient_id();
+    // const inline auto packed_hessian = detail::get_packed_hessian_id();
 } // namespace result_options
 
 namespace detail {
@@ -114,10 +114,7 @@ public:
 
     descriptor_base();
 
-    // double get_l1_regularization_coefficient() const;
-    // double get_l2_regularization_coefficient() const;
     result_option_id get_result_options() const;
-    // const auto get_descriptor() const;
 
 protected:
     explicit descriptor_base(const detail::objective_ptr& objective);

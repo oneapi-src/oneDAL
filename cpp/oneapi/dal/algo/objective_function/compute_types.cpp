@@ -36,8 +36,8 @@ public:
     table value;
     table gradient;
     table hessian;
-    table packed_gradient;
-    table packed_hessian;
+    // table packed_gradient;
+    // table packed_hessian;
     result_option_id options;
 };
 
@@ -113,6 +113,7 @@ const table& compute_result<Task>::get_hessian() const {
     return impl_->hessian;
 }
 
+/*
 template <typename Task>
 const table& compute_result<Task>::get_packed_gradient() const {
     using msg = dal::detail::error_messages;
@@ -130,6 +131,7 @@ const table& compute_result<Task>::get_packed_hessian() const {
     }
     return impl_->packed_hessian;
 }
+*/
 
 template <typename Task>
 void compute_result<Task>::set_value_impl(const table& value) {
@@ -158,6 +160,7 @@ void compute_result<Task>::set_hessian_impl(const table& value) {
     impl_->hessian = value;
 }
 
+/*
 template <typename Task>
 void compute_result<Task>::set_packed_gradient_impl(const table& value) {
     using msg = dal::detail::error_messages;
@@ -175,7 +178,7 @@ void compute_result<Task>::set_packed_hessian_impl(const table& value) {
     }
     impl_->packed_hessian = value;
 }
-
+*/
 
 template <typename Task>
 const result_option_id& compute_result<Task>::get_result_options() const {

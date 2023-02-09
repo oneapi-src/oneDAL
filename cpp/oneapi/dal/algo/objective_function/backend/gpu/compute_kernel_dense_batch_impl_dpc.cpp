@@ -74,33 +74,51 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(const detail::descri
     
     sycl::event prob_e = compute_probabilities(q_, params_nd, data_nd, probabilities, {});
     
-    if (desc.get_result_options().test(result_options::value)) {
-        auto [out_loss, out_loss_e] = pr::ndarray<Float, 1>::zeros(q_, { 1 }, sycl::usm::alloc::device);
-        auto loss_event = compute_logloss(q_,
-                                            params_nd,
-                                            data_nd,
-                                            responses_nd,
-                                            probabilities,
-                                            out_loss,
-                                            L1,
-                                            L2,
-                                            { prob_e, out_loss_e });
+    if (desc.get_result_options().test(result_options::value) && desc.get_result_options().test(result_options::gradient)) {
+        auto [out, out_e] = pr::ndarray<Float, 1>::zeros(q_, {p + 2}, sycl::usm::alloc::device);
+        auto out_loss = out.slice(0, 1);
+        auto out_gradient = out.slice(1, p + 1);
+        auto loss_event = compute_logloss_with_der(q_,
+                                     params_nd,
+                                     data_nd,
+                                     responses_nd,
+                                     probabilities,
+                                     out_loss,
+                                     out_gradient,
+                                     L1,
+                                     L2,
+                                     {prob_e, out_e});
         result.set_value(homogen_table::wrap(out_loss.flatten(q_, { loss_event }), 1, 1));
-    }
-    
+        result.set_gradient(homogen_table::wrap(out_gradient.flatten(q_, { loss_event }), 1, p + 1));
+    } else {
+        if (desc.get_result_options().test(result_options::value)) {
+            auto [out_loss, out_loss_e] = pr::ndarray<Float, 1>::zeros(q_, { 1 }, sycl::usm::alloc::device);
+            auto loss_event = compute_logloss(q_,
+                                                params_nd,
+                                                data_nd,
+                                                responses_nd,
+                                                probabilities,
+                                                out_loss,
+                                                L1,
+                                                L2,
+                                                { prob_e, out_loss_e });
+            result.set_value(homogen_table::wrap(out_loss.flatten(q_, { loss_event }), 1, 1));
+        }
+        
 
-    if (desc.get_result_options().test(result_options::gradient)) {
-        auto [out_gradient, out_grad_e] = pr::ndarray<Float, 1>::zeros(q_, { p + 1 }, sycl::usm::alloc::device);
-        auto grad_event = compute_derivative(q_,
-                                            params_nd,
-                                            data_nd,
-                                            responses_nd,
-                                            probabilities,
-                                            out_gradient,
-                                            L1,
-                                            L2,
-                                            { prob_e, out_grad_e });
-        result.set_gradient(homogen_table::wrap(out_gradient.flatten(q_, { grad_event }), 1, p + 1));
+        if (desc.get_result_options().test(result_options::gradient)) {
+            auto [out_gradient, out_grad_e] = pr::ndarray<Float, 1>::zeros(q_, { p + 1 }, sycl::usm::alloc::device);
+            auto grad_event = compute_derivative(q_,
+                                                params_nd,
+                                                data_nd,
+                                                responses_nd,
+                                                probabilities,
+                                                out_gradient,
+                                                L1,
+                                                L2,
+                                                { prob_e, out_grad_e });
+            result.set_gradient(homogen_table::wrap(out_gradient.flatten(q_, { grad_event }), 1, p + 1));
+        }
     }
 
     if (desc.get_result_options().test(result_options::hessian)) {

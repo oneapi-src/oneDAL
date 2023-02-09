@@ -32,6 +32,7 @@ result_option_id get_hessian_id() {
     return result_option_id{ result_option_id::make_by_index(2) };
 }
 
+/*
 result_option_id get_packed_gradient_id() {
     return result_option_id{ result_option_id::make_by_index(3) };
 }
@@ -39,6 +40,7 @@ result_option_id get_packed_gradient_id() {
 result_option_id get_packed_hessian_id() {
     return result_option_id{ result_option_id::make_by_index(4) };
 }
+*/
 
 template <typename Task>
 result_option_id get_default_result_options() {
@@ -47,7 +49,7 @@ result_option_id get_default_result_options() {
 
 template <>
 result_option_id get_default_result_options<task::compute>() {
-    return get_packed_hessian_id();
+    return get_hessian_id();
 }
 
 namespace v1 {

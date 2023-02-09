@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,24 +22,19 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::objective_function::backend {
 
 using dal::backend::context_cpu;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-//namespace daal_obj_fun = daal::algorithms::objective_function;
-//namespace interop = dal::backend::interop;
-
-//template <typename Float, daal::CpuType Cpu>
-//using daal_objective_kernel_t = daal_cov::internal::
-//    CovarianceDenseBatchKernel<Float, daal_covariance::Method::defaultDense, Cpu>;
 
 template <typename Float, typename Task>
 static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                              const descriptor_t& desc,
                                              const table& data) {
-    return compute_result<Task>{};
+    throw dal::detail::error_messages::algorithm_is_not_implemented_for_this_device();
 }
 
 template <typename Float, typename Task>

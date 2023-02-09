@@ -99,8 +99,8 @@ public:
     const table& get_value() const;
     const table& get_gradient() const;
     const table& get_hessian() const;
-    const table& get_packed_gradient() const;
-    const table& get_packed_hessian() const;
+    // const table& get_packed_gradient() const;
+    // const table& get_packed_hessian() const;
 
     auto& set_value(const table& value) {
         set_value_impl(value);
@@ -116,7 +116,7 @@ public:
         set_hessian_impl(value);
         return *this;
     }
-
+    /*
     auto& set_packed_gradient(const table& value) {
         set_packed_gradient_impl(value);
         return *this;
@@ -126,6 +126,7 @@ public:
         set_packed_hessian_impl(value);
         return *this;
     }
+    */
 
     
     const result_option_id& get_result_options() const;
@@ -139,8 +140,8 @@ protected:
     void set_value_impl(const table&);
     void set_gradient_impl(const table&);
     void set_hessian_impl(const table&);
-    void set_packed_gradient_impl(const table&);
-    void set_packed_hessian_impl(const table&);
+    // void set_packed_gradient_impl(const table&);
+    // void set_packed_hessian_impl(const table&);
     void set_result_options_impl(const result_option_id&);
 
 private:
