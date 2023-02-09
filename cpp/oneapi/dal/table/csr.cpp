@@ -52,24 +52,29 @@ const std::int64_t* csr_table::get_row_offsets() const {
 
 template <typename Policy>
 void csr_table::init_impl(const Policy& policy,
-               const dal::array<byte_t>& data,
-               const dal::array<std::int64_t>& column_indices,
-               const dal::array<std::int64_t>& row_offsets,
-               std::int64_t column_count,
-               const data_type& dtype,
-               sparse_indexing indexing) {
-    table::init_impl(
-        new backend::csr_table_impl{ data, column_indices, row_offsets, column_count, dtype, indexing });
+                          const dal::array<byte_t>& data,
+                          const dal::array<std::int64_t>& column_indices,
+                          const dal::array<std::int64_t>& row_offsets,
+                          std::int64_t column_count,
+                          const data_type& dtype,
+                          sparse_indexing indexing) {
+    table::init_impl(new backend::csr_table_impl{ data,
+                                                  column_indices,
+                                                  row_offsets,
+                                                  column_count,
+                                                  dtype,
+                                                  indexing });
 }
 
-#define INSTANTIATE(Policy)                                                                          \
-    template ONEDAL_EXPORT void csr_table::init_impl(const Policy&,                                  \
-                                                     const dal::array<byte_t>& data,                 \
-                                                     const dal::array<std::int64_t>& column_indices, \
-                                                     const dal::array<std::int64_t>& row_offsets,    \
-                                                     std::int64_t column_count,                      \
-                                                     const data_type& dtype,                         \
-                                                     sparse_indexing indexing);
+#define INSTANTIATE(Policy)                             \
+    template ONEDAL_EXPORT void csr_table::init_impl(   \
+        const Policy&,                                  \
+        const dal::array<byte_t>& data,                 \
+        const dal::array<std::int64_t>& column_indices, \
+        const dal::array<std::int64_t>& row_offsets,    \
+        std::int64_t column_count,                      \
+        const data_type& dtype,                         \
+        sparse_indexing indexing);
 
 INSTANTIATE(detail::default_host_policy)
 

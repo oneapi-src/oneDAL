@@ -195,8 +195,7 @@ void pull_row_offsets_impl(const Policy& policy,
                            array<std::int64_t>& row_offsets,
                            alloc_kind kind,
                            bool preserve_mutability) {
-    if (row_offsets.get_count() < block_info.row_count_ + 1 ||
-        !row_offsets.has_mutable_data() ||
+    if (row_offsets.get_count() < block_info.row_count_ + 1 || !row_offsets.has_mutable_data() ||
         alloc_kind_requires_copy(get_alloc_kind(row_offsets), kind)) {
         reset_array(policy, row_offsets, block_info.row_count_ + 1, kind);
     }
@@ -249,9 +248,12 @@ void pull_csr_block_impl(const Policy& policy,
 
     const bool same_data_type(block_dtype == origin_info.dtype_);
 
-    const int indices_offset = (origin_info.indexing_ == block_info.indexing_) ? 0 :
-        ((origin_info.indexing_ == sparse_indexing::zero_based &&
-          block_info.indexing_ == sparse_indexing::one_based) ? 1 : -1);
+    const int indices_offset = (origin_info.indexing_ == block_info.indexing_)
+                                   ? 0
+                                   : ((origin_info.indexing_ == sparse_indexing::zero_based &&
+                                       block_info.indexing_ == sparse_indexing::one_based)
+                                          ? 1
+                                          : -1);
     pull_data_impl<Policy, BlockData>(policy,
                                       origin_info,
                                       origin_data,

@@ -45,8 +45,14 @@ TEST("can construct CSR table from raw data pointers") {
     constexpr std::int64_t column_count{ 4 };
     constexpr std::int64_t element_count{ 7 };
 
-    csr_table t{ data, column_indices, row_offsets, row_count, column_count,
-        empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
+    csr_table t{ data,
+                 column_indices,
+                 row_offsets,
+                 row_count,
+                 column_count,
+                 empty_delete<const float>(),
+                 empty_delete<const std::int64_t>(),
+                 empty_delete<const std::int64_t>() };
 
     REQUIRE(t.has_data());
     REQUIRE(t.get_row_count() == row_count);
@@ -77,8 +83,14 @@ TEST("can construct float64 table") {
     constexpr std::int64_t column_count{ 4 };
     constexpr std::int64_t element_count{ 7 };
 
-    csr_table t{ data, column_indices, row_offsets, row_count, column_count,
-        empty_delete<const double>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
+    csr_table t{ data,
+                 column_indices,
+                 row_offsets,
+                 row_count,
+                 column_count,
+                 empty_delete<const double>(),
+                 empty_delete<const std::int64_t>(),
+                 empty_delete<const std::int64_t>() };
 
     REQUIRE(t.has_data());
     REQUIRE(t.get_row_count() == row_count);
@@ -108,8 +120,14 @@ TEST("can construct table reference") {
     constexpr std::int64_t row_count{ 4 };
     constexpr std::int64_t column_count{ 4 };
 
-    csr_table t1{ data, column_indices, row_offsets, row_count, column_count,
-        empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
+    csr_table t1{ data,
+                  column_indices,
+                  row_offsets,
+                  row_count,
+                  column_count,
+                  empty_delete<const float>(),
+                  empty_delete<const std::int64_t>(),
+                  empty_delete<const std::int64_t>() };
     csr_table t2 = t1;
 
     REQUIRE(t1.has_data());
@@ -147,8 +165,14 @@ TEST("can construct table with move") {
     constexpr std::int64_t column_count{ 4 };
     constexpr std::int64_t element_count{ 7 };
 
-    csr_table t1{ data, column_indices, row_offsets, row_count, column_count,
-        empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
+    csr_table t1{ data,
+                  column_indices,
+                  row_offsets,
+                  row_count,
+                  column_count,
+                  empty_delete<const float>(),
+                  empty_delete<const std::int64_t>(),
+                  empty_delete<const std::int64_t>() };
     csr_table t2 = std::move(t1);
 
     REQUIRE(t1.has_data() == false);
@@ -187,10 +211,22 @@ TEST("can assign two table references") {
     constexpr std::int64_t column_count2{ 5 };
     constexpr std::int64_t element_count2{ 13 };
 
-    csr_table t1{ data1, column_indices1, row_offsets1, row_count1, column_count1,
-        empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
-    csr_table t2{ data2, column_indices2, row_offsets2, row_count2, column_count2,
-        empty_delete<const std::int32_t>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
+    csr_table t1{ data1,
+                  column_indices1,
+                  row_offsets1,
+                  row_count1,
+                  column_count1,
+                  empty_delete<const float>(),
+                  empty_delete<const std::int64_t>(),
+                  empty_delete<const std::int64_t>() };
+    csr_table t2{ data2,
+                  column_indices2,
+                  row_offsets2,
+                  row_count2,
+                  column_count2,
+                  empty_delete<const std::int32_t>(),
+                  empty_delete<const std::int64_t>(),
+                  empty_delete<const std::int64_t>() };
 
     t1 = t2;
 
@@ -234,10 +270,22 @@ TEST("can move assigned table reference") {
     constexpr std::int64_t column_count2{ 5 };
     constexpr std::int64_t element_count2{ 13 };
 
-    csr_table t1{ data1, column_indices1, row_offsets1, row_count1, column_count1,
-        empty_delete<const float>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
-    csr_table t2{ data2, column_indices2, row_offsets2, row_count2, column_count2,
-        empty_delete<const std::int32_t>(), empty_delete<const std::int64_t>(), empty_delete<const std::int64_t>() };
+    csr_table t1{ data1,
+                  column_indices1,
+                  row_offsets1,
+                  row_count1,
+                  column_count1,
+                  empty_delete<const float>(),
+                  empty_delete<const std::int64_t>(),
+                  empty_delete<const std::int64_t>() };
+    csr_table t2{ data2,
+                  column_indices2,
+                  row_offsets2,
+                  row_count2,
+                  column_count2,
+                  empty_delete<const std::int32_t>(),
+                  empty_delete<const std::int64_t>(),
+                  empty_delete<const std::int64_t>() };
 
     t1 = std::move(t2);
 
@@ -251,7 +299,8 @@ TEST("can move assigned table reference") {
     REQUIRE(t1.get_row_offsets() == row_offsets2);
 }
 
-TEST("can construct table from data pointers and share the ownership of the data with those pointers") {
+TEST(
+    "can construct table from data pointers and share the ownership of the data with those pointers") {
     float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
     std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
     std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
@@ -328,16 +377,21 @@ TEST("create tables that have one-based indexing and various types of incorrect 
     constexpr std::int64_t row_count{ 4 };
     constexpr std::int64_t column_count{ 4 };
 
-    REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices_lt_min, row_offsets, row_count, column_count),
-                      dal::domain_error);
-    REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices_gt_max, row_offsets, row_count, column_count),
-                      dal::domain_error);
-    REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices, row_offsets_lt_min, row_count, column_count),
-                      dal::domain_error);
-    REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices, row_offsets_gt_max, row_count, column_count),
-                      dal::domain_error);
-    REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices, row_offsets_not_ascending, row_count, column_count),
-                      dal::domain_error);
+    REQUIRE_THROWS_AS(
+        csr_table::wrap(data, column_indices_lt_min, row_offsets, row_count, column_count),
+        dal::domain_error);
+    REQUIRE_THROWS_AS(
+        csr_table::wrap(data, column_indices_gt_max, row_offsets, row_count, column_count),
+        dal::domain_error);
+    REQUIRE_THROWS_AS(
+        csr_table::wrap(data, column_indices, row_offsets_lt_min, row_count, column_count),
+        dal::domain_error);
+    REQUIRE_THROWS_AS(
+        csr_table::wrap(data, column_indices, row_offsets_gt_max, row_count, column_count),
+        dal::domain_error);
+    REQUIRE_THROWS_AS(
+        csr_table::wrap(data, column_indices, row_offsets_not_ascending, row_count, column_count),
+        dal::domain_error);
 }
 
 } // namespace oneapi::dal::test
