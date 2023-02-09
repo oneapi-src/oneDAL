@@ -15,7 +15,7 @@ lxml==4.9.2
 MarkupSafe==2.1.2
 packaging==22.0
 pydata-sphinx-theme==0.7.2
-Pygments==2.13.0
+Pygments==2.14.0
 pyparsing==3.0.9
 pytz==2022.7.1
 PyYAML==6.0
