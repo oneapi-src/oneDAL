@@ -813,7 +813,7 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
 
                 if (ctx.splitter_mode_value_ == splitter_mode::random) {
                     Index ts_ftr_bin =
-                        ft_rnd_ptr[ftr_idx] % ts_ftr_bin_count; // Select Randomly bin
+                        ft_rnd_ptr[ftr_idx] % ts_ftr_bin_count; // Select bin randomly
                     sp_hlp.process_bin(ts_ftr_bin,
                                        ts_left_count,
                                        ts_left_hist,

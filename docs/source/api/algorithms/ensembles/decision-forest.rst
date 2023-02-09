@@ -96,13 +96,13 @@ voting_mode::unweighted
 ~~~~~~~~~~~~~~~
 
 splitter_mode::best
-   Best splitting strategy chooses best treshold for each feature while building trees 
-   in terms of impurity among all histogram bins and feature subset.
+   The best splitting strategy chooses the best treshold for each feature while building trees 
+   in terms of impurity among all histogram bins and feature subsets.
 
 splitter_mode::random
-   Random splitting strategy chooses random treshold for each feature while building trees
+   The random splitting strategy chooses a random treshold for each feature while building trees
    and selects the best feature in terms of impurity
-   computed for that random split from the feature subset.
+   computed for that random split from the feature subsets.
 
 Descriptor
 ++++++++++
