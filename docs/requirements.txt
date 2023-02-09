@@ -17,7 +17,7 @@ packaging==22.0
 pydata-sphinx-theme==0.7.2
 Pygments==2.13.0
 pyparsing==3.0.9
-pytz==2022.7
+pytz==2022.7.1
 PyYAML==6.0
 requests==2.28.1
 six==1.16.0
