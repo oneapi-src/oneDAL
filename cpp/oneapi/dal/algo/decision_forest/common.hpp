@@ -126,9 +126,9 @@ enum class voting_mode {
 
 /// Available splitting strategies for building trees
 enum class splitter_mode {
-    /// Treshold for node is chosen as best among all bins
+    /// Treshold for a node is chosen as the best among all bins
     best,
-    /// Treshold for node is chosen as random treshold
+    /// Treshold for a node is chosen as random treshold
     random
 };
 
@@ -522,8 +522,9 @@ public:
         return *this;
     }
 
-    /// Splitter strategy, if 'best', best treshold for each will
-    /// be selected. If 'random', trashold will be selected randomly.
+    /// Splitter strategy: if 'best', best treshold for each is
+    /// selected. If 'random', trashold is selected randomly.
+    /// @remark default = splitter_mode::best
     splitter_mode get_splitter_mode() const {
         return base_t::get_splitter_mode();
     }
