@@ -29,7 +29,6 @@
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/regression/df_regression_training_types_result.h"
-#include <iostream>
 
 namespace daal
 {
@@ -653,91 +652,116 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
 {
     ImpurityData left;
     ImpurityData right;
-    algorithmFPType xi = this->_aResponse[aIdx[0]].val;
-    left.var           = 0;
-    left.mean          = xi;
     IndexType iBest    = -1;
     algorithmFPType vBest;
+    algorithmFPType leftWeights = 0.;
     auto aResponse = this->_aResponse.get();
     auto aWeights  = this->_aWeights.get();
-    auto weights0  = aWeights[aIdx[0]].val;
-    auto weights   = aWeights[aIdx[n - 1]].val;
-    calcPrevImpurity<double, cpu>(curImpurity.var * totalWeights, curImpurity.mean, right.var, right.mean, xi, totalWeights, weights);
-#ifdef DEBUG_CHECK_IMPURITY
-    checkImpurityInternal(aIdx + 1, n - 1, right);
-#endif
-
+    algorithmFPType idx;
     vBest = split.impurityDecrease < 0 ? daal::services::internal::MaxVal<algorithmFPType>::get() :
                                          (curImpurity.var - split.impurityDecrease) * totalWeights;
+    size_t i;
+
+    //select random split index
+    RNGs<algorithmFPType, cpu> rng;
+    rng.uniform(1, &idx, engineImpl->getState(), featureVal[0],
+                featureVal[n - 1]); //this strategy follows sklearn's implementation
+
+    if (idx >= featureVal[n - nMinSplitPart]
+        || idx < featureVal[nMinSplitPart - 1]) //check if sufficient samples will exist, and not a constant feature
+    {
+        return false;
+    }
+
+    //binary search to reduce computation, rather than O(n) vector lookups, we do a O(log(n)) index find
+    size_t mid;
+    size_t l = 0;
+    size_t r = n - 1;
+
+    while (l < r)
+    {
+        mid = l + (r - l) / 2;
+        if (featureVal[mid] > idx)
+        {
+            r = mid;
+        }
+        else
+        {
+            l = mid + 1;
+        }
+    }
+
+    left.var  = 0;
+    left.mean = this->_aResponse[aIdx[0]].val;
+    right.var = 0;
+    right.mean = this->_aResponse[aIdx[r]].val;
     if (noWeights)
     {
-        for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
+        //PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 1; i < r; ++i)
         {
-            const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
-
-            if (!(bSameFeaturePrev || (i < nMinSplitPart) || (i < minWeightLeaf) || ((n - i) < minWeightLeaf)))
-            {
-                //can make a split
-                //nLeft == i, nRight == n - i
-                const algorithmFPType v = left.var + right.var;
-                if (v < vBest)
-                {
-                    vBest             = v;
-                    split.left.var    = left.var;
-                    split.left.mean   = left.mean;
-                    split.leftWeights = i;
-                    iBest             = i;
-                }
-            }
-
-            //update impurity and continue
-            xi                    = aResponse[aIdx[i]].val;
-            algorithmFPType delta = xi - left.mean;
-            left.mean += delta / algorithmFPType(i + 1);
-            left.var += delta * (xi - left.mean);
-            if (left.var < 0) left.var = 0;
-            calcPrevImpurity<double, cpu>(right.var, right.mean, right.var, right.mean, xi, double(n - i), 1.);
-#ifdef DEBUG_CHECK_IMPURITY
-            checkImpurityInternal(aIdx, i + 1, left);
-            checkImpurityInternal(aIdx + i + 1, n - i - 1, right);
-#endif
+            const double delta = this->_aResponse[aIdx[i]].val - left.mean; //x[i] - mean
+            left.mean += delta / double(i + 1);
+            left.var += delta * (this->_aResponse[aIdx[i]].val - left.mean);
+            DAAL_ASSERT(left.var >= 0); 
         }
+        //left.var /= double(r); //impurity is MSE
+
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = r+1; i < n; ++i)
+        {
+            const double delta = this->_aResponse[aIdx[i]].val - right.mean; //x[i] - mean
+            right.mean += delta / double(i + 1 - r); // this was definitely incorrect
+            right.var += delta * (this->_aResponse[aIdx[i]].val - right.mean);
+        }
+        //right.var /= double(n-r); //impurity is MSE
+
+        leftWeights = r;
+
     }
     else
     {
-        algorithmFPType leftWeights = 0.;
-        for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
+
+        leftWeights = this->_aWeights[aIdx[0]].val;
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 1; i < r; ++i)
         {
-            weights = aWeights[aIdx[i]].val;
+            const double weights = this->_aWeights[aIdx[i]].val;
+            const double delta   = this->_aResponse[aIdx[i]].val - left.mean; //x[i] - mean
             leftWeights += weights;
-            const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
+            DAAL_ASSERT(!(isZero<double, cpu>(leftWeights)));
+            left.mean += weights * delta / leftWeights;
+            left.var += weights * delta * (this->_aResponse[aIdx[i]].val - left.mean);
+        }
+        //left.var /= leftWeights; //impurity is MSE
 
-            if (!(bSameFeaturePrev || (i < nMinSplitPart) || (leftWeights < minWeightLeaf) || ((totalWeights - leftWeights) < minWeightLeaf)))
-            {
+        algorithmFPType rightWeights = this->_aWeights[aIdx[r]].val;
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = r+1; i < n; ++i)
+        {
+            const double weights = this->_aWeights[aIdx[i]].val;
+            const double delta   = this->_aResponse[aIdx[i]].val - right.mean; //x[i] - mean
+            rightWeights += weights;
+            DAAL_ASSERT(!(isZero<double, cpu>(rightWeights)));
+            right.mean += weights * delta / rightWeights;
+            right.var += weights * delta * (this->_aResponse[aIdx[i]].val - right.mean);
+        }
+        //right.var /= rightWeights; //impurity is MSE
+
+    }
+
+    if (!((leftWeights < minWeightLeaf) || ((totalWeights - leftWeights) < minWeightLeaf)))
+    {
                 //can make a split
-                //nLeft == i, nRight == n - i
-                const algorithmFPType v = left.var + right.var;
-                if (v < vBest)
-                {
-                    vBest             = v;
-                    split.left.var    = left.var;
-                    split.left.mean   = left.mean;
-                    split.leftWeights = leftWeights;
-                    iBest             = i;
-                }
-            }
-
-            //update impurity and continue
-            xi                    = aResponse[aIdx[i]].val;
-            algorithmFPType delta = xi - left.mean;
-            left.mean += weights * delta / (isPositive<algorithmFPType, cpu>(leftWeights + weights0) ? leftWeights + weights0 : 1.);
-            left.var += weights * delta * (xi - left.mean);
-            if (left.var < 0) left.var = 0;
-            calcPrevImpurity<double, cpu>(right.var, right.mean, right.var, right.mean, xi, totalWeights - leftWeights, weights);
-#ifdef DEBUG_CHECK_IMPURITY
-            checkImpurityInternal(aIdx, i + 1, left);
-            checkImpurityInternal(aIdx + i + 1, n - i - 1, right);
-#endif
+                //nLeft == r, nRight == n-r
+        const algorithmFPType v = left.var + right.var;
+        if (v < vBest)
+        {
+            vBest             = v;
+            split.left.var    = left.var;
+            split.left.mean   = left.mean;
+            split.leftWeights = leftWeights;
+            iBest             = r;
         }
     }
 
