@@ -92,8 +92,8 @@ enum ResultToComputeId
  */
 enum splitter_mode
 {
-    best, /* Calculates best split overall features for every node*/
-    random /*Calculates best split of random split for features for every node */
+    best, /* Calculates best split from aggregate best feature splits for every node. */
+    random /* Calculates best split from aggregate random feature splits for every node. */
 };
 
 /**
