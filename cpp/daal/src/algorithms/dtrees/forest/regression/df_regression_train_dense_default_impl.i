@@ -955,10 +955,10 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////
 // TrainBatchTask for regression
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, typename BinIndexType, decision_forest::regression::training::Method method, CpuType cpu>
-class TrainBatchTask : public TrainBatchTaskBase<algorithmFPType, BinIndexType, OrderedRespHelper<algorithmFPType, cpu>, cpu>
+template <typename algorithmFPType, typename BinIndexType, decision_forest::regression::training::Method method, typename Helper, CpuType cpu>
+class TrainBatchTask : public TrainBatchTaskBase<algorithmFPType, BinIndexType, Helper, cpu>
 {
-    typedef TrainBatchTaskBase<algorithmFPType, BinIndexType, OrderedRespHelper<algorithmFPType, cpu>, cpu> super;
+    typedef TrainBatchTaskBase<algorithmFPType, BinIndexType, Helper, cpu> super;
 
 public:
     typedef TreeThreadCtx<algorithmFPType, cpu> ThreadCtxType;
@@ -1000,25 +1000,25 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
             DAAL_CHECK_STATUS_VAR(s);
             if (indexedFeatures.maxNumIndices() <= 256)
                 s = computeImpl<algorithmFPType, uint8_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, uint8_t, hist, cpu> >(
+                                TrainBatchTask<algorithmFPType, uint8_t, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
                     pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
                     indexedFeatures);
             else if (indexedFeatures.maxNumIndices() <= 65536)
                 s = computeImpl<algorithmFPType, uint16_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, uint16_t, hist, cpu> >(
+                                TrainBatchTask<algorithmFPType, uint16_t, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
                     pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
                     indexedFeatures);
             else
                 s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
                                 daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, cpu> >(
+                                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
                     pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
                     indexedFeatures);
         }
         else
             s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
                             daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, cpu> >(
+                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
                 pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
                 indexedFeatures);
     }
@@ -1031,7 +1031,7 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
         }
         s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
                         daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                        TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, cpu> >(
+                        TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
             pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
             indexedFeatures);
     }
