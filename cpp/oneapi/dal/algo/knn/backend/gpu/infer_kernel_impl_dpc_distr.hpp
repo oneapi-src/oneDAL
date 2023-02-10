@@ -44,7 +44,7 @@ namespace oneapi::dal::knn::backend {
 template <typename Float, typename Task>
 class knn_callback_distr {
     using dst_t = Float;
-    using idx_t = std::int32_t; //TODO
+    using idx_t = std::int32_t;
     using res_t = response_t<Task, Float>;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
     using selc_t = pr::kselect_by_rows<Float>;
@@ -290,7 +290,7 @@ public:
             select_indexed(queue_, min_indc_dest, part_responses_, min_resp_dest, { selt_event });
         auto final_event =
             select_indexed(queue_, min_indc_dest, part_indices_, min_indc_dest, { resps_event });
-        if (last_iteration_) { //calls same methods as original operator, using already set indices_ and distances_
+        if (last_iteration_) {
             final_event = finalize(qb_id, indices_, distances_, { final_event });
         }
         return final_event;
@@ -322,7 +322,6 @@ protected:
         ONEDAL_ASSERT((last - first) == inp_dts.get_dimension(0));
         ONEDAL_ASSERT((last - first) == out_dts.get_dimension(0));
 
-        // Generally !csqrt is more probable
         const bool& csqrt = this->compute_sqrt_;
         if (!csqrt)
             return pr::copy(queue, out_dts, inp_dts, deps);
@@ -543,7 +542,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto block_size = pr::get_block_size<Float>();
     auto rank_count = comm.get_rank_count();
     auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
-    // ONEDAL_PROFILER_TASK needed?
+
     comm.allgather(tcount, node_sample_counts.flatten()).wait();
 
     auto current_rank = comm.get_rank();
@@ -555,7 +554,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto block_count = nodes.size();
     ONEDAL_ASSERT(block_count + 1 == boundaries.size());
 
-    auto train_block_queue = pr::split_table<Float>(queue, train, block_size); //deps?
+    auto train_block_queue = pr::split_table<Float>(queue, train, block_size);
     auto tresps_queue = pr::split_table<res_t>(queue, tresps, block_size);
     ONEDAL_ASSERT(train_block_queue.size() <= block_count);
     ONEDAL_ASSERT(tresps_queue.size() == train_block_queue.size());
@@ -621,8 +620,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto first_block_index = std::distance(nodes.begin(), it);
     ONEDAL_ASSERT(it != nodes.end());
 
-    for (unsigned long block_number = 0; block_number < block_count; block_number++) {
-        // TODO: revise variable names? specifically block_count, block_index, block_number, block_size
+    for (unsigned long block_number = 0; block_number < block_count; ++block_number) {
         auto current_block = train_block_queue.front();
         train_block_queue.pop_front();
         ONEDAL_ASSERT(current_block.has_data());
@@ -640,9 +638,10 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         ONEDAL_ASSERT(sc >= actual_rows_in_block);
         auto curr_k = std::min(actual_rows_in_block, kcount);
         auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
+        auto actual_current_tresps = current_tresps_1d.get_slice(0, actual_rows_in_block);
 
         callback.set_global_index_offset(boundaries.at(block_index));
-        callback.set_train_responses(current_tresps_1d);
+        callback.set_train_responses(actual_current_tresps);
         if (block_number == block_count - 1) {
             callback.set_last_iteration(true);
         }
@@ -652,7 +651,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
             const dst_t dist{ queue };
             const search_t search{ queue, actual_current_block, tbcount, dist };
-            //search.reset_train_data(actual_current_block, tbcount);
             next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
 
@@ -662,7 +660,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
             const dst_t dist{ queue };
             const search_t search{ queue, actual_current_block, tbcount, dist };
-            //search.reset_train_data(actual_current_block, tbcount);
             next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
 
@@ -674,7 +671,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
             const dst_t dist{ queue };
             const search_t search{ queue, actual_current_block, tbcount, dist };
-            //search.reset_train_data(actual_current_block, tbcount);
             next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
         else if (is_minkowski_distance) {
@@ -684,17 +680,15 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
             const dst_t dist{ queue, met_t(distance_impl->get_degree()) };
             const search_t search{ queue, actual_current_block, tbcount, dist };
-            //search.reset_train_data(actual_current_block, tbcount);
             next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
 
-        //const search_t search{ queue, train, tbcount, dist };
-        //search.reset_train_data(actual_current_block, tbcount);
-        //next_event = search(query, callback, qbcount, kcount, { next_event });
-
+        auto send_count = current_block.get_count();
+        ONEDAL_ASSERT(send_count >= 0);
+        ONEDAL_ASSERT(send_count <= de::limits<int>::max());
         comm.sendrecv_replace(array<Float>::wrap(queue,
                                                  current_block.get_mutable_data(),
-                                                 current_block.get_count(),
+                                                 send_count,
                                                  { next_event }),
                               prev_node,
                               next_node)

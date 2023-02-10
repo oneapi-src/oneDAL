@@ -250,8 +250,6 @@ public:
     }
 };
 
-// using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree));
-// using knn_bf_types = COMBINE_TYPES((float, double), (knn::method::brute_force));
 using knn_cls_types = COMBINE_TYPES((float, double),
                                     (knn::method::brute_force, knn::method::kd_tree),
                                     (knn::task::classification));

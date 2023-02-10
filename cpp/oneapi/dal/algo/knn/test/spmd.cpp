@@ -121,6 +121,63 @@ public:
             .set_responses(full_responses);
     }
 
+    template <typename Distance = default_distance_t>
+    float_t distr_classification(const table& train_data,
+                                 const table& train_responses,
+                                 const table& infer_data,
+                                 const table& infer_responses,
+                                 const std::int64_t n_classes,
+                                 const std::int64_t n_neighbors,
+                                 const Distance distance = Distance{},
+                                 const voting_t voting = default_voting,
+                                 const float_t tolerance = float_t(1.e-5)) {
+        INFO("check if data shape is expected")
+        REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
+        REQUIRE(train_responses.get_column_count() == 1);
+        REQUIRE(infer_responses.get_column_count() == 1);
+        REQUIRE(infer_data.get_row_count() == infer_responses.get_row_count());
+        REQUIRE(train_data.get_row_count() == train_responses.get_row_count());
+
+        const auto knn_desc = this->get_descriptor(n_classes, n_neighbors, distance, voting);
+
+        auto infer_result =
+            this->train_and_infer_spmd(knn_desc, train_data, train_responses, infer_data);
+        auto [prediction] = this->unpack_result(infer_result);
+
+        const auto score_table =
+            te::accuracy_score<float_t>(infer_responses, prediction, tolerance);
+        const auto score = row_accessor<const float_t>(score_table).pull({ 0, -1 })[0];
+        return score;
+    }
+
+    template <typename Distance = default_distance_t>
+    float_t distr_regression(const table& train_data,
+                             const table& train_responses,
+                             const table& infer_data,
+                             const table& infer_responses,
+                             const std::int64_t n_neighbors,
+                             const Distance distance = Distance{},
+                             const voting_t voting = default_voting) {
+        INFO("check if data shape is expected")
+        REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
+        REQUIRE(train_responses.get_column_count() == 1);
+        REQUIRE(infer_responses.get_column_count() == 1);
+        REQUIRE(infer_data.get_row_count() == infer_responses.get_row_count());
+        REQUIRE(train_data.get_row_count() == train_responses.get_row_count());
+
+        constexpr knn::task::regression task{};
+
+        const auto knn_desc = this->get_descriptor(42, n_neighbors, distance, voting, task);
+
+        auto infer_result =
+            this->train_and_infer_spmd(knn_desc, train_data, train_responses, infer_data);
+        auto [prediction] = this->unpack_result(infer_result);
+
+        const auto score_table = te::mse_score<float_t>(infer_responses, prediction);
+        const auto score = row_accessor<const float_t>(score_table).pull({ 0, -1 })[0];
+        return score;
+    }
+
 private:
     std::int64_t rank_count_ = 1;
 };
@@ -167,7 +224,7 @@ private:
                          "[external-dataset][knn][integration][spmd][test]", \
                          knn_reg_bf_types)
 
-KNN_SPMD_SMALL_TEST("knn nearest points test predefined 7x5x2") {
+KNN_SPMD_SMALL_TEST("knn nearest points test predefined 9x9x1") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -207,7 +264,7 @@ KNN_SPMD_CLS_SYNTHETIC_TEST("distributed knn nearest points test random uniform 
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->is_kd_tree);
 
-    this->set_rank_count(10);
+    this->set_rank_count(4);
 
     constexpr std::int64_t train_row_count = 513;
     constexpr std::int64_t infer_row_count = 301;
@@ -238,7 +295,7 @@ KNN_SPMD_REG_SYNTHETIC_TEST(
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
 
-    this->set_rank_count(10);
+    this->set_rank_count(4);
 
     constexpr std::int64_t train_row_count = 513;
     constexpr std::int64_t infer_row_count = 301;
@@ -275,7 +332,7 @@ KNN_SPMD_CLS_SYNTHETIC_TEST("distributed knn nearest points test random uniform 
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->is_kd_tree);
 
-    this->set_rank_count(10);
+    this->set_rank_count(4);
 
     constexpr std::int64_t train_row_count = 16390;
     constexpr std::int64_t infer_row_count = 20;
@@ -299,13 +356,13 @@ KNN_SPMD_CLS_SYNTHETIC_TEST("distributed knn nearest points test random uniform 
 
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
-/*
+
 KNN_SPMD_CLS_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
-    this->set_rank_count(10);
+    this->set_rank_count(4);
 
     constexpr double target_score = 0.8;
 
@@ -329,12 +386,12 @@ KNN_SPMD_CLS_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k") {
     const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
                                                           range(feature_count, feature_count + 1));
 
-    const auto score = this->classification(x_train_table,
-                                            y_train_table,
-                                            x_infer_table,
-                                            y_infer_table,
-                                            n_classes,
-                                            n_neighbors);
+    const auto score = this->distr_classification(x_train_table,
+                                                  y_train_table,
+                                                  x_infer_table,
+                                                  y_infer_table,
+                                                  n_classes,
+                                                  n_neighbors);
     CAPTURE(score);
     REQUIRE(score >= target_score);
 }
@@ -344,7 +401,7 @@ KNN_SPMD_REG_EXTERNAL_TEST("distributed knn distance regression hepmass 50kx10k"
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
 
-    this->set_rank_count(10);
+    this->set_rank_count(4);
 
     constexpr double target_score = 0.072;
 
@@ -372,14 +429,13 @@ KNN_SPMD_REG_EXTERNAL_TEST("distributed knn distance regression hepmass 50kx10k"
     const auto distance_desc = distance_t(minkowski_degree);
     constexpr auto voting = oneapi::dal::knn::voting_mode::distance;
 
-    const auto score = this->regression(x_train_table,
-                                        y_train_table,
-                                        x_infer_table,
-                                        y_infer_table,
-                                        n_neighbors,
-                                        distance_desc,
-                                        voting);
-
+    const auto score = this->distr_regression(x_train_table,
+                                              y_train_table,
+                                              x_infer_table,
+                                              y_infer_table,
+                                              n_neighbors,
+                                              distance_desc,
+                                              voting);
     CAPTURE(score, target_score);
     REQUIRE(score < target_score);
 }
@@ -389,7 +445,7 @@ KNN_SPMD_REG_EXTERNAL_TEST("distributed knn uniform regression hepmass 50kx10k")
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
 
-    this->set_rank_count(10);
+    this->set_rank_count(4);
 
     constexpr double target_score = 0.072;
 
@@ -412,22 +468,24 @@ KNN_SPMD_REG_EXTERNAL_TEST("distributed knn uniform regression hepmass 50kx10k")
     const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
                                                           range(feature_count, feature_count + 1));
 
-    const auto score =
-        this->regression(x_train_table, y_train_table, x_infer_table, y_infer_table, n_neighbors);
-
+    const auto score = this->distr_regression(x_train_table,
+                                              y_train_table,
+                                              x_infer_table,
+                                              y_infer_table,
+                                              n_neighbors);
     CAPTURE(score, target_score);
     REQUIRE(score < target_score);
 }
 
-KNN_SPMD_CLS_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k with distance voting)") {
+KNN_SPMD_CLS_BF_EXTERNAL_TEST(
+    "distributed knn classification hepmass 50kx10k with distance voting)") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
-    this->set_rank_count(10);
+    this->set_rank_count(3);
 
-    // TODO: Investigate low accuracy on CPU
     const double target_score = this->get_policy().is_gpu() ? 0.8 : 0.6;
 
     constexpr std::int64_t feature_count = 28;
@@ -454,25 +512,26 @@ KNN_SPMD_CLS_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k wi
     constexpr double minkowski_degree = 2.0;
     const auto distance_desc = distance_t(minkowski_degree);
     constexpr auto voting = oneapi::dal::knn::voting_mode::distance;
-    const auto score = this->classification(x_train_table,
-                                            y_train_table,
-                                            x_infer_table,
-                                            y_infer_table,
-                                            n_classes,
-                                            n_neighbors,
-                                            distance_desc,
-                                            voting);
+    const auto score = this->distr_classification(x_train_table,
+                                                  y_train_table,
+                                                  x_infer_table,
+                                                  y_infer_table,
+                                                  n_classes,
+                                                  n_neighbors,
+                                                  distance_desc,
+                                                  voting);
     CAPTURE(score);
     REQUIRE(score >= target_score);
 }
 
-KNN_SPMD_CLS_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k with Minkowski distance (p = 2.5)") {
+KNN_SPMD_CLS_BF_EXTERNAL_TEST(
+    "distributed knn classification hepmass 50kx10k with Minkowski distance (p = 2.5)") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
-    this->set_rank_count(10);
+    this->set_rank_count(4);
 
     constexpr double target_score = 0.8;
 
@@ -499,24 +558,25 @@ KNN_SPMD_CLS_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k wi
     using distance_t = oneapi::dal::minkowski_distance::descriptor<>;
     const double minkowski_degree = 2.5;
     const auto distance_desc = distance_t(minkowski_degree);
-    const auto score = this->classification(x_train_table,
-                                            y_train_table,
-                                            x_infer_table,
-                                            y_infer_table,
-                                            n_classes,
-                                            n_neighbors,
-                                            distance_desc);
+    const auto score = this->distr_classification(x_train_table,
+                                                  y_train_table,
+                                                  x_infer_table,
+                                                  y_infer_table,
+                                                  n_classes,
+                                                  n_neighbors,
+                                                  distance_desc);
     CAPTURE(score);
     REQUIRE(score >= target_score);
 }
 
-KNN_SPMD_CLS_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k with Cosine distance") {
+KNN_SPMD_CLS_BF_EXTERNAL_TEST(
+    "distributed knn classification hepmass 50kx10k with Cosine distance") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
-    this->set_rank_count(10);
+    this->set_rank_count(3);
 
     constexpr double target_score = 0.78;
 
@@ -542,24 +602,25 @@ KNN_SPMD_CLS_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k wi
 
     using distance_t = oneapi::dal::cosine_distance::descriptor<>;
     const auto distance_desc = distance_t();
-    const auto score = this->classification(x_train_table,
-                                            y_train_table,
-                                            x_infer_table,
-                                            y_infer_table,
-                                            n_classes,
-                                            n_neighbors,
-                                            distance_desc);
+    const auto score = this->distr_classification(x_train_table,
+                                                  y_train_table,
+                                                  x_infer_table,
+                                                  y_infer_table,
+                                                  n_classes,
+                                                  n_neighbors,
+                                                  distance_desc);
     CAPTURE(score);
     REQUIRE(score >= target_score);
 }
 
-KNN_SPMD_CLS_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k with Chebyshev distance") {
+KNN_SPMD_CLS_BF_EXTERNAL_TEST(
+    "distributed knn classification hepmass 50kx10k with Chebyshev distance") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->is_kd_tree);
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->not_available_on_device());
 
-    this->set_rank_count(10);
+    this->set_rank_count(4);
 
     constexpr double target_score = 0.8;
 
@@ -584,15 +645,15 @@ KNN_SPMD_CLS_BF_EXTERNAL_TEST("distributed knn classification hepmass 50kx10k wi
                                                           range(feature_count, feature_count + 1));
 
     using distance_t = oneapi::dal::chebyshev_distance::descriptor<>;
-    const auto score = this->classification(x_train_table,
-                                            y_train_table,
-                                            x_infer_table,
-                                            y_infer_table,
-                                            n_classes,
-                                            n_neighbors,
-                                            distance_t{});
+    const auto score = this->distr_classification(x_train_table,
+                                                  y_train_table,
+                                                  x_infer_table,
+                                                  y_infer_table,
+                                                  n_classes,
+                                                  n_neighbors,
+                                                  distance_t{});
     CAPTURE(score);
     REQUIRE(score >= target_score);
 }
-*/
+
 } // namespace oneapi::dal::knn::test

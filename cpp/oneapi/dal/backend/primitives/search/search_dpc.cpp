@@ -27,14 +27,12 @@
 
 namespace oneapi::dal::backend::primitives {
 
-// // TODO: figure out this function
 template <typename Float>
 std::int64_t get_block_size() {
-    constexpr std::int64_t result = 128 * 4096 * 8 / sizeof(Float);
+    constexpr std::int64_t result = 128 * 4096 / sizeof(Float);
     return result;
 }
 
-// TODO: figure out this function
 template <typename Float>
 std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width) {
     constexpr std::int64_t result = 4096 * 8 / sizeof(Float);
@@ -334,23 +332,6 @@ search_engine_base<Float, Distance, Impl, torder>::search_engine_base(
           train_data_(train_data),
           train_blocking_(train_data.get_dimension(0), train_block),
           selection_blocking_(train_blocking_.get_block_count(), selection_sub_blocks) {}
-
-// template <typename Float, typename Distance, typename Impl, ndorder torder>
-// search_engine_base<Float, Distance, Impl, torder>::search_engine_base(
-//     sycl::queue& queue,
-//     const Distance& distance_instance)
-//         : queue_(queue),
-//           distance_instance_(distance_instance) {}
-
-// template <typename Float, typename Distance, typename Impl, ndorder torder>
-// auto& search_engine_base<Float, Distance, Impl, torder>::reset_train_data(
-//     const ndview<Float, 2, torder>& new_train_data,
-//     std::int64_t new_train_block) {
-//     train_data_ = new_train_data;
-//     train_blocking_ = uniform_blocking(new_train_data.get_dimension(0), new_train_block);
-//     selection_blocking_ = uniform_blocking(train_blocking_.get_block_count(), selection_sub_blocks);
-//     return *this;
-// }
 
 template <typename Float, typename Distance, typename Impl, ndorder torder>
 sycl::queue& search_engine_base<Float, Distance, Impl, torder>::get_queue() const {
