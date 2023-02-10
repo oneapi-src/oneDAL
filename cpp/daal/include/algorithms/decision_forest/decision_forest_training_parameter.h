@@ -87,6 +87,16 @@ enum ResultToComputeId
 };
 
 /**
+ * <a name="DAAL-ENUM-ALGORITHMS__DECISION_FOREST__TRAINING__SPLITTER_MODE"></a>
+ * \brief Node splitting mode
+ */
+enum splitter_mode
+{
+    best, /* Calculates best split overall features for every node*/
+    random /*Calculates best split of random split for features for every node */
+};
+
+/**
  * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
  */
 namespace interface2
@@ -128,12 +138,13 @@ public:
                                                   required to be at a leaf node, 0.0 to 0.5. Default is 0.0 */
     double minImpurityDecreaseInSplitNode; /*!< A node will be split if this split induces a decrease of the impurity
                                                   greater than or equal to the value, non-negative. Default is 0.0 */
-    size_t maxLeafNodes;                   /*!< Maximum number of leaf node. Default is 0 (unlimited) */
+    size_t maxLeafNodes;                   /*!< Maximum number of leaf node. Default is 0 (unlimited) */    
     size_t maxBins;                        /*!< Used with 'hist' split finding method only.
                                                  Maximal number of discrete bins to bucket continuous features.
                                                  Default is 256. Increasing the number results in higher computation costs */
     size_t minBinSize;                     /*!< Used with 'hist' split finding method only.
                                                  Minimal number of observations in a bin. Default is 5 */
+    splitter_mode splitter;                /*!< Sets node splitting method. Default is best */
 };
 /* [Parameter source code] */
 } // namespace interface2
