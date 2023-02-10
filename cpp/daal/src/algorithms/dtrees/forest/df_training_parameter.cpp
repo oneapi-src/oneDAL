@@ -58,7 +58,7 @@ Parameter::Parameter()
       maxLeafNodes(0),
       minBinSize(5),
       maxBins(256),
-      splitter(best)
+      splitter(random)
 {}
 } // namespace interface2
 Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
