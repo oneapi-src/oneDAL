@@ -259,11 +259,11 @@ private:
         check_indices(row_offsets_pointer, row_count, column_count, indexing);
         const std::int64_t element_count = row_offsets_pointer[row_count] - row_offsets_pointer[0];
 
-        const auto data = detail::array_via_policy<Data>::wrap(
-            policy,
-            data_pointer,
-            element_count,
-            std::forward<ConstDataDeleter>(data_deleter));
+        const auto data =
+            detail::array_via_policy<Data>::wrap(policy,
+                                                 data_pointer,
+                                                 element_count,
+                                                 std::forward<ConstDataDeleter>(data_deleter));
 
         const auto column_indices = detail::array_via_policy<std::int64_t>::wrap(
             policy,
@@ -294,10 +294,7 @@ private:
                    sparse_indexing indexing) {
         std::int64_t row_count = row_offsets.get_count();
         row_count = (row_count ? row_count - 1 : std::int64_t(0));
-        check_indices(row_offsets.get_data(),
-                      row_count,
-                      column_count,
-                      indexing);
+        check_indices(row_offsets.get_data(), row_count, column_count, indexing);
 
         detail::dispath_by_policy(data, [&](auto policy) {
             init_impl(policy,
