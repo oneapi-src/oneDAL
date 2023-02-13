@@ -46,12 +46,18 @@ public:
         }
     }
 
-    std::tuple<array_d, array_i, array_i> pull(const range& row_range = { 0, -1 },
-                           const sparse_indexing indexing = sparse_indexing::one_based) const {
+    std::tuple<array_d, array_i, array_i> pull(
+        const range& row_range = { 0, -1 },
+        const sparse_indexing indexing = sparse_indexing::one_based) const {
         array_d data;
         array_i column_indices;
         array_i row_offsets;
-        pull_iface_->pull_csr_block(detail::default_host_policy{}, data, column_indices, row_offsets, indexing, row_range);
+        pull_iface_->pull_csr_block(detail::default_host_policy{},
+                                    data,
+                                    column_indices,
+                                    row_offsets,
+                                    indexing,
+                                    row_range);
         return std::make_tuple(data, column_indices, row_offsets);
     }
 

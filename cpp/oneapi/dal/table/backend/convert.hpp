@@ -49,7 +49,7 @@ void convert_matrix(const detail::default_host_policy& policy,
                     const std::int64_t dst_row_count,
                     const std::int64_t dst_col_count);
 
-template<typename T>
+template <typename T>
 void shift_array_values(const detail::default_host_policy& policy,
                         T* arr,
                         const std::int64_t element_count,
@@ -129,7 +129,7 @@ sycl::event convert_vector_host2device(sycl::queue& q,
                                        std::int64_t element_count,
                                        const std::vector<sycl::event>& deps = {});
 
-template<typename T>
+template <typename T>
 sycl::event shift_array_values_device(sycl::queue& q,
                                       T* arr,
                                       const std::int64_t element_count,
@@ -161,8 +161,7 @@ void shift_array_values(const detail::data_parallel_policy& policy,
         shift_array_values(detail::default_host_policy{}, arr, element_count, shift);
     }
     else {
-        shift_array_values_device(q, arr, element_count, shift)
-            .wait_and_throw();
+        shift_array_values_device(q, arr, element_count, shift).wait_and_throw();
     }
 }
 
