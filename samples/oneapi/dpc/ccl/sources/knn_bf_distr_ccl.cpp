@@ -22,7 +22,7 @@
 #define ONEDAL_DATA_PARALLEL
 #endif
 
-#include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/algo/knn.hpp"
 #include "oneapi/dal/io/csv.hpp"
 #include "oneapi/dal/spmd/ccl/communicator.hpp"
 
@@ -42,7 +42,7 @@ void run(sycl::queue& queue) {
     const auto y_test =
         dal::read<dal::table>(queue, dal::csv::data_source{ test_response_file_name });
 
-    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::mpi>(queue);
+    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(queue);
     auto rank_id = comm.get_rank();
     auto rank_count = comm.get_rank_count();
 
@@ -53,11 +53,11 @@ void run(sycl::queue& queue) {
 
     // First value is number of classes, second is number of neighbors
     // Voting mode and distance impl should resort to default
-    const auto knn_desc = dal::knn::descriptor(5, 1)
-        //.set_voting_mode(dal::knn::voting_mode::uniform)
-        //.set_distance_impl(dal::knn::daal_distance_t::cosine)
+    const auto knn_desc = dal::knn::descriptor(5, 1);
+    //.set_voting_mode(dal::knn::voting_mode::uniform)
+    //.set_distance_impl(dal::knn::daal_distance_t::cosine)
 
-        dal::knn::train_input local_input_train{ x_train_vec[rank_id], y_train_vec[rank_id] };
+    dal::knn::train_input local_input_train{ x_train_vec[rank_id], y_train_vec[rank_id] };
 
     const auto result_train = dal::preview::train(comm, knn_desc, local_input_train);
     const auto result_infer =
@@ -74,8 +74,9 @@ int main(int argc, char const* argv[]) {
         throw std::runtime_error{ "Problem occurred during MPI init" };
     }
 
-    auto device = sycl::gpu_selector{}.select_device();
-    std::cout << "Running on " << device.get_info<sycl::info::device::name>() << std::endl;
+    auto device = sycl::device(sycl::gpu_selector_v);
+    std::cout << "Running on " << device.get_platform().get_info<sycl::info::platform::name>()
+              << ", " << device.get_info<sycl::info::device::name>() << std::endl;
     sycl::queue q{ device };
     run(q);
 
