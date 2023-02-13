@@ -65,7 +65,7 @@ public:
         }
 
         for (std::int64_t i = 1; i <= row_count; i++) {
-            if (row_offsets[i-1] > row_offsets[i]) {
+            if (row_offsets[i - 1] > row_offsets[i]) {
                 throw dal::domain_error(error_msg::row_offsets_not_ascending());
             }
         }
@@ -113,7 +113,7 @@ public:
 
     std::int64_t get_non_zero_count() const override {
         std::int64_t row_offsets_count = row_offsets_.get_count();
-        return (row_offsets_count ? row_offsets_[row_offsets_count-1] - row_offsets_[0] : 0);
+        return (row_offsets_count ? row_offsets_[row_offsets_count - 1] - row_offsets_[0] : 0);
     }
 
     sparse_indexing get_indexing() const override {
@@ -181,23 +181,11 @@ public:
     }
 
     void serialize(detail::output_archive& ar) const override {
-        ar(meta_,
-           data_,
-           column_indices_,
-           row_offsets_,
-           col_count_,
-           layout_,
-           indexing_);
+        ar(meta_, data_, column_indices_, row_offsets_, col_count_, layout_, indexing_);
     }
 
     void deserialize(detail::input_archive& ar) override {
-        ar(meta_,
-           data_,
-           column_indices_,
-           row_offsets_,
-           col_count_,
-           layout_,
-           indexing_);
+        ar(meta_, data_, column_indices_, row_offsets_, col_count_, layout_, indexing_);
     }
 
 private:
