@@ -131,8 +131,7 @@ public:
     template <bool noWeights, bool featureUnordered>
     int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
                             const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
-                            const algorithmFPType totalWeights,
-                            engines::internal::BatchBaseImpl * engineImpl) const;
+                            const algorithmFPType totalWeights, engines::internal::BatchBaseImpl * engineImpl) const;
 
     template <bool noWeights, typename BinIndexType>
     void finalizeBestSplit(const IndexType * aIdx, const BinIndexType * binIndex, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit,
@@ -181,10 +180,7 @@ public:
     }
 
 #ifdef DEBUG_CHECK_IMPURITY
-    void checkImpurity(const IndexType * ptrIdx, size_t n, const ImpurityData & expected) const
-    {
-        checkImpurityInternal(ptrIdx, n, expected, false);
-    }
+    void checkImpurity(const IndexType * ptrIdx, size_t n, const ImpurityData & expected) const { checkImpurityInternal(ptrIdx, n, expected, false); }
     void checkImpurityInternal(const IndexType * ptrIdx, size_t n, const ImpurityData & expected, bool bInternal = true) const;
 #endif
 
@@ -339,17 +335,17 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeature(const algo
     const bool noWeights = !this->_weights;
     if (noWeights)
     {
-        return split.featureUnordered ?
-                   findBestSplitCategoricalFeature<true>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf,
-                                                         totalWeights, engineImpl) :
-                   findBestSplitOrderedFeature<true>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+        return split.featureUnordered ? findBestSplitCategoricalFeature<true>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split,
+                                                                              minWeightLeaf, totalWeights, engineImpl) :
+                                        findBestSplitOrderedFeature<true>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split,
+                                                                          minWeightLeaf, totalWeights, engineImpl);
     }
     else
     {
-        return split.featureUnordered ?
-                   findBestSplitCategoricalFeature<false>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf,
-                                                          totalWeights, engineImpl) :
-                   findBestSplitOrderedFeature<false>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+        return split.featureUnordered ? findBestSplitCategoricalFeature<false>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split,
+                                                                               minWeightLeaf, totalWeights, engineImpl) :
+                                        findBestSplitOrderedFeature<false>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split,
+                                                                           minWeightLeaf, totalWeights, engineImpl);
     }
 }
 
@@ -565,11 +561,13 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
 
         if (split.featureUnordered)
         {
-            return findBestSplitByHist<true, true>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+            return findBestSplitByHist<true, true>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights,
+                                                   engineImpl);
         }
         else
         {
-            return findBestSplitByHist<true, false>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+            return findBestSplitByHist<true, false>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights,
+                                                    engineImpl);
         }
     }
     else
@@ -579,11 +577,13 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
 
         if (split.featureUnordered)
         {
-            return findBestSplitByHist<false, true>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+            return findBestSplitByHist<false, true>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights,
+                                                    engineImpl);
         }
         else
         {
-            return findBestSplitByHist<false, false>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights, engineImpl);
+            return findBestSplitByHist<false, false>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights,
+                                                     engineImpl);
         }
     }
 }
@@ -593,8 +593,7 @@ template <bool noWeights>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                           size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                           const ImpurityData & curImpurity, TSplitData & split,
-                                                                          const algorithmFPType minWeightLeaf,
-                                                                          const algorithmFPType totalWeights,
+                                                                          const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
                                                                           engines::internal::BatchBaseImpl * engineImpl) const
 {
     ImpurityData left;
@@ -703,8 +702,7 @@ template <bool noWeights>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                               size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                               const ImpurityData & curImpurity, TSplitData & split,
-                                                                              const algorithmFPType minWeightLeaf,
-                                                                              const algorithmFPType totalWeights,
+                                                                              const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
                                                                               engines::internal::BatchBaseImpl * engineImpl) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
@@ -778,12 +776,11 @@ public:
 
 public:
     OrderedRespHelperRandom(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t dummy) : super(indexedFeatures, dummy) {}
-    
+
     template <bool noWeights, bool featureUnordered>
     int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
                             const typename super::ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
-                            const algorithmFPType totalWeights,
-                            engines::internal::BatchBaseImpl * engineImpl) const;
+                            const algorithmFPType totalWeights, engines::internal::BatchBaseImpl * engineImpl) const;
 
 private:
     template <bool noWeights>
@@ -796,15 +793,15 @@ private:
                                          const algorithmFPType accuracy, const typename super::ImpurityData & curImpurity, TSplitData & split,
                                          const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
                                          engines::internal::BatchBaseImpl * engineImpl) const;
-
 };
 
 template <typename algorithmFPType, CpuType cpu>
 template <bool noWeights, bool featureUnordered>
-int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n,
-                                                                 size_t nMinSplitPart, const typename super::ImpurityData & curImpurity, TSplitData & split,
-                                                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
-                                                                 engines::internal::BatchBaseImpl * engineImpl) const
+int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf,
+                                                                       size_t n, size_t nMinSplitPart,
+                                                                       const typename super::ImpurityData & curImpurity, TSplitData & split,
+                                                                       const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                                                       engines::internal::BatchBaseImpl * engineImpl) const
 {
     auto featWeights = _weightsFeatureBuf.get();
     auto nFeatIdx    = _idxFeatureBuf.get(); //number of indexed feature values, array
@@ -824,7 +821,8 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx])) maxidx--;
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
-    if(minidx == maxidx){
+    if (minidx == maxidx)
+    {
         return idxFeatureBestSplit;
     }
 
@@ -833,40 +831,44 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     RNGs<size_t, cpu> rng;
     rng.uniform(1, &idx, engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
 
-    while (isZero<IndexType, cpu>(nFeatIdx[idx])){idx--;}
+    while (isZero<IndexType, cpu>(nFeatIdx[idx]))
+    {
+        idx--;
+    }
 
-    if(noWeights){
-
-        if(featureUnordered){
-            nLeft = nFeatIdx[idx];
-            sumLeft = buf[idx];
+    if (noWeights)
+    {
+        if (featureUnordered)
+        {
+            nLeft       = nFeatIdx[idx];
+            sumLeft     = buf[idx];
             leftWeights = nFeatIdx[idx];
         }
         else
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t i=minidx; i <= idx; ++i)
+            for (size_t i = minidx; i <= idx; ++i)
             {
                 nLeft += nFeatIdx[i];
                 sumLeft += buf[i];
             }
-            leftWeights = nLeft;   
-
+            leftWeights = nLeft;
         }
     }
     else
     {
-        if(featureUnordered){
-            nLeft = nFeatIdx[idx];
-            sumLeft = buf[idx];
+        if (featureUnordered)
+        {
+            nLeft       = nFeatIdx[idx];
+            sumLeft     = buf[idx];
             leftWeights = featWeights[idx];
         }
         else
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t i=minidx; i <= idx; ++i)
+            for (size_t i = minidx; i <= idx; ++i)
             {
                 nLeft += nFeatIdx[i];
                 sumLeft += buf[i];
@@ -875,7 +877,8 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
         }
     }
 
-    if (!(((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart) || (leftWeights < minWeightLeaf)))
+    if (!(((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
+          || (leftWeights < minWeightLeaf)))
     {
         intermSummFPType sumRight = sumTotal - sumLeft;
         //the part of the impurity decrease dependent on split itself
@@ -889,7 +892,6 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
             idxFeatureBestSplit = idx;
             bestImpDecreasePart = impDecreasePart;
         }
-
     }
 
     if (idxFeatureBestSplit >= 0)
@@ -904,19 +906,19 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
 template <typename algorithmFPType, CpuType cpu>
 template <bool noWeights>
 bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
-                                                                          size_t nMinSplitPart, const algorithmFPType accuracy,
-                                                                          const typename super::ImpurityData & curImpurity, TSplitData & split,
-                                                                          const algorithmFPType minWeightLeaf,
-                                                                          const algorithmFPType totalWeights,
-                                                                          engines::internal::BatchBaseImpl * engineImpl) const
+                                                                                size_t nMinSplitPart, const algorithmFPType accuracy,
+                                                                                const typename super::ImpurityData & curImpurity, TSplitData & split,
+                                                                                const algorithmFPType minWeightLeaf,
+                                                                                const algorithmFPType totalWeights,
+                                                                                engines::internal::BatchBaseImpl * engineImpl) const
 {
     ImpurityData left;
     ImpurityData right;
-    IndexType iBest    = -1;
+    IndexType iBest = -1;
     algorithmFPType vBest;
     algorithmFPType leftWeights = 0.;
-    auto aResponse = this->_aResponse.get();
-    auto aWeights  = this->_aWeights.get();
+    auto aResponse              = this->_aResponse.get();
+    auto aWeights               = this->_aWeights.get();
     algorithmFPType idx;
     vBest = split.impurityDecrease < 0 ? daal::services::internal::MaxVal<algorithmFPType>::get() :
                                          (curImpurity.var - split.impurityDecrease) * totalWeights;
@@ -951,9 +953,9 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
         }
     }
 
-    left.var  = 0;
-    left.mean = this->_aResponse[aIdx[0]].val;
-    right.var = 0;
+    left.var   = 0;
+    left.mean  = this->_aResponse[aIdx[0]].val;
+    right.var  = 0;
     right.mean = this->_aResponse[aIdx[r]].val;
     if (noWeights)
     {
@@ -963,25 +965,23 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
             const double delta = this->_aResponse[aIdx[i]].val - left.mean; //x[i] - mean
             left.mean += delta / double(i + 1);
             left.var += delta * (this->_aResponse[aIdx[i]].val - left.mean);
-            DAAL_ASSERT(left.var >= 0); 
+            DAAL_ASSERT(left.var >= 0);
         }
         //left.var /= double(r); //impurity is MSE
 
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = r+1; i < n; ++i)
+        for (size_t i = r + 1; i < n; ++i)
         {
             const double delta = this->_aResponse[aIdx[i]].val - right.mean; //x[i] - mean
-            right.mean += delta / double(i + 1 - r); // this was definitely incorrect
+            right.mean += delta / double(i + 1 - r);                         // this was definitely incorrect
             right.var += delta * (this->_aResponse[aIdx[i]].val - right.mean);
         }
         //right.var /= double(n-r); //impurity is MSE
 
         leftWeights = r;
-
     }
     else
     {
-
         leftWeights = this->_aWeights[aIdx[0]].val;
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 1; i < r; ++i)
@@ -997,7 +997,7 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
 
         algorithmFPType rightWeights = this->_aWeights[aIdx[r]].val;
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = r+1; i < n; ++i)
+        for (size_t i = r + 1; i < n; ++i)
         {
             const double weights = this->_aWeights[aIdx[i]].val;
             const double delta   = this->_aResponse[aIdx[i]].val - right.mean; //x[i] - mean
@@ -1007,13 +1007,12 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
             right.var += weights * delta * (this->_aResponse[aIdx[i]].val - right.mean);
         }
         //right.var /= rightWeights; //impurity is MSE
-
     }
 
     if (!((leftWeights < minWeightLeaf) || ((totalWeights - leftWeights) < minWeightLeaf)))
     {
-                //can make a split
-                //nLeft == r, nRight == n-r
+        //can make a split
+        //nLeft == r, nRight == n-r
         const algorithmFPType v = left.var + right.var;
         if (v < vBest)
         {
@@ -1038,23 +1037,23 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
 
 template <typename algorithmFPType, CpuType cpu>
 template <bool noWeights>
-bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
-                                                                              size_t nMinSplitPart, const algorithmFPType accuracy,
-                                                                              const typename super::ImpurityData & curImpurity, TSplitData & split,
-                                                                              const algorithmFPType minWeightLeaf,
-                                                                              const algorithmFPType totalWeights,
-                                                                              engines::internal::BatchBaseImpl * engineImpl) const
+bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx,
+                                                                                    size_t n, size_t nMinSplitPart, const algorithmFPType accuracy,
+                                                                                    const typename super::ImpurityData & curImpurity,
+                                                                                    TSplitData & split, const algorithmFPType minWeightLeaf,
+                                                                                    const algorithmFPType totalWeights,
+                                                                                    engines::internal::BatchBaseImpl * engineImpl) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     ImpurityData left;
     ImpurityData right;
     algorithmFPType vBest;
-    bool bFound               = false;
+    bool bFound = false;
     //size_t nDiffFeatureValues = 0;
-    auto aResponse            = this->_aResponse.get();
-    auto aWeights             = this->_aWeights.get();
-    algorithmFPType min               = featureVal[0];
-    algorithmFPType max               = featureVal[0];
+    auto aResponse      = this->_aResponse.get();
+    auto aWeights       = this->_aWeights.get();
+    algorithmFPType min = featureVal[0];
+    algorithmFPType max = featureVal[0];
     algorithmFPType idx;
     algorithmFPType firstVal;
 
@@ -1075,8 +1074,6 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitCategoricalFeat
     }
     //first is the closest categorical feature less than the idx O(n) computation as ordering of featureVal is unknown.
 
-
-
     for (size_t i = 0; i < n - nMinSplitPart;)
     {
         //++nDiffFeatureValues;
@@ -1085,10 +1082,10 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitCategoricalFeat
             i++;
             continue;
         }
-        size_t count                   = 1;
-        firstVal = featureVal[i];
-        const size_t iStart            = i;
-        algorithmFPType leftWeights    = aWeights[aIdx[i]].val;
+        size_t count                = 1;
+        firstVal                    = featureVal[i];
+        const size_t iStart         = i;
+        algorithmFPType leftWeights = aWeights[aIdx[i]].val;
         for (++i; (i < n) && (featureVal[i] == firstVal); ++count, ++i)
         {
             leftWeights += aWeights[aIdx[i]].val;
@@ -1257,69 +1254,70 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
         {
             if (par.splitter == decision_forest::training::splitter_mode::best)
             {
-            BinParams prm(par.maxBins, par.minBinSize);
-            s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, &prm);
-            DAAL_CHECK_STATUS_VAR(s);
-            if (indexedFeatures.maxNumIndices() <= 256)
-                s = computeImpl<algorithmFPType, uint8_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, uint8_t, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-                    indexedFeatures);
-            else if (indexedFeatures.maxNumIndices() <= 65536)
-                s = computeImpl<algorithmFPType, uint16_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, uint16_t, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-                    indexedFeatures);
-            else
-                s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                                daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-                    indexedFeatures);
+                BinParams prm(par.maxBins, par.minBinSize);
+                s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, &prm);
+                DAAL_CHECK_STATUS_VAR(s);
+                if (indexedFeatures.maxNumIndices() <= 256)
+                    s = computeImpl<algorithmFPType, uint8_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                                    TrainBatchTask<algorithmFPType, uint8_t, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
+                        pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0,
+                        featTypes, indexedFeatures);
+                else if (indexedFeatures.maxNumIndices() <= 65536)
+                    s = computeImpl<algorithmFPType, uint16_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                                    TrainBatchTask<algorithmFPType, uint16_t, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
+                        pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0,
+                        featTypes, indexedFeatures);
+                else
+                    s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
+                                    daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                                    TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist,
+                                                   OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
+                        pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0,
+                        featTypes, indexedFeatures);
             }
             else if (par.splitter == decision_forest::training::splitter_mode::random)
             {
-
-            BinParams prm(par.maxBins, par.minBinSize);
-            s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, &prm);
-            DAAL_CHECK_STATUS_VAR(s);
-            if (indexedFeatures.maxNumIndices() <= 256)
-                s = computeImpl<algorithmFPType, uint8_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, uint8_t, hist, OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-                    indexedFeatures);
-            else if (indexedFeatures.maxNumIndices() <= 65536)
-                s = computeImpl<algorithmFPType, uint16_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, uint16_t, hist, OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-                    indexedFeatures);
-            else
-                s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                                daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-                    indexedFeatures);
+                BinParams prm(par.maxBins, par.minBinSize);
+                s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, &prm);
+                DAAL_CHECK_STATUS_VAR(s);
+                if (indexedFeatures.maxNumIndices() <= 256)
+                    s = computeImpl<algorithmFPType, uint8_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                                    TrainBatchTask<algorithmFPType, uint8_t, hist, OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
+                        pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0,
+                        featTypes, indexedFeatures);
+                else if (indexedFeatures.maxNumIndices() <= 65536)
+                    s = computeImpl<algorithmFPType, uint16_t, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                                    TrainBatchTask<algorithmFPType, uint16_t, hist, OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
+                        pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0,
+                        featTypes, indexedFeatures);
+                else
+                    s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
+                                    daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                                    TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist,
+                                                   OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
+                        pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0,
+                        featTypes, indexedFeatures);
             }
         }
         else
         {
             if (par.splitter == decision_forest::training::splitter_mode::best)
             {
-            s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                            daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
-                pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-                indexedFeatures);
+                s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
+                                daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist,
+                                               OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
+                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
+                    indexedFeatures);
             }
             else if (par.splitter == decision_forest::training::splitter_mode::random)
             {
-            s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                            daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
-                pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-                indexedFeatures);
-
-
+                s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
+                                daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist,
+                                               OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
+                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
+                    indexedFeatures);
             }
         }
     }
@@ -1332,20 +1330,21 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
         }
         if (par.splitter == decision_forest::training::splitter_mode::best)
         {
-        s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                        daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                        TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
-            pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-            indexedFeatures);
+            s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
+                            daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense,
+                                           OrderedRespHelper<algorithmFPType, cpu>, cpu> >(
+                pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
+                indexedFeatures);
         }
         else if (par.splitter == decision_forest::training::splitter_mode::random)
         {
-        s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                        daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                        TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
-            pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
-            indexedFeatures);
-
+            s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
+                            daal::algorithms::decision_forest::regression::internal::ModelImpl,
+                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense,
+                                           OrderedRespHelperRandom<algorithmFPType, cpu>, cpu> >(
+                pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
+                indexedFeatures);
         }
     }
 
