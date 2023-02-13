@@ -551,13 +551,16 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     ONEDAL_ASSERT(prev_node >= 0);
 
     auto [nodes, boundaries] = pr::get_boundary_indices(node_sample_counts, block_size);
-    auto block_count = nodes.size();
-    ONEDAL_ASSERT(block_count + 1 == boundaries.size());
+    std::int64_t block_count = nodes.size();
+    std::int64_t bounds_size = boundaries.size();
+    ONEDAL_ASSERT(block_count + 1 == bounds_size);
 
     auto train_block_queue = pr::split_table<Float>(queue, train, block_size);
     auto tresps_queue = pr::split_table<res_t>(queue, tresps, block_size);
-    ONEDAL_ASSERT(train_block_queue.size() <= block_count);
-    ONEDAL_ASSERT(tresps_queue.size() == train_block_queue.size());
+    std::int64_t tbq_size = train_block_queue.size();
+    std::int64_t trq_size = tresps_queue.size();
+    ONEDAL_ASSERT(tbq_size <= block_count);
+    ONEDAL_ASSERT(trq_size == tbq_size);
 
     const auto qbcount = pr::propose_query_block<Float>(queue, fcount);
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
@@ -620,7 +623,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto first_block_index = std::distance(nodes.begin(), it);
     ONEDAL_ASSERT(it != nodes.end());
 
-    for (unsigned long block_number = 0; block_number < block_count; ++block_number) {
+    for (std::int64_t block_number = 0; block_number < block_count; ++block_number) {
         auto current_block = train_block_queue.front();
         train_block_queue.pop_front();
         ONEDAL_ASSERT(current_block.has_data());
@@ -631,7 +634,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         tresps_queue.pop_front();
 
         auto block_index = (block_number + first_block_index) % block_count;
-        ONEDAL_ASSERT(block_index + 1 < boundaries.size());
+        ONEDAL_ASSERT(block_index + 1 < bounds_size);
         auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
 
         auto sc = current_block.get_dimension(0);
