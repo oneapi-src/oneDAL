@@ -53,11 +53,9 @@ void run(sycl::queue& queue) {
     auto x_test_vec = split_table_by_rows<float>(queue, x_test, rank_count);
     auto y_test_vec = split_table_by_rows<float>(queue, y_test, rank_count);
 
-    // First value is number of classes, second is number of neighbors
-    // Voting mode and distance impl should resort to default
-    const auto knn_desc = dal::knn::descriptor(5, 1);
-    //.set_voting_mode(dal::knn::voting_mode::uniform)
-    //.set_distance_impl(dal::knn::daal_distance_t::cosine)
+    const auto knn_desc = dal::knn::descriptor(5, 1).set_result_options(
+        dal::knn::result_options::responses | dal::knn::result_options::indices |
+        dal::knn::result_options::distances);
 
     dal::knn::train_input local_input_train{ x_train_vec[rank_id], y_train_vec[rank_id] };
 
@@ -65,7 +63,9 @@ void run(sycl::queue& queue) {
     const auto result_infer =
         dal::preview::infer(comm, knn_desc, x_test_vec[rank_id], result_train.get_model());
     if (comm.get_rank() == 0) {
-        std::cout << "Responses: " << result_infer.get_responses() << std::endl;
+        std::cout << "Prediction results:\n" << result_infer.get_responses() << std::endl;
+
+        std::cout << "Ground truth:\n" << y_test_vec.at(rank_id) << std::endl;
     }
 }
 
