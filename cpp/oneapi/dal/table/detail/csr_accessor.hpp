@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <tuple>
+#include <type_traits>
+
 #include "oneapi/dal/table/detail/table_utils.hpp"
 
 namespace oneapi::dal::detail {
@@ -28,6 +31,8 @@ template <typename T>
 class csr_accessor {
 public:
     using data_t = std::remove_const_t<T>;
+    using array_d = dal::array<data_t>;
+    using array_i = dal::array<std::int64_t>;
     static constexpr bool is_readonly = std::is_const_v<T>;
 
     /// Creates a read-only accessor object from the csr table. Available only for
@@ -41,11 +46,13 @@ public:
         }
     }
 
-    csr_block<data_t> pull(const range& row_range = { 0, -1 },
+    std::tuple<array_d, array_i, array_i> pull(const range& row_range = { 0, -1 },
                            const sparse_indexing indexing = sparse_indexing::one_based) const {
-        csr_block<data_t> block;
-        pull_iface_->pull_csr_block(detail::default_host_policy{}, block.data, block.column_indices, block.row_indices, indexing, row_range);
-        return block;
+        array_d data;
+        array_i column_indices;
+        array_i row_offsets;
+        pull_iface_->pull_csr_block(detail::default_host_policy{}, data, column_indices, row_offsets, indexing, row_range);
+        return std::make_tuple(data, column_indices, row_offsets);
     }
 
 private:

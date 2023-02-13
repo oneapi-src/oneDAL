@@ -72,12 +72,12 @@ TEST("can construct CSR table from raw data pointers") {
     REQUIRE(t.get_row_offsets() == row_offsets);
 }
 
-TEST("can construct float64 table") {
+TEST("can construct float64 table with zero-based indexing") {
     using oneapi::dal::detail::empty_delete;
 
     double data[] = { 1.0, 2.0, 3.0, 4.0, 1.0, 11.0, 8.0 };
-    std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
-    std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
+    std::int64_t column_indices[] = { 0, 1, 3, 2, 1, 3, 1 };
+    std::int64_t row_offsets[] = { 0, 3, 4, 6, 7 };
 
     constexpr std::int64_t row_count{ 4 };
     constexpr std::int64_t column_count{ 4 };
@@ -90,14 +90,15 @@ TEST("can construct float64 table") {
                  column_count,
                  empty_delete<const double>(),
                  empty_delete<const std::int64_t>(),
-                 empty_delete<const std::int64_t>() };
+                 empty_delete<const std::int64_t>(),
+                 sparse_indexing::zero_based };
 
     REQUIRE(t.has_data());
     REQUIRE(t.get_row_count() == row_count);
     REQUIRE(t.get_column_count() == column_count);
     REQUIRE(t.get_non_zero_count() == element_count);
 
-    REQUIRE(t.get_indexing() == sparse_indexing::one_based);
+    REQUIRE(t.get_indexing() == sparse_indexing::zero_based);
 
     const auto& meta = t.get_metadata();
     for (std::int64_t i = 0; i < t.get_column_count(); i++) {

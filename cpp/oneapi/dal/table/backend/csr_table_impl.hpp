@@ -51,10 +51,6 @@ public:
             throw dal::domain_error(error_msg::cc_leq_zero());
         }
 
-        if (indexing != sparse_indexing::one_based) {
-            throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
-        }
-
         const std::int64_t row_count = (row_offsets.get_count() ? row_offsets.get_count() - 1 : 0);
         const std::int64_t element_count = row_offsets_[row_count] - row_offsets_[0];
         const std::int64_t dtype_size = detail::get_data_type_size(dtype);
@@ -160,11 +156,6 @@ public:
 
         // Overflow is checked here
         check_block_row_range(rows);
-
-        if (indexing != sparse_indexing::one_based) {
-            throw dal::unimplemented(
-                detail::error_messages::zero_based_indexing_is_not_supported());
-        }
 
         block_info block_info{ rows.start_idx, rows.get_element_count(get_row_count()), indexing };
 

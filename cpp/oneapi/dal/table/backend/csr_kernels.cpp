@@ -132,7 +132,7 @@ void pull_column_indices_impl(const Policy& policy,
                               const array<std::int64_t>& origin_column_indices,
                               const std::int64_t origin_offset,
                               const std::int64_t block_size,
-                              const int indices_offset,
+                              const std::int64_t indices_offset,
                               array<std::int64_t>& column_indices,
                               alloc_kind kind,
                               bool preserve_mutability) {
@@ -157,6 +157,10 @@ void pull_column_indices_impl(const Policy& policy,
                                 data_type::int64,
                                 data_type::int64,
                                 block_size);
+
+        if (indices_offset != 0) {
+            shift_array_values(policy, dst_data, block_size, indices_offset);
+        }
     }
 }
 
@@ -191,7 +195,7 @@ template <typename Policy>
 void pull_row_offsets_impl(const Policy& policy,
                            const array<std::int64_t>& origin_row_offsets,
                            const block_info& block_info,
-                           const int indices_offset,
+                           const std::int64_t indices_offset,
                            array<std::int64_t>& row_offsets,
                            alloc_kind kind,
                            bool preserve_mutability) {
@@ -199,7 +203,7 @@ void pull_row_offsets_impl(const Policy& policy,
         alloc_kind_requires_copy(get_alloc_kind(row_offsets), kind)) {
         reset_array(policy, row_offsets, block_info.row_count_ + 1, kind);
     }
-    if (block_info.row_offset_ == 0) {
+    if (block_info.row_offset_ == 0 && indices_offset == 0) {
         refer_origin_data(origin_row_offsets,
                           0,
                           block_info.row_count_,
@@ -209,10 +213,15 @@ void pull_row_offsets_impl(const Policy& policy,
     else {
         auto src_row_offsets = origin_row_offsets.get_data();
         auto dst_row_offsets = row_offsets.get_mutable_data();
+        const std::int64_t dst_row_offsets_count = block_info.row_count_ + 1;
 
-        for (std::int64_t i = 0; i < block_info.row_count_ + 1; i++) {
+        for (std::int64_t i = 0; i < dst_row_offsets_count; i++) {
             dst_row_offsets[i] = src_row_offsets[block_info.row_offset_ + i] -
                                  src_row_offsets[block_info.row_offset_] + 1;
+        }
+
+        if (indices_offset != 0) {
+            shift_array_values(policy, dst_row_offsets, dst_row_offsets_count, indices_offset);
         }
     }
 }
