@@ -91,7 +91,8 @@ training::ResultPtr trainModel() {
     //    algorithms::decision_forest::training::computeOutOfBagError;
     algorithm.parameter().maxBins = maxBins;
     algorithm.parameter().minBinSize = minBinSize;
-    algorithm.parameter().bootstrap = boot;
+    algorithm.parameter().bootstrap = false;
+    algorithm.parameter().splitter = algorithms::decision_forest::training::random;
 
     /* Build the decision forest classification model */
     algorithm.compute();
