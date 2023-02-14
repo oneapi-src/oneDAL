@@ -778,13 +778,7 @@ public:
         : OrderedRespHelper<algorithmFPType, cpu>(indexedFeatures, dummy)
     {}
 
-    //direct copy from parent to force use of new underlying functions
-    bool findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                 const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
-                                 engines::internal::BatchBaseImpl * engineImpl) const;
-
-    //same as above for histogram equations
+    //this enables used of findBestSplitByHist, and is a one-to-one copy from parent
     template <typename BinIndexType>
     int findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                       const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
@@ -795,6 +789,12 @@ public:
     int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
                             const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
                             const algorithmFPType totalWeights, engines::internal::BatchBaseImpl * engineImpl) const;
+
+    //direct copy from parent to force use of new underlying functions
+    bool findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
+                                 const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
+                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                 engines::internal::BatchBaseImpl * engineImpl) const;
 
 private:
     template <bool noWeights>
