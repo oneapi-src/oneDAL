@@ -43,7 +43,7 @@ const size_t categoricalFeaturesIndices[] = { 2 };
 const size_t nFeatures = 3; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
-const size_t nTrees = 30;
+const size_t nTrees = 10;
 const size_t minObservationsInLeafNode = 8;
 const size_t minObservationsInSplitNode = 16;
 const double minWeightFractionInLeafNode = 0.0; /* It must be in segment [0.0, 0.5] */
@@ -88,7 +88,8 @@ training::ResultPtr trainModel() {
     algorithm.parameter().varImportance = algorithms::decision_forest::training::MDI;
     //algorithm.parameter().resultsToCompute =
     //    algorithms::decision_forest::training::computeOutOfBagError;
-    algorithm.parameter().bootstrap = boot;
+    algorithm.parameter().bootstrap = true  ;
+    algorithm.parameter().splitter = algorithms::decision_forest::training::best;
 
     /* Build the decision forest classification model */
     algorithm.compute();
