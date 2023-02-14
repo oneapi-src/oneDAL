@@ -77,8 +77,8 @@ training::ResultPtr trainModel() {
     algorithm.parameter().resultsToCompute = 0;
     //    daal::algorithms::decision_forest::training::computeOutOfBagError |
     //    daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
-    algorithm.parameter().bootstrap = true;
-    algorithm.parameter().splitter = daal::algorithms::decision_forest::training::best;
+    algorithm.parameter().bootstrap = false;
+    algorithm.parameter().splitter = daal::algorithms::decision_forest::training::random;
 
     /* Build the decision forest regression model */
     algorithm.compute();
