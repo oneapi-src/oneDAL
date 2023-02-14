@@ -22,7 +22,7 @@ ALGOS = [
     "logloss_objective",
     "louvain",
     "minkowski_distance",
-    "ojective_function",
+    "objective_function",
     "pca",
     "polynomial_kernel",
     "rbf_kernel",

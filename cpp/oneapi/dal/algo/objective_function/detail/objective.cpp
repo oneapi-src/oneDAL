@@ -23,9 +23,9 @@ namespace v1 {
 template <typename F, typename M>
 using logloss_objective_t = logloss_objective::descriptor<F, M>;
 
-class daal_interop_logloss_objective_impl : public objective_impl {
+class logloss_objective_impl : public objective_impl {
 public:
-    daal_interop_logloss_objective_impl(double l1_coef, double l2_coef) : l1_coef(l1_coef), l2_coef(l2_coef) {}
+    logloss_objective_impl(double l1_coef, double l2_coef) : l1_coef(l1_coef), l2_coef(l2_coef) {}
     double get_l1_regularization_coefficient() {
         return l1_coef;
         
@@ -47,7 +47,7 @@ private:
 template <typename F, typename M>
 objective<logloss_objective_t<F, M>>::objective(const logloss_objective_t<F, M> &obj)
         : objective_(obj),
-          impl_(new daal_interop_logloss_objective_impl{obj.get_l1_regularization_coefficient(), obj.get_l2_regularization_coefficient()}) {}
+          impl_(new logloss_objective_impl{obj.get_l1_regularization_coefficient(), obj.get_l2_regularization_coefficient()}) {}
 
 template <typename F, typename M>
 objective_impl* objective<logloss_objective_t<F, M>>::get_impl() const {

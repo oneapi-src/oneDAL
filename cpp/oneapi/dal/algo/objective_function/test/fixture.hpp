@@ -42,19 +42,24 @@ public:
     using descriptor_t = obj_fun::descriptor<Float, Method>;
     using objective_t = lg::descriptor<Float>;
 
-    auto get_descriptor(obj_fun::result_option_id compute_mode, double L1 = 0, double L2 = 0) const {
-        return descriptor_t(objective_t{L1, L2}).set_result_options(compute_mode);
+    auto get_descriptor(obj_fun::result_option_id compute_mode) const {
+        return descriptor_t(objective_t{L1_, L2_}).set_result_options(compute_mode);
     }
 
     te::table_id get_homogen_table_id() const {
         return te::table_id::homogen<Float>();
     }
 
+    void set_reg_coefs(double L1, double L2) {
+        this->L1_ = L1;
+        this->L2_ = L2;
+    }
+
     void gen_input() {
         const te::dataframe data_df = GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_normal(-0.5, 0.5, 7777));
         const te::dataframe params_df = GENERATE_DATAFRAME(te::dataframe_builder{ 1, p_ + 1 }.fill_normal(-0.5, 0.5, 7777));
         auto resp = array<std::int32_t>::zeros(n_);
-        auto ptr = resp.get_mutable_data();
+        auto* const ptr = resp.get_mutable_data();
         srand(2007 + n_ + p_ + n_ * p_);
         for (std::int64_t i = 0; i < n_; ++i) {
             ptr[i] = rand() % 2;
@@ -65,45 +70,64 @@ public:
         params_ = params_df.get_table(this->get_policy(), this->get_homogen_table_id());
     }
 
-    void general_checks(const double L1 = 0, const double L2 = 0) {
+    void general_checks() {
 
-
+        
         INFO("create descriptor value");
-        auto desc = get_descriptor(obj_fun::result_options::value, L1, L2);
+        auto desc = get_descriptor(obj_fun::result_options::value);
         INFO("run compute value");
         auto compute_result = this->compute(desc, data_, params_, responses_);
+        check_compute_result(compute_result);
         
         INFO("create descriptor gradient");
-        desc = get_descriptor(obj_fun::result_options::gradient, L1, L2);
+        desc = get_descriptor(obj_fun::result_options::gradient);
         INFO("run compute gradient");
         compute_result = this->compute(desc, data_, params_, responses_);
+        check_compute_result(compute_result);
         
+        INFO("create descriptor value + gradient");
+        desc = get_descriptor(obj_fun::result_options::value | obj_fun::result_options::gradient);
+        INFO("run compute value + gradient");
+        compute_result = this->compute(desc, data_, params_, responses_);
+        check_compute_result(compute_result);
+
         INFO("create descriptor hessian");
-        desc = get_descriptor(obj_fun::result_options::hessian, L1, L2);
+        desc = get_descriptor(obj_fun::result_options::hessian);
         INFO("run compute hessian");
         compute_result = this->compute(desc, data_, params_, responses_);
+        check_compute_result(compute_result);
 
+        INFO("create descriptor value + hessian");
+        desc = get_descriptor(obj_fun::result_options::value | obj_fun::result_options::hessian);
+        INFO("run compute value + hessian");
+        compute_result = this->compute(desc, data_, params_, responses_);
+        check_compute_result(compute_result);
+
+        INFO("create descriptor gradient + hessian");
+        desc = get_descriptor(obj_fun::result_options::gradient | obj_fun::result_options::hessian);
+        INFO("run compute gradient + hessian");
+        compute_result = this->compute(desc, data_, params_, responses_);
+        check_compute_result(compute_result);
 
         INFO("create descriptor value + gradient + hessian");
         desc = get_descriptor(obj_fun::result_options::value | 
-        obj_fun::result_options::gradient | obj_fun::result_options::hessian, L1, L2);
+        obj_fun::result_options::gradient | obj_fun::result_options::hessian);
         INFO("run compute value + gradient + hessian");
         compute_result = this->compute(desc, data_, params_, responses_);
-        check_compute_result(L1, L2, compute_result);
-
+        check_compute_result(compute_result);
+        
     }
 
-    void check_compute_result(Float L1, Float L2,
-                              const objective_function::compute_result<>& result) {
+    void check_compute_result(const objective_function::compute_result<>& result) {
         auto data_arr = row_accessor<const Float>(data_).pull({ 0, -1 });
         auto params_arr = row_accessor<const Float>(params_).pull({ 0, -1 });
         auto resp_arr = row_accessor<const Float>(responses_).pull({ 0, -1 });
-
+        // std::cout << "Check" << std::endl;
         // std::int64_t n_ = data.get_row_count();
         // std::int64_t p_ = data.get_column_count();
 
         auto pred_arr = array<float_t>::zeros(n_);
-        auto pred_ptr = pred_arr.get_mutable_data();
+        auto* const pred_ptr = pred_arr.get_mutable_data();
 
         for (std::int64_t i = 0; i < n_; ++i) {
             for (std::int64_t j = 0; j < p_; ++j) {
@@ -113,7 +137,6 @@ public:
             pred_ptr[i] = 1 / (1 + std::exp(-pred_ptr[i]));
         }
         const double tol = te::get_tolerance<Float>(1e-4, 1e-6);
-
         if (result.get_result_options().test(result_options::value)) {
             const auto value = result.get_value();
             REQUIRE(value.get_row_count() == 1);
@@ -127,10 +150,10 @@ public:
                 ans -= resp_arr[i] * std::log(pred_ptr[i]) + (1 - resp_arr[i]) * std::log(1 - pred_ptr[i]);
             }
             for (std::int64_t i = 0; i <= p_; ++i) {
-                ans += L1 * std::abs(params_arr[i]) + L2 * params_arr[i] * params_arr[i];
+                ans += L1_ * std::abs(params_arr[i]) + L2_ * params_arr[i] * params_arr[i];
             }
             const double diff = std::abs(val - ans);
-            CHECK(diff < tol);
+            REQUIRE(diff < tol);
         }
         if (result.get_result_options().test(result_options::gradient)) {
             const auto gradient = result.get_gradient();
@@ -143,13 +166,12 @@ public:
                     Float x1 = j == 0 ? 1 : data_arr[i * p_ + j - 1];
                     ans += (pred_ptr[i] - resp_arr[i]) * x1;
                 }
-                ans += std::copysign(L1, params_arr[j]) + L2 * 2 * params_arr[j];
+                ans += std::copysign(L1_, params_arr[j]) + L2_ * 2 * params_arr[j];
                 const double diff = std::abs(grad_arr[j] - ans);
-                // std::cout << j << ": " << grad_arr[j] << " " << ans << std::endl; 
-                CHECK(diff < tol);
+                REQUIRE(diff < tol);
             }
         }
-
+        
         if (result.get_result_options().test(result_options::hessian)) {
             const auto hessian = result.get_hessian();
             REQUIRE(hessian.get_row_count() == p_ + 1);
@@ -163,12 +185,13 @@ public:
                         Float x2 = j == 0 ? 1 : data_arr[i * p_ + j - 1];
                         ans += x1 * x2 * pred_ptr[i] * (1 - pred_ptr[i]);
                     }
-                    ans += (k == j) ? L2 * 2 : 0;
+                    ans += (k == j) ? L2_ * 2 : 0;
                     const double diff = std::abs(hess_arr[k * (p_ + 1) + j] - ans);
-                    CHECK(diff < tol);
+                    REQUIRE(diff < tol);
                 }
             }
         }
+        
         
     }
 
@@ -178,9 +201,11 @@ protected:
     table data_;
     table params_;
     table responses_;
+    Float L1_ = 0;
+    Float L2_ = 0;
 
 };
 
-using logloss_types = COMBINE_TYPES((float, double), (obj_fun::method::dense));
+using logloss_types = COMBINE_TYPES((float, double), (obj_fun::method::dense_batch));
 
 } // namespace oneapi::dal::objective_function::test

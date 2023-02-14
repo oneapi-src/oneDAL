@@ -53,7 +53,7 @@ struct compute_kernel_cpu<Float, method::by_default, task::compute> {
     }
 };
 
-template struct compute_kernel_cpu<float, method::dense, task::compute>;
-template struct compute_kernel_cpu<double, method::dense, task::compute>;
+template struct compute_kernel_cpu<float, method::dense_batch, task::compute>;
+template struct compute_kernel_cpu<double, method::dense_batch, task::compute>;
 
 } // namespace oneapi::dal::covariance::backend

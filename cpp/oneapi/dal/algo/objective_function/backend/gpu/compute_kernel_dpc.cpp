@@ -25,7 +25,7 @@ namespace oneapi::dal::objective_function::backend {
 
 namespace pr = oneapi::dal::backend::primitives;
 
-using method_t = method::dense;
+using method_t = method::dense_batch;
 using task_t = task::compute;
 using input_t = compute_input<task_t>;
 using result_t = compute_result<task_t>;

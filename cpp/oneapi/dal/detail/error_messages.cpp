@@ -196,6 +196,12 @@ MSG(invalid_set_of_result_options_to_search,
 /* Minkowski distance */
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
 
+/* Objective function */
+MSG(value_is_not_provided, "Table with value is missing");
+MSG(gradient_is_not_provided, "Table with gradient is missing");
+MSG(hessian_is_not_provided, "Table withj hessian is missing");
+MSG(incorrect_output_table_size, "On of the tables sizes in result is not correct");
+
 /* Jaccard */
 MSG(column_begin_gt_column_end, "Column begin is greater than column end")
 MSG(empty_edge_list, "Empty edge list")

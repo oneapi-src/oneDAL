@@ -70,6 +70,38 @@ struct compute_ops {
                               const input_t& input,
                               const result_t& result) const {
         // TO DO
+        // check result sizes!!!!!
+        using msg = dal::detail::error_messages;
+        std::int64_t p = input.get_data().get_column_count();
+        if (result.get_result_options().test(result_options::value)) {
+            if (!result.get_value().has_data()) {
+                throw domain_error(msg::value_is_not_provided());
+            }
+            if (result.get_value().get_row_count() != 1 || result.get_value().get_column_count() != 1) {
+                throw domain_error(msg::incorrect_output_table_size());
+            }
+        }
+
+        if (result.get_result_options().test(result_options::gradient)) {
+            if (!result.get_gradient().has_data()) {
+                throw domain_error(msg::gradient_is_not_provided());
+            }
+            if (result.get_gradient().get_row_count() != 1 || result.get_gradient().get_column_count() != p + 1) {
+                throw domain_error(msg::incorrect_output_table_size());
+            }
+        }
+
+        if (result.get_result_options().test(result_options::hessian)) {
+            if (!result.get_hessian().has_data()) {
+                throw domain_error(msg::hessian_is_not_provided());
+            }
+            if (result.get_hessian().get_row_count() != p + 1 || result.get_hessian().get_column_count() != p + 1) {
+                throw domain_error(msg::incorrect_output_table_size());
+            }
+        }
+
+        
+
     }
 
     template <typename Context>
