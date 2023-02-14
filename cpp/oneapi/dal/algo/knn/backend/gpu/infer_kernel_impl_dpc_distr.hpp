@@ -689,6 +689,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         auto send_count = current_block.get_count();
         ONEDAL_ASSERT(send_count >= 0);
         ONEDAL_ASSERT(send_count <= de::limits<int>::max());
+        // send recv replace
         comm.sendrecv_replace(array<Float>::wrap(queue,
                                                  current_block.get_mutable_data(),
                                                  send_count,
