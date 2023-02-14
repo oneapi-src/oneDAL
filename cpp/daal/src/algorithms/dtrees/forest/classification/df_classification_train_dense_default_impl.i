@@ -274,7 +274,7 @@ private:
                                          const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
                                          engines::internal::BatchBaseImpl * engineImpl) const;
 
-public:
+protected:
     const size_t _nClasses;
     //set of buffers for indexed features processing, used in findBestSplitForFeatureIndexed only
     const size_t _nClassesThreshold = 8;
@@ -923,20 +923,15 @@ template <typename algorithmFPType, CpuType cpu>
 class UnorderedRespHelperRandom : public UnorderedRespHelper<algorithmFPType, cpu>
 {
 public:
-    //template <typename algorithmFPType, CpuType cpu>
-    //typedef DataHelper<algorithmFPType, ClassIndexType, cpu> super;
+
     typedef double intermSummFPType;
     using Histogramm = typename UnorderedRespHelper<algorithmFPType, cpu>::Histogramm;
     using ImpurityData = typename UnorderedRespHelper<algorithmFPType, cpu>::ImpurityData;
     using TSplitData = typename UnorderedRespHelper<algorithmFPType, cpu>::TSplitData;
-    //typedef typename dtrees::internal::TVector<float, cpu, dtrees::internal::ScalableAllocator<cpu> > Histogramm;
-    //typedef typename super::Histogramm Histogramm;
-    //typedef typename UnorderedRespHelper<algorithmFPType, cpu>::ImpurityData ImpurityData;
-    //typedef typename super::TSplitData TSplitData;
-    //typedef SplitData<algorithmFPType, typename super::ImpurityData> TSplitData;
+
 
 public:
-    UnorderedRespHelperRandom(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses) : UnorderedRespHelper<algorithmFPType, cpu>( indexedFeatures, nClasses)//, _nClasses(nClasses), _histLeft(nClasses), _impLeft(nClasses), _impRight(nClasses)
+    UnorderedRespHelperRandom(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses) : UnorderedRespHelper<algorithmFPType, cpu>( indexedFeatures, nClasses)
  {}
 
     template <typename BinIndexType>
@@ -972,18 +967,6 @@ private:
                                          const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
                                          const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
                                          engines::internal::BatchBaseImpl * engineImpl) const;
-
-/*private:
-    const size_t _nClasses;
-    //set of buffers for indexed features processing, used in findBestSplitForFeatureIndexed only
-    const size_t _nClassesThreshold = 8;
-    mutable TVector<IndexType, cpu> _idxFeatureBuf;
-    mutable TVector<algorithmFPType, cpu> _weightsFeatureBuf;
-    mutable TVector<float, cpu> _samplesPerClassBuf;
-    mutable Histogramm _histLeft;
-    //work variables used in memory saving mode only
-    mutable ImpurityData _impLeft;
-    mutable ImpurityData _impRight;*/
                                         
 };
 
