@@ -206,7 +206,6 @@ inline table convert_from_daal_csr_table(const daal::data_management::NumericTab
         array<std::int64_t>{ reinterpret_cast<std::int64_t*>(block_owner->get_row_indices()),
                              block_owner->get_row_count() + 1,
                              [block_owner](const std::int64_t* p) {} },
-        block_owner->get_row_count(),
         block_owner->get_column_count()
     };
 }
