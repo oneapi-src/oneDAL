@@ -26,10 +26,23 @@ namespace oneapi::dal::backend::primitives {
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float>
+std::int64_t get_block_size();
+
+template <typename Float>
 std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width);
 
 template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width);
+
+std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(
+    ndarray<std::int64_t, 1> sample_counts,
+    std::int64_t block_size);
+
+template <typename Index>
+sycl::event treat_indices(sycl::queue& q,
+                          ndview<Index, 2>& indices,
+                          std::int64_t start_index,
+                          const event_vector& deps);
 
 template <typename Float, typename Impl>
 class callback_base {
@@ -146,9 +159,6 @@ protected:
                          const ndview<Float, 2, torder>& train,
                          ndview<Float, 2>& distances,
                          const event_vector& deps) const;
-    sycl::event treat_indices(ndview<std::int32_t, 2>& indices,
-                              std::int64_t start_index,
-                              const event_vector& deps) const;
     sycl::event select_indexed(const ndview<std::int32_t, 2>& src,
                                ndview<std::int32_t, 2>& dst,
                                const event_vector& deps) const;
