@@ -1041,44 +1041,46 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitbyHistDefault(
     while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx])) maxidx--;
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
+    if ((nFeatIdx[minidx] == n) //last split
+        || ((n - nFeatIdx[minidx]) < nMinSplitPart) || ((totalWeights - featWeights[minidx]) < minWeightLeaf))
+        return idxFeatureBestSplit;
 
     //randomly select a histogram split index
     size_t idx;
-    int outidx = minidx;
     RNGs<size_t, cpu> rng;
     rng.uniform(1, &idx, engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
 
-    for (size_t i = minidx; i <= idx; ++i)
+    //iterate idx down for FinalizeBestSplit (since it splits leftward)
+    while ((minidx < idx) && isZero<IndexType, cpu>(nFeatIdx[idx])) idx--;
+
+    if(split.featureUnordered)
     {
-        if (!nFeatIdx[i]) continue;
-        outidx = i; //insures that if the histogram at idx is zero, that a split point for the data can still be used in df_train_dense_default_impl.i
-        algorithmFPType thisFeatWeights = featWeights[i];
 
-        nLeft       = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
-        leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
-        if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
-            break;
+        nLeft = nFeatIdx[idx];
+        leftWeights = featWeights[idx];
+        
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        //one against others
+        for (size_t iClass = 0; iClass < this->_nClasses; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * this->_nClasses + iClass];
 
-        if (!split.featureUnordered)
+    }
+    else
+    {
+        for(size_t i = minidx; i <= idx; ++i)
         {
+            if (isZero<IndexType, cpu>(nFeatIdx[i])) continue;
+            nLeft += nFeatIdx[i];
+            leftWeights += featWeights[i];
+
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < this->_nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * this->_nClasses + iClass];
         }
-        if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf) continue;
 
-        if (split.featureUnordered)
-        {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            //one against others
-            for (size_t iClass = 0; iClass < this->_nClasses; ++iClass) histLeft[iClass] = nSamplesPerClass[i * this->_nClasses + iClass];
-        }
     }
 
-    if (!((nLeft == n) //last split
-          || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
+    if (!(((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
           || (leftWeights < minWeightLeaf)))
     {
         auto histTotal           = curImpurity.hist.get();
@@ -1100,7 +1102,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitbyHistDefault(
             split.left.var      = sumLeft;
             split.nLeft         = nLeft;
             split.leftWeights   = leftWeights;
-            idxFeatureBestSplit = outidx;
+            idxFeatureBestSplit = idx;
             bestImpDecrease     = decrease;
         }
     }
