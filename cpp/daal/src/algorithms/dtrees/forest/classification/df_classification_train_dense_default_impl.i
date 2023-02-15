@@ -61,7 +61,7 @@ public:
     typedef DataHelper<algorithmFPType, ClassIndexType, cpu> super;
     typedef typename dtrees::internal::TreeImpClassification<> TreeType;
     typedef typename TreeType::NodeType NodeType;
-    typedef typename dtrees::internal::TVector<float, cpu, dtrees::internal::ScalableAllocator<cpu> > Histogramm;
+    typedef typename dtrees::internal::TVector<float, cpu, dtrees::internal::ScalableAllocator<cpu> > Histogramm; //not sure why this is hard-coded to float and not algorithmFPType
 
     struct ImpurityData
     {
@@ -1131,6 +1131,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     auto histLeft = this->_histLeft.get();
     size_t nLeft  = 0;
     algorithmFPType leftWeights(0);
+    algorithmFPType minWeights(0);
     int idxFeatureBestSplit = -1; //index of best feature value in the array of sorted feature values
     algorithmFPType thisNFeatIdx(0);
 
@@ -1138,60 +1139,58 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     size_t maxidx = nDiffFeatMax;
 
     //solve for the min and max indices of the histogram with data
-    //when it comes across a nonzero bin, it will run the next step in prepping histLeft, nLeft and leftWeights
-
+    //when it comes across a nonzero bin, it will run the next step in prepping histLeft and nLeft
+    
+    //solve for the min non-zero index
     if (noWeights)
     {
         for (size_t iC = 0; iC < K; ++iC) thisNFeatIdx += nSamplesPerClass[iC];
-    }
-    else
-    {
-        thisNFeatIdx = nFeatIdx[0];
-    }
-
-    while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
-    {
-        minidx++;
-        if (noWeights)
+        while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
         {
+            minidx++;
+
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
                 thisNFeatIdx += nSamplesPerClass[minidx * K + iClass];
             }
         }
-        else
-        {
-            thisNFeatIdx = nFeatIdx[minidx];
-        }
-    }
-
-    nLeft = thisNFeatIdx;
-    if (noWeights)
-    {
-        leftWeights = nLeft;
+        nLeft = thisNFeatIdx;
+        minWeights = nLeft;
     }
     else
     {
+        thisNFeatIdx = nFeatIdx[0];
+        while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[++minidx];
+        nLeft = thisNFeatIdx;
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (size_t iClass = 0; iClass < K; ++iClass)
         {
-            leftWeights += nSamplesPerClass[minidx * K + iClass];
+            minWeights += nSamplesPerClass[minidx * K + iClass];
         }
     }
 
     if ((nLeft == n) //last split
-        || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
+        || ((n - nLeft) < nMinSplitPart) || ((totalWeights - minWeights) < minWeightLeaf))
         return idxFeatureBestSplit;
 
+    //set histLeft
+    PRAGMA_IVDEP
+    PRAGMA_VECTOR_ALWAYS
     for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[minidx * K + iClass];
 
     //solve for the max non-zero index
-
     thisNFeatIdx = 0;
     while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
     {
         maxidx--;
         if (noWeights)
         {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
                 thisNFeatIdx += nSamplesPerClass[maxidx * K + iClass];
@@ -1211,60 +1210,76 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     RNGs<size_t, cpu> rng;
     rng.uniform(1, &idx, engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
 
-    for (size_t i = minidx + 1; i <= idx; ++i) //loop necessary even for an unorderedFeature, as max non-zero histogram bin needs to be found
+    if (noWeights)
     {
+        //iterate idx down to a bin with values for FinalizeBestSplit
         thisNFeatIdx = 0;
-        if (noWeights)
+        
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t iC = 0; iC < K; ++iC) thisNFeatIdx += nSamplesPerClass[idx * K + iC];
+        while ((minidx < idx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
         {
+            idx--;
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
-                thisNFeatIdx += nSamplesPerClass[i * K + iClass];
+                thisNFeatIdx += nSamplesPerClass[idx * K + iClass];
             }
         }
 
-        else
+        if (split.featureUnordered) //only need last index
         {
-            thisNFeatIdx = nFeatIdx[i];
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * K + iClass];
         }
-
-        if (isZero<algorithmFPType, cpu>(thisNFeatIdx)) continue; // don't do any operations if the histogram bin is empty
-        outidx = i; //this is done to maintain the last index with samples for the split location (see finalizeBestSplit)
-
-        algorithmFPType thisFeatWeights(0);
-        if (noWeights)
+        else //sum over all to idx
         {
-            thisFeatWeights = thisNFeatIdx;
-        }
-        else
-        {
-            for (size_t iClass = 0; iClass < K; ++iClass)
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for(size_t i=minidx+1;i<=idx;i++)
             {
-                thisFeatWeights += nSamplesPerClass[i * K + iClass];
+                for(size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
             }
         }
 
-        nLeft       = (split.featureUnordered ? thisNFeatIdx : nLeft + thisNFeatIdx);
-        leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
-
-        if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
-            break;
-
-        if (!split.featureUnordered)
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t iClass = 0; iClass < K; ++iClass) leftWeights += histLeft[iClass]; //histleft is forced to float, and may cause issues with algorithmFPType = double
+        nLeft = leftWeights;
+    }
+    else
+    {
+        //iterate idx down to a bin with values for FinalizeBestSplit
+        thisNFeatIdx = nFeatIdx[idx];
+        while((minidx < idx) && isZero<algorithmFPType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[idx--];
+        
+        if (split.featureUnordered) //only need last index
         {
-            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
+            nLeft = nFeatIdx[idx];
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * K + iClass];
         }
-        if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf) continue;
-
-        if (split.featureUnordered)
+        else //sum over all to idx
         {
-            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[i * K + iClass];
+            for(size_t i=minidx+1;i<=idx;i++)
+            {
+                nLeft += nFeatIdx[i];
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for(size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
+            }
+            
         }
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t iClass = 0; iClass < K; ++iClass) leftWeights += histLeft[iClass];
     }
 
-    if (!((nLeft == n) //last split
-          || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
-          || leftWeights < minWeightLeaf))
+    if (!(((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
+          || (leftWeights < minWeightLeaf)))
     {
         auto histTotal           = curImpurity.hist.get();
         algorithmFPType sumLeft  = 0;
@@ -1284,7 +1299,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
             split.left.var      = sumLeft;
             split.nLeft         = nLeft;
             split.leftWeights   = leftWeights;
-            idxFeatureBestSplit = outidx;
+            idxFeatureBestSplit = idx;
             bestImpDecrease     = decrease;
         }
     }
@@ -1295,197 +1310,6 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     }
 
     return idxFeatureBestSplit;
-    /*auto nSamplesPerClass = this->_samplesPerClassBuf.get();
-    auto nFeatIdx         = this->_idxFeatureBuf.get();
-
-    algorithmFPType bestImpDecrease =
-        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + algorithmFPType(1.) - curImpurity.var);
-
-    //init histogram for the left part
-    this->_histLeft.setAll(0);
-    auto histLeft = this->_histLeft.get();
-
-    size_t nLeft  = 0;
-    algorithmFPType leftWeights(0);
-    int idxFeatureBestSplit = -1; //index of best feature value in the array of sorted feature values
-    algorithmFPType thisNFeatIdx(0);
-
-    size_t minidx = 0;
-    size_t maxidx = nDiffFeatMax-1;
-
-    //solve for the min and max indices of the histogram with data
-    //when it comes across a nonzero bin, it will run the next step in prepping histLeft, nLeft and leftWeights
-
-    //size_t minidx = 0;
-    //size_t maxidx = nDiffFeatMax-1;
-    size_t i = 0;
-    
-    if (noWeights)
-    {
-        while((i < maxidx) && (isZero<algorithmFPType,cpu>)(nSamplesPerClass[i]))
-        {
-            i++;
-        }
-        minidx = i/K; //use integer rounding to yield index again
-        
-        i = maxidx*K;
-        while((i > minidx*K) && (isZero<algorithmFPType,cpu>)(nSamplesPerClass[i]))
-        {
-            i--;
-        }
-        maxidx = i/K;
-    }
-    else
-    {
-        while((i < nDiffFeatMax) && (isZero<algorithmFPType,cpu>)(nFeatIdx[i]))
-        {
-            i++;
-        }
-        minidx = i;
-        //thisNFeatIdx = nFeatIdx[i];
-
-        i = maxidx;
-        while((i > minidx) && (isZero<algorithmFPType,cpu>)(nFeatIdx[i]))
-        {
-            i--;
-        }
-        minidx = i;
-    }
-
-    //randomly select a histogram split index
-    size_t idx;
-    int outidx = minidx;
-    RNGs<size_t, cpu> rng;
-    rng.uniform(1, &idx, engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
-
-    size_t nLeft2 = 0;
-    algorithmFPType leftWeights2(0);
-    if (noWeights)
-    {
-        if (split.featureUnordered) //only need last index
-        {
-            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * K + iClass];
-        }
-        else
-        {
-            for(i=minidx;i<=idx;i++)
-            {
-                for(size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[idx * K + iClass];
-            }
-        }
-        for (size_t iClass = 0; iClass < K; ++iClass) leftWeights2 += histLeft[iClass];
-        nLeft2 = leftWeights2;
-    }
-    else
-    {
-        if (split.featureUnordered) //only need last index
-        {
-            nLeft2 = nFeatIdx[idx];
-            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * K + iClass];
-        }
-        else
-        {
-            for(i=minidx;i<=idx;i++)
-            {
-                nLeft2 += nFeatIdx[i];
-                for(size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[idx * K + iClass];
-            }
-            
-        }
-        for (size_t iClass = 0; iClass < K; ++iClass) leftWeights2 += histLeft[iClass];
-    }
-
-    this->_histLeft.setAll(0);
-    histLeft = this->_histLeft.get();
-
-    for (size_t i = minidx; i <= idx; ++i) //loop necessary even for an unorderedFeature, as max non-zero histogram bin needs to be found
-    {
-        thisNFeatIdx = 0;
-        if (noWeights)
-        {
-            for (size_t iClass = 0; iClass < K; ++iClass)
-            {
-                thisNFeatIdx += nSamplesPerClass[i * K + iClass];
-            }
-        }
-
-        else
-        {
-            thisNFeatIdx = nFeatIdx[i];
-        }
-
-        if (isZero<algorithmFPType, cpu>(thisNFeatIdx)) continue; // don't do any operations if the histogram bin is empty
-        outidx = i; //this is done to maintain the last index with samples for the split location (see finalizeBestSplit)
-
-        algorithmFPType thisFeatWeights(0);
-        if (noWeights)
-        {
-            thisFeatWeights = thisNFeatIdx;
-        }
-        else
-        {
-            for (size_t iClass = 0; iClass < K; ++iClass)
-            {
-                thisFeatWeights += nSamplesPerClass[i * K + iClass];
-            }
-        }
-
-        nLeft       = (split.featureUnordered ? thisNFeatIdx : nLeft + thisNFeatIdx);
-        leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
-
-        if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
-            break;
-
-        if (!split.featureUnordered)
-        {
-            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
-        }
-        if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf) continue;
-
-        if (split.featureUnordered)
-        {
-            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[i * K + iClass];
-        }
-    }
-
-
-
-    if (!((nLeft == n) //last split
-          || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
-          || leftWeights < minWeightLeaf))
-    {
-        ::std::cout << nLeft2-nLeft << ::std::endl;
-
-        auto histTotal           = curImpurity.hist.get();
-        algorithmFPType sumLeft  = 0;
-        algorithmFPType sumRight = 0;
-
-        //proximal impurity improvement
-        for (size_t iClass = 0; iClass < K; ++iClass)
-        {
-            sumLeft += histLeft[iClass] * histLeft[iClass];
-            sumRight += (histTotal[iClass] - histLeft[iClass]) * (histTotal[iClass] - histLeft[iClass]);
-        }
-
-        const algorithmFPType decrease = sumLeft / leftWeights + sumRight / (totalWeights - leftWeights);
-        if (decrease > bestImpDecrease)
-        {
-            split.left.hist     = this->_histLeft;
-            split.left.var      = sumLeft;
-            split.nLeft         = nLeft;
-            split.leftWeights   = leftWeights;
-            idxFeatureBestSplit = outidx;
-            bestImpDecrease     = decrease;
-        }
-    }
-    if (idxFeatureBestSplit >= 0)
-    {
-        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - algorithmFPType(1);
-        split.totalWeights     = totalWeights;
-    }
-
-    return idxFeatureBestSplit;*/
 }
 
 template <typename algorithmFPType, CpuType cpu>
