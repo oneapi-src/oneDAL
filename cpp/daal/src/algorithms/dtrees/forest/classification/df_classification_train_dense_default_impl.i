@@ -61,7 +61,8 @@ public:
     typedef DataHelper<algorithmFPType, ClassIndexType, cpu> super;
     typedef typename dtrees::internal::TreeImpClassification<> TreeType;
     typedef typename TreeType::NodeType NodeType;
-    typedef typename dtrees::internal::TVector<float, cpu, dtrees::internal::ScalableAllocator<cpu> > Histogramm; //not sure why this is hard-coded to float and not algorithmFPType
+    typedef typename dtrees::internal::TVector<float, cpu, dtrees::internal::ScalableAllocator<cpu> >
+        Histogramm; //not sure why this is hard-coded to float and not algorithmFPType
 
     struct ImpurityData
     {
@@ -1041,7 +1042,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitbyHistDefault(
     while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx])) maxidx--;
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
-    if ((nFeatIdx[minidx] == n) //last split
+    if ((nFeatIdx[minidx] == n)   //last split
         || ((n - nFeatIdx[minidx]) < nMinSplitPart) || ((totalWeights - featWeights[minidx]) < minWeightLeaf))
         return idxFeatureBestSplit;
 
@@ -1053,21 +1054,19 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitbyHistDefault(
     //iterate idx down for FinalizeBestSplit (since it splits leftward)
     while ((minidx < idx) && isZero<IndexType, cpu>(nFeatIdx[idx])) idx--;
 
-    if(split.featureUnordered)
+    if (split.featureUnordered)
     {
-
-        nLeft = nFeatIdx[idx];
+        nLeft       = nFeatIdx[idx];
         leftWeights = featWeights[idx];
-        
+
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         //one against others
         for (size_t iClass = 0; iClass < this->_nClasses; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * this->_nClasses + iClass];
-
     }
     else
     {
-        for(size_t i = minidx; i <= idx; ++i)
+        for (size_t i = minidx; i <= idx; ++i)
         {
             if (isZero<IndexType, cpu>(nFeatIdx[i])) continue;
             nLeft += nFeatIdx[i];
@@ -1077,7 +1076,6 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitbyHistDefault(
             PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < this->_nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * this->_nClasses + iClass];
         }
-
     }
 
     if (!(((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
@@ -1142,7 +1140,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
 
     //solve for the min and max indices of the histogram with data
     //when it comes across a nonzero bin, it will run the next step in prepping histLeft and nLeft
-    
+
     //solve for the min non-zero index
     if (noWeights)
     {
@@ -1158,7 +1156,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
                 thisNFeatIdx += nSamplesPerClass[minidx * K + iClass];
             }
         }
-        nLeft = thisNFeatIdx;
+        nLeft      = thisNFeatIdx;
         minWeights = nLeft;
     }
     else
@@ -1216,7 +1214,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     {
         //iterate idx down to a bin with values for FinalizeBestSplit
         thisNFeatIdx = 0;
-        
+
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t iC = 0; iC < K; ++iC) thisNFeatIdx += nSamplesPerClass[idx * K + iC];
@@ -1239,23 +1237,24 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t i=minidx+1;i<=idx;i++)
+            for (size_t i = minidx + 1; i <= idx; i++)
             {
-                for(size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
+                for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
             }
         }
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t iClass = 0; iClass < K; ++iClass) leftWeights += histLeft[iClass]; //histleft is forced to float, and may cause issues with algorithmFPType = double
+        for (size_t iClass = 0; iClass < K; ++iClass)
+            leftWeights += histLeft[iClass]; //histleft is forced to float, and may cause issues with algorithmFPType = double
         nLeft = leftWeights;
     }
     else
     {
         //iterate idx down to a bin with values for FinalizeBestSplit
         thisNFeatIdx = nFeatIdx[idx];
-        while((minidx < idx) && isZero<algorithmFPType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[idx--];
-        
+        while ((minidx < idx) && isZero<algorithmFPType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[idx--];
+
         if (split.featureUnordered) //only need last index
         {
             nLeft = nFeatIdx[idx];
@@ -1265,14 +1264,13 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
         }
         else //sum over all to idx
         {
-            for(size_t i=minidx+1;i<=idx;i++)
+            for (size_t i = minidx + 1; i <= idx; i++)
             {
                 nLeft += nFeatIdx[i];
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for(size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
+                for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
             }
-            
         }
 
         PRAGMA_IVDEP
