@@ -55,6 +55,7 @@ public:
                                                   const context_t& ctx,
                                                   const pr::ndarray<hist_type_t, 1>& node_hist_list,
                                                   const pr::ndarray<Index, 1>& selected_ftr_list,
+                                                  const pr::ndarray<Index, 1>& random_bins_com,
                                                   const pr::ndarray<Index, 1>& bin_offset_list,
                                                   const imp_data_t& imp_data_list,
                                                   const pr::ndarray<Index, 1>& nodeIndices,
