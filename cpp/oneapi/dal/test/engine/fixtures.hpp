@@ -115,6 +115,16 @@ public:
     }
 
     template <typename... Args>
+    auto split_infer_input(Args&&... args) {
+        return derived().split_infer_input_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto merge_infer_result(Args&&... args) {
+        return derived().merge_infer_result_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
     auto train_override(Args&&... args) {
         return base_t::train(std::forward<Args>(args)...);
     }
@@ -146,6 +156,16 @@ public:
 
     template <typename... Args>
     auto merge_compute_result_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
+    template <typename... Args>
+    auto split_infer_input_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
+    template <typename... Args>
+    auto merge_infer_result_override(Args&&... args) {
         ONEDAL_ASSERT(!"This method must be overriden in the derived class");
     }
 
@@ -243,6 +263,47 @@ public:
 
         return this->merge_compute_result(results);
     }
+
+    template <typename Descriptor, typename... Args>
+    auto infer_via_spmd_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
+        ONEDAL_ASSERT(thread_count > 0);
+
+        CAPTURE(thread_count);
+#ifdef ONEDAL_DATA_PARALLEL
+        using comm_t = thread_communicator<spmd::device_memory_access::usm>;
+        comm_t comm{ this->get_queue(), thread_count };
+#else
+        using comm_t = thread_communicator<spmd::device_memory_access::none>;
+        comm_t comm{ thread_count };
+#endif
+
+        const auto input_per_rank =
+            this->split_infer_input(thread_count, std::forward<Args>(args)...);
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(thread_count));
+
+        const auto results = comm.map([&](std::int64_t rank) {
+            return dal::test::engine::spmd_infer(this->get_policy(),
+                                                 comm,
+                                                 desc,
+                                                 input_per_rank[rank]);
+        });
+        ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
+
+        return results;
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto infer_via_spmd_threads_and_merge(std::int64_t thread_count,
+                                          const Descriptor& desc,
+                                          Args&&... args) {
+        const auto results = this->infer_via_spmd_threads( //
+            thread_count,
+            desc,
+            std::forward<Args>(args)...);
+
+        return this->merge_infer_result(results);
+    }
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -299,6 +360,26 @@ public:
             desc,
             std::forward<Args>(args)...);
         return this->merge_compute_result(results);
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto infer_in_parallel(const Descriptor& desc, Args&&... args) {
+        auto comm = derived().get_comm();
+        const auto input_per_rank =
+            this->split_infer_input(comm.get_rank_count(), std::forward<Args>(args)...);
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(comm.get_rank_count()));
+
+        const auto local_result = dal::preview::infer(comm, desc, input_per_rank[comm.get_rank()]);
+        return local_result;
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto infer_in_parallel_and_merge(const Descriptor& desc, Args&&... args) {
+        const auto results = this->infer_in_parallel( //
+            desc,
+            std::forward<Args>(args)...);
+        return this->merge_infer_result(results);
     }
 };
 
