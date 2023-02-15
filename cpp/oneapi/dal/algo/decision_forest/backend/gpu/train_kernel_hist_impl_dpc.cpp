@@ -450,7 +450,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-std::tuple<pr::ndarray<Index, 1>, sycl::event>
+std::tuple<pr::ndarray<Index, 1>, pr::ndarray<Index, 1>, sycl::event>
 train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
     const train_context_t& ctx,
     Index node_count,
@@ -468,15 +468,24 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
         pr::ndarray<Index, 1>::empty(queue_,
                                      { node_count * ctx.selected_ftr_count_ },
                                      alloc::device);
+    // Create arrays for random generated bins
+    auto random_bins_host = 
+        pr::ndarray<Index, 1>::empty(queue_,
+                                    { node_count * ctx.selected_ftr_count_ });
+    auto random_bins_com = 
+        pr::ndarray<Index, 1>::empty(queue_,
+                                    { node_count * ctx.selected_ftr_count_ },
+                                    alloc::device);
+    auto random_bins_host_ptr = random_bins_host.get_mutable_data();
 
     auto selected_features_host_ptr = selected_features_host.get_mutable_data();
 
     auto node_vs_tree_map_list_host = node_vs_tree_map_list.to_host(queue_);
+    
+    pr::rng<Index> rn_gen;
+    auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
 
     if (ctx.selected_ftr_count_ != ctx.column_count_) {
-        pr::rng<Index> rn_gen;
-        auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
-
         for (Index node = 0; node < node_count; ++node) {
             rn_gen.uniform_without_replacement(
                 ctx.selected_ftr_count_,
@@ -495,11 +504,26 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
         }
     }
 
+    // Generate random bins for selected features
+    for (Index node = 0; node < node_count; ++node) {
+        rn_gen.uniform(
+            ctx.selected_ftr_count_,
+            random_bins_host_ptr + node * ctx.selected_ftr_count_,
+            rng_engine_list[tree_map_ptr[node]].get_state(),
+            0,
+            ctx.max_bin_count_among_ftrs_
+        );
+    }
+    auto event_rnd_generate = random_bins_com.assign_from_host(queue_,
+                                                            random_bins_host_ptr,
+                                                            random_bins_com.get_count());
+    event_rnd_generate.wait_and_throw();
+
     auto event = selected_features_com.assign_from_host(queue_,
                                                         selected_features_host_ptr,
                                                         selected_features_com.get_count());
 
-    return std::tuple{ selected_features_com, event };
+    return std::tuple{ selected_features_com, random_bins_com, event };
 }
 
 template <typename Float, typename Index, typename Task>
@@ -1153,6 +1177,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     const pr::ndview<Float, 1>& response,
     const pr::ndarray<Index, 1>& tree_order,
     const pr::ndarray<Index, 1>& selected_ftr_list,
+    const pr::ndarray<Index, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
     pr::ndarray<Index, 1>& node_list,
@@ -1286,6 +1311,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                          ctx,
                                                                          node_hist_list,
                                                                          selected_ftr_list,
+                                                                         random_bins_com,
                                                                          bin_offset_list,
                                                                          imp_data_list,
                                                                          node_ind_list,
@@ -1303,6 +1329,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                          ctx,
                                                                          node_hist_list,
                                                                          selected_ftr_list,
+                                                                         random_bins_com,
                                                                          bin_offset_list,
                                                                          imp_data_list,
                                                                          node_ind_list,
@@ -1328,6 +1355,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                       response,
                                                                       tree_order,
                                                                       selected_ftr_list,
+                                                                      random_bins_com,
                                                                       bin_offset_list,
                                                                       imp_data_list,
                                                                       node_ind_list,
@@ -1348,6 +1376,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                       response,
                                                                       tree_order,
                                                                       selected_ftr_list,
+                                                                      random_bins_com,
                                                                       bin_offset_list,
                                                                       imp_data_list,
                                                                       node_group,
@@ -2874,7 +2903,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
             imp_data_t left_child_imp_data(queue_, ctx, node_count);
 
-            auto [selected_features_com, event] =
+            auto [selected_features_com, random_bins_com, event] =
                 gen_feature_list(ctx, node_count, node_vs_tree_map_list, engine_arr);
             event.wait_and_throw();
 
@@ -2888,6 +2917,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                             response_nd_,
                                             tree_order_lev_,
                                             selected_features_com,
+                                            random_bins_com,
                                             ftr_bin_offsets_nd_,
                                             imp_data_holder.get_data(level),
                                             node_list,

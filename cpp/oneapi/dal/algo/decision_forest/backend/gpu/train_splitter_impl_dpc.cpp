@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -633,6 +633,7 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
     const context_t& ctx,
     const pr::ndarray<hist_type_t, 1>& node_hist_list,
     const pr::ndarray<Index, 1>& selected_ftr_list,
+    const pr::ndarray<Index, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
     const pr::ndarray<Index, 1>& node_ind_list,
@@ -722,23 +723,8 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
 
     const sycl::nd_range<2> nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
-
-    auto ftr_random_select = pr::ndarray<Index, 1>::empty({ selected_ftr_count });
-    auto ftr_random_select_ptr = ftr_random_select.get_mutable_data();
-
-    if (ctx.splitter_mode_value_ == splitter_mode::random) {
-        pr::engine random_engine = pr::engine(ctx.seed_);
-        pr::rng<Index> rn_gen;
-        rn_gen.uniform( // Select bin treshold randomly
-            selected_ftr_count,
-            ftr_random_select_ptr,
-            random_engine.get_state(),
-            0,
-            max_bin_count_among_ftrs);
-    }
-
-    auto ftr_rnd_trshld = ftr_random_select.to_device(queue);
-    auto ft_rnd_ptr = ftr_rnd_trshld.get_data();
+    
+    auto ft_rnd_ptr = random_bins_com.get_data();
 
     sycl::event last_event;
 
@@ -813,7 +799,7 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_
 
                 if (ctx.splitter_mode_value_ == splitter_mode::random) {
                     Index ts_ftr_bin =
-                        ft_rnd_ptr[ftr_idx] % ts_ftr_bin_count; // Select bin randomly
+                        ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
                     sp_hlp.process_bin(ts_ftr_bin,
                                        ts_left_count,
                                        ts_left_hist,
