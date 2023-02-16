@@ -100,6 +100,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
     const Index* tree_order_ptr = tree_order.get_data();
 
     const Index* selected_ftr_list_ptr = selected_ftr_list.get_data();
+    const Index* bin_offset_list_ptr = bin_offset_list.get_data();
 
     imp_data_list_ptr<Float, Index, Task> imp_list_ptr(imp_data_list);
 
@@ -217,6 +218,8 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
                     split_info<Float, Index, Task> ts;
                     ts.init(local_hist_buf_ptr + 1 * hist_prop_count, hist_prop_count);
                     ts.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
+                    Index bin_count =
+                        bin_offset_list_ptr[ts.ftr_id + 1] - bin_offset_list_ptr[ts.ftr_id];
                     Index i = local_id;
                     Index id = (i < row_count) ? tree_order_ptr[row_ofs + i] : index_max;
                     Index bin =
@@ -224,8 +227,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
                     Float response = (i < row_count) ? response_ptr[id] : Float(0);
                     Index response_int = (i < row_count) ? static_cast<Index>(response) : -1;
 
-                    ts.ftr_bin = ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
-
+                    ts.ftr_bin = ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] % bin_count;
                     const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
 
                     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -795,6 +797,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_smal
     const Index* tree_order_ptr = tree_order.get_data();
 
     const Index* selected_ftr_list_ptr = selected_ftr_list.get_data();
+    const Index* bin_offset_list_ptr = bin_offset_list.get_data();
 
     imp_data_list_ptr<Float, Index, Task> imp_list_ptr(imp_data_list);
 
@@ -854,8 +857,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_smal
             cgh.depends_on(deps);
             local_accessor_rw_t<byte_t> local_byte_buf(local_buf_byte_size, cgh);
 
-            sycl::stream out(1024, 256, cgh);
-
             cgh.parallel_for(
                 nd_range,
                 [=](sycl::nd_item<2> item) [[intel::reqd_sub_group_size(sbg_size)]] {
@@ -895,6 +896,8 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_smal
                         ts.init(local_ts_hist_buf_ptr + sub_group_id * hist_prop_count,
                                 hist_prop_count);
                         ts.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
+
+                        Index bin_count = bin_offset_list_ptr[ts.ftr_id + 1] - bin_offset_list_ptr[ts.ftr_id];
                         Index i = sub_group_local_id;
                         Index id = (i < row_count) ? tree_order_ptr[row_ofs + i] : index_max;
                         Index bin =
@@ -902,8 +905,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_smal
                         Float response = (i < row_count) ? response_ptr[id] : Float(0);
                         Index response_int = (i < row_count) ? static_cast<Index>(response) : -1;
 
-                        ts.ftr_bin = ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
-                        out << "candidate: bin=" << bin << ", ftr_bin=" << ts.ftr_bin << ", ftr_id=" << ts.ftr_id << "\n"; 
+                        ts.ftr_bin = ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] % bin_count;
                         const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
 
                         ts.left_count = sycl::reduce_over_group(sbg, count, plus<Index>());
@@ -988,7 +990,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_smal
 
                         if (sp_hlp
                                 .my_split_is_best_for_sbg(item, bs, node_ptr, node_id, index_max)) {
-                            out << "Best: bin=" << bs.ftr_bin << ", ftr_id=" << bs.ftr_id << "\n";
                             sp_hlp.update_node_bs_info(bs,
                                                        node_ptr,
                                                        node_imp_decr_list_ptr,
