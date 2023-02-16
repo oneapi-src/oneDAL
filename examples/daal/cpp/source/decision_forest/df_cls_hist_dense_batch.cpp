@@ -50,8 +50,8 @@ const double minWeightFractionInLeafNode = 0.0; /* It must be in segment [0.0, 0
 const double minImpurityDecreaseInSplitNode = 0.0; /* It must be greater than or equal to 0.0 */
 const size_t maxBins = 256; /* Default value */
 const size_t minBinSize = 5; /* Default value */
+
 const size_t nClasses = 5; /* Number of classes */
-const bool boot = false;
 
 training::ResultPtr trainModel();
 void testModel(const training::ResultPtr& res);
@@ -87,12 +87,10 @@ training::ResultPtr trainModel() {
     algorithm.parameter().minWeightFractionInLeafNode = minWeightFractionInLeafNode;
     algorithm.parameter().minImpurityDecreaseInSplitNode = minImpurityDecreaseInSplitNode;
     algorithm.parameter().varImportance = algorithms::decision_forest::training::MDI;
-    algorithm.parameter().resultsToCompute = 0;
-    //    algorithms::decision_forest::training::computeOutOfBagError;
+    algorithm.parameter().resultsToCompute =
+        algorithms::decision_forest::training::computeOutOfBagError;
     algorithm.parameter().maxBins = maxBins;
     algorithm.parameter().minBinSize = minBinSize;
-    algorithm.parameter().bootstrap = false;
-    algorithm.parameter().splitter = algorithms::decision_forest::training::random;
 
     /* Build the decision forest classification model */
     algorithm.compute();
@@ -101,7 +99,7 @@ training::ResultPtr trainModel() {
     training::ResultPtr trainingResult = algorithm.getResult();
     printNumericTable(trainingResult->get(training::variableImportance),
                       "Variable importance results: ");
-    //printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
+    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
     return trainingResult;
 }
 

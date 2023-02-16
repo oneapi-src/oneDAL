@@ -36,11 +36,10 @@ using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::regression;
 
 /* Input data set parameters */
-const std::string trainDatasetFileName = "/nfs/site/proj/dal/datasets/DAAL_datasets/workloads/white_wine/dataset/white_wine.train.csv"; //"../data/batch/df_regression_train.csv";
-const std::string testDatasetFileName = "/nfs/site/proj/dal/datasets/DAAL_datasets/workloads/white_wine/dataset/white_wine.test.csv";//"../data/batch/df_regression_test.csv";
-//const size_t categoricalFeaturesIndices[] = { 3 };
-const size_t nFeatures = 11; /* Number of features  in training and testing data sets */
-const bool boot = false;
+const std::string trainDatasetFileName = "../data/batch/df_regression_train.csv";
+const std::string testDatasetFileName = "../data/batch/df_regression_test.csv";
+const size_t categoricalFeaturesIndices[] = { 3 };
+const size_t nFeatures = 13; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
 const size_t nTrees = 100;
@@ -73,11 +72,10 @@ training::ResultPtr trainModel() {
     algorithm.input.set(training::dependentVariable, trainDependentVariable);
 
     algorithm.parameter().nTrees = nTrees;
-    algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDI;
-    algorithm.parameter().resultsToCompute = 0;
-    algorithm.parameter().bootstrap = boot;
-        //daal::algorithms::decision_forest::training::computeOutOfBagError |
-        //daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
+    algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDA_Raw;
+    algorithm.parameter().resultsToCompute =
+        daal::algorithms::decision_forest::training::computeOutOfBagError |
+        daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
 
     /* Build the decision forest regression model */
     algorithm.compute();
@@ -86,10 +84,10 @@ training::ResultPtr trainModel() {
     training::ResultPtr trainingResult = algorithm.getResult();
     printNumericTable(trainingResult->get(training::variableImportance),
                       "Variable importance results: ");
-    //printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
-    //printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation),
-    //                  "OOB error per observation (first 10 rows):",
-    //                  10);
+    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
+    printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation),
+                      "OOB error per observation (first 10 rows):",
+                      10);
     return trainingResult;
 }
 
@@ -133,10 +131,10 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
     trainDataSource.loadDataBlock(mergedData.get());
 
     NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
-    /*for (size_t i = 0,
+    for (size_t i = 0,
                 n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]);
          i < n;
          ++i)
         (*pDictionary)[categoricalFeaturesIndices[i]].featureType =
-            data_feature_utils::DAAL_CATEGORICAL;*/
+            data_feature_utils::DAAL_CATEGORICAL;
 }
