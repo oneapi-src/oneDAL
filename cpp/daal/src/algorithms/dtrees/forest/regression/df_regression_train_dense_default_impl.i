@@ -1165,7 +1165,7 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitCategoricalFeat
         //if ((i == n) && (nDiffFeatureValues == 2) && bFound) break; //only 2 feature values, one possible split, already found
 
         double weights = double(0);
-        this->calcImpurity<noWeights>(aIdx + iStart, count, left, weights);
+        this->template calcImpurity<noWeights>(aIdx + iStart, count, left, weights);
         DAAL_ASSERT(fabs(weights - leftWeights) < 0.001);
         subtractImpurity<double, cpu>(curImpurity.var, curImpurity.mean, left.var, left.mean, leftWeights, right.var, right.mean,
                                       totalWeights - leftWeights);
