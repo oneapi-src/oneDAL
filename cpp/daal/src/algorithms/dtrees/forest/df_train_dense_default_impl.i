@@ -677,7 +677,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     _nConstFeature           = 0;
     _numElems                = &numElems;
     _engineImpl              = engineImpl;
-    _helper._engineImpl     = engineImpl;
+    _helper._engineImpl      = engineImpl;
     pTree                    = nullptr;
     _tree.destroy();
     _aSample.reset(_nSamples);

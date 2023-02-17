@@ -78,7 +78,7 @@ public:
         }
     };
     engines::internal::BatchBaseImpl * _engineImpl;
-    
+
     typedef SplitData<algorithmFPType, ImpurityData> TSplitData;
 
 public:
@@ -615,7 +615,8 @@ void UnorderedRespHelper<algorithmFPType, cpu>::computeHistManyClasses(IndexType
 template <typename algorithmFPType, CpuType cpu>
 int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
                                                                           const ImpurityData & curImpurity, TSplitData & split,
-                                                                          const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
+                                                                          const algorithmFPType minWeightLeaf,
+                                                                          const algorithmFPType totalWeights) const
 {
     auto nFeatIdx         = _idxFeatureBuf.get();
     auto featWeights      = _weightsFeatureBuf.get();
@@ -952,11 +953,9 @@ private:
 
 template <typename algorithmFPType, CpuType cpu>
 template <typename BinIndexType>
-int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature,
-                                                                                   const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                                                                   const ImpurityData & curImpurity, TSplitData & split,
-                                                                                   const algorithmFPType minWeightLeaf,
-                                                                                   const algorithmFPType totalWeights, const BinIndexType * binIndex) const
+int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitForFeatureSorted(
+    algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
+    TSplitData & split, const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, const BinIndexType * binIndex) const
 {
     const auto nDiffFeatMax = this->indexedFeatures().numIndices(iFeature);
     this->_samplesPerClassBuf.setValues(nClasses() * nDiffFeatMax, 0);
@@ -1096,7 +1095,8 @@ template <typename algorithmFPType, CpuType cpu>
 template <int K, bool noWeights>
 int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
                                                                              const ImpurityData & curImpurity, TSplitData & split,
-                                                                             const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
+                                                                             const algorithmFPType minWeightLeaf,
+                                                                             const algorithmFPType totalWeights) const
 {
     auto nSamplesPerClass = this->_samplesPerClassBuf.get();
     auto nFeatIdx         = this->_idxFeatureBuf.get();
@@ -1316,7 +1316,8 @@ template <bool noWeights>
 bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx,
                                                                                   size_t n, size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                                   const ImpurityData & curImpurity, TSplitData & split,
-                                                                                  const algorithmFPType minWeightLeaf, algorithmFPType totalWeights) const
+                                                                                  const algorithmFPType minWeightLeaf,
+                                                                                  algorithmFPType totalWeights) const
 {
     _impLeft.init(_nClasses);
     _impRight = curImpurity;
