@@ -170,8 +170,8 @@ public:
         if (!this->_weights)
         {
             algorithmFPType response;
-            h algorithmFPType val = calcResponse(response, idx, n);
-            node.response         = response;
+            algorithmFPType val = calcResponse(response, idx, n);
+            node.response       = response;
             DAAL_ASSERT(fabs(val - imp.mean) < 0.001);
         }
 #endif
