@@ -131,16 +131,19 @@ private:
 };
 
 TEMPLATE_TEST_M(logloss_perf_test, "perfomance test square", "[logloss][5000*5000]", double) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate_input(5000, 5000);
     this->measure_time();
 }
 
 TEMPLATE_TEST_M(logloss_perf_test, "perfomance test small p", "[logloss][10000*100]", double) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate_input(100000, 100);
     this->measure_time();
 }
 
 TEMPLATE_TEST_M(logloss_perf_test, "perfomance test small n", "[logloss][100 * 1000]", double) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate_input(100, 7000);
     this->measure_time();
 }

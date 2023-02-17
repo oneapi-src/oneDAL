@@ -478,6 +478,7 @@ private:
 };
 
 TEMPLATE_TEST_M(logloss_test, "gold input test - double", "[logloss]", double) {
+    SKIP_IF(this->not_float64_friendly());
     this->test_gold_input();
 }
 TEMPLATE_TEST_M(logloss_test, "gold input test - float", "[logloss]", float) {
@@ -485,6 +486,7 @@ TEMPLATE_TEST_M(logloss_test, "gold input test - float", "[logloss]", float) {
 }
 
 TEMPLATE_TEST_M(logloss_test, "test random input - double", "[logloss]", double) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate_input();
     this->run_test();
 }
