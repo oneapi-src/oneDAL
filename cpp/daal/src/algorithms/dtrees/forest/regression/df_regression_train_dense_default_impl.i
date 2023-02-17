@@ -769,6 +769,11 @@ public:
         : OrderedRespHelper<algorithmFPType, cpu>(indexedFeatures, dummy)
     {}
 
+    //direct copy from parent to force use of new underlying functions
+    bool findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
+                                 const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
+                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+
     //this enables used of findBestSplitByHist, and is a one-to-one copy from parent
     template <typename BinIndexType>
     int findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
@@ -779,11 +784,6 @@ public:
     int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
                             const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
                             const algorithmFPType totalWeights) const;
-
-    //direct copy from parent to force use of new underlying functions
-    bool findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                 const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
 
 private:
     template <bool noWeights>
@@ -815,7 +815,7 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitForFeatureSorted
 
     if (noWeights)
     {
-        computeHistWithoutWeights(buf, iFeature, aIdx, binIndex, n, sumTotal);
+        this->computeHistWithoutWeights(buf, iFeature, aIdx, binIndex, n, sumTotal);
 
         if (split.featureUnordered)
         {
@@ -829,7 +829,7 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitForFeatureSorted
     else
     {
         this->_weightsFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
-        computeHistWithWeights(buf, iFeature, aIdx, binIndex, n, sumTotal);
+        this->computeHistWithWeights(buf, iFeature, aIdx, binIndex, n, sumTotal);
 
         if (split.featureUnordered)
         {
