@@ -1111,7 +1111,6 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     algorithmFPType leftWeights(0);
     algorithmFPType minWeights(0);
     int idxFeatureBestSplit = -1; //index of best feature value in the array of sorted feature values
-    algorithmFPType thisNFeatIdx(0);
 
     size_t minidx = 0;
     size_t maxidx = nDiffFeatMax;
@@ -1122,6 +1121,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     //solve for the min non-zero index
     if (noWeights)
     {
+        algorithmFPType thisNFeatIdx(0);
         for (size_t iC = 0; iC < K; ++iC) thisNFeatIdx += nSamplesPerClass[iC];
         while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
         {
@@ -1139,8 +1139,8 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     }
     else
     {
-        thisNFeatIdx = nFeatIdx[0];
-        while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[++minidx];
+        IndexType thisNFeatIdx = nFeatIdx[0];
+        while ((minidx < maxidx) && isZero<IndexType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[++minidx];
         nLeft = thisNFeatIdx;
 
         PRAGMA_IVDEP
@@ -1161,12 +1161,12 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[minidx * K + iClass];
 
     //solve for the max non-zero index
-    thisNFeatIdx = 0;
-    while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
+    if (noWeights)
     {
-        maxidx--;
-        if (noWeights)
+        algorithmFPType thisNFeatIdx(0);
+        while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
         {
+            maxidx--;
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < K; ++iClass)
@@ -1174,10 +1174,11 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
                 thisNFeatIdx += nSamplesPerClass[maxidx * K + iClass];
             }
         }
-        else
-        {
-            thisNFeatIdx = nFeatIdx[maxidx];
-        }
+    }
+    else
+    {
+        IndexType thisNFeatIdx(0);
+        while ((minidx < maxidx) && isZero<IndexType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[--maxidx];
     }
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
@@ -1191,7 +1192,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     if (noWeights)
     {
         //iterate idx down to a bin with values for FinalizeBestSplit
-        thisNFeatIdx = 0;
+        algorithmFPType thisNFeatIdx(0);
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
@@ -1230,8 +1231,8 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitFewClasses(int
     else
     {
         //iterate idx down to a bin with values for FinalizeBestSplit
-        thisNFeatIdx = nFeatIdx[idx];
-        while ((minidx < idx) && isZero<algorithmFPType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[idx--];
+        IndexType thisNFeatIdx = nFeatIdx[idx];
+        while ((minidx < idx) && isZero<IndexType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[idx--];
 
         if (split.featureUnordered) //only need last index
         {
