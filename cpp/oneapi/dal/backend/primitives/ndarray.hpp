@@ -200,6 +200,18 @@ public:
         return ndview{ data, shape, strides };
     }
 
+    static ndview wrap_mutable(const array<T>& data, const shape_t& shape) {
+        ONEDAL_ASSERT(data.has_mutable_data());
+        ONEDAL_ASSERT(data.get_count() >= shape.get_count());
+        return wrap(data.get_mutable_data(), shape);
+    }
+
+    static ndview wrap_mutable(const array<T>& data, const shape_t& shape, const shape_t strides) {
+        ONEDAL_ASSERT(data.has_mutable_data());
+        ONEDAL_ASSERT(data.get_count() >= shape.get_count());
+        return wrap(data.get_mutable_data(), shape, strides);
+    }
+
     const T* get_data() const {
         return data_;
     }
@@ -617,9 +629,10 @@ public:
         sycl::queue& q,
         const shape_t& shape,
         const T& value,
-        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared,
+        const event_vector& deps = {}) {
         auto ary = empty(q, shape, alloc_kind);
-        auto event = ary.fill(q, value);
+        auto event = ary.fill(q, value, deps);
         return { ary, event };
     }
 #endif
