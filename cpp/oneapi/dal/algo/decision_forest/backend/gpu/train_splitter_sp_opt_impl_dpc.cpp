@@ -59,7 +59,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
     Index node_count,
     const bk::event_vector& deps){
     ONEDAL_PROFILER_TASK(random_split_large, queue);
-
     using split_smp_t = split_smp<Float, Index, Task>;
     using split_info_t = split_info<Float, Index, Task>;
 
@@ -142,8 +141,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
     const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
     Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
 
-    // Index ftr_worker_per_node_count =
-        // std::min(bk::down_pow2(selected_ftr_count), max_feature_worker_per_node_count_);
     Index node_in_block_count = max_wg_count_ /  selected_ftr_count; // ftr_worker_per_node_count;
 
     std::int64_t global_buf_byte_size =
@@ -157,7 +154,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
         queue,
         { std::int64_t(node_in_block_count * global_aux_ftr_buf_int_size) },
         alloc::device);
-
     // Index* global_aux_ftr_buf_int_ptr = global_aux_ftr_buf_int.get_mutable_data();
     std::size_t local_buf_byte_size = local_buf_int_size * sizeof(Index) +
                                     local_buf_float_size * sizeof(Float) +
@@ -170,29 +166,27 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
     for (Index node_ofs = 0; node_ofs < node_count; node_ofs += node_in_block_count) {
         auto fill_aux_ftr_event = global_aux_ftr_buf_int.fill(queue, 0);
         const sycl::nd_range<2> nd_range =
-            bk::make_multiple_nd_range_2d({ selected_ftr_count, node_in_block_count }, { selected_ftr_count, 1 });
+            bk::make_multiple_nd_range_2d({ selected_ftr_count, max_wg_count_ }, { selected_ftr_count, 1 });
+        std::cout << "everything before submit is successful" << std::endl;
         last_event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.depends_on(fill_aux_ftr_event);
-
-            sycl::stream out(1024, 256, cgh);
-            
+            sycl::stream out(4096, 1024, cgh);
             local_accessor_rw_t<byte_t> local_byte_buf(local_buf_byte_size, cgh);
-            
+            std::cout << "before parallel for " << local_buf_byte_size <<std::endl;
+            std::cout << "NDRande: " << selected_ftr_count << "x" << max_wg_count_ << std::endl;
+            std::cout << "node_count=" << node_count << std::endl;
 
             cgh.parallel_for(
                 nd_range,
-                [=](sycl::nd_item<2> item) [[intel::reqd_sub_group_size(sbg_size)]] {
-                    // auto sbg = item.get_sub_group();
-                    // const Index group_id = item.get_group(1);
+                [=](sycl::nd_item<2> item) {
                     const Index node_idx = item.get_global_id(1);
-                    const Index node_id = node_indices_ptr[node_ofs + node_idx];
-                    Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
-                    const Index local_id = item.get_local_id(0);
-                    
                     if ((node_ofs + node_idx) > (node_count - 1)) {
                         return;
                     }
+                    const Index node_id = node_indices_ptr[node_ofs + node_idx];
+                    Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
+                    const Index local_id = item.get_local_id(0);
 
                     const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
                     const Index row_count = node_ptr[impl_const_t::ind_lrc];
@@ -206,17 +200,16 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
                     byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
                     hist_type_t* local_hist_buf_ptr =
                         get_buf_ptr<hist_type_t>(&local_byte_buf_ptr, local_hist_buf_size);
-                    // Float* local_buf_float_ptr =
-                    //     get_buf_ptr<Float>(&local_byte_buf_ptr, local_buf_float_size);
 
                     bs.init_clear(item, local_hist_buf_ptr + selected_ftr_count * hist_prop_count, hist_prop_count);
 
                     split_info<Float, Index, Task> ts;
                     ts.init(local_hist_buf_ptr +  local_id * hist_prop_count, hist_prop_count);
                     ts.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
-                    Index bin_count =
+                    const Index bin_count =
                         bin_offset_list_ptr[ts.ftr_id + 1] - bin_offset_list_ptr[ts.ftr_id];
                     ts.ftr_bin = ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] % bin_count;
+                    ts.left_count = 0;
 
                     // Calculate histogram for selected tuple (node_id, ftr_id, ftr_bin)
                     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -264,17 +257,18 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
                         ts.left_hist[1] = mean;
                         ts.left_hist[2] = sum2cent;
                     }
-                    out << "ts.ftr_id=" << ts.ftr_id << ", ts.ftr_bin=" << ts.ftr_bin
-                        << ", ts.left_count=" << ts.left_count << ", ts.hist[0]=" << ts.left_hist[0] << "\n";
+                    // out << "ts.ftr_id=" << ts.ftr_id << ", ts.ftr_bin=" << ts.ftr_bin
+                        // << ", ts.left_count=" << ts.left_count << ", ts.hist[0]=" << ts.left_hist[0] << "\n";
 
                     ts.store(local_byte_buf_ptr, ftr_idx, selected_ftr_count);
                     item.barrier(sycl::access::fence_space::local_space);
                     if (local_id > 0) {
                         return;
                     }
-                    // Reduce split_info selecting best among all random selected for current node
+                    // Reduce split_info selecting best among all random selected bins for current node
                     for (Index ftr_iter = 0; ftr_iter < selected_ftr_count; ftr_iter++) {
-                        ts.load(local_byte_buf_ptr, ftr_idx, selected_ftr_count);
+                        ts.load(local_byte_buf_ptr, ftr_iter, selected_ftr_count);
+                        // out << "FTR_ITER=" << ftr_iter << "\nloaded ts.ftr_id=" << ts.ftr_id << ", ts.left_count=" << ts.left_count << ", ts.hist[0]=" << ts.left_hist[0] << "\n";
                         if constexpr (std::is_same_v<Task, task::classification>) {
                             sp_hlp.calc_imp_dec(ts,
                                                 node_ptr,
@@ -302,8 +296,8 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
                         }
                     }
                      
-                    out << "Loaded: bs.ftr_id=" << bs.ftr_id << ", bs.ftr_bin=" << bs.ftr_bin << ", bs.left_count=" << bs.left_count 
-                        << ", bs.hist[0]=" << bs.left_hist[0] << "\n";
+                    // out << "Selected best: bs.ftr_id=" << bs.ftr_id << ", bs.ftr_bin=" << bs.ftr_bin << ", bs.left_count=" << bs.left_count 
+                        // << ", bs.hist[0]=" << bs.left_hist[0] << ", bs.imp_dec=" << bs.imp_dec << sycl::endl;
 
                     sp_hlp.update_node_bs_info(bs,
                                                 node_ptr,
@@ -328,6 +322,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_larg
             );
         });
         last_event.wait_and_throw();
+        std::cout << "LARGE COMPUTATION IS FINISHED" << std::endl;
     }
     return last_event;
 }

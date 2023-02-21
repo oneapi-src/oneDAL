@@ -1203,7 +1203,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
         ONEDAL_ASSERT(left_child_imp_data_list.class_hist_list_.get_count() ==
                       node_count * ctx.class_count_);
     }
-
+    std::cout << "compute_best_split asserts are passed" << std::endl;
     using bs_kernels_prv_t = train_splitter_impl<Float, Bin, Index, Task, true>;
     using bs_kernels_loc_t = train_splitter_impl<Float, Bin, Index, Task, false>;
     using bs_kernels_opt_t = train_splitter_sp_opt_impl<Float, Bin, Index, Task>;
@@ -1224,11 +1224,14 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
         grp_node_count = node_group.get_node_count();
         if (0 == grp_node_count)
             continue;
+        std::cout << "compute_best_split for i=" << i << std::endl;
 
         Index max_grp_block_count = node_group.get_max_row_block_count();
         Index grp_ind_ofs = node_group.get_node_indices_offset();
 
-        if (max_grp_block_count > 1 || ctx.distr_mode_) {
+        std::cout << "max_grp_block_cont=" << max_grp_block_count << ", grp_ind_ofs=" << grp_ind_ofs << std::endl;
+
+        if (false) { //max_grp_block_count > 1 || ctx.distr_mode_) {
             Index hist_prop_count = 0;
             if constexpr (std::is_same_v<task::classification, Task>) {
                 hist_prop_count = ctx.class_count_;
@@ -1388,6 +1391,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
             //     last_event.wait_and_throw();
             // }
         }
+        std::cout<< "PROCESSED NODES=" << grp_node_count << std::endl;
     }
 
     return last_event;
@@ -2906,12 +2910,13 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
             auto [selected_features_com, random_bins_com, event] =
                 gen_feature_list(ctx, node_count, node_vs_tree_map_list, engine_arr);
             event.wait_and_throw();
+            std::cout << "Features are generated for " << node_count << "nodes" << std::endl; 
 
             if (ctx.mdi_required_) {
                 node_imp_decrease_list =
                     pr::ndarray<Float, 1>::empty(queue_, { node_count }, alloc::device);
             }
-
+            std::cout << "node_imp_decrease created, next: compute_best_split()" << std::endl;
             last_event = compute_best_split(ctx,
                                             full_data_nd_,
                                             response_nd_,
@@ -2928,12 +2933,16 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                             { last_event });
             last_event.wait_and_throw();
 
+            std::cout << "best split is computed" << std::endl;
+
             tree_level_record_t level_record(queue_,
                                              node_list,
                                              imp_data_holder.get_data(level),
                                              node_count,
                                              ctx);
             level_records.push_back(level_record);
+
+            std::cout << "level is recorded" << std::endl;
 
             if (ctx.mdi_required_) {
                 //mdi is calculated only on split nodes and is not calculated on last level
@@ -2993,7 +3002,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                            node_count_new,
                                            { last_event });
                 last_event.wait_and_throw();
-
+                std::cout << "do_node_split is completed" << std::endl;
                 if (ctx.max_tree_depth_ > 0 && ctx.max_tree_depth_ == level) {
                     tree_level_record_t level_record(queue_,
                                                      node_list_new,
@@ -3024,6 +3033,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
             }
 
             node_count = node_count_new;
+            std::cout << "node level=" << level <<   " is computed, rest node count=" << node_count << std::endl;
         }
 
         model_manager.add_tree_block(level_records, bin_borders_host_, iter_tree_count);
