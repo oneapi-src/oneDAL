@@ -171,6 +171,10 @@ struct split_info {
         return get_cache_without_hist_byte_size() + hist_prop_count * sizeof(hist_type_t);
     }
 
+    inline void init(Index in_hist_prop_count){
+        hist_prop_count = in_hist_prop_count;
+    }
+
     inline void init(hist_type_t* in_left_hist, Index in_hist_prop_count) {
         left_hist = in_left_hist;
         hist_prop_count = in_hist_prop_count;
@@ -180,8 +184,7 @@ struct split_info {
                            hist_type_t* in_left_hist,
                            Index in_hist_prop_count) {
         init(in_left_hist, in_hist_prop_count);
-        clear_scalar();
-        clear_hist();
+        clear();
     }
 
     inline void clear_scalar() {
@@ -202,6 +205,11 @@ struct split_info {
         for (Index i = 0; i < hist_prop_count; i++) {
             left_hist[i] = hist_type_t(0);
         }
+    }
+
+    inline void clear() {
+        clear_scalar();
+        clear_hist();
     }
 
     inline byte_t* store_without_hist(byte_t* buf_ptr, Index idx, Index total_block_count) {

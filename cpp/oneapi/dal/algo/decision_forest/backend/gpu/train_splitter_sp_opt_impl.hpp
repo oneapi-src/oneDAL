@@ -119,24 +119,6 @@ private:
         Index node_count,
         const bk::event_vector& deps = {});
 
-    static sycl::event random_split_large(
-        sycl::queue& queue,
-        const context_t& ctx,
-        const pr::ndarray<Bin, 2>& data,
-        const pr::ndview<Float, 1>& response,
-        const pr::ndarray<Index, 1>& tree_order,
-        const pr::ndarray<Index, 1>& selected_ftr_list,
-        const pr::ndarray<Index, 1>& random_bins_com,
-        const pr::ndarray<Index, 1>& bin_offset_list,
-        const imp_data_t& imp_data_list,
-        const pr::ndarray<Index, 1>& node_ind_list,
-        Index node_ind_ofs,
-        pr::ndarray<Index, 1>& node_list,
-        imp_data_t& left_child_imp_data_list,
-        pr::ndarray<Float, 1>& node_imp_dec_list,
-        bool update_imp_dec_required,
-        Index node_count,
-        const bk::event_vector& deps = {});
 
     static sycl::event best_split_small(
         sycl::queue& queue,
@@ -154,7 +136,7 @@ private:
         bool update_imp_dec_required,
         const bk::event_vector& deps = {});
 
-    static sycl::event random_split_small(
+    static sycl::event random_split(
         sycl::queue& queue,
         const context_t& ctx,
         const pr::ndarray<Bin, 2>& data,
@@ -164,11 +146,13 @@ private:
         const pr::ndarray<Index, 1>& random_bins_com,
         const pr::ndarray<Index, 1>& bin_offset_list,
         const imp_data_t& imp_data_list,
-        const node_group_view_t& node_group,
-        node_list_t& level_node_list,
+        const pr::ndarray<Index, 1>& node_ind_list,
+        Index node_ind_ofs,
+        pr::ndarray<Index, 1>& node_list,
         imp_data_t& left_child_imp_data_list,
         pr::ndarray<Float, 1>& node_imp_dec_list,
         bool update_imp_dec_required,
+        Index node_count,
         const bk::event_vector& deps = {});
 };
 
