@@ -1342,8 +1342,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
             }
         }
         else {
-            // Index max_row_count = node_group.get_max_row_count();
-            // if (max_row_count > node_t::get_elementary_node_max_row_count()) {
+            Index max_row_count = node_group.get_max_row_count();
+            if (max_row_count > node_t::get_elementary_node_max_row_count()) {
                 last_event =
                     bs_kernels_opt_t::compute_split_single_pass_large(queue_,
                                                                       ctx,
@@ -1363,26 +1363,26 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                       grp_node_count,
                                                                       { last_event });
                 last_event.wait_and_throw();
-            // }
-            // else {
-            //     last_event =
-            //         bs_kernels_opt_t::compute_split_single_pass_small(queue_,
-            //                                                           ctx,
-            //                                                           data,
-            //                                                           response,
-            //                                                           tree_order,
-            //                                                           selected_ftr_list,
-            //                                                           random_bins_com,
-            //                                                           bin_offset_list,
-            //                                                           imp_data_list,
-            //                                                           node_group,
-            //                                                           node_list_wrap,
-            //                                                           left_child_imp_data_list,
-            //                                                           node_imp_decrease_list,
-            //                                                           update_imp_dec_required,
-            //                                                           { last_event });
-            //     last_event.wait_and_throw();
-            // }
+            }
+            else {
+                last_event =
+                    bs_kernels_opt_t::compute_split_single_pass_small(queue_,
+                                                                      ctx,
+                                                                      data,
+                                                                      response,
+                                                                      tree_order,
+                                                                      selected_ftr_list,
+                                                                      random_bins_com,
+                                                                      bin_offset_list,
+                                                                      imp_data_list,
+                                                                      node_group,
+                                                                      node_list_wrap,
+                                                                      left_child_imp_data_list,
+                                                                      node_imp_decrease_list,
+                                                                      update_imp_dec_required,
+                                                                      { last_event });
+                last_event.wait_and_throw();
+            }
         }
     }
     return last_event;
