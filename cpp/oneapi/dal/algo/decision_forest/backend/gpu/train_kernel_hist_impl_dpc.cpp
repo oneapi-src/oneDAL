@@ -1226,7 +1226,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
         Index max_grp_block_count = node_group.get_max_row_block_count();
         Index grp_ind_ofs = node_group.get_node_indices_offset();
 
-        if (false) {//max_grp_block_count > 1 || ctx.distr_mode_) {
+        if (max_grp_block_count > 1 || ctx.distr_mode_) {
             Index hist_prop_count = 0;
             if constexpr (std::is_same_v<task::classification, Task>) {
                 hist_prop_count = ctx.class_count_;
