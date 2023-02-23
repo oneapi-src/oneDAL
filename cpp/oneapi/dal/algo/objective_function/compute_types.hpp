@@ -72,8 +72,6 @@ public:
         return *this;
     }
 
-    
-
 protected:
     void set_data_impl(const table& value);
     void set_parameters_impl(const table& value);
@@ -94,7 +92,6 @@ public:
 
     /// Creates a new instance of the class with the default property values.
     compute_result();
-
 
     const table& get_value() const;
     const table& get_gradient() const;
@@ -128,7 +125,6 @@ public:
     }
     */
 
-    
     const result_option_id& get_result_options() const;
 
     auto& set_result_options(const result_option_id& value) {

@@ -27,7 +27,7 @@ namespace task {
 
 namespace v1 {
 
-struct compute{};
+struct compute {};
 using by_default = compute;
 
 } // namespace v1
@@ -37,11 +37,9 @@ using v1::by_default;
 
 } // namespace task
 
-
-
 namespace method {
 namespace v1 {
-struct dense_batch{};
+struct dense_batch {};
 using by_default = dense_batch;
 
 } // namespace v1
@@ -105,7 +103,6 @@ using v1::is_valid_task_v;
 
 namespace v1 {
 
-
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default>
@@ -122,11 +119,10 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the default property values.
-    explicit descriptor(double l1_regularization_coefficient = 0.0, 
+    explicit descriptor(double l1_regularization_coefficient = 0.0,
                         double l2_regularization_coefficient = 0.0) {
         set_l1_regularization_coefficient(l1_regularization_coefficient);
         set_l2_regularization_coefficient(l2_regularization_coefficient);
-
     }
 
     double get_l1_regularization_coefficient() const {
@@ -141,12 +137,11 @@ public:
         base_t::set_l1_regularization_coefficient_impl(value);
         return *this;
     }
-    
+
     auto& set_l2_regularization_coefficient(double value) {
         base_t::set_l2_regularization_coefficient_impl(value);
         return *this;
     }
-
 };
 
 } // namespace v1

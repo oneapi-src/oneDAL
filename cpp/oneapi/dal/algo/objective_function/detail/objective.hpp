@@ -50,7 +50,8 @@ private:
 };
 
 template <typename Float, typename Method>
-class objective<logloss_objective::descriptor<Float, Method>> : public base, public objective_iface {
+class objective<logloss_objective::descriptor<Float, Method>> : public base,
+                                                                public objective_iface {
 public:
     using objective_t = logloss_objective::descriptor<Float, Method>;
     explicit objective(const objective_t& obj);
@@ -82,4 +83,4 @@ using v1::objective;
 using v1::objective_accessor;
 using v1::get_objective_impl;
 
-} // namespace oneapi::dal::knn::detail
+} // namespace oneapi::dal::objective_function::detail

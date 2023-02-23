@@ -28,7 +28,6 @@ public:
     logloss_objective_impl(double l1_coef, double l2_coef) : l1_coef(l1_coef), l2_coef(l2_coef) {}
     double get_l1_regularization_coefficient() {
         return l1_coef;
-        
     }
     double get_l2_regularization_coefficient() {
         return l2_coef;
@@ -40,23 +39,20 @@ public:
 private:
     double l1_coef = 0;
     double l2_coef = 0;
-
 };
 
-
 template <typename F, typename M>
-objective<logloss_objective_t<F, M>>::objective(const logloss_objective_t<F, M> &obj)
+objective<logloss_objective_t<F, M>>::objective(const logloss_objective_t<F, M>& obj)
         : objective_(obj),
-          impl_(new logloss_objective_impl{obj.get_l1_regularization_coefficient(), obj.get_l2_regularization_coefficient()}) {}
+          impl_(new logloss_objective_impl{ obj.get_l1_regularization_coefficient(),
+                                            obj.get_l2_regularization_coefficient() }) {}
 
 template <typename F, typename M>
 objective_impl* objective<logloss_objective_t<F, M>>::get_impl() const {
     return impl_.get();
 }
 
-#define INSTANTIATE_LOGLOSS(F, M) \
-    template class ONEDAL_EXPORT objective<logloss_objective_t<F, M>>;
-
+#define INSTANTIATE_LOGLOSS(F, M) template class ONEDAL_EXPORT objective<logloss_objective_t<F, M>>;
 
 INSTANTIATE_LOGLOSS(float, logloss_objective::method::dense_batch)
 INSTANTIATE_LOGLOSS(double, logloss_objective::method::dense_batch)

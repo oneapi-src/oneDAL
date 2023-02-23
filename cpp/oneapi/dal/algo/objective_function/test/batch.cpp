@@ -44,7 +44,7 @@ class logloss_batch_test : public logloss_test<TestType, logloss_batch_test<Test
 public:
     using base_t = logloss_test<TestType, logloss_batch_test<TestType>>;
     //using float_t = typename base_t::float_t;
-/*
+    /*
     using Float = typename base_t::Float;
     using Method = typename base_t::Method;
     using input_t = typename base_t::input_t;
@@ -52,26 +52,26 @@ public:
     using descriptor_t = typename base_t::descriptor_t;
     using objective_t = typename base_t::objective_t;
 */
-    
+
     void gen_dimensions() {
         this->n_ = GENERATE(20, 50, 70);
         this->p_ = GENERATE(10, 15);
     }
-
 };
 
-
 TEMPLATE_LIST_TEST_M(logloss_batch_test,
-                     "logloss hessian",
+                     "logloss tests",
                      "[logloss][integration][gpu]",
                      logloss_types) {
-    SKIP_IF(this->get_policy().is_cpu());
+    // SKIP_IF(this->get_policy().is_cpu());
+    // SKIP_IF(this->get_policy().is_gpu())
     SKIP_IF(this->not_float64_friendly());
 
     this->gen_dimensions();
     this->gen_input();
     this->set_reg_coefs(1.1, 2.3);
+    // this->set_reg_coefs(1.1, 2.3);
     this->general_checks();
 }
 
-} // namespace oneapi::dal::covariance::test
+} // namespace oneapi::dal::objective_function::test

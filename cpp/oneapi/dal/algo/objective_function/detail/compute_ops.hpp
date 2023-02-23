@@ -41,14 +41,6 @@ struct compute_ops {
     void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
 
-        // std::cout << "Input: " << input.get_data().get_row_count() << " " << input.get_data().get_column_count() << std::endl; 
-
-        // std::cout << "Responses: " << input.get_responses().get_row_count() << " " << input.get_responses().get_column_count() << std::endl; 
-
-        // std::cout << "Parameters: " << input.get_parameters().get_row_count() << " " << input.get_parameters().get_column_count() << std::endl; 
-
-
-
         if (!input.get_data().has_data()) {
             throw domain_error(msg::input_data_is_empty());
         }
@@ -58,11 +50,17 @@ struct compute_ops {
         if (!input.get_responses().has_data()) {
             throw domain_error(msg::input_data_is_empty());
         }
-        if (input.get_data().get_row_count() != input.get_responses().get_column_count()) {
+        if (input.get_data().get_row_count() != input.get_responses().get_row_count()) {
             throw domain_error(msg::input_data_rc_neq_input_responses_rc());
         }
-        if (input.get_data().get_column_count() + 1 != input.get_parameters().get_column_count()) {
+        if (input.get_data().get_column_count() + 1 != input.get_parameters().get_row_count()) {
             throw domain_error(msg::input_data_rc_neq_input_weights_rc());
+        }
+        if (input.get_responses().get_column_count() != 1) {
+            throw domain_error(msg::resp_column_count_is_not_eq_to_one());
+        }
+        if (input.get_parameters().get_column_count() != 1) {
+            throw domain_error(msg::params_column_count_is_not_eq_to_one());
         }
     }
 
@@ -77,7 +75,8 @@ struct compute_ops {
             if (!result.get_value().has_data()) {
                 throw domain_error(msg::value_is_not_provided());
             }
-            if (result.get_value().get_row_count() != 1 || result.get_value().get_column_count() != 1) {
+            if (result.get_value().get_row_count() != 1 ||
+                result.get_value().get_column_count() != 1) {
                 throw domain_error(msg::incorrect_output_table_size());
             }
         }
@@ -86,7 +85,8 @@ struct compute_ops {
             if (!result.get_gradient().has_data()) {
                 throw domain_error(msg::gradient_is_not_provided());
             }
-            if (result.get_gradient().get_row_count() != 1 || result.get_gradient().get_column_count() != p + 1) {
+            if (result.get_gradient().get_row_count() != p + 1 ||
+                result.get_gradient().get_column_count() != 1) {
                 throw domain_error(msg::incorrect_output_table_size());
             }
         }
@@ -95,13 +95,11 @@ struct compute_ops {
             if (!result.get_hessian().has_data()) {
                 throw domain_error(msg::hessian_is_not_provided());
             }
-            if (result.get_hessian().get_row_count() != p + 1 || result.get_hessian().get_column_count() != p + 1) {
+            if (result.get_hessian().get_row_count() != p + 1 ||
+                result.get_hessian().get_column_count() != p + 1) {
                 throw domain_error(msg::incorrect_output_table_size());
             }
         }
-
-        
-
     }
 
     template <typename Context>
@@ -118,4 +116,4 @@ struct compute_ops {
 
 using v1::compute_ops;
 
-} // namespace oneapi::dal::covariance::detail
+} // namespace oneapi::dal::objective_function::detail

@@ -64,17 +64,16 @@ public:
 };
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base() :
- impl_(new descriptor_impl<Task>{std::make_shared<
- detail::objective<oneapi::dal::logloss_objective::descriptor<float_t>>>(
-    oneapi::dal::logloss_objective::descriptor<float_t>(0, 0))}) {}
+descriptor_base<Task>::descriptor_base()
+        : impl_(new descriptor_impl<Task>{ std::make_shared<
+              detail::objective<oneapi::dal::logloss_objective::descriptor<float_t>>>(
+              oneapi::dal::logloss_objective::descriptor<float_t>(0, 0)) }) {}
 
-template<typename Task>
+template <typename Task>
 descriptor_base<Task>::descriptor_base(const detail::objective_ptr& objective)
         : impl_(new descriptor_impl<Task>{ objective }) {}
 
-
-template<typename Task>
+template <typename Task>
 const detail::objective_ptr& descriptor_base<Task>::get_objective_impl() const {
     return impl_->objective;
 }
@@ -97,7 +96,6 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
     }
     impl_->result_options = value;
 }
-
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 

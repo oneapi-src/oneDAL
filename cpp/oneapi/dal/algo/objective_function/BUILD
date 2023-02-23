@@ -13,12 +13,12 @@ dal_module(
         "@onedal//cpp/oneapi/dal/algo:logloss_objective",
         "@onedal//cpp/oneapi/dal/backend/primitives:objective_function",
     ],
-    # extra_deps = [
-    #    "@onedal//cpp/daal/src/algorithms/objective_function:kernel",
-    #]
+    extra_deps = [
+        "@onedal//cpp/daal/src/algorithms/objective_function/logistic_loss:kernel",
+    ]
 )
 
-'''
+
 dal_test_suite(
     name = "cpu_tests",
     private = True,
@@ -30,7 +30,7 @@ dal_test_suite(
         ":objective_function",
     ],
 )
-'''
+
 
 dal_test_suite(
     name = "tests",

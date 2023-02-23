@@ -33,7 +33,7 @@ namespace lg = oneapi::dal::logloss_objective;
 
 template <typename TestType, typename Derived>
 class logloss_test : public te::crtp_algo_fixture<TestType, Derived> {
-// te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
+    // te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
@@ -43,7 +43,7 @@ public:
     using objective_t = lg::descriptor<Float>;
 
     auto get_descriptor(obj_fun::result_option_id compute_mode) const {
-        return descriptor_t(objective_t{L1_, L2_}).set_result_options(compute_mode);
+        return descriptor_t(objective_t{ L1_, L2_ }).set_result_options(compute_mode);
     }
 
     te::table_id get_homogen_table_id() const {
@@ -56,8 +56,10 @@ public:
     }
 
     void gen_input() {
-        const te::dataframe data_df = GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_normal(-0.5, 0.5, 7777));
-        const te::dataframe params_df = GENERATE_DATAFRAME(te::dataframe_builder{ 1, p_ + 1 }.fill_normal(-0.5, 0.5, 7777));
+        const te::dataframe data_df =
+            GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_normal(-0.5, 0.5, 7777));
+        const te::dataframe params_df =
+            GENERATE_DATAFRAME(te::dataframe_builder{ p_ + 1, 1 }.fill_normal(-0.5, 0.5, 7777));
         auto resp = array<std::int32_t>::zeros(n_);
         auto* const ptr = resp.get_mutable_data();
         srand(2007 + n_ + p_ + n_ * p_);
@@ -65,26 +67,24 @@ public:
             ptr[i] = rand() % 2;
         }
 
-        responses_ = de::homogen_table_builder{}.reset(resp, 1, n_).build();
+        responses_ = de::homogen_table_builder{}.reset(resp, n_, 1).build();
         data_ = data_df.get_table(this->get_policy(), this->get_homogen_table_id());
         params_ = params_df.get_table(this->get_policy(), this->get_homogen_table_id());
     }
 
     void general_checks() {
-
-        
         INFO("create descriptor value");
         auto desc = get_descriptor(obj_fun::result_options::value);
         INFO("run compute value");
         auto compute_result = this->compute(desc, data_, params_, responses_);
         check_compute_result(compute_result);
-        
+
         INFO("create descriptor gradient");
         desc = get_descriptor(obj_fun::result_options::gradient);
         INFO("run compute gradient");
         compute_result = this->compute(desc, data_, params_, responses_);
         check_compute_result(compute_result);
-        
+
         INFO("create descriptor value + gradient");
         desc = get_descriptor(obj_fun::result_options::value | obj_fun::result_options::gradient);
         INFO("run compute value + gradient");
@@ -110,12 +110,11 @@ public:
         check_compute_result(compute_result);
 
         INFO("create descriptor value + gradient + hessian");
-        desc = get_descriptor(obj_fun::result_options::value | 
-        obj_fun::result_options::gradient | obj_fun::result_options::hessian);
+        desc = get_descriptor(obj_fun::result_options::value | obj_fun::result_options::gradient |
+                              obj_fun::result_options::hessian);
         INFO("run compute value + gradient + hessian");
         compute_result = this->compute(desc, data_, params_, responses_);
         check_compute_result(compute_result);
-        
     }
 
     void check_compute_result(const objective_function::compute_result<>& result) {
@@ -146,10 +145,12 @@ public:
             Float val = val_arr[0];
             Float ans = 0;
             for (std::int64_t i = 0; i < n_; ++i) {
-
-                ans -= resp_arr[i] * std::log(pred_ptr[i]) + (1 - resp_arr[i]) * std::log(1 - pred_ptr[i]);
+                ans -= resp_arr[i] * std::log(pred_ptr[i]) +
+                       (1 - resp_arr[i]) * std::log(1 - pred_ptr[i]);
             }
-            for (std::int64_t i = 0; i <= p_; ++i) {
+            ans /= n_;
+            // We do not apply regularization to w_0
+            for (std::int64_t i = 1; i <= p_; ++i) {
                 ans += L1_ * std::abs(params_arr[i]) + L2_ * params_arr[i] * params_arr[i];
             }
             const double diff = std::abs(val - ans);
@@ -157,8 +158,8 @@ public:
         }
         if (result.get_result_options().test(result_options::gradient)) {
             const auto gradient = result.get_gradient();
-            REQUIRE(gradient.get_row_count() == 1);
-            REQUIRE(gradient.get_column_count() == p_ + 1);
+            REQUIRE(gradient.get_row_count() == p_ + 1);
+            REQUIRE(gradient.get_column_count() == 1);
             auto grad_arr = row_accessor<const Float>(gradient).pull({ 0, -1 });
             for (std::int64_t j = 0; j <= p_; ++j) {
                 Float ans = 0;
@@ -166,12 +167,14 @@ public:
                     Float x1 = j == 0 ? 1 : data_arr[i * p_ + j - 1];
                     ans += (pred_ptr[i] - resp_arr[i]) * x1;
                 }
-                ans += std::copysign(L1_, params_arr[j]) + L2_ * 2 * params_arr[j];
+                ans /= n_;
+                // We do not apply regularization to w_0
+                ans += j > 0 ? +L2_ * 2 * params_arr[j] : 0;
                 const double diff = std::abs(grad_arr[j] - ans);
                 REQUIRE(diff < tol);
             }
         }
-        
+
         if (result.get_result_options().test(result_options::hessian)) {
             const auto hessian = result.get_hessian();
             REQUIRE(hessian.get_row_count() == p_ + 1);
@@ -185,14 +188,14 @@ public:
                         Float x2 = j == 0 ? 1 : data_arr[i * p_ + j - 1];
                         ans += x1 * x2 * pred_ptr[i] * (1 - pred_ptr[i]);
                     }
-                    ans += (k == j) ? L2_ * 2 : 0;
+                    ans /= n_;
+                    // We do not apply regularization to w_0
+                    ans += (k == j && j > 0) ? L2_ * 2 : 0;
                     const double diff = std::abs(hess_arr[k * (p_ + 1) + j] - ans);
                     REQUIRE(diff < tol);
                 }
             }
         }
-        
-        
     }
 
 protected:
@@ -203,7 +206,6 @@ protected:
     table responses_;
     Float L1_ = 0;
     Float L2_ = 0;
-
 };
 
 using logloss_types = COMBINE_TYPES((float, double), (obj_fun::method::dense_batch));

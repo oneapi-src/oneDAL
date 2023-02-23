@@ -51,8 +51,7 @@ using by_default = dense_batch;
 using v1::dense_batch;
 using v1::by_default;
 
-}
-
+} // namespace method
 
 class result_option_id : public result_option_id_base {
 public:
@@ -72,11 +71,11 @@ ONEDAL_EXPORT result_option_id get_hessian_id();
 } // namespace detail
 
 namespace result_options {
-    const inline auto value = detail::get_value_id();
-    const inline auto gradient = detail::get_gradient_id();
-    const inline auto hessian = detail::get_hessian_id();
-    // const inline auto packed_gradient = detail::get_packed_gradient_id();
-    // const inline auto packed_hessian = detail::get_packed_hessian_id();
+const inline auto value = detail::get_value_id();
+const inline auto gradient = detail::get_gradient_id();
+const inline auto hessian = detail::get_hessian_id();
+// const inline auto packed_gradient = detail::get_packed_gradient_id();
+// const inline auto packed_hessian = detail::get_packed_hessian_id();
 } // namespace result_options
 
 namespace detail {
@@ -98,7 +97,10 @@ template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::compute>;
 
 template <typename Objective>
-constexpr bool is_valid_objective_v = dal::detail::is_one_of_v<Objective, logloss_objective::descriptor<float>, logloss_objective::descriptor<double>>;
+constexpr bool is_valid_objective_v =
+    dal::detail::is_one_of_v<Objective,
+                             logloss_objective::descriptor<float>,
+                             logloss_objective::descriptor<double>>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -142,7 +144,6 @@ using v1::is_valid_objective_v;
 
 namespace v1 {
 
-
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -160,16 +161,12 @@ public:
     using task_t = Task;
     using objective_t = Objective;
 
-
-    explicit descriptor() : 
-    base_t(std::make_shared<detail::objective<objective_t>>
-    (objective_t{})) {
-    }
+    explicit descriptor()
+            : base_t(std::make_shared<detail::objective<objective_t>>(objective_t{})) {}
 
     explicit descriptor(const objective_t& obj) {
         set_objective(obj);
     }
-
 
     /// Choose which results should be computed and returned.
     result_option_id get_result_options() const {
@@ -182,18 +179,15 @@ public:
     }
 
     auto& set_objective(const objective_t& obj) {
-        base_t::set_objective_impl(
-            std::make_shared<detail::objective<objective_t>>(obj));
+        base_t::set_objective_impl(std::make_shared<detail::objective<objective_t>>(obj));
         return *this;
     }
 
     const objective_t& get_objective() {
         const auto obj = std::static_pointer_cast<objective_t>(base_t::get_objective_impl());
         return obj;
-    } 
+    }
 };
-
-
 
 } // namespace v1
 

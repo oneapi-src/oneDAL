@@ -245,6 +245,8 @@ public:
     MSG(invalid_minkowski_degree);
 
     /* Objective function */
+    MSG(resp_column_count_is_not_eq_to_one);
+    MSG(params_column_count_is_not_eq_to_one);
     MSG(value_is_not_provided);
     MSG(gradient_is_not_provided);
     MSG(hessian_is_not_provided);

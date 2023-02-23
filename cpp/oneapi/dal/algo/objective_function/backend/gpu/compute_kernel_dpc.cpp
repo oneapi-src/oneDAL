@@ -50,4 +50,4 @@ struct compute_kernel_gpu<Float, method_t, task_t> {
 template struct compute_kernel_gpu<float, method_t, task_t>;
 template struct compute_kernel_gpu<double, method_t, task_t>;
 
-} // namespace oneapi::dal::covariance::backend
+} // namespace oneapi::dal::objective_function::backend

@@ -23,8 +23,10 @@ namespace oneapi::dal::objective_function {
 template <typename Task>
 class detail::v1::compute_input_impl : public base {
 public:
-    compute_input_impl(const table& data, const table& parameters, const table& responses) : 
-        data(data), parameters(parameters), responses(responses) {}
+    compute_input_impl(const table& data, const table& parameters, const table& responses)
+            : data(data),
+              parameters(parameters),
+              responses(responses) {}
     table data;
     table parameters;
     table responses;
@@ -47,9 +49,10 @@ using detail::v1::compute_result_impl;
 namespace v1 {
 
 template <typename Task>
-compute_input<Task>::compute_input(const table& data, 
-                                const table& parameters, 
-                                const table& responses) : impl_(new compute_input_impl<Task>(data, parameters, responses)) {}
+compute_input<Task>::compute_input(const table& data,
+                                   const table& parameters,
+                                   const table& responses)
+        : impl_(new compute_input_impl<Task>(data, parameters, responses)) {}
 
 template <typename Task>
 const table& compute_input<Task>::get_data() const {
@@ -81,7 +84,6 @@ void compute_input<Task>::set_responses_impl(const table& value) {
     impl_->responses = value;
 }
 
-
 template <typename Task>
 compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
 
@@ -102,7 +104,6 @@ const table& compute_result<Task>::get_gradient() const {
     }
     return impl_->gradient;
 }
-
 
 template <typename Task>
 const table& compute_result<Task>::get_hessian() const {
@@ -194,4 +195,4 @@ template class ONEDAL_EXPORT compute_input<task::compute>;
 template class ONEDAL_EXPORT compute_result<task::compute>;
 
 } // namespace v1
-} // namespace oneapi::dal::covariance
+} // namespace oneapi::dal::objective_function

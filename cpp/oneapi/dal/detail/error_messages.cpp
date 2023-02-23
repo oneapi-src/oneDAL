@@ -197,6 +197,8 @@ MSG(invalid_set_of_result_options_to_search,
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
 
 /* Objective function */
+MSG(resp_column_count_is_not_eq_to_one, "Responses should be a table of size n*1");
+MSG(params_column_count_is_not_eq_to_one, "Parameters should be a table of size (p + 1) * 1");
 MSG(value_is_not_provided, "Table with value is missing");
 MSG(gradient_is_not_provided, "Table with gradient is missing");
 MSG(hessian_is_not_provided, "Table withj hessian is missing");
