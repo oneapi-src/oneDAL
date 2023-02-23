@@ -469,19 +469,17 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
                                      { node_count * ctx.selected_ftr_count_ },
                                      alloc::device);
     // Create arrays for random generated bins
-    auto random_bins_host = 
-        pr::ndarray<Index, 1>::empty(queue_,
-                                    { node_count * ctx.selected_ftr_count_ });
-    auto random_bins_com = 
-        pr::ndarray<Index, 1>::empty(queue_,
-                                    { node_count * ctx.selected_ftr_count_ },
-                                    alloc::device);
+    auto random_bins_host =
+        pr::ndarray<Index, 1>::empty(queue_, { node_count * ctx.selected_ftr_count_ });
+    auto random_bins_com = pr::ndarray<Index, 1>::empty(queue_,
+                                                        { node_count * ctx.selected_ftr_count_ },
+                                                        alloc::device);
     auto random_bins_host_ptr = random_bins_host.get_mutable_data();
 
     auto selected_features_host_ptr = selected_features_host.get_mutable_data();
 
     auto node_vs_tree_map_list_host = node_vs_tree_map_list.to_host(queue_);
-    
+
     pr::rng<Index> rn_gen;
     auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
 
@@ -506,17 +504,14 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
 
     // Generate random bins for selected features
     for (Index node = 0; node < node_count; ++node) {
-        rn_gen.uniform(
-            ctx.selected_ftr_count_,
-            random_bins_host_ptr + node * ctx.selected_ftr_count_,
-            rng_engine_list[tree_map_ptr[node]].get_state(),
-            0,
-            ctx.max_bin_count_among_ftrs_
-        );
+        rn_gen.uniform(ctx.selected_ftr_count_,
+                       random_bins_host_ptr + node * ctx.selected_ftr_count_,
+                       rng_engine_list[tree_map_ptr[node]].get_state(),
+                       0,
+                       ctx.max_bin_count_among_ftrs_);
     }
-    auto event_rnd_generate = random_bins_com.assign_from_host(queue_,
-                                                            random_bins_host_ptr,
-                                                            random_bins_com.get_count());
+    auto event_rnd_generate =
+        random_bins_com.assign_from_host(queue_, random_bins_host_ptr, random_bins_com.get_count());
     event_rnd_generate.wait_and_throw();
 
     auto event = selected_features_com.assign_from_host(queue_,
