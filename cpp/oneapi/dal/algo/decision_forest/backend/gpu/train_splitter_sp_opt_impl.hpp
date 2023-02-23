@@ -57,9 +57,6 @@ class train_splitter_sp_opt_impl {
     using node_group_view_t = node_group_view<Index>;
 
 public:
-    train_splitter_sp_opt_impl() = default;
-    ~train_splitter_sp_opt_impl() = default;
-
     static sycl::event compute_split_single_pass_large(
         sycl::queue& queue,
         const context_t& ctx,
