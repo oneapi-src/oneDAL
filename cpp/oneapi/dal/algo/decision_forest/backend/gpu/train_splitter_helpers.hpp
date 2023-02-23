@@ -171,7 +171,7 @@ struct split_info {
         return get_cache_without_hist_byte_size() + hist_prop_count * sizeof(hist_type_t);
     }
 
-    inline void init(Index in_hist_prop_count){
+    inline void init(Index in_hist_prop_count) {
         hist_prop_count = in_hist_prop_count;
     }
 

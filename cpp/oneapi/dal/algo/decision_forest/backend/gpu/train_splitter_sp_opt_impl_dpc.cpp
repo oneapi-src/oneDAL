@@ -39,8 +39,7 @@ using sycl::ext::oneapi::minimum;
 using sycl::ext::oneapi::maximum;
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event
-train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
+sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
     sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
@@ -57,7 +56,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
     pr::ndarray<Float, 1>& node_imp_dec_list,
     bool update_imp_dec_required,
     Index node_count,
-    const bk::event_vector& deps){
+    const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(random_split, queue);
     using split_smp_t = split_smp<Float, Index, Task>;
     using split_info_t = split_info<Float, Index, Task>;
@@ -76,18 +75,18 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
     ONEDAL_ASSERT(selected_ftr_list.get_count() >= node_count * ctx.selected_ftr_count_);
     ONEDAL_ASSERT(bin_offset_list.get_count() == ctx.column_count_ + 1);
     ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() >=
-                node_count * impl_const_t::node_imp_prop_count_);
+                  node_count * impl_const_t::node_imp_prop_count_);
     if constexpr (std::is_same_v<Task, task::classification>) {
         ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() >= node_count * ctx.class_count_);
     }
     ONEDAL_ASSERT(node_ind_list.get_count() >= (node_ind_ofs + node_count));
     ONEDAL_ASSERT(node_list.get_count() >=
-                (node_ind_ofs + node_count) * impl_const_t::node_prop_count_);
+                  (node_ind_ofs + node_count) * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(left_child_imp_data_list.imp_list_.get_count() >=
-                node_count * impl_const_t::node_imp_prop_count_);
+                  node_count * impl_const_t::node_imp_prop_count_);
     if constexpr (std::is_same_v<Task, task::classification>) {
         ONEDAL_ASSERT(left_child_imp_data_list.class_hist_list_.get_count() >=
-                    node_count * ctx.class_count_);
+                      node_count * ctx.class_count_);
     }
 
     if (update_imp_dec_required) {
@@ -118,10 +117,12 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
 
     Index max_wg_size = bk::device_max_wg_size(queue);
     ONEDAL_ASSERT(node_t::get_small_node_max_row_count() <= max_wg_size);
-    Index local_size =  selected_ftr_count;
+    Index local_size = selected_ftr_count;
 
-    const std::size_t local_buf_int_size = split_info<Float, Index, Task>::cache_buf_int_size * local_size;
-    const std::size_t local_buf_float_size = split_info<Float, Index, Task>::cache_buf_float_size * local_size;
+    const std::size_t local_buf_int_size =
+        split_info<Float, Index, Task>::cache_buf_int_size * local_size;
+    const std::size_t local_buf_float_size =
+        split_info<Float, Index, Task>::cache_buf_float_size * local_size;
     const std::size_t local_hist_buf_size = hist_prop_count * sizeof(hist_type_t);
 
     // 1 counter for global count of processed ftrs for node, and max_sbg_size - num of slot flags
@@ -138,7 +139,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
     // following vars are not used for regression, but should present to compile kernel
     const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
     Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
-    Index node_in_block_count = max_wg_count_ /  selected_ftr_count;
+    Index node_in_block_count = max_wg_count_ / selected_ftr_count;
 
     std::int64_t global_buf_byte_size =
         max_wg_count_ * split_info_t::get_cache_byte_size(hist_prop_count);
@@ -147,172 +148,168 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
     auto global_byte_buf =
         pr::ndarray<byte_t, 1>::empty(queue, { global_buf_byte_size }, alloc::device);
     std::size_t local_buf_byte_size = local_buf_int_size * sizeof(Index) +
-                                    local_buf_float_size * sizeof(Float) +
-                                    local_size * hist_prop_count * sizeof(hist_type_t);
+                                      local_buf_float_size * sizeof(Float) +
+                                      local_size * hist_prop_count * sizeof(hist_type_t);
     ONEDAL_ASSERT(device_has_enough_local_mem(queue, local_buf_byte_size + local_hist_buf_size));
     // TODO: add separate branch to process situation when there isn't enough local mem
 
     auto ft_rnd_ptr = random_bins_com.get_data();
     for (Index node_ofs = 0; node_ofs < node_count; node_ofs += node_in_block_count) {
         const sycl::nd_range<2> nd_range =
-            bk::make_multiple_nd_range_2d({ selected_ftr_count, node_in_block_count }, { selected_ftr_count, 1 });
+            bk::make_multiple_nd_range_2d({ selected_ftr_count, node_in_block_count },
+                                          { selected_ftr_count, 1 });
         last_event = queue.submit([&](sycl::handler& cgh) {
-
             cgh.depends_on(deps);
             local_accessor_rw_t<byte_t> local_byte_buf(local_buf_byte_size, cgh);
             local_accessor_rw_t<byte_t> bs_byte_buf(local_hist_buf_size, cgh);
 
-            cgh.parallel_for(
-                nd_range,
-                [=](sycl::nd_item<2> item) {
-                    const Index node_idx = item.get_global_id(1);
-                    if ((node_ofs + node_idx) > (node_count - 1)) {
-                        return;
-                    }
-                    const Index node_id = node_indices_ptr[node_ind_ofs + node_ofs + node_idx];
-                    Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
-                    const Index local_id = item.get_local_id(0);
+            cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
+                const Index node_idx = item.get_global_id(1);
+                if ((node_ofs + node_idx) > (node_count - 1)) {
+                    return;
+                }
+                const Index node_id = node_indices_ptr[node_ind_ofs + node_ofs + node_idx];
+                Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
+                const Index local_id = item.get_local_id(0);
 
-                    const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
-                    const Index row_count = node_ptr[impl_const_t::ind_lrc];
-                    if (row_count == 0) {
-                        return;
-                    }
+                const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
+                const Index row_count = node_ptr[impl_const_t::ind_lrc];
+                if (row_count == 0) {
+                    return;
+                }
 
-                    const Index ftr_idx = item.get_global_id(0);
+                const Index ftr_idx = item.get_global_id(0);
 
-                    split_smp_t sp_hlp;
+                split_smp_t sp_hlp;
 
-                    // slm pointers declaration
-                    byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
+                // slm pointers declaration
+                byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
 
-                    split_info<Float, Index, Task> ts;
-                    ts.init(hist_prop_count);
-                    ts.load(local_byte_buf_ptr, local_id, selected_ftr_count);
+                split_info<Float, Index, Task> ts;
+                ts.init(hist_prop_count);
+                ts.load(local_byte_buf_ptr, local_id, selected_ftr_count);
 
-                    ts.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
-                    const Index bin_count =
-                        bin_offset_list_ptr[ts.ftr_id + 1] - bin_offset_list_ptr[ts.ftr_id];
-                    Index min_bin = bin_count;
-                    Index max_bin = 0;
-                    for (Index row_idx = row_ofs; row_idx < row_ofs + row_count; row_idx++) {
-                        Index cur_bin = data_ptr[tree_order_ptr[row_idx] * column_count + ts.ftr_id];
-                        if (cur_bin > max_bin) {
-                            max_bin = cur_bin;
-                        }
-                        if (cur_bin < min_bin) {
-                            min_bin = cur_bin;
-                        }
+                ts.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
+                const Index bin_count =
+                    bin_offset_list_ptr[ts.ftr_id + 1] - bin_offset_list_ptr[ts.ftr_id];
+                Index min_bin = bin_count;
+                Index max_bin = 0;
+                for (Index row_idx = row_ofs; row_idx < row_ofs + row_count; row_idx++) {
+                    Index cur_bin = data_ptr[tree_order_ptr[row_idx] * column_count + ts.ftr_id];
+                    if (cur_bin > max_bin) {
+                        max_bin = cur_bin;
                     }
-                    ts.ftr_bin = min_bin + ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] % (max_bin - min_bin + 1);
-                    ts.left_count = 0;
-                    if constexpr (std::is_same_v<Task, task::classification>) {
-                        Index left_count = 0;
-                        Index all_class_count = 0;
-                        for (Index cls_id = 0; cls_id < class_count - 1; cls_id++) {
-                            ts.left_hist[cls_id] = 0;
-                        }
-                        for (Index row_idx = 0; row_idx < row_count; row_idx++) {
-                            Index id = tree_order_ptr[row_ofs + row_idx];
-                            Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
-                            if (cur_bin < ts.ftr_bin) {
-                                left_count++;
-                                Index response_int = static_cast<Index>(response_ptr[id]);
-                                ts.left_hist[response_int]++;
-                                all_class_count++;
-                            }
-                        }
-                        ts.left_count = left_count;
-                        ts.left_hist[class_count - 1] = ts.left_count - all_class_count;
-                    }
-                    else {
-                        Float left_count = 0.0;
-                        Float sum = 0.0;
-                        for (Index row_idx = 0; row_idx < row_count; row_idx++) {
-                            Index id = tree_order_ptr[row_ofs + row_idx];
-                            Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
-                            if (cur_bin < ts.ftr_bin) {
-                                left_count += 1;
-                                sum += response_ptr[id];
-                            }
-                        }
-                        Float mean = sum / left_count;
-                        Float sum2cent = 0.0;
-                        for (Index row_idx = 0; row_idx < row_count; row_idx++) {
-                            Index id = tree_order_ptr[row_ofs + row_idx];
-                            Float val = response_ptr[id];
-                            Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
-                            if (cur_bin < ts.ftr_bin) {
-                                sum2cent += (val - mean) * (val - mean);
-                            }
-                        }
-                        ts.left_count = Index(left_count);
-                        ts.right_count = row_count - ts.left_count;
-                        ts.left_hist[0] = left_count;
-                        ts.left_hist[1] = mean;
-                        ts.left_hist[2] = sum2cent;
-                    }
-                    ts.store(local_byte_buf_ptr, ftr_idx, selected_ftr_count);
-                    if (local_id > 0) {
-                        return;
-                    }
-                    byte_t* bs_hist_buf = bs_byte_buf.get_pointer().get();
-                    hist_type_t* bs_hist_buf_ptr =
-                        get_buf_ptr<hist_type_t>(&bs_hist_buf, hist_prop_count);
-                    split_info<Float, Index, Task> bs;
-                    bs.init_clear(item, bs_hist_buf_ptr, hist_prop_count);
-                    
-                    // Reduce split_info selecting best among all random selected bins for current node
-                    for (Index ftr_iter = 0; ftr_iter < selected_ftr_count; ftr_iter++) {
-                        item.barrier(sycl::access::fence_space::local_space);
-                        ts.load(local_byte_buf_ptr, ftr_iter, selected_ftr_count);
-                        if constexpr (std::is_same_v<Task, task::classification>) {
-                            sp_hlp.calc_imp_dec(ts,
-                                                node_ptr,
-                                                node_imp_list_ptr,
-                                                class_hist_list_ptr,
-                                                class_count,
-                                                node_id);
-                            sp_hlp.choose_best_split(bs,
-                                                        ts,
-                                                        node_imp_list_ptr,
-                                                        class_count,
-                                                        node_id,
-                                                        imp_threshold,
-                                                        min_obs_leaf);
-                        }
-                        else {
-                            sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
-                            sp_hlp.choose_best_split(bs,
-                                                        ts,
-                                                        node_imp_list_ptr,
-                                                        impl_const_t::hist_prop_count_,
-                                                        node_id,
-                                                        imp_threshold,
-                                                        min_obs_leaf);
-                        }
-                    }
-                    sp_hlp.update_node_bs_info(bs,
-                                                node_ptr,
-                                                node_imp_decr_list_ptr,
-                                                node_id,
-                                                index_max,
-                                                update_imp_dec_required);
-                    if constexpr (std::is_same_v<Task, task::classification>) {
-                        sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
-                                                        left_child_class_hist_list_ptr,
-                                                        bs.left_imp,
-                                                        bs.left_hist,
-                                                        node_id,
-                                                        class_count);
-                    }
-                    else {
-                        sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
-                                                        bs.left_hist,
-                                                        node_id);
+                    if (cur_bin < min_bin) {
+                        min_bin = cur_bin;
                     }
                 }
-            );
+                ts.ftr_bin = min_bin + ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] %
+                                           (max_bin - min_bin + 1);
+                ts.left_count = 0;
+                if constexpr (std::is_same_v<Task, task::classification>) {
+                    Index left_count = 0;
+                    Index all_class_count = 0;
+                    for (Index cls_id = 0; cls_id < class_count - 1; cls_id++) {
+                        ts.left_hist[cls_id] = 0;
+                    }
+                    for (Index row_idx = 0; row_idx < row_count; row_idx++) {
+                        Index id = tree_order_ptr[row_ofs + row_idx];
+                        Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
+                        if (cur_bin < ts.ftr_bin) {
+                            left_count++;
+                            Index response_int = static_cast<Index>(response_ptr[id]);
+                            ts.left_hist[response_int]++;
+                            all_class_count++;
+                        }
+                    }
+                    ts.left_count = left_count;
+                    ts.left_hist[class_count - 1] = ts.left_count - all_class_count;
+                }
+                else {
+                    Float left_count = 0.0;
+                    Float sum = 0.0;
+                    for (Index row_idx = 0; row_idx < row_count; row_idx++) {
+                        Index id = tree_order_ptr[row_ofs + row_idx];
+                        Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
+                        if (cur_bin < ts.ftr_bin) {
+                            left_count += 1;
+                            sum += response_ptr[id];
+                        }
+                    }
+                    Float mean = sum / left_count;
+                    Float sum2cent = 0.0;
+                    for (Index row_idx = 0; row_idx < row_count; row_idx++) {
+                        Index id = tree_order_ptr[row_ofs + row_idx];
+                        Float val = response_ptr[id];
+                        Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
+                        if (cur_bin < ts.ftr_bin) {
+                            sum2cent += (val - mean) * (val - mean);
+                        }
+                    }
+                    ts.left_count = Index(left_count);
+                    ts.right_count = row_count - ts.left_count;
+                    ts.left_hist[0] = left_count;
+                    ts.left_hist[1] = mean;
+                    ts.left_hist[2] = sum2cent;
+                }
+                ts.store(local_byte_buf_ptr, ftr_idx, selected_ftr_count);
+                if (local_id > 0) {
+                    return;
+                }
+                byte_t* bs_hist_buf = bs_byte_buf.get_pointer().get();
+                hist_type_t* bs_hist_buf_ptr =
+                    get_buf_ptr<hist_type_t>(&bs_hist_buf, hist_prop_count);
+                split_info<Float, Index, Task> bs;
+                bs.init_clear(item, bs_hist_buf_ptr, hist_prop_count);
+
+                // Reduce split_info selecting best among all random selected bins for current node
+                for (Index ftr_iter = 0; ftr_iter < selected_ftr_count; ftr_iter++) {
+                    item.barrier(sycl::access::fence_space::local_space);
+                    ts.load(local_byte_buf_ptr, ftr_iter, selected_ftr_count);
+                    if constexpr (std::is_same_v<Task, task::classification>) {
+                        sp_hlp.calc_imp_dec(ts,
+                                            node_ptr,
+                                            node_imp_list_ptr,
+                                            class_hist_list_ptr,
+                                            class_count,
+                                            node_id);
+                        sp_hlp.choose_best_split(bs,
+                                                 ts,
+                                                 node_imp_list_ptr,
+                                                 class_count,
+                                                 node_id,
+                                                 imp_threshold,
+                                                 min_obs_leaf);
+                    }
+                    else {
+                        sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
+                        sp_hlp.choose_best_split(bs,
+                                                 ts,
+                                                 node_imp_list_ptr,
+                                                 impl_const_t::hist_prop_count_,
+                                                 node_id,
+                                                 imp_threshold,
+                                                 min_obs_leaf);
+                    }
+                }
+                sp_hlp.update_node_bs_info(bs,
+                                           node_ptr,
+                                           node_imp_decr_list_ptr,
+                                           node_id,
+                                           index_max,
+                                           update_imp_dec_required);
+                if constexpr (std::is_same_v<Task, task::classification>) {
+                    sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
+                                                 left_child_class_hist_list_ptr,
+                                                 bs.left_imp,
+                                                 bs.left_hist,
+                                                 node_id,
+                                                 class_count);
+                }
+                else {
+                    sp_hlp.update_left_child_imp(left_child_imp_list_ptr, bs.left_hist, node_id);
+                }
+            });
         });
         last_event.wait_and_throw();
     }
@@ -320,8 +317,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
 }
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event
-train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
+sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
     sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
@@ -357,18 +353,18 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
     ONEDAL_ASSERT(selected_ftr_list.get_count() >= node_count * ctx.selected_ftr_count_);
     ONEDAL_ASSERT(bin_offset_list.get_count() == ctx.column_count_ + 1);
     ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() >=
-                node_count * impl_const_t::node_imp_prop_count_);
+                  node_count * impl_const_t::node_imp_prop_count_);
     if constexpr (std::is_same_v<Task, task::classification>) {
         ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() >= node_count * ctx.class_count_);
     }
     ONEDAL_ASSERT(node_ind_list.get_count() >= (node_ind_ofs + node_count));
     ONEDAL_ASSERT(node_list.get_count() >=
-                (node_ind_ofs + node_count) * impl_const_t::node_prop_count_);
+                  (node_ind_ofs + node_count) * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(left_child_imp_data_list.imp_list_.get_count() >=
-                node_count * impl_const_t::node_imp_prop_count_);
+                  node_count * impl_const_t::node_imp_prop_count_);
     if constexpr (std::is_same_v<Task, task::classification>) {
         ONEDAL_ASSERT(left_child_imp_data_list.class_hist_list_.get_count() >=
-                    node_count * ctx.class_count_);
+                      node_count * ctx.class_count_);
     }
 
     if (update_imp_dec_required) {
@@ -439,13 +435,13 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
 
     Index* global_aux_ftr_buf_int_ptr = global_aux_ftr_buf_int.get_mutable_data();
     std::size_t local_buf_byte_size = local_buf_int_size * sizeof(Index) +
-                                    local_buf_float_size * sizeof(Float) +
-                                    local_hist_buf_size * sizeof(hist_type_t);
+                                      local_buf_float_size * sizeof(Float) +
+                                      local_hist_buf_size * sizeof(hist_type_t);
     ONEDAL_ASSERT(device_has_enough_local_mem(queue, local_buf_byte_size));
     // TODO: add separate branch to process situation when there isn't enough local mem
 
     for (Index processed_node_cnt = 0; processed_node_cnt < node_count;
-            processed_node_cnt += node_in_block_count, node_ind_ofs += node_in_block_count) {
+         processed_node_cnt += node_in_block_count, node_ind_ofs += node_in_block_count) {
         auto fill_aux_ftr_event = global_aux_ftr_buf_int.fill(queue, 0);
 
         const sycl::nd_range<2> nd_range =
@@ -494,7 +490,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
 
                     Index processed_ftr_count = 0;
                     for (Index ftr_idx = ftr_group_id; ftr_idx < selected_ftr_count;
-                            ftr_idx += ftr_worker_per_node_count) {
+                         ftr_idx += ftr_worker_per_node_count) {
                         processed_ftr_count++;
 
                         split_info<Float, Index, Task> ts;
@@ -509,8 +505,8 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
 
                         ts.ftr_bin = -1;
                         ts.ftr_bin = sycl::reduce_over_group(item.get_group(),
-                                                                bin > ts.ftr_bin ? bin : index_max,
-                                                                minimum<Index>());
+                                                             bin > ts.ftr_bin ? bin : index_max,
+                                                             minimum<Index>());
 
                         while (ts.ftr_bin < index_max) {
                             const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
@@ -551,10 +547,10 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
                                     sycl::reduce_over_group(sbg, val_s2c, plus<Float>());
 
                                 reduce_hist_over_group(item,
-                                                        local_buf_float_ptr,
-                                                        left_count,
-                                                        mean,
-                                                        sum2cent);
+                                                       local_buf_float_ptr,
+                                                       left_count,
+                                                       mean,
+                                                       sum2cent);
 
                                 ts.left_count = Index(left_count);
 
@@ -572,28 +568,28 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
                                                         class_count,
                                                         node_id);
                                     sp_hlp.choose_best_split(bs,
-                                                                ts,
-                                                                node_imp_list_ptr,
-                                                                class_count,
-                                                                node_id,
-                                                                imp_threshold,
-                                                                min_obs_leaf);
+                                                             ts,
+                                                             node_imp_list_ptr,
+                                                             class_count,
+                                                             node_id,
+                                                             imp_threshold,
+                                                             min_obs_leaf);
                                 }
                                 else {
                                     sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
                                     sp_hlp.choose_best_split(bs,
-                                                                ts,
-                                                                node_imp_list_ptr,
-                                                                impl_const_t::hist_prop_count_,
-                                                                node_id,
-                                                                imp_threshold,
-                                                                min_obs_leaf);
+                                                             ts,
+                                                             node_imp_list_ptr,
+                                                             impl_const_t::hist_prop_count_,
+                                                             node_id,
+                                                             imp_threshold,
+                                                             min_obs_leaf);
                                 }
                             }
 
                             ts.ftr_bin = sycl::reduce_over_group(item.get_group(),
-                                                                    bin > ts.ftr_bin ? bin : index_max,
-                                                                    minimum<Index>());
+                                                                 bin > ts.ftr_bin ? bin : index_max,
+                                                                 minimum<Index>());
                         }
                     }
 
@@ -605,7 +601,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
 
                     byte_t* global_byte_buf_ptr =
                         global_byte_ptr + node_idx * ftr_worker_per_node_count *
-                                                split_info_t::get_cache_byte_size(hist_prop_count);
+                                              split_info_t::get_cache_byte_size(hist_prop_count);
 
                     if (local_id == 0) {
                         bs.store(global_byte_buf_ptr, ftr_group_id, ftr_worker_per_node_count);
@@ -625,23 +621,23 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
                         if (sp_hlp
                                 .my_split_is_best_for_sbg(item, bs, node_ptr, node_id, index_max)) {
                             sp_hlp.update_node_bs_info(bs,
-                                                        node_ptr,
-                                                        node_imp_decr_list_ptr,
-                                                        node_id,
-                                                        index_max,
-                                                        update_imp_dec_required);
+                                                       node_ptr,
+                                                       node_imp_decr_list_ptr,
+                                                       node_id,
+                                                       index_max,
+                                                       update_imp_dec_required);
                             if constexpr (std::is_same_v<Task, task::classification>) {
                                 sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
-                                                                left_child_class_hist_list_ptr,
-                                                                bs.left_imp,
-                                                                bs.left_hist,
-                                                                node_id,
-                                                                class_count);
+                                                             left_child_class_hist_list_ptr,
+                                                             bs.left_imp,
+                                                             bs.left_hist,
+                                                             node_id,
+                                                             class_count);
                             }
                             else {
                                 sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
-                                                                bs.left_hist,
-                                                                node_id);
+                                                             bs.left_hist,
+                                                             node_id);
                             }
                         }
                     }
@@ -654,8 +650,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
 }
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event
-train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_small(
+sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_small(
     sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
@@ -671,7 +666,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_small(
     bool update_imp_dec_required,
     const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(best_split_small, queue);
-    
 
     using split_smp_t = split_smp<Float, Index, Task>;
     using split_info_t = split_info<Float, Index, Task>;
@@ -967,16 +961,42 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_sin
     Index node_count,
     const bk::event_vector& deps) {
     if (ctx.splitter_mode_value_ == splitter_mode::random) {
-        return random_split(queue, ctx, data, response, tree_order, selected_ftr_list,
-        random_bins_com, bin_offset_list, imp_data_list, node_ind_list, node_ind_ofs, node_list, 
-        left_child_imp_data_list, node_imp_dec_list, update_imp_dec_required, node_count, deps);
+        return random_split(queue,
+                            ctx,
+                            data,
+                            response,
+                            tree_order,
+                            selected_ftr_list,
+                            random_bins_com,
+                            bin_offset_list,
+                            imp_data_list,
+                            node_ind_list,
+                            node_ind_ofs,
+                            node_list,
+                            left_child_imp_data_list,
+                            node_imp_dec_list,
+                            update_imp_dec_required,
+                            node_count,
+                            deps);
     }
     else {
-        return best_split_large(queue, ctx, data, response, tree_order, selected_ftr_list, 
-        bin_offset_list, imp_data_list, node_ind_list, node_ind_ofs, node_list, 
-        left_child_imp_data_list, node_imp_dec_list, update_imp_dec_required, node_count, deps);
+        return best_split_large(queue,
+                                ctx,
+                                data,
+                                response,
+                                tree_order,
+                                selected_ftr_list,
+                                bin_offset_list,
+                                imp_data_list,
+                                node_ind_list,
+                                node_ind_ofs,
+                                node_list,
+                                left_child_imp_data_list,
+                                node_imp_dec_list,
+                                update_imp_dec_required,
+                                node_count,
+                                deps);
     }
-    
 }
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
@@ -1001,43 +1021,41 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_sin
         Index node_count = node_group.get_node_count();
         Index node_ind_ofs = node_group.get_node_indices_offset();
         auto node_indices_list = node_group.get_node_indices_list();
-        return random_split(
-            queue,
-            ctx,
-            data,
-            response,
-            tree_order,
-            selected_ftr_list,
-            random_bins_com,
-            bin_offset_list,
-            imp_data_list,
-            node_indices_list,
-            node_ind_ofs,
-            level_node_list.get_list(), 
-            left_child_imp_data_list,
-            node_imp_dec_list,
-            update_imp_dec_required,
-            node_count,
-            deps);
+        return random_split(queue,
+                            ctx,
+                            data,
+                            response,
+                            tree_order,
+                            selected_ftr_list,
+                            random_bins_com,
+                            bin_offset_list,
+                            imp_data_list,
+                            node_indices_list,
+                            node_ind_ofs,
+                            level_node_list.get_list(),
+                            left_child_imp_data_list,
+                            node_imp_dec_list,
+                            update_imp_dec_required,
+                            node_count,
+                            deps);
     }
     else {
-        return best_split_small(queue, 
-        ctx, 
-        data, 
-        response, 
-        tree_order, 
-        selected_ftr_list,
-         bin_offset_list, 
-         imp_data_list, 
-         node_group,
-         level_node_list,
-         left_child_imp_data_list,
-         node_imp_dec_list,
-         update_imp_dec_required,
-         deps);
+        return best_split_small(queue,
+                                ctx,
+                                data,
+                                response,
+                                tree_order,
+                                selected_ftr_list,
+                                bin_offset_list,
+                                imp_data_list,
+                                node_group,
+                                level_node_list,
+                                left_child_imp_data_list,
+                                node_imp_dec_list,
+                                update_imp_dec_required,
+                                deps);
     }
 }
-
 
 #define INSTANTIATE(F, B, I, T) template class train_splitter_sp_opt_impl<F, B, I, T>;
 
