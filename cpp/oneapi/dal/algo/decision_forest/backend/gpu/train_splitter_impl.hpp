@@ -48,6 +48,9 @@ class train_splitter_impl {
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
 
 public:
+    train_splitter_impl() = default;
+    ~train_splitter_impl() = default;
+
     static sycl::event compute_split_by_histogram(sycl::queue& queue,
                                                   const context_t& ctx,
                                                   const pr::ndarray<hist_type_t, 1>& node_hist_list,
