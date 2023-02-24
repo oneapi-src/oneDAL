@@ -57,7 +57,7 @@ class UnorderedRespHelperBest : public DataHelper<algorithmFPType, ClassIndexTyp
 {
 public:
     typedef DataHelper<algorithmFPType, ClassIndexType, cpu> super;
-    typedef typename dtrees::internal::TVector<float, cpu, dtrees::internal::ScalableAllocator<cpu> >
+    typedef typename dtrees::internal::TVector<float, cpu, dtrees::internal::ScalableAllocator<cpu>>
         Histogramm; //not sure why this is hard-coded to float and not algorithmFPType
 
 
@@ -156,8 +156,6 @@ protected:
 protected:
     size_t nClasses() const { return this->_nClasses; }
 };
-
-
 
 template <typename algorithmFPType, CpuType cpu>
 int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitbyHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
@@ -333,7 +331,6 @@ int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitFewClasses(int nDiff
 
     return idxFeatureBestSplit;
 }
-
 
 template <typename algorithmFPType, CpuType cpu>
 template <bool noWeights>
@@ -535,7 +532,7 @@ public:
     using TSplitData   = typename UnorderedRespHelperBest<algorithmFPType, cpu>::TSplitData;
     using super = typename UnorderedRespHelperBest<algorithmFPType, cpu>::super;
     
-    engines::internal::BatchBaseImpl * _engineImpl;
+    engines::internal::BatchBaseImpl * engineImpl;
 
 public:
     RespHelperBase(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses)
@@ -944,7 +941,6 @@ void RespHelperBase<algorithmFPType, cpu, derived>::finalizeBestSplit(const Inde
     if (bestSplit.featureValue == this->getValue(iFeature, iNext)) bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // UnorderedRespHelperRandom class for random splitting classification
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -952,7 +948,6 @@ template <typename algorithmFPType, CpuType cpu>
 class UnorderedRespHelperRandom : public RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu>>
 {
 public:
-    typedef double intermSummFPType;
     using Histogramm   = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu>>::Histogramm;
     using ImpurityData = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu>>::ImpurityData;
     using TSplitData   = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu>>::TSplitData;
@@ -978,7 +973,6 @@ public:
                                          const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
                                          const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
 };
-
 
 template <typename algorithmFPType, CpuType cpu>
 int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
@@ -1015,7 +1009,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int 
     //randomly select a histogram split index
     size_t idx;
     RNGs<size_t, cpu> rng;
-    rng.uniform(1, &idx, this->_engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
+    rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
 
     //iterate idx down for FinalizeBestSplit (since it splits leftward)
     while ((minidx < idx) && isZero<IndexType, cpu>(nFeatIdx[idx])) idx--;
@@ -1175,7 +1169,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     size_t idx;
     int outidx = minidx;
     RNGs<size_t, cpu> rng;
-    rng.uniform(1, &idx, this->_engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
+    rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
 
     if (noWeights)
     {
@@ -1279,7 +1273,6 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     return idxFeatureBestSplit;
 }
 
-
 template <typename algorithmFPType, CpuType cpu>
 template <bool noWeights>
 bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx,
@@ -1304,7 +1297,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(co
 
     //select random split index
     RNGs<algorithmFPType, cpu> rng;
-    rng.uniform(1, &idx, this->_engineImpl->getState(), featureVal[0],
+    rng.uniform(1, &idx, this->engineImpl->getState(), featureVal[0],
                 featureVal[n - 1]); //this strategy follows sklearn's implementation
 
     if (idx >= featureVal[n - nMinSplitPart]
@@ -1434,7 +1427,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
     first = min;
 
     RNGs<algorithmFPType, cpu> rng;
-    rng.uniform(1, &idx, this->_engineImpl->getState(), min, max); //this strategy follows sklearn's implementation
+    rng.uniform(1, &idx, this->engineImpl->getState(), min, max); //this strategy follows sklearn's implementation
 
     for (size_t i = 1; i < n; ++i)
     {
@@ -1608,10 +1601,10 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
 //////////////////////////////////////////////////////////////////////////////////////////
 // TrainBatchTask for classification
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, typename BinIndexType, decision_forest::classification::training::Method method, typename Helper, CpuType cpu>
-class TrainBatchTask : public TrainBatchTaskBase<algorithmFPType, BinIndexType, Helper, cpu>
+template <typename algorithmFPType, typename BinIndexType, decision_forest::classification::training::Method method, typename helper, CpuType cpu>
+class TrainBatchTask : public TrainBatchTaskBase<algorithmFPType, BinIndexType, helper, cpu>
 {
-    typedef TrainBatchTaskBase<algorithmFPType, BinIndexType, Helper, cpu> super;
+    typedef TrainBatchTaskBase<algorithmFPType, BinIndexType, helper, cpu> super;
 
 public:
     typedef TreeThreadCtx<algorithmFPType, cpu> ThreadCtxType;
@@ -1628,8 +1621,6 @@ public:
         }
     }
 };
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // ClassificationTrainBatchKernel

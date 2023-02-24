@@ -619,7 +619,7 @@ protected:
         const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
         *_numElems += n;
         RNGs<IndexType, cpu> rng;
-        rng.uniformWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), 0, n);
+        rng.uniformWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _helper.engineImpl->getState(), 0, n);
     }
 
     services::Status computeResults(const dtrees::internal::Tree & t);
@@ -645,7 +645,7 @@ protected:
     mutable TVector<IndexType, cpu> _aSample;
     mutable TArray<algorithmFPTypeArray, cpu> _aFeatureBuf;
     mutable TArray<IndexTypeArray, cpu> _aFeatureIndexBuf;
-    engines::internal::BatchBaseImpl * _engineImpl;
+
     const NumericTable * _data;
     const NumericTable * _resp;
     const NumericTable * _weights;
@@ -676,8 +676,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     const size_t maxFeatures = nFeatures();
     _nConstFeature           = 0;
     _numElems                = &numElems;
-    _engineImpl              = engineImpl;
-    _helper._engineImpl      = engineImpl;
+    _helper.engineImpl      = engineImpl;
     pTree                    = nullptr;
     _tree.destroy();
     _aSample.reset(_nSamples);
@@ -712,7 +711,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     {
         *_numElems += _nSamples;
         RNGs<int, cpu> rng;
-        rng.uniform(_nSamples, _aSample.get(), _engineImpl->getState(), 0, _data->getNumberOfRows());
+        rng.uniform(_nSamples, _aSample.get(), _helper.engineImpl->getState(), 0, _data->getNumberOfRows());
         daal::algorithms::internal::qSort<int, cpu>(_nSamples, _aSample.get());
     }
     else
@@ -1045,7 +1044,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::simpleS
     {
         IndexType iFeature;
         *_numElems += 1;
-        rng.uniform(1, &iFeature, _engineImpl->getState(), 0, _data->getNumberOfColumns());
+        rng.uniform(1, &iFeature, _helper.engineImpl->getState(), 0, _data->getNumberOfColumns());
         featureValuesToBuf(iFeature, featBuf, aIdx, 2);
         if (featBuf[1] - featBuf[0] <= _accuracy) //all values of the feature are the same
             continue;
@@ -1244,7 +1243,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
             const algorithmFPType div1 = algorithmFPType(1) / algorithmFPType(nTrees);
             for (size_t i = 0, n = nFeatures(); i < n; ++i)
             {
-                shuffle<cpu>(_engineImpl->getState(), nOOB, permutation.get());
+                shuffle<cpu>(_helper.engineImpl->getState(), nOOB, permutation.get());
                 const algorithmFPType permOOBError = computeOOBErrorPerm(t, nOOB, oobIndices.get(), permutation.get(), i);
                 const algorithmFPType diff         = (permOOBError - oobError);
                 //_threadCtx.varImp[i] is a mean of diff among all the trees
