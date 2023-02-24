@@ -29,6 +29,7 @@ class csr_table_impl : public detail::csr_table_template<csr_table_impl>,
 public:
     csr_table_impl()
             : col_count_(0),
+              row_count_(0),
               layout_(data_layout::row_major),
               indexing_(sparse_indexing::one_based) {}
 
@@ -51,8 +52,8 @@ public:
             throw dal::domain_error(error_msg::cc_leq_zero());
         }
 
-        const std::int64_t row_count = (row_offsets.get_count() ? row_offsets.get_count() - 1 : 0);
-        const std::int64_t element_count = row_offsets_[row_count] - row_offsets_[0];
+        row_count_ = (row_offsets.get_count() ? row_offsets.get_count() - 1 : 0);
+        const std::int64_t element_count = row_offsets_[row_count_] - row_offsets_[0];
         const std::int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
@@ -60,7 +61,7 @@ public:
             throw dal::domain_error(error_msg::invalid_data_block_size());
         }
 
-        for (std::int64_t i = 1; i <= row_count; i++) {
+        for (std::int64_t i = 1; i <= row_count_; i++) {
             if (row_offsets[i - 1] > row_offsets[i]) {
                 throw dal::domain_error(error_msg::row_offsets_not_ascending());
             }
@@ -103,8 +104,7 @@ public:
     }
 
     std::int64_t get_row_count() const override {
-        std::int64_t row_offsets_count = row_offsets_.get_count();
-        return (row_offsets_count ? row_offsets_count - 1 : 0);
+        return row_count_;
     }
 
     std::int64_t get_non_zero_count() const override {
@@ -149,15 +149,15 @@ public:
                                  const range& rows) const {
         csr_info origin_info{ meta_.get_data_type(0),
                               layout_,
-                              get_row_count(),
+                              row_count_,
                               col_count_,
-                              row_offsets_[get_row_count()] - row_offsets_[0],
+                              row_offsets_[row_count_] - row_offsets_[0],
                               indexing_ };
 
         // Overflow is checked here
         check_block_row_range(rows);
 
-        block_info block_info{ rows.start_idx, rows.get_element_count(get_row_count()), indexing };
+        block_info block_info{ rows.start_idx, rows.get_element_count(row_count_), indexing };
 
         csr_pull_block(policy,
                        origin_info,
@@ -172,18 +172,18 @@ public:
     }
 
     void serialize(detail::output_archive& ar) const override {
-        ar(meta_, data_, column_indices_, row_offsets_, col_count_, layout_, indexing_);
+        ar(meta_, data_, column_indices_, row_offsets_, col_count_, row_count_, layout_, indexing_);
     }
 
     void deserialize(detail::input_archive& ar) override {
-        ar(meta_, data_, column_indices_, row_offsets_, col_count_, layout_, indexing_);
+        ar(meta_, data_, column_indices_, row_offsets_, col_count_, row_count_, layout_, indexing_);
     }
 
 private:
     void check_block_row_range(const range& rows) const {
-        const std::int64_t range_row_count = rows.get_element_count(get_row_count());
+        const std::int64_t range_row_count = rows.get_element_count(row_count_);
         detail::check_sum_overflow(rows.start_idx, range_row_count);
-        if (rows.start_idx + range_row_count > get_row_count()) {
+        if (rows.start_idx + range_row_count > row_count_) {
             throw range_error{ detail::error_messages::invalid_range_of_rows() };
         }
     }
@@ -193,6 +193,7 @@ private:
     array<std::int64_t> column_indices_;
     array<std::int64_t> row_offsets_;
     std::int64_t col_count_;
+    std::int64_t row_count_;
     data_layout layout_;
     sparse_indexing indexing_;
 };
