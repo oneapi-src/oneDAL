@@ -73,15 +73,12 @@ public:
         }
     }
 
-    void run_test() {
-        constexpr float_t L1 = 1.2;
-        constexpr float_t L2 = 0.7;
+    void run_test(const float_t L1 = 0, const float_t L2 = 0) {
         auto data_array = row_accessor<const float_t>{ this->data_ }.pull(this->get_queue());
         auto data_host = ndarray<float_t, 2>::wrap(data_array.get_data(), { n_, p_ });
 
         auto param_array = row_accessor<const float_t>{ this->params_ }.pull(this->get_queue());
         auto params_host = ndarray<float_t, 1>::wrap(param_array.get_data(), { p_ + 1 });
-
         test_input(data_host, params_host, this->labels_, L1, L2);
 
         SUCCEED();
@@ -95,7 +92,7 @@ public:
                                           0.60419908,  0.30589827,  0.63919892,  -0.23380754,
                                           2.38196927,  1.64158111,  0.13677077 };
         constexpr std::int32_t labels[n] = { 0, 1, 1, 0, 1 };
-        constexpr float_t L1 = 2.3456;
+        constexpr float_t L1 = 0;
         constexpr float_t L2 = 3.123;
         constexpr float_t cur_param[p + 1] = { -0.2, 0.1, -1, 0.4 };
 
@@ -153,9 +150,7 @@ public:
                                                     { out_e });
         logloss_event.wait_and_throw();
         const float_t val_logloss1 = out_logloss.to_host(this->get_queue(), {}).at(0);
-
         check_val(val_logloss1, logloss, rtol, atol);
-
         auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
         auto [out_derivative, out_der_e] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { p + 1 }, sycl::usm::alloc::device);
@@ -173,7 +168,6 @@ public:
         auto out_derivative_host = out_derivative.to_host(this->get_queue());
         const float_t val_logloss2 = out_logloss.to_host(this->get_queue(), {}).at(0);
         check_val(val_logloss2, logloss, rtol, atol);
-
         auto [out_derivative2, out_der_e2] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { p + 1 }, sycl::usm::alloc::device);
         auto der_event = compute_derivative(this->get_queue(),
@@ -187,11 +181,9 @@ public:
                                             { out_der_e2 });
         der_event.wait_and_throw();
         auto out_derivative_host2 = out_derivative2.to_host(this->get_queue());
-
         for (auto i = 0; i <= p; ++i) {
             REQUIRE(abs(out_derivative_host.at(i) - out_derivative_host2.at(i)) < atol);
         }
-
         auto [out_hessian, out_hess_e] = ndarray<float_t, 2>::zeros(this->get_queue(),
                                                                     { p + 1, p + 1 },
                                                                     sycl::usm::alloc::device);
@@ -251,7 +243,7 @@ public:
             float_t out_val = probabilities.at(i);
             REQUIRE(abs(out_val - prob) < atol);
         }
-        for (std::int64_t i = 0; i <= p; ++i) {
+        for (std::int64_t i = 1; i < p + 1; ++i) {
             logloss += L1 * abs(params_host.at(i));
             logloss += L2 * params_host.at(i) * params_host.at(i);
         }
@@ -275,7 +267,7 @@ public:
             pred += (double)params_host.at(0);
             logloss += std::log(1 + std::exp(-(2 * labels_host.at(i) - 1) * pred));
         }
-        for (std::int64_t i = 0; i <= p; ++i) {
+        for (std::int64_t i = 1; i < p + 1; ++i) {
             logloss += L1 * abs(params_host.at(i));
             logloss += L2 * params_host.at(i) * params_host.at(i);
         }
@@ -298,8 +290,7 @@ public:
                 double prob = probabilities.at(i);
                 val += (prob - labels.at(i)) * x1;
             }
-            double param = params.at(j);
-            val += L2 * 2 * param + std::copysign(L1, param);
+            val += j > 0 ? L2 * 2 * params.at(j) : 0;
             out_der.at(j) = val;
         }
     }
@@ -321,7 +312,9 @@ public:
                 }
                 out_hessian.at(j, k) = val;
             }
-            out_hessian.at(j, j) += 2 * L2;
+            if (j > 0) {
+                out_hessian.at(j, j) += 2 * L2;
+            }
         }
     }
 
@@ -453,8 +446,9 @@ public:
             double logloss_down = naive_logloss(data_host, params_host_down, labels_host, L1, L2);
             auto der_down_host = out_derivative_down.to_host(this->get_queue(), {});
             // Check condition: (logloss(w_i + eps) - logloss(w_i - eps)) / 2eps ~ d logloss / dw_i
-            check_val(derivative.at(i), (logloss_up - logloss_down) / (2 * step), rtol, atol);
-
+            if (L1 == 0) {
+                check_val(derivative.at(i), (logloss_up - logloss_down) / (2 * step), rtol, atol);
+            }
             if (sizeof(float_t) > 4) {
                 for (std::int64_t j = 0; j < p + 1; ++j) {
                     // Check condition (d logloss(w_i + eps) / d w_j - d logloss(w_i - eps) / d w_j) / 2eps ~ h_i,j
@@ -485,15 +479,21 @@ TEMPLATE_TEST_M(logloss_test, "gold input test - float", "[logloss]", float) {
     this->test_gold_input();
 }
 
-TEMPLATE_TEST_M(logloss_test, "test random input - double", "[logloss]", double) {
+TEMPLATE_TEST_M(logloss_test, "test random input - double without L1", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     this->generate_input();
-    this->run_test();
+    this->run_test(0.0, 1.3);
+}
+
+TEMPLATE_TEST_M(logloss_test, "test random input - double with L1", "[logloss]", double) {
+    SKIP_IF(this->not_float64_friendly());
+    this->generate_input();
+    this->run_test(0.4, 1.3);
 }
 
 TEMPLATE_TEST_M(logloss_test, "test random input - float", "[logloss]", float) {
     this->generate_input();
-    this->run_test();
+    this->run_test(0.4, 1.3);
 }
 
 } // namespace oneapi::dal::backend::primitives::test

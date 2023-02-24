@@ -37,7 +37,7 @@ sycl::event compute_probabilities(sycl::queue& q,
     using oneapi::dal::backend::operator+;
 
     auto param_arr = ndarray<Float, 1>::wrap(parameters.get_data(), 1);
-    Float w0 = param_arr.to_host(q, deps).at(0); // Poor perfomance
+    Float w0 = param_arr.slice(0, 1).to_host(q, deps).at(0); // Poor perfomance
 
     auto event = gemv(q,
                       data,
@@ -55,7 +55,6 @@ sycl::event compute_probabilities(sycl::queue& q,
             prob_ptr[idx] = 1 / (1 + sycl::exp(-prob_ptr[idx]));
         });
     });
-    // return event;
 }
 
 template <typename Float>
@@ -105,24 +104,25 @@ sycl::event compute_logloss(sycl::queue& q,
 
     const auto* const param_ptr = parameters.get_data();
 
-    auto reg_event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(vector_out_reg);
-        const auto range = make_range_1d(p + 1);
-        auto sumReduction = sycl::reduction(reg_ptr, sycl::plus<>());
-        cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
-            const Float param = param_ptr[idx];
-            sum += L1 * sycl::abs(param) + L2 * param * param;
+    if (L1 > 0 || L2 > 0) {
+        auto reg_event = q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(vector_out_reg);
+            const auto range = make_range_1d(p);
+            auto sumReduction = sycl::reduction(reg_ptr, sycl::plus<>());
+            cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
+                const Float param = param_ptr[idx + 1];
+                sum += L1 * sycl::abs(param) + L2 * param * param;
+            });
         });
-    });
-
-    auto final_event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ reg_event, loss_event });
-        cgh.single_task([=] {
-            out_ptr[0] += reg_ptr[0];
+        auto final_event = q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on({ reg_event, loss_event });
+            cgh.single_task([=] {
+                out_ptr[0] += reg_ptr[0];
+            });
         });
-    });
-
-    return final_event;
+        return final_event;
+    }
+    return loss_event;
 }
 
 template <typename Float>
@@ -236,12 +236,12 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
 
     auto reg_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(reg_deps);
-        const auto range = make_range_1d(p + 1);
+        const auto range = make_range_1d(p);
         auto sumReduction = sycl::reduction(reg_ptr, sycl::plus<>());
         cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
-            const Float param = param_ptr[idx];
+            const Float param = param_ptr[idx + 1];
             sum += L1 * sycl::abs(param) + L2 * param * param;
-            out_derivative_ptr[idx] += sycl::copysign(L1, param) + L2 * 2 * param;
+            out_derivative_ptr[idx + 1] += L2 * 2 * param;
         });
     });
 
@@ -320,10 +320,10 @@ sycl::event compute_derivative(sycl::queue& q,
     auto reg_event = q.submit([&](sycl::handler& cgh) {
         using oneapi::dal::backend::operator+;
         cgh.depends_on({ der_event });
-        const auto range = make_range_1d(p + 1);
+        const auto range = make_range_1d(p);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            const Float param = param_ptr[idx];
-            out_derivative_ptr[idx] += sycl::copysign(L1, param) + L2 * 2 * param;
+            const Float param = param_ptr[idx + 1];
+            out_derivative_ptr[idx + 1] += L2 * 2 * param;
         });
     });
 
@@ -403,7 +403,7 @@ sycl::event compute_hessian(sycl::queue& q,
             if (j > k) {
                 hes_ptr[k * out_str + j] = hes_ptr[j * out_str + k];
             }
-            else if (j == k) {
+            else if (j == k && j > 0) {
                 hes_ptr[j * out_str + j] += 2 * L2;
             }
         });
