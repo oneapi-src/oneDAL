@@ -51,6 +51,12 @@ public:
     services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
                              decision_forest::classification::Model & m, Result & res,
                              const decision_forest::classification::training::Parameter & par);
+
+private:
+    template <typename helper>
+    services::Status _compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
+                              decision_forest::classification::Model & m, Result & res,
+                              const decision_forest::classification::training::Parameter & par);
 };
 
 } // namespace internal
