@@ -204,7 +204,8 @@ private:
                     const pr::ndarray<Index, 1>& node_indices_list,
                     Index idx,
                     Index total_group_count)
-            : node_indices_list_(node_indices_list), idx_(idx) {
+            : node_indices_list_(node_indices_list),
+              idx_(idx) {
         ONEDAL_ASSERT(node_group_list.has_data());
         ONEDAL_ASSERT(node_indices_list.has_data());
         ONEDAL_ASSERT(idx_ >= 0);
