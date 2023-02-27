@@ -450,7 +450,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-std::tuple<pr::ndarray<Index, 1>, pr::ndarray<Index, 1>, sycl::event>
+std::tuple<pr::ndarray<Index, 1>, sycl::event>
 train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
     const train_context_t& ctx,
     Index node_count,
@@ -468,13 +468,6 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
         pr::ndarray<Index, 1>::empty(queue_,
                                      { node_count * ctx.selected_ftr_count_ },
                                      alloc::device);
-    // Create arrays for random generated bins
-    auto random_bins_host =
-        pr::ndarray<Index, 1>::empty(queue_, { node_count * ctx.selected_ftr_count_ });
-    auto random_bins_com = pr::ndarray<Index, 1>::empty(queue_,
-                                                        { node_count * ctx.selected_ftr_count_ },
-                                                        alloc::device);
-    auto random_bins_host_ptr = random_bins_host.get_mutable_data();
 
     auto selected_features_host_ptr = selected_features_host.get_mutable_data();
 
@@ -502,6 +495,37 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
         }
     }
 
+    auto event = selected_features_com.assign_from_host(queue_,
+                                                        selected_features_host_ptr,
+                                                        selected_features_com.get_count());
+
+    return std::tuple{ selected_features_com, event };
+}
+
+template <typename Float, typename Bin, typename Index, typename Task>
+std::tuple<pr::ndarray<Index, 1>, sycl::event>
+train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_tresholds(
+    const train_context_t& ctx,
+    Index node_count,
+    const pr::ndarray<Index, 1>& node_vs_tree_map,
+    rng_engine_list_t& rng_engine_list) {
+    ONEDAL_PROFILER_TASK(gen_random_tresholds, queue_);
+
+    ONEDAL_ASSERT(node_vs_tree_map.get_count() == node_count);
+
+    auto node_vs_tree_map_list_host = node_vs_tree_map.to_host(queue_);
+
+    pr::rng<Index> rn_gen;
+    auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
+
+    // Create arrays for random generated bins
+    auto random_bins_host =
+        pr::ndarray<Index, 1>::empty(queue_, { node_count * ctx.selected_ftr_count_ });
+    auto random_bins_com = pr::ndarray<Index, 1>::empty(queue_,
+                                                        { node_count * ctx.selected_ftr_count_ },
+                                                        alloc::device);
+    auto random_bins_host_ptr = random_bins_host.get_mutable_data();
+
     // Generate random bins for selected features
     for (Index node = 0; node < node_count; ++node) {
         rn_gen.uniform(ctx.selected_ftr_count_,
@@ -512,14 +536,9 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
     }
     auto event_rnd_generate =
         random_bins_com.assign_from_host(queue_, random_bins_host_ptr, random_bins_com.get_count());
-    event_rnd_generate.wait_and_throw();
 
-    auto event = selected_features_com.assign_from_host(queue_,
-                                                        selected_features_host_ptr,
-                                                        selected_features_com.get_count());
-
-    return std::tuple{ selected_features_com, random_bins_com, event };
-}
+    return std::tuple{ random_bins_com, event_rnd_generate };
+};
 
 template <typename Float, typename Index, typename Task>
 struct kernel_context {
@@ -2930,9 +2949,13 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
             imp_data_t left_child_imp_data(queue_, ctx, node_count);
 
-            auto [selected_features_com, random_bins_com, event] =
+            auto [selected_features_com, event] =
                 gen_feature_list(ctx, node_count, node_vs_tree_map_list, engine_arr);
             event.wait_and_throw();
+
+            auto [random_bins_com, gen_bins_event] =
+                gen_random_tresholds(ctx, node_count, node_vs_tree_map_list, engine_arr);
+            gen_bins_event.wait_and_throw();
 
             if (ctx.mdi_required_) {
                 node_imp_decrease_list =
