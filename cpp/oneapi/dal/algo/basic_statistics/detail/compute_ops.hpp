@@ -41,8 +41,20 @@ struct compute_ops {
     void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
 
-        if (!input.get_data().has_data()) {
+        const auto& data = input.get_data();
+        if (!data.has_data()) {
             throw domain_error(msg::input_data_is_empty());
+        }
+
+        const auto& weights = input.get_weights();
+        if (weights.has_data()) {
+            const auto r_count = weights.get_row_count();
+            if (r_count != data.get_row_count())
+                throw domain_error(msg::weight_dimension_doesnt_match_data_dimension());
+
+            const auto c_count = weights.get_column_count();
+            if (c_count != std::int64_t(1))
+                throw domain_error(msg::weights_column_count_ne_1());
         }
     }
 

@@ -53,13 +53,14 @@ public:
         const auto split_data =
             te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
 
+        const auto split_weights =
+            te::split_table_by_rows<float_t>(this->get_policy(), input.get_weights(), split_count);
+
         std::vector<input_t> split_input;
         split_input.reserve(split_count);
 
-        for (std::int64_t i = 0; i < split_count; i++) {
-            split_input.push_back( //
-                input_t{ split_data[i] });
-        }
+        for (std::int64_t i = 0; i < split_count; i++)
+            split_input.emplace_back(split_data.at(i), split_weights.at(i));
 
         return split_input;
     }
@@ -100,17 +101,26 @@ TEMPLATE_LIST_TEST_M(basic_statistics_spmd_test,
                            te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 10000, 200 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 1000000, 20 }.fill_normal(-0.5, 0.5, 7777));
-    this->set_rank_count(2);
 
-    bs::result_option_id res_min_max = result_options::min | result_options::max;
-    bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    bs::result_option_id res_all = bs::result_option_id(dal::result_option_id_base(mask_full));
+    this->set_rank_count(GENERATE(2, 3));
+
+    std::shared_ptr<te::dataframe> weights;
+    const bool use_weights = GENERATE(0, 1);
+
+    if (use_weights) {
+        const auto row_count = data.get_row_count();
+        weights = std::make_shared<te::dataframe>(
+            te::dataframe_builder{ row_count, 1 }.fill_normal(0, 1, 777).build());
+    }
+
+    const bs::result_option_id res_min_max = result_options::min | result_options::max;
+    const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
+    const bs::result_option_id res_all =
+        bs::result_option_id(dal::result_option_id_base(mask_full));
 
     const bs::result_option_id compute_mode = GENERATE_COPY(res_min_max, res_mean_varc, res_all);
 
-    const auto data_table_id = this->get_homogen_table_id();
-
-    this->spmd_general_checks(data, compute_mode, data_table_id);
+    this->general_checks(data, weights, compute_mode);
 }
 
 } // namespace oneapi::dal::basic_statistics::test
