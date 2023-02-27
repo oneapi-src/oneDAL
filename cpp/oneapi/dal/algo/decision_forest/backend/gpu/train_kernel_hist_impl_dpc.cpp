@@ -1296,88 +1296,127 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                        { last_event });
                 last_event = event;
                 {
-                    if (ctx.use_private_mem_buf_) {
-                        last_event =
-                            bs_kernels_prv_t::compute_split_by_histogram(queue_,
-                                                                         ctx,
-                                                                         node_hist_list,
-                                                                         selected_ftr_list,
-                                                                         random_bins_com,
-                                                                         bin_offset_list,
-                                                                         imp_data_list,
-                                                                         node_ind_list,
-                                                                         block_ind_ofs,
-                                                                         node_list,
-                                                                         left_child_imp_data_list,
-                                                                         node_imp_decrease_list,
-                                                                         update_imp_dec_required,
-                                                                         block_node_count,
-                                                                         { last_event });
+                    if (ctx.splitter_mode_value_ == splitter_mode::best) {
+                        if (ctx.use_private_mem_buf_) {
+                            last_event = bs_kernels_prv_t::compute_best_split_by_histogram(
+                                queue_,
+                                ctx,
+                                node_hist_list,
+                                selected_ftr_list,
+                                bin_offset_list,
+                                imp_data_list,
+                                node_ind_list,
+                                block_ind_ofs,
+                                node_list,
+                                left_child_imp_data_list,
+                                node_imp_decrease_list,
+                                update_imp_dec_required,
+                                block_node_count,
+                                { last_event });
+                        }
+                        else {
+                            last_event = bs_kernels_loc_t::compute_best_split_by_histogram(
+                                queue_,
+                                ctx,
+                                node_hist_list,
+                                selected_ftr_list,
+                                bin_offset_list,
+                                imp_data_list,
+                                node_ind_list,
+                                block_ind_ofs,
+                                node_list,
+                                left_child_imp_data_list,
+                                node_imp_decrease_list,
+                                update_imp_dec_required,
+                                block_node_count,
+                                { last_event });
+                        }
                     }
                     else {
-                        last_event =
-                            bs_kernels_loc_t::compute_split_by_histogram(queue_,
-                                                                         ctx,
-                                                                         node_hist_list,
-                                                                         selected_ftr_list,
-                                                                         random_bins_com,
-                                                                         bin_offset_list,
-                                                                         imp_data_list,
-                                                                         node_ind_list,
-                                                                         block_ind_ofs,
-                                                                         node_list,
-                                                                         left_child_imp_data_list,
-                                                                         node_imp_decrease_list,
-                                                                         update_imp_dec_required,
-                                                                         block_node_count,
-                                                                         { last_event });
+                        last_event = bs_kernels_loc_t::compute_random_split_by_histogram(
+                            queue_,
+                            ctx,
+                            node_hist_list,
+                            selected_ftr_list,
+                            random_bins_com,
+                            bin_offset_list,
+                            imp_data_list,
+                            node_ind_list,
+                            block_ind_ofs,
+                            node_list,
+                            left_child_imp_data_list,
+                            node_imp_decrease_list,
+                            update_imp_dec_required,
+                            block_node_count,
+                            { last_event });
                     }
+
                     last_event.wait_and_throw();
                 }
             }
         }
         else {
-            Index max_row_count = node_group.get_max_row_count();
-            if (max_row_count > node_t::get_elementary_node_max_row_count()) {
-                last_event =
-                    bs_kernels_opt_t::compute_split_single_pass_large(queue_,
-                                                                      ctx,
-                                                                      data,
-                                                                      response,
-                                                                      tree_order,
-                                                                      selected_ftr_list,
-                                                                      random_bins_com,
-                                                                      bin_offset_list,
-                                                                      imp_data_list,
-                                                                      node_ind_list,
-                                                                      grp_ind_ofs,
-                                                                      node_list,
-                                                                      left_child_imp_data_list,
-                                                                      node_imp_decrease_list,
-                                                                      update_imp_dec_required,
-                                                                      grp_node_count,
-                                                                      { last_event });
-                last_event.wait_and_throw();
+            if (ctx.splitter_mode_value_ == splitter_mode::best) {
+                Index max_row_count = node_group.get_max_row_count();
+                if (max_row_count > node_t::get_elementary_node_max_row_count()) {
+                    last_event =
+                        bs_kernels_opt_t::best_split_single_pass_large(queue_,
+                                                                       ctx,
+                                                                       data,
+                                                                       response,
+                                                                       tree_order,
+                                                                       selected_ftr_list,
+                                                                       bin_offset_list,
+                                                                       imp_data_list,
+                                                                       node_ind_list,
+                                                                       grp_ind_ofs,
+                                                                       node_list,
+                                                                       left_child_imp_data_list,
+                                                                       node_imp_decrease_list,
+                                                                       update_imp_dec_required,
+                                                                       grp_node_count,
+                                                                       { last_event });
+                }
+                else {
+                    last_event =
+                        bs_kernels_opt_t::best_split_single_pass_small(queue_,
+                                                                       ctx,
+                                                                       data,
+                                                                       response,
+                                                                       tree_order,
+                                                                       selected_ftr_list,
+                                                                       bin_offset_list,
+                                                                       imp_data_list,
+                                                                       node_group,
+                                                                       node_list_wrap,
+                                                                       left_child_imp_data_list,
+                                                                       node_imp_decrease_list,
+                                                                       update_imp_dec_required,
+                                                                       { last_event });
+                }
             }
             else {
-                last_event =
-                    bs_kernels_opt_t::compute_split_single_pass_small(queue_,
-                                                                      ctx,
-                                                                      data,
-                                                                      response,
-                                                                      tree_order,
-                                                                      selected_ftr_list,
-                                                                      random_bins_com,
-                                                                      bin_offset_list,
-                                                                      imp_data_list,
-                                                                      node_group,
-                                                                      node_list_wrap,
-                                                                      left_child_imp_data_list,
-                                                                      node_imp_decrease_list,
-                                                                      update_imp_dec_required,
-                                                                      { last_event });
-                last_event.wait_and_throw();
+                // Random splitting
+                last_event = bs_kernels_opt_t::random_split_single_pass(queue_,
+                                                                        ctx,
+                                                                        data,
+                                                                        response,
+                                                                        tree_order,
+                                                                        selected_ftr_list,
+                                                                        random_bins_com,
+                                                                        bin_offset_list,
+                                                                        imp_data_list,
+                                                                        node_ind_list,
+                                                                        grp_ind_ofs,
+                                                                        node_list,
+                                                                        left_child_imp_data_list,
+                                                                        node_imp_decrease_list,
+                                                                        update_imp_dec_required,
+                                                                        grp_node_count,
+                                                                        { last_event });
             }
+
+            last_event.wait_and_throw();
         }
     }
     return last_event;

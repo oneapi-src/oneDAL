@@ -51,29 +51,11 @@ public:
     train_splitter_impl() = default;
     ~train_splitter_impl() = default;
 
-    static sycl::event compute_split_by_histogram(sycl::queue& queue,
-                                                  const context_t& ctx,
-                                                  const pr::ndarray<hist_type_t, 1>& node_hist_list,
-                                                  const pr::ndarray<Index, 1>& selected_ftr_list,
-                                                  const pr::ndarray<Index, 1>& random_bins_com,
-                                                  const pr::ndarray<Index, 1>& bin_offset_list,
-                                                  const imp_data_t& imp_data_list,
-                                                  const pr::ndarray<Index, 1>& nodeIndices,
-                                                  Index node_ind_ofs,
-                                                  pr::ndarray<Index, 1>& node_list,
-                                                  imp_data_t& left_child_imp_data_list,
-                                                  pr::ndarray<Float, 1>& node_imp_dec_list,
-                                                  bool update_imp_dec_required,
-                                                  Index node_count,
-                                                  const bk::event_vector& deps = {});
-
-private:
     static sycl::event compute_best_split_by_histogram(
         sycl::queue& queue,
         const context_t& ctx,
         const pr::ndarray<hist_type_t, 1>& node_hist_list,
         const pr::ndarray<Index, 1>& selected_ftr_list,
-        const pr::ndarray<Index, 1>& random_bins_com,
         const pr::ndarray<Index, 1>& bin_offset_list,
         const imp_data_t& imp_data_list,
         const pr::ndarray<Index, 1>& nodeIndices,

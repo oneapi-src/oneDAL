@@ -814,7 +814,6 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_spli
     const context_t& ctx,
     const pr::ndarray<hist_type_t, 1>& node_hist_list,
     const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
     const pr::ndarray<Index, 1>& node_ind_list,
@@ -1084,60 +1083,6 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_spli
     last_event.wait_and_throw();
 
     return last_event;
-}
-
-template <typename Float, typename Bin, typename Index, typename Task, bool use_private_mem>
-sycl::event
-train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_split_by_histogram(
-    sycl::queue& queue,
-    const context_t& ctx,
-    const pr::ndarray<hist_type_t, 1>& node_hist_list,
-    const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& random_bins_com,
-    const pr::ndarray<Index, 1>& bin_offset_list,
-    const imp_data_t& imp_data_list,
-    const pr::ndarray<Index, 1>& nodeIndices,
-    Index node_ind_ofs,
-    pr::ndarray<Index, 1>& node_list,
-    imp_data_t& left_child_imp_data_list,
-    pr::ndarray<Float, 1>& node_imp_dec_list,
-    bool update_imp_dec_required,
-    Index node_count,
-    const bk::event_vector& deps) {
-    if (ctx.splitter_mode_value_ == splitter_mode::random) {
-        return compute_random_split_by_histogram(queue,
-                                                 ctx,
-                                                 node_hist_list,
-                                                 selected_ftr_list,
-                                                 random_bins_com,
-                                                 bin_offset_list,
-                                                 imp_data_list,
-                                                 nodeIndices,
-                                                 node_ind_ofs,
-                                                 node_list,
-                                                 left_child_imp_data_list,
-                                                 node_imp_dec_list,
-                                                 update_imp_dec_required,
-                                                 node_count,
-                                                 deps);
-    }
-    else {
-        return compute_best_split_by_histogram(queue,
-                                               ctx,
-                                               node_hist_list,
-                                               selected_ftr_list,
-                                               random_bins_com,
-                                               bin_offset_list,
-                                               imp_data_list,
-                                               nodeIndices,
-                                               node_ind_ofs,
-                                               node_list,
-                                               left_child_imp_data_list,
-                                               node_imp_dec_list,
-                                               update_imp_dec_required,
-                                               node_count,
-                                               deps);
-    }
 }
 
 #define INSTANTIATE(F, B, I, T, M) template class train_splitter_impl<F, B, I, T, M>;
