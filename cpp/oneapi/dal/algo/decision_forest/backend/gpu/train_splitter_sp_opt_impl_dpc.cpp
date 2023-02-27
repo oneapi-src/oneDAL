@@ -39,7 +39,7 @@ using sycl::ext::oneapi::minimum;
 using sycl::ext::oneapi::maximum;
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
+sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split_single_pass(
     sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
@@ -57,7 +57,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
     bool update_imp_dec_required,
     Index node_count,
     const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(random_split, queue);
+    ONEDAL_PROFILER_TASK(random_split_single_pass, queue);
     using split_smp_t = split_smp<Float, Index, Task>;
     using split_info_t = split_info<Float, Index, Task>;
 
@@ -317,7 +317,8 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
 }
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_large(
+sycl::event
+train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single_pass_large(
     sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
@@ -334,7 +335,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_
     bool update_imp_dec_required,
     Index node_count,
     const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(best_split_large, queue);
+    ONEDAL_PROFILER_TASK(best_split_single_pass_large, queue);
 
     using split_smp_t = split_smp<Float, Index, Task>;
     using split_info_t = split_info<Float, Index, Task>;
@@ -650,7 +651,8 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_
 }
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_small(
+sycl::event
+train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single_pass_small(
     sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
@@ -665,7 +667,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_
     pr::ndarray<Float, 1>& node_imp_dec_list,
     bool update_imp_dec_required,
     const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(best_split_small, queue);
+    ONEDAL_PROFILER_TASK(best_split_single_pass_small, queue);
 
     using split_smp_t = split_smp<Float, Index, Task>;
     using split_info_t = split_info<Float, Index, Task>;
@@ -938,123 +940,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_
     }
 
     return last_event;
-}
-
-template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event
-train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_single_pass_large(
-    sycl::queue& queue,
-    const context_t& ctx,
-    const pr::ndarray<Bin, 2>& data,
-    const pr::ndview<Float, 1>& response,
-    const pr::ndarray<Index, 1>& tree_order,
-    const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& random_bins_com,
-    const pr::ndarray<Index, 1>& bin_offset_list,
-    const imp_data_t& imp_data_list,
-    const pr::ndarray<Index, 1>& node_ind_list,
-    Index node_ind_ofs,
-    pr::ndarray<Index, 1>& node_list,
-    imp_data_t& left_child_imp_data_list,
-    pr::ndarray<Float, 1>& node_imp_dec_list,
-    bool update_imp_dec_required,
-    Index node_count,
-    const bk::event_vector& deps) {
-    if (ctx.splitter_mode_value_ == splitter_mode::random) {
-        return random_split(queue,
-                            ctx,
-                            data,
-                            response,
-                            tree_order,
-                            selected_ftr_list,
-                            random_bins_com,
-                            bin_offset_list,
-                            imp_data_list,
-                            node_ind_list,
-                            node_ind_ofs,
-                            node_list,
-                            left_child_imp_data_list,
-                            node_imp_dec_list,
-                            update_imp_dec_required,
-                            node_count,
-                            deps);
-    }
-    else {
-        return best_split_large(queue,
-                                ctx,
-                                data,
-                                response,
-                                tree_order,
-                                selected_ftr_list,
-                                bin_offset_list,
-                                imp_data_list,
-                                node_ind_list,
-                                node_ind_ofs,
-                                node_list,
-                                left_child_imp_data_list,
-                                node_imp_dec_list,
-                                update_imp_dec_required,
-                                node_count,
-                                deps);
-    }
-}
-
-template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event
-train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::compute_split_single_pass_small(
-    sycl::queue& queue,
-    const context_t& ctx,
-    const pr::ndarray<Bin, 2>& data,
-    const pr::ndview<Float, 1>& response,
-    const pr::ndarray<Index, 1>& tree_order,
-    const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& random_bins_com,
-    const pr::ndarray<Index, 1>& bin_offset_list,
-    const imp_data_t& imp_data_list,
-    const node_group_view_t& node_group,
-    node_list_t& level_node_list,
-    imp_data_t& left_child_imp_data_list,
-    pr::ndarray<Float, 1>& node_imp_dec_list,
-    bool update_imp_dec_required,
-    const bk::event_vector& deps) {
-    if (ctx.splitter_mode_value_ == splitter_mode::random) {
-        Index node_count = node_group.get_node_count();
-        Index node_ind_ofs = node_group.get_node_indices_offset();
-        auto node_indices_list = node_group.get_node_indices_list();
-        return random_split(queue,
-                            ctx,
-                            data,
-                            response,
-                            tree_order,
-                            selected_ftr_list,
-                            random_bins_com,
-                            bin_offset_list,
-                            imp_data_list,
-                            node_indices_list,
-                            node_ind_ofs,
-                            level_node_list.get_list(),
-                            left_child_imp_data_list,
-                            node_imp_dec_list,
-                            update_imp_dec_required,
-                            node_count,
-                            deps);
-    }
-    else {
-        return best_split_small(queue,
-                                ctx,
-                                data,
-                                response,
-                                tree_order,
-                                selected_ftr_list,
-                                bin_offset_list,
-                                imp_data_list,
-                                node_group,
-                                level_node_list,
-                                left_child_imp_data_list,
-                                node_imp_dec_list,
-                                update_imp_dec_required,
-                                deps);
-    }
 }
 
 #define INSTANTIATE(F, B, I, T) template class train_splitter_sp_opt_impl<F, B, I, T>;
