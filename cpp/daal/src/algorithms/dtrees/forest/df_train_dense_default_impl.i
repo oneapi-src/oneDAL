@@ -676,7 +676,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     const size_t maxFeatures = nFeatures();
     _nConstFeature           = 0;
     _numElems                = &numElems;
-    _helper.engineImpl      = engineImpl;
+    _helper.engineImpl       = engineImpl;
     pTree                    = nullptr;
     _tree.destroy();
     _aSample.reset(_nSamples);
@@ -1124,7 +1124,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
             //index of best feature value in the array of sorted feature values
             const int idxFeatureValue =
                 _helper.findSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode, curImpurity, split,
-                                                      _minWeightLeaf, totalWeights, _binIndex + _data->getNumberOfRows() * iFeature);
+                                                  _minWeightLeaf, totalWeights, _binIndex + _data->getNumberOfRows() * iFeature);
             if (idxFeatureValue < 0) continue;
             iBestSplit = i;
             split.copyTo(bestSplit);
@@ -1141,7 +1141,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
 #endif
             split.featureUnordered = _featHelper.isUnordered(iFeature);
             if (!_helper.findSplitForFeature(featBuf, aIdx, n, _par.minObservationsInLeafNode, _accuracy, curImpurity, split, _minWeightLeaf,
-                                                 totalWeights))
+                                             totalWeights))
                 continue;
             idxFeatureValueBestSplit = -1;
             iBestSplit               = i;
