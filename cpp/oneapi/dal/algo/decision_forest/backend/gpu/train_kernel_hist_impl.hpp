@@ -98,7 +98,13 @@ private:
                      const table& labels);
     void allocate_buffers(const train_context_t& ctx);
 
-    std::tuple<pr::ndarray<Index, 1>, pr::ndarray<Index, 1>, sycl::event> gen_feature_list(
+    std::tuple<pr::ndarray<Index, 1>, sycl::event> gen_feature_list(
+        const train_context_t& ctx,
+        Index node_count,
+        const pr::ndarray<Index, 1>& node_vs_tree_map,
+        rng_engine_list_t& rng_engine_list);
+
+    std::tuple<pr::ndarray<Index, 1>, sycl::event> gen_random_tresholds(
         const train_context_t& ctx,
         Index node_count,
         const pr::ndarray<Index, 1>& node_vs_tree_map,
