@@ -621,13 +621,8 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
     const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
     Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
 
-    std::size_t local_hist_buf_size = 0;
-    if constexpr (use_private_mem) {
-        local_hist_buf_size = 1; // just some non zero value
-    }
-    else {
-        local_hist_buf_size = 2 * hist_prop_count; // for ts and bs histograms
-    }
+    std::size_t local_hist_buf_size = 2 * hist_prop_count;
+    ;
 
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d({ node_count }, { 1 });
 
@@ -658,13 +653,14 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
             Float bs_left_imp = Float(0);
             Float bs_imp_dec = min_imp_dec;
 
+            const hist_type_t* node_hist_ptr = node_hist_list_ptr + node_idx * selected_ftr_count *
+                                                                        max_bin_count_among_ftrs *
+                                                                        hist_prop_count;
+
             for (Index ftr_idx = 0; ftr_idx < selected_ftr_count; ftr_idx++) {
                 const Index ts_ftr_id =
                     selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
 
-                const hist_type_t* node_hist_ptr =
-                    node_hist_list_ptr +
-                    node_idx * selected_ftr_count * max_bin_count_among_ftrs * hist_prop_count;
                 const hist_type_t* ftr_hist_ptr =
                     node_hist_ptr + ftr_idx * max_bin_count_among_ftrs * hist_prop_count;
 
@@ -706,13 +702,15 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
 
                 Index ts_ftr_bin = min_bin + ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] %
                                                  (max_bin - min_bin + 1);
-                const Index bin_ofs = ts_ftr_bin * hist_prop_count;
 
                 if constexpr (std::is_same_v<Task, task::classification>) {
-                    sp_hlp.merge_bin_hist(ts_left_count,
-                                          ts_left_hist,
-                                          ftr_hist_ptr + bin_ofs,
-                                          hist_prop_count);
+                    for (Index bin_idx = min_bin; bin_idx <= ts_ftr_bin; bin_idx++) {
+                        Index ofs = bin_idx * hist_prop_count;
+                        sp_hlp.merge_bin_hist(ts_left_count,
+                                              ts_left_hist,
+                                              ftr_hist_ptr + ofs,
+                                              hist_prop_count);
+                    }
                     sp_hlp.calc_imp_dec(ts_right_count,
                                         ts_left_imp,
                                         ts_right_imp,
@@ -745,7 +743,11 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
                                              min_obs_leaf);
                 }
                 else {
-                    sp_hlp.merge_bin_hist(ts_left_hist, ftr_hist_ptr + bin_ofs, hist_prop_count);
+                    for (Index bin_idx = min_bin; bin_idx <= ts_ftr_bin; bin_idx++) {
+                        Index ofs = bin_idx * hist_prop_count;
+                        sp_hlp.merge_bin_hist(ts_left_hist, ftr_hist_ptr + ofs, hist_prop_count);
+                    }
+
                     sp_hlp.calc_imp_dec(ts_left_count,
                                         ts_right_count,
                                         ts_imp_dec,
