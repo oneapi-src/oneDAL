@@ -25,28 +25,28 @@ std::int64_t csr_table::kind() {
 }
 
 std::int64_t csr_table::get_non_zero_count() const {
-    const auto& impl = detail::cast_impl<detail::csr_table_iface>(*this);
+    const auto& impl = detail::cast_impl<const detail::csr_table_iface>(*this);
     return impl.get_non_zero_count();
 }
 sparse_indexing csr_table::get_indexing() const {
-    const auto& impl = detail::cast_impl<detail::csr_table_iface>(*this);
+    const auto& impl = detail::cast_impl<const detail::csr_table_iface>(*this);
     return impl.get_indexing();
 }
 
 csr_table::csr_table() : csr_table(new backend::csr_table_impl{}) {}
 
 const void* csr_table::get_data() const {
-    const auto& impl = detail::cast_impl<detail::csr_table_iface>(*this);
+    const auto& impl = detail::cast_impl<const detail::csr_table_iface>(*this);
     return impl.get_data().get_data();
 }
 
 const std::int64_t* csr_table::get_column_indices() const {
-    const auto& impl = detail::cast_impl<detail::csr_table_iface>(*this);
+    const auto& impl = detail::cast_impl<const detail::csr_table_iface>(*this);
     return impl.get_column_indices().get_data();
 }
 
 const std::int64_t* csr_table::get_row_offsets() const {
-    const auto& impl = detail::cast_impl<detail::csr_table_iface>(*this);
+    const auto& impl = detail::cast_impl<const detail::csr_table_iface>(*this);
     return impl.get_row_offsets().get_data();
 }
 

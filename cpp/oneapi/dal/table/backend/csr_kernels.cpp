@@ -87,8 +87,8 @@ void pull_data_impl(const Policy& policy,
             reset_array(policy, data, block_size, kind);
         }
 
-        auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
-        auto dst_data = data.get_mutable_data();
+        const byte_t* const src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
+        BlockData* const dst_data = data.get_mutable_data();
 
         backend::convert_vector(policy,
                                 src_data + origin_offset * block_dtype_size,
@@ -148,8 +148,8 @@ void pull_column_indices_impl(const Policy& policy,
         reset_array(policy, column_indices, block_size, kind);
 
         const auto dtype_size = sizeof(std::int64_t);
-        auto src_data = origin_column_indices.get_data() + origin_offset * dtype_size;
-        auto dst_data = column_indices.get_mutable_data();
+        const std::int64_t* const src_data = origin_column_indices.get_data() + origin_offset * dtype_size;
+        std::int64_t* const dst_data = column_indices.get_mutable_data();
 
         backend::convert_vector(policy,
                                 src_data + origin_offset * dtype_size,
@@ -211,8 +211,8 @@ void pull_row_offsets_impl(const Policy& policy,
                           preserve_mutability);
     }
     else {
-        auto src_row_offsets = origin_row_offsets.get_data();
-        auto dst_row_offsets = row_offsets.get_mutable_data();
+        const std::int64_t* const src_row_offsets = origin_row_offsets.get_data();
+        std::int64_t* const dst_row_offsets = row_offsets.get_mutable_data();
         const std::int64_t dst_row_offsets_count = block_info.row_count_ + 1;
 
         for (std::int64_t i = 0; i < dst_row_offsets_count; i++) {
