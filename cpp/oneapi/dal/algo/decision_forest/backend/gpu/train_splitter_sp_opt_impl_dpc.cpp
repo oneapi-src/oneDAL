@@ -100,7 +100,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
     const Index* tree_order_ptr = tree_order.get_data();
 
     const Index* selected_ftr_list_ptr = selected_ftr_list.get_data();
-    const Index* bin_offset_list_ptr = bin_offset_list.get_data();
 
     imp_data_list_ptr<Float, Index, Task> imp_list_ptr(imp_data_list);
 
@@ -165,23 +164,15 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
 
             cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
                 const Index node_idx = item.get_global_id(1);
-                if (node_idx > (node_count - 1)) {
+                if (processed_nodes + node_idx > (node_count - 1)) {
                     return;
                 }
                 const Index node_id = node_indices_ptr[node_ind_ofs + node_idx];
                 Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
-                const Index local_id = item.get_local_id(0);
+                const Index ftr_idx = item.get_local_id(0);
 
                 const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
                 const Index row_count = node_ptr[impl_const_t::ind_lrc];
-                if (row_count == 0) {
-                    return;
-                }
-
-                const Index ftr_idx = item.get_global_id(0);
-                if (ftr_idx > selected_ftr_count - 1) {
-                    return;
-                }
 
                 split_smp_t sp_hlp;
 
@@ -192,9 +183,18 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                 ts.init(ts_hist_buf_ptr + ftr_idx * hist_prop_count, hist_prop_count);
 
                 ts.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
-                const Index bin_count =
-                    bin_offset_list_ptr[ts.ftr_id + 1] - bin_offset_list_ptr[ts.ftr_id];
-                ts.ftr_bin = ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] % (bin_count + 1);
+
+                Index min_bin = ctx.max_bin_count_among_ftrs_;
+                Index max_bin = 0;
+                for (Index row_idx = 0; row_idx < row_count; row_idx++) {
+                    Index id = tree_order_ptr[row_ofs + row_idx];
+                    Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
+                    min_bin = sycl::min(min_bin, cur_bin);
+                    max_bin = sycl::max(max_bin, cur_bin);
+                }
+
+                ts.ftr_bin = min_bin + ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] %
+                                           (max_bin - min_bin + 1);
                 ts.left_count = 0;
                 if constexpr (std::is_same_v<Task, task::classification>) {
                     Index left_count = 0;
@@ -245,7 +245,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                 byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
                 ts.store(local_byte_buf_ptr, ftr_idx, selected_ftr_count);
 
-                if (local_id > 0) {
+                if (ftr_idx > 0) {
                     return;
                 }
 
