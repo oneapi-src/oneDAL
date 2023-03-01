@@ -148,7 +148,8 @@ void pull_column_indices_impl(const Policy& policy,
         reset_array(policy, column_indices, block_size, kind);
 
         const auto dtype_size = sizeof(std::int64_t);
-        const std::int64_t* const src_data = origin_column_indices.get_data() + origin_offset * dtype_size;
+        const std::int64_t* const src_data =
+            origin_column_indices.get_data() + origin_offset * dtype_size;
         std::int64_t* const dst_data = column_indices.get_mutable_data();
 
         backend::convert_vector(policy,
