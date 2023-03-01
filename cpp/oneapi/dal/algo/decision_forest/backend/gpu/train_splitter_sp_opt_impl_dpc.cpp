@@ -150,8 +150,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
         queue,
         local_buf_byte_size + local_hist_buf_size + ts_local_hist_size));
 
-    std::cout << "random splitter. node_count=" << node_count << ", local_size=" << local_size
-              << ", selected_ftr_count=" << selected_ftr_count << std::endl;
     auto ft_rnd_ptr = random_bins_com.get_data();
     for (Index processed_nodes = 0; processed_nodes < node_count;
          processed_nodes += node_in_block_count, node_ind_ofs += node_in_block_count) {
@@ -196,19 +194,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                 ts.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
                 const Index bin_count =
                     bin_offset_list_ptr[ts.ftr_id + 1] - bin_offset_list_ptr[ts.ftr_id];
-                Index min_bin = bin_count;
-                Index max_bin = 0;
-                for (Index row_idx = row_ofs; row_idx < row_ofs + row_count; row_idx++) {
-                    Index cur_bin = data_ptr[tree_order_ptr[row_idx] * column_count + ts.ftr_id];
-                    if (cur_bin > max_bin) {
-                        max_bin = cur_bin;
-                    }
-                    if (cur_bin < min_bin) {
-                        min_bin = cur_bin;
-                    }
-                }
-                ts.ftr_bin = min_bin + ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] %
-                                           (max_bin - min_bin + 1);
+                ts.ftr_bin = ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] % (bin_count + 1);
                 ts.left_count = 0;
                 if constexpr (std::is_same_v<Task, task::classification>) {
                     Index left_count = 0;
@@ -251,7 +237,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                         }
                     }
                     ts.left_count = Index(left_count);
-                    ts.right_count = row_count - ts.left_count;
                     ts.left_hist[0] = left_count;
                     ts.left_hist[1] = mean;
                     ts.left_hist[2] = sum2cent;
