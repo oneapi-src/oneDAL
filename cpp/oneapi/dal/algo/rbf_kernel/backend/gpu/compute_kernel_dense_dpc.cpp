@@ -110,6 +110,7 @@ void compute_rbf(sycl::queue& queue,
     {
         ONEDAL_PROFILER_TASK(rbf_kernel.gemm, queue);
         gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta, { reduce_y_event });
+        gemm_event.wait_and_throw();
     }
 
     compute_exponents(queue, sqr_x_nd, sqr_y_nd, res_nd, sigma, { gemm_event });
