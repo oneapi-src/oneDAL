@@ -42,7 +42,7 @@ void run(sycl::queue& q) {
 
     const auto df_desc =
         df::descriptor<float, df::method::hist, df::task::regression>{}
-            .set_tree_count(100)
+            .set_tree_count(150)
             .set_features_per_node(0)
             .set_min_observations_in_leaf_node(1)
             .set_error_metric_mode(df::error_metric_mode::out_of_bag_error |
