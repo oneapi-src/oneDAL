@@ -67,8 +67,6 @@ struct compute_ops {
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        // TO DO
-        // check result sizes!!!!!
         using msg = dal::detail::error_messages;
         std::int64_t p = input.get_data().get_column_count();
         if (result.get_result_options().test(result_options::value)) {

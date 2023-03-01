@@ -27,8 +27,6 @@
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-// #include "oneapi/dal/algo/objective_function/test/file.hpp"
-//#include "oneapi/dal/algo/objective_function/test/fixture.hpp"
 #include "oneapi/dal/algo/objective_function/test/fixture.hpp"
 
 namespace oneapi::dal::objective_function::test {
@@ -43,19 +41,15 @@ template <typename TestType>
 class logloss_batch_test : public logloss_test<TestType, logloss_batch_test<TestType>> {
 public:
     using base_t = logloss_test<TestType, logloss_batch_test<TestType>>;
-    //using float_t = typename base_t::float_t;
-    /*
-    using Float = typename base_t::Float;
-    using Method = typename base_t::Method;
-    using input_t = typename base_t::input_t;
-    using result_t = typename base_t::result_t;
-    using descriptor_t = typename base_t::descriptor_t;
-    using objective_t = typename base_t::objective_t;
-*/
 
     void gen_dimensions() {
         this->n_ = GENERATE(20, 50, 70);
         this->p_ = GENERATE(10, 15);
+    }
+
+    void gen_big_dimensions() {
+        this->n_ = GENERATE(25000, 50000, 100000);
+        this->p_ = 1000;
     }
 };
 
@@ -63,15 +57,25 @@ TEMPLATE_LIST_TEST_M(logloss_batch_test,
                      "logloss tests",
                      "[logloss][integration][gpu]",
                      logloss_types) {
-    // SKIP_IF(this->get_policy().is_cpu());
-    // SKIP_IF(this->get_policy().is_gpu())
     SKIP_IF(this->not_float64_friendly());
 
     this->gen_dimensions();
     this->gen_input();
     this->set_reg_coefs(1.1, 2.3);
-    // this->set_reg_coefs(1.1, 2.3);
     this->general_checks();
+}
+
+TEMPLATE_LIST_TEST_M(logloss_batch_test,
+                     "logloss big test",
+                     "[logloss][integration][gpu]",
+                     logloss_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+
+    this->gen_big_dimensions();
+    this->gen_input();
+    this->set_reg_coefs(1.1, 2.3);
+    this->test_big();
 }
 
 } // namespace oneapi::dal::objective_function::test

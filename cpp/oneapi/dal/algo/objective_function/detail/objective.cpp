@@ -33,9 +33,6 @@ public:
         return l2_coef;
     }
 
-    // daal_objective_t get_daal_objective_type() override {
-    //     return daal_objective_t::logloss;
-    //}
 private:
     double l1_coef = 0;
     double l2_coef = 0;

@@ -21,14 +21,11 @@
 namespace oneapi::dal::objective_function::detail {
 namespace v1 {
 
-// using daal_objective_t = daal::algorithms::internal::PairwiseDistanceType;
-
 class objective_impl : public base {
 public:
     virtual ~objective_impl() = default;
     virtual double get_l1_regularization_coefficient() = 0;
     virtual double get_l2_regularization_coefficient() = 0;
-    // virtual daal_distance_t get_daal_distance_type() = 0;
 };
 
 } // namespace v1

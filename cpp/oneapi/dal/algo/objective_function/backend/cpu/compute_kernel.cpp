@@ -101,9 +101,6 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                 nullptr,
                                                                 &daal_parameter));
 
-    // auto arr_means = array<Float>::empty(component_count);
-    // const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
-
     if (result.get_result_options().test(result_options::value)) {
         result.set_value(homogen_table::wrap(arr_val, 1, 1));
     }

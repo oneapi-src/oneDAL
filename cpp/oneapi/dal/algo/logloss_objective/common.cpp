@@ -49,7 +49,7 @@ template <typename Task>
 void descriptor_base<Task>::set_l1_regularization_coefficient_impl(double value) {
     using msg = dal::detail::error_messages;
     if (value < 0) {
-        throw domain_error(msg::invalid_key()); // Rename the error
+        throw domain_error(msg::regularization_coef_is_less_than_0());
     }
     impl_->l1_regularization_coefficient = value;
 }
@@ -58,7 +58,7 @@ template <typename Task>
 void descriptor_base<Task>::set_l2_regularization_coefficient_impl(double value) {
     using msg = dal::detail::error_messages;
     if (value < 0) {
-        throw domain_error(msg::invalid_key()); // Rename the error
+        throw domain_error(msg::regularization_coef_is_less_than_0());
     }
     impl_->l2_regularization_coefficient = value;
 }

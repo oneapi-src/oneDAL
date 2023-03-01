@@ -33,7 +33,6 @@ namespace lg = oneapi::dal::logloss_objective;
 
 template <typename TestType, typename Derived>
 class logloss_test : public te::crtp_algo_fixture<TestType, Derived> {
-    // te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
@@ -117,13 +116,102 @@ public:
         check_compute_result(compute_result);
     }
 
+    void test_big() {
+        auto desc =
+            get_descriptor(obj_fun::result_options::value | obj_fun::result_options::gradient |
+                           obj_fun::result_options::hessian);
+        INFO("run compute");
+        auto compute_result = this->compute(desc, data_, params_, responses_);
+        stochastic_checks(compute_result);
+    }
+
+    void stochastic_checks(const objective_function::compute_result<>& result,
+                           std::int32_t gradient_checks = 5,
+                           std::int32_t hessian_checks = 25) {
+        auto data_arr = row_accessor<const Float>(data_).pull({ 0, -1 });
+        auto params_arr = row_accessor<const Float>(params_).pull({ 0, -1 });
+        auto resp_arr = row_accessor<const Float>(responses_).pull({ 0, -1 });
+
+        auto pred_arr = array<float_t>::zeros(n_);
+        auto* const pred_ptr = pred_arr.get_mutable_data();
+
+        for (std::int64_t i = 0; i < n_; ++i) {
+            for (std::int64_t j = 0; j < p_; ++j) {
+                pred_ptr[i] += data_arr[i * p_ + j] * params_arr[j + 1];
+            }
+            pred_ptr[i] += params_arr[0];
+            pred_ptr[i] = 1 / (1 + std::exp(-pred_ptr[i]));
+        }
+        const double tol = te::get_tolerance<Float>(1e-4, 1e-6);
+
+        if (result.get_result_options().test(result_options::value)) {
+            const auto value = result.get_value();
+            REQUIRE(value.get_row_count() == 1);
+            REQUIRE(value.get_column_count() == 1);
+            REQUIRE(te::has_no_nans(value));
+            auto val_arr = row_accessor<const Float>(value).pull({ 0, -1 });
+            Float val = val_arr[0];
+            Float ans = 0;
+            for (std::int64_t i = 0; i < n_; ++i) {
+                ans -= resp_arr[i] * std::log(pred_ptr[i]) +
+                       (1 - resp_arr[i]) * std::log(1 - pred_ptr[i]);
+            }
+            ans /= n_;
+            // We do not apply regularization to w_0
+            for (std::int64_t i = 1; i <= p_; ++i) {
+                ans += L1_ * std::abs(params_arr[i]) + L2_ * params_arr[i] * params_arr[i];
+            }
+            const double diff = std::abs(val - ans);
+            REQUIRE(diff < tol);
+        }
+        if (result.get_result_options().test(result_options::gradient)) {
+            const auto gradient = result.get_gradient();
+            REQUIRE(gradient.get_row_count() == p_ + 1);
+            REQUIRE(gradient.get_column_count() == 1);
+            auto grad_arr = row_accessor<const Float>(gradient).pull({ 0, -1 });
+            for (std::int32_t num_checks = 0; num_checks < gradient_checks; ++num_checks) {
+                std::int64_t j = rand() % (p_ + 1);
+                Float ans = 0;
+                for (std::int64_t i = 0; i < n_; ++i) {
+                    Float x1 = j == 0 ? 1 : data_arr[i * p_ + j - 1];
+                    ans += (pred_ptr[i] - resp_arr[i]) * x1;
+                }
+                ans /= n_;
+                // We do not apply regularization to w_0
+                ans += j > 0 ? +L2_ * 2 * params_arr[j] : 0;
+                const double diff = std::abs(grad_arr[j] - ans);
+                REQUIRE(diff < tol);
+            }
+        }
+
+        if (result.get_result_options().test(result_options::hessian)) {
+            const auto hessian = result.get_hessian();
+            REQUIRE(hessian.get_row_count() == p_ + 1);
+            REQUIRE(hessian.get_column_count() == p_ + 1);
+            auto hess_arr = row_accessor<const Float>(hessian).pull({ 0, -1 });
+            for (std::int32_t num_checks = 0; num_checks < hessian_checks; ++num_checks) {
+                std::int64_t k = rand() % (p_ + 1);
+                std::int64_t j = rand() % (p_ + 1);
+
+                Float ans = 0;
+                for (std::int64_t i = 0; i < n_; ++i) {
+                    Float x1 = k == 0 ? 1 : data_arr[i * p_ + k - 1];
+                    Float x2 = j == 0 ? 1 : data_arr[i * p_ + j - 1];
+                    ans += x1 * x2 * pred_ptr[i] * (1 - pred_ptr[i]);
+                }
+                ans /= n_;
+                // We do not apply regularization to w_0
+                ans += (k == j && j > 0) ? L2_ * 2 : 0;
+                const double diff = std::abs(hess_arr[k * (p_ + 1) + j] - ans);
+                REQUIRE(diff < tol);
+            }
+        }
+    }
+
     void check_compute_result(const objective_function::compute_result<>& result) {
         auto data_arr = row_accessor<const Float>(data_).pull({ 0, -1 });
         auto params_arr = row_accessor<const Float>(params_).pull({ 0, -1 });
         auto resp_arr = row_accessor<const Float>(responses_).pull({ 0, -1 });
-        // std::cout << "Check" << std::endl;
-        // std::int64_t n_ = data.get_row_count();
-        // std::int64_t p_ = data.get_column_count();
 
         auto pred_arr = array<float_t>::zeros(n_);
         auto* const pred_ptr = pred_arr.get_mutable_data();
