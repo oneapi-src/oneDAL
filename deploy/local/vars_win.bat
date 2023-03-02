@@ -15,6 +15,14 @@ rem See the License for the specific language governing permissions and
 rem limitations under the License.
 rem ============================================================================
 
+
+rem check if ONEAPI_ROOT is defined
+IF DEFINED ONEAPI_ROOT (
+  set "DAALROOT=%ONEAPI_ROOT%"
+  set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
+  exit /b 0
+)
+
 setlocal
 call:GetFullPath "%~dp0.."       DAAL
 call:GetFullPath "%~dp0..\..\.." DAAL_UP
@@ -44,15 +52,15 @@ exit /b 0
 set "DAALROOT=%DAAL%"
 set "INCLUDE=%DAAL%\include;%INCLUDE%"
 set "CPATH=%DAAL%\include;%CPATH%"
-set "LIB=%DAAL%\lib\%DAAL_IA%;%LIB%"
+set "LIB=%DAAL%\lib;%LIB%"
 set "CMAKE_PREFIX_PATH=%DAAL%;%CMAKE_PREFIX_PATH%"
 set "PKG_CONFIG_PATH=%DAAL%\lib\pkgconfig;%PKG_CONFIG_PATH%"
 if exist "%DAAL_UP_OLD%\redist" (
     set "PATH=%DAAL_UP_OLD%\redist\%DAAL_IA%_win\daal;%PATH%"
 ) else (
-    set "PATH=%DAAL%\redist\%DAAL_IA%;%PATH%"
+    set "PATH=%DAAL%\bin;%PATH%"
 )
-set "CLASSPATH=%DAAL%\lib\onedal.jar;%CLASSPATH%"
+set "CLASSPATH=%DAAL%\share\java\onedal.jar;%CLASSPATH%"
 endlocal& ^
 set DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__& ^
 set DAL_MINOR_BINARY=__DAL_MINOR_BINARY__& ^
