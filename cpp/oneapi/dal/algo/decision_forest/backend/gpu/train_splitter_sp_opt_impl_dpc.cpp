@@ -205,7 +205,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                     for (Index row_idx = 0; row_idx < row_count; row_idx++) {
                         Index id = tree_order_ptr[row_ofs + row_idx];
                         Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
-                        if (cur_bin < ts.ftr_bin) {
+                        if (cur_bin <= ts.ftr_bin) {
                             left_count++;
                             Index response_int = static_cast<Index>(response_ptr[id]);
                             ts.left_hist[response_int]++;
@@ -221,7 +221,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                     for (Index row_idx = 0; row_idx < row_count; row_idx++) {
                         Index id = tree_order_ptr[row_ofs + row_idx];
                         Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
-                        if (cur_bin < ts.ftr_bin) {
+                        if (cur_bin <= ts.ftr_bin) {
                             left_count += 1;
                             sum += response_ptr[id];
                         }
@@ -232,7 +232,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                         Index id = tree_order_ptr[row_ofs + row_idx];
                         Float val = response_ptr[id];
                         Index cur_bin = data_ptr[id * column_count + ts.ftr_id];
-                        if (cur_bin < ts.ftr_bin) {
+                        if (cur_bin <= ts.ftr_bin) {
                             sum2cent += (val - mean) * (val - mean);
                         }
                     }
@@ -240,6 +240,18 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                     ts.left_hist[0] = left_count;
                     ts.left_hist[1] = mean;
                     ts.left_hist[2] = sum2cent;
+                }
+
+                if constexpr (std::is_same_v<Task, task::classification>) {
+                    sp_hlp.calc_imp_dec(ts,
+                                        node_ptr,
+                                        node_imp_list_ptr,
+                                        class_hist_list_ptr,
+                                        class_count,
+                                        node_id);
+                }
+                else {
+                    sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
                 }
 
                 byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();

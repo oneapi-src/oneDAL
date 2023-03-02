@@ -775,18 +775,6 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
                 }
             }
 
-            if constexpr (std::is_same_v<Task, task::classification>) {
-                sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
-                                             left_child_class_hist_list_ptr,
-                                             bs_left_imp,
-                                             bs_left_hist,
-                                             node_id,
-                                             hist_prop_count);
-            }
-            else {
-                sp_hlp.update_left_child_imp(left_child_imp_list_ptr, bs_left_hist, node_id);
-            }
-
             node_ptr[impl_const_t::ind_fid] =
                 bs_ftr_id == index_max ? impl_const_t::leaf_mark_ : bs_ftr_id;
             node_ptr[impl_const_t::ind_bin] =
@@ -801,6 +789,19 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
                     node_imp_decr_list_ptr[node_id] = bs_imp_dec / node_ptr[impl_const_t::ind_grc];
                 }
             }
+
+            if constexpr (std::is_same_v<Task, task::classification>) {
+                sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
+                                             left_child_class_hist_list_ptr,
+                                             bs_left_imp,
+                                             bs_left_hist,
+                                             node_id,
+                                             hist_prop_count);
+            }
+            else {
+                sp_hlp.update_left_child_imp(left_child_imp_list_ptr, bs_left_hist, node_id);
+            }
+
         });
     });
 
