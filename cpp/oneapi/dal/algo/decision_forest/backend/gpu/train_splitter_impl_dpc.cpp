@@ -801,7 +801,6 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
             else {
                 sp_hlp.update_left_child_imp(left_child_imp_list_ptr, bs_left_hist, node_id);
             }
-
         });
     });
 
