@@ -44,7 +44,7 @@
 #   /script/absolute/pathname
 
 if [ -n "$ONEAPI_ROOT" ] ; then 
-  export DAALROOT=$ONEAPI_ROOT/lib
+  export DAALROOT=$ONEAPI_ROOT
   export CLASSPATH=$ONEAPI_ROOT/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
 else
 
