@@ -544,7 +544,7 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
     const context_t& ctx,
     const pr::ndarray<hist_type_t, 1>& node_hist_list,
     const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& random_bins_com,
+    const pr::ndarray<Float, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
     const pr::ndarray<Index, 1>& node_ind_list,
@@ -700,8 +700,10 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
                     }
                 }
 
-                Index ts_ftr_bin = min_bin + ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx] %
-                                                 (max_bin - min_bin + 1);
+                const Float random_val = ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
+                const Index random_bin_ofs =
+                    static_cast<Index>((max_bin - min_bin + 1) * random_val);
+                Index ts_ftr_bin = min_bin + random_bin_ofs;
 
                 if constexpr (std::is_same_v<Task, task::classification>) {
                     for (Index bin_idx = min_bin; bin_idx <= ts_ftr_bin; bin_idx++) {

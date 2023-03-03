@@ -503,7 +503,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-std::tuple<pr::ndarray<Index, 1>, sycl::event>
+std::tuple<pr::ndarray<Float, 1>, sycl::event>
 train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_tresholds(
     const train_context_t& ctx,
     Index node_count,
@@ -515,13 +515,13 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_tresholds(
 
     auto node_vs_tree_map_list_host = node_vs_tree_map.to_host(queue_);
 
-    pr::rng<Index> rn_gen;
+    pr::rng<Float> rn_gen;
     auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
 
     // Create arrays for random generated bins
     auto random_bins_host =
-        pr::ndarray<Index, 1>::empty(queue_, { node_count * ctx.selected_ftr_count_ });
-    auto random_bins_com = pr::ndarray<Index, 1>::empty(queue_,
+        pr::ndarray<Float, 1>::empty(queue_, { node_count * ctx.selected_ftr_count_ });
+    auto random_bins_com = pr::ndarray<Float, 1>::empty(queue_,
                                                         { node_count * ctx.selected_ftr_count_ },
                                                         alloc::device);
     auto random_bins_host_ptr = random_bins_host.get_mutable_data();
@@ -531,8 +531,8 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_tresholds(
         rn_gen.uniform(ctx.selected_ftr_count_,
                        random_bins_host_ptr + node * ctx.selected_ftr_count_,
                        rng_engine_list[tree_map_ptr[node]].get_state(),
-                       0,
-                       ctx.max_bin_count_among_ftrs_);
+                       0.0f,
+                       1.0f);
     }
     auto event_rnd_generate =
         random_bins_com.assign_from_host(queue_, random_bins_host_ptr, random_bins_com.get_count());
@@ -1191,7 +1191,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     const pr::ndview<Float, 1>& response,
     const pr::ndarray<Index, 1>& tree_order,
     const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& random_bins_com,
+    const pr::ndarray<Float, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
     pr::ndarray<Index, 1>& node_list,

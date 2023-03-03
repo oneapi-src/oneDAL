@@ -98,7 +98,7 @@ public:
                                                 const pr::ndview<Float, 1>& response,
                                                 const pr::ndarray<Index, 1>& tree_order,
                                                 const pr::ndarray<Index, 1>& selected_ftr_list,
-                                                const pr::ndarray<Index, 1>& random_bins_com,
+                                                const pr::ndarray<Float, 1>& random_bins_com,
                                                 const pr::ndarray<Index, 1>& bin_offset_list,
                                                 const imp_data_t& imp_data_list,
                                                 const pr::ndarray<Index, 1>& node_ind_list,
