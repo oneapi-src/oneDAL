@@ -46,7 +46,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
     const pr::ndview<Float, 1>& response,
     const pr::ndarray<Index, 1>& tree_order,
     const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& random_bins_com,
+    const pr::ndarray<Float, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
     const pr::ndarray<Index, 1>& node_ind_list,
@@ -108,7 +108,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
 
     imp_data_list_ptr_mutable<Float, Index, Task> left_imp_list_ptr(left_child_imp_data_list);
 
-    const Index* ftr_rnd_ptr = random_bins_com.get_data();
+    const Float* ftr_rnd_ptr = random_bins_com.get_data();
 
     const Index column_count = ctx.column_count_;
     const Index selected_ftr_count = ctx.selected_ftr_count_;
@@ -206,8 +206,10 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                             return;
                         }
 
-                        ts.ftr_bin = min_bin + ftr_rnd_ptr[node_id * selected_ftr_count + ftr_idx] %
-                                                   (max_bin - min_bin + 1);
+                        const Float rand_val = ftr_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
+                        const Index random_bin_ofs =
+                            static_cast<Index>(rand_val * (max_bin - min_bin + 1));
+                        ts.ftr_bin = min_bin + random_bin_ofs;
 
                         const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
 
