@@ -49,7 +49,7 @@ void run(sycl::queue& q) {
             .set_min_observations_in_split_node(16)
             .set_min_weight_fraction_in_leaf_node(0.0)
             .set_min_impurity_decrease_in_split_node(0.0)
-            .set_splitter_mode(df::v1::splitter_mode::random)
+            .set_splitter_mode(df::splitter_mode::random)
             .set_infer_mode(df::infer_mode::class_responses | df::infer_mode::class_probabilities)
             .set_voting_mode(df::voting_mode::weighted);
 

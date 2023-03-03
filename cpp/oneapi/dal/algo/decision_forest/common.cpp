@@ -22,7 +22,7 @@ namespace oneapi::dal::decision_forest {
 namespace detail {
 namespace v1 {
 
-using splitter_t = oneapi::dal::decision_forest::v1::splitter_mode;
+using splitter_t = oneapi::dal::decision_forest::splitter_mode;
 
 inline void check_domain_cond(bool value, const char* description) {
     if (!(value))

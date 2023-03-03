@@ -128,7 +128,7 @@ enum class voting_mode {
 enum class splitter_mode {
     /// Treshold for a node is chosen as the best among all bins
     best,
-    /// Treshold for a node is chosen as random treshold
+    /// Threshold for a node is the best for a set chosen at random
     random
 };
 
@@ -703,5 +703,6 @@ using v1::is_leaf_node_info;
 using v1::is_leaf_node_info_v;
 using v1::is_split_node_info;
 using v1::is_split_node_info_v;
+using v1::splitter_mode;
 
 } // namespace oneapi::dal::decision_forest
