@@ -28,6 +28,7 @@ dal_collect_modules(
         "heap",
         "intersection",
         "lapack",
+        "objective_function",
         "reduction",
         "regression",
         "rng",
@@ -74,6 +75,7 @@ dal_collect_test_suites(
     modules = [
         "blas",
         "lapack",
+        "objective_function",
         "reduction",
         "selection",
         "sort",
