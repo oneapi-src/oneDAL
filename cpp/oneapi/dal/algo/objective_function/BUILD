@@ -18,20 +18,6 @@ dal_module(
     ]
 )
 
-
-dal_test_suite(
-    name = "cpu_tests",
-    private = True,
-    compile_as = [ "c++" ],
-    srcs = glob([
-        "backend/cpu/test/*.cpp",
-    ]),
-    dal_deps = [
-        ":objective_function",
-    ],
-)
-
-
 dal_test_suite(
     name = "tests",
     private = True,
@@ -39,7 +25,6 @@ dal_test_suite(
     hdrs = glob([
         "test/*.hpp",
     ]),
-    #compile_as = [ "dpc++" ],
     srcs = glob([
         "test/*.cpp",
     ]),
@@ -48,38 +33,3 @@ dal_test_suite(
     ],
 )
 
-dal_test_suite(
-    name = "gpu_tests",
-    private = True,
-    compile_as = [ "dpc++" ],
-    srcs = glob([
-        "backend/gpu/test/*.cpp",
-    ]),
-    dal_deps = [
-        ":objective_function",
-    ],
-)
-'''
-dal_test_suite(
-    name = "interface_tests",
-    framework = "catch2",
-    hdrs = glob([
-        "test/*.hpp",
-    ]),
-    srcs = glob([
-        "test/*.cpp",
-    ]),
-    dal_deps = [
-        ":covariance",
-    ],
-)
-
-dal_test_suite(
-    name = "tests",
-    tests = [
-        ":cpu_tests",
-        ":gpu_tests",
-        ":interface_tests",
-    ],
-)
-'''
