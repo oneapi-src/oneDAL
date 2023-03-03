@@ -616,7 +616,8 @@ protected:
     void chooseFeatures()
     {
         const size_t n    = nFeatures();
-        const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
+        const size_t nGen = _nFeaturesPerNode;
+        // const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
         *_numElems += n;
         RNGs<IndexType, cpu> rng;
         rng.uniformWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), 0, n);
@@ -683,7 +684,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     _aFeatureBuf.reset(_nFeatureBufs);
     _aFeatureIndexBuf.reset(_nFeatureBufs);
 
-    if (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures)
+    if (false && !_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures)
     {
         _aFeatureIdx.reset(maxFeatures * 2);      // maxFeatures elements are used by algorithm, others are used internally by generator
         _aConstFeatureIdx.reset(maxFeatures * 2); // first maxFeatures elements are used for saving indices of constant features,
@@ -1099,7 +1100,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
         const auto iFeature            = _aFeatureIdx[i];
         const bool bUseIndexedFeatures = (!_par.memorySavingMode) && (fact > qMax * float(_helper.indexedFeatures().numIndices(iFeature)));
 
-        if (!_maxLeafNodes && !_useConstFeatures && !_par.memorySavingMode)
+        if (false && !_maxLeafNodes && !_useConstFeatures && !_par.memorySavingMode)
         {
             if (_aConstFeatureIdx[maxFeatures + iFeature] > 0) continue; //selected feature is known constant feature
             if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n))
