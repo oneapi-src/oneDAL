@@ -66,6 +66,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
     const Float L2 = obj_impl->get_l2_regularization_coefficient();
 
     const std::int64_t bsz = get_block_size(n, p);
+    const bk::uniform_blocking blocking(n, bsz);
 
     const auto params_nd = pr::table2ndarray_1d<Float>(q_, params, alloc::device);
     const auto* const params_ptr = params_nd.get_data();
@@ -92,6 +93,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
     pr::ndarray<Float, 2> out_hessian, ans_hessian;
 
     if (desc.get_result_options().test(result_options::hessian)) {
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, p + 1, p + 1);
         out_hessian = pr::ndarray<Float, 2>::empty(q_, { p + 1, p + 1 }, sycl::usm::alloc::device);
         ans_hessian = pr::ndarray<Float, 2>::empty(q_, { p + 1, p + 1 }, sycl::usm::alloc::device);
         auto fill_event = fill(q_, ans_hessian, Float(0), {});
@@ -100,15 +102,19 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
 
     auto probabilities_big = pr::ndarray<Float, 1>::empty(q_, { bsz }, sycl::usm::alloc::device);
 
-    for (std::int64_t i = 0; i < n; i += bsz) {
-        std::int64_t cursize = std::min(n - i, bsz);
+    sycl::event prev_logloss_e, prev_grad_e, prev_hess_e;
+
+    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+        const auto first = blocking.get_block_start_index(b);
+        const auto last = blocking.get_block_end_index(b);
+        const std::int64_t cursize = last - first;
 
         auto probabilities = probabilities_big.slice(0, cursize);
 
         const auto data_rows =
-            row_accessor<const Float>(data).pull(q_, { i, i + cursize }, sycl::usm::alloc::device);
+            row_accessor<const Float>(data).pull(q_, { first, last }, sycl::usm::alloc::device);
         const auto data_nd = pr::ndarray<Float, 2>::wrap(data_rows, { cursize, p });
-        const auto responses_nd = responses_nd_big.slice(i, cursize);
+        const auto responses_nd = responses_nd_big.slice(first, cursize);
 
         sycl::event prob_e = compute_probabilities(q_, params_nd, data_nd, probabilities, {});
 
@@ -130,14 +136,13 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
 
             const auto* const out_ptr = out.get_data();
 
-            auto update_event = q_.submit([&](sycl::handler& cgh) {
-                cgh.depends_on({ loss_event });
+            prev_logloss_e = q_.submit([&](sycl::handler& cgh) {
+                cgh.depends_on({ loss_event, prev_logloss_e });
                 const auto range = oneapi::dal::backend::make_range_1d(p + 2);
                 cgh.parallel_for(range, [=](sycl::id<1> idx) {
                     ans_ptr[idx] += out_ptr[idx];
                 });
             });
-            update_event.wait_and_throw();
         }
         else {
             if (desc.get_result_options().test(result_options::value)) {
@@ -154,13 +159,12 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
                 loss_event.wait_and_throw();
 
                 const auto* const out_ptr = out_loss.get_data();
-                auto update_event = q_.submit([&](sycl::handler& cgh) {
-                    cgh.depends_on({ loss_event });
+                prev_logloss_e = q_.submit([&](sycl::handler& cgh) {
+                    cgh.depends_on({ loss_event, prev_logloss_e });
                     cgh.single_task([=] {
                         ans_loss_ptr[0] += out_ptr[0];
                     });
                 });
-                update_event.wait_and_throw();
             }
 
             if (desc.get_result_options().test(result_options::gradient)) {
@@ -176,8 +180,8 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
                                                      { prob_e, fill_event });
                 grad_event.wait_and_throw();
                 const auto* const grad_ptr = out_gradient.get_data();
-                auto update_event = q_.submit([&](sycl::handler& cgh) {
-                    cgh.depends_on({ grad_event });
+                prev_grad_e = q_.submit([&](sycl::handler& cgh) {
+                    cgh.depends_on({ grad_event, prev_grad_e });
 
                     const auto range = oneapi::dal::backend::make_range_1d(p + 1);
 
@@ -185,7 +189,6 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
                         ans_grad_ptr[idx] += grad_ptr[idx];
                     });
                 });
-                update_event.wait_and_throw();
             }
         }
 
@@ -203,63 +206,72 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
             hess_event.wait_and_throw();
             auto* const ans_hess_ptr = ans_hessian.get_mutable_data();
             const auto* const hess_ptr = out_hessian.get_data();
-            auto update_event = q_.submit([&](sycl::handler& cgh) {
-                cgh.depends_on({ hess_event });
+            prev_hess_e = q_.submit([&](sycl::handler& cgh) {
+                cgh.depends_on({ hess_event, prev_hess_e });
                 const auto range = oneapi::dal::backend::make_range_2d(p + 1, p + 1);
                 cgh.parallel_for(range, [=](sycl::id<2> idx) {
                     ans_hess_ptr[idx[0] * (p + 1) + idx[1]] += hess_ptr[idx[0] * (p + 1) + idx[1]];
                 });
             });
-            update_event.wait_and_throw();
         }
     }
+
+    const Float inv_n = Float(1) / n;
+
     if (desc.get_result_options().test(result_options::value)) {
-        auto update_event = q_.submit([&](sycl::handler& cgh) {
+        prev_logloss_e = q_.submit([&](sycl::handler& cgh) {
+            cgh.depends_on({ prev_logloss_e });
             cgh.single_task([=] {
-                ans_loss_ptr[0] /= n;
+                ans_loss_ptr[0] *= inv_n;
                 for (std::int64_t i = 1; i < p + 1; ++i) {
                     ans_loss_ptr[0] +=
                         L2 * params_ptr[i] * params_ptr[i] + L1 * sycl::abs(params_ptr[i]);
                 }
             });
         });
-        update_event.wait_and_throw();
     }
     if (desc.get_result_options().test(result_options::gradient)) {
-        auto update_event = q_.submit([&](sycl::handler& cgh) {
+        prev_grad_e = q_.submit([&](sycl::handler& cgh) {
             const auto range = oneapi::dal::backend::make_range_1d(p + 1);
+            if (desc.get_result_options().test(result_options::value)) {
+                cgh.depends_on({ prev_logloss_e });
+            }
+            else {
+                cgh.depends_on({ prev_grad_e });
+            }
             cgh.parallel_for(range, [=](sycl::id<1> idx) {
-                ans_grad_ptr[idx[0]] /= n;
+                ans_grad_ptr[idx[0]] *= inv_n;
                 if (idx > 0) {
                     ans_grad_ptr[idx] += L2 * params_ptr[idx] * 2;
                 }
             });
         });
-        update_event.wait_and_throw();
     }
 
     if (desc.get_result_options().test(result_options::hessian)) {
-        auto update_event = q_.submit([&](sycl::handler& cgh) {
+        prev_hess_e = q_.submit([&](sycl::handler& cgh) {
             auto* const ans_hess_ptr = ans_hessian.get_mutable_data();
             const auto range2d = oneapi::dal::backend::make_range_2d(p + 1, p + 1);
+            cgh.depends_on({ prev_hess_e });
             cgh.parallel_for(range2d, [=](sycl::id<2> idx) {
-                ans_hess_ptr[idx[0] * (p + 1) + idx[1]] /= n;
+                ans_hess_ptr[idx[0] * (p + 1) + idx[1]] *= inv_n;
                 if (idx[0] == idx[1] && idx[0] > 0) {
                     ans_hess_ptr[idx[0] * (p + 1) + idx[1]] += L2 * 2;
                 }
             });
         });
-        update_event.wait_and_throw();
     }
 
     if (desc.get_result_options().test(result_options::value)) {
-        result.set_value(homogen_table::wrap(ans_loss.flatten(q_, {}), 1, 1));
+        result.set_value(homogen_table::wrap(ans_loss.flatten(q_, { prev_logloss_e }), 1, 1));
     }
     if (desc.get_result_options().test(result_options::gradient)) {
-        result.set_gradient(homogen_table::wrap(ans_gradient.flatten(q_, {}), p + 1, 1));
+        result.set_gradient(
+            homogen_table::wrap(ans_gradient.flatten(q_, { prev_grad_e }), p + 1, 1));
     }
     if (desc.get_result_options().test(result_options::hessian)) {
-        result.set_hessian(homogen_table::wrap(ans_hessian.flatten(q_, {}), p + 1, p + 1));
+        result.set_hessian(
+            homogen_table::wrap(ans_hessian.flatten(q_, { prev_hess_e }), p + 1, p + 1));
     }
     return result;
 }

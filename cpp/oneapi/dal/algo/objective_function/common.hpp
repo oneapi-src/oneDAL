@@ -65,8 +65,8 @@ namespace detail {
 ONEDAL_EXPORT result_option_id get_value_id();
 ONEDAL_EXPORT result_option_id get_gradient_id();
 ONEDAL_EXPORT result_option_id get_hessian_id();
-// ONEDAL_EXPORT result_option_id get_packed_gradient_id();
-// ONEDAL_EXPORT result_option_id get_packed_hessian_id();
+// ONEDAL_EXPORT result_option_id get_packed_gradient_id(); TODO
+// ONEDAL_EXPORT result_option_id get_packed_hessian_id(); TODO
 
 } // namespace detail
 
@@ -74,8 +74,8 @@ namespace result_options {
 const inline auto value = detail::get_value_id();
 const inline auto gradient = detail::get_gradient_id();
 const inline auto hessian = detail::get_hessian_id();
-// const inline auto packed_gradient = detail::get_packed_gradient_id();
-// const inline auto packed_hessian = detail::get_packed_hessian_id();
+// const inline auto packed_gradient = detail::get_packed_gradient_id(); TODO
+// const inline auto packed_hessian = detail::get_packed_hessian_id(); TODO
 } // namespace result_options
 
 namespace detail {

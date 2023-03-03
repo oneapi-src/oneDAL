@@ -115,6 +115,8 @@ const table& compute_result<Task>::get_hessian() const {
 }
 
 /*
+TODO
+
 template <typename Task>
 const table& compute_result<Task>::get_packed_gradient() const {
     using msg = dal::detail::error_messages;
@@ -162,6 +164,8 @@ void compute_result<Task>::set_hessian_impl(const table& value) {
 }
 
 /*
+TODO
+
 template <typename Task>
 void compute_result<Task>::set_packed_gradient_impl(const table& value) {
     using msg = dal::detail::error_messages;

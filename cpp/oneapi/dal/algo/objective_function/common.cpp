@@ -33,6 +33,9 @@ result_option_id get_hessian_id() {
 }
 
 /*
+
+TODO
+
 result_option_id get_packed_gradient_id() {
     return result_option_id{ result_option_id::make_by_index(3) };
 }

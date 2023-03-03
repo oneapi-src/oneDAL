@@ -52,7 +52,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto daal_params = interop::convert_to_daal_table<Float>(parameters);
     const auto daal_resp = interop::convert_to_daal_table<std::int32_t>(responses);
 
-    std::int64_t p = data.get_column_count();
+    const std::int64_t p = data.get_column_count();
 
     auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
 
@@ -60,7 +60,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                daal::data_management::NumericTablePtr(),
                                0);
 
-    auto obj_impl = detail::get_objective_impl(desc);
+    const auto obj_impl = detail::get_objective_impl(desc);
     daal_parameter.penaltyL1 = obj_impl->get_l1_regularization_coefficient();
     daal_parameter.penaltyL2 = obj_impl->get_l2_regularization_coefficient();
 
@@ -83,6 +83,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     }
 
     if (result.get_result_options().test(result_options::hessian)) {
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, p + 1, p + 1);
         arr_hess = array<Float>::empty((p + 1) * (p + 1));
         daal_hessian = interop::convert_to_daal_homogen_table(arr_hess, p + 1, p + 1);
         daal_parameter.resultsToCompute |= daal_obj_fun::hessian;
