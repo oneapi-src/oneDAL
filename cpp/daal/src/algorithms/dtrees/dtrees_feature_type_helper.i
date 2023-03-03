@@ -228,7 +228,7 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
         {
             if(D > 0)
             {
-                newBinsize++;
+                newBinSize++;
                 remainder--;
                 D -= dx;
             }
