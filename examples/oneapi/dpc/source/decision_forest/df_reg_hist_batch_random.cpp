@@ -44,8 +44,8 @@ void run(sycl::queue& q) {
         df::descriptor<float, df::method::hist, df::task::regression>{}
             .set_tree_count(200)
             .set_features_per_node(10)
-            .set_splitter_mode(df::v1::splitter_mode::random)
-            //.set_variable_importance_mode(df::variable_importance_mode::mdi)
+            .set_splitter_mode(df::splitter_mode::random)
+            .set_variable_importance_mode(df::variable_importance_mode::mdi)
             .set_min_observations_in_leaf_node(5)
             .set_error_metric_mode(df::error_metric_mode::out_of_bag_error |
                                    df::error_metric_mode::out_of_bag_error_per_observation);
