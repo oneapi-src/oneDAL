@@ -22,7 +22,6 @@ namespace oneapi::dal::decision_forest {
 namespace detail {
 namespace v1 {
 
-
 inline void check_domain_cond(bool value, const char* description) {
     if (!(value))
         throw dal::domain_error(description);
