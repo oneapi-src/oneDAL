@@ -22,7 +22,6 @@ namespace oneapi::dal::decision_forest {
 namespace detail {
 namespace v1 {
 
-using splitter_t = oneapi::dal::decision_forest::splitter_mode;
 
 inline void check_domain_cond(bool value, const char* description) {
     if (!(value))
@@ -65,7 +64,7 @@ public:
 
     bool memory_saving_mode = false;
     bool bootstrap = true;
-    splitter_t splitter_mode_value = splitter_t::best;
+    splitter_mode splitter_mode_value = splitter_mode::best;
 
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
     voting_mode voting_mode_value = voting_mode::weighted;
@@ -152,7 +151,7 @@ bool descriptor_base<Task>::get_bootstrap() const {
 }
 
 template <typename Task>
-splitter_t descriptor_base<Task>::get_splitter_mode() const {
+splitter_mode descriptor_base<Task>::get_splitter_mode() const {
     return impl_->splitter_mode_value;
 }
 
@@ -276,7 +275,7 @@ void descriptor_base<Task>::set_bootstrap_impl(bool value) {
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_splitter_mode_impl(splitter_t value) {
+void descriptor_base<Task>::set_splitter_mode_impl(splitter_mode value) {
     impl_->splitter_mode_value = value;
 }
 
