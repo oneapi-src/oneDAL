@@ -377,20 +377,28 @@ public:
         DAAL_ASSERT(iDst == getNumOOBIndices());
     }
 
+    /**
+     * Helper to investigate if feature values are different
+     * \param[in] iFeature  The indexed feature whose value we compare against
+     * \param[in] aIdx      Pointer to index _aResponse values
+     * \param[in] n         Number of _aResponse values to compare
+     */
     bool hasDiffFeatureValues(IndexType iFeature, const int * aIdx, size_t n) const
     {
         if (this->indexedFeatures().numIndices(iFeature) == 1) return false; //single value only
         const IndexedFeatures::IndexType * indexedFeature = this->indexedFeatures().data(iFeature);
         const auto aResponse                              = this->_aResponse.get();
         const IndexedFeatures::IndexType idx0             = indexedFeature[aResponse[aIdx[0]].idx];
-        size_t i                                          = 1;
-        for (; i < n; ++i)
+        for (size_t i = 1; i < n; ++i)
         {
             const Response & r                   = aResponse[aIdx[i]];
             const IndexedFeatures::IndexType idx = indexedFeature[r.idx];
-            if (idx != idx0) break;
+            // if the indices are different, we found different feature
+            // values and return true
+            if (idx != idx0) return true;
         }
-        return (i != n);
+        // all feature indices pointed to idx0 and are thus the same
+        return false;
     }
 
 protected:

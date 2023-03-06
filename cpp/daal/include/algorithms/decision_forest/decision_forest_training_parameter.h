@@ -134,6 +134,7 @@ public:
                                                  Default is 256. Increasing the number results in higher computation costs */
     size_t minBinSize;                     /*!< Used with 'hist' split finding method only.
                                                  Minimal number of observations in a bin. Default is 5 */
+    bool useConstFeatures;                 /*!< Use or ignore constant-valued features when splitting nodes. Default is false */
 };
 /* [Parameter source code] */
 } // namespace interface2

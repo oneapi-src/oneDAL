@@ -518,8 +518,7 @@ protected:
           _minSamplesSplit(2),
           _minWeightLeaf(0.),
           _minImpurityDecrease(-daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows()),
-          _maxLeafNodes(0),
-          _useConstFeatures(false)
+          _maxLeafNodes(0)
     {
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
 
@@ -616,8 +615,7 @@ protected:
     void chooseFeatures()
     {
         const size_t n    = nFeatures();
-        const size_t nGen = _nFeaturesPerNode;
-        // const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
+        const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_par.useConstFeatures) ? n : _nFeaturesPerNode;
         *_numElems += n;
         RNGs<IndexType, cpu> rng;
         rng.uniformWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), 0, n);
@@ -653,8 +651,7 @@ protected:
     const Parameter & _par;
     const size_t _nSamples;
     const size_t _nFeaturesPerNode;
-    const size_t _nFeatureBufs;   //number of buffers to get feature values (to process features independently in parallel)
-    const bool _useConstFeatures; //including constant features in number of features per node
+    const size_t _nFeatureBufs; //number of buffers to get feature values (to process features independently in parallel)
     mutable size_t _nConstFeature;
 
     const BinIndexType * _binIndex;
@@ -684,7 +681,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     _aFeatureBuf.reset(_nFeatureBufs);
     _aFeatureIndexBuf.reset(_nFeatureBufs);
 
-    if (false && !_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures)
+    if (!_par.memorySavingMode && !_maxLeafNodes && !_par.useConstFeatures)
     {
         _aFeatureIdx.reset(maxFeatures * 2);      // maxFeatures elements are used by algorithm, others are used internally by generator
         _aConstFeatureIdx.reset(maxFeatures * 2); // first maxFeatures elements are used for saving indices of constant features,
@@ -811,7 +808,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         typename DataHelper::NodeType::Base * left =
             buildDepthFirst(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses, split.leftWeights);
         _helper.convertLeftImpToRight(n, curImpurity, split);
-        if (!_par.memorySavingMode && !_useConstFeatures)
+        if (!_par.memorySavingMode && !_par.useConstFeatures)
         {
             for (size_t i = _nConstFeature; i > 0; --i)
             {
@@ -1100,7 +1097,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
         const auto iFeature            = _aFeatureIdx[i];
         const bool bUseIndexedFeatures = (!_par.memorySavingMode) && (fact > qMax * float(_helper.indexedFeatures().numIndices(iFeature)));
 
-        if (false && !_maxLeafNodes && !_useConstFeatures && !_par.memorySavingMode)
+        if (!_maxLeafNodes && !_par.useConstFeatures && !_par.memorySavingMode)
         {
             if (_aConstFeatureIdx[maxFeatures + iFeature] > 0) continue; //selected feature is known constant feature
             if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n))
