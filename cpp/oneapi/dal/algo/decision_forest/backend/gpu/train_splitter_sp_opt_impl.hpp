@@ -92,6 +92,28 @@ public:
                                                     bool update_imp_dec_required,
                                                     const bk::event_vector& deps = {});
 
+    /// Choses a random split for each feature from
+    /// the `selected_ftr_list` using `random_bins_com` values for splitting.
+    /// And computes the best split among those random splits
+    /// based on the impurity decrease calculated for each of those random splits.
+    ///
+    /// @param[in] queue                        sycl parallel queue
+    /// @param[in] ctx                          a train context for GPU backend
+    /// @param[in] data                         an input data with cast to Bin for each row_count * column_count
+    /// @param[in] response                     an input array of training response values
+    /// @param[in] tree_order                   column indices map for corresponding tree
+    /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
+    /// @param[in] random_bins_com              random bin tresholds for each selected feature scaled at [0.0, 1.0] uniformly
+    /// @param[in] bin_offset_list              a bin offset list for each feature in dataset
+    /// @param[in] imp_data_list                a node impurity data array
+    /// @param[in] node_ind_list                a node indices array
+    /// @param[in] node_ind_ofs                 a node indices offset
+    /// @param[in] node_list                    a node data structure containing split information
+    /// @param[in] left_child_imp_data_list     an impurity array for left child
+    /// @param[in] node_imp_dec_list            an array for node impurity decrease data
+    /// @param[in] update_imp_dec_required      boolean indicator to update impurity decrease structure
+    /// @param[in] node_count                   a number of nodes to process in current step
+    /// @param[in] deps                         a set of events, which this method depends on
     static sycl::event random_split_single_pass(sycl::queue& queue,
                                                 const context_t& ctx,
                                                 const pr::ndarray<Bin, 2>& data,

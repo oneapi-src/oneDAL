@@ -703,6 +703,5 @@ using v1::is_leaf_node_info;
 using v1::is_leaf_node_info_v;
 using v1::is_split_node_info;
 using v1::is_split_node_info_v;
-using v1::splitter_mode;
 
 } // namespace oneapi::dal::decision_forest
