@@ -258,8 +258,7 @@ bool OrderedRespHelperBest<algorithmFPType, cpu>::findBestSplitOrderedFeature(co
     algorithmFPType vBest;
     auto aResponse = this->_aResponse.get();
     auto aWeights  = this->_aWeights.get();
-    auto weights0  = aWeights[aIdx[0]].val;
-    auto weights   = aWeights[aIdx[n - 1]].val;
+    auto weights   = aWeights[aIdx[0]].val;
     calcPrevImpurity<double, cpu>(curImpurity.var * totalWeights, curImpurity.mean, right.var, right.mean, xi, totalWeights, weights);
 #ifdef DEBUG_CHECK_IMPURITY
     checkImpurityInternal(aIdx + 1, n - 1, right);
@@ -328,7 +327,7 @@ bool OrderedRespHelperBest<algorithmFPType, cpu>::findBestSplitOrderedFeature(co
             //update impurity and continue
             xi                    = aResponse[aIdx[i]].val;
             algorithmFPType delta = xi - left.mean;
-            left.mean += weights * delta / (isPositive<algorithmFPType, cpu>(leftWeights + weights0) ? leftWeights + weights0 : 1.);
+            left.mean += weights * delta / (isPositive<algorithmFPType, cpu>(leftWeights + weights) ? leftWeights + weights : 1.);
             left.var += weights * delta * (xi - left.mean);
             if (left.var < 0) left.var = 0;
             calcPrevImpurity<double, cpu>(right.var, right.mean, right.var, right.mean, xi, totalWeights - leftWeights, weights);
