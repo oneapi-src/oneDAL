@@ -134,36 +134,14 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     }
 
     if (check_mask_flag(desc.get_error_metric_mode(),
-                        error_metric_mode::out_of_bag_error_r2)) {
-        auto arr_oob_r2_err = array<Float>::empty(1 * 1);
-        res.set_oob_err_r2(
-            dal::detail::homogen_table_builder{}.reset(arr_oob_r2_err, 1, 1).build());
-
-        const auto res_oob_r2_err =
-            interop::convert_to_daal_homogen_table(arr_oob_r2_err, 1, 1);
-        daal_result.set(daal_df_cls_train::outOfBagErrorR2, res_oob_r2_err);
-    }
-
-    if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_decision_function)) {
-        auto arr_oob_decision_function_err = array<Float>::empty(row_count * 1);
+        auto arr_oob_decision_function_err = array<Float>::empty(row_count * desc.get_class_count());
         res.set_oob_err_decision_function(
-            dal::detail::homogen_table_builder{}.reset(arr_oob_decision_function_err, row_count, 1).build());
+            dal::detail::homogen_table_builder{}.reset(arr_oob_decision_function_err, row_count, desc.get_class_count()).build());
 
         const auto res_oob_decision_function_err =
-            interop::convert_to_daal_homogen_table(arr_oob_decision_function_err, row_count, 1);
+            interop::convert_to_daal_homogen_table(arr_oob_decision_function_err, row_count, desc.get_class_count());
         daal_result.set(daal_df_cls_train::outOfBagErrorDecisionFunction, res_oob_decision_function_err);
-    }
-
-    if (check_mask_flag(desc.get_error_metric_mode(),
-                        error_metric_mode::out_of_bag_error_prediction)) {
-        auto arr_oob_prediction_err = array<Float>::empty(row_count * 1);
-        res.set_oob_err_prediction(
-            dal::detail::homogen_table_builder{}.reset(arr_oob_prediction_err, row_count, 1).build());
-
-        const auto res_oob_prediction_err =
-            interop::convert_to_daal_homogen_table(arr_oob_prediction_err, row_count, 1);
-        daal_result.set(daal_df_cls_train::outOfBagErrorPrediction, res_oob_prediction_err);
     }
 
     if (variable_importance_mode::none != vimp) {
@@ -201,6 +179,18 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         auto table_oob_per_obs_err = interop::convert_from_daal_homogen_table<Float>(
             daal_result.get(daal_df_cls_train::outOfBagErrorPerObservation));
         res.set_oob_err_per_observation(table_oob_per_obs_err);
+    }
+
+    if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error_accuracy)) {
+        auto table_oob_err_accuracy = interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_df_cls_train::outOfBagErrorAccuracy));
+        res.set_oob_err_accuracy(table_oob_err_accuracy);
+    }
+
+    if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error_decision_function)) {
+        auto table_oob_err_decision_function = interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_df_cls_train::outOfBagErrorDecisionFunction));
+        res.set_oob_err_decision_function(table_oob_err_decision_function);
     }
 
     if (variable_importance_mode::none != vimp) {
