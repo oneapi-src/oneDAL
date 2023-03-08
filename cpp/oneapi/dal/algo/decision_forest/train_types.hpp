@@ -124,6 +124,34 @@ public:
         return *this;
     }
 
+    const table& get_oob_err_accuracy() const;
+
+    auto& set_oob_err_accuracy(const table& value) {
+        set_oob_err_accuracy_impl(value);
+        return *this;
+    }
+
+    const table& get_oob_err_r2() const;
+
+    auto& set_oob_err_r2(const table& value) {
+        set_oob_err_r2_impl(value);
+        return *this;
+    }
+
+    const table& get_oob_err_decision_function() const;
+
+    auto& set_oob_err_decision_function(const table& value) {
+        set_oob_err_decision_function_impl(value);
+        return *this;
+    }
+
+    const table& get_oob_err_prediction() const;
+
+    auto& set_oob_err_prediction(const table& value) {
+        set_oob_err_prediction_impl(value);
+        return *this;
+    }
+
     /// A $1 \\times p$ table containing variable importance value for each feature.
     /// Computed when :expr:`variable_importance_mode != variable_importance_mode::none`
     /// @remark default = table{}
@@ -138,6 +166,10 @@ private:
     void set_model_impl(const model<Task>&);
     void set_oob_err_impl(const table&);
     void set_oob_err_per_observation_impl(const table&);
+    void set_oob_err_accuracy_impl(const table&);
+    void set_oob_err_r2_impl(const table&);
+    void set_oob_err_decision_function_impl(const table&);
+    void set_oob_err_prediction_impl(const table&);
     void set_var_importance_impl(const table&);
 
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
