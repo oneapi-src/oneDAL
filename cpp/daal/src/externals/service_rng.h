@@ -25,6 +25,7 @@
 #define __SERVICE_RNG_H__
 
 #include "services/daal_defines.h"
+#include "src/services/service_defines.h"
 #include "src/externals/service_memory.h"
 #include "src/externals/service_rng_mkl.h"
 
@@ -120,8 +121,8 @@ public:
     }
 
     template <typename DstType = Type>
-    int uniformWithoutReplacement(const SizeType n, DstType * r, Type * buffer, void * state, const Type a, const Type b,
-                                  const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    int uniformWithoutReplacementOLD(const SizeType n, DstType * r, Type * buffer, void * state, const Type a, const Type b,
+                                     const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
     {
         int errorcode = 0;
         for (SizeType i = 0; i < n; i++)
@@ -138,6 +139,70 @@ public:
             }
             r[i] = value;
         }
+        return errorcode;
+    }
+
+    /* Draw a random sample of length k from the numbers that are provided in buffer of length n
+    * \param[in]  k       The length of the sample to be drawn
+    * \param[out] r       A pointer to the result buffer
+    * \param[in]  buffer  A pointer to the buffer containing the numbers
+    * \param[in]  n       Length of the buffer
+    * \param[in]  method  Method handed to the uniform RNG generator
+    */
+    template <typename DstType = Type>
+    int drawSample(const SizeType k, DstType * r, Type * buffer, void * state, const Type n, const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    {
+        int errorcode = 0;
+        Type swapIdx;
+
+        // // initialize the destination to {0, 1, ..., n-1}
+        // for (SizeType i = 0; i < n; ++i) r[i] = i;
+
+        // for (SizeType max = n - 1; max >= 0; max--)
+        // {
+        //     // swap with a random index <= max (Knuth-Fisher-Yates)
+        //     errorcode   = uniform(1, &swapIdx, state, 0.5, max + 0.5, method);
+        //     DstType tmp = r[swapIdx];
+        //     r[swapIdx]  = r[max];
+        //     r[max]      = tmp;
+        // }
+
+        // Algorithm 1 - Fisher Yates sampling
+        // IDEA: Reuse the buffer, initialize only once
+        //       -> But for this a tmp variables is required and the step
+        //          buffer[n - 1 - i] = tmp
+        //          must be added, otherwise we lose numbers of the sequence
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        // for (SizeType i = 0; i < n; ++i) buffer[i] = i;
+
+        for (SizeType i = 0; i < k; ++i)
+        {
+            errorcode         = uniform(1, &swapIdx, state, 0, n - i, method);
+            r[i]              = (DstType)buffer[swapIdx];
+            buffer[swapIdx]   = buffer[n - 1 - i];
+            buffer[n - 1 - i] = (Type)r[i];
+        }
+
+        // Algorithm 2 - Reservoir Sampling
+        // PRAGMA_IVDEP
+        // PRAGMA_VECTOR_ALWAYS
+        // for (SizeType i = 0; i < n; ++i) buffer[i] = i;
+
+        // PRAGMA_IVDEP
+        // PRAGMA_VECTOR_ALWAYS
+        // SizeType i;
+        // for (i = 0; i < k; i++) r[i] = buffer[i];
+
+        // for (; i < n; ++i)
+        // {
+        //     errorcode = uniform(1, &swapIdx, state, 0, i + 1, method);
+        //     if (swapIdx < k)
+        //     {
+        //         r[swapIdx] = buffer[i];
+        //     }
+        // }
+
         return errorcode;
     }
 
