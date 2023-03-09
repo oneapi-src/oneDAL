@@ -618,7 +618,7 @@ protected:
         const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_par.useConstFeatures) ? n : _nFeaturesPerNode;
         *_numElems += n;
         RNGs<IndexType, cpu> rng;
-        rng.uniformWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), 0, n);
+        rng.drawKFromBufferWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), n);
     }
 
     services::Status computeResults(const dtrees::internal::Tree & t);
@@ -681,16 +681,21 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     _aFeatureBuf.reset(_nFeatureBufs);
     _aFeatureIndexBuf.reset(_nFeatureBufs);
 
-    if (!_par.memorySavingMode && !_maxLeafNodes && !_par.useConstFeatures)
-    {
-        _aFeatureIdx.reset(maxFeatures * 2);      // maxFeatures elements are used by algorithm, others are used internally by generator
-        _aConstFeatureIdx.reset(maxFeatures * 2); // first maxFeatures elements are used for saving indices of constant features,
-                                                  // the other part are used for saving levels of this features
-        DAAL_CHECK_MALLOC(_aConstFeatureIdx.get());
-        services::internal::service_memset_seq<IndexType, cpu>(_aConstFeatureIdx.get(), IndexType(0), maxFeatures * 2);
-    }
-    else
-        _aFeatureIdx.reset(_nFeaturesPerNode * 2); // _nFeaturesPerNode elements are used by algorithm, others are used internally by generator
+    // if (!_par.memorySavingMode && !_maxLeafNodes && !_par.useConstFeatures)
+    // {
+    _aFeatureIdx.reset(maxFeatures * 2);      // maxFeatures elements are used by algorithm, others are used internally by generator
+    _aConstFeatureIdx.reset(maxFeatures * 2); // first maxFeatures elements are used for saving indices of constant features,
+                                              // the other part are used for saving levels of this features
+    DAAL_CHECK_MALLOC(_aConstFeatureIdx.get());
+    services::internal::service_memset_seq<IndexType, cpu>(_aConstFeatureIdx.get(), IndexType(0), 2 * maxFeatures);
+    // in order to use drawKFromBufferWithoutReplacement we need to initialize the buffer to contain all indices
+    // from [0, 1, ..., n - 1]
+    DAAL_CHECK_MALLOC(_aFeatureIdx.get());
+    services::internal::service_memset_seq<IndexType, cpu>(_aFeatureIdx.get(), IndexType(0), maxFeatures);
+    services::internal::service_memset_ser<IndexType, cpu>(_aFeatureIdx.get() + maxFeatures, IndexType(0), maxFeatures);
+    // }
+    // else
+    //     _aFeatureIdx.reset(_nFeaturesPerNode * 2); // _nFeaturesPerNode elements are used by algorithm, others are used internally by generator
 
     DAAL_CHECK_MALLOC(_aSample.get() && _helper.reset(_nSamples) && _helper.resetWeights(_nSamples) && _aFeatureBuf.get() && _aFeatureIndexBuf.get()
                       && _aFeatureIdx.get());

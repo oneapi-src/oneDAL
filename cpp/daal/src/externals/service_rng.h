@@ -121,8 +121,8 @@ public:
     }
 
     template <typename DstType = Type>
-    int uniformWithoutReplacementOLD(const SizeType n, DstType * r, Type * buffer, void * state, const Type a, const Type b,
-                                     const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    int uniformWithoutReplacement(const SizeType n, DstType * r, Type * buffer, void * state, const Type a, const Type b,
+                                  const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
     {
         int errorcode = 0;
         for (SizeType i = 0; i < n; i++)
@@ -153,7 +153,8 @@ public:
     * is no need to initialize it to [0, 1, 2, ..., n-1] first, providing us with a speed-up from O(n) -> O(k) runtime
     */
     template <typename DstType = Type>
-    int drawSample(const SizeType k, DstType * r, Type * buffer, void * state, const Type n, const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    int drawKFromBufferWithoutReplacement(const SizeType k, DstType * r, Type * buffer, void * state, const Type n,
+                                          const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
     {
         int errorcode = 0;
         Type swapIdx;
