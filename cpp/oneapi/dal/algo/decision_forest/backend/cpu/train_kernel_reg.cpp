@@ -121,23 +121,21 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_result.set(daal_df_reg_train::outOfBagErrorPerObservation, res_oob_per_obs_err);
     }
 
-
-    if (check_mask_flag(desc.get_error_metric_mode(),
-                        error_metric_mode::out_of_bag_error_r2)) {
+    if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error_r2)) {
         auto arr_oob_r2_err = array<Float>::empty(1 * 1);
         res.set_oob_err_r2(
             dal::detail::homogen_table_builder{}.reset(arr_oob_r2_err, 1, 1).build());
 
-        const auto res_oob_r2_err =
-            interop::convert_to_daal_homogen_table(arr_oob_r2_err, 1, 1);
+        const auto res_oob_r2_err = interop::convert_to_daal_homogen_table(arr_oob_r2_err, 1, 1);
         daal_result.set(daal_df_reg_train::outOfBagErrorR2, res_oob_r2_err);
     }
 
     if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_prediction)) {
         auto arr_oob_prediction_err = array<Float>::empty(row_count * 1);
-        res.set_oob_err_prediction(
-            dal::detail::homogen_table_builder{}.reset(arr_oob_prediction_err, row_count, 1).build());
+        res.set_oob_err_prediction(dal::detail::homogen_table_builder{}
+                                       .reset(arr_oob_prediction_err, row_count, 1)
+                                       .build());
 
         const auto res_oob_prediction_err =
             interop::convert_to_daal_homogen_table(arr_oob_prediction_err, row_count, 1);
@@ -187,7 +185,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         res.set_oob_err_r2(table_oob_err_r2);
     }
 
-    if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error_prediction)) {
+    if (check_mask_flag(desc.get_error_metric_mode(),
+                        error_metric_mode::out_of_bag_error_prediction)) {
         auto table_oob_err_prediction = interop::convert_from_daal_homogen_table<Float>(
             daal_result.get(daal_df_reg_train::outOfBagErrorPrediction));
         res.set_oob_err_prediction(table_oob_err_prediction);
