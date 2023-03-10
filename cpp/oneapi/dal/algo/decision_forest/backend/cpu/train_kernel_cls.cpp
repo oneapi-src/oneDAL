@@ -135,8 +135,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_decision_function)) {
-        auto arr_oob_decision_function_err =
-            array<Float>::empty(row_count * desc.get_class_count());
+        auto n_classes = desc.get_class_count();
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, row_count, n_classes);
+        auto arr_oob_decision_function_err = array<Float>::empty(row_count * n_classes);
         res.set_oob_err_decision_function(
             dal::detail::homogen_table_builder{}
                 .reset(arr_oob_decision_function_err, row_count, desc.get_class_count())
