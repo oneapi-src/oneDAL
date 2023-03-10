@@ -39,6 +39,10 @@ public:
 
     table oob_err;
     table oob_err_per_observation;
+    table oob_err_accuracy;
+    table oob_err_r2;
+    table oob_err_decision_function;
+    table oob_err_prediction;
     table variable_importance;
 };
 
@@ -90,6 +94,26 @@ const table& train_result<Task>::get_oob_err_per_observation() const {
 }
 
 template <typename Task>
+const table& train_result<Task>::get_oob_err_accuracy() const {
+    return impl_->oob_err_accuracy;
+}
+
+template <typename Task>
+const table& train_result<Task>::get_oob_err_r2() const {
+    return impl_->oob_err_r2;
+}
+
+template <typename Task>
+const table& train_result<Task>::get_oob_err_decision_function() const {
+    return impl_->oob_err_decision_function;
+}
+
+template <typename Task>
+const table& train_result<Task>::get_oob_err_prediction() const {
+    return impl_->oob_err_prediction;
+}
+
+template <typename Task>
 const table& train_result<Task>::get_var_importance() const {
     return impl_->variable_importance;
 }
@@ -107,6 +131,26 @@ void train_result<Task>::set_oob_err_impl(const table& value) {
 template <typename Task>
 void train_result<Task>::set_oob_err_per_observation_impl(const table& value) {
     impl_->oob_err_per_observation = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_oob_err_accuracy_impl(const table& value) {
+    impl_->oob_err_accuracy = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_oob_err_r2_impl(const table& value) {
+    impl_->oob_err_r2 = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_oob_err_decision_function_impl(const table& value) {
+    impl_->oob_err_decision_function = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_oob_err_prediction_impl(const table& value) {
+    impl_->oob_err_prediction = value;
 }
 
 template <typename Task>
