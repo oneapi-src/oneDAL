@@ -852,9 +852,9 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     size_t minidx = 0;
     size_t maxidx = nDiffFeatMax - 1;
 
-    while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx])) minidx++;
+    for(;(minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx]); minidx++);
 
-    while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx])) maxidx--;
+    for(;(minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx]);maxidx--);
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
     if (minidx == maxidx)
@@ -867,10 +867,7 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     RNGs<size_t, cpu> rng;
     rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
 
-    while (isZero<IndexType, cpu>(nFeatIdx[idx]))
-    {
-        idx--;
-    }
+    for(;isZero<IndexType, cpu>(nFeatIdx[idx]); idx--);
 
     if (noWeights)
     {
@@ -994,7 +991,7 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
     right.mean = this->_aResponse[aIdx[r]].val;
     if (noWeights)
     {
-        //PRAGMA_VECTOR_ALWAYS
+        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 1; i < r; ++i)
         {
             const double delta = this->_aResponse[aIdx[i]].val - left.mean; //x[i] - mean
@@ -1002,16 +999,14 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
             left.var += delta * (this->_aResponse[aIdx[i]].val - left.mean);
             DAAL_ASSERT(left.var >= 0);
         }
-        //left.var /= double(r); //impurity is MSE
 
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = r + 1; i < n; ++i)
         {
             const double delta = this->_aResponse[aIdx[i]].val - right.mean; //x[i] - mean
-            right.mean += delta / double(i + 1 - r);                         // this was definitely incorrect
+            right.mean += delta / double(i + 1 - r);                        
             right.var += delta * (this->_aResponse[aIdx[i]].val - right.mean);
         }
-        //right.var /= double(n-r); //impurity is MSE
 
         leftWeights = r;
     }
@@ -1028,7 +1023,6 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
             left.mean += weights * delta / leftWeights;
             left.var += weights * delta * (this->_aResponse[aIdx[i]].val - left.mean);
         }
-        //left.var /= leftWeights; //impurity is MSE
 
         algorithmFPType rightWeights = this->_aWeights[aIdx[r]].val;
         PRAGMA_VECTOR_ALWAYS
@@ -1041,13 +1035,11 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
             right.mean += weights * delta / rightWeights;
             right.var += weights * delta * (this->_aResponse[aIdx[i]].val - right.mean);
         }
-        //right.var /= rightWeights; //impurity is MSE
     }
 
     if (!((leftWeights < minWeightLeaf) || ((totalWeights - leftWeights) < minWeightLeaf)))
     {
-        //can make a split
-        //nLeft == r, nRight == n-r
+
         const algorithmFPType v = left.var + right.var;
         if (v < vBest)
         {

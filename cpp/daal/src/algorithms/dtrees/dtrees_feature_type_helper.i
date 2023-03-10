@@ -220,7 +220,7 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
     int D = dy - _prm.maxBins; //use bresenham's line algorithm to distribute remainder
 
     size_t i             = 0;
-    for (; (i + binSize < nRows) && (nBins < _prm.maxBins);)
+    for (; (i + binSize + 1 < nRows) && (nBins < _prm.maxBins);)
     {
         //trying to make a bin of size binSize
         size_t newBinSize                     = binSize;

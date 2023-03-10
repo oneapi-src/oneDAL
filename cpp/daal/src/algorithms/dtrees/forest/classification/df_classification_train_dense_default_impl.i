@@ -1005,9 +1005,9 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int 
     size_t minidx = 0;
     size_t maxidx = nDiffFeatMax - 1;
 
-    while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx])) minidx++;
+    for(;(minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx]); minidx++);
 
-    while ((minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx])) maxidx--;
+    for(;(minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx]); maxidx--);
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
     if ((nFeatIdx[minidx] == n)   //last split
@@ -1020,7 +1020,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int 
     rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
 
     //iterate idx down for FinalizeBestSplit (since it splits leftward)
-    while ((minidx < idx) && isZero<IndexType, cpu>(nFeatIdx[idx])) idx--;
+    for(;(minidx < idx) && isZero<IndexType, cpu>(nFeatIdx[idx]); idx--);
 
     if (split.featureUnordered)
     {
@@ -1130,7 +1130,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     else
     {
         IndexType thisNFeatIdx = nFeatIdx[0];
-        while ((minidx < maxidx) && isZero<IndexType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[++minidx];
+        for(;(minidx < maxidx) && isZero<IndexType, cpu>(thisNFeatIdx); thisNFeatIdx = nFeatIdx[++minidx]);
         nLeft = thisNFeatIdx;
 
         PRAGMA_IVDEP
@@ -1168,7 +1168,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     else
     {
         IndexType thisNFeatIdx(0);
-        while ((minidx < maxidx) && isZero<IndexType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[--maxidx];
+        for(;(minidx < maxidx) && isZero<IndexType, cpu>(thisNFeatIdx);thisNFeatIdx = nFeatIdx[--maxidx]);
     }
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
@@ -1222,7 +1222,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     {
         //iterate idx down to a bin with values for FinalizeBestSplit
         IndexType thisNFeatIdx = nFeatIdx[idx];
-        while ((minidx < idx) && isZero<IndexType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[idx--];
+        for(;(minidx < idx) && isZero<IndexType, cpu>(thisNFeatIdx); thisNFeatIdx = nFeatIdx[idx--]);
 
         if (split.featureUnordered) //only need last index
         {
