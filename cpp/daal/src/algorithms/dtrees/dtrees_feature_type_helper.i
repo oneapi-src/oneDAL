@@ -165,6 +165,8 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::assignIndexA
 {
     const typename super::FeatureIdx * index = this->_index.get();
 
+    entry.min = index[0].key;
+    
     if (nBins == 1)
     {
         entry.numIndices   = 1;
