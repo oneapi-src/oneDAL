@@ -302,11 +302,10 @@ bool OrderedRespHelperBest<algorithmFPType, cpu>::findBestSplitOrderedFeature(co
     }
     else
     {
-        algorithmFPType leftWeights = 0.;
+        algorithmFPType leftWeights = weights;
         for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
         {
             weights = aWeights[aIdx[i]].val;
-            leftWeights += weights;
             const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
 
             if (!(bSameFeaturePrev || (i < nMinSplitPart) || (leftWeights < minWeightLeaf) || ((totalWeights - leftWeights) < minWeightLeaf)))
@@ -331,6 +330,7 @@ bool OrderedRespHelperBest<algorithmFPType, cpu>::findBestSplitOrderedFeature(co
             left.var += weights * delta * (xi - left.mean);
             if (left.var < 0) left.var = 0;
             calcPrevImpurity<double, cpu>(right.var, right.mean, right.var, right.mean, xi, totalWeights - leftWeights, weights);
+            leftWeights += weights;
 #ifdef DEBUG_CHECK_IMPURITY
             checkImpurityInternal(aIdx, i + 1, left);
             checkImpurityInternal(aIdx + i + 1, n - i - 1, right);
