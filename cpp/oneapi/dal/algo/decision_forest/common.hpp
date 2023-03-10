@@ -96,13 +96,13 @@ enum class error_metric_mode : std::uint64_t {
     out_of_bag_error = 0x00000001ULL,
     /// Train produces $n \\times 1$ table with prediction error for out-of-bag observations
     out_of_bag_error_per_observation = 0x00000002ULL,
-    ///
+    /// Train produces $1 \\times 1$ table with cumulative prediction error (accuracy) for out of bag observations
     out_of_bag_error_accuracy = 0x00000004ULL,
-    ///
+    /// Train produces $1 \\times 1$ table with cumulative prediction error (R2) for out of bag observations
     out_of_bag_error_r2 = 0x00000008ULL,
-    ///
+    /// Train produces $n \\times c$ table with decision function for out-of-bag observations
     out_of_bag_error_decision_function = 0x00000010ULL,
-    ///
+    /// Train produces $n \\times 1$ table with prediction for out-of-bag observations
     out_of_bag_error_prediction = 0x00000020ULL
 };
 
