@@ -124,6 +124,46 @@ public:
         return *this;
     }
 
+    /// A $1 \\times 1$ table containing cumulative out-of-bag error (accuracy) value.
+    /// Computed when :literal:`error_metric_mode` set with :literal:`error_metric_mode::out_of_bag_error_accuracy`
+    /// @remark default = table{}
+    const table& get_oob_err_accuracy() const;
+
+    auto& set_oob_err_accuracy(const table& value) {
+        set_oob_err_accuracy_impl(value);
+        return *this;
+    }
+
+    /// A $1 \\times 1$ table containing cumulative out-of-bag error (R2) value.
+    /// Computed when :literal:`error_metric_mode` set with :literal:`error_metric_mode::out_of_bag_error_r2`
+    /// @remark default = table{}
+    const table& get_oob_err_r2() const;
+
+    auto& set_oob_err_r2(const table& value) {
+        set_oob_err_r2_impl(value);
+        return *this;
+    }
+
+    /// A $n \\times c$ table containing decision function value per observation.
+    /// Computed when :literal:`error_metric_mode` set with :literal:`error_metric_mode::out_of_bag_error_decision_function`
+    /// @remark default = table{}
+    const table& get_oob_err_decision_function() const;
+
+    auto& set_oob_err_decision_function(const table& value) {
+        set_oob_err_decision_function_impl(value);
+        return *this;
+    }
+
+    /// A $n \\times 1$ table containing prediction value per observation.
+    /// Computed when :literal:`error_metric_mode` set with :literal:`error_metric_mode::out_of_bag_error_prediction`
+    /// @remark default = table{}
+    const table& get_oob_err_prediction() const;
+
+    auto& set_oob_err_prediction(const table& value) {
+        set_oob_err_prediction_impl(value);
+        return *this;
+    }
+
     /// A $1 \\times p$ table containing variable importance value for each feature.
     /// Computed when :expr:`variable_importance_mode != variable_importance_mode::none`
     /// @remark default = table{}
@@ -138,6 +178,10 @@ private:
     void set_model_impl(const model<Task>&);
     void set_oob_err_impl(const table&);
     void set_oob_err_per_observation_impl(const table&);
+    void set_oob_err_accuracy_impl(const table&);
+    void set_oob_err_r2_impl(const table&);
+    void set_oob_err_decision_function_impl(const table&);
+    void set_oob_err_prediction_impl(const table&);
     void set_var_importance_impl(const table&);
 
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
