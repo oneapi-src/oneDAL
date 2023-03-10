@@ -1087,20 +1087,61 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
                                                                                              typename DataHelper::TSplitData & bestSplit,
                                                                                              algorithmFPType totalWeights)
 {
-    chooseFeatures();
-    size_t nVisitedFeature       = 0;
-    const size_t maxFeatures     = nFeatures();
-    const float qMax             = 0.02; //min fracture of observations to be handled as indexed feature values
-    IndexType * bestSplitIdx     = featureIndexBuf(0) + iStart;
-    IndexType * aIdx             = _aSample.get() + iStart;
-    int iBestSplit               = -1;
-    int idxFeatureValueBestSplit = -1; //when sorted feature is used
+    /* counter of the number of visited features, we visit _nFeaturesPerNode
+    *  depending on _par.useConstFeatures constant features can be ignored
+    */
+    size_t nVisitedFeature = 0;
+    /* total number of features */
+    const size_t maxFeatures = nFeatures();
+    /* (??) min fracture of observations to be handled as indexed feature values */
+    const float qMax = 0.02;
+    /* index of the best split, initialized to first index we investigate */
+    IndexType * bestSplitIdx = featureIndexBuf(0) + iStart;
+    /* sample index */
+    IndexType * aIdx = _aSample.get() + iStart;
+    /* zero-based index of best split */
+    int iBestSplit = -1;
+    /* ?? */
+    int idxFeatureValueBestSplit = -1;
+    /* ?? */
     typename DataHelper::TSplitData split;
-    const float fact = float(n);
+    /* RNG for sample drawing */
+    RNGs<IndexType, cpu> rng;
+    /* index for swapping samples in Fisher-Yates sampling */
+    IndexType swapIdx;
+
     for (size_t i = 0; i < maxFeatures && nVisitedFeature < _nFeaturesPerNode; ++i)
     {
+        /* draw a random sample without replacement */
+        // based on Fisher Yates sampling
+        // _aFeatureIdx has length of 2 * _maxFeatures
+        // first maxFeatures contain the currently selected features
+        // at iteration i, we have drawn i features and written them to
+        // _aFeatureIdx[0, 1, ..., i-1]
+        //
+        // the second half of the buffer contains all numbers from
+        // [0, 1, ..., maxFeatures-1] and we randomly select one without
+        // replacement based on Fisher Yates sampling
+        // drawing uniformly from [0, maxFeatures-i] and swapping the indices
+        // assures uniform probability of all drawn numbers
+
+        /* draw the i-th index of the sample */
+        int errorcode = rng.uniform(1, &swapIdx, _engineImpl->getState(), 0, maxFeatures - i);
+        if (errorcode)
+        {
+            // TODO: Handle error ?
+        }
+        /* account for buffer offset from 0 */
+        swapIdx += maxFeatures;
+        /* _aFeatureIdx[swapIdx] was drawn */
+        _aFeatureIdx[i] = _aFeatureIdx[swapIdx];
+        /* swap in number at [maxFeatures - 1 - i] for next draw */
+        _aFeatureIdx[swapIdx] = _aFeatureIdx[2 * maxFeatures - 1 - i];
+        /* store drawn number at end of number buffer so that no number is lost */
+        _aFeatureIdx[2 * maxFeatures - 1 - i] = _aFeatureIdx[i];
+
         const auto iFeature            = _aFeatureIdx[i];
-        const bool bUseIndexedFeatures = (!_par.memorySavingMode) && (fact > qMax * float(_helper.indexedFeatures().numIndices(iFeature)));
+        const bool bUseIndexedFeatures = (!_par.memorySavingMode) && (float(n) > qMax * float(_helper.indexedFeatures().numIndices(iFeature)));
 
         if (!_maxLeafNodes && !_par.useConstFeatures && !_par.memorySavingMode)
         {
