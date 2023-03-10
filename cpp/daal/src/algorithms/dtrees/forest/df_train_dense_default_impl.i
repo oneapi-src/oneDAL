@@ -361,7 +361,7 @@ services::Status copyBinIndex(const size_t nRows, const size_t nCols, const Inde
 template <typename algorithmFPType, typename BinIndexType, CpuType cpu, typename ModelType, typename TaskType>
 services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w, ModelType & md,
                              ResultData & res, const Parameter & par, size_t nClasses, const dtrees::internal::FeatureTypes & featTypes,
-                             const dtrees::internal::IndexedFeatures & indexedFeatures)
+                             const dtrees::internal::IndexedFeatures * indexedFeatures)
 {
     services::Status s;
     DAAL_CHECK(md.resize(par.nTrees), ErrorMemoryAllocationFailed);
@@ -371,9 +371,9 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     TVector<BinIndexType, cpu, ScalableAllocator<cpu> > binIndexVector;
     BinIndexType * binIndex = nullptr;
 
-    if (!par.memorySavingMode)
+    if (indexedFeatures)
     {
-        s = copyBinIndex<cpu>(nRows, nCols, indexedFeatures.data(0), binIndexVector, &binIndex);
+        s = copyBinIndex<cpu>(nRows, nCols, indexedFeatures->data(0), binIndexVector, &binIndex);
         DAAL_CHECK_STATUS_VAR(s);
     }
 
@@ -399,7 +399,7 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     daal::tls<TaskType *> tlsTask([&]() -> TaskType * {
         //in case of single thread no need to allocate
         Ctx * ctx = tlsCtx.local();
-        return ctx ? new TaskType(pHostApp, x, y, w, par, featTypes, par.memorySavingMode ? nullptr : &indexedFeatures, binIndex, *ctx, nClasses) :
+        return ctx ? new TaskType(pHostApp, x, y, w, par, featTypes, indexedFeatures, binIndex, *ctx, nClasses) :
                      nullptr;
     });
 
@@ -519,10 +519,12 @@ protected:
           _minWeightLeaf(0.),
           _minImpurityDecrease(-daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows()),
           _maxLeafNodes(0),
-          _useConstFeatures(false)
+          _useConstFeatures(false),
+          _memorySavingMode(false)
     {
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
 
+        _memorySavingMode = indexedFeatures == nullptr;
         const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter =
             dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(&par);
         if (algParameter != NULL)
@@ -616,7 +618,7 @@ protected:
     void chooseFeatures()
     {
         const size_t n    = nFeatures();
-        const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
+        const size_t nGen = (!_memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
         *_numElems += n;
         RNGs<IndexType, cpu> rng;
         rng.uniformWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _helper.engineImpl->getState(), 0, n);
@@ -667,6 +669,7 @@ protected:
     algorithmFPType _minWeightLeaf;
     algorithmFPType _minImpurityDecrease;
     size_t _maxLeafNodes;
+    bool _memorySavingMode;
 };
 
 template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
@@ -683,7 +686,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     _aFeatureBuf.reset(_nFeatureBufs);
     _aFeatureIndexBuf.reset(_nFeatureBufs);
 
-    if (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures)
+    if (!_memorySavingMode && !_maxLeafNodes && !_useConstFeatures)
     {
         _aFeatureIdx.reset(maxFeatures * 2);      // maxFeatures elements are used by algorithm, others are used internally by generator
         _aConstFeatureIdx.reset(maxFeatures * 2); // first maxFeatures elements are used for saving indices of constant features,
@@ -810,7 +813,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         typename DataHelper::NodeType::Base * left =
             buildDepthFirst(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses, split.leftWeights);
         _helper.convertLeftImpToRight(n, curImpurity, split);
-        if (!_par.memorySavingMode && !_useConstFeatures)
+        if (!_memorySavingMode && !_useConstFeatures)
         {
             for (size_t i = _nConstFeature; i > 0; --i)
             {
@@ -1097,9 +1100,9 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
     for (size_t i = 0; i < maxFeatures && nVisitedFeature < _nFeaturesPerNode; ++i)
     {
         const auto iFeature            = _aFeatureIdx[i];
-        const bool bUseIndexedFeatures = (!_par.memorySavingMode) && (fact > qMax * float(_helper.indexedFeatures().numIndices(iFeature)));
+        const bool bUseIndexedFeatures = (!_memorySavingMode) && (fact > qMax * float(_helper.indexedFeatures().numIndices(iFeature)));
 
-        if (!_maxLeafNodes && !_useConstFeatures && !_par.memorySavingMode)
+        if (!_maxLeafNodes && !_useConstFeatures && !_memorySavingMode)
         {
             if (_aConstFeatureIdx[maxFeatures + iFeature] > 0) continue; //selected feature is known constant feature
             if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n))
@@ -1115,7 +1118,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
         else
         {
             ++nVisitedFeature;
-            if (!_par.memorySavingMode && !_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue;
+            if (!_memorySavingMode && !_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue;
         }
 
         if (bUseIndexedFeatures)
