@@ -1088,7 +1088,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
                                                                                              algorithmFPType totalWeights)
 {
     /* counter of the number of visited features, we visit _nFeaturesPerNode
-    *  depending on _par.useConstFeatures constant features can be ignored
+    *  depending on _par.useConstFeatures constant features can be skipped
     */
     size_t nVisitedFeature = 0;
     /* total number of features */
@@ -1135,7 +1135,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
         swapIdx += maxFeatures;
         /* _aFeatureIdx[swapIdx] was drawn */
         _aFeatureIdx[i] = _aFeatureIdx[swapIdx];
-        /* swap in number at [maxFeatures - 1 - i] for next draw */
+        /* swap in number at [2 * maxFeatures - 1 - i] for next draw */
         _aFeatureIdx[swapIdx] = _aFeatureIdx[2 * maxFeatures - 1 - i];
         /* store drawn number at end of number buffer so that no number is lost */
         _aFeatureIdx[2 * maxFeatures - 1 - i] = _aFeatureIdx[i];
