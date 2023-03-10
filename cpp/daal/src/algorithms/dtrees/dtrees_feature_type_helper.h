@@ -127,6 +127,14 @@ public:
         return _entries[iCol].binBorders[iBin];
     }
 
+    //returns right border of the bin if the feature is a binned one
+    ModelFPType min(size_t iCol) const
+    {
+        DAAL_ASSERT(isBinned(iCol));
+        DAAL_ASSERT(iBin < numIndices(iCol));
+        return _entries[iCol].min;
+    }
+
     //for low-level optimization
     const IndexType * data(size_t iFeature) const { return (IndexType *)(((char *)_data) + _nRows * iFeature * _sizeOfIndex); }
 

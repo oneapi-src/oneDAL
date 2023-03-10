@@ -119,7 +119,7 @@ public:
     template <bool noWeights, bool featureUnordered>
     int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
                             const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
-                            const algorithmFPType totalWeights) const;
+                            const algorithmFPType totalWeights, const IndexType iFeature) const;
 
     template <bool noWeights>
     bool findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
@@ -196,7 +196,8 @@ template <typename algorithmFPType, CpuType cpu>
 template <bool noWeights, bool featureUnordered>
 int OrderedRespHelperBest<algorithmFPType, cpu>::findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n,
                                                                      size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
-                                                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
+                                                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, 
+                                                                     const IndexType iFeature) const
 {
     auto featWeights = _weightsFeatureBuf.get();
     auto nFeatIdx    = _idxFeatureBuf.get(); //number of indexed feature values, array
@@ -775,12 +776,12 @@ int RespHelperBase<algorithmFPType, cpu, crtp>::findSplitForFeatureSorted(algori
         if (split.featureUnordered)
         {
             return static_cast<const crtp *>(this)->template findBestSplitByHist<true, true>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart,
-                                                                                             curImpurity, split, minWeightLeaf, totalWeights);
+                                                                                             curImpurity, split, minWeightLeaf, totalWeights, iFeature);
         }
         else
         {
             return static_cast<const crtp *>(this)->template findBestSplitByHist<true, false>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart,
-                                                                                              curImpurity, split, minWeightLeaf, totalWeights);
+                                                                                              curImpurity, split, minWeightLeaf, totalWeights, iFeature);
         }
     }
     else
@@ -791,12 +792,12 @@ int RespHelperBase<algorithmFPType, cpu, crtp>::findSplitForFeatureSorted(algori
         if (split.featureUnordered)
         {
             return static_cast<const crtp *>(this)->template findBestSplitByHist<false, true>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart,
-                                                                                              curImpurity, split, minWeightLeaf, totalWeights);
+                                                                                              curImpurity, split, minWeightLeaf, totalWeights, iFeature);
         }
         else
         {
             return static_cast<const crtp *>(this)->template findBestSplitByHist<false, false>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart,
-                                                                                               curImpurity, split, minWeightLeaf, totalWeights);
+                                                                                               curImpurity, split, minWeightLeaf, totalWeights, iFeature);
         }
     }
 }
@@ -820,7 +821,7 @@ public:
     template <bool noWeights, bool featureUnordered>
     int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
                             const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
-                            const algorithmFPType totalWeights) const;
+                            const algorithmFPType totalWeights, const IndexType iFeature) const;
 
     template <bool noWeights>
     bool findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
@@ -837,7 +838,7 @@ template <bool noWeights, bool featureUnordered>
 int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf,
                                                                        size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
                                                                        TSplitData & split, const algorithmFPType minWeightLeaf,
-                                                                       const algorithmFPType totalWeights) const
+                                                                       const algorithmFPType totalWeights, const IndexType iFeature) const
 {
     auto featWeights = this->_weightsFeatureBuf.get();
     auto nFeatIdx    = this->_idxFeatureBuf.get(); //number of indexed feature values, array
@@ -854,7 +855,7 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
 
     for(;(minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx]); minidx++);
 
-    for(;(minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx]);maxidx--);
+    for(;(minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[maxidx]); maxidx--);
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
     if (minidx == maxidx)
@@ -863,9 +864,27 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     }
 
     //randomly select a histogram split index
-    size_t idx;
-    RNGs<size_t, cpu> rng;
-    rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
+    algorithmFPType fidx = 0;
+    algorithmFPType minval = minidx? this->indexedFeatures().min(iFeature): this->indexedFeatures().binRightBorder(iFeature, minidx-1);
+    algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
+    size_t mid;
+    size_t l = minidx;
+    size_t idx = maxidx;
+    RNGs<algorithmFPType, cpu> rng;
+    rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
+
+    while (l < idx)
+    {
+        mid = l + (idx - l) / 2;
+        if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
+        {
+            idx = mid;
+        }
+        else
+        {
+            l = mid + 1;
+        }
+    }
 
     for(;isZero<IndexType, cpu>(nFeatIdx[idx]); idx--);
 
