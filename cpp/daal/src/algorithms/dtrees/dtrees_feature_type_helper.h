@@ -93,7 +93,7 @@ public:
         DAAL_NEW_DELETE();
         IndexType numIndices     = 0;       //number of indices or bins
         ModelFPType * binBorders = nullptr; //right bin borders
-        ModelFPType min = 0; //used for random splitter, since all borders are known but min.
+        ModelFPType min          = 0;       //used for random splitter, since all borders are known but min.
 
         services::Status allocBorders();
         ~FeatureEntry();

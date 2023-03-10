@@ -110,9 +110,7 @@ void testModel(const training::ResultPtr& trainingResult) {
 
     /* Retrieve the algorithm results */
     prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(prediction::prediction),
-                      " ",
-                      1024);
+    printNumericTable(predictionResult->get(prediction::prediction), " ", 1024);
     //printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 

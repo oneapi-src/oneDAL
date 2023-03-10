@@ -166,7 +166,7 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::assignIndexA
     const typename super::FeatureIdx * index = this->_index.get();
 
     entry.min = index[0].key;
-    
+
     if (nBins == 1)
     {
         entry.numIndices   = 1;
@@ -216,19 +216,19 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
 
     size_t nBins         = 0;
     const size_t binSize = nRows / _prm.maxBins;
-    int remainder = nRows % _prm.maxBins; //allow for negative values
-    size_t dx = 2*_prm.maxBins;
-    size_t dy = 2*remainder; 
-    int D = dy - _prm.maxBins; //use bresenham's line algorithm to distribute remainder
+    int remainder        = nRows % _prm.maxBins; //allow for negative values
+    size_t dx            = 2 * _prm.maxBins;
+    size_t dy            = 2 * remainder;
+    int D                = dy - _prm.maxBins; //use bresenham's line algorithm to distribute remainder
 
-    size_t i             = 0;
+    size_t i = 0;
     for (; (i + binSize + 1 < nRows) && (nBins < _prm.maxBins);)
     {
         //trying to make a bin of size binSize
-        size_t newBinSize                     = binSize;
+        size_t newBinSize = binSize;
         if (remainder > 0)
         {
-            if(D > 0)
+            if (D > 0)
             {
                 newBinSize++;
                 remainder--;
@@ -236,7 +236,7 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
             }
             D += dy;
         }
-        size_t iRight                         =  i + newBinSize - 1; //intersperse remainder amongst bins
+        size_t iRight                         = i + newBinSize - 1; //intersperse remainder amongst bins
         const typename super::FeatureIdx & ri = index[iRight];
         if (ri.key == index[iRight + 1].key)
         {
@@ -278,12 +278,12 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
                 }
             }
             if (remainder > 0)
-            {   //reset bresenhams line due to unexpected change in remainder
-                    remainder -= newBinSize - binSize;
-                    dx = 2*(_prm.maxBins-nBins-1);
-                    dy = 2*remainder;
-                    D = dy - _prm.maxBins + nBins + 1;
-            }                
+            { //reset bresenhams line due to unexpected change in remainder
+                remainder -= newBinSize - binSize;
+                dx = 2 * (_prm.maxBins - nBins - 1);
+                dy = 2 * remainder;
+                D  = dy - _prm.maxBins + nBins + 1;
+            }
         }
         append(_bins, nBins, newBinSize);
         i += newBinSize;
