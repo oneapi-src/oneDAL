@@ -36,10 +36,10 @@ using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::regression;
 
 /* Input data set parameters */
-const std::string trainDatasetFileName = "../data/batch/sinfile.csv";
-const std::string testDatasetFileName = "../data/batch/sinfile.csv";
-//const size_t categoricalFeaturesIndices[] = { 3 };
-const size_t nFeatures = 1; /* Number of features in training and testing data sets */
+const std::string trainDatasetFileName = "../data/batch/df_regression_train.csv";
+const std::string testDatasetFileName = "../data/batch/df_regression_test.csv";
+const size_t categoricalFeaturesIndices[] = { 3 };
+const size_t nFeatures = 13; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
 const size_t nTrees = 100;
@@ -82,12 +82,12 @@ training::ResultPtr trainModel() {
 
     /* Retrieve the algorithm results */
     training::ResultPtr trainingResult = algorithm.getResult();
-    //printNumericTable(trainingResult->get(training::variableImportance),
-    //                  "Variable importance results: ");
-    //printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
-    //printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation),
-    //                  "OOB error per observation (first 10 rows):",
-    //                  10);
+    printNumericTable(trainingResult->get(training::variableImportance),
+                      "Variable importance results: ");
+    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
+    printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation),
+                      "OOB error per observation (first 10 rows):",
+                      10);
     return trainingResult;
 }
 
@@ -110,8 +110,10 @@ void testModel(const training::ResultPtr& trainingResult) {
 
     /* Retrieve the algorithm results */
     prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(prediction::prediction), " ", 1024);
-    //printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(prediction::prediction),
+                      "Decision forest prediction results (first 10 rows):",
+                      10);
+    printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 
 void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar) {
@@ -128,11 +130,11 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
     /* Retrieve the data from input file */
     trainDataSource.loadDataBlock(mergedData.get());
 
-    /*NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
+    NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
     for (size_t i = 0,
                 n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]);
          i < n;
          ++i)
         (*pDictionary)[categoricalFeaturesIndices[i]].featureType =
-            data_feature_utils::DAAL_CATEGORICAL;*/
+            data_feature_utils::DAAL_CATEGORICAL;
 }
