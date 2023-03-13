@@ -692,7 +692,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     // the buffer to contain all indices from [0, 1, ..., maxFeatures - 1]
     DAAL_CHECK_MALLOC(_aFeatureIdx.get());
     services::internal::service_memset_seq<IndexType, cpu>(_aFeatureIdx.get(), IndexType(0), maxFeatures);
-    services::internal::service_memset_sequence<IndexType, cpu>(_aFeatureIdx.get() + maxFeatures, IndexType(0), maxFeatures);
+    services::internal::service_memset_incrementing<IndexType, cpu>(_aFeatureIdx.get() + maxFeatures, IndexType(0), maxFeatures);
 
     DAAL_CHECK_MALLOC(_aSample.get() && _helper.reset(_nSamples) && _helper.resetWeights(_nSamples) && _aFeatureBuf.get() && _aFeatureIndexBuf.get()
                       && _aFeatureIdx.get());

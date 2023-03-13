@@ -141,7 +141,7 @@ void service_memset_seq(T * const ptr, const T value, const size_t num)
 
 /* Initialize block of memory of length num with entries [startValue, ..., startValue + num -1]*/
 template <typename T, CpuType cpu>
-void service_memset_sequence(T * const ptr, const T startValue, const size_t num)
+void service_memset_incrementing(T * const ptr, const T startValue, const size_t num)
 {
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
