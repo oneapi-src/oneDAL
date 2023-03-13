@@ -57,7 +57,8 @@ Parameter::Parameter()
       minImpurityDecreaseInSplitNode(0.),
       maxLeafNodes(0),
       maxBins(256),
-      minBinSize(5)
+      minBinSize(5),
+      useConstFeatures(false)
 {}
 } // namespace interface2
 Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
