@@ -1090,17 +1090,15 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
     size_t nVisitedFeature = 0;
     /* total number of features */
     const size_t maxFeatures = nFeatures();
-    /* (??) min fracture of observations to be handled as indexed feature values */
-    const float qMax = 0.02;
+    /* minimum fraction of all samples per bin */
+    const algorithmFPType qMax = 0.02;
     /* index of the best split, initialized to first index we investigate */
     IndexType * bestSplitIdx = featureIndexBuf(0) + iStart;
     /* sample index */
     IndexType * aIdx = _aSample.get() + iStart;
     /* zero-based index of best split */
-    int iBestSplit = -1;
-    /* ?? */
-    int idxFeatureValueBestSplit = -1;
-    /* ?? */
+    int64_t iBestSplit               = -1;
+    int64_t idxFeatureValueBestSplit = -1;
     typename DataHelper::TSplitData split;
     /* RNG for sample drawing */
     RNGs<IndexType, cpu> rng;
@@ -1126,8 +1124,9 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
         int errorcode = rng.uniform(1, &swapIdx, _engineImpl->getState(), 0, maxFeatures - i);
         if (errorcode)
         {
-            // TODO: Handle error ?
+            return false;
         }
+
         /* account for buffer offset from 0 */
         swapIdx += maxFeatures;
         /* _aFeatureIdx[swapIdx] was drawn */
@@ -1137,8 +1136,9 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
         /* store drawn number at end of number buffer so that no number is lost */
         _aFeatureIdx[2 * maxFeatures - 1 - i] = _aFeatureIdx[i];
 
-        const auto iFeature            = _aFeatureIdx[i];
-        const bool bUseIndexedFeatures = (!_par.memorySavingMode) && (float(n) > qMax * float(_helper.indexedFeatures().numIndices(iFeature)));
+        const auto iFeature = _aFeatureIdx[i];
+        const bool bUseIndexedFeatures =
+            (!_par.memorySavingMode) && (algorithmFPType(n) > qMax * algorithmFPType(_helper.indexedFeatures().numIndices(iFeature)));
 
         if (!_maxLeafNodes && !_par.useConstFeatures && !_par.memorySavingMode)
         {
@@ -1163,7 +1163,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
         {
             split.featureUnordered = _featHelper.isUnordered(iFeature);
             //index of best feature value in the array of sorted feature values
-            const int idxFeatureValue =
+            const int64_t idxFeatureValue =
                 _helper.findBestSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode, curImpurity, split,
                                                       _minWeightLeaf, totalWeights, _binIndex + _data->getNumberOfRows() * iFeature);
             if (idxFeatureValue < 0) continue;
