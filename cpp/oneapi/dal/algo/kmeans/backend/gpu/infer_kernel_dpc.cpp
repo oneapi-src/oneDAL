@@ -21,6 +21,8 @@
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 namespace oneapi::dal::kmeans::backend {
 
 using dal::backend::context_gpu;
