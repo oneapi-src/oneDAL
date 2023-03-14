@@ -53,10 +53,11 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto daal_resp = interop::convert_to_daal_table<std::int32_t>(responses);
 
     const std::int64_t p = data.get_column_count();
+    const std::int64_t n = data.get_row_count();
 
     auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
 
-    parameter_t daal_parameter(p + 1 /*????What is number of terms?????*/,
+    parameter_t daal_parameter(n, // number of terms
                                daal::data_management::NumericTablePtr(),
                                0);
 
