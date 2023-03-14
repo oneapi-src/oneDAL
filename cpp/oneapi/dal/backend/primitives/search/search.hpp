@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/distance.hpp"
@@ -112,6 +114,8 @@ public:
                            std::int64_t query_block,
                            std::int64_t k_neighbors = 1,
                            const event_vector& deps = {}) const {
+        ONEDAL_PROFILER_TASK(search.query_loop, this->get_queue());
+
         const auto* const impl_ptr = static_cast<const Impl* const>(this);
         selc_t selection = create_selection_objects(query_block, k_neighbors);
         const uniform_blocking query_blocking(query_data.get_dimension(0), query_block);

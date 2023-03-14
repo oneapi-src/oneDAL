@@ -34,7 +34,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                               const descriptor_t& params,
                                               const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
-
+        ONEDAL_PROFILER_TASK(kmeans.infer_kernel, queue);
         const auto data = input.get_data();
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
