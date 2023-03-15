@@ -24,7 +24,7 @@ six==1.16.0
 snowballstemmer==2.2.0
 soupsieve==2.3.2.post1
 Sphinx==4.5.0
-sphinx-book-theme==0.1.7
+sphinx-book-theme==0.3.3
 sphinx-notfound-page==0.8.3
 sphinx-prompt==1.5.0
 Sphinx-Substitution-Extensions==2022.2.16
