@@ -19,8 +19,7 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "tests",
-    private = True,
+    name = "interface_tests",
     framework = "catch2",
     hdrs = glob([
         "test/*.hpp",
@@ -33,3 +32,9 @@ dal_test_suite(
     ],
 )
 
+dal_test_suite(
+    name = "tests",
+    tests = [
+        ":interface_tests",
+    ],
+)
