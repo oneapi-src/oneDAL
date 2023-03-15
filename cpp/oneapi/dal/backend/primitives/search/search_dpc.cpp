@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemm.hpp"
@@ -74,6 +75,7 @@ sycl::event treat_indices(sycl::queue& q,
                           ndview<Index, 2>& indices,
                           std::int64_t start_index,
                           const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(search.treat_indices, q);
     ONEDAL_ASSERT(indices.has_mutable_data());
     auto* const ids_ptr = indices.get_mutable_data();
     const auto ids_str = indices.get_leading_stride();
@@ -450,6 +452,8 @@ sycl::event search_engine_base<Float, Distance, Impl, torder>::do_search(
     temp_ptr_t temp_objs,
     selc_t& select,
     const event_vector& deps) const {
+    ONEDAL_PROFILER_TASK(search.base, this->get_queue());
+
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
@@ -457,10 +461,12 @@ sycl::event search_engine_base<Float, Distance, Impl, torder>::do_search(
     const auto query_block_size = query.get_dimension(0);
     //Iterations over larger blocks
     for (std::int64_t sb_id = 0; sb_id < get_selection_blocking().get_block_count(); ++sb_id) {
+        ONEDAL_PROFILER_TASK(search.base.selection_blocking, this->get_queue());
         const std::int64_t start_tb = get_selection_blocking().get_block_start_index(sb_id);
         const std::int64_t end_tb = get_selection_blocking().get_block_end_index(sb_id);
         //Iterations over smaller blocks
         for (std::int64_t tb_id = start_tb; tb_id < end_tb; ++tb_id) {
+            ONEDAL_PROFILER_TASK(search.base.inner_blocking, this->get_queue());
             const auto train = get_train_block(tb_id);
             const auto train_block_size = get_train_blocking().get_block_length(tb_id);
             ONEDAL_ASSERT(train.get_dimension(0) == train_block_size);
@@ -553,6 +559,8 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
     temp_ptr_t temp_objs,
     selc_t& select,
     const event_vector& deps) const {
+    ONEDAL_PROFILER_TASK(search.squared_l2, this->get_queue());
+
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == base_t::selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
@@ -564,10 +572,12 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
     //Iterations over larger blocks
     for (std::int64_t sb_id = 0; sb_id < this->get_selection_blocking().get_block_count();
          ++sb_id) {
+        ONEDAL_PROFILER_TASK(search.squared_l2.selection_blocking, this->get_queue());
         const std::int64_t start_tb = this->get_selection_blocking().get_block_start_index(sb_id);
         const std::int64_t end_tb = this->get_selection_blocking().get_block_end_index(sb_id);
         //Iterations over smaller blocks
         for (std::int64_t tb_id = start_tb; tb_id < end_tb; ++tb_id) {
+            ONEDAL_PROFILER_TASK(search.squared_l2.inner_blocking, this->get_queue());
             const auto train = this->get_train_block(tb_id);
             const auto train_block_size = this->get_train_blocking().get_block_length(tb_id);
             auto tnorms = temp_objs->get_train_norms_block(tb_id);
@@ -657,6 +667,8 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
     temp_ptr_t temp_objs,
     selc_t& select,
     const event_vector& deps) const {
+    ONEDAL_PROFILER_TASK(search.cosine, this->get_queue());
+
     ONEDAL_ASSERT(temp_objs->get_k() == k_neighbors);
     ONEDAL_ASSERT(temp_objs->get_select_block() == base_t::selection_sub_blocks);
     ONEDAL_ASSERT(temp_objs->get_query_block() >= query.get_dimension(0));
@@ -668,10 +680,12 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
     //Iterations over larger blocks
     for (std::int64_t sb_id = 0; sb_id < this->get_selection_blocking().get_block_count();
          ++sb_id) {
+        ONEDAL_PROFILER_TASK(search.cosine.selection_blocking, this->get_queue());
         const std::int64_t start_tb = this->get_selection_blocking().get_block_start_index(sb_id);
         const std::int64_t end_tb = this->get_selection_blocking().get_block_end_index(sb_id);
         //Iterations over smaller blocks
         for (std::int64_t tb_id = start_tb; tb_id < end_tb; ++tb_id) {
+            ONEDAL_PROFILER_TASK(search.cosine.inner_blocking, this->get_queue());
             const auto train = this->get_train_block(tb_id);
             const auto train_block_size = this->get_train_blocking().get_block_length(tb_id);
             auto tinorms = temp_objs->get_train_inv_norms_block(tb_id);
