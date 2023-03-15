@@ -71,7 +71,7 @@ sycl::event finalize_cosine(sycl::queue& q,
                             const ndview<Float, 1>& inp2,
                             ndview<Float, 2>& out,
                             const event_vector& deps) {
-    ONEDAL_PROFILER_TASK(distance.finlize_cosine, q);
+    ONEDAL_PROFILER_TASK(distance.finalize_cosine, q);
 
     ONEDAL_ASSERT(inp1.has_data());
     ONEDAL_ASSERT(inp2.has_data());
