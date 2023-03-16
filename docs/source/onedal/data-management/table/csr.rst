@@ -16,9 +16,9 @@
 
 .. _csr_table:
 
-=================
+==================================
 Compressed sparse rows (CSR) table
-=================
+==================================
 
 Class ``csr_table`` is a subtype of a table type
 for which the following is true:

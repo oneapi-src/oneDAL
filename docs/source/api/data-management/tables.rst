@@ -116,7 +116,7 @@ feature_type::ratio
    Represents the type of :capterm:`Ratio feature`.
 
 Sparse indexing
-------------
+---------------
 
 An implementation of the sparse indexing formats.
 
