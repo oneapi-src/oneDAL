@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-// #pragma once
-
 #include "oneapi/dal/algo/objective_function/compute.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
@@ -26,12 +24,10 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/algo/objective_function/test/fixture.hpp"
 
 namespace oneapi::dal::objective_function::test {
 
-namespace pr = dal::backend::primitives;
 namespace te = dal::test::engine;
 namespace de = dal::detail;
 namespace obj_fun = oneapi::dal::objective_function;

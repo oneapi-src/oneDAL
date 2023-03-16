@@ -26,7 +26,6 @@
 
 namespace oneapi::dal::objective_function::test {
 
-namespace pr = dal::backend::primitives;
 namespace te = dal::test::engine;
 namespace de = dal::detail;
 namespace obj_fun = oneapi::dal::objective_function;
