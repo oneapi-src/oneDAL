@@ -16,9 +16,9 @@
 
 .. _api_csr_table:
 
-=================
+==================================
 Compressed sparse rows (CSR) table
-=================
+==================================
 
 Refer to :ref:`API Reference: Compressed sparse rows table <csr_table>`.
 
