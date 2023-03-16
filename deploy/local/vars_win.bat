@@ -22,8 +22,7 @@ if defined ONEAPI_ROOT (
 )
 
 setlocal
-call:GetFullPath "%~dp0.."       DAAL
-call:GetFullPath "%~dp0..\..\.." DAAL_UP
+call:GetFullPath "%~dp0..\.."    DAAL
 call:GetFullPath "%~dp0..\.."    DAAL_UP_OLD
 
 set DAAL_IA=intel64
@@ -56,7 +55,7 @@ set "PKG_CONFIG_PATH=%DAAL%\lib\pkgconfig;%PKG_CONFIG_PATH%"
 if exist "%DAAL_UP_OLD%\redist" (
     set "PATH=%DAAL_UP_OLD%\redist\%DAAL_IA%_win\daal;%PATH%"
 ) else (
-    set "PATH=%DAAL%\lib\redist;%PATH%"
+    set "PATH=%DAAL%\bin;%PATH%"
 )
 set "CLASSPATH=%DAAL%\share\java\onedal.jar;%CLASSPATH%"
 endlocal& ^
