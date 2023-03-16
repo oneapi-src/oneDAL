@@ -27,6 +27,7 @@
 
 /* Tables */
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
