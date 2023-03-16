@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2023 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -115,7 +115,25 @@ feature_type::interval
 feature_type::ratio
    Represents the type of :capterm:`Ratio feature`.
 
+Sparse indexing
+------------
+
+An implementation of the sparse indexing formats.
+
+::
+
+   enum class sparse_indexing { zero_based, one_based };
+
+.. .. namespace:: oneapi::dal
+.. .. enum-class:: sparse_indexing
+
+sparse_indexing::zero_based
+   The indices of the sparse table are stored in :capterm:`zero-based` format.
+
+sparse_indexing::one_based
+   The indices of the sparse table are stored in :capterm:`one-based` format.
 
 .. toctree::
 
    table/homogen.rst
+   table/csr.rst

@@ -49,6 +49,10 @@ This section describes the types related to the :txtref:`table` concept.
      - An enumeration of :capterm:`feature` types used in |short_name| to
        define set of available operations onto the data.
 
+   * - :ref:`api_tables_sparse_indexing`
+     - An enumeration of :capterm:`sparse indexing` types used in |short_name| to
+       define available formats for sparse table indices.
+
 ---------------------------
 Requirements on table types
 ---------------------------
@@ -110,6 +114,11 @@ Table types
      - A dense table that contains :term:`contiguous <Contiguous data>`
        :term:`homogeneous <Homogeneous data>` data.
 
+   * - :txtref:`csr_table`
+     - A sparse table that contains :term:`contiguous <Contiguous data>`
+       :term:`homogeneous <Homogeneous data>` data stored in
+       :term:`CSR <Compressed sparse rows>` 3-array format.
+
 ---------------------
 Programming interface
 ---------------------
@@ -120,3 +129,4 @@ Refer to :ref:`API: Tables <table_programming_interface>`.
    :hidden:
 
    table/homogen.rst
+   table/csr.rst
