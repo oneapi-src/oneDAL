@@ -222,7 +222,6 @@ my_script_path=$(get_script_path "${vars_script_name:-}")
 component_root=$(dirname -- "${my_script_path}")
 
 __daal_tmp_dir="<INSTALLDIR>"
-__daal_tmp_dir=$__daal_tmp_dir
 if [ ! -d $__daal_tmp_dir ]; then
     __daal_tmp_dir=${component_root}
 fi
