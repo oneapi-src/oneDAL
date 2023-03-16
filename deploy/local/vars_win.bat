@@ -17,7 +17,7 @@ rem ============================================================================
 
 if defined ONEAPI_ROOT (
     set "DAALROOT=%ONEAPI_ROOT%"
-    set "CLASSPATH=%ONEAPI_ROOT%\lib\onedal.jar;%CLASSPATH%"
+    set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
     exit /b 0
 )
 
