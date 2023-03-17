@@ -59,7 +59,7 @@ get_script_path() (
     script="$(readlink "$script")"
     case $script in
       (/*) ;;
-      (*) script="$script_dir/$script" ;;
+       (*) script="$script_dir/$script" ;;
     esac
   done
   # combining next two lines fails in zsh shell
