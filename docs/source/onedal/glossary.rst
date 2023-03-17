@@ -338,11 +338,11 @@ Graph analytics terms
           indexed i or greater. The last element in the array ``row_offsets``
           encodes the number of non-zero elements in the matrix :math:`A`.
 
-        **Example:** zero-based CSR data fromat
-
 .. figure:: ./images/zero-based-csr.png
   :width: 600
   :alt:
+
+  Compressed sparse row (CSR) data format with zero-based indexing
 
         The library supports zero-based and one-based indexing.
 
