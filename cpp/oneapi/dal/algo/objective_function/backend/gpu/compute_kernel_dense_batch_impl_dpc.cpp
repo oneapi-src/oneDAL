@@ -177,7 +177,7 @@ sycl::event value_iter(sycl::queue& q_,
     return q_.submit([&](sycl::handler& cgh) {
         cgh.depends_on({ loss_event, prev_iter });
         cgh.single_task([=] {
-            ans_loss_ptr[0] += out_ptr[0];
+            *ans_loss_ptr += *out_ptr;
         });
     });
 }

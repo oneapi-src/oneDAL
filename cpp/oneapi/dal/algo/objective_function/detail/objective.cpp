@@ -34,8 +34,8 @@ public:
     }
 
 private:
-    double l1_coef = 0;
-    double l2_coef = 0;
+    double l1_coef = 0.0;
+    double l2_coef = 0.0;
 };
 
 template <typename F, typename M>

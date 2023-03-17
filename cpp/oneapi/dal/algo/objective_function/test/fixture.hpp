@@ -31,8 +31,6 @@ namespace de = dal::detail;
 namespace obj_fun = oneapi::dal::objective_function;
 namespace lg = oneapi::dal::logloss_objective;
 
-std::mt19937 rnd(2007);
-
 template <typename TestType, typename Derived>
 class logloss_test : public te::crtp_algo_fixture<TestType, Derived> {
 public:
@@ -57,13 +55,13 @@ public:
     }
 
     void gen_input() {
+        std::mt19937 rnd(2007 + n_ + p_ + n_ * p_);
         const te::dataframe data_df =
             GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_normal(-0.5, 0.5, 7777));
         const te::dataframe params_df =
             GENERATE_DATAFRAME(te::dataframe_builder{ p_ + 1, 1 }.fill_normal(-0.5, 0.5, 7777));
         auto resp = array<std::int32_t>::zeros(n_);
         auto* const ptr = resp.get_mutable_data();
-        srand(2007 + n_ + p_ + n_ * p_);
         for (std::int64_t i = 0; i < n_; ++i) {
             ptr[i] = rnd() % 2;
         }
@@ -187,6 +185,7 @@ public:
                         const Float* pred_ptr,
                         const double tol = 1e-4,
                         const std::int32_t stohastic = 0) {
+        std::mt19937 rnd(2007 + n_ + p_ + n_ * p_ + 1);
         if (result.get_result_options().test(result_options::gradient)) {
             const auto gradient = result.get_gradient();
             REQUIRE(gradient.get_row_count() == p_ + 1);
@@ -237,6 +236,7 @@ public:
                        const Float* pred_ptr,
                        const double tol = 1e-4,
                        const std::int32_t stohastic = 0) {
+        std::mt19937 rnd(2007 + n_ + p_ + n_ * p_ + 2);
         if (result.get_result_options().test(result_options::hessian)) {
             const auto hessian = result.get_hessian();
             REQUIRE(hessian.get_row_count() == p_ + 1);

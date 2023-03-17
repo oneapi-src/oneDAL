@@ -83,7 +83,7 @@ struct compute_ops {
             if (!result.get_gradient().has_data()) {
                 throw domain_error(msg::gradient_is_not_provided());
             }
-            if (result.get_gradient().get_row_count() != p + 1 ||
+            if (result.get_gradient().get_row_count() != (p + 1) ||
                 result.get_gradient().get_column_count() != 1) {
                 throw domain_error(msg::incorrect_output_table_size());
             }
@@ -93,8 +93,8 @@ struct compute_ops {
             if (!result.get_hessian().has_data()) {
                 throw domain_error(msg::hessian_is_not_provided());
             }
-            if (result.get_hessian().get_row_count() != p + 1 ||
-                result.get_hessian().get_column_count() != p + 1) {
+            if (result.get_hessian().get_row_count() != (p + 1) ||
+                result.get_hessian().get_column_count() != (p + 1)) {
                 throw domain_error(msg::incorrect_output_table_size());
             }
         }

@@ -212,6 +212,7 @@ ONEAPI.ALGOS.kmeans := CORE.kmeans
 ONEAPI.ALGOS.kmeans_init := CORE.kmeans
 ONEAPI.ALGOS.knn := CORE.k_nearest_neighbors
 ONEAPI.ALGOS.linear_kernel := CORE.kernel_function
+ONEAPI.ALGOS.objective_function := CORE.objective_function
 ONEAPI.ALGOS.pca           := CORE.pca
 ONEAPI.ALGOS.polynomial_kernel := CORE.kernel_function
 ONEAPI.ALGOS.sigmoid_kernel := CORE.kernel_function
