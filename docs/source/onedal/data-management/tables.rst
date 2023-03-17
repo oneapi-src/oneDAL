@@ -50,7 +50,7 @@ This section describes the types related to the :txtref:`table` concept.
        define set of available operations onto the data.
 
    * - :ref:`api_tables_sparse_indexing`
-     - An enumeration of :capterm:`sparse indexing` types used in |short_name| to
+     - An enumeration of sparse indexing types used in |short_name| to
        define available formats for sparse table indices.
 
 ---------------------------
@@ -117,7 +117,7 @@ Table types
    * - :txtref:`csr_table`
      - A sparse table that contains :term:`contiguous <Contiguous data>`
        :term:`homogeneous <Homogeneous data>` data stored in
-       :term:`CSR <Compressed sparse rows>` 3-array format.
+       :term:`CSR <CSR data>` 3-array format.
 
 ---------------------
 Programming interface

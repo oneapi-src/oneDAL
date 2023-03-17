@@ -115,6 +115,9 @@ feature_type::interval
 feature_type::ratio
    Represents the type of :capterm:`Ratio feature`.
 
+
+.. _api_tables_sparse_indexing:
+
 Sparse indexing
 ---------------
 
@@ -128,10 +131,10 @@ An implementation of the sparse indexing formats.
 .. .. enum-class:: sparse_indexing
 
 sparse_indexing::zero_based
-   The indices of the sparse table are stored in :capterm:`zero-based` format.
+   The indices of the sparse table are stored in zero-based format.
 
 sparse_indexing::one_based
-   The indices of the sparse table are stored in :capterm:`one-based` format.
+   The indices of the sparse table are stored in one-based format.
 
 .. toctree::
 
