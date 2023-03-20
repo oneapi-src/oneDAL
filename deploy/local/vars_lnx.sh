@@ -43,6 +43,15 @@
 # Outputs:
 #   /script/absolute/pathname
 
+#check if ONEAPI_ROOT is defined
+#if [ -n "${ONEAPI_ROOT:-}" ] ; then
+  #export DAALROOT=$ONEAPI_ROOT
+  #export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
+  #exit 0
+#fi
+
+echo "Test of the first line"
+
 # executing function in a *subshell* to localize vars and effects on `cd`
 get_script_path() (
   script="$1"
@@ -96,13 +105,6 @@ _vars_get_proc_name() {
   fi
   basename -- "$script"
 }
-
-#check if ONEAPI_ROOT is defined
-if [ -n "${ONEAPI_ROOT:-}" ] ; then
-  #export DAALROOT=$ONEAPI_ROOT
-  #export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
-  exit 0
-fi
 
 _vars_this_script_name="vars.sh"
 if [ "$_vars_this_script_name" = "$(_vars_get_proc_name "$0")" ] ; then
