@@ -27,6 +27,8 @@
 #include "oneapi/dal/backend/primitives/rng/rnd_seq.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -128,6 +130,8 @@ private:
                        ndview<Float, 2>& selection,
                        ndview<std::int32_t, 2>& indices,
                        const event_vector& deps) {
+        ONEDAL_PROFILER_TASK(selection.kselect_by_rows_quick, queue);
+
         last_call_.wait_and_throw();
         const std::int64_t row_count = height;
         const std::int64_t col_count = dp.get_width();

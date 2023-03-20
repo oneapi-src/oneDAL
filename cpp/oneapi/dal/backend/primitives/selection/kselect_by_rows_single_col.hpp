@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_base.hpp"
@@ -114,6 +116,8 @@ private:
                        ndview<Float, 2>& selection,
                        ndview<std::int32_t, 2>& indices,
                        const event_vector& deps = {}) {
+        ONEDAL_PROFILER_TASK(selection.kselect_by_rows_1col, queue);
+
         const std::int64_t row_count = height;
         const std::int64_t col_count = dp.get_width();
         [[maybe_unused]] const std::int64_t out_ids_stride = indices.get_leading_stride();

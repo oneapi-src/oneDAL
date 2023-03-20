@@ -429,7 +429,7 @@ public:
             _deleter->del(_creater);
         }
         delete _deleter;
-        delete _storage;
+        delete[] _storage;
     }
 
     F local(size_t tid)

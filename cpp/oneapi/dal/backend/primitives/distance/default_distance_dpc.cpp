@@ -16,6 +16,8 @@
 
 #include <utility>
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
 
 namespace oneapi::dal::backend::primitives {
@@ -104,6 +106,8 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2, order1>& 
                                                 const ndview<Float, 2, order2>& inp2,
                                                 ndview<Float, 2>& out,
                                                 const event_vector& deps) const {
+    ONEDAL_PROFILER_TASK(distance.default, q_);
+
     check_inputs(inp1, inp2, out);
     // Getting raw USM pointers
     auto* out_ptr = out.get_mutable_data();

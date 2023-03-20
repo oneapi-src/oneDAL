@@ -16,22 +16,38 @@
 
 #pragma once
 
-#include "oneapi/dal/table/detail/csr_block.hpp"
+#include "oneapi/dal/array.hpp"
+
+namespace oneapi::dal {
+namespace v1 {
+enum class sparse_indexing;
+} // namespace v1
+
+using v1::sparse_indexing;
+
+} // namespace oneapi::dal
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-#define PULL_CSR_BLOCK_SIGNATURE_HOST(T)                   \
-    void pull_csr_block(const default_host_policy& policy, \
-                        csr_block<T>& block,               \
-                        const csr_indexing& indexing,      \
+#define PULL_CSR_BLOCK_SIGNATURE_HOST(T)                          \
+    void pull_csr_block(const default_host_policy& policy,        \
+                        dal::array<T>& data,                      \
+                        dal::array<std::int64_t>& column_indices, \
+                        dal::array<std::int64_t>& row_offsets,    \
+                        const dal::sparse_indexing& indexing,     \
                         const range& row_range)
 
 #define DECLARE_PULL_CSR_BLOCK_HOST(T) virtual PULL_CSR_BLOCK_SIGNATURE_HOST(T) = 0;
 
-#define DEFINE_TEMPLATE_PULL_CSR_BLOCK_HOST(Derived, T)                                           \
-    PULL_CSR_BLOCK_SIGNATURE_HOST(T) override {                                                   \
-        static_cast<Derived*>(this)->pull_csr_block_template(policy, block, indexing, row_range); \
+#define DEFINE_TEMPLATE_PULL_CSR_BLOCK_HOST(Derived, T)                      \
+    PULL_CSR_BLOCK_SIGNATURE_HOST(T) override {                              \
+        static_cast<Derived*>(this)->pull_csr_block_template(policy,         \
+                                                             data,           \
+                                                             column_indices, \
+                                                             row_offsets,    \
+                                                             indexing,       \
+                                                             row_range);     \
     }
 
 class pull_csr_block_iface {

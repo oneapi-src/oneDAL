@@ -67,6 +67,7 @@ public:
     MSG(feature_index_is_out_of_range);
     MSG(incompatible_array_reinterpret_cast_types);
     MSG(invalid_data_block_size);
+    MSG(invalid_column_indices_block_size);
     MSG(method_not_implemented);
     MSG(only_homogen_table_is_supported);
     MSG(overflow_found_in_multiplication_of_two_values);
@@ -119,8 +120,10 @@ public:
     MSG(object_does_not_provide_write_access_to_columns);
     MSG(object_does_not_provide_access_to_rows_or_columns);
     MSG(unsupported_conversion_types);
-    MSG(row_indices_lt_min_value);
-    MSG(row_indices_gt_max_value);
+    MSG(invalid_first_row_offset);
+    MSG(row_offsets_lt_min_value);
+    MSG(row_offsets_gt_max_value);
+    MSG(row_offsets_not_ascending);
     MSG(column_indices_lt_min_value);
     MSG(column_indices_gt_max_value);
     MSG(zero_based_indexing_is_not_supported);

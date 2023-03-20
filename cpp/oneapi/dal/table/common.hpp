@@ -34,6 +34,7 @@ namespace v1 {
 
 enum class feature_type { nominal, ordinal, interval, ratio };
 enum class data_layout { unknown, row_major, column_major };
+enum class sparse_indexing { zero_based, one_based };
 
 class ONEDAL_EXPORT table_metadata {
     friend detail::pimpl_accessor;
@@ -137,6 +138,7 @@ private:
 
 using v1::feature_type;
 using v1::data_layout;
+using v1::sparse_indexing;
 using v1::table_metadata;
 using v1::table;
 
