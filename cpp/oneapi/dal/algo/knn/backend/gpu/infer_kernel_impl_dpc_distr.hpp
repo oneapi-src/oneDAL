@@ -538,6 +538,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         ONEDAL_ASSERT(qcount == part_distances.get_dimension(0));
         ONEDAL_ASSERT(2 * kcount == part_distances.get_dimension(1));
     }
+    const auto ccount = desc.get_class_count();
 
     auto block_size = pr::get_block_size<Float>();
     auto rank_count = comm.get_rank_count();
@@ -586,7 +587,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         if (desc.get_result_options().test(result_options::responses) &&
             (desc.get_voting_mode() == voting_mode::distance)) {
             callback.set_distance_voting(
-                std::move(pr::make_distance_voting<Float>(queue, qbcount, kcount)));
+                std::move(pr::make_distance_voting<Float>(queue, qbcount, ccount)));
         }
     }
 
