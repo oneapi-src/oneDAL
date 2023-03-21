@@ -88,7 +88,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count
     auto split_node_count_buf = pr::ndarray<Index, 1>::empty(queue_, { 1 }, alloc::device);
     Index* split_node_count_ptr = split_node_count_buf.get_mutable_data();
 
-    auto krn_local_size = preferable_sbg_size_;
+    auto krn_local_size = bk::device_max_sg_size(queue_); // preferable_sbg_size_;
     const sycl::nd_range<1> nd_range =
         bk::make_multiple_nd_range_1d(krn_local_size, krn_local_size);
 
