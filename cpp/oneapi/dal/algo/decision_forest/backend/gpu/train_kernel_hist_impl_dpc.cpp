@@ -3115,7 +3115,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                             { last_event })
                 .wait_and_throw();
         }
-        std::cout << "computation for this tree block is done.";
+        std::cout << "computation for this tree block is done." << std::endl;
     }
 
     // Finalize results
