@@ -175,7 +175,6 @@ public:
         do {
             level--;
             tree_level_record<Float, Index, Task>& record = tree_level_list[level];
-
             df_tree_node_list_ptr_t df_tree_level_node_list(
                 new df_tree_node_list_t(record.get_node_count()));
 
@@ -247,7 +246,7 @@ public:
 private:
     typename NodeType::Leaf* make_leaf(tree_level_record<Float, Index, Task>& record,
                                        Index node_idx) {
-        DAAL_ASSERT(record.get_row_count(node_idx) > 0);
+        ONEDAL_ASSERT(record.get_row_count(node_idx) > 0);
 
         typename NodeType::Leaf* node_ptr;
         if constexpr (std::is_same_v<task::classification, Task>) {

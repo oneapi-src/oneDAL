@@ -685,7 +685,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
     ONEDAL_ASSERT(level_node_list.state_is_valid());
 
     Index node_count = node_group.get_node_count();
-    Index node_ind_ofs = node_group.get_node_indices_offset();
     ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
@@ -697,7 +696,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
         ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() >= node_count * ctx.class_count_);
     }
 
-    ONEDAL_ASSERT(level_node_list.get_count() >= node_ind_ofs + node_count);
+    ONEDAL_ASSERT(level_node_list.get_list().get_count() >= node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(left_child_imp_data_list.imp_list_.get_count() >=
                   node_count * impl_const_t::node_imp_prop_count_);
     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -763,7 +762,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
     // TODO: add separate branch to process situation when there isn't enough local mem
 
     for (Index processed_node_cnt = 0; processed_node_cnt < node_count;
-         processed_node_cnt += node_in_block_count, node_ind_ofs += node_in_block_count) {
+         processed_node_cnt += node_in_block_count) {
         const sycl::nd_range<2> nd_range =
             bk::make_multiple_nd_range_2d({ local_size, max_wg_count_ }, { local_size, 1 });
 
@@ -777,7 +776,12 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                     auto sbg = item.get_sub_group();
 
                     const Index node_idx = item.get_global_id(1);
-                    const Index node_id = node_indices_ptr[node_idx];
+
+                    if ((processed_node_cnt + node_idx) > (node_count - 1)) {
+                        return;
+                    }
+
+                    const Index node_id = node_indices_ptr[processed_node_cnt + node_idx];
                     Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
 
                     const Index sub_group_id = sbg.get_group_id();
@@ -785,10 +789,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
 
                     const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
                     const Index row_count = node_ptr[impl_const_t::ind_lrc];
-
-                    if ((processed_node_cnt + node_idx) > (node_count - 1)) {
-                        return;
-                    }
 
                     split_smp_t sp_hlp;
                     split_info<Float, Index, Task> bs;
