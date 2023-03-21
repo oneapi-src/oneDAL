@@ -1179,6 +1179,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                      imp_data_list,
                                                      node_count,
                                                      deps);
+        last_event.wait_and_throw();
     }
 
     return last_event;
@@ -1253,7 +1254,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                 get_part_hist_elem_count(ctx.selected_ftr_count_,
                                          ctx.max_bin_count_among_ftrs_,
                                          hist_prop_count);
-
             Index part_hist_count = max_grp_block_count <= ctx.min_row_block_count_for_one_hist_
                                         ? 1
                                         : ctx.max_part_hist_count_;
@@ -1282,7 +1282,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
 
             Index block_node_count =
                 grp_node_count / ph_block_count + bool(grp_node_count % ph_block_count);
-
             for (Index block_ind_ofs = grp_ind_ofs; block_ind_ofs < grp_ind_ofs + grp_node_count;
                  block_ind_ofs += block_node_count) {
                 block_node_count =
@@ -1525,7 +1524,6 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram(
                                                part_hist_count,
                                                node_count,
                                                { last_event });
-
         last_event.wait_and_throw();
     }
 
@@ -1746,6 +1744,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                              node_hist_list,
                                              node_count,
                                              { last_event });
+            last_event.wait_and_throw();
         }
     }
 
@@ -2946,7 +2945,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
         for (Index level = 0; node_count > 0; ++level) {
             auto node_list = level_node_lists[level];
-
             imp_data_t left_child_imp_data(queue_, ctx, node_count);
 
             auto [selected_features_com, event] =
@@ -3047,7 +3045,8 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                                      node_list_new,
                                                      imp_data_holder.get_data(level + 1),
                                                      node_count_new,
-                                                     ctx);
+                                                     ctx,
+                                                     { last_event });
                     level_records.push_back(level_record);
                     node_count_new = 0;
                 }
@@ -3073,6 +3072,8 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
             node_count = node_count_new;
         }
+
+        last_event.wait_and_throw();
 
         model_manager.add_tree_block(level_records, bin_borders_host_, iter_tree_count);
 
