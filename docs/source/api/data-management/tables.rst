@@ -77,16 +77,16 @@ An implementation of the :capterm:`data layout` concept.
 
    enum class data_layout { unknown, row_major, column_major };
 
-.. .. namespace:: oneapi::dal
-.. .. enum-class:: data_layout
+.. namespace:: oneapi::dal
+.. enum-class:: data_layout
 
-data_layout::unknown
+``data_layout::unknown``
    Represents the :capterm:`data layout` that is undefined or unknown at this moment.
 
-data_layout::row_major
+``data_layout::row_major``
    The data block elements are stored in raw-major layout.
 
-data_layout::column_major
+``data_layout::column_major``
    The data block elements are stored in column_major layout.
 
 .. _api_tables_feature_type:
@@ -100,25 +100,25 @@ An implementation of the logical data types.
 
    enum class feature_type { nominal, ordinal, interval, ratio };
 
-.. .. namespace:: oneapi::dal
-.. .. enum-class:: feature_type
+.. namespace:: oneapi::dal
+.. enum-class:: feature_type
 
-feature_type::nominal
+``feature_type::nominal``
    Represents the type of :capterm:`Nominal feature`.
 
-feature_type::ordinal
+``feature_type::ordinal``
    Represents the type of :capterm:`Ordinal feature`.
 
-feature_type::interval
+``feature_type::interval``
    Represents the type of :capterm:`Interval feature`.
 
-feature_type::ratio
+``feature_type::ratio``
    Represents the type of :capterm:`Ratio feature`.
 
 
 .. _api_tables_sparse_indexing:
 
-Sparse indexing
+Sparse Indexing
 ---------------
 
 An implementation of the sparse indexing formats.
@@ -127,13 +127,13 @@ An implementation of the sparse indexing formats.
 
    enum class sparse_indexing { zero_based, one_based };
 
-.. .. namespace:: oneapi::dal
-.. .. enum-class:: sparse_indexing
+.. namespace:: oneapi::dal
+.. enum-class:: sparse_indexing
 
-sparse_indexing::zero_based
+``sparse_indexing::zero_based``
    The indices of the sparse table are stored in zero-based format.
 
-sparse_indexing::one_based
+``sparse_indexing::one_based``
    The indices of the sparse table are stored in one-based format.
 
 .. toctree::

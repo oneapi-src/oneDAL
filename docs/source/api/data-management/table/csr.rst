@@ -17,17 +17,18 @@
 .. _api_csr_table:
 
 ==================================
-Compressed sparse rows (CSR) table
+Compressed Sparse Rows (CSR) Table
 ==================================
 
-Refer to :ref:`API Reference: Compressed sparse rows table <csr_table>`.
+Refer to :ref:`API Reference: Compressed Sparse Rows Table <csr_table>` to learn
+more.
 
 ---------------------
-Programming interface
+Programming Interface
 ---------------------
 
 All types and functions in this section are declared in the
-``oneapi::dal`` namespace and be available via inclusion of the
+``oneapi::dal`` namespace and available via the inclusion of the
 ``oneapi/dal/table/csr.hpp`` header file.
 
 .. onedal_class:: oneapi::dal::csr_table

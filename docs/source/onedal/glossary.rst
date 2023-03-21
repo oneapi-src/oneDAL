@@ -321,7 +321,7 @@ Graph analytics terms
         characteristics of a :capterm:`data format`.
     
     CSR data
-        A compressed sparse row (CSR) data is the sparse matrix representation.
+        A Compressed Sparse Row (CSR) data is the sparse matrix representation.
         Data with values of a single :capterm:`data type` and the same set of
         available operations defined on them. One of the characteristics of a
         :capterm:`data format`.
@@ -329,22 +329,23 @@ Graph analytics terms
         arrays.
         The arrays describe the sparse matrix :math:`A` as follows:
 
-        - The array values contains non-zero elements of the matrix row-by-row.
-        - The j-th element of the array ``columns_indices`` encodes the column
-          index in the matrix :math:`A` for the j-th element of the array
-          values.
-        - The i-th element of the array ``row_offsets`` encodes the index in the
-          array values corresponding to the first non-zero element in rows
-          indexed i or greater. The last element in the array ``row_offsets``
-          encodes the number of non-zero elements in the matrix :math:`A`.
+        - The array values contain non-zero elements of the matrix row-by-row.
+        - The element number ``j`` of the ``columns_indices`` array encodes
+          the column index in the matrix :math:`A` for the jth element
+          of the array values.
+        - The element number ``i`` of the ``row_offsets`` array encodes
+          the index in the array values corresponding to the first non-zero
+          element in rows indexed ``i`` or greater.
+          The last element in the array ``row_offsets`` encodes the number
+          of non-zero elements in the matrix :math:`A`.
 
 .. figure:: ./images/zero-based-csr.png
   :width: 600
   :alt:
 
-  Compressed sparse row (CSR) data format with zero-based indexing
+  Compressed Sparse Row (CSR) data format with zero-based indexing.
 
-        The library supports zero-based and one-based indexing.
+        |short_name| supports zero-based and one-based indexing.
 
     Data format
         Representation of the internal structure of the data.

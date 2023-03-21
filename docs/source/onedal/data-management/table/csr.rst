@@ -17,17 +17,18 @@
 .. _csr_table:
 
 ==================================
-Compressed sparse rows (CSR) table
+Compressed Sparse Rows (CSR) Table
 ==================================
 
-Class ``csr_table`` is a subtype of a table type
+``csr_table`` class is a subtype of a table type,
 for which the following is true:
 
-- The data within the table are sparse and stored in 3-array format.
+- The data within the table is sparse and stored in a 3-array format.
 - All the columns have the same :capterm:`data type <Data type>`.
 
 ---------------------
-Programming interface
+Programming Interface
 ---------------------
 
-Refer to :ref:`API Reference: Compressed sparse rows table <api_csr_table>`.
+Refer to :ref:`API Reference: Compressed Sparse Rows Table <api_csr_table>`
+to learn more.
