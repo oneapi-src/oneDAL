@@ -28,10 +28,14 @@ namespace dal = oneapi::dal;
 namespace df = dal::decision_forest;
 
 void run(sycl::queue& q) {
-    const auto train_data_file_name = get_data_path("df_classification_train_data.csv");
-    const auto train_response_file_name = get_data_path("df_classification_train_label.csv");
-    const auto test_data_file_name = get_data_path("df_classification_test_data.csv");
-    const auto test_response_file_name = get_data_path("df_classification_test_label.csv");
+    // const auto train_data_file_name = get_data_path("df_classification_train_data.csv");
+    // const auto train_response_file_name = get_data_path("df_classification_train_label.csv");
+    // const auto test_data_file_name = get_data_path("df_classification_test_data.csv");
+    // const auto test_response_file_name = get_data_path("df_classification_test_label.csv");
+    const auto train_data_file_name = get_data_path("susy_train_data.csv");
+    const auto train_response_file_name = get_data_path("susy_train_label.csv");
+    const auto test_data_file_name = get_data_path("susy_test_data.csv");
+    const auto test_response_file_name = get_data_path("susy_test_label.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
     const auto y_train =
@@ -42,17 +46,12 @@ void run(sycl::queue& q) {
 
     const auto df_desc =
         df::descriptor<float, df::method::hist, df::task::classification>{}
-            .set_class_count(5)
-            .set_tree_count(10)
-            .set_features_per_node(x_train.get_column_count())
-            .set_min_observations_in_leaf_node(8)
-            .set_min_observations_in_split_node(16)
-            .set_min_weight_fraction_in_leaf_node(0.0)
-            .set_min_impurity_decrease_in_split_node(0.0)
-            .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
-            .set_variable_importance_mode(df::variable_importance_mode::mdi)
-            .set_infer_mode(df::infer_mode::class_responses | df::infer_mode::class_probabilities)
-            .set_voting_mode(df::voting_mode::weighted);
+            .set_class_count(2)
+            .set_tree_count(20)
+            .set_max_tree_depth(16)
+            //.set_splitter_mode(df::splitter_mode::random)
+            .set_features_per_node(0)
+            .set_observations_per_tree_fraction(1.0);
 
     try {
         const auto result_train = dal::train(q, df_desc, x_train, y_train);
