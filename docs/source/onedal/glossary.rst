@@ -339,12 +339,6 @@ Graph analytics terms
           The last element in the array ``row_offsets`` encodes the number
           of non-zero elements in the matrix :math:`A`.
 
-.. figure:: ./images/zero-based-csr.png
-  :width: 600
-  :alt:
-
-  Compressed Sparse Row (CSR) data format with zero-based indexing.
-
         |short_name| supports zero-based and one-based indexing.
 
     Data format
