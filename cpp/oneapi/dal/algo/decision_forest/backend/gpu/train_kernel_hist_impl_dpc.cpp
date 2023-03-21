@@ -1437,7 +1437,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                     auto list_ptr = list_host.get_data();
                     Index empty_count = 0;
                     for (Index i = 0; i < node_count; i++) {
-                        if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0) empty_count++;
+                        if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0 
+                            && list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_fid] != impl_const_t::bad_val_) empty_count++;
                     }
                     std::cout << "\t\t\t\t====> large_case: EMPTY_COUNT=" << empty_count << std::endl;
                 }
@@ -1463,7 +1464,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                     auto list_ptr = list_host.get_data();
                     Index empty_count = 0;
                     for (Index i = 0; i < node_count; i++) {
-                        if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0) empty_count++;
+                        if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0 
+                            && list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_fid] != impl_const_t::bad_val_) empty_count++;
                     }
                     std::cout << "\t\t\t\t====> small_case: EMPTY_COUNT=" << empty_count << std::endl;
                 }
