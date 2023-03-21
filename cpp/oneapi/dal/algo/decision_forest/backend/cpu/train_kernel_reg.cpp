@@ -90,6 +90,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         dal::detail::integral_cast<std::size_t>(desc.get_max_leaf_nodes());
     daal_parameter.maxBins = dal::detail::integral_cast<std::size_t>(desc.get_max_bins());
     daal_parameter.minBinSize = dal::detail::integral_cast<std::size_t>(desc.get_min_bin_size());
+    daal_parameter.useConstFeatures = desc.get_use_const_features();
 
     daal_parameter.resultsToCompute = static_cast<std::uint64_t>(desc.get_error_metric_mode());
 
