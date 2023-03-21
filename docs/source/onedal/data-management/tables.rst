@@ -116,7 +116,7 @@ Table types
 
    * - :txtref:`csr_table`
      - A sparse table that contains :term:`contiguous <Contiguous data>`
-       :term:`homogeneous <Homogeneous data>` data stored in
+       :term:`homogeneous <Homogeneous data>` data stored in a
        :term:`CSR <CSR data>` 3-array format.
 
 ---------------------

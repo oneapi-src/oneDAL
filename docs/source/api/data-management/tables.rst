@@ -77,9 +77,6 @@ An implementation of the :capterm:`data layout` concept.
 
    enum class data_layout { unknown, row_major, column_major };
 
-.. namespace:: oneapi::dal
-.. enum-class:: data_layout
-
 ``data_layout::unknown``
    Represents the :capterm:`data layout` that is undefined or unknown at this moment.
 
@@ -99,9 +96,6 @@ An implementation of the logical data types.
 ::
 
    enum class feature_type { nominal, ordinal, interval, ratio };
-
-.. namespace:: oneapi::dal
-.. enum-class:: feature_type
 
 ``feature_type::nominal``
    Represents the type of :capterm:`Nominal feature`.
@@ -126,9 +120,6 @@ An implementation of the sparse indexing formats.
 ::
 
    enum class sparse_indexing { zero_based, one_based };
-
-.. namespace:: oneapi::dal
-.. enum-class:: sparse_indexing
 
 ``sparse_indexing::zero_based``
    The indices of the sparse table are stored in zero-based format.
