@@ -92,7 +92,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto daal_responses = interop::convert_to_daal_table<Float>(responses);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
-    const bool is_dense{ data.get_kind() != dal::detail::csr_table::kind() };
+    const bool is_dense{ data.get_kind() != dal::csr_table::kind() };
     daal_svm::training::internal::KernelParameter daal_svm_parameter =
         create_daal_parameter<Task>(desc, is_dense);
 

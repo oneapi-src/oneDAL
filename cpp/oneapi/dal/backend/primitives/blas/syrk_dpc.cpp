@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/profiler.hpp"
-
 #include "oneapi/dal/backend/primitives/blas/syrk.hpp"
 #include "oneapi/dal/backend/primitives/blas/misc.hpp"
 
@@ -51,7 +50,8 @@ sycl::event syrk(sycl::queue& queue,
                  Float alpha,
                  Float beta,
                  const event_vector& deps) {
-    ONEDAL_PROFILER_TASK(syrk_kernel, queue);
+    ONEDAL_PROFILER_TASK(blas.syrk, queue);
+
     ONEDAL_ASSERT(a.get_dimension(1) == c.get_dimension(0));
     ONEDAL_ASSERT(c.get_dimension(0) == c.get_dimension(1));
     ONEDAL_ASSERT(c.has_mutable_data());

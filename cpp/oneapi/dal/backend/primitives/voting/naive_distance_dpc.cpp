@@ -16,6 +16,8 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
@@ -97,6 +99,8 @@ sycl::event naive_distance_voting<DistType, ClassType>::operator()(
     const ndview<DistType, 2>& distances,
     ndview<ClassType, 1>& results,
     const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(voting.distance, this->get_queue());
+
     const auto samples_count = results.get_dimension(0);
     auto p_slice = this->get_global_probas().get_row_slice(0, samples_count);
     return distance_voting_kernel(this->get_queue(), responses, distances, p_slice, results, deps);

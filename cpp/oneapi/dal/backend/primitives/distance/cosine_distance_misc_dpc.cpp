@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/distance/cosine_distance_misc.hpp"
 #include "oneapi/dal/backend/primitives/distance/squared_l2_distance_misc.hpp"
 
@@ -26,6 +28,8 @@ template <typename Float>
 inline sycl::event inverse_l2_norms(sycl::queue& q,
                                     ndview<Float, 1>& out,
                                     const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(distance.inverse_l2_norms, q);
+
     ONEDAL_ASSERT(out.has_mutable_data());
     return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
@@ -67,6 +71,8 @@ sycl::event finalize_cosine(sycl::queue& q,
                             const ndview<Float, 1>& inp2,
                             ndview<Float, 2>& out,
                             const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(distance.finalize_cosine, q);
+
     ONEDAL_ASSERT(inp1.has_data());
     ONEDAL_ASSERT(inp2.has_data());
     ONEDAL_ASSERT(out.has_mutable_data());

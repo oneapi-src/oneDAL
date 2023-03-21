@@ -61,7 +61,7 @@ void homogen_table::init_impl(const Policy& policy,
 }
 
 const void* homogen_table::get_data() const {
-    const auto& impl = detail::cast_impl<detail::homogen_table_iface>(*this);
+    const auto& impl = detail::cast_impl<const detail::homogen_table_iface>(*this);
     return impl.get_data().get_data();
 }
 
