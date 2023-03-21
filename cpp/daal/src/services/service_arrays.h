@@ -36,13 +36,13 @@ public:
 
     explicit DynamicArray(size_t size) { allocate(size); }
 
-    DynamicArray(DynamicArray && other) { moveImpl(other); }
+    DynamicArray(DynamicArray && other) { moveImpl(std::move(other)); }
 
     ~DynamicArray() { destroy(); }
 
     DynamicArray & operator=(DynamicArray && other)
     {
-        moveImpl(other);
+        moveImpl(std::move(other));
         return *this;
     }
 

@@ -35,7 +35,7 @@ namespace logistic_loss
 {
 namespace internal
 {
-template class DAAL_EXPORT LogLossKernelOneAPI<DAAL_FPTYPE, defaultDense>;
+template class LogLossKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 
 } // namespace internal
 } // namespace logistic_loss
