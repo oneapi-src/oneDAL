@@ -514,7 +514,11 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// RespHelperBase
+// RespHelperBase contains common elements needed to select and split data
+// Using CRTP, the base allows for certain templated functions to be polymorphic.
+// Specifically, those functions which generates splits for features.
+// It understands them through inheritance from UnorderedRespHelperBest, and is
+// then has different versions in UnorderedRespHelperRandom.
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, CpuType cpu, typename crtp>
 class RespHelperBase : public UnorderedRespHelperBest<algorithmFPType, cpu>
