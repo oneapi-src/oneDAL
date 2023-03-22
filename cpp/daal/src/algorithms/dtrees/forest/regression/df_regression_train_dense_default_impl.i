@@ -1366,12 +1366,12 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
                                                                                    const Parameter & par)
 {
     services::Status s;
-    if (par.splitter == decision_forest::training::splitter_mode::best)
+    if (par.splitter == decision_forest::training::splitterMode::best)
     {
         s = _compute<algorithmFPType, method, cpu, RespHelperBase<algorithmFPType, cpu, OrderedRespHelperBest<algorithmFPType, cpu> > >(
             pHostApp, x, y, w, m, res, par, par.memorySavingMode);
     }
-    else if (par.splitter == decision_forest::training::splitter_mode::random)
+    else if (par.splitter == decision_forest::training::splitterMode::random)
     {
         s = _compute<algorithmFPType, method, cpu, RespHelperBase<algorithmFPType, cpu, OrderedRespHelperRandom<algorithmFPType, cpu> > >(
             pHostApp, x, y, w, m, res, par, par.memorySavingMode || method == defaultDense);
