@@ -696,7 +696,8 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
         ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() >= node_count * ctx.class_count_);
     }
 
-    ONEDAL_ASSERT(level_node_list.get_list().get_count() >= node_count * impl_const_t::node_prop_count_);
+    ONEDAL_ASSERT(level_node_list.get_list().get_count() >=
+                  node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(left_child_imp_data_list.imp_list_.get_count() >=
                   node_count * impl_const_t::node_imp_prop_count_);
     if constexpr (std::is_same_v<Task, task::classification>) {

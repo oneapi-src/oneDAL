@@ -290,9 +290,26 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
                                 desc.get_observations_per_tree_fraction())
                           : 0;
 
-    // TODO : figure out the universal formula for distributed and batch mode
     // two buffers for row indices for each tree
     required_mem_size_for_one_tree += sizeof(Index) * ctx.selected_row_total_count_ * 2;
+    // The number of nodes for one tree
+    Index one_tree_node_count = std::pow(2, ctx.max_tree_depth_ + 2) - 1;
+    // node_lists for one tree and indices
+    required_mem_size_for_one_tree +=
+        sizeof(Index) * 4 * (impl_const_t::node_prop_count_ + 1) * one_tree_node_count;
+    // Selected features
+    required_mem_size_for_one_tree += sizeof(Index) * ctx.selected_ftr_count_ * one_tree_node_count;
+    // Random bin tresholds
+    required_mem_size_for_one_tree += sizeof(Float) * ctx.selected_ftr_count_ * one_tree_node_count;
+    // Impurity data for each node
+    required_mem_size_for_one_tree +=
+        sizeof(Float) * impl_const_t::node_imp_prop_count_ * one_tree_node_count;
+    // node_vs_tree_map_list_host structure
+    required_mem_size_for_one_tree += sizeof(Index) * one_tree_node_count;
+    // Impurity decrease list
+    if (ctx.mdi_required_) {
+        required_mem_size_for_one_tree += sizeof(Float) * one_tree_node_count;
+    }
 
     ctx.tree_in_block_ = de::integral_cast<Index>(available_mem_size_for_tree_block /
                                                   required_mem_size_for_one_tree);
@@ -1223,34 +1240,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     using bs_kernels_opt_t = train_splitter_sp_opt_impl<Float, Bin, Index, Task>;
     // no overflow check is required because of ctx.node_group_count_ and ctx.node_group_prop_count_ are small constants
 
-    {
-        std::cout << "\t\t\tBEFORE_WRAPPING INTO GROUP: Checking if empty nodes..." << std::endl;
-        auto list_host = node_list.to_host(queue_, deps);
-        auto list_ptr = list_host.get_data();
-        Index empty_count = 0;
-        for (Index i = 0; i < node_count; i++) {
-            if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0) empty_count++;
-        }
-        std::cout << "\t\t\t====> BEFORE_WRAPPING INTO GROUP: EMPTY_COUNT=" << empty_count << std::endl;
-    }
-
     node_list_t node_list_wrap(queue_, node_list, node_count);
     sycl::event last_event;
     { last_event = node_group_list_.filter(node_list_wrap, deps); }
     auto node_ind_list = node_group_list_.get_node_indices_list();
 
     auto node_grp_list = node_group_list_.get_list();
-
-    {
-        std::cout << "\t\t\tBEFORE LOOP OVER GROUPS: Checking if empty nodes..." << std::endl;
-        auto list_host = node_list.to_host(queue_, deps);
-        auto list_ptr = list_host.get_data();
-        Index empty_count = 0;
-        for (Index i = 0; i < node_count; i++) {
-            if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0) empty_count++;
-        }
-        std::cout << "\t\t\t====> BEFORE LOOP OVER GROUPS: EMPTY_COUNT=" << empty_count << std::endl;
-    }
 
     Index grp_node_count = 0;
     const Index max_ph_block_elem_count = ctx.max_part_hist_cumulative_size_ / sizeof(hist_type_t);
@@ -1262,10 +1257,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
 
         Index max_grp_block_count = node_group.get_max_row_block_count();
         Index grp_ind_ofs = node_group.get_node_indices_offset();
-        std::cout << "\t\t\t\tcomputing node_group_i=" << i << ", max_grp_block_count=" << max_grp_block_count << ", grp_ind_ofs=" << grp_ind_ofs << std::endl;
 
         if (max_grp_block_count > 1 || ctx.distr_mode_) {
-            std::cout << "\t\t\t\tdistr or big size case: " ;
             Index hist_prop_count = 0;
             if constexpr (std::is_same_v<task::classification, Task>) {
                 hist_prop_count = ctx.class_count_;
@@ -1303,14 +1296,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                              ? (ph_block_elem_count / max_ph_block_elem_count +
                                                 bool(ph_block_elem_count % max_ph_block_elem_count))
                                              : 1);
-            std::cout << " Preparations are done. Start to calculate blocks." << std::endl;
             Index block_node_count =
                 grp_node_count / ph_block_count + bool(grp_node_count % ph_block_count);
             for (Index block_ind_ofs = grp_ind_ofs; block_ind_ofs < grp_ind_ofs + grp_node_count;
                  block_ind_ofs += block_node_count) {
                 block_node_count =
                     std::min(block_node_count, grp_ind_ofs + grp_node_count - block_ind_ofs);
-                std::cout << "\t\t\t\tblock_node_count=" << block_node_count << ", block_ind_offset=" << block_ind_ofs << std::endl;
                 auto [node_hist_list, event] = ctx.distr_mode_
                                                    ? compute_histogram_distr(ctx,
                                                                              data,
@@ -1339,7 +1330,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                        { last_event });
                 last_event = event;
                 last_event.wait_and_throw();
-                std::cout << "\t\t\t\thistogram is computed." << std::endl;
                 {
                     if (ctx.splitter_mode_value_ == splitter_mode::best) {
                         if (ctx.use_private_mem_buf_) {
@@ -1397,24 +1387,13 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                     }
 
                     last_event.wait_and_throw();
-                    std::cout << "\t\t\t\tcompute_best(random)_split_by_histogram is done." << std::endl;
-                    std::cout << "\t\t\t\tBY_HIST: Checking if empty nodes..." << std::endl;
-                    auto list_host = node_list.to_host(queue_, { last_event });
-                    auto list_ptr = list_host.get_data();
-                    Index empty_count = 0;
-                    for (Index i = 0; i < node_count; i++) {
-                        if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0) empty_count++;
-                    }
-                    std::cout << "\t\t\t\t====> BY_HIST: EMPTY_COUNT=" << empty_count << std::endl;
                 }
             }
         }
         else {
-            std::cout << "\t\t\t\tsingle pass case: ";
             if (ctx.splitter_mode_value_ == splitter_mode::best) {
                 Index max_row_count = node_group.get_max_row_count();
                 if (max_row_count > node_t::get_elementary_node_max_row_count()) {
-                    std::cout << "large best case. max_row_count=" << max_row_count << ", grp_node_count=" << grp_node_count << std::endl;
                     last_event =
                         bs_kernels_opt_t::best_split_single_pass_large(queue_,
                                                                        ctx,
@@ -1432,18 +1411,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                        update_imp_dec_required,
                                                                        grp_node_count,
                                                                        { last_event });
-                    std::cout << "\t\t\t\tLARGE CASE: Checking if empty nodes..." << std::endl;
-                    auto list_host = node_list.to_host(queue_, { last_event });
-                    auto list_ptr = list_host.get_data();
-                    Index empty_count = 0;
-                    for (Index i = 0; i < node_count; i++) {
-                        if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0 
-                            && list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_fid] != impl_const_t::bad_val_) empty_count++;
-                    }
-                    std::cout << "\t\t\t\t====> large_case: EMPTY_COUNT=" << empty_count << std::endl;
                 }
                 else {
-                    std::cout << "small best case. max_row_count=" << max_row_count << ", node_group.get_node_count()= " << node_group.get_node_count() << std::endl;
                     last_event =
                         bs_kernels_opt_t::best_split_single_pass_small(queue_,
                                                                        ctx,
@@ -1459,20 +1428,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                        node_imp_decrease_list,
                                                                        update_imp_dec_required,
                                                                        { last_event });
-                    std::cout << "\t\t\t\tSMALL CASE: Checking if empty nodes..." << std::endl;
-                    auto list_host = node_list.to_host(queue_, { last_event });
-                    auto list_ptr = list_host.get_data();
-                    Index empty_count = 0;
-                    for (Index i = 0; i < node_count; i++) {
-                        if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0 
-                            && list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_fid] != impl_const_t::bad_val_) empty_count++;
-                    }
-                    std::cout << "\t\t\t\t====> small_case: EMPTY_COUNT=" << empty_count << std::endl;
                 }
             }
             else {
                 // Random splitting
-                std::cout << "single pass random case." << std::endl;
                 last_event = bs_kernels_opt_t::random_split_single_pass(queue_,
                                                                         ctx,
                                                                         data,
@@ -1493,7 +1452,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
             }
 
             last_event.wait_and_throw();
-            std::cout << "\t\t\t\tsingle pass case is finished." << std::endl;
         }
     }
     return last_event;
@@ -2933,7 +2891,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     for (Index iter = 0; iter < ctx.tree_count_; iter += ctx.tree_in_block_) {
         Index iter_tree_count = std::min(ctx.tree_count_ - iter, ctx.tree_in_block_);
-        std::cout << "building iter_tree_count=" << iter_tree_count << std::endl;
 
         Index node_count = iter_tree_count; // num of potential nodes to split on current tree level
         auto oob_row_count_list =
@@ -3003,8 +2960,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
             event.wait_and_throw();
         }
 
-        std::cout << "initial preparation for first level is finished. Start level processing" << std::endl;
-
         for (Index level = 0; node_count > 0; ++level) {
             auto node_list = level_node_lists[level];
             imp_data_t left_child_imp_data(queue_, ctx, node_count);
@@ -3012,7 +2967,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
             auto [selected_features_com, event] =
                 gen_feature_list(ctx, node_count, node_vs_tree_map_list, engine_arr);
             event.wait_and_throw();
-            std::cout << "\tfeatures generated. level=" << level << " node_count=" << node_count;
 
             auto [random_bins_com, gen_bins_event] =
                 gen_random_tresholds(ctx, node_count, node_vs_tree_map_list, engine_arr);
@@ -3022,7 +2976,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                 node_imp_decrease_list =
                     pr::ndarray<Float, 1>::empty(queue_, { node_count }, alloc::device);
             }
-            std::cout << ", random tresholds are generated. ctx.mdi_required_=" << ctx.mdi_required_ << ". done." << std::endl;
             last_event = compute_best_split(ctx,
                                             full_data_nd_,
                                             response_nd_,
@@ -3038,19 +2991,12 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                             node_count,
                                             { last_event });
             last_event.wait_and_throw();
-            std::cout << "\tcompute_best_split finished." << std::endl;
 
             tree_level_record_t level_record(queue_,
                                              node_list,
                                              imp_data_holder.get_data(level),
                                              node_count,
                                              ctx);
-            std::cout << "\tChecking if row_count==0 in any node...";
-            Index empty_count = 0;
-            for (Index i = 0; i < level_record.get_node_count(); i++) {
-                if (level_record.get_row_count(i) == 0) empty_count++;
-            }
-            std::cout << " ========> EMPTY_COUNT=" << empty_count << std::endl;
             level_records.push_back(level_record);
 
             if (ctx.mdi_required_) {
@@ -3070,8 +3016,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                                                      node_count_new,
                                                                      { last_event });
             last_event.wait_and_throw();
-
-            std::cout << "\tlevel recorded. need new level? node_count_new=" << node_count_new << std::endl;
 
             if (node_count_new) {
                 //there are split nodes -> next level is required
@@ -3100,17 +3044,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                             { last_event });
                     last_event.wait_and_throw();
                 }
-                std::cout << "\t\tpreparation for new level are done. do_node_split started" << std::endl;
-                {
-                    std::cout << "\t\tDO_NODE_SPLIT: Checking if empty nodes..." << std::endl;
-                    auto list_host = node_list.to_host(queue_, { last_event });
-                    auto list_ptr = list_host.get_data();
-                    Index empty_count = 0;
-                    for (Index i = 0; i < node_count; i++) {
-                        if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0) empty_count++;
-                    }
-                    std::cout << "\t\t====> DO_NODE_SPLIT: EMPTY_COUNT=" << empty_count << std::endl;
-                }
                 last_event = do_node_split(ctx,
                                            node_list,
                                            node_vs_tree_map_list,
@@ -3123,19 +3056,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                            node_count_new,
                                            { last_event });
                 last_event.wait_and_throw();
-                {
-                    std::cout << "\t\tAFTER_DO_NODE_SPLIT: Checking if empty nodes..." << std::endl;
-                    auto list_host = node_list_new.to_host(queue_, { last_event });
-                    auto list_ptr = list_host.get_data();
-                    Index empty_count = 0;
-                    for (Index i = 0; i < node_count; i++) {
-                        if (list_ptr[i * impl_const_t::node_prop_count_ + impl_const_t::ind_grc] == 0) empty_count++;
-                    }
-                    std::cout << "\t\t====> AFTER_DO_NODE_SPLIT: EMPTY_COUNT=" << empty_count << std::endl;
-                }
-                std::cout << "\t\tdo_node_split is finished" << std::endl;
                 if (ctx.max_tree_depth_ > 0 && ctx.max_tree_depth_ == level) {
-                    std::cout << "\t\t\tLAST LEVEL: recording level and finilizing." << std::endl;
                     tree_level_record_t level_record(queue_,
                                                      node_list_new,
                                                      imp_data_holder.get_data(level + 1),
@@ -3168,10 +3089,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
             node_count = node_count_new;
             last_event.wait_and_throw();
         }
-        std::cout << "\tall levels are calculated" << std::endl;
-        std::cout << "\tadd tree block to model manager... ";
         model_manager.add_tree_block(level_records, bin_borders_host_, iter_tree_count);
-        std::cout << "\tDONE_______________________________." << std::endl;
         for (Index tree_idx = 0; tree_idx < iter_tree_count; ++tree_idx) {
             compute_results(ctx,
                             model_manager,
@@ -3189,7 +3107,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                             { last_event })
                 .wait_and_throw();
         }
-        std::cout << "\tcomputation for this tree block is done." << std::endl;
     }
 
     // Finalize results
