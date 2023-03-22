@@ -435,7 +435,11 @@ void OrderedRespHelperBest<algorithmFPType, cpu>::checkImpurityInternal(const In
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// RespHelperBase
+// RespHelperBase contains common elements needed to select and split data
+// Using CRTP, the base allows for certain templated functions to be polymorphic.
+// Specifically, those functions which generates splits for features.
+// It understands them through inheritance from OrderedRespHelperBest, and is
+// then has different versions in OrderedRespHelperRandom.
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, CpuType cpu, typename crtp>
 class RespHelperBase : public OrderedRespHelperBest<algorithmFPType, cpu>
