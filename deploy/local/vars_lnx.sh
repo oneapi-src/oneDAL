@@ -44,11 +44,12 @@
 #   /script/absolute/pathname
 
 #check if ONEAPI_ROOT is defined
-#if [ -n "${ONEAPI_ROOT:-}" ] ; then
-  #export DAALROOT=$ONEAPI_ROOT
-  #export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
-  #exit 0
-#fi
+if [ -n "${ONEAPI_ROOT:-}" ] ; then
+  export DAALROOT=$ONEAPI_ROOT
+  export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
+  echo "test"
+  exit 0
+fi
 
 echo "Test of the first line"
 
