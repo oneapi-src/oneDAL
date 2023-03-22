@@ -73,14 +73,14 @@ struct ColIndexTask
             entry.numIndices = 1;
             for (size_t i = 0; i < nRows; ++i) aRes[i] = 0;
 
-            if(binLabels)
+            if (binLabels)
             {
                 s |= entry.allocBorders();
                 DAAL_CHECK(s, s);
-                entry.min = index[0].key;
+                entry.min           = index[0].key;
                 entry.binBorders[0] = index[nRows - 1].key;
             }
-            
+
             return s;
         }
         IndexType iUnique    = 0;
@@ -101,21 +101,20 @@ struct ColIndexTask
         entry.numIndices = iUnique;
         if (maxNumDiffValues < iUnique) maxNumDiffValues = iUnique;
 
-        if(binLabels)
+        if (binLabels)
         {
             s |= entry.allocBorders();
-            
+
             IndexType iUnique    = 0;
             algorithmFPType prev = index[0].key;
-            entry.min = prev;
-            entry.binBorders[0] = prev;
-
+            entry.min            = prev;
+            entry.binBorders[0]  = prev;
 
             for (size_t i = 1; i < nRows; ++i)
             {
                 if (index[i].key != prev)
                 {
-                    prev = index[i].key;
+                    prev                        = index[i].key;
                     entry.binBorders[++iUnique] = prev;
                 }
             }

@@ -867,7 +867,7 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     }
 
     //randomly select a histogram split index
-    if(featureUnordered)
+    if (featureUnordered)
     {
         RNGs<size_t, cpu> rng;
         rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
@@ -878,8 +878,8 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
         algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
         algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
         size_t mid;
-        size_t l   = minidx;
-        idx = maxidx;
+        size_t l = minidx;
+        idx      = maxidx;
         RNGs<algorithmFPType, cpu> rng;
         rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
 

@@ -1022,7 +1022,6 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int 
 
     if (split.featureUnordered)
     {
-
         RNGs<size_t, cpu> rng;
         rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
         //iterate idx down for FinalizeBestSplit (since it splits leftward)
@@ -1039,14 +1038,13 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int 
     }
     else
     {
-
         //randomly select a histogram split index
         algorithmFPType fidx   = 0;
         algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
         algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
         size_t mid;
-        size_t l   = minidx;
-        idx = maxidx;
+        size_t l = minidx;
+        idx      = maxidx;
         RNGs<algorithmFPType, cpu> rng;
         rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
 
@@ -1209,7 +1207,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
 
-    if(split.featureUnordered)
+    if (split.featureUnordered)
     {
         //randomly select a histogram split index
         RNGs<size_t, cpu> rng;
@@ -1221,8 +1219,8 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
         algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
         algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
         size_t mid;
-        size_t l   = minidx;
-        idx = maxidx;
+        size_t l = minidx;
+        idx      = maxidx;
         RNGs<algorithmFPType, cpu> rng;
         rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
 

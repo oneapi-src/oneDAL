@@ -72,13 +72,10 @@ training::ResultPtr trainModel() {
     algorithm.input.set(training::dependentVariable, trainDependentVariable);
 
     algorithm.parameter().nTrees = nTrees;
-    algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDI;//A_Raw;
-    //algorithm.parameter().resultsToCompute =
-    //    daal::algorithms::decision_forest::training::computeOutOfBagError |
-    //    daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
-    algorithm.parameter().bootstrap = false;
-    algorithm.parameter().splitter = algorithms::decision_forest::training::random;
-    algorithm.parameter().memorySavingMode = true;
+    algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDA_Raw;
+    algorithm.parameter().resultsToCompute =
+        daal::algorithms::decision_forest::training::computeOutOfBagError |
+        daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
 
     /* Build the decision forest regression model */
     algorithm.compute();
@@ -87,10 +84,10 @@ training::ResultPtr trainModel() {
     training::ResultPtr trainingResult = algorithm.getResult();
     printNumericTable(trainingResult->get(training::variableImportance),
                       "Variable importance results: ");
-    //printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
-    //printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation),
-    //                  "OOB error per observation (first 10 rows):",
-    //                  10);
+    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
+    printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation),
+                      "OOB error per observation (first 10 rows):",
+                      10);
     return trainingResult;
 }
 
