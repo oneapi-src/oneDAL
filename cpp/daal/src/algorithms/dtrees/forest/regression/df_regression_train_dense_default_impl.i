@@ -852,6 +852,7 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
 
     size_t minidx = 0;
     size_t maxidx = nDiffFeatMax - 1;
+    size_t idx;
 
     for (; (minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx]); minidx++)
         ;
@@ -866,25 +867,33 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     }
 
     //randomly select a histogram split index
-    algorithmFPType fidx   = 0;
-    algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
-    algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
-    size_t mid;
-    size_t l   = minidx;
-    size_t idx = maxidx;
-    RNGs<algorithmFPType, cpu> rng;
-    rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
-
-    while (l < idx)
+    if(featureUnordered)
     {
-        mid = l + (idx - l) / 2;
-        if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
+        RNGs<size_t, cpu> rng;
+        rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
+    }
+    else
+    {
+        algorithmFPType fidx   = 0;
+        algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
+        algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
+        size_t mid;
+        size_t l   = minidx;
+        idx = maxidx;
+        RNGs<algorithmFPType, cpu> rng;
+        rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
+
+        while (l < idx)
         {
-            idx = mid;
-        }
-        else
-        {
-            l = mid + 1;
+            mid = l + (idx - l) / 2;
+            if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
+            {
+                idx = mid;
+            }
+            else
+            {
+                l = mid + 1;
+            }
         }
     }
 
@@ -1079,7 +1088,7 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
     split.totalWeights     = totalWeights;
     split.left.var /= (isPositive<algorithmFPType, cpu>(split.leftWeights) ? split.leftWeights : 1.);
     split.iStart       = 0;
-    split.featureValue = featureVal[iBest - 1];
+    split.featureValue = idx;
     return true;
 }
 

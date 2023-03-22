@@ -131,7 +131,6 @@ public:
     ModelFPType min(size_t iCol) const
     {
         DAAL_ASSERT(isBinned(iCol));
-        DAAL_ASSERT(iBin < numIndices(iCol));
         return _entries[iCol].min;
     }
 

@@ -826,7 +826,7 @@ int RespHelperBase<algorithmFPType, cpu, crtp>::findSplitFewClassesDispatch(int 
                                                                             const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
                                                                             const IndexType iFeature) const
 {
-    DAAL_ASSERT(this->_nClasses <= _nClassesThreshold);
+    DAAL_ASSERT(this->_nClasses <= this->_nClassesThreshold);
     switch (this->_nClasses)
     {
     case 2:
@@ -1007,6 +1007,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int 
 
     size_t minidx = 0;
     size_t maxidx = nDiffFeatMax - 1;
+    size_t idx;
 
     for (; (minidx < maxidx) && isZero<IndexType, cpu>(nFeatIdx[minidx]); minidx++)
         ;
@@ -1019,35 +1020,15 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int 
         || ((n - nFeatIdx[minidx]) < nMinSplitPart) || ((totalWeights - featWeights[minidx]) < minWeightLeaf))
         return idxFeatureBestSplit;
 
-    //randomly select a histogram split index
-    algorithmFPType fidx   = 0;
-    algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
-    algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
-    size_t mid;
-    size_t l   = minidx;
-    size_t idx = maxidx;
-    RNGs<algorithmFPType, cpu> rng;
-    rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
-
-    while (l < idx)
-    {
-        mid = l + (idx - l) / 2;
-        if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
-        {
-            idx = mid;
-        }
-        else
-        {
-            l = mid + 1;
-        }
-    }
-
-    //iterate idx down for FinalizeBestSplit (since it splits leftward)
-    for (; (minidx < idx) && isZero<IndexType, cpu>(nFeatIdx[idx]); idx--)
-        ;
-
     if (split.featureUnordered)
     {
+
+        RNGs<size_t, cpu> rng;
+        rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
+        //iterate idx down for FinalizeBestSplit (since it splits leftward)
+        for (; (minidx < idx) && isZero<IndexType, cpu>(nFeatIdx[idx]); idx--)
+            ;
+
         nLeft       = nFeatIdx[idx];
         leftWeights = featWeights[idx];
 
@@ -1058,6 +1039,34 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int 
     }
     else
     {
+
+        //randomly select a histogram split index
+        algorithmFPType fidx   = 0;
+        algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
+        algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
+        size_t mid;
+        size_t l   = minidx;
+        idx = maxidx;
+        RNGs<algorithmFPType, cpu> rng;
+        rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
+
+        while (l < idx)
+        {
+            mid = l + (idx - l) / 2;
+            if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
+            {
+                idx = mid;
+            }
+            else
+            {
+                l = mid + 1;
+            }
+        }
+
+        //iterate idx down for FinalizeBestSplit (since it splits leftward)
+        for (; (minidx < idx) && isZero<IndexType, cpu>(nFeatIdx[idx]); idx--)
+            ;
+
         for (size_t i = minidx; i <= idx; ++i)
         {
             if (isZero<IndexType, cpu>(nFeatIdx[i])) continue;
@@ -1128,6 +1137,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
 
     size_t minidx = 0;
     size_t maxidx = nDiffFeatMax;
+    size_t idx;
 
     //solve for the min and max indices of the histogram with data
     //when it comes across a nonzero bin, it will run the next step in prepping histLeft and nLeft
@@ -1199,26 +1209,34 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
 
     DAAL_ASSERT(minidx < maxidx); //if the if statement after minidx search doesn't activate, we have an issue.
 
-    //randomly select a histogram split index
-    algorithmFPType fidx   = 0;
-    algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
-    algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
-    size_t mid;
-    size_t l   = minidx;
-    size_t idx = maxidx;
-    RNGs<algorithmFPType, cpu> rng;
-    rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
-
-    while (l < idx)
+    if(split.featureUnordered)
     {
-        mid = l + (idx - l) / 2;
-        if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
+        //randomly select a histogram split index
+        RNGs<size_t, cpu> rng;
+        rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
+    }
+    else
+    {
+        algorithmFPType fidx   = 0;
+        algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
+        algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
+        size_t mid;
+        size_t l   = minidx;
+        idx = maxidx;
+        RNGs<algorithmFPType, cpu> rng;
+        rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
+
+        while (l < idx)
         {
-            idx = mid;
-        }
-        else
-        {
-            l = mid + 1;
+            mid = l + (idx - l) / 2;
+            if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
+            {
+                idx = mid;
+            }
+            else
+            {
+                l = mid + 1;
+            }
         }
     }
 
@@ -1441,7 +1459,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(co
 #ifdef DEBUG_CHECK_IMPURITY
         checkImpurity(aIdx, split.nLeft, split.left);
 #endif
-        split.featureValue = featureVal[iBest - 1];
+        split.featureValue = idx;
         split.iStart       = 0;
         DAAL_ASSERT(split.nLeft >= nMinSplitPart);
         DAAL_ASSERT((n - split.nLeft) >= nMinSplitPart);

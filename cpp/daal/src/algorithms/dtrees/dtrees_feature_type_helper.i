@@ -58,9 +58,10 @@ struct ColIndexTask
     virtual services::Status makeIndex(NumericTable & nt, IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t iCol, size_t nRows,
                                        bool bUnorderedFeature)
     {
-        return this->makeIndexDefault(nt, entry, aRes, iCol, nRows, bUnorderedFeature);
+        return this->template makeIndexDefault<false>(nt, entry, aRes, iCol, nRows, bUnorderedFeature);
     }
 
+    template <bool binLabels>
     services::Status makeIndexDefault(NumericTable & nt, IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t iCol, size_t nRows,
                                       bool bUnorderedFeature)
     {
@@ -71,6 +72,15 @@ struct ColIndexTask
         {
             entry.numIndices = 1;
             for (size_t i = 0; i < nRows; ++i) aRes[i] = 0;
+
+            if(binLabels)
+            {
+                s |= entry.allocBorders();
+                DAAL_CHECK(s, s);
+                entry.min = index[0].key;
+                entry.binBorders[0] = index[nRows - 1].key;
+            }
+            
             return s;
         }
         IndexType iUnique    = 0;
@@ -90,6 +100,27 @@ struct ColIndexTask
         ++iUnique;
         entry.numIndices = iUnique;
         if (maxNumDiffValues < iUnique) maxNumDiffValues = iUnique;
+
+        if(binLabels)
+        {
+            s |= entry.allocBorders();
+            
+            IndexType iUnique    = 0;
+            algorithmFPType prev = index[0].key;
+            entry.min = prev;
+            entry.binBorders[0] = prev;
+
+
+            for (size_t i = 1; i < nRows; ++i)
+            {
+                if (index[i].key != prev)
+                {
+                    prev = index[i].key;
+                    entry.binBorders[++iUnique] = prev;
+                }
+            }
+        }
+
         return services::Status();
     }
 
@@ -196,7 +227,7 @@ template <typename IndexType, typename algorithmFPType, CpuType cpu>
 services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(NumericTable & nt, IndexedFeatures::FeatureEntry & entry,
                                                                               IndexType * aRes, size_t iCol, size_t nRows, bool bUnorderedFeature)
 {
-    if (bUnorderedFeature || nRows <= _prm.maxBins) return this->makeIndexDefault(nt, entry, aRes, iCol, nRows, bUnorderedFeature);
+    if (bUnorderedFeature || nRows <= _prm.maxBins) return this->template makeIndexDefault<true>(nt, entry, aRes, iCol, nRows, bUnorderedFeature);
 
     Status s = this->getSorted(nt, iCol, nRows);
     if (!s) return s;
