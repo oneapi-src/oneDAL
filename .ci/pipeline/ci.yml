@@ -341,7 +341,7 @@ jobs:
       conda activate CB
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       ret_code=0
-      python -m daal4py daal4py/examples/daal4py/run_examples.py
+      python -m daal4py daal4py/tests/run_examples.py
       ret_code=$(($ret_code + $?))
       python -m daal4py daal4py/examples/daal4py/sycl/sklearn_sycl.py
       ret_code=$(($ret_code + $?))
