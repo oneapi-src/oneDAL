@@ -290,12 +290,29 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
                                 desc.get_observations_per_tree_fraction())
                           : 0;
 
-    // TODO : figure out the universal formula for distributed and batch mode
     // two buffers for row indices for each tree
     required_mem_size_for_one_tree += sizeof(Index) * ctx.selected_row_total_count_ * 2;
 
     ctx.tree_in_block_ = de::integral_cast<Index>(available_mem_size_for_tree_block /
                                                   required_mem_size_for_one_tree);
+    // The number of nodes for one tree
+    Index one_tree_node_count = std::pow(2, ctx.max_tree_depth_ + 2) - 1;
+    // node_lists for one tree and indices
+    required_mem_size_for_one_tree +=
+        sizeof(Index) * 4 * (impl_const_t::node_prop_count_ + 1) * one_tree_node_count;
+    // Selected features
+    required_mem_size_for_one_tree += sizeof(Index) * ctx.selected_ftr_count_ * one_tree_node_count;
+    // Random bin tresholds
+    required_mem_size_for_one_tree += sizeof(Float) * ctx.selected_ftr_count_ * one_tree_node_count;
+    // Impurity data for each node
+    required_mem_size_for_one_tree +=
+        sizeof(Float) * impl_const_t::node_imp_prop_count_ * one_tree_node_count;
+    // node_vs_tree_map_list_host structure
+    required_mem_size_for_one_tree += sizeof(Index) * one_tree_node_count;
+    // Impurity decrease list
+    if (ctx.mdi_required_) {
+        required_mem_size_for_one_tree += sizeof(Float) * one_tree_node_count;
+    }
 
     if (ctx.tree_in_block_ <= 0) {
         // not enough memory even for one tree
