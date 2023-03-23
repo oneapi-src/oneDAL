@@ -92,6 +92,18 @@ voting_mode::weighted
 voting_mode::unweighted
    The final prediction is combined through a simple majority voting.
 
+`splitter_mode`
+~~~~~~~~~~~~~~~
+
+splitter_mode::best
+   The best splitting strategy chooses the best treshold for each feature while building trees 
+   in terms of impurity among all histogram bins and feature subsets.
+
+splitter_mode::random
+   The random splitting strategy chooses a random treshold for each feature while building trees
+   and selects the best feature in terms of impurity
+   computed for that random split from the feature subsets.
+
 Descriptor
 ++++++++++
 .. onedal_class:: oneapi::dal::decision_forest::descriptor

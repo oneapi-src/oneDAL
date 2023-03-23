@@ -174,6 +174,10 @@ public:
         return group_node_indices_offset_;
     }
 
+    const pr::ndarray<Index, 1>& get_node_indices_list() const {
+        return node_indices_list_;
+    }
+
     Index get_max_row_count() const {
         return max_row_count_;
     }
@@ -200,7 +204,8 @@ private:
                     const pr::ndarray<Index, 1>& node_indices_list,
                     Index idx,
                     Index total_group_count)
-            : idx_(idx) {
+            : node_indices_list_(node_indices_list),
+              idx_(idx) {
         ONEDAL_ASSERT(node_group_list.has_data());
         ONEDAL_ASSERT(node_indices_list.has_data());
         ONEDAL_ASSERT(idx_ >= 0);
@@ -223,6 +228,7 @@ private:
     }
 
 private:
+    const pr::ndarray<Index, 1> node_indices_list_;
     const Index* node_indices_list_ptr_;
 
     Index group_node_indices_offset_;
