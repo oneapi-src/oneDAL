@@ -616,8 +616,7 @@ protected:
     void chooseFeatures()
     {
         const size_t n    = nFeatures();
-        const size_t nGen = _nFeaturesPerNode;
-        // const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
+        const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
         *_numElems += n;
         RNGs<IndexType, cpu> rng;
         rng.drawKFromBufferWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), n);
@@ -1088,7 +1087,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
                                                                                              algorithmFPType totalWeights)
 {
     /* counter of the number of visited features, we visit _nFeaturesPerNode
-    *  depending on _par.useConstFeatures constant features can be skipped
+    *  depending on _useConstFeatures, constant features can be skipped
     */
     size_t nVisitedFeature = 0;
     /* total number of features */
@@ -1143,7 +1142,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
         const bool bUseIndexedFeatures =
             (!_par.memorySavingMode) && (algorithmFPType(n) > qMax * algorithmFPType(_helper.indexedFeatures().numIndices(iFeature)));
 
-        if (false && !_maxLeafNodes && !_useConstFeatures && !_par.memorySavingMode)
+        if (!_maxLeafNodes && !_useConstFeatures && !_par.memorySavingMode)
         {
             if (_aConstFeatureIdx[maxFeatures + iFeature] > 0) continue; //selected feature is known constant feature
             if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n))
@@ -1166,7 +1165,7 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
         {
             split.featureUnordered = _featHelper.isUnordered(iFeature);
             //index of best feature value in the array of sorted feature values
-            const int64_t idxFeatureValue =
+            const int idxFeatureValue =
                 _helper.findBestSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode, curImpurity, split,
                                                       _minWeightLeaf, totalWeights, _binIndex + _data->getNumberOfRows() * iFeature);
             if (idxFeatureValue < 0) continue;

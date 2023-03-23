@@ -25,7 +25,6 @@
 #define __SERVICE_RNG_H__
 
 #include "services/daal_defines.h"
-#include "src/services/service_defines.h"
 #include "src/externals/service_memory.h"
 #include "src/externals/service_rng_mkl.h"
 
