@@ -15,13 +15,14 @@ rem See the License for the specific language governing permissions and
 rem limitations under the License.
 rem ============================================================================
 
+setlocal
+rem check if ONEAPI_ROOT is defined
 if defined ONEAPI_ROOT (
     set "DAALROOT=%ONEAPI_ROOT%"
     set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
     exit /b 0
 )
 
-setlocal
 call:GetFullPath "%~dp0..\.."    DAAL
 call:GetFullPath "%~dp0..\.."    DAAL_UP_OLD
 
