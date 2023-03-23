@@ -229,11 +229,7 @@ public:
     std::int64_t get_min_bin_size() const;
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
-<<<<<<< HEAD
     splitter_mode get_splitter_mode() const;
-=======
-    bool get_use_const_features() const;
->>>>>>> fixup add useConstFeatures parameter to oneapi interface
     error_metric_mode get_error_metric_mode() const;
     variable_importance_mode get_variable_importance_mode() const;
 

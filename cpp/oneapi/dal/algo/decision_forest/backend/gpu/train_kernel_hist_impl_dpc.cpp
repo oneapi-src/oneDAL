@@ -173,7 +173,6 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
 
     ctx.bootstrap_ = desc.get_bootstrap();
     ctx.max_tree_depth_ = desc.get_max_tree_depth();
-    ctx.use_const_features_ = desc.get_use_const_features();
 
     ctx.splitter_mode_value_ = desc.get_splitter_mode();
     ctx.seed_ = desc.get_seed();
