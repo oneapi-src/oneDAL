@@ -78,7 +78,7 @@ public:
     /// @param[in] random_bins_com          a set of random (uniformly distributed) tresholds for each selected feature scaled at [0.0, 1.0]
     /// @param[in] bin_offset_list          an array of offsets for each bin
     /// @param[in] imp_data_list            an array of impurity data for each node
-    /// @param[in] nodeIndices              an array of node indices
+    /// @param[in] node_ind_list            an array of node indices
     /// @param[in] node_ind_ofs             a global offset for node indices
     /// @param[in] node_list                a node structure containing split information
     /// @param[in] left_child_imp_data_list an array of left child impurity values
@@ -94,7 +94,7 @@ public:
         const pr::ndarray<Float, 1>& random_bins_com,
         const pr::ndarray<Index, 1>& bin_offset_list,
         const imp_data_t& imp_data_list,
-        const pr::ndarray<Index, 1>& nodeIndices,
+        const pr::ndarray<Index, 1>& node_ind_list,
         Index node_ind_ofs,
         pr::ndarray<Index, 1>& node_list,
         imp_data_t& left_child_imp_data_list,

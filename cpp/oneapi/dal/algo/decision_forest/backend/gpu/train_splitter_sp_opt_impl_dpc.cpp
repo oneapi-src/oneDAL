@@ -202,9 +202,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                             sycl::reduce_over_group(item.get_group(),
                                                     bin < max_bin_count_among_ftrs ? bin : 0,
                                                     maximum<Index>());
-                        if (min_bin > max_bin) {
-                            continue;
-                        }
 
                         const Float rand_val = ftr_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
                         const Index random_bin_ofs =
