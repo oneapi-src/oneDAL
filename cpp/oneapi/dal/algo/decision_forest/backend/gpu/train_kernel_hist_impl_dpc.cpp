@@ -293,12 +293,10 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     // two buffers for row indices for each tree
     required_mem_size_for_one_tree += sizeof(Index) * ctx.selected_row_total_count_ * 2;
 
-    ctx.tree_in_block_ = de::integral_cast<Index>(available_mem_size_for_tree_block /
-                                                  required_mem_size_for_one_tree);
     // The number of nodes for one tree
-    Index one_tree_node_count = std::pow(2, ctx.max_tree_depth_ + 2) - 1;
+    std::uint64_t one_tree_node_count = std::pow(2, ctx.max_tree_depth_ + 2) - 1;
     // Number of groups while node processing
-    const Index group_count = node_group_list_t::get_count();
+    const std::uint64_t group_count = node_group_list_t::get_count();
     // node_lists for one tree
     required_mem_size_for_one_tree +=
         sizeof(Index) * group_count * (impl_const_t::node_prop_count_ + 1) * one_tree_node_count;
@@ -315,6 +313,9 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     if (ctx.mdi_required_) {
         required_mem_size_for_one_tree += sizeof(Float) * one_tree_node_count;
     }
+
+    ctx.tree_in_block_ = de::integral_cast<Index>(available_mem_size_for_tree_block /
+                                                  required_mem_size_for_one_tree);
 
     if (ctx.tree_in_block_ <= 0) {
         // not enough memory even for one tree
