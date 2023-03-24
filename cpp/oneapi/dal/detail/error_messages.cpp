@@ -205,6 +205,8 @@ MSG(hessian_is_not_provided, "Table withj hessian is missing");
 MSG(incorrect_output_table_size, "On of the tables sizes in result is not correct");
 MSG(regularization_coef_is_less_than_0,
     "L1 and L2 regularization coefs should not be less than zero");
+MSG(regularization_coef_is_nan_or_inf,
+    "L1 and L2 regularization coefs should be real decimal numbers")
 
 /* Jaccard */
 MSG(column_begin_gt_column_end, "Column begin is greater than column end")

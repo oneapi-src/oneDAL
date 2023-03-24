@@ -62,10 +62,9 @@ public:
             GENERATE_DATAFRAME(te::dataframe_builder{ p_ + 1, 1 }.fill_normal(-0.5, 0.5, 7777));
         auto resp = array<std::int32_t>::zeros(n_);
         auto* const ptr = resp.get_mutable_data();
-        for (std::int64_t i = 0; i < n_; ++i) {
-            ptr[i] = rnd() % 2;
-        }
-
+        std::generate(ptr, ptr + n_, [&]() {
+            return rnd() % 2;
+        });
         responses_ = de::homogen_table_builder{}.reset(resp, n_, 1).build();
         data_ = data_df.get_table(this->get_policy(), this->get_homogen_table_id());
         params_ = params_df.get_table(this->get_policy(), this->get_homogen_table_id());

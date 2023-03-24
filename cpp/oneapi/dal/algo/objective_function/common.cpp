@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/objective_function/common.hpp"
-// #include "oneapi/dal/algo/logloss_objective/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::objective_function::detail {
@@ -34,15 +33,8 @@ result_option_id get_hessian_id() {
 
 /*
 
-TODO
+TODO add packed_gradient and packed_hessian options
 
-result_option_id get_packed_gradient_id() {
-    return result_option_id{ result_option_id::make_by_index(3) };
-}
-
-result_option_id get_packed_hessian_id() {
-    return result_option_id{ result_option_id::make_by_index(4) };
-}
 */
 
 template <typename Task>
