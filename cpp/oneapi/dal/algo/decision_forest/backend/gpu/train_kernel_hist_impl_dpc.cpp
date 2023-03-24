@@ -297,9 +297,11 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
                                                   required_mem_size_for_one_tree);
     // The number of nodes for one tree
     Index one_tree_node_count = std::pow(2, ctx.max_tree_depth_ + 2) - 1;
-    // node_lists for one tree and indices
+    // Number of groups while node processing
+    const Index group_count = node_group_list_t::get_count();
+    // node_lists for one tree
     required_mem_size_for_one_tree +=
-        sizeof(Index) * 4 * (impl_const_t::node_prop_count_ + 1) * one_tree_node_count;
+        sizeof(Index) * group_count * (impl_const_t::node_prop_count_ + 1) * one_tree_node_count;
     // Selected features
     required_mem_size_for_one_tree += sizeof(Index) * ctx.selected_ftr_count_ * one_tree_node_count;
     // Random bin tresholds
@@ -3086,7 +3088,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                         { last_event });
                 }
             }
-
+            last_event.wait_and_throw();
             node_count = node_count_new;
         }
 
