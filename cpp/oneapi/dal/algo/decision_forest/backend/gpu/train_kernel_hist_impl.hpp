@@ -28,8 +28,8 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_feature_type.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_model_manager.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_impl.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_sp_opt_impl.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_splitter_impl.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_splitter_sp_opt_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -104,6 +104,12 @@ private:
         const pr::ndarray<Index, 1>& node_vs_tree_map,
         rng_engine_list_t& rng_engine_list);
 
+    std::tuple<pr::ndarray<Float, 1>, sycl::event> gen_random_tresholds(
+        const train_context_t& ctx,
+        Index node_count,
+        const pr::ndarray<Index, 1>& node_vs_tree_map,
+        rng_engine_list_t& rng_engine_list);
+
     sycl::event compute_initial_imp_for_node_list(const train_context_t& ctx,
                                                   imp_data_t& imp_data_list,
                                                   pr::ndarray<Index, 1>& node_list,
@@ -168,6 +174,7 @@ private:
                                    const pr::ndview<Float, 1>& response,
                                    const pr::ndarray<Index, 1>& tree_order,
                                    const pr::ndarray<Index, 1>& selected_ftr_list,
+                                   const pr::ndarray<Float, 1>& random_bins_com,
                                    const pr::ndarray<Index, 1>& bin_offset_list,
                                    const imp_data_t& imp_data_list,
                                    pr::ndarray<Index, 1>& node_list,
