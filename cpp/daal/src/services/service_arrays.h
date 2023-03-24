@@ -37,13 +37,13 @@ public:
 
     explicit DynamicArray(size_t size) { allocate(size); }
 
-    DynamicArray(DynamicArray && other) { moveImpl(move<cpu, DynamicArray>(other)); }
+    DynamicArray(DynamicArray && other) { moveImpl(forward<cpu, DynamicArray<T, Allocator, ConstructionPolicy, cpu>>(other)); }
 
     ~DynamicArray() { destroy(); }
 
     DynamicArray & operator=(DynamicArray && other)
     {
-        moveImpl(move<cpu, DynamicArray>(other));
+        moveImpl(forward<cpu, DynamicArray<T, Allocator, ConstructionPolicy, cpu>>(other));
         return *this;
     }
 
