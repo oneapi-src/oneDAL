@@ -69,13 +69,13 @@ public:
 
     /// Computing random split for `node_count` nodes using `selected_ftr_list`
     /// and `random_bins_com` values for splitting. Computes best split among randomly
-    /// selected tresholds for each node.
+    /// selected thresholds for each node.
     ///
     /// @param[in] queue                    sycl parallel queue
     /// @param[in] ctx                      a train context structure for GPU backend
     /// @param[in] node_hist_list           a pre-calculated histogram for each node
     /// @param[in] selected_ftr_list        a subset of feature indices selected for each node
-    /// @param[in] random_bins_com          a set of random (uniformly distributed) tresholds for each selected feature scaled at [0.0, 1.0]
+    /// @param[in] random_bins_com          a set of random (uniformly distributed) thresholds for each selected feature scaled at [0.0, 1.0]
     /// @param[in] bin_offset_list          an array of offsets for each bin
     /// @param[in] imp_data_list            an array of impurity data for each node
     /// @param[in] node_ind_list            an array of node indices

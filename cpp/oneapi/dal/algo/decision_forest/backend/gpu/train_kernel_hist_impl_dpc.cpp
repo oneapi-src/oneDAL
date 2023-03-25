@@ -504,12 +504,12 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
 
 template <typename Float, typename Bin, typename Index, typename Task>
 std::tuple<pr::ndarray<Float, 1>, sycl::event>
-train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_tresholds(
+train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_thresholds(
     const train_context_t& ctx,
     Index node_count,
     const pr::ndarray<Index, 1>& node_vs_tree_map,
     rng_engine_list_t& rng_engine_list) {
-    ONEDAL_PROFILER_TASK(gen_random_tresholds, queue_);
+    ONEDAL_PROFILER_TASK(gen_random_thresholds, queue_);
 
     ONEDAL_ASSERT(node_vs_tree_map.get_count() == node_count);
 
@@ -2952,7 +2952,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
             event.wait_and_throw();
 
             auto [random_bins_com, gen_bins_event] =
-                gen_random_tresholds(ctx, node_count, node_vs_tree_map_list, engine_arr);
+                gen_random_thresholds(ctx, node_count, node_vs_tree_map_list, engine_arr);
             gen_bins_event.wait_and_throw();
 
             if (ctx.mdi_required_) {
