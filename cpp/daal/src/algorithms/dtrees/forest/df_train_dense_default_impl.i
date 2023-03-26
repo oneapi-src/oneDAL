@@ -1069,7 +1069,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
         {
             st = services::Status(services::ErrorNullResult);
         }
-        
+
         featureValuesToBuf(iFeature, featBuf, aIdx, 2);
         if (featBuf[1] - featBuf[0] <= _accuracy) //all values of the feature are the same
             continue;
@@ -1130,7 +1130,6 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
 
     for (size_t i = 0; i < maxFeatures && nVisitedFeature < _nFeaturesPerNode; ++i)
     {
-
         /* draw a random sample without replacement */
         // based on Fisher Yates sampling
         // _aFeatureIdx has length of 2 * _maxFeatures
