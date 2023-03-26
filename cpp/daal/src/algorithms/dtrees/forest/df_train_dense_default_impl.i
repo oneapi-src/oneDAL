@@ -1144,7 +1144,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
         // assures uniform probability of all drawn numbers
 
         /* draw the i-th index of the sample */
-        int errorcode = rng.uniform(1, &swapIdx, _engineImpl->getState(), 0, maxFeatures - i);
+        int errorcode = rng.uniform(1, &swapIdx, _helper.engineImpl->getState(), 0, maxFeatures - i);
         if (errorcode)
         {
             st = services::Status(services::ErrorNullResult);
